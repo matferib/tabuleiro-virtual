@@ -7229,9 +7229,14 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
   }
 }
 
-std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas() const {
+std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaMontadasOuEntidadesSelecionadasMontadas() const {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return { IdCameraPresa() };
+    const auto* e1 = EntidadePrimeiraPessoa();
+    if (e1 == nullptr) { return  {}; }
+    std::vector<unsigned int> ids;
+    ids.push_back(e1->Id());
+    std::copy(e1->Proto().entidades_montadas().begin(), e1->Proto().entidades_montadas().end(), std::back_inserter(ids));
+    return ids;
   } else {
     return IdsEntidadesSelecionadasEMontadas();
   }

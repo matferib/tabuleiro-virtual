@@ -3240,7 +3240,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   }
   // Colisao: pega o menor dx, dy e dz entre todas as entidades (todas moverão isso).
   float dx = 0.0f, dy = 0.0f, dz = 0.0f;
-  const std::vector<unsigned int> ids = IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas();
+  const std::vector<unsigned int> ids = IdsPrimeiraPessoaMontadasOuEntidadesSelecionadasMontadas();
   Entidade* entidade_referencia = nullptr;
   if (ids.size() == 1) {
     entidade_referencia = BuscaEntidade(ids[0]);
