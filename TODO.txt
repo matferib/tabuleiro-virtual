@@ -1,6 +1,3 @@
-Modificadores de destreza para morto e inconsciente.
-Comando de dano por teclado nao gera desfazer??
-Montado nao funciona quando movimento é remoto.
 Conferir link no windows: parou de funcionar pro talko.
 Mobilidade: como diferenciar ataques de arco e magias de movimentacao?
 
