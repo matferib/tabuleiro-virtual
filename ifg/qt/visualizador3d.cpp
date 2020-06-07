@@ -1805,7 +1805,7 @@ std::vector<ent::TipoSalvacao> ComboParaSalvacoesFortes(const QComboBox* combo) 
   }
 }
 
-void LeDominioDoCombo(const QComboBox* combo, string* dominio) {
+void LeDominioOuEscolaDoCombo(const QComboBox* combo, string* dominio) {
   const std::string& id = combo->itemData(combo->currentIndex()).toString().toStdString();
   if (id == "nenhum") {
     dominio->clear();
@@ -1832,14 +1832,21 @@ void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntid
   for (auto ts : ComboParaSalvacoesFortes(gerador.combo_salvacoes_fortes)) {
     ic->add_salvacoes_fortes(ts);
   }
+  auto* fc = ent::FeiticosClasse(classe_tabelada.id(), proto_retornado);
   if (classe_tabelada.possui_dominio()) {
-    auto* fc = ent::FeiticosClasse(classe_tabelada.id(), proto_retornado);
     Redimensiona(2, fc->mutable_dominios());
     LeDominioDoCombo(gerador.combo_dominio_1, fc->mutable_dominios(0));
     LeDominioDoCombo(gerador.combo_dominio_2, fc->mutable_dominios(1));
   } else {
-    auto* fc = ent::FeiticosClasse(classe_tabelada.id(), proto_retornado);
     fc->clear_dominios();
+  }
+  if (gerador.combo_especializacao_escola->) {
+    Redimensiona(2, fc->escolas_proibidas());
+    LeDominioDoCombo(gerador.combo_escolas_proibidas_1, fc->mutable_escolas_proibidas(0));
+    LeDominioDoCombo(gerador.combo_escolas_proibidas_2, fc->mutable_escolas_proibidas(1));
+  } else {
+    fc->clear_escolas_proibidas();
+    fc->clear_especializacao();
   }
 
   ent::RecomputaDependencias(tabelas, proto_retornado);
@@ -1903,6 +1910,91 @@ void PreencheConfiguraCombosDominio(
       AtualizaUI(tabelas, gerador, *proto_retornado);
       combo->blockSignals(false);
     });
+    combo->setEnabled(false);
+  }
+}
+
+void PreencheConfiguraCombosEspecializacaoEscola(
+    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  std::vector<QComboBox*> combos = {gerador.combo_especializacao_escola, gerador.combo_escola_proibida_1, gerador.escola_proibida_2};
+  for (auto* combo : combos) {
+    combo->addItem(combo->tr("Nenhuma"), "nenhuma");
+    combo->insertSeparator(combo->count());
+
+    std::map<QString, std::string> escolas_ordenadas;
+    for (const auto& [nome, id]
+            : {{"abjuração", "abjuracao"},
+               {"adivinhação", "adivinhacao"},
+               {"conjuração", "conjuracao"},
+               {"encantamento", "encantamento"},
+               {"evocação", "evocacao"},
+               {"ilusão", "ilusao"},
+               {"necromancia", "necromancia"},
+               {"transmutação", "transmutacao"}}) {
+      escolas_ordenadas[combo->tr(nome.c_str())] = id;
+    }
+    combo->clear();
+    for (const auto& [nome, id] : escolas_ordenadas) {
+      combo->addItem(nome, QVariant(QString::fromStdString(id)));
+    }
+    ExpandeComboBox(combo);
+    if (combo == gerador.combo_especializacao_escola) {
+      lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
+        const int indice = gerador.lista_niveis->currentRow();
+        if (gerador.linha_classe->text().isEmpty()) {
+          return;
+        }
+        ent::InfoClasse* ic = (indice < 0 || indice >= proto_retornado->info_classes().size())
+            ? nullptr : proto_retornado->mutable_info_classes(indice);
+        if (ic == nullptr) {
+          // Pode acontecer quando a classe ainda nao foi adicionada.
+          combo->setToolTip("");
+          return;
+        }
+        combo->blockSignals(true);
+        auto* fc = ent::FeiticosClasse(ic->id(), proto_retornado);
+        QVariant data = combo->itemData(combo->currentIndex());
+        if (data == "nenhuma") {
+          fc->clear_especializacao_escola();
+        } else {
+          string id = data.toString().toStdString();
+          fc->set_especializacao_escola(id);
+        }
+        ent::RecomputaDependencias(tabelas, proto_retornado);
+        AtualizaUI(tabelas, gerador, *proto_retornado);
+        combo->blockSignals(false);
+      });
+    } else {
+      const int indice_escola_proibida = combo == gerador.combo_escola_proibida_1 ? 0 : 1;
+      lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, indice_escola_proibida, &tabelas, &gerador, proto_retornado] () {
+        const int indice = gerador.lista_niveis->currentRow();
+        if (gerador.linha_classe->text().isEmpty()) {
+          return;
+        }
+        ent::InfoClasse* ic = (indice < 0 || indice >= proto_retornado->info_classes().size())
+            ? nullptr : proto_retornado->mutable_info_classes(indice);
+        if (ic == nullptr) {
+          // Pode acontecer quando a classe ainda nao foi adicionada.
+          combo->setToolTip("");
+          return;
+        }
+        combo->blockSignals(true);
+        auto* fc = ent::FeiticosClasse(ic->id(), proto_retornado);
+        if (fc->escolas_proibidas().size() != 2) {
+          Redimensiona(2, fc->escolas_proibidas());
+        }
+        QVariant data = combo->itemData(combo->currentIndex());
+        if (data == "nenhuma") {
+          fc->mutable_escolas_proibidas(indice_escola_proibida)->clear();
+        } else {
+          string id = data.toString().toStdString();
+          *fc->mutable_escolas_proibidas(indice_escola_proibida) = id;
+        }
+        ent::RecomputaDependencias(tabelas, proto_retornado);
+        AtualizaUI(tabelas, gerador, *proto_retornado);
+        combo->blockSignals(false);
+      });
+    }
     combo->setEnabled(false);
   }
 }
@@ -2001,6 +2093,7 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
   PreencheConfiguraComboClasse(tabelas, gerador, proto_retornado);
   PreencheConfiguraComboRaca(tabelas, gerador, proto_retornado);
   PreencheConfiguraCombosDominio(tabelas, gerador, proto_retornado);
+  PreencheConfiguraCombosEspecializacaoEscola(tabelas, gerador, proto_retornado);
 
   PreencheComboSalvacoesFortes(gerador.combo_salvacoes_fortes);
   lambda_connect(gerador.combo_salvacoes_fortes, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {

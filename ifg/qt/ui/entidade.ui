@@ -2387,7 +2387,7 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="5">
+       <item row="2" column="0" colspan="4">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>Dados Nível</string>
@@ -2614,6 +2614,163 @@ QGroupBox::title {
              </widget>
             </item>
             <item>
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_87">
+              <property name="text">
+               <string>Especializaçao Escola</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="combo_especializacao_escola">
+              <item>
+               <property name="text">
+                <string>Nenhuma</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Abjuração</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Adivinhação</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Conjuração</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Evocação</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Encantamento</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Ilusão</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Necromancia</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Transmutação</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="combo_escola_proibida_1">
+              <item>
+               <property name="text">
+                <string>Nenhuma</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Abjuração</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Conjuração</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Evocação</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Encantamento</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Ilusão</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Necromancia</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Transmutação</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="combo_escola_proibida_2">
+              <item>
+               <property name="text">
+                <string>Nenhuma</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Abjuração</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Conjuração</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Evocação</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Encantamento</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Ilusão</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Necromancia</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Transmutação</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer_8">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -2650,7 +2807,7 @@ QGroupBox::title {
          </layout>
         </widget>
        </item>
-       <item row="3" column="4">
+       <item row="3" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_14">
          <item>
           <widget class="QPushButton" name="botao_adicionar_nivel">
@@ -2686,7 +2843,7 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="3" column="0" colspan="4">
+       <item row="3" column="0" colspan="3">
         <widget class="QListWidget" name="lista_niveis">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
