@@ -4120,7 +4120,7 @@ tabela_talentos {
     nome: 'Dominar Magia'
     nome_ingles: 'spell mastery'
     descricao: "Capaz de preparar magias escolhidas (bônus inteligência) sem um grimório."
-    pre_requisitos { nivel { id: 'mago' nivel: 1 } } # mago_necromante: 1 } }
+    pre_requisitos { nivel { id: 'mago' nivel: 1 } }
   }
   # Habilidade Forma Selvagem Capaz de lançar magias na forma selvagem
   talentos {
@@ -5956,6 +5956,31 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'abencoar_agura'
+    nome: 'abençoar água'
+    nome_ingles: 'bless water'
+    tempo_execucao_rodadas: 10
+    componente {
+      tipo: COMP_MATERIAL
+      custo { po: 25 }
+      descricao: '2,5kg de prata em pó'
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque Aliado'
+      alinhamento_bem_mal: DESC_BEM
+    }
+    escola: 'transmutacao'
+  }
+
+  armas {
     id: 'voo'
     nome: 'vôo'
     nome_ingles: 'fly'
@@ -7778,11 +7803,108 @@ tabela_feiticos {
     }
     escola: 'necromancia'
   }
+  armas {
+    id: 'palavra_caos'
+    nome_ingles: 'word of chaos'
+    nome: 'palavra do caos'
+    componente {
+      somatico: false
+      material: false
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 7
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 7
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal Dispersão Esfera'
+      cor: { r: 1.0 b: 1.0 g: 1.0 }
+      raio_quadrados: 8
+      efeito_area: true
+      duracao_s: 0.350
+      permite_salvacao: false
+      elemento: DESC_SONICO
+      alinhamento_ordem_caos: DESC_CAOS
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: 0  # nivel de conjurador ou menor.
+        efeito: EFEITO_ENSURDECIDO
+        dado_modificador_rodadas: '1d4'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
 
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -1  # nivel de conjurador -1.
+        efeito: EFEITO_ATORDOADO
+        rodadas: 1
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
+
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -5  # nivel de conjurador -5.
+        efeito: EFEITO_CONFUSAO
+        # 1d10 minutos.
+        dado_modificador_rodadas: '1d100'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
+
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -10  # nivel de conjurador -10.
+        efeito: EFEITO_MORTE
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
+
+        afeta_apenas: TIPO_MORTO_VIVO
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -10  # nivel de conjurador -10.
+        efeito: EFEITO_DESTRUICAO_MORTO_VIVO
+      }
+      # Tb bane extra planares nao caoticos se falhar salvacao -4 vontade.
+    }
+    escola: 'evocacao'
+  }
   armas {
     id: 'palavra_sagrada'
     nome_ingles: 'holy word'
     nome: 'palavra sagrada'
+    componente {
+      somatico: false
+      material: false
+    }
     info_classes {
       id: 'clerigo'
       nivel: 7
@@ -9897,6 +10019,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
+      alinhamento_bem_mal: DESC_BEM
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_MAL
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -9926,6 +10049,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
+      alinhamento_bem_mal: DESC_MAL
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_BEM
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -9955,6 +10079,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
+      alinhamento_ordem_caos: DESC_CAOS
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_ORDEM
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -9989,6 +10114,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
+      alinhamento_ordem_caos: DESC_LEAL
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_CAOS
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -12287,6 +12413,7 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: true
       duracao_s: 0.350
+      alinhamento_bem_mal: DESC_BEM
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_MAL
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -12322,6 +12449,7 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: true
       duracao_s: 0.350
+      alinhamento_bem_mal: DESC_MAL
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_BEM
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -12357,6 +12485,7 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: true
       duracao_s: 0.350
+      alinhamento_ordem_caos: DESC_LEAL
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_CAOS
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -12392,6 +12521,7 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: true
       duracao_s: 0.350
+      alinhamento_ordem_caos: DESC_CAOS
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_ORDEM
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -13395,6 +13525,7 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
       resultado_ao_salvar: RS_MEIO
+      alinhamento_ordem_caos: DESC_CAOS
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
         # Apenas em criaturas leais.
@@ -13403,7 +13534,37 @@ tabela_feiticos {
     }
     escola: 'evocacao'
   }
-
+  armas {
+    id: 'manto_caos'
+    nome: 'manto do caos'
+    nome_ingles: 'cloak of chaos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 8
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 8
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal Dispersão Esfera'
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      info_textura { id: 'rainbow.png' }
+      raio_quadrados: 4  # quadrados.
+      efeito_area: true
+      permite_salvacao: false 
+      duracao_s: 0.350
+      ignora_luz: false
+      alinhamento_ordem_caos: DESC_CAOS
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'manto do caos'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'abjuracao'
+  }
   armas {
     id: 'nuvem_profana'
     nome_ingles: 'unholy blight'
@@ -13631,6 +13792,10 @@ tabela_feiticos {
     id: 'palavra_poder_cegar'
     nome: 'palavra do poder: cegar'
     nome_ingles: 'power word blind'
+    componente {
+      somatico: false
+      material: false
+    }
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -13662,6 +13827,10 @@ tabela_feiticos {
     id: 'palavra_poder_atordoar'
     nome: 'palavra do poder: atordoar'
     nome_ingles: 'power word stun'
+    componente {
+      somatico: false
+      material: false
+    }
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -13692,6 +13861,10 @@ tabela_feiticos {
     id: 'palavra_poder_matar'
     nome: 'palavra do poder: matar'
     nome_ingles: 'power word kill'
+    componente {
+      somatico: false
+      material: false
+    }
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -13786,6 +13959,9 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal'
+      alinhamento_bem_mal: DESC_BEM
+      cor { r: 1 g: 1 b: 1 a: 1 }
+      ignora_luz: true
       efeitos_adicionais {
         efeito: EFEITO_DISSIPAR_MAL
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -13809,6 +13985,8 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal'
+      alinhamento_bem_mal: DESC_MAL
+      cor { r: 0 g: 0 b: 0 a: 1 }
       efeitos_adicionais {
         efeito: EFEITO_DISSIPAR_BEM
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -13832,6 +14010,9 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal'
+      alinhamento_ordem_caos: DESC_LEAL
+      cor { r: 0 g: 0 b: 1 }
+      ignora_luz: true
       efeitos_adicionais {
         efeito: EFEITO_DISSIPAR_CAOS
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -13855,6 +14036,9 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal'
+      cor { r: 1 g: 1 b: 0 a: 1 }
+      alinhamento_ordem_caos: DESC_CAOS
+      ignora_luz: true
       efeitos_adicionais {
         efeito: EFEITO_DISSIPAR_ORDEM
         modificador_rodadas: MR_RODADAS_NIVEL
