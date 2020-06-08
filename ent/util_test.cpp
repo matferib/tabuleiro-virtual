@@ -4102,6 +4102,28 @@ TEST(TesteModelo, TesteAbelhaGiganteCelestial) {
   auto abelha = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
   EXPECT_TRUE(abelha->TemTipoDnD(TIPO_BESTA_MAGICA));
   EXPECT_TRUE(abelha->TemSubTipoDnD(SUBTIPO_PLANAR));
+  ASSERT_EQ(abelha->NivelClasse("besta_magica"), 3);
+  ASSERT_EQ(abelha->Proto().tipo_visao(), VISAO_ESCURO);
+  ASSERT_FLOAT_EQ(abelha->Proto().alcance_visao_m(), 18.0f);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, abelha->Proto())), 3);
+}
+
+TEST(TesteModelo, TesteLoboAbissal) {
+  auto modelo = g_tabelas.ModeloEntidade("Lobo Abissal");
+  auto lobo = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  EXPECT_TRUE(lobo->TemTipoDnD(TIPO_BESTA_MAGICA));
+  EXPECT_TRUE(lobo->TemSubTipoDnD(SUBTIPO_PLANAR));
+  ASSERT_EQ(lobo->NivelClasse("besta_magica"), 2);
+  ASSERT_EQ(lobo->Proto().tipo_visao(), VISAO_ESCURO_E_BAIXA_LUMINOSIDADE);
+  ASSERT_FLOAT_EQ(lobo->Proto().alcance_visao_m(), 18.0f);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, lobo->Proto())), 3);
+}
+
+TEST(TesteModelo, TesteLeaoCelestial) {
+  auto modelo = g_tabelas.ModeloEntidade("Leão Celestial");
+  auto lc = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  ASSERT_EQ(lc->Proto().tipo_visao(), VISAO_ESCURO_E_BAIXA_LUMINOSIDADE);
+  ASSERT_FLOAT_EQ(lc->Proto().alcance_visao_m(), 18.0f);
 }
 
 TEST(TesteModelo, TestePlebeu1) {
@@ -4479,16 +4501,14 @@ TEST(TesteModelo, TesteModeloVulto) {
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 0);
 }
 
-TEST(TesteComposicaoEntidade, TesteCachorroCelestial) {
-  const auto& modelo_cc = g_tabelas.ModeloEntidade("Cachorro Celestial");
-  EntidadeProto proto = modelo_cc.entidade();
+TEST(TesteComposicaoEntidade, TesteComposicaoEntidade) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Gigante das Pedras, Ancião");
+  EntidadeProto proto = modelo.entidade();
   RecomputaDependencias(g_tabelas, &proto);
 
-  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 3);
-  EXPECT_EQ(Nivel(proto), 1);
-  ASSERT_EQ(proto.info_classes().size(), 1);
-  EXPECT_EQ(proto.info_classes(0).id(), "besta_magica");
-  EXPECT_EQ(proto.info_classes(0).nivel(), 1);
+  ASSERT_FALSE(proto.info_classes().empty());
+  EXPECT_EQ(proto.info_classes(0).nivel_conjurador(), 10);
+  EXPECT_EQ(proto.info_classes(0).atributo_conjuracao(), TA_CARISMA);
 }
 
 TEST(TesteComposicaoEntidade, TesteHumanaAristocrata6) {

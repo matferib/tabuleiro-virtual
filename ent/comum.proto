@@ -239,6 +239,8 @@ enum TipoVisao {
   VISAO_NORMAL = 0;
   VISAO_BAIXA_LUMINOSIDADE = 1;
   VISAO_ESCURO = 2;
+  // OR das duas.
+  VISAO_ESCURO_E_BAIXA_LUMINOSIDADE = 3;  // tem os 2 tipos.
 }
 
 enum TipoAtributo {

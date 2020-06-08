@@ -14835,7 +14835,11 @@ tabela_efeitos_modelos {
     nome: 'modelo celestial'
     desligavel: false
     consequencia {
-      # visao no escuro. 18m
+      tipo_visao: VISAO_ESCURO
+      alcance_visao_m: 18
+      atributos {
+        inteligencia { bonus_individual { tipo: TB_BASE por_origem { valor: 3 origem: 'celestial' } } }
+      }
       dados_defesa {
         resistencia_magia_variavel {
           bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'celestial' } }
@@ -14853,7 +14857,7 @@ tabela_efeitos_modelos {
           indice_complemento: 1
         }
       }
-      # reducao de dano: 4-11=5/magia, 12 em diante: 10/magia.
+      # hard coded: reducao de dano: 4-11=5/magia, 12 em diante: 10/magia.
 #      dados_ataque {
 #        rotulo: 'destruir o mal' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: ''
 #        taxa_refrescamento: '14400' # 1 dia
@@ -14870,7 +14874,11 @@ tabela_efeitos_modelos {
     nome: 'modelo abissal'
     desligavel: false
     consequencia {
-      # visao no escuro. 18m
+      tipo_visao: VISAO_ESCURO
+      alcance_visao_m: 18
+      atributos {
+        inteligencia { bonus_individual { tipo: TB_BASE por_origem { valor: 3 origem: 'celestial' } } }
+      }
       dados_defesa {
         resistencia_magia_variavel {
           bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'abissal' } }

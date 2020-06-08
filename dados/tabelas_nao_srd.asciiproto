@@ -289,7 +289,9 @@ tabela_efeitos_modelos {
         constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vulto' } } }
         carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vulto' } } }
       }
-      # visao no escuro. 18m
+      # Nao vai funcionar, modelo é desligavel.
+      tipo_visao: VISAO_ESCURO
+      alcance_visao_m: 18
       #dados_ataque {
       # reflexos 3/dia
       # invisibilidade a vontade

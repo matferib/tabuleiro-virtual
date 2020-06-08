@@ -157,6 +157,24 @@ void TalvezCorrijaTipoCelestialAbissal(EntidadeProto* proto) {
   if (!TemSubTipoDnD(SUBTIPO_PLANAR, *proto)) {
     proto->add_sub_tipo_dnd(SUBTIPO_PLANAR);
   }
+  for (auto& ic : *proto->mutable_info_classes()) {
+    if (ic.id() == "animal" || ic.id() == "verme") {
+      ic.set_id("besta_magica");
+    }
+  }
+}
+
+void TalvezCorrijaVisao(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (const auto& modelo : proto->modelos()) {
+    const auto& modelo_tabelado = tabelas.EfeitoModelo(modelo.id_efeito());
+    if (modelo_tabelado.desligavel()) continue;
+    if (modelo_tabelado.consequencia().has_tipo_visao()) {
+      proto->set_tipo_visao(static_cast<TipoVisao>(proto->tipo_visao() | modelo_tabelado.consequencia().tipo_visao()));
+    }
+    if (modelo_tabelado.consequencia().has_alcance_visao_m()) {
+      proto->set_alcance_visao_m(std::max(proto->alcance_visao_m(), modelo_tabelado.consequencia().alcance_visao_m()));
+    }
+  }
 }
 
 }  // namespace
@@ -170,6 +188,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // mantem o tipo.
   proto_ = novo_proto;
   TalvezCorrijaTipoCelestialAbissal(&proto_);
+  TalvezCorrijaVisao(tabelas_, &proto_);
   CorrigeCamposDeprecated(&proto_);
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.

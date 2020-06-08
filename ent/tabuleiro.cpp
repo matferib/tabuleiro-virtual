@@ -790,13 +790,13 @@ int Tabuleiro::Desenha() {
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   gl::TipoShader tipo_shader;
   auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
-  if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_ESCURO && visao_escuro_ &&
+  if (entidade_referencia != nullptr && entidade_referencia->PossuiVisaoEscuro() && visao_escuro_ &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_mapa_sombras(false);
     tipo_shader = gl::TSH_PRETO_BRANCO;
-  } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
+  } else if (entidade_referencia != nullptr && entidade_referencia->PossuiVisaoBaixaLuminosidade()) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_multiplicador_visao_penumbra(1.4f);
     tipo_shader = gl::TSH_LUZ;

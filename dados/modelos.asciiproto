@@ -326,12 +326,7 @@ modelo {
   id: 'Águia Celestial'
   entidade {
     modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
-    info_classes {
-      id: 'besta_magica'
-      combinar_com: 0
-    }
-    tipo_dnd: TIPO_BESTA_MAGICA
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    tendencia { simples: TD_CAOTICO_BOM }
   }
 }
 
@@ -379,12 +374,6 @@ modelo {
   entidade {
     modelos { id_efeito: EFEITO_MODELO_ABISSAL }
     tendencia { simples: TD_NEUTRO_MAU }
-    info_classes {
-      id: 'besta_magica'
-      combinar_com: 0
-    }
-    tipo_dnd: TIPO_BESTA_MAGICA
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
   }
 }
 
@@ -436,17 +425,7 @@ modelo {
   id: 'Cachorro Celestial'
   id_entidade_base: 'Cachorro'
   entidade {
-    # Complementos: 0: RM, 1: resistencia a acido gelo eletricidade, 2: reducao de dano se houver.
     modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
-    info_classes {
-      id: 'besta_magica'
-      combinar_com: 0
-    }
-    tipo_dnd: TIPO_BESTA_MAGICA
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    atributos {
-      inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'celestial' valor: 1 } } }
-    }
     tendencia { simples: TD_LEAL_BOM }
   }
 }
@@ -501,7 +480,7 @@ modelo {
   }
 }
 modelo {
-  id: 'Lobo Demoníaco ICII'
+  id: 'Lobo Abissal ICII'
   id_entidade_base: 'Lobo Abissal'
   parametros {
     tipo_duracao: TD_RODADAS_NIVEL
@@ -720,22 +699,8 @@ modelo {
   id: 'Cobra, Víbora Pequena Abissal'
   id_entidade_base: 'Cobra, Víbora Pequena'
   entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
     tendencia { simples: TD_NEUTRO_MAU }
-    modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 6 complementos: 5 }
-    info_classes {
-      id: 'besta_magica'
-      combinar_com: 0
-    }
-    tipo_dnd: TIPO_BESTA_MAGICA
-    dados_ataque {
-      grupo: 'destruir o bem' rotulo: 'mordida' id_arma: 'mordida'
-      tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d2+1'
-      veneno {
-        tipo: TV_FERIMENTO cd: 10
-        dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d6' tipo_dano_secundario: TDV_CONSTITUICAO
-      }
-      taxa_refrescamento: '14400'
-    }
   }
 }
 modelo {
@@ -1157,6 +1122,7 @@ modelo {
   entidade {
     # Complementos: 0: RM, 1: resistencia a acido gelo eletricidade, 2: reducao de dano se houver.
     modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
+    tendencia { simples: TD_LEAL_BOM }
   }
 }
 
@@ -1339,10 +1305,7 @@ modelo {
   id: 'Centopéia Enorme Abissal'
   id_entidade_base: 'Centopéia Enorme'
   entidade {
-    tipo_dnd: TIPO_BESTA_MAGICA
-    modelos {
-      id_efeito: EFEITO_MODELO_ABISSAL ativo: true
-    }
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL  }
     tendencia { simples: TD_NEUTRO_MAU }
   }
 }
@@ -3427,7 +3390,7 @@ modelo {
   id: 'Leão Celestial'
   id_entidade_base: 'Leão'
   entidade {
-    modelos { id_efeito: EFEITO_MODELO_CELESTIAL ativo: true complementos: 8 complementos: 5 }
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
     tendencia { simples: TD_NEUTRO_BOM }
   }
 }
@@ -3525,13 +3488,8 @@ modelo {
   id: 'Lobo Abissal'
   id_entidade_base: 'Lobo'
   entidade {
-    tendencia { simples: TD_LEAL_MAU }
     modelos { id_efeito: EFEITO_MODELO_ABISSAL }
-    info_classes {
-      id: 'besta_magica'
-      combinar_com: 0
-    }
-    tipo_dnd: TIPO_BESTA_MAGICA
+    tendencia { simples: TD_LEAL_MAU }
   }
 }
 modelo {
@@ -3750,19 +3708,8 @@ modelo {
   id: 'Lobo Atroz Abissal'
   id_entidade_base: 'Lobo Atroz'
   entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
     tendencia { simples: TD_NEUTRO_MAU }
-    modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 11 complementos: 5 }
-    info_classes {
-      id: 'besta_magica'
-      combinar_com: 0
-    }
-    tipo_dnd: TIPO_BESTA_MAGICA
-    dados_ataque {
-      grupo: 'destruir o bem'
-      rotulo: 'mordida' id_arma: 'mordida'
-      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8+6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      derrubar_automatico: true
-    }
   }
 }
 modelo {
@@ -8549,12 +8496,6 @@ modelo {
   entidade {
     modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
     tendencia { simples: TD_LEAL_BOM }
-    info_classes {
-      id: 'besta_magica'
-      combinar_com: 0
-    }
-    tipo_dnd: TIPO_BESTA_MAGICA
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
   }
 }
 modelo {
@@ -9735,13 +9676,10 @@ modelo {
 
 modelo {
   id: 'Abelha Gigante Celestial'
+  id_entidade_base: 'Abelha Gigante'
   entidade {
-    tipo_dnd: TIPO_BESTA_MAGICA
     modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
-    info_classes {
-      id: 'besta_magica'
-      combinar_com: 0
-    }
+    tendencia { simples: TD_LEAL_BOM }
   }
 }
 modelo {

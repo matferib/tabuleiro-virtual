@@ -569,6 +569,9 @@ message ConsequenciaEvento {
   optional Movimento movimento = 14;
   // Pontos de vida temporarios.
   optional Bonus pontos_vida_temporarios = 15;
+  // Muda o tipo de visao: apenas para modelos.
+  optional TipoVisao tipo_visao = 16;
+  optional float alcance_visao_m = 17;
 }
 
 message EfeitoProto {
