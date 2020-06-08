@@ -4097,9 +4097,18 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, TesteAbelhaGiganteCelestial) {
+  auto modelo = g_tabelas.ModeloEntidade("Abelha Gigante Celestial");
+  auto abelha = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  EXPECT_TRUE(abelha->TemTipoDnD(TIPO_BESTA_MAGICA));
+  EXPECT_TRUE(abelha->TemSubTipoDnD(SUBTIPO_PLANAR));
+}
+
 TEST(TesteModelo, TestePlebeu1) {
   auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
   auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  EXPECT_FALSE(plebeu->TemTipoDnD(TIPO_BESTA_MAGICA));
+  EXPECT_FALSE(plebeu->TemSubTipoDnD(SUBTIPO_PLANAR));
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());

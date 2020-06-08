@@ -141,6 +141,26 @@ void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivada
 #endif
 }
 
+namespace {
+
+void TalvezCorrijaTipoCelestialAbissal(EntidadeProto* proto) {
+  if (c_none_of(
+        proto->modelos(),
+        [](const ModeloDnD& modelo) { return modelo.id_efeito() == EFEITO_MODELO_CELESTIAL || modelo.id_efeito() == EFEITO_MODELO_ABISSAL; })) {
+    return;
+  }
+  for (auto& tipo : *proto->mutable_tipo_dnd()) {
+    if (tipo == TIPO_ANIMAL || tipo == TIPO_VERME) {
+      tipo = TIPO_BESTA_MAGICA;
+    }
+  }
+  if (!TemSubTipoDnD(SUBTIPO_PLANAR, *proto)) {
+    proto->add_sub_tipo_dnd(SUBTIPO_PLANAR);
+  }
+}
+
+}  // namespace
+
 void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // Preciso do tipo aqui para atualizar as outras coisas de acordo.
   proto_.set_tipo(novo_proto.tipo());
@@ -149,6 +169,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   AtualizaModelo3d(novo_proto);
   // mantem o tipo.
   proto_ = novo_proto;
+  TalvezCorrijaTipoCelestialAbissal(&proto_);
   CorrigeCamposDeprecated(&proto_);
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
