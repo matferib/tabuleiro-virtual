@@ -7062,6 +7062,22 @@ tabela_feiticos {
       }
     }
   }
+  armas {
+    id: 'nuvem_fetida'
+    nome_ingles: 'stinking cloud'
+    nome: 'nuvem fétida'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Nuvem Fétida'
+    }
+    escola: 'conjuracao'
+  }
 
   armas {
     id: 'aterrorizar'
@@ -10256,7 +10272,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_i'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar criaturas I'
     nome_ingles: 'summon monster I'
     alcance_quadrados: 5
@@ -10300,7 +10316,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_criaturas_ii'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar criaturas II'
     nome_ingles: 'summon monster II'
     alcance_quadrados: 5
@@ -10345,7 +10361,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_iii'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar criaturas III'
     nome_ingles: 'summon monster III'
     alcance_quadrados: 5
@@ -10371,6 +10387,18 @@ tabela_feiticos {
           texto: 'Urso Negro Celestial'
           id_modelo_entidade: 'Urso Negro Celestial ICIII'
         }
+        parametros {
+          texto: 'Hipogrifo Celestial'
+          id_modelo_entidade: 'Hipogrifo Celestial ICIII'
+        }
+        parametros {
+          texto: 'Víbora Grande Abissal'
+          id_modelo_entidade: 'Cobra, Víbora Grande Abissal ICIII'
+        }
+        parametros {
+          texto: 'Demônio Dretch'
+          id_modelo_entidade: 'Demônio Dretch ICIII'
+        }
       }
     }
     escola: 'conjuracao'
@@ -10378,7 +10406,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_iv'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar criaturas IV'
     nome_ingles: 'summon monster IV'
     alcance_quadrados: 5
