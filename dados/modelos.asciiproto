@@ -2544,7 +2544,7 @@ modelo {
     sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_TERRA
     dados_vida: '2d8+2' tamanho: TM_PEQUENO cor { r: 0.5 g: 0.25 b: 0.1 }
-    info_classes { id: 'elemental' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
+    info_classes { id: 'elemental_agua_terra' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
     rotulo_especial: '+1 de ataque e dano vs terrestres, -4 ataque e dano vs aéreas'
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     dados_defesa {
@@ -2576,6 +2576,83 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Elemental da Água (Pequeno)'
+  entidade {
+    tipo_dnd: TIPO_ELEMENTAL
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    sub_tipo_dnd: SUBTIPO_AGUA
+    dados_vida: '2d8+2' tamanho: TM_PEQUENO cor { r: 0.0 g: 0.0 b: 1.0 }
+    info_classes { id: 'elemental_agua_terra' nivel: 2 }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
+    }
+    movimento {
+      terrestre_basico_q: 4
+      aquatico_basico_q: 18
+    }
+    dados_ataque {
+      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'apagar_chamas' rotulo: 'ver regras enxurrada' tipo_ataque: 'Feitiço de Toque' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'vortice' rotulo: 'ver regras vortice' tipo_ataque: 'Feitiço de Toque' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 3 }
+    info_talentos {
+      gerais { id: 'ataque_poderoso' }
+    }
+  }
+}
+modelo {
+  id: 'Elemental do Fogo (Pequeno)'
+  entidade {
+    tipo_dnd: TIPO_ELEMENTAL
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    sub_tipo_dnd: SUBTIPO_FOGO
+    dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 }
+    info_classes { id: 'elemental_fogo_ar' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
+    rotulo_especial: 'criaturas voando tem -1 de penalidade de ataque e dano\nredemoinho'
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
+    }
+    movimento {
+      terrestre_basico_q: 10
+    }
+    dados_ataque {
+      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_adicional: '1d4' elemento_dano_adicional: DESC_FOGO
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 3 }
+    info_talentos {
+      gerais { id: 'investida_aerea' }
+      outros { id: 'iniciativa_aprimorada' origem: 'bonus' }
+      outros { id: 'acuidade_arma' origem: 'bonus' }
+    }
+  }
+}
 
 modelo {
   id: 'Elemental do Ar (Pequeno)'
@@ -2584,7 +2661,7 @@ modelo {
     sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_AR
     dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 }
-    info_classes { id: 'elemental' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
+    info_classes { id: 'elemental_fogo_ar' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
     rotulo_especial: 'criaturas voando tem -1 de penalidade de ataque e dano\nredemoinho'
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     dados_defesa {

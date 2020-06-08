@@ -1035,6 +1035,43 @@ float DistanciaMetros(const Posicao& pos_acao_a, const Posicao& pos_acao_d) {
   return distancia_m;
 }
 
+// Esse modificador se aplica a ataque e dano.
+int AplicaMaestriaElemental(int modificador, const EntidadeProto& ea, const EntidadeProto& ed) {
+  if (!TemTipoDnD(TIPO_ELEMENTAL, ea)) return modificador;
+
+  if (TemSubTipoDnD(SUBTIPO_TERRA, ea)) {
+    if (ed.voadora() || ed.nadando()) {
+      // Elemental tem dificuldade contra ar e agua.
+      modificador -= 4;
+    } else if (!ea.voadora() && !ea.nadando()) {
+      // Tem facilidade contra terrestres.
+      ++modificador;
+    }
+    return modificador;
+  }
+  if (TemSubTipoDnD(SUBTIPO_AR, ed)) {
+    if (ea.voadora()) {
+      // Aereos tem dificuldade contra elemental.
+      --modificador;
+    }
+    return modificador;
+  }
+  if (TemSubTipoDnD(SUBTIPO_AGUA, ea)) {
+    if (ea.nadando() && ed.nadando()) {
+      // Ambos na agua.
+      ++modificador;
+    } else if (!ea.voadora() || !ea.nadando()) {
+      // Elemental tem dificuldade em terra firme.
+      modificador -= 4;
+    } else if (!ed.voadora() || !ed.nadando()) {
+      // Defensor em terra firme.
+      modificador -= 4;
+    }
+    return modificador;
+  }
+  return modificador;
+}
+
 // Pode ser chamado com ed == default para ver alguns modificadores do atacante.
 int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed) {
   int modificador = 0;
@@ -1113,15 +1150,7 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
     if (tipo_ataque == TipoAtaque::DISTANCIA) modificador -= 4;
     else modificador += 4;
   }
-  if (tipo_ataque == TipoAtaque::CORPO_A_CORPO && TemTipoDnD(TIPO_ELEMENTAL, ea) &&
-      TemSubTipoDnD(SUBTIPO_TERRA, ea)) {
-    if (ed.voadora() || ed.nadando()) {
-      modificador -= 4;
-    } else if (!ea.voadora() && ea.nadando()) {
-      ++modificador;
-    }
-  }
-
+  modificador = AplicaMaestriaElemental(modificador, ea, ed);
   return modificador;
 }
 
@@ -1168,14 +1197,7 @@ int ModificadorDano(
   if (ea.dados_ataque_global().dano_mais_32()) {
     modificador += 32;
   }
-  if (tipo_ataque == TipoAtaque::CORPO_A_CORPO && TemTipoDnD(TIPO_ELEMENTAL, ea) &&
-      TemSubTipoDnD(SUBTIPO_TERRA, ea)) {
-    if (ed.voadora() || ed.nadando()) {
-      modificador -= 4;
-    } else if (!ea.voadora() && ea.nadando()) {
-      ++modificador;
-    }
-  }
+  modificador = AplicaMaestriaElemental(modificador, ea, ed);
   return modificador;
 }
 

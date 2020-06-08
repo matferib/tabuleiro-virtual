@@ -2725,6 +2725,61 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
   }
 }
 
+TEST(TesteModificadorAtaque, TesteModificadorAtaqueElementalTerra) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Elemental da Terra (Pequeno)");
+  auto el = modelo.entidade();
+  EntidadeProto ed;
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 1);
+  ed.set_voadora(true);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
+  ed.set_voadora(false);
+  ed.set_nadando(true);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
+  ed.set_nadando(false);
+  el.set_voadora(true);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  el.set_voadora(false);
+  el.set_nadando(true);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  el.set_nadando(false);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 1);
+}
+
+TEST(TesteModificadorAtaque, TesteModificadorAtaqueElementalAgua) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Elemental da Água (Pequeno)");
+  auto el = modelo.entidade();
+  EntidadeProto ed;
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
+  ed.set_voadora(true);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  ed.set_voadora(false);
+  ed.set_nadando(true);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  ed.set_nadando(false);
+  el.set_voadora(true);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  el.set_voadora(false);
+  el.set_nadando(true);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  ed.set_nadando(true);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 1);
+  el.set_nadando(false);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+}
+
 TEST(TesteModificadorAtaque, TesteModificadorAtaque) {
   {
     EntidadeProto ea;

@@ -1883,9 +1883,7 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const EntidadePr
       LOG(WARNING) << "entidade eh nula";
       return 0;
     }
-    int delta_pontos_vida;
-    std::string texto_pontos_vida;
-    std::tie(delta_pontos_vida, texto_pontos_vida) = entidade->ValorParaAcao(id_acao, alvo);
+    auto [delta_pontos_vida, texto_pontos_vida] = entidade->ValorParaAcao(id_acao, alvo);
     delta_pontos_vida = -delta_pontos_vida;
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
     AdicionaLogEvento(entidade->Id(), texto_pontos_vida);
