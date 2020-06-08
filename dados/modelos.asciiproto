@@ -323,6 +323,19 @@ modelo {
   }
 }
 modelo {
+  id: 'Águia Celestial'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
+    info_classes {
+      id: 'besta_magica'
+      combinar_com: 0
+    }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+  }
+}
+
+modelo {
   id: 'Falcão'
   entidade {
     tipo_dnd: TIPO_ANIMAL
@@ -364,7 +377,7 @@ modelo {
   id: 'Falcão Abissal'
   id_entidade_base: 'Falcão'
   entidade {
-    modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 6 complementos: 5 }
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
     tendencia { simples: TD_NEUTRO_MAU }
     info_classes {
       id: 'besta_magica'
@@ -372,13 +385,6 @@ modelo {
     }
     tipo_dnd: TIPO_BESTA_MAGICA
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    dados_ataque {
-      rotulo: 'destruir o bem' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
-      taxa_refrescamento: '14400' # 1 dia
-    }
-    atributos {
-      inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'celestial' valor: 1 } } }
-    }
   }
 }
 
@@ -431,17 +437,13 @@ modelo {
   id_entidade_base: 'Cachorro'
   entidade {
     # Complementos: 0: RM, 1: resistencia a acido gelo eletricidade, 2: reducao de dano se houver.
-    modelos { id_efeito: EFEITO_MODELO_CELESTIAL ativo: true complementos: 6 complementos: 5 }
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
     info_classes {
       id: 'besta_magica'
       combinar_com: 0
     }
     tipo_dnd: TIPO_BESTA_MAGICA
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    dados_ataque {
-      rotulo: 'mordida (destruir o mal)' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4+1'
-      taxa_refrescamento: '14400' # 1 dia
-    }
     atributos {
       inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'celestial' valor: 1 } } }
     }
@@ -480,6 +482,20 @@ modelo {
 modelo {
   id: 'Lobo IANI'
   id_entidade_base: 'Lobo'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Águia Celestial ICII'
+  id_entidade_base: 'Águia Celestial'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Abelha Gigante Celestial ICII'
+  id_entidade_base: 'Abelha Gigante Celestial'
   parametros {
     tipo_duracao: TD_RODADAS_NIVEL
   }
@@ -1140,11 +1156,7 @@ modelo {
   id_entidade_base: 'Coruja'
   entidade {
     # Complementos: 0: RM, 1: resistencia a acido gelo eletricidade, 2: reducao de dano se houver.
-    modelos { id_efeito: EFEITO_MODELO_CELESTIAL ativo: true complementos: 6 complementos: 5 }
-    dados_ataque {
-      rotulo: 'destruir o mal' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4+1'
-      taxa_refrescamento: '14400' # 1 dia
-    }
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
   }
 }
 
@@ -3292,14 +3304,10 @@ modelo {
   id: 'Hipogrifo Celestial'
   id_entidade_base: 'Hipogrifo'
   entidade {
-    modelos { id_efeito: EFEITO_MODELO_CELESTIAL ativo: true complementos: 8 complementos: 5 }
-    dados_ataque {
-      rotulo: 'destruir o mal' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4+3'
-      taxa_refrescamento: '14400' # 1 dia
-    }
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
+    tendencia { simples: TD_CAOTICO_BOM }
   }
 }
-
 modelo {
   id: 'Hobgoblin'
   entidade {
@@ -3419,27 +3427,8 @@ modelo {
   id: 'Leão Celestial'
   id_entidade_base: 'Leão'
   entidade {
-    rotulo_especial: 'destruir o mal 1/dia +5 dano'
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL ativo: true complementos: 8 complementos: 5 }
     tendencia { simples: TD_NEUTRO_BOM }
-    dados_defesa {
-      resistencia_elementos {
-        descritor: DESC_FRIO
-        valor: 5
-      }
-      resistencia_elementos {
-        descritor: DESC_ACIDO
-        valor: 5
-      }
-      resistencia_elementos {
-        descritor: DESC_ELETRICIDADE
-        valor: 5
-      }
-      reducao_dano {
-        descritores: DESC_MAGICO
-        valor: 5
-      }
-      resistencia_magia_racial: 10
-    }
   }
 }
 
@@ -3537,11 +3526,7 @@ modelo {
   id_entidade_base: 'Lobo'
   entidade {
     tendencia { simples: TD_LEAL_MAU }
-    # Primeiro complemento: resistencia magia.
-    # Segundo complemento: resistencia a gelo e fogo.
-    # terceiro complemento: reducao de dano.
-    # Para referencia: reducao de dano: 4-11=5/magia, 12 em diante: 10/magia.
-    modelos { id_efeito: EFEITO_MODELO_ABISSAL complementos: 7 complementos: 5 }
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
     info_classes {
       id: 'besta_magica'
       combinar_com: 0
@@ -8562,22 +8547,14 @@ modelo {
   id: 'Urso Negro Celestial'
   id_entidade_base: 'Urso Negro'
   entidade {
-    # Complementos: 0: RM, 1: resistencia a acido gelo eletricidade, 2: reducao de dano se houver.
-    modelos { id_efeito: EFEITO_MODELO_CELESTIAL ativo: true complementos: 8 complementos: 5 }
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
+    tendencia { simples: TD_LEAL_BOM }
     info_classes {
       id: 'besta_magica'
       combinar_com: 0
     }
     tipo_dnd: TIPO_BESTA_MAGICA
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    dados_ataque {
-      rotulo: 'mordida (destruir o mal)' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4+3'
-      taxa_refrescamento: '14400' # 1 dia
-    }
-    atributos {
-      inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'celestial' valor: 1 } } }
-    }
-    tendencia { simples: TD_LEAL_BOM }
   }
 }
 modelo {
@@ -9753,5 +9730,52 @@ modelo {
   }
   parametros {
     tipo_duracao: TD_2_HORAS_NIVEL
+  }
+}
+
+modelo {
+  id: 'Abelha Gigante Celestial'
+  entidade {
+    tipo_dnd: TIPO_BESTA_MAGICA
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
+    info_classes {
+      id: 'besta_magica'
+      combinar_com: 0
+    }
+  }
+}
+modelo {
+  id: 'Abelha Gigante'
+  entidade {
+    tipo_dnd: TIPO_VERME
+    dados_vida: '3d8'
+    info_classes {
+      id: 'verme' nivel: 3
+      pericias_monstro: 'observar'
+    }
+    modelo_3d { id: 'giant_bee' }
+    tamanho: TM_MEDIO
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    info_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18  # 12 q
+    dados_ataque {
+      grupo: 'ferroada' id_arma: 'ferroada_padrao'
+      veneno {
+        tipo: TV_FERIMENTO cd: 11
+        dano_inicial: '1d4' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d4' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
   }
 }
