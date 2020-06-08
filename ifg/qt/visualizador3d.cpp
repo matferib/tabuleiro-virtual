@@ -1815,41 +1815,48 @@ void LeDominioOuEscolaDoCombo(const QComboBox* combo, string* dominio) {
 }
 
 // Chamado tb durante a finalizacao, por causa do problema de apertar enter e fechar a janela. Nao atualiza a UI.
-void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado, bool novo = false) {
   const int indice = gerador.lista_niveis->currentRow();
   if (gerador.linha_classe->text().isEmpty()) {
     return;
   }
-  ent::InfoClasse* ic = (indice < 0 || indice >= proto_retornado->info_classes().size())
-      ? proto_retornado->add_info_classes() : proto_retornado->mutable_info_classes(indice);
-  const auto& classe_tabelada = tabelas.Classe(gerador.linha_classe->text().toStdString());
-  ic->set_id(gerador.linha_classe->text().toStdString());
-  ic->set_nivel(gerador.spin_nivel_classe->value());
-  ic->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
-  ic->set_bba(gerador.spin_bba->value());
-  ic->set_atributo_conjuracao(static_cast<ent::TipoAtributo>(gerador.combo_mod_conjuracao->currentIndex()));
-  ic->clear_salvacoes_fortes();
-  for (auto ts : ComboParaSalvacoesFortes(gerador.combo_salvacoes_fortes)) {
-    ic->add_salvacoes_fortes(ts);
-  }
-  auto* fc = ent::FeiticosClasse(classe_tabelada.id(), proto_retornado);
-  if (classe_tabelada.possui_dominio()) {
-    Redimensiona(2, fc->mutable_dominios());
-    LeDominioOuEscolaDoCombo(gerador.combo_dominio_1, fc->mutable_dominios(0));
-    LeDominioOuEscolaDoCombo(gerador.combo_dominio_2, fc->mutable_dominios(1));
+  if (novo) {
+    auto* ic = proto_retornado->add_info_classes();
+    ic->set_id("outro");
+    ic->set_nivel(1);
+    ic->clear_salvacoes_fortes();
   } else {
-    fc->clear_dominios();
-  }
-  if (const std::string& id_especializacao =
-          gerador.combo_especializacao_escola->itemData(gerador.combo_especializacao_escola->currentIndex()).toString().toStdString();
-      id_especializacao != "nenhuma") {
-    fc->set_especializacao(id_especializacao);
-    Redimensiona(2, fc->mutable_escolas_proibidas());
-    LeDominioOuEscolaDoCombo(gerador.combo_escola_proibida_1, fc->mutable_escolas_proibidas(0));
-    LeDominioOuEscolaDoCombo(gerador.combo_escola_proibida_2, fc->mutable_escolas_proibidas(1));
-  } else {
-    fc->clear_escolas_proibidas();
-    fc->clear_especializacao();
+    ent::InfoClasse* ic = (indice < 0 || indice >= proto_retornado->info_classes().size())
+        ? proto_retornado->add_info_classes() : proto_retornado->mutable_info_classes(indice);
+    const auto& classe_tabelada = tabelas.Classe(gerador.linha_classe->text().toStdString());
+    ic->set_id(gerador.linha_classe->text().toStdString());
+    ic->set_nivel(gerador.spin_nivel_classe->value());
+    ic->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
+    ic->set_bba(gerador.spin_bba->value());
+    ic->set_atributo_conjuracao(static_cast<ent::TipoAtributo>(gerador.combo_mod_conjuracao->currentIndex()));
+    ic->clear_salvacoes_fortes();
+    for (auto ts : ComboParaSalvacoesFortes(gerador.combo_salvacoes_fortes)) {
+      ic->add_salvacoes_fortes(ts);
+    }
+    auto* fc = ent::FeiticosClasse(classe_tabelada.id(), proto_retornado);
+    if (classe_tabelada.possui_dominio()) {
+      Redimensiona(2, fc->mutable_dominios());
+      LeDominioOuEscolaDoCombo(gerador.combo_dominio_1, fc->mutable_dominios(0));
+      LeDominioOuEscolaDoCombo(gerador.combo_dominio_2, fc->mutable_dominios(1));
+    } else {
+      fc->clear_dominios();
+    }
+    if (const std::string& id_especializacao =
+            gerador.combo_especializacao_escola->itemData(gerador.combo_especializacao_escola->currentIndex()).toString().toStdString();
+        id_especializacao != "nenhuma") {
+      fc->set_especializacao(id_especializacao);
+      Redimensiona(2, fc->mutable_escolas_proibidas());
+      LeDominioOuEscolaDoCombo(gerador.combo_escola_proibida_1, fc->mutable_escolas_proibidas(0));
+      LeDominioOuEscolaDoCombo(gerador.combo_escola_proibida_2, fc->mutable_escolas_proibidas(1));
+    } else {
+      fc->clear_escolas_proibidas();
+      fc->clear_especializacao();
+    }
   }
 
   ent::RecomputaDependencias(tabelas, proto_retornado);
@@ -2078,8 +2085,10 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
 
   // Adiciona um nivel ao personagem ao clicar no botao de adicionar.
   lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+    // Se ja tem linha selecionada, ignora o que ta na UI e cria uma nova.
+    const bool novo = gerador.lista_niveis->currentRow() != -1;
     gerador.lista_niveis->setCurrentRow(-1);
-    AdicionaOuEditaNivel(tabelas, gerador, proto_retornado);
+    AdicionaOuEditaNivel(tabelas, gerador, proto_retornado, novo);
     AtualizaUI(tabelas, gerador, *proto_retornado);
     // Deixa deselecionado e zera campos, mais intuitivo.
     LimpaCamposClasse(gerador);
