@@ -344,6 +344,7 @@ modelo { id: 'Troll' }
 modelo { id: 'Uivante' }
 sub_menu {
   id: 'Vermes'
+  modelo { id: 'Abelha Gigante' }
   modelo { id: 'Aranha Gigante Enorme' }
   modelo { id: 'Besouro do Fogo' }
   modelo { id: 'Centopéia Média' }
