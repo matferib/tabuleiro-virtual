@@ -6380,6 +6380,10 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
+          texto: 'Cobra, Víbora Média'
+          id_modelo_entidade: 'Cobra, Víbora Média IANII'
+        }
+        parametros {
           texto: 'Urso Negro'
           id_modelo_entidade: 'Urso Negro IANII'
         }
@@ -6390,31 +6394,6 @@ tabela_feiticos {
         parametros {
           texto: 'Elemental do Ar (Pequeno)'
           id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
-        }
-        parametros {
-          texto: 'Rato Atroz (1d3)'
-          id_modelo_entidade: 'Rato Atroz IANI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Águia (1d3)'
-          id_modelo_entidade: 'Águia IANI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Coruja (1d3)'
-          id_modelo_entidade: 'Coruja IANI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Cobra, Víbora Pequena (1d3)'
-          id_modelo_entidade: 'Cobra, Víbora Pequena IANI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Lobo (1d3)'
-          id_modelo_entidade: 'Lobo IANI'
-          quantidade: '1d3'
         }
       }
     }
@@ -6452,46 +6431,6 @@ tabela_feiticos {
           texto: 'Gorila'
           id_modelo_entidade: 'Gorila IANIII'
         }
-        parametros {
-          texto: 'Urso Negro (1d3)'
-          id_modelo_entidade: 'Urso Negro IANII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Hipogrifo (1d3)'
-          id_modelo_entidade: 'Hipogrifo IANII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Elemental do Ar (Pequeno) (1d3)'
-          id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Rato Atroz (1d4+1)'
-          id_modelo_entidade: 'Rato Atroz IANI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Águia (1d4+1)'
-          id_modelo_entidade: 'Águia IANI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Coruja (1d4+1)'
-          id_modelo_entidade: 'Coruja IANI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Cobra, Víbora Pequena (1d4+1)'
-          id_modelo_entidade: 'Cobra, Víbora Pequena IANI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Lobo (1d4+1)'
-          id_modelo_entidade: 'Lobo IANI'
-          quantidade: '1d4+1'
-        }
       }
     }
     escola: 'conjuracao'
@@ -6525,36 +6464,6 @@ tabela_feiticos {
           texto: 'Urso Marrom'
           id_modelo_entidade: 'Urso Marrom IANIV'
         }
-        parametros {
-          texto: 'Lobo Atroz (1d3)'
-          id_modelo_entidade: 'Lobo Atroz IANIII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Leão (1d3)'
-          id_modelo_entidade: 'Leão IANIII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Gorila (1d3)'
-          id_modelo_entidade: 'Gorila IANIII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Urso Negro (1d4+1)'
-          id_modelo_entidade: 'Urso Negro IANII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Hipogrifo (1d4+1)'
-          id_modelo_entidade: 'Hipogrifo IANII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Elemental do Ar (Pequeno) (1d4+1)'
-          id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
-          quantidade: '1d4+1'
-        }
       }
     }
     escola: 'conjuracao'
@@ -6583,26 +6492,6 @@ tabela_feiticos {
           texto: 'Leão Atroz'
           id_modelo_entidade: 'Leão Atroz IANV'
         }
-        parametros {
-          texto: 'Urso Marrom (1d3)'
-          id_modelo_entidade: 'Urso Marrom IANIV'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Lobo Atroz (1d4+1)'
-          id_modelo_entidade: 'Lobo Atroz IANIII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Leão (1d4+1)'
-          id_modelo_entidade: 'Leão IANIII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Gorila (1d4+1)'
-          id_modelo_entidade: 'Gorila IANIII'
-          quantidade: '1d4+1'
-        }
       }
     }
     escola: 'conjuracao'
@@ -6626,36 +6515,6 @@ tabela_feiticos {
         parametros {
           texto: 'Megaraptor'
           id_modelo_entidade: 'Megaraptor IANVI'
-        }
-        parametros {
-          texto: 'Grifo (1d3)'
-          id_modelo_entidade: 'Grifo IANV'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Leão Atroz (1d3)'
-          id_modelo_entidade: 'Leão Atroz IANV'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Urso Marrom (1d4+1)'
-          id_modelo_entidade: 'Urso Marrom IANIV'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Lobo Atroz (1d4+1)'
-          id_modelo_entidade: 'Lobo Atroz IANIII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Leão (1d4+1)'
-          id_modelo_entidade: 'Leão IANIII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Gorila (1d4+1)'
-          id_modelo_entidade: 'Gorila IANIII'
-          quantidade: '1d4+1'
         }
       }
     }
@@ -6685,21 +6544,51 @@ tabela_feiticos {
           texto: 'Tigre Atroz'
           id_modelo_entidade: 'Tigre Atroz IANVII'
         }
-        parametros {
-          texto: 'Megaraptor (1d3)'
-          id_modelo_entidade: 'Megaraptor IANVI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Grifo (1d4+1)'
-          id_modelo_entidade: 'Grifo IANV'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Leão Atroz (1d4+1)'
-          id_modelo_entidade: 'Leão Atroz IANV'
-          quantidade: '1d4+1'
-        }
+      }
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'invocar_aliado_natureza_viii'
+    tempo_execucao_rodadas: 1 
+    nome: 'invocar aliado da natureza VIII'
+    nome_ingles: "summon nature's ally VIII"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 8
+    }
+    info_classes {
+      id: 'animal'
+      nivel: 8
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'invocar_aliado_natureza_ix'
+    tempo_execucao_rodadas: 1 
+    nome: 'invocar aliado da natureza IX'
+    nome_ingles: "summon nature's ally IX"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 9
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
       }
     }
     escola: 'conjuracao'
@@ -10434,48 +10323,20 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
+          texto: 'Abelha Celestial'
+          id_modelo_entidade: 'Abelha Gigante Celestial ICII'
+        }
+        parametros {
+          texto: 'Águia Celestial'
+          id_modelo_entidade: 'Águia Celestial ICII'
+        }
+        parametros {
           texto: 'Lobo Abissal'
           id_modelo_entidade: 'Lobo Abissal ICII'
         }
         parametros {
-          texto: 'Cachorro Celestial (1d3)'
-          id_modelo_entidade: 'Cachorro Celestial ICI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Coruja Celestial (1d3)'
-          id_modelo_entidade: 'Coruja Celestial ICI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Falcão Abissal (1d3)'
-          id_modelo_entidade: 'Falcão Abissal'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Víbora Pequena Abissal (1d3)'
-          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Cachorro Celestial (1d4+1)'
-          id_modelo_entidade: 'Cachorro Celestial ICI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Coruja Celestial (1d4+1)'
-          id_modelo_entidade: 'Coruja Celestial ICI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Falcão Abissal (1d4+1)'
-          id_modelo_entidade: 'Falcão Abissal'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Víbora Pequena Abissal (1d4+1)'
-          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
-          quantidade: '1d4+1'
+          texto: 'Víbora Média Abissal'
+          id_modelo_entidade: 'Cobra, Víbora Média Abissal ICII'
         }
       }
     }
@@ -10507,38 +10368,8 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
-          texto: 'Lobo Abissal (1d3)'
-          id_modelo_entidade: 'Lobo Abissal ICII'
-          quantidade: '1d3'
-        }
-        parametros {
           texto: 'Urso Negro Celestial'
           id_modelo_entidade: 'Urso Negro Celestial ICIII'
-        }
-        parametros {
-          texto: 'Lobo Abissal (1d3)'
-          id_modelo_entidade: 'Lobo Abissal ICII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Cachorro Celestial (1d4+1)'
-          id_modelo_entidade: 'Cachorro Celestial ICI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Coruja Celestial (1d4+1)'
-          id_modelo_entidade: 'Coruja Celestial ICI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Falcão Abissal (1d4+1)'
-          id_modelo_entidade: 'Falcão Abissal'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Víbora Pequena Abissal (1d4+1)'
-          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
-          quantidade: '1d4+1'
         }
       }
     }
@@ -10564,10 +10395,13 @@ tabela_feiticos {
       id: 'mago'
       nivel: 4
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10590,10 +10424,13 @@ tabela_feiticos {
       id: 'mago'
       nivel: 5
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10616,10 +10453,12 @@ tabela_feiticos {
       id: 'mago'
       nivel: 6
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10638,10 +10477,12 @@ tabela_feiticos {
       id: 'mago'
       nivel: 7
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10660,10 +10501,12 @@ tabela_feiticos {
       id: 'mago'
       nivel: 8
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10702,13 +10545,14 @@ tabela_feiticos {
       nivel: 9
       dominio: true
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
-
   armas {
     id: 'toque_fadiga'
     nome_ingles: ' touch of fatigue'

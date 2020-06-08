@@ -3250,7 +3250,7 @@ TEST(TesteFeiticos, TesteOracao) {
     auto* talento = proto.mutable_info_talentos()->add_gerais();
     talento->set_id("usar_armas_comuns");
     talento->set_complemento("espada_curta");
- 
+
     AtribuiBaseAtributo(12, TA_FORCA, &proto);
     AtribuiBaseAtributo(16, TA_DESTREZA, &proto);
     AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
@@ -3523,6 +3523,16 @@ TEST(TesteFeiticos, TesteConstricao) {
   RecomputaDependencias(g_tabelas, &proto_constricao);
   ASSERT_FALSE(proto_constricao.dados_ataque().empty());
   EXPECT_EQ(proto_constricao.dados_ataque(0).dificuldade_salvacao(), 13);
+}
+
+TEST(TesteFeiticos, TesteConjuracoesPossuiModeloValido) {
+  for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
+    const auto& pl = feitico.acao().parametros_lancamento();
+    if (pl.consequencia() != AcaoProto::CP_ATRIBUI_MODELO_ENTIDADE) continue;
+    for (const auto& p : pl.parametros()) {
+      EXPECT_FALSE(g_tabelas.ModeloEntidade(p.id_modelo_entidade()).id().empty()) << "nao achei: " << p.id_modelo_entidade();
+    }
+  }
 }
 
 TEST(TesteImunidades, TesteImunidadeElemento) {

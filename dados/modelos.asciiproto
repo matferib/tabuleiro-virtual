@@ -439,7 +439,21 @@ modelo {
 }
 modelo {
   id: 'Cobra, Víbora Pequena IANI'
+  id_entidade_base: 'Cobra, Víbora Pequena'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Cobra, Víbora Pequena Abissal ICI'
   id_entidade_base: 'Cobra, Víbora Pequena Abissal'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Cobra, Víbora Média Abissal ICII'
+  id_entidade_base: 'Cobra, Víbora Média Abissal'
   parametros {
     tipo_duracao: TD_RODADAS_NIVEL
   }
@@ -589,13 +603,6 @@ modelo {
   }
 }
 modelo {
-  id: 'Cobra, Víbora Pequena Abissal ICI'
-  id_entidade_base: 'Cobra, Víbora Pequena Abissal'
-  parametros {
-    tipo_duracao: TD_RODADAS_NIVEL
-  }
-}
-modelo {
   id: 'Coruja Celestial ICI'
   id_entidade_base: 'Coruja Celestial'
   parametros {
@@ -609,11 +616,17 @@ modelo {
     tipo_duracao: TD_RODADAS_NIVEL
   }
 }
-
+# Snakes have a +4 racial bonus on Hide, Listen, and Spot checks and a +8 racial bonus on Balance and Climb checks.
+# A snake can always choose to take 10 on a Climb check, even if rushed or threatened.
+# Snakes use either their Strength modifier or Dexterity modifier for Climb checks, whichever is higher.
+# A snake has a +8 racial bonus on any Swim check to perform some special action or avoid a hazard.
+# It can always choose to take 10 on a Swim check, even if distracted or endangered.
+# It can use the run action while swimming, provided it swims in a straight line.
 modelo {
   id: 'Cobra, Víbora Miúda'
   entidade {
     tipo_dnd: TIPO_ANIMAL
+    tendencia { simples: TD_NEUTRO }
     dados_vida: '1' tamanho: TM_MIUDO cor { r: 0.0 g: 0.0 b: 0.0 }
     info_textura { id: 'snake_viper.png' altura: 0.5 translacao_y: 0.5 }
     info_classes { id: 'animal' nivel: 1 }
@@ -641,16 +654,18 @@ modelo {
       gerais { id: 'iniciativa_aprimorada' }
       outros { id: 'acuidade_arma' }
     }
-    info_pericias { id: 'equilibrio' pontos: 4 }
-    info_pericias { id: 'escalar' pontos: 4 }
-    info_pericias { id: 'esconderse' pontos: 4 }
-    info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'observar' pontos: 4 }
-    info_pericias { id: 'natacao' pontos: 4 }
+    info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    # Na verdade é 8 mas pode usar a destreza +3 ao inves da forca -3.
+    info_pericias { id: 'escalar'    bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 14 } } } }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'ouvir'      pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar'   pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'natacao'    bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
   }
 }
 modelo {
   id: 'Cobra, Víbora Pequena'
+  id_entidade_base: 'Cobra Base'
   entidade {
     tipo_dnd: TIPO_ANIMAL
     dados_vida: '1d8' tamanho: TM_PEQUENO cor { r: 0.0 g: 0.0 b: 0.0 }
@@ -683,16 +698,17 @@ modelo {
         dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d6' tipo_dano_secundario: TDV_CONSTITUICAO
       }
     }
-    info_pericias { id: 'equilibrio' pontos: 4 }
-    info_pericias { id: 'escalar' pontos: 4 }
-    info_pericias { id: 'esconderse' pontos: 4 }
-    info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'observar' pontos: 4 }
-    info_pericias { id: 'natacao' pontos: 4 }
     info_talentos {
-      gerais { id: 'iniciativa_aprimorada' }
-      outros { id: 'acuidade_arma' }
+      gerais { id: 'acuidade_arma' }
+      outros { id: 'iniciativa_aprimorada' origem: 'bonus' }
     }
+    info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    # Na verdade é 8, mas pode usar a destreza que é +3 ao inves da forca que é -2.
+    info_pericias { id: 'escalar'    bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 13 } } } }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'ouvir'      pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar'   pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'natacao'    bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
   }
 }
 modelo {
@@ -700,7 +716,62 @@ modelo {
   id_entidade_base: 'Cobra, Víbora Pequena'
   entidade {
     modelos { id_efeito: EFEITO_MODELO_ABISSAL }
-    tendencia { simples: TD_NEUTRO_MAU }
+    tendencia { simples: TD_CAOTICO_MAU }
+  }
+}
+modelo {
+  id: 'Cobra, Víbora Média'
+  id_entidade_base: 'Cobra Base'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '2d8' tamanho: TM_MEDIO cor { r: 0.0 g: 0.0 b: 0.0 }
+    info_textura { id: 'snake_viper.png' altura: 0.5 translacao_y: 0.5 }
+    info_classes { id: 'animal' nivel: 2
+      pericias_monstro: 'equilibrio'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'natacao'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } }
+      }
+    }
+    dados_ataque {
+      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      veneno {
+        tipo: TV_FERIMENTO cd: 10
+        dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d6' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    info_talentos {
+      gerais { id: 'acuidade_arma' }
+    }
+    info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    # Na verdade é 8, mas como pode usar a destreza (+3) e a forca é -1, poe 12 pra dar o valor certinho.
+    info_pericias { id: 'escalar'    bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 12 } } } }
+    info_pericias { id: 'esconderse' pontos: 5 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'ouvir'      bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar'   bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'natacao'    bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+  }
+}
+modelo {
+  id: 'Cobra, Víbora Média Abissal'
+  id_entidade_base: 'Cobra, Víbora Média'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
+    tendencia { simples: TD_CAOTICO_MAU }
   }
 }
 modelo {

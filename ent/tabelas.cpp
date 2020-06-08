@@ -169,6 +169,72 @@ int NivelConjuradorMinimoParaFeiticoNivel(const std::string& id_classe, int nive
   return std::max(1, (nivel * 2) - 1);
 }
 
+namespace {
+
+const ArmaProto& FeiticoInvocarNivelAbaixo(const Tabelas& tabelas, const ArmaProto& feitico, int niveis_abaixo) {
+  std::string chave = StringPrintf("%s_%d", feitico.id().c_str(), niveis_abaixo);
+  static std::unordered_map<std::string, std::string> mapa = {
+    {"invocar_aliado_natureza_ii_1", "invocar_aliado_natureza_i"},
+    {"invocar_aliado_natureza_iii_1", "invocar_aliado_natureza_ii"},
+    {"invocar_aliado_natureza_iii_2", "invocar_aliado_natureza_i"},
+    {"invocar_aliado_natureza_iv_1", "invocar_aliado_natureza_iii"},
+    {"invocar_aliado_natureza_iv_2", "invocar_aliado_natureza_ii"},
+    {"invocar_aliado_natureza_v_1", "invocar_aliado_natureza_iv"},
+    {"invocar_aliado_natureza_v_2", "invocar_aliado_natureza_iii"},
+    {"invocar_aliado_natureza_vi_1", "invocar_aliado_natureza_v"},
+    {"invocar_aliado_natureza_vi_2", "invocar_aliado_natureza_iv"},
+    {"invocar_aliado_natureza_vii_1", "invocar_aliado_natureza_vi"},
+    {"invocar_aliado_natureza_vii_2", "invocar_aliado_natureza_v"},
+    {"invocar_aliado_natureza_viii_1", "invocar_aliado_natureza_vii"},
+    {"invocar_aliado_natureza_viii_2", "invocar_aliado_natureza_vi"},
+    {"invocar_aliado_natureza_ix_1", "invocar_aliado_natureza_viii"},
+    {"invocar_aliado_natureza_ix_2", "invocar_aliado_natureza_vii"},
+    {"invocar_criaturas_ii_1", "invocar_criaturas_i"},
+    {"invocar_criaturas_iii_1", "invocar_criaturas_ii"},
+    {"invocar_criaturas_iii_2", "invocar_criaturas_i"},
+    {"invocar_criaturas_iv_1", "invocar_criaturas_iii"},
+    {"invocar_criaturas_iv_2", "invocar_criaturas_ii"},
+    {"invocar_criaturas_v_1", "invocar_criaturas_iv"},
+    {"invocar_criaturas_v_2", "invocar_criaturas_iii"},
+    {"invocar_criaturas_vi_1", "invocar_criaturas_v"},
+    {"invocar_criaturas_vi_2", "invocar_criaturas_iv"},
+    {"invocar_criaturas_vii_1", "invocar_criaturas_vi"},
+    {"invocar_criaturas_vii_2", "invocar_criaturas_v"},
+    {"invocar_criaturas_viii_1", "invocar_criaturas_vii"},
+    {"invocar_criaturas_viii_2", "invocar_criaturas_vi"},
+    {"invocar_criaturas_ix_1", "invocar_criaturas_viii"},
+    {"invocar_criaturas_ix_2", "invocar_criaturas_vii"},
+  };
+  auto it = mapa.find(chave);
+  if (it != mapa.end()) {
+    return tabelas.Feitico(it->second);
+  }
+  return ArmaProto::default_instance();
+}
+
+void PreencheNiveisInferioresInvocarCriaturasOuAliadosDaNatureza(const Tabelas& tabelas, ArmaProto* feitico) {
+  const auto& feitico_abaixo = FeiticoInvocarNivelAbaixo(tabelas, *feitico, 1);
+  VLOG(1) << "preenchendo " << feitico->id() << " com " << feitico_abaixo.id();
+  for (const auto& pabaixo : feitico_abaixo.acao().parametros_lancamento().parametros()) {
+    if (pabaixo.has_quantidade()) continue;
+    auto p = feitico->mutable_acao()->mutable_parametros_lancamento()->add_parametros();
+    *p = pabaixo;
+    p->set_quantidade("1d3");
+    p->set_texto(StringPrintf("%s (1d3)", p->texto().c_str()));
+  }
+  const auto& feitico_2_abaixo = FeiticoInvocarNivelAbaixo(tabelas, *feitico, 2);
+  VLOG(1) << "preenchendo " << feitico->id() << " com " << feitico_2_abaixo.id();
+  for (const auto& p2abaixo : feitico_2_abaixo.acao().parametros_lancamento().parametros()) {
+    if (p2abaixo.has_quantidade()) continue;
+    auto p = feitico->mutable_acao()->mutable_parametros_lancamento()->add_parametros();
+    *p = p2abaixo;
+    p->set_quantidade("1d4+1");
+    p->set_texto(StringPrintf("%s (1d4+1)", p->texto().c_str()));
+  }
+}
+
+}  // namespac
+
 void Tabelas::RecarregaMapas() {
   armaduras_.clear();
   escudos_.clear();
@@ -330,6 +396,12 @@ void Tabelas::RecarregaMapas() {
         pergaminho->set_nivel_conjurador(nivel_conjurador);
         pergaminho->set_modificador_atributo(ic.nivel() / 2);
       }
+    }
+  }
+  // Tem que ser chamado depois de preecher tudo.
+  for (auto& feitico : *tabelas_.mutable_tabela_feiticos()->mutable_armas()) {
+    if (feitico.id().find("invocar_aliado_natureza_") == 0 || feitico.id().find("invocar_criaturas_") == 0) {
+      PreencheNiveisInferioresInvocarCriaturasOuAliadosDaNatureza(*this, &feitico);
     }
   }
 
