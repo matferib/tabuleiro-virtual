@@ -1,9 +1,11 @@
+Modificadores de ataque e dano de elementais.
+Imunidade a sono e atordoado de elementais.
+Elemental: terminar outros.
+Chance de falha de conjuracao (dretch conjurando dretch) e tempo de execucao.
+Fazer hell hound (cão infernal).
 Fazer os invocar criaturas: estao praticamente todos faltando, especialmente o do nivel (ii, iii)
-Dominios aleatorios de clerigo respeitando tendencia.
-UI: como criar especialista.
 Conferir link no windows: parou de funcionar pro talko.
 Mobilidade: como diferenciar ataques de arco e magias de movimentacao?
-Feiticos automaticos de clerigo respeitar o descritor de bom mal caos ordem.
 Fazer: manto do caos: dificil bagarai.
 
 Sessão:
@@ -62,10 +64,7 @@ Botao de aplicar efeitos na UI.
 Feiticos de druida ate 5o nivel.
 Druida 10.
 Feiticos de cura e infligir em massa para clerigo.
-Modificadores de ataque e dano de elementais.
-Imunidade a sono e atordoado de elementais.
 Flanquear: fazer automatico?
-Elemental: terminar outros.
 Feitico de Aliados da natureza.
 Fazer os druidas direito. outros niveis.
 Permitir criacao de entidades com recursos usados.

@@ -1113,6 +1113,15 @@ int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const Ent
     if (tipo_ataque == TipoAtaque::DISTANCIA) modificador -= 4;
     else modificador += 4;
   }
+  if (tipo_ataque == TipoAtaque::CORPO_A_CORPO && TemTipoDnD(TIPO_ELEMENTAL, ea) &&
+      TemSubTipoDnD(SUBTIPO_TERRA, ea)) {
+    if (ed.voadora() || ed.nadando()) {
+      modificador -= 4;
+    } else if (!ea.voadora() && ea.nadando()) {
+      ++modificador;
+    }
+  }
+
   return modificador;
 }
 
@@ -1158,6 +1167,14 @@ int ModificadorDano(
   }
   if (ea.dados_ataque_global().dano_mais_32()) {
     modificador += 32;
+  }
+  if (tipo_ataque == TipoAtaque::CORPO_A_CORPO && TemTipoDnD(TIPO_ELEMENTAL, ea) &&
+      TemSubTipoDnD(SUBTIPO_TERRA, ea)) {
+    if (ed.voadora() || ed.nadando()) {
+      modificador -= 4;
+    } else if (!ea.voadora() && ea.nadando()) {
+      ++modificador;
+    }
   }
   return modificador;
 }

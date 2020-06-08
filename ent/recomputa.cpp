@@ -2646,6 +2646,9 @@ void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, con
       da->clear_dano_basico_fixo();
     }
   }
+  if (arma.has_tempo_execucao_rodadas()) {
+    da->set_tempo_execucao_rodadas(arma.tempo_execucao_rodadas());
+  }
 }
 
 void RecomputaDependenciasVenenoParaAtaque(const EntidadeProto& proto, DadosAtaque* da) {

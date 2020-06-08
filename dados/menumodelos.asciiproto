@@ -110,8 +110,11 @@ sub_menu {
     modelos { id: 'Leão Atroz' }
   }
 }
-
-modelo { id: 'Elemental do Ar (Pequeno)' }
+sub_menu {
+  id: 'Elementais'
+  modelo { id: 'Elemental do Ar (Pequeno)' }
+  modelo { id: 'Elemental da Terra (Pequeno)' }
+}
 sub_menu {
   id: 'Enxames'
   modelo { id: 'Enxame (centopéias)' }

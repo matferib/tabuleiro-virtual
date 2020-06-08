@@ -1956,8 +1956,22 @@ modelo {
       taxa_refrescamento: "14400"  # 1 dia
     }
     dados_ataque {
-      grupo: 'nuvem_feitida' id_arma: 'nuvem_fetida' tipo_ataque: 'Feitiço de Mago'
+      grupo: 'nuvem_fetida' id_arma: 'nuvem_fetida' tipo_ataque: 'Feitiço de Mago'
       taxa_refrescamento: "14400"  # 1 dia
+    }
+    dados_ataque {
+      grupo: 'conjurar_dretch' rotulo: '35% chance de falha' tipo_ataque: 'Feitiço de Mago'
+      taxa_refrescamento: "14400"  # 1 dia
+      alcance_q: 6
+      tempo_execucao_rodadas: 1
+      chance_falha: 35
+      acao_fixa {
+        id: 'Criação de Entidade'
+        id_modelo_entidade: 'Demônio Dretch'
+        # TODO: Tempo de execucao 1 rodada.
+        # TODO chance de falha de 35%, duracao 1h.
+        # Ver https://www.d20srd.org/srd/specialAbilities.htm#summon
+      }
     }
     rotulo_especial: '1/dia: conjurar dretch 35%\ntelepatia'
 
@@ -2529,7 +2543,7 @@ modelo {
     tipo_dnd: TIPO_ELEMENTAL
     sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_TERRA
-    dados_vida: '2d8+2' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 }
+    dados_vida: '2d8+2' tamanho: TM_PEQUENO cor { r: 0.5 g: 0.25 b: 0.1 }
     info_classes { id: 'elemental' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
     rotulo_especial: '+1 de ataque e dano vs terrestres, -4 ataque e dano vs aéreas'
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
