@@ -91,6 +91,13 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
   }
   armas {
+    id: 'ferroada_padrao'
+    categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
+    tipo_dano: TD_PERFURANTE
+    dano { medio: '1d4' }
+  }
+  armas {
     id: 'chifrada'
     categoria: CAT_ARMA_NATURAL
     categoria: CAT_CAC
