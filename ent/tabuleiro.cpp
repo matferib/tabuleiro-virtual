@@ -1877,17 +1877,28 @@ void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
   EntraModoClique(MODO_ACAO);
 }
 
-int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao) {
+std::pair<int, int> Tabuleiro::LeValorListaPontosVida(
+    const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao) {
   if (modo_dano_automatico_) {
     if (entidade == nullptr) {
       LOG(WARNING) << "entidade eh nula";
-      return 0;
+      return {0, 0};
     }
-    auto [delta_pontos_vida, texto_pontos_vida] = entidade->ValorParaAcao(id_acao, alvo);
+    auto [valor_normal, valor_adicional_opt] = entidade->ValorParaAcao(id_acao, alvo);
+    auto [delta_pontos_vida, texto_pontos_vida] = valor_normal;
     delta_pontos_vida = -delta_pontos_vida;
+    if (valor_adicional_opt.has_value()) {
+      int delta_adicional = -std::get<0>(*valor_adicional_opt);
+      AdicionaLogEvento(
+          entidade->Id(),
+          StringPrintf("Valor para ação: %s e %s", texto_pontos_vida.c_str(), std::get<1>(*valor_adicional_opt).c_str()));
+
+      return {delta_pontos_vida, delta_adicional};
+    } else {
+      AdicionaLogEvento(entidade->Id(), StringPrintf("Valor para ação: %s", texto_pontos_vida.c_str()));
+      return {delta_pontos_vida, 0 };
+    }
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
-    AdicionaLogEvento(entidade->Id(), texto_pontos_vida);
-    return delta_pontos_vida;
   } else {
     int delta_pontos_vida;
     std::vector<std::pair<int, int>> dados;
@@ -1896,9 +1907,8 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const EntidadePr
                       ent::DadosParaString(delta_pontos_vida, dados));
     delta_pontos_vida *= lista_pontos_vida_.front().first;
     lista_pontos_vida_.pop_front();
-
     VLOG(1) << "Lendo valor da lista de pontos de vida: " << delta_pontos_vida;
-    return delta_pontos_vida;
+    return {delta_pontos_vida, 0};
   }
 }
 

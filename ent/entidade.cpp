@@ -1857,15 +1857,10 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
   proto_.mutable_direcao_queda()->Swap(&v);
 }
 
-std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const {
-  std::string s = StringDanoParaAcao(alvo);
-  if (s.empty()) {
-    VLOG(1) << "Acao nao encontrada: " << id_acao;
-    return std::make_tuple(0, "ação não encontrada");
-  }
+std::tuple<int, std::string> TuplaValorString(const std::string& string_dano) {
   try {
     // Valor minimo de dano é 1, caso haja algum dano.
-    auto [valor, dados] = GeraPontosVida(s);
+    auto [valor, dados] = GeraPontosVida(string_dano);
     std::string texto_dados;
     for (const auto& fv : dados) {
       texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
@@ -1873,11 +1868,26 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao,
     if (valor <= 0) {
       valor = 1;
     }
-    return std::make_tuple(valor, std::string("Valor para acao. ") + s + ", total: " + net::to_string(valor) + ", dados: " + texto_dados);
-  } catch (const std::exception& e) {
-    return std::make_tuple(0, std::string("string de dano malformada: ") + s);
+    return std::make_tuple(
+        valor, StringPrintf("%s, total: %d (dados: %s)", string_dano.c_str(), valor, texto_dados.c_str()));
+  } catch (...) {
   }
-  return std::make_tuple(0, "nunca deveria chegar aqui");
+  return std::make_tuple(0, StringPrintf("string de dano malformada: %s", string_dano.c_str()));
+}
+
+std::pair<std::tuple<int, std::string>, std::optional<std::tuple<int, std::string>>>
+    Entidade::ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const {
+  auto [string_normal, string_adicional_opt] = StringDanoParaAcao(alvo);
+  if (string_normal.empty()) {
+    VLOG(1) << "Acao nao encontrada: " << id_acao;
+    return std::make_pair(std::make_tuple(0, "ação não encontrada"), std::nullopt);
+  }
+  auto tupla_normal = TuplaValorString(string_normal);
+  std::optional<std::tuple<int, std::string>> tupla_adicional_opt;
+  if (string_adicional_opt.has_value()) {
+    tupla_adicional_opt = TuplaValorString(*string_adicional_opt);
+  }
+  return std::make_pair(tupla_normal, tupla_adicional_opt);
 }
 
 std::string Entidade::DetalhesAcao() const {
@@ -1889,10 +1899,10 @@ std::string Entidade::DetalhesAcao() const {
   return StringAtaque(*da, proto_);
 }
 
-std::string Entidade::StringDanoParaAcao(const EntidadeProto& alvo) const {
+std::pair<std::string, std::optional<std::string>> Entidade::StringDanoParaAcao(const EntidadeProto& alvo) const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {
-   return "";
+   return std::make_pair("", std::nullopt);
   }
   return ent::StringDanoParaAcao(*da, proto_, alvo);
 }

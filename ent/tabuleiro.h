@@ -231,8 +231,11 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaUltimoPontoVidaListaPontosVida();
   /** Retorna true se houver valor na lista ou se for automatico e a entidade tiver os dados necessarios. */
   bool HaValorListaPontosVida();
-  /** Retorna a frente da lista e a remove. Caso o dano seja automatico, le da entidade para o tipo de acao. */
-  int LeValorListaPontosVida(const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao);
+  /** Retorna a frente da lista e a remove. Caso o dano seja automatico, le da entidade para o tipo de acao.
+  * Os dois valores se referem ao dano normal e o dano adicional.
+  */
+  std::pair<int, int> LeValorListaPontosVida(
+      const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao);
   /** Retorna o valor de ataque furtivo, se estiver ligado e houver. */
   int LeValorAtaqueFurtivo(const Entidade* entidade);
 

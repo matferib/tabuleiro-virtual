@@ -2993,11 +2993,17 @@ std::string StringAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
   }
 
   std::string critico = StringCritico(da);
-  return google::protobuf::StringPrintf(
-      "%s (%s)%s%s: %+d%s, %s%s%s, CA: %s",
-      da.grupo().c_str(), da.rotulo().c_str(), da.descarregada() ? " [descarregado]" : "", da.ataque_toque() ? " (T)" : "",
+  auto [dano_normal, dano_adicional_opt] = StringDanoParaAcao(da, proto, EntidadeProto());
+  std::string dano_adicional;
+  if (dano_adicional_opt.has_value()) {
+    dano_adicional = StringPrintf("+%s[%s]", dano_adicional_opt->c_str(), TextoDescritor(da.elemento_dano_adicional()));
+  }
+  return StringPrintf(
+      "%s (%s)%s%s: %+d%s, %s%s%s%s, CA: %s",
+      da.grupo().c_str(), da.rotulo().c_str(),
+      da.descarregada() ? " [descarregado]" : "", da.ataque_toque() ? " (T)" : "",
       da.bonus_ataque_final(), texto_modificador.c_str(),
-      StringDanoParaAcao(da, proto, EntidadeProto()).c_str(), critico.c_str(), texto_furtivo.c_str(),
+      dano_normal.c_str(), dano_adicional.c_str(), critico.c_str(), texto_furtivo.c_str(),
       StringCAParaAcao(da, proto).c_str());
 }
 
@@ -3018,7 +3024,7 @@ std::string StringCAParaAcao(const DadosAtaque& da, const EntidadeProto& proto) 
 
 std::string StringDescritores(const google::protobuf::RepeatedField<int>& descritores) {
   if (descritores.empty()) return "";
-  if (descritores.size() == 1) return google::protobuf::StringPrintf(" [%s] ", TextoDescritor(descritores.Get(0)));
+  if (descritores.size() == 1) return StringPrintf(" [%s] ", TextoDescritor(descritores.Get(0)));
   std::string ret;
   for (int descritor : descritores) {
     ret += TextoDescritor(descritores.Get(descritor));
@@ -3094,7 +3100,8 @@ int CalculaDanoAdicionalPorTendencia(const DadosAtaque& da, const EntidadeProto&
   return dano;
 }
 
-std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo) {
+std::pair<std::string, std::optional<std::string>> StringDanoParaAcao(
+    const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo) {
   int modificador_dano = ModificadorDano(da, proto, alvo);
   const std::string* dano = &da.dano();
   if (!da.dano_por_tipo().empty()) {
@@ -3106,11 +3113,16 @@ std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto
     }
   }
   int dapt = CalculaDanoAdicionalPorTendencia(da, alvo);
-  return StringPrintf(
+  const std::string dano_normal = StringPrintf(
       "%s%s%s",
       dano->c_str(),
       !dano->empty() &&  modificador_dano != 0 ? StringPrintf("%+d", modificador_dano).c_str() : "",
       dapt > 0 ? StringPrintf("+%d", dapt).c_str() : "");
+  std::optional<std::string> dano_adicional_opt;
+  if (da.has_dano_adicional()) {
+    dano_adicional_opt = StringPrintf("%s", da.dano_adicional().c_str());
+  }
+  return { dano_normal, dano_adicional_opt };
 }
 
 // Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.

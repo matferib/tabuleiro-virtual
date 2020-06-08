@@ -373,9 +373,10 @@ class Entidade {
   bool Caotico() const { return ::ent::Caotico(proto_); }
 
   /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. A string eh a descricao. */
-  std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const;
+  std::pair<std::tuple<int, std::string>, std::optional<std::tuple<int, std::string>>>
+      ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const;
   /** Retorna a string de dano para a acao corrente para o alvo: '1d8+3'. */
-  std::string StringDanoParaAcao(const EntidadeProto& alvo) const;
+  std::pair<std::string, std::optional<std::string>> StringDanoParaAcao(const EntidadeProto& alvo) const;
   /** Retorna a string de CA para a acao corrente (normal, toque): '(esc+surp) 15, tq: 12. */
   std::string StringCAParaAcao() const;
   /** Retorna alguns detalhes da acao: rotulo, string dano. */

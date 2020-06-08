@@ -1358,21 +1358,24 @@ float Tabuleiro::TrataAcaoEfeitoArea(
   }
 
   int delta_pv_inicial = 0;
+  int delta_pv_adicional_inicial = 0;
   if (HaValorListaPontosVida()) {
-    delta_pv_inicial =
+    std::tie(delta_pv_inicial, delta_pv_adicional_inicial) =
         LeValorListaPontosVida(entidade_origem, EntidadeProto(), acao_proto->id());
     if (da.cura()) {
       delta_pv_inicial = -delta_pv_inicial;
+      delta_pv_adicional_inicial -= delta_pv_adicional_inicial;
     }
     if (da.incrementa_proximo_ataque()) {
       // TODO desfazer.
       entidade_origem->ProximoAtaque();
     }
-    acao_proto->set_delta_pontos_vida(delta_pv_inicial);
+    acao_proto->set_delta_pontos_vida(delta_pv_inicial + delta_pv_adicional_inicial);
     acao_proto->set_afeta_pontos_vida(true);
   }
   // Este valor deve ser inalterado.
   const int delta_pv = delta_pv_inicial;
+  const int delta_pv_adicional = delta_pv_adicional_inicial;
   acao_proto->clear_por_entidade();
   if (acao_proto->has_modelo_maximo_criaturas_afetadas()) {
     acao_proto->set_maximo_criaturas_afetadas(ComputaLimiteVezes(
@@ -1399,7 +1402,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     acao_proto->set_gera_outras_acoes(true);  // mesmo que nao de dano, tem os textos.
     auto* por_entidade = acao_proto->add_por_entidade();
     por_entidade->set_id(id);
-    por_entidade->set_delta(delta_pv);
+    por_entidade->set_delta(delta_pv + delta_pv_adicional);
 
     std::string texto_afeta;
     if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino, &texto_afeta)) {
@@ -1422,7 +1425,9 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         continue;
       }
     }
+    // Dano adicional nao vai para salvacao.
     int delta_pv_pos_salvacao = delta_pv;
+    int delta_pv_adicional_entidade = delta_pv_adicional;
     bool salvou = false;
     if (acao_proto->permite_salvacao()) {
       std::string texto_salvacao;
@@ -1438,9 +1443,9 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
     }
     // Imunidade ao tipo de ataque.
-    ResultadoImunidadeOuResistencia resultado_elemento =
-        ImunidadeOuResistenciaParaElemento(delta_pv_pos_salvacao, da, entidade_destino->Proto(), acao_proto->elemento());
-    if (resultado_elemento.causa != ALT_NENHUMA) {
+    if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
+          delta_pv_pos_salvacao, da, entidade_destino->Proto(), acao_proto->elemento());
+        resultado_elemento.causa != ALT_NENHUMA) {
       delta_pv_pos_salvacao += resultado_elemento.resistido;
       atraso_s += 1.5f;
       ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
@@ -1450,6 +1455,13 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         continue;
       }
     }
+    if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
+          delta_pv_adicional_entidade, da, entidade_destino->Proto(), da.elemento_dano_adicional());
+        resultado_elemento.causa != ALT_NENHUMA) {
+      delta_pv_adicional_entidade += resultado_elemento.resistido;
+      ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
+    }
+    delta_pv_pos_salvacao += delta_pv_adicional_entidade;
 
     // Efeitos adicionais.
     // TODO: ver questao da reducao de dano e rm.
@@ -1839,6 +1851,7 @@ float Tabuleiro::TrataAcaoIndividual(
 
     // Aplica dano e critico, furtivo.
     int delta_pv = 0;
+    int delta_pv_adicional = 0;
     const bool acao_cura = da.cura();
     if (resultado.Sucesso()) {
       int max_predileto = 0;
@@ -1854,8 +1867,10 @@ float Tabuleiro::TrataAcaoIndividual(
       }
       delta_pv -= max_predileto;
       for (int i = 0; i < resultado.vezes; ++i) {
-        delta_pv += LeValorListaPontosVida(
+        const auto [delta_normal, delta_adicional] = LeValorListaPontosVida(
             entidade_origem, entidade_destino->Proto(), acao_proto->id());
+        delta_pv += delta_normal;
+        delta_pv_adicional += delta_adicional;
       }
       if (!entidade_destino->ImuneFurtivo(*entidade_origem) && !acao_cura) {
         if ((entidade_origem->Proto().dados_ataque_global().furtivo() || !DestrezaNaCA(entidade_destino->Proto()))
@@ -2026,9 +2041,9 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     // Resistencias e imunidades.
-    ResultadoImunidadeOuResistencia resultado_elemento =
-        ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
-    if (resultado_elemento.causa != ALT_NENHUMA) {
+    if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
+          delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
+        resultado_elemento.causa != ALT_NENHUMA) {
       delta_pv += resultado_elemento.resistido;
       ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
       if (delta_pv == 0) {
@@ -2036,6 +2051,13 @@ float Tabuleiro::TrataAcaoIndividual(
         por_entidade->set_delta(0);
       }
     }
+    if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
+          delta_pv_adicional, da, entidade_destino->Proto(), da.elemento_dano_adicional());
+        resultado_elemento.causa != ALT_NENHUMA) {
+      delta_pv_adicional += resultado_elemento.resistido;
+      ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
+    }
+    delta_pv += delta_pv_adicional;
 
     bool nao_letal = da.nao_letal();
 

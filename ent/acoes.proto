@@ -448,8 +448,8 @@ message DadosAtaque {
   // A arma pode ter tamanho diferente.
   optional TamanhoEntidade tamanho = 26;
   // Dano adicional nao eh multiplicado em criticos. Exemplo: dano de fogo de uma arma flamejante.
-  // TODO implementar.
   optional string dano_adicional = 27;
+  optional DescritorAtaque elemento_dano_adicional = 86;
   // Indica ataque de toque.
   optional bool ataque_toque = 28;
   // Indica que o ataque eh a distancia.
@@ -512,7 +512,6 @@ message DadosAtaque {
   // Computado dinamicamente.
   repeated DescritorAtaque descritores = 57;
   optional DescritorAtaque elemento = 58;
-  optional DescritorAtaque elemento_dano_adicional = 86;
   optional int32 dificuldade_salvacao = 59;
   optional string icone = 60;
   optional TipoSalvacao tipo_salvacao = 61;

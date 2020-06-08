@@ -112,7 +112,9 @@ sub_menu {
 }
 sub_menu {
   id: 'Elementais'
+  modelo { id: 'Elemental da Água (Pequeno)' }
   modelo { id: 'Elemental do Ar (Pequeno)' }
+  modelo { id: 'Elemental do Fogo (Pequeno)' }
   modelo { id: 'Elemental da Terra (Pequeno)' }
 }
 sub_menu {

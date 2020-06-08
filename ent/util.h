@@ -609,7 +609,8 @@ std::string StringAtaque(const DadosAtaque& da, const EntidadeProto& proto);
 // Retorna a string de dano para o ataque, sem critico e com modificadores.
 // Exemplo: 1d8+5+2.
 // Usado para gerar dano.
-std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo);
+std::pair<std::string, std::optional<std::string>>
+    StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo);
 
 // Retorna a string de dano para o ataque, com informacao de critico e sem modificadores.
 // Exemplo: 1d8(19-20).
