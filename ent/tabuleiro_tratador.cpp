@@ -1252,6 +1252,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
           vopt.has_value()) {
         auto [delta, texto] = *vopt;
         ConcatenaString(texto, por_entidade->mutable_texto());
+        AdicionaLogEvento(entidade_destino->Id(), texto);
         delta_pv += delta;
       }
     }
@@ -1295,7 +1296,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
       delta_pv = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
-        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
+        AdicionaLogEvento(entidade_destino->Id(), texto_renovacao);
         central_->AdicionaNotificacao(n_uso_poder.release());
       }
     }
@@ -1421,9 +1422,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
     }
 
     if (!acao_proto->ignora_resistencia_magia() && entidade_destino->Proto().dados_defesa().resistencia_magia() > 0) {
-      std::string resultado_rm;
-      bool ataque_passou_rm;
-      std::tie(ataque_passou_rm, resultado_rm) = AtaqueVsResistenciaMagia(tabelas_, da, *entidade_origem, *entidade_destino);
+      auto [ataque_passou_rm, resultado_rm] = AtaqueVsResistenciaMagia(tabelas_, da, *entidade_origem, *entidade_destino);
       por_entidade->set_texto(resultado_rm);
       AdicionaLogEvento(entidade_origem->Id(), resultado_rm);
       if (!ataque_passou_rm) {
@@ -1455,7 +1454,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       delta_pv_pos_salvacao += resultado_elemento.resistido;
       atraso_s += 1.5f;
       ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
-      AdicionaLogEvento(entidade_origem->Id(), resultado_elemento.texto);
+      AdicionaLogEvento(entidade_destino->Id(), resultado_elemento.texto);
       if (resultado_elemento.causa == ALT_IMUNIDADE || (resultado_elemento.causa == ALT_RESISTENCIA && delta_pv_pos_salvacao == 0)) {
         por_entidade->set_delta(0);
         continue;
@@ -1465,6 +1464,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         vopt.has_value()) {
       auto [delta, texto] = *vopt;
       ConcatenaString(texto, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), texto);
       delta_pv_pos_salvacao += delta;
     }
     if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
@@ -1472,11 +1472,13 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         resultado_elemento.causa != ALT_NENHUMA) {
       delta_pv_adicional_entidade += resultado_elemento.resistido;
       ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), resultado_elemento.texto);
     }
     if (auto vopt = VulnerabilidadeParaElemento(delta_pv_adicional_entidade, entidade_destino->Proto(), da.elemento_dano_adicional());
         vopt.has_value()) {
       auto [delta, texto] = *vopt;
       ConcatenaString(texto, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), texto);
       delta_pv_adicional_entidade += delta;
     }
     // Une dano primario e adicional.
@@ -1508,7 +1510,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       delta_pv_pos_salvacao = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
-        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
+        AdicionaLogEvento(entidade_destino->Id(), texto_renovacao);
         central_->AdicionaNotificacao(n_uso_poder.release());
       }
     }
@@ -2074,6 +2076,7 @@ float Tabuleiro::TrataAcaoIndividual(
         vopt.has_value()) {
       auto [delta, texto] = *vopt;
       ConcatenaString(texto, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), texto);
       delta_pv += delta;
     }
     if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
@@ -2086,6 +2089,7 @@ float Tabuleiro::TrataAcaoIndividual(
         vopt.has_value()) {
       auto [delta, texto] = *vopt;
       ConcatenaString(texto, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), texto);
       delta_pv_adicional += delta;
     }
     // Une dano primario e adicional.

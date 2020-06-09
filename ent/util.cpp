@@ -1057,7 +1057,6 @@ int AplicaMaestriaElemental(int modificador, const EntidadeProto& ea, const Enti
     return modificador;
   }
   if (TemSubTipoDnD(SUBTIPO_AGUA, ea)) {
-    LOG(INFO) << "aqui";
     if (ea.nadando() && ed.nadando()) {
       // Ambos na agua.
       ++modificador;
@@ -4666,7 +4665,7 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
 
 std::optional<std::pair<int, std::string>> VulnerabilidadeParaElemento(
     int delta_pv, const EntidadeProto& proto, DescritorAtaque elemento) {
-  if (delta_pv <= 0) {
+  if (delta_pv >= 0) {
     return std::nullopt;
   }
   if (elemento == DESC_NENHUM) {
@@ -4674,7 +4673,8 @@ std::optional<std::pair<int, std::string>> VulnerabilidadeParaElemento(
   }
   std::pair<int, std::string> resultado;
   if (EntidadeVulneravelElemento(proto, elemento)) {
-    return std::make_pair(delta_pv * 0.5, StringPrintf("vulnerável a: %s", TextoDescritor(elemento)));
+    int novo_delta = delta_pv * 0.5;
+    return std::make_pair(delta_pv * 0.5, StringPrintf("vulnerável a: %s, aumentando em %d", TextoDescritor(elemento), std::abs(novo_delta)));
   }
   return std::nullopt;
 }

@@ -4494,6 +4494,12 @@ TEST(TesteModelo, TesteElementalFogo) {
   const auto& da = DadosAtaquePorGrupo("pancada", proto);
   EXPECT_EQ(std::get<0>(StringDanoParaAcao(da, proto, proto)), "1d4");
   EXPECT_EQ(std::get<1>(StringDanoParaAcao(da, proto, proto)), "1d4");
+  auto vopt = VulnerabilidadeParaElemento(-5, proto, DESC_FRIO);
+  ASSERT_TRUE(vopt.has_value());
+  auto [delta, texto] = *vopt;
+  EXPECT_EQ(delta, -2);
+  vopt = VulnerabilidadeParaElemento(-5, proto, DESC_FOGO);
+  ASSERT_FALSE(vopt.has_value());
 }
 
 TEST(TesteModelo, TesteLeaoAtroz) {
