@@ -480,6 +480,62 @@ modelo {
   }
 }
 modelo {
+  id: 'Elemental da Terra (Pequeno) ICIII'
+  id_entidade_base: 'Elemental da Terra (Pequeno)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Elemental da Água (Pequeno) ICIII'
+  id_entidade_base: 'Elemental da Água (Pequeno)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Elemental do Ar (Pequeno) ICIII'
+  id_entidade_base: 'Elemental do Ar (Pequeno)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Elemental do Fogo (Pequeno) ICIII'
+  id_entidade_base: 'Elemental do Fogo (Pequeno)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Elemental da Terra (Médio) ICV'
+  id_entidade_base: 'Elemental da Terra (Médio)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Elemental da Água (Médio) ICV'
+  id_entidade_base: 'Elemental da Água (Médio)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Elemental do Ar (Médio) ICV'
+  id_entidade_base: 'Elemental do Ar (Médio)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Elemental do Fogo (Médio) ICV'
+  id_entidade_base: 'Elemental do Fogo (Médio)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
   id: 'Cobra, Víbora Grande IANIII'
   id_entidade_base: 'Cobra, Víbora Grande'
   parametros {
@@ -2545,20 +2601,19 @@ modelo {
     sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_TERRA
     dados_vida: '2d8+2' tamanho: TM_PEQUENO cor { r: 0.5 g: 0.25 b: 0.1 }
-    info_classes { id: 'elemental_agua_terra' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
-    rotulo_especial: '+1 de ataque e dano vs terrestres, -4 ataque e dano vs aéreas'
+    info_classes { id: 'elemental_agua_terra' nivel: 2 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     dados_defesa {
-      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 7 } } }
     }
     movimento {
       terrestre_basico_q: 4
     }
     dados_ataque {
-      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'encontrão' rotulo: 'encontrão' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      grupo: 'encontrão' rotulo: 'encontrão' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
@@ -2571,12 +2626,49 @@ modelo {
     info_pericias { id: 'ouvir' pontos: 2 }
     info_pericias { id: 'observar' pontos: 3 }
     info_talentos {
-      gerais { id: 'investida_aerea' }
-      outros { id: 'iniciativa_aprimorada' origem: 'bonus' }
-      outros { id: 'acuidade_arma' origem: 'bonus' }
+      gerais { id: 'ataque_poderoso' }
     }
   }
 }
+modelo {
+  id: 'Elemental da Terra (Médio)'
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    tipo_dnd: TIPO_ELEMENTAL
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    sub_tipo_dnd: SUBTIPO_TERRA
+    dados_vida: '4d8+12' tamanho: TM_PEQUENO cor { r: 0.5 g: 0.25 b: 0.1 }
+    info_classes { id: 'elemental_agua_terra' nivel: 4 }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 9 } } }
+    }
+    movimento {
+      terrestre_basico_q: 4
+    }
+    dados_ataque {
+      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'encontrão' rotulo: 'encontrão' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_talentos {
+      gerais { id: 'trespassar' }
+      gerais { id: 'ataque_poderoso' }
+    }
+  }
+}
+
 modelo {
   id: 'Elemental da Água (Pequeno)'
   entidade {
@@ -2619,6 +2711,49 @@ modelo {
   }
 }
 modelo {
+  id: 'Elemental da Água (Médio)'
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    tipo_dnd: TIPO_ELEMENTAL
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    sub_tipo_dnd: SUBTIPO_AGUA
+    dados_vida: '4d8+12' tamanho: TM_MEDIO cor { r: 0.0 g: 0.0 b: 1.0 }
+    info_classes { id: 'elemental_agua_terra' nivel: 4 }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 8 } } }
+    }
+    movimento {
+      terrestre_basico_q: 4
+      aquatico_basico_q: 18
+    }
+    dados_ataque {
+      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d8' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'apagar_chamas' rotulo: 'ver regras enxurrada' tipo_ataque: 'Feitiço de Toque' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'vortice' rotulo: 'ver regras vortice' tipo_ataque: 'Feitiço de Toque' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_talentos {
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'trespassar' }
+    }
+  }
+}
+
+modelo {
   id: 'Elemental do Fogo (Pequeno)'
   entidade {
     tendencia { simples: TD_NEUTRO }
@@ -2658,7 +2793,47 @@ modelo {
     }
   }
 }
-
+modelo {
+  id: 'Elemental do Fogo (Médio)'
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    tipo_dnd: TIPO_ELEMENTAL
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    sub_tipo_dnd: SUBTIPO_FOGO
+    dados_vida: '4d8+8' tamanho: TM_MEDIO
+    cor { r: 1 g: 1 b: 0 a: 0.9 }
+    info_classes { id: 'elemental_fogo_ar' nivel: 4 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
+      imunidades: DESC_FOGO
+      vulnerabilidades: DESC_FRIO
+    }
+    movimento {
+      terrestre_basico_q: 10
+    }
+    dados_ataque {
+      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_adicional: '1d6' elemento_dano_adicional: DESC_FOGO
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'mobilidade' }
+      outros { id: 'iniciativa_aprimorada' origem: 'bonus' }
+      outros { id: 'acuidade_arma' origem: 'bonus' }
+    }
+  }
+}
 modelo {
   id: 'Elemental do Ar (Pequeno)'
   entidade {
@@ -2710,6 +2885,59 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Elemental do Ar (Médio)'
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    voadora: true
+    tipo_dnd: TIPO_ELEMENTAL
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    sub_tipo_dnd: SUBTIPO_AR
+    dados_vida: '4d8+8' tamanho: TM_MEDIO cor { r: 0.7 g: 0.7 b: 1.0 a: 0.9 }
+    info_classes { id: 'elemental_fogo_ar' nivel: 4 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
+    rotulo_especial: 'criaturas voando tem -1 de penalidade de ataque e dano\nredemoinho'
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
+    }
+    movimento {
+      aereo_basico_q: 20
+    }
+    dados_ataque {
+      grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'redemoinho' rotulo: 'redemoinho (ler descrição)' tipo_ataque: 'Feitiço Pessoal' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      limite_vezes: 1
+      mantem_com_limite_zerado: true
+      taxa_refrescamento: "100"
+      acao_fixa {
+        efeitos_adicionais {
+          efeito: EFEITO_OUTRO
+          rodadas: 1
+          descricao: 'redemoinho, 1d4 dano, salvação 11'
+        }
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      gerais { id: 'investida_aerea' }
+      outros { id: 'iniciativa_aprimorada' origem: 'bonus' }
+      outros { id: 'acuidade_arma' origem: 'bonus' }
+    }
+  }
+}
+
 modelo {
   id : 'Elfo'
   entidade {

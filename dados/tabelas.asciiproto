@@ -10399,6 +10399,22 @@ tabela_feiticos {
           texto: 'Demônio Dretch'
           id_modelo_entidade: 'Demônio Dretch ICIII'
         }
+        parametros {
+          texto: 'Elemental da Terra (Pequeno)'
+          id_modelo_entidade: 'Elemental da Terra (Pequeno) ICIII'
+        }
+        parametros {
+          texto: 'Elemental da Água (Pequeno)'
+          id_modelo_entidade: 'Elemental da Água (Pequeno) ICIII'
+        }
+        parametros {
+          texto: 'Elemental do Ar (Pequeno)'
+          id_modelo_entidade: 'Elemental do Ar (Pequeno) ICIII'
+        }
+        parametros {
+          texto: 'Elemental da Fogo (Pequeno)'
+          id_modelo_entidade: 'Elemental do Fogo (Pequeno) ICIII'
+        }
       }
     }
     escola: 'conjuracao'
@@ -10457,6 +10473,22 @@ tabela_feiticos {
       tipo: ACAO_CRIACAO_ENTIDADE
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Elemental da Terra (Médio)'
+          id_modelo_entidade: 'Elemental da Terra (Médio) ICV'
+        }
+        parametros {
+          texto: 'Elemental da Água (Médio)'
+          id_modelo_entidade: 'Elemental da Água (Médio) ICV'
+        }
+        parametros {
+          texto: 'Elemental do Ar (Médio)'
+          id_modelo_entidade: 'Elemental do Ar (Médio) ICV'
+        }
+        parametros {
+          texto: 'Elemental da Fogo (Médio)'
+          id_modelo_entidade: 'Elemental do Fogo (Médio) ICV'
+        }
       }
     }
     escola: 'conjuracao'
