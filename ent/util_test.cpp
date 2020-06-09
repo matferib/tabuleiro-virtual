@@ -2753,29 +2753,31 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueElementalTerra) {
 
 TEST(TesteModificadorAtaque, TesteModificadorAtaqueElementalAgua) {
   const auto& modelo = g_tabelas.ModeloEntidade("Elemental da Água (Pequeno)");
+  ASSERT_EQ(modelo.id(), "Elemental da Água (Pequeno)");
   auto el = modelo.entidade();
   EntidadeProto ed;
   EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_voadora(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
-  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_voadora(false);
   ed.set_nadando(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
-  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_nadando(false);
   el.set_voadora(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
-  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   el.set_voadora(false);
   el.set_nadando(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
-  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
+  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_nadando(true);
   EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 1);
   el.set_nadando(false);
+  el.set_voadora(true);
   EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
 }
@@ -4445,7 +4447,7 @@ TEST(TesteModelo, TesteHalflingDruida10) {
   const auto* da = druida->DadoAtaque("relampago", 0);
   ASSERT_NE(da, nullptr);
   // Nao pode aplicar modificador de tiro certeiro.
-  EXPECT_EQ(StringDanoParaAcao(*da, druida->Proto(), druida->Proto()), "3d6");
+  EXPECT_EQ(std::get<0>(StringDanoParaAcao(*da, druida->Proto(), druida->Proto())), "3d6");
 }
 
 TEST(TesteModelo, CamposResetadosNaoSetados) {
@@ -4472,6 +4474,16 @@ TEST(TesteModelo, TodasAcoesTemTipo) {
         << " modelo: " << modelo.id() << ", da grupo: " << da.grupo() << ", rotulo: " << da.rotulo();
     }
   }
+}
+
+TEST(TesteModelo, TesteElementalFogo) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Elemental do Fogo (Pequeno)");
+  EntidadeProto proto = modelo.entidade();
+  proto.set_gerar_agarrar(false);
+  RecomputaDependencias(g_tabelas, &proto);
+  const auto& da = DadosAtaquePorGrupo("pancada", proto);
+  EXPECT_EQ(std::get<0>(StringDanoParaAcao(da, proto, proto)), "1d4");
+  EXPECT_EQ(std::get<1>(StringDanoParaAcao(da, proto, proto)), "1d4");
 }
 
 TEST(TesteModelo, TesteLeaoAtroz) {
@@ -4530,7 +4542,7 @@ TEST(TesteModelo, TesteCentopeiaEnormeAbissal) {
 
   const auto& modelo_alvo = g_tabelas.ModeloEntidade("Cachorro Celestial");
   std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(modelo_alvo.entidade(), g_tabelas));
-  EXPECT_EQ(StringDanoParaAcao(da, entidade->Proto(), alvo->Proto()), "2d6+4+6");
+  EXPECT_EQ(std::get<0>(StringDanoParaAcao(da, entidade->Proto(), alvo->Proto())), "2d6+4+6");
 }
 
 TEST(TesteModelo, TesteModeloVulto) {

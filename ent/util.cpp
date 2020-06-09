@@ -1057,13 +1057,14 @@ int AplicaMaestriaElemental(int modificador, const EntidadeProto& ea, const Enti
     return modificador;
   }
   if (TemSubTipoDnD(SUBTIPO_AGUA, ea)) {
+    LOG(INFO) << "aqui";
     if (ea.nadando() && ed.nadando()) {
       // Ambos na agua.
       ++modificador;
-    } else if (!ea.voadora() || !ea.nadando()) {
+    } else if (!ea.voadora() && !ea.nadando()) {
       // Elemental tem dificuldade em terra firme.
       modificador -= 4;
-    } else if (!ed.voadora() || !ed.nadando()) {
+    } else if (!ed.voadora() && !ed.nadando()) {
       // Defensor em terra firme.
       modificador -= 4;
     }
