@@ -1516,13 +1516,23 @@ TEST(TesteTalentoPericias, TestePotencializarInvocacao) {
   }
 }
 
-TEST(TesteTalentoPericias, TesteTabeladoTalentos) {
+TEST(TesteTalentoPericias, TesteTabeladoTalentosPericias) {
   for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
     EntidadeProto proto = modelo.entidade();
     const int antes = proto.info_talentos().gerais().size();
     RecomputaDependencias(g_tabelas, &proto);
     const int depois = proto.info_talentos().gerais().size();
     EXPECT_EQ(antes, depois) << "falhou para: " << modelo.id();
+    for (const auto& talentos : { proto.info_talentos().gerais(), proto.info_talentos().automaticos(), proto.info_talentos().outros()}) {
+      for (const auto& talento : talentos) {
+        EXPECT_FALSE(g_tabelas.Talento(talento.id()).id().empty())
+            << "talento invalido: " << talento.id() << " para modelo " << modelo.id();
+      }
+    }
+    for (const auto& pericia : proto.info_pericias()) {
+      EXPECT_FALSE(g_tabelas.Pericia(pericia.id()).id().empty())
+          << "perícia inválida: " << pericia.id() << " para modelo " << modelo.id();
+    }
   }
 }
 
