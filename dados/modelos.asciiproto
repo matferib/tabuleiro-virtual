@@ -1398,7 +1398,7 @@ modelo {
     }
     info_talentos {
       gerais { id: 'prontidao' }
-      gerais { id: 'acuidade_arma' }
+      outros { id: 'acuidade_arma' origem: 'bonus'}
     }
     info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 14 } } } }
     info_pericias { id: 'ouvir' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
@@ -4374,8 +4374,8 @@ modelo {
     info_pericias { id: 'observar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } }  }
     info_talentos {
       gerais { id: 'prontidao' }
-      gerais { id: 'rastrear' }
       gerais { id: 'vitalidade' }
+      outros { id: 'rastrear' origem: 'bonus'}
     }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
@@ -6489,6 +6489,7 @@ modelo {
 modelo {
   id: 'Humano Feiticeiro 5'
   entidade {
+    rotulo: 'feiticeiro 5'
     dados_vida: '4d4+12'
     raca: 'humano'
     info_textura { id: 'sorcerer.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
@@ -6591,6 +6592,7 @@ modelo {
   id: 'Humano Guerreiro'
   entidade {
     # Elite.
+    rotulo: 'guerreiro 1'
     dados_vida: '15'
     raca: 'humano'
     info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
@@ -6625,6 +6627,7 @@ modelo {
   id: 'Humana Guerreira 5'
   entidade {
     # Elite.
+    rotulo: 'guerreira 5'
     dados_vida: '4d10+10+10'
     raca: 'humano'
     info_textura { id: 'fighter_female.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
@@ -6661,6 +6664,7 @@ modelo {
   id: 'Humano Guerreiro 5'
   entidade {
     # Elite.
+    rotulo: 'guerreiro 5'
     dados_vida: '4d10+10+10'
     raca: 'humano'
     info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
@@ -6696,6 +6700,7 @@ modelo {
   id: 'Humano Guerreiro 7'
   entidade {
     # Elite.
+    rotulo: 'guerreiro 7'
     dados_vida: '7d10+10+10'
     raca: 'humano'
     info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
@@ -6719,10 +6724,10 @@ modelo {
       gerais { id: 'usar_arma_exotica' complemento: 'espada_bastarda' }
       gerais { id: 'reflexos_em_combate' }
       gerais { id: 'ataque_poderoso' }
-      gerais { id: 'trespassar' }
-      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' }
-      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' }
-      outros { id: 'trespassar_aprimorado' }
+      outros { id: 'trespassar' origem: 'humano' }
+      outros { id: 'foco_em_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'especializacao_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
+      outros { id: 'trespassar_aprimorado' origem: 'guerreiro' }
     }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
@@ -7926,6 +7931,7 @@ modelo {
   id: 'Humano Paladino 12'
   entidade {
     # Elite.
+    rotulo: 'paladino 12'
     dados_vida: '11d10+10+24'
     raca: 'humano'
     info_textura { id: 'paladin.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
@@ -7952,7 +7958,7 @@ modelo {
       id_escudo: 'pesado_aco' bonus_magico_escudo: 1
     }
     info_talentos {
-      gerais { id: 'vitalidade' origem: 'humano' }
+      outros { id: 'vitalidade' origem: 'humano' }
       gerais { id: 'sucesso_decisivo_aprimorado' complemento: 'espada_longa' }
       gerais { id: 'expulsao_adicional' }
       gerais { id: 'vontade_ferro' }

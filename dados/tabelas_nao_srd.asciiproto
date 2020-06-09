@@ -55,6 +55,9 @@ tabela_classes {
     pericias: 'profissao'
     pericias: 'identificar_magia'
     pericias_por_nivel: 2
+    talentos_automaticos: 'magia_traicoeira'
+    talentos_automaticos: 'magia_perniciosa'
+    talentos_automaticos: 'magia_tenaz'
 
     salvacoes_fortes: TS_VONTADE
   }

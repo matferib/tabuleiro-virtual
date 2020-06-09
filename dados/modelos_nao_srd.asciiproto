@@ -712,21 +712,20 @@ modelo {
   # Shadovar guard
   id: 'Guardião Obscuro Feiticeiro 6/Adepto das Sombras 4'
   entidade {
-    dados_vida: '9d4+14' raca: 'humano'
+    rotulo: 'guardião obscuro adepto das sombras'
+    dados_vida: '9d4+14'
+    raca: 'humano'
     info_textura { id: 'sorcerer.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes { id: 'feiticeiro' nivel: 6 }
     info_classes { id: 'adepto_sombras' nivel: 4 }
     tendencia { simples: TD_LEAL_MAU }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     info_talentos {
-      gerais { id: 'preparar_pocao' }
+      outros { id: 'preparar_pocao' origem: 'humano'}
       gerais { id: 'magia_combate' }
       gerais { id: 'criar_varinha' }
       gerais { id: 'aumentar_magia' }
-      gerais { id: 'magia_traicoeira' }
-      gerais { id: 'magia_perniciosa' }
       gerais { id: 'magia_trama_sombras' }
-      gerais { id: 'magia_tenaz' }
     }
     info_pericias { id: 'blefar' pontos: 13 }
     info_pericias { id: 'concentracao' pontos: 13 }
@@ -737,7 +736,7 @@ modelo {
     info_pericias { id: 'identificar_magia' pontos: 11 }
 
     atributos {
-      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      # Usa o array elite 15, 14, 13, 12, 10, 8. mas tem uma roubada de carisma.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
@@ -749,8 +748,6 @@ modelo {
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
       mantos { id: 'manto_resistencia_2' em_uso: true }
     }
-
-    rotulo: ''
     feiticos_classes {
       id_classe: 'feiticeiro'
       feiticos_por_nivel {
@@ -767,35 +764,33 @@ modelo {
       }
       feiticos_por_nivel {
         nivel: 1
-        conhecidos { id: 'suportar_elementos' }
-        conhecidos { id: 'queda_suave' }
-        conhecidos { id: 'armadura_arcana' }
-        conhecidos { id: 'protecao_contra_bem' }
-        conhecidos { id: 'escudo_arcano' }
-        para_lancar { usado: true }
-        para_lancar { usado: true }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
       }
       feiticos_por_nivel {
         nivel: 2
-        conhecidos { id: 'invisibilidade' }
-        conhecidos { id: 'resistencia_elementos' }
-        conhecidos { id: 'invocar_enxames' }
-        conhecidos { id: 'vento_sussurrante' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
       }
       feiticos_por_nivel {
         nivel: 3
-        conhecidos { id: 'forma_gasosa' }
-        conhecidos { id: 'raio_exaustao' }
-        conhecidos { id: 'idiomas' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
       }
       feiticos_por_nivel {
         nivel: 4
-        conhecidos { id: 'pele_rochosa' }
-        conhecidos { id: 'invocar_criaturas_iv' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
       }
       feiticos_por_nivel {
         nivel: 5
-        conhecidos { id: 'nevoa_mortal' }
+        conhecidos { id: 'auto' }
       }
     }
   }
@@ -804,6 +799,7 @@ modelo {
   # Atencao: nao é vulto! Baseado em EotS 119 sem feiticeiro.
   id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2'
   entidade {
+    rotulo: 'batedor aéreo obscuro 7'
     dados_vida: '4d10+2d8+17' raca: 'humano'
     info_textura { id: 'ranger.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes { id: 'guerreiro' nivel: 5 }
@@ -823,12 +819,12 @@ modelo {
       gerais { id: 'esquiva' }
       gerais { id: 'iniciativa_aprimorada' }
       # Guerreiro: 3.
-      outros { id: 'combate_montado' }
-      outros { id: 'investida_montada' }
-      outros { id: 'investida_implacavel' }
+      outros { id: 'combate_montado' origem: 'guerreiro' }
+      outros { id: 'investida_montada' origem: 'guerreiro' }
+      outros { id: 'investida_implacavel' origem: 'guerreiro' }
       # Ranger: 2.
-      outros { id: 'tiro_rapido' }
-      outros { id: 'rastrear' }
+      outros { id: 'tiro_rapido' origem: 'ranger' }
+      outros { id: 'rastrear' origem: 'ranger' }
     }
     # pontos: 28 = 16 guerreiro + 12 ranger, max 10.
     info_pericias { id: 'concentracao' pontos: 1 }
@@ -906,6 +902,7 @@ modelo {
   # Shadovar aerial scout.
   id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2/Feiticeiro 4'
   entidade {
+    rotulo: 'batedor aéreo obscuro 11'
     dados_vida: '4d10+2d8+4d4+21' raca: 'humano'
     info_textura { id: 'ranger.png'  largura: 0.6 translacao_x: 0.2 } cor { r: 0.150 g: 0.150 b: 0.150 }
     info_classes { id: 'guerreiro' nivel: 5 }
@@ -921,16 +918,18 @@ modelo {
       }
     }
     info_talentos {
-      gerais { id: 'prontidao' }
+      outros { id: 'prontidao' origem: 'humano' }
       gerais { id: 'disciplina' }
       gerais { id: 'esquiva' }
       gerais { id: 'iniciativa_aprimorada' }
       gerais { id: 'combate_montado' }
-      gerais { id: 'ataque_poderoso' }
-      gerais { id: 'tiro_rapido' }
-      gerais { id: 'investida_montada' }
-      gerais { id: 'investida_implacavel' }
-      gerais { id: 'rastrear' }
+      # Guerreiro: 3.
+      outros { id: 'ataque_poderoso' origem: 'guerreiro'}
+      outros { id: 'investida_montada' origem: 'guerreiro'}
+      outros { id: 'investida_implacavel' origem: 'guerreiro'}
+      # ranger.
+      outros { id: 'tiro_rapido' origem: 'ranger' }
+      outros { id: 'rastrear' origem: 'ranger' }
     }
     info_pericias { id: 'escalar' pontos: 7 }
     info_pericias { id: 'concentracao' pontos: 9 }
