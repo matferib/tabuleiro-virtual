@@ -4294,7 +4294,7 @@ tabela_talentos {
     descricao: 'Não sofre penalidades nos ataques com armas simples.'
   }
   talentos {
-    id: 'usar_uma_armas_simples'
+    id: 'usar_uma_arma_simples'
     nome: 'Usar uma arma simples'
     nome_ingles: 'simple weapon proficiency'
     descricao: 'Não sofre penalidades nos ataques com uma arma simples. Para classes que conhecem uma arma simples específica.'
@@ -10345,6 +10345,14 @@ tabela_feiticos {
         parametros {
           texto: 'Águia Celestial'
           id_modelo_entidade: 'Águia Celestial ICII'
+        }
+        parametros {
+          texto: 'Cachorro de Montaria Celestial'
+          id_modelo_entidade: 'Cachorro de Montaria Celestial ICII'
+        }
+        parametros {
+          texto: 'Centopéia Grande Abissal'
+          id_modelo_entidade: 'Cachorro de Montaria Celestial ICII'
         }
         parametros {
           texto: 'Lobo Abissal'

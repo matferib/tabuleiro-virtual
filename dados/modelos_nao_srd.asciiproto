@@ -337,7 +337,7 @@ modelo {
       }
     }
     info_talentos {
-      gerais { id: 'lutas_as_cegas' }
+      gerais { id: 'lutar_as_cegas' }
     }
     tendencia { simples: TD_NEUTRO_MAU }
   }
@@ -939,7 +939,7 @@ modelo {
     info_pericias { id: 'conhecimento_arcano' pontos: 2 }
     info_pericias { id: 'ouvir' pontos: 7 }
     info_pericias { id: 'cavalgar' pontos: 10 }
-    info_pericias { id: 'indentificar_magia' pontos: 7 }
+    info_pericias { id: 'identificar_magia' pontos: 7 }
     info_pericias { id: 'observar' pontos: 7 }
     info_pericias { id: 'sobrevivencia' pontos: 4 }
     info_pericias { id: 'usar_cordas' pontos: 1 }

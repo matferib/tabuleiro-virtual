@@ -380,6 +380,8 @@ modelo {
 modelo {
   id: 'Cachorro'
   entidade {
+    rotulo: 'cachorro'
+    tendencia { simples: TD_NEUTRO }
     tipo_dnd: TIPO_ANIMAL
     dados_vida: '1d8+2' tamanho: TM_PEQUENO cor { r: 0.4 g: 0.1 b: 0.1 }
     modelo_3d { id: 'blinkdog' }
@@ -410,7 +412,7 @@ modelo {
     }
     info_talentos {
       gerais { id: 'prontidao' }
-      gerais { id: 'rastrear' }
+      outros { id: 'rastrear' origem: 'bonus' }
     }
     info_pericias { id: 'saltar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'ouvir' pontos: 4 }
@@ -429,6 +431,63 @@ modelo {
     tendencia { simples: TD_LEAL_BOM }
   }
 }
+modelo {
+  id: 'Cachorro de Montaria'
+  entidade {
+    rotulo: 'cachorro de montaria'
+    tendencia { simples: TD_NEUTRO }
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '2d8+4' tamanho: TM_MEDIO cor { r: 0.4 g: 0.1 b: 0.1 }
+    modelo_3d { id: 'blinkdog' }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    info_classes {
+      id: 'animal' nivel: 2
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'sobrevivencia'
+    }
+    rotulo_especial: 'faro'
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
+      }
+    }
+    dados_ataque {
+      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      outros { id: 'rastrear' origem: 'bonus' }
+    }
+    info_pericias { id: 'saltar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'natacao' pontos: 1 }
+    info_pericias { id: 'sobrevivencia' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    movimento {
+      terrestre_basico_q: 10
+    }
+  }
+}
+modelo {
+  id: 'Cachorro de Montaria Celestial'
+  id_entidade_base: 'Cachorro de Montaria'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
+    # Curiosamente, o de montaria nao é leal.
+    tendencia { simples: TD_NEUTRO_BOM }
+  }
+}
+
 # Modelo de Invocar aliado da natureza
 modelo {
   id: 'Rato Atroz IANI'
@@ -447,6 +506,13 @@ modelo {
 modelo {
   id: 'Cobra, Víbora Pequena Abissal ICI'
   id_entidade_base: 'Cobra, Víbora Pequena Abissal'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Centopéia Grande Abissal'
+  id_entidade_base: 'Centopéia Grande Abissal ICII'
   parametros {
     tipo_duracao: TD_RODADAS_NIVEL
   }
@@ -710,6 +776,14 @@ modelo {
     tipo_duracao: TD_RODADAS_NIVEL
   }
 }
+modelo {
+  id: 'Cachorro de Montaria Celestial ICII'
+  id_entidade_base: 'Cachorro de Montaria Celestial'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+
 # Snakes have a +4 racial bonus on Hide, Listen, and Spot checks and a +8 racial bonus on Balance and Climb checks.
 # A snake can always choose to take 10 on a Climb check, even if rushed or threatened.
 # Snakes use either their Strength modifier or Dexterity modifier for Climb checks, whichever is higher.
@@ -1283,6 +1357,7 @@ modelo {
 modelo {
   id: 'Cão Teleportador'
   entidade {
+    rotulo: 'cão teleportador'
     dados_vida: '4d10' modelo_3d { id: 'blinkdog' }
     modificador_iniciativa: 3
     rotulo_especial: 'Piscar a vontade\nporta dimensional uma vez por rodada como acao livre\nsalv: 4/7/4'
@@ -1413,7 +1488,7 @@ modelo {
     mais_de_duas_pernas: true
     # o bonus racial é 8, mas como ela pode usar a destreza para escalar, vamos adicionar +3 que com -1 da forca da 10 no final.
     info_pericias { id: 'escalar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 11 } } } }
-    info_pericias { id: 'esconder' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'observar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_talentos { gerais { id: 'acuidade_arma' } }
     atributos {
@@ -1459,7 +1534,7 @@ modelo {
     mais_de_duas_pernas: true
     # o bonus racial é 8, mas como ela pode usar a destreza para escalar, vamos adicionar +1 que com +1 da forca da 10 no final.
     info_pericias { id: 'escalar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 9 } } } }
-    info_pericias { id: 'esconder' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'observar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_talentos { gerais { id: 'acuidade_arma' } }
     atributos {
@@ -1470,6 +1545,15 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
     }
+  }
+}
+modelo {
+  # Huge.
+  id: 'Centopéia Grande Abissal'
+  id_entidade_base: 'Centopéia Grande'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL  }
+    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 modelo {
@@ -1506,7 +1590,7 @@ modelo {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
     }
     info_pericias { id: 'escalar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
-    info_pericias { id: 'esconder' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'observar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
@@ -1878,7 +1962,7 @@ modelo {
       id_para_magia: 'mago'
       id_para_progressao_de_magia: 'feiticeiro'
       pericias_monstro: 'escalar'
-      pericias_monstro: 'operar_mecanismos'
+      pericias_monstro: 'operar_mecanismo'
       pericias_monstro: 'disfarces'
       pericias_monstro: 'arte_da_fuga'
       pericias_monstro: 'esconderse'
@@ -1944,7 +2028,7 @@ modelo {
       gerais { id: 'ataque_poderoso' }
     }
     info_pericias { id: 'escalar' pontos: 10 }
-    info_pericias { id: 'operar_mecanismos' pontos: 10 }
+    info_pericias { id: 'operar_mecanismo' pontos: 10 }
     info_pericias { id: 'disfarces' pontos: 10 }
     info_pericias { id: 'arte_da_fuga' pontos: 10 }
     info_pericias { id: 'esconderse' pontos: 10 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
@@ -1952,7 +2036,7 @@ modelo {
     info_pericias { id: 'furtividade' pontos: 10 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
     info_pericias { id: 'abrir_fechaduras' pontos: 10 }
     info_pericias { id: 'procurar' pontos: 10 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
-    info_pericias { id: 'prestigidacao' pontos: 10 }
+    info_pericias { id: 'prestidigitacao' pontos: 10 }
 
     tendencia { simples: TD_CAOTICO_MAU }
 
@@ -6738,8 +6822,8 @@ modelo {
     # Humano tem mais pontos.
     info_pericias { id: 'arte_da_fuga' pontos: 7 }
     info_pericias { id: 'equilibrio' pontos: 5 }
-    info_pericias { id: '' pontos: 7 }
     info_pericias { id: 'esconderse' pontos: 8 }
+    info_pericias { id: 'blefar' pontos: 7 }
     info_pericias { id: 'saltar' pontos: 5 }
     info_pericias { id: 'ouvir' pontos: 8 }
     info_pericias { id: 'furtividade' pontos: 8 }
@@ -7533,7 +7617,7 @@ modelo {
       gerais { id: 'criar_item_maravilhoso' }
       gerais { id: 'maximizar_magia' }
     }
-    info_pericias { id: 'arte_fuga' pontos: 20 }
+    info_pericias { id: 'arte_da_fuga' pontos: 20 }
     info_pericias { id: 'oficios' pontos: 10 }
     info_pericias { id: 'concentracao' pontos: 21 }
     info_pericias { id: 'conhecimento_arcano' pontos: 19 }
