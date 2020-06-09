@@ -874,8 +874,9 @@ std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFei
 // de feitico com todos ate o nivel desejado.
 std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(bool conversao_espontanea, const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
-// Retorna true se a entidade for imune a todos os descritores do elemento.
-bool EntidadeImuneElemento(const EntidadeProto& proto, int elementos);
+bool EntidadeVulneravelElemento(const EntidadeProto& proto, DescritorAtaque elemento);
+// Retorna true se a entidade for imune ao elemento.
+bool EntidadeImuneElemento(const EntidadeProto& proto, DescritorAtaque elemento);
 // Retorna a melhor resistencia da entidade contra o elemento ou nullptr se nao houver.
 const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento);
 // Retorna true se a entidade for imune ao feitico.
@@ -898,6 +899,10 @@ struct ResultadoImunidadeOuResistencia {
 };
 // Retorna se o ataque foi resistido, por que tipo de defesa e qual o valor resistido, que nunca passara de -delta_pv.
 ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento);
+
+// Retorna o novo delta_pv e o texto de vulnerabilidade.
+std::optional<std::pair<int, std::string>> VulnerabilidadeParaElemento(
+    int delta_pv, const EntidadeProto& proto, DescritorAtaque elemento);
 
 // Altera o delta_pv de acordo com as reducoes do alvo e tipo de ataque.
 std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoNormal(

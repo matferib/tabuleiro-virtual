@@ -2680,6 +2680,7 @@ modelo {
 modelo {
   id: 'Elemental da Terra (Pequeno)'
   entidade {
+    rotulo: 'elemental da terra pequeno'
     tendencia { simples: TD_NEUTRO }
     tipo_dnd: TIPO_ELEMENTAL
     sub_tipo_dnd: SUBTIPO_PLANAR
@@ -2687,6 +2688,7 @@ modelo {
     dados_vida: '2d8+2' tamanho: TM_PEQUENO cor { r: 0.5 g: 0.25 b: 0.1 }
     info_classes { id: 'elemental_agua_terra' nivel: 2 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    rotulo_especial: 'deslizar na terra'
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 7 } } }
     }
@@ -2717,6 +2719,7 @@ modelo {
 modelo {
   id: 'Elemental da Terra (Médio)'
   entidade {
+    rotulo: 'elemental da terra médio'
     tendencia { simples: TD_NEUTRO }
     tipo_dnd: TIPO_ELEMENTAL
     sub_tipo_dnd: SUBTIPO_PLANAR
@@ -2724,6 +2727,7 @@ modelo {
     dados_vida: '4d8+12' tamanho: TM_PEQUENO cor { r: 0.5 g: 0.25 b: 0.1 }
     info_classes { id: 'elemental_agua_terra' nivel: 4 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    rotulo_especial: 'deslizar na terra'
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 9 } } }
     }

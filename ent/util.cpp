@@ -4562,16 +4562,20 @@ const EntidadeProto::InfoLancar& FeiticoParaLancar(
   return fn.para_lancar(indice);
 }
 
+bool EntidadeVulneravelElemento(const EntidadeProto& proto, DescritorAtaque elemento) {
+  return c_any(proto.dados_defesa().vulnerabilidades(), (int)elemento);
+}
+
 bool EntidadeImuneEfeito(const EntidadeProto& proto, TipoEfeito efeito) {
   return c_any(proto.dados_defesa().imunidade_efeitos(), (int)efeito);
 }
 
-bool EntidadeImuneElemento(const EntidadeProto& proto, int elemento) {
+bool EntidadeImuneElemento(const EntidadeProto& proto, DescritorAtaque elemento) {
   if (elemento == DESC_NENHUM) return false;
   if ((elemento == DESC_MENTAL || elemento == DESC_MENTAL_PADRAO_VISIVEL) && ImuneAcaoMental(proto)) return true; 
   if (elemento == DESC_MENTAL_PADRAO_VISIVEL && NaoEnxerga(proto)) return true;
   const auto& dd = proto.dados_defesa();
-  return c_any(dd.imunidades(), elemento);
+  return c_any(dd.imunidades(), (int)elemento);
 }
 
 bool EntidadeImuneFeitico(const EntidadeProto& proto, const std::string& id) {
@@ -4658,6 +4662,21 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
   resultado.texto = StringPrintf("resistência: %s: %d", TextoDescritor(elemento), valor_efetivo);
   resultado.resistencia = resistencia;
   return resultado;
+}
+
+std::optional<std::pair<int, std::string>> VulnerabilidadeParaElemento(
+    int delta_pv, const EntidadeProto& proto, DescritorAtaque elemento) {
+  if (delta_pv <= 0) {
+    return std::nullopt;
+  }
+  if (elemento == DESC_NENHUM) {
+    return std::nullopt;
+  }
+  std::pair<int, std::string> resultado;
+  if (EntidadeVulneravelElemento(proto, elemento)) {
+    return std::make_pair(delta_pv * 0.5, StringPrintf("vulnerável a: %s", TextoDescritor(elemento)));
+  }
+  return std::nullopt;
 }
 
 std::tuple<int, std::string, int> AlteraDeltaPontosVidaPorUmaReducao(

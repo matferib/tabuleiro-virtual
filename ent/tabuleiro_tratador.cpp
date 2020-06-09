@@ -1248,6 +1248,12 @@ float Tabuleiro::TrataAcaoProjetilArea(
         ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
         AdicionaLogEvento(id, resultado_elemento.texto);
       }
+      if (auto vopt = VulnerabilidadeParaElemento(delta_pv, entidade_destino->Proto(), acao_proto->elemento());
+          vopt.has_value()) {
+        auto [delta, texto] = *vopt;
+        ConcatenaString(texto, por_entidade->mutable_texto());
+        delta_pv += delta;
+      }
     }
     if (acao_proto->respingo_causa_efeitos_adicionais()) {
       bool salvou = false;
@@ -1455,12 +1461,25 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         continue;
       }
     }
+    if (auto vopt = VulnerabilidadeParaElemento(delta_pv_pos_salvacao, entidade_destino->Proto(), acao_proto->elemento());
+        vopt.has_value()) {
+      auto [delta, texto] = *vopt;
+      ConcatenaString(texto, por_entidade->mutable_texto());
+      delta_pv_pos_salvacao += delta;
+    }
     if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
           delta_pv_adicional_entidade, da, entidade_destino->Proto(), da.elemento_dano_adicional());
         resultado_elemento.causa != ALT_NENHUMA) {
       delta_pv_adicional_entidade += resultado_elemento.resistido;
       ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
     }
+    if (auto vopt = VulnerabilidadeParaElemento(delta_pv_adicional_entidade, entidade_destino->Proto(), da.elemento_dano_adicional());
+        vopt.has_value()) {
+      auto [delta, texto] = *vopt;
+      ConcatenaString(texto, por_entidade->mutable_texto());
+      delta_pv_adicional_entidade += delta;
+    }
+    // Une dano primario e adicional.
     delta_pv_pos_salvacao += delta_pv_adicional_entidade;
 
     // Efeitos adicionais.
@@ -2051,12 +2070,25 @@ float Tabuleiro::TrataAcaoIndividual(
         por_entidade->set_delta(0);
       }
     }
+    if (auto vopt = VulnerabilidadeParaElemento(delta_pv, entidade_destino->Proto(), acao_proto->elemento());
+        vopt.has_value()) {
+      auto [delta, texto] = *vopt;
+      ConcatenaString(texto, por_entidade->mutable_texto());
+      delta_pv += delta;
+    }
     if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
           delta_pv_adicional, da, entidade_destino->Proto(), da.elemento_dano_adicional());
         resultado_elemento.causa != ALT_NENHUMA) {
       delta_pv_adicional += resultado_elemento.resistido;
       ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
     }
+    if (auto vopt = VulnerabilidadeParaElemento(delta_pv_adicional, entidade_destino->Proto(), da.elemento_dano_adicional());
+        vopt.has_value()) {
+      auto [delta, texto] = *vopt;
+      ConcatenaString(texto, por_entidade->mutable_texto());
+      delta_pv_adicional += delta;
+    }
+    // Une dano primario e adicional.
     delta_pv += delta_pv_adicional;
 
     bool nao_letal = da.nao_letal();

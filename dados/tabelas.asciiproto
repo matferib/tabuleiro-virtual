@@ -5455,9 +5455,14 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     pericias_por_nivel: 2
+    #dados_defesa {
+    #  imunidade_efeitos: EFEITO_SONO  # mas nao a veneno do sono.
+    #  imunidade_efeitos: EFEITO_PARALISIA
+    #  imunidade_efeitos: EFEITO_ATORDOADO
+    #  imunidades: DESC_VENENO
+    #}
     # d8
     # visao_escuro: 12 quadrados
-    # imune a veneno, sono, paralisia, atordoamento
     # imune a critico ou flanqueamento
   }
   info_classes {
@@ -5466,8 +5471,13 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_REFLEXO
     pericias_por_nivel: 2
+    #dados_defesa {
+    #  imunidade_efeitos: EFEITO_SONO  # mas nao a veneno do sono.
+    #  imunidade_efeitos: EFEITO_PARALISIA
+    #  imunidade_efeitos: EFEITO_ATORDOADO
+    #  imunidades: DESC_VENENO
+    #}
     # visao_escuro: 12 quadrados
-    # imune a veneno, sono, paralisia, atordoamento
     # imune a critico ou flanqueamento
     # d8
   }
