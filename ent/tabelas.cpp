@@ -487,6 +487,7 @@ void Tabelas::RecarregaMapas() {
 
   for (auto& talento : *tabelas_.mutable_tabela_talentos()->mutable_talentos()) {
     talentos_[talento.id()] = &talento;
+    if (!talento.link().empty()) continue;
     std::vector<std::string> res;
     SplitStringUsing(talento.nome_ingles(), " ,-'/", &res);
     for (unsigned int i = 1; i < res.size(); ++i) {
