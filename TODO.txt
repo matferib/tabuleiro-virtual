@@ -1,6 +1,5 @@
-Modificadores de ataque e dano de elementais.
+unit test de vulnerabilidade (ver elemental fogo). E testar no tabuleiro: parece que nao ta funcionadno.
 Imunidade a sono e atordoado de elementais.
-Elemental: terminar outros.
 Chance de falha de conjuracao (dretch conjurando dretch) e tempo de execucao.
 Fazer hell hound (cão infernal).
 Fazer os invocar criaturas: estao praticamente todos faltando, especialmente o do nivel (ii, iii)
