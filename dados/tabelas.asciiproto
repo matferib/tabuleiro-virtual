@@ -5477,9 +5477,9 @@ tabela_classes {
     #  imunidade_efeitos: EFEITO_ATORDOADO
     #  imunidades: DESC_VENENO
     #}
+    # d8
     # visao_escuro: 12 quadrados
     # imune a critico ou flanqueamento
-    # d8
   }
   info_classes {
     id: 'fada' nome: 'Fada'

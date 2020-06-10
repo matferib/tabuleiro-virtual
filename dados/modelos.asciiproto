@@ -2677,17 +2677,30 @@ modelo {
     tipo_modificador_ataque: TMA_BBA_NIVEL_CONJURADOR
   }
 }
+#------------
+# Elementais.
+#------------
 modelo {
-  id: 'Elemental da Terra (Pequeno)'
+  id: 'Elemental Base'
   entidade {
-    rotulo: 'elemental da terra pequeno'
-    tendencia { simples: TD_NEUTRO }
     tipo_dnd: TIPO_ELEMENTAL
     sub_tipo_dnd: SUBTIPO_PLANAR
+    tendencia { simples: TD_NEUTRO }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    dados_defesa {
+      imunidade_efeitos_fixas: EFEITO_ATORDOADO
+      imunidade_efeitos_fixas: EFEITO_SONO
+    }
+  }
+}
+modelo {
+  id: 'Elemental da Terra (Pequeno)'
+  id_entidade_base: 'Elemental Base'
+  entidade {
     sub_tipo_dnd: SUBTIPO_TERRA
+    rotulo: 'elemental da terra pequeno'
     dados_vida: '2d8+2' tamanho: TM_PEQUENO cor { r: 0.5 g: 0.25 b: 0.1 }
     info_classes { id: 'elemental_agua_terra' nivel: 2 }
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     rotulo_especial: 'deslizar na terra'
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 7 } } }
@@ -2718,11 +2731,9 @@ modelo {
 }
 modelo {
   id: 'Elemental da Terra (Médio)'
+  id_entidade_base: 'Elemental Base'
   entidade {
     rotulo: 'elemental da terra médio'
-    tendencia { simples: TD_NEUTRO }
-    tipo_dnd: TIPO_ELEMENTAL
-    sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_TERRA
     dados_vida: '4d8+12' tamanho: TM_PEQUENO cor { r: 0.5 g: 0.25 b: 0.1 }
     info_classes { id: 'elemental_agua_terra' nivel: 4 }
@@ -2759,14 +2770,11 @@ modelo {
 
 modelo {
   id: 'Elemental da Água (Pequeno)'
+  id_entidade_base: 'Elemental Base'
   entidade {
-    tendencia { simples: TD_NEUTRO }
-    tipo_dnd: TIPO_ELEMENTAL
-    sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_AGUA
     dados_vida: '2d8+2' tamanho: TM_PEQUENO cor { r: 0.0 g: 0.0 b: 1.0 }
     info_classes { id: 'elemental_agua_terra' nivel: 2 }
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
     }
@@ -2800,14 +2808,11 @@ modelo {
 }
 modelo {
   id: 'Elemental da Água (Médio)'
+  id_entidade_base: 'Elemental Base'
   entidade {
-    tendencia { simples: TD_NEUTRO }
-    tipo_dnd: TIPO_ELEMENTAL
-    sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_AGUA
     dados_vida: '4d8+12' tamanho: TM_MEDIO cor { r: 0.0 g: 0.0 b: 1.0 }
     info_classes { id: 'elemental_agua_terra' nivel: 4 }
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 8 } } }
     }
@@ -2843,15 +2848,12 @@ modelo {
 
 modelo {
   id: 'Elemental do Fogo (Pequeno)'
+  id_entidade_base: 'Elemental Base'
   entidade {
-    tendencia { simples: TD_NEUTRO }
-    tipo_dnd: TIPO_ELEMENTAL
-    sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_FOGO
     dados_vida: '2d8' tamanho: TM_PEQUENO
     cor { r: 1 g: 1 b: 0 a: 0.9 }
-    info_classes { id: 'elemental_fogo_ar' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    info_classes { id: 'elemental_fogo_ar' nivel: 2 }
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
       imunidades: DESC_FOGO
@@ -2883,10 +2885,9 @@ modelo {
 }
 modelo {
   id: 'Elemental do Fogo (Médio)'
+  id_entidade_base: 'Elemental Base'
   entidade {
     tendencia { simples: TD_NEUTRO }
-    tipo_dnd: TIPO_ELEMENTAL
-    sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_FOGO
     dados_vida: '4d8+8' tamanho: TM_MEDIO
     cor { r: 1 g: 1 b: 0 a: 0.9 }
@@ -2924,11 +2925,9 @@ modelo {
 }
 modelo {
   id: 'Elemental do Ar (Pequeno)'
+  id_entidade_base: 'Elemental Base'
   entidade {
-    tendencia { simples: TD_NEUTRO }
     voadora: true
-    tipo_dnd: TIPO_ELEMENTAL
-    sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_AR
     dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 a: 0.9 }
     info_classes { id: 'elemental_fogo_ar' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
@@ -2975,16 +2974,13 @@ modelo {
 }
 modelo {
   id: 'Elemental do Ar (Médio)'
+  id_entidade_base: 'Elemental Base'
   entidade {
-    tendencia { simples: TD_NEUTRO }
     voadora: true
-    tipo_dnd: TIPO_ELEMENTAL
-    sub_tipo_dnd: SUBTIPO_PLANAR
     sub_tipo_dnd: SUBTIPO_AR
     dados_vida: '4d8+8' tamanho: TM_MEDIO cor { r: 0.7 g: 0.7 b: 1.0 a: 0.9 }
     info_classes { id: 'elemental_fogo_ar' nivel: 4 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
     rotulo_especial: 'criaturas voando tem -1 de penalidade de ataque e dano\nredemoinho'
-    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
     }
@@ -3025,7 +3021,9 @@ modelo {
     }
   }
 }
-
+#---------------
+# fim elementais
+#---------------
 modelo {
   id : 'Elfo'
   entidade {
