@@ -4502,6 +4502,19 @@ TEST(TesteModelo, TesteElementalFogo) {
   ASSERT_FALSE(vopt.has_value());
 }
 
+TEST(TesteModelo, TesteElementais) {
+  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+    if (modelo.id().find("Elemental ") != 0) continue;
+    EntidadeProto proto = modelo.entidade();
+    proto.set_gerar_agarrar(false);
+    std::unique_ptr<Entidade> el(NovaEntidadeParaTestes(proto, g_tabelas));
+    EXPECT_TRUE(el->ImuneEfeito(EFEITO_SONO)) << modelo.id();
+    EXPECT_TRUE(el->ImuneEfeito(EFEITO_ATORDOADO)) << modelo.id();
+    EXPECT_EQ(el->Proto().tipo_visao(), VISAO_ESCURO);
+    EXPECT_TRUE(el->ImuneCritico());
+  }
+}
+
 TEST(TesteModelo, TesteLeaoAtroz) {
   const auto& modelo = g_tabelas.ModeloEntidade("Leão Atroz");
   EntidadeProto proto = modelo.entidade();
