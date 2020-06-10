@@ -6590,6 +6590,127 @@ modelo {
   }
 }
 
+#--------
+# Rangers
+#--------
+modelo {
+  id: 'Humana Ranger 9 Duas Armas'
+  entidade {
+    raca: 'humano'
+    tendencia { simples: TD_NORMALMENTE_NEUTRO }
+    dados_vida: '8d8+8+18'
+    info_textura { id: 'ranger.png' largura: 0.5 translacao_x: 0.25 }
+    info_classes { id: 'ranger' nivel: 9 }
+
+    # Espadas.
+    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
+    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
+    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 3 }
+    # Arco.
+    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true }
+    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true ordem_ataque: 1 }
+    # Defesa.
+    dados_defesa {
+      id_armadura: 'couro_batido' bonus_magico_armadura: 1
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
+        bonus_individual { tipo: TB_MELHORIA         por_origem { origem: 'armadura' valor: 1 } }
+        bonus_individual { tipo: TB_ESCUDO           por_origem { origem: 'bloqueio_ambidestro' valor: 1 } }
+      }
+    }
+    atributos {
+      # Usa o array elite 15 14 13 12 10 8
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      constituicao {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    # Pericias: 24+48+4+8=84, max 12 (7 pericias)
+    info_pericias { id: 'observar' pontos: 12 }
+    info_pericias { id: 'ouvir' pontos: 12 }
+    info_pericias { id: 'esconderse' pontos: 12 }
+    info_pericias { id: 'furtividade' pontos: 12 }
+    info_pericias { id: 'arte_da_fuga' pontos: 6 }
+    info_pericias { id: 'adestrar_animais' pontos: 6 }
+    info_pericias { id: 'cura' pontos: 6 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 5 }
+    info_pericias { id: 'procurar' pontos: 1 }
+    info_pericias { id: 'sobrevivencia' pontos: 6 }
+    info_pericias { id: 'usar_cordas' pontos: 2 }
+    info_pericias { id: 'escalar' pontos: 2 }
+    info_pericias { id: 'natacao' pontos: 2 }
+
+    # Talentos.
+    info_talentos {
+      # ja ganha rastrear da classe.
+      gerais { id: 'investida_furiosa' } # 1
+      gerais { id: 'bloqueio_ambidestro' } # 3
+      gerais { id: 'foco_em_arma' complemento: 'chicote' } # 6
+      gerais { id: 'esquiva' } # 9
+      # Humano.
+      outros { id: 'usar_arma_exotica' complemento: 'chicote' origem: 'humano' } # 1
+      # Ranger.
+      outros { id: 'combater_duas_armas' origem: 'ranger' } # 2: estilo duas armas.
+      outros { id: 'tolerancia' origem: 'ranger' } # 3: todo ranger.
+      outros { id: 'combater_duas_armas_aprimorado' origem: 'ranger' } # 6: estilo duas armas.
+    }
+    tesouro {
+      armas { id: 'chicote' bonus_magico: 1 }
+      armas { id: 'picareta_pesada' bonus_magico: 1 }
+      armas { id: 'picareta_leve' bonus_magico: 1 }
+      armas { id: 'arco_longo_composto_2' obra_prima: true }
+      armaduras { id: 'couro_batido' bonus_magico: 1 }
+      pergaminhos_divinos { id: 'forca_touro' } # 150
+      pergaminhos_divinos { id: 'agilidade_gato' } # 150
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      itens_mundanos { id: 'fogo_alquimico' }  # 20
+      itens_mundanos { id: 'fogo_alquimico' }  # 20
+      itens_mundanos { id: 'gas_alquimico_sono' }  # 30
+      itens_mundanos { id: 'gas_alquimico_sono' }  # 30
+      itens_mundanos { id: 'acido' }  # 10
+      itens_mundanos { id: 'acido' }  # 10
+      itens_mundanos { id: 'bolsa_cola' }  # 50
+      itens_mundanos { id: 'bolsa_cola' }  # 50
+      itens_mundanos { id: 'pedra_trovao' }  # 30
+      itens_mundanos { id: 'corda_canhamo' }  # 1
+      pocoes { id: 'curar_ferimentos_serios' }  # 750
+      pocoes { id: 'heroismo' }  # 750
+      pocoes { id: 'escudo_fe_2' }  # 50
+      pocoes { id: 'escudo_fe_2' }  # 50
+      pocoes { id: 'pele_arvore_2' }  # 300
+      pocoes { id: 'protecao_contra_mal' }  # 50
+      mantos { id: 'manto_resistencia_1' em_uso: true } # 1000
+      moedas {
+        po: 5
+      }
+    }
+    feiticos_classes {
+      id_classe: 'ranger'
+      feiticos_por_nivel {
+        nivel: 1
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 }
+      }
+    }
+  }
+}
+
+
 modelo {
   id: 'Humano Guerreiro'
   entidade {
@@ -8754,6 +8875,71 @@ modelo {
     evento { rodadas: 1 descricao: 'duração' }
   }
 }
+modelo {
+  id: 'Guepardo'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '3d8+6'
+    rotulo_especial: 'impulso (pode investir com 10x movimento 1/hora\nfaro)'
+    tamanho: TM_MEDIO
+    info_textura { id: 'cheetah.png' largura: 0.6 translacao_x: 0.2 altura: 0.7 translacao_y: 0.25 } cor { r: 0.4 g: 0.2 b: 0.2 }
+    info_classes {
+      id: 'animal' nivel: 3
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'acuidade_arma' }
+    }
+    info_pericias { id: 'esconderse' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 1 }
+    info_pericias { id: 'furtividade' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 1 }
+
+    mais_de_duas_pernas: true
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    movimento {
+      terrestre_basico_q: 10
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 1 } }
+      }
+    }
+    # TODO +3 no teste de derrubar.
+    dados_ataque {
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      derrubar_automatico: true
+      alcance_q: 1
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'garra' dano_basico: '1d2' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      derrubar_automatico: true
+      alcance_q: 1
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'garra' id_arma: 'mordida' dano_basico: '1d2' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      derrubar_automatico: true
+      alcance_q: 1
+    }
+  }
+}
+
 modelo {
   id: 'Tigre'
   entidade {

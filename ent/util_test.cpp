@@ -4174,6 +4174,26 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, TesteGuepardo) {
+  auto modelo = g_tabelas.ModeloEntidade("Guepardo");
+  auto guepardo = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  EXPECT_TRUE(guepardo->TemTipoDnD(TIPO_ANIMAL));
+  ASSERT_EQ(guepardo->NivelClasse("animal"), 3);
+  ASSERT_EQ(guepardo->Proto().tipo_visao(), VISAO_BAIXA_LUMINOSIDADE);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, guepardo->Proto())), 16);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, guepardo->Proto())), 19);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, guepardo->Proto())), 15);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, guepardo->Proto())), 2);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_SABEDORIA, guepardo->Proto())), 12);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, guepardo->Proto())), 6);
+  EXPECT_EQ(guepardo->CA(*guepardo, Entidade::CA_NORMAL), 15);
+  EXPECT_EQ(ValorFinalPericia("esconderse", guepardo->Proto()), 6);
+  EXPECT_EQ(ValorFinalPericia("ouvir", guepardo->Proto()), 4);
+  EXPECT_EQ(ValorFinalPericia("furtividade", guepardo->Proto()), 6);
+  EXPECT_EQ(ValorFinalPericia("observar", guepardo->Proto()), 4);
+  LOG(INFO) << Pericia("observar", guepardo->Proto()).DebugString();
+}
+
 TEST(TesteModelo, TesteAbelhaGiganteCelestial) {
   auto modelo = g_tabelas.ModeloEntidade("Abelha Gigante Celestial");
   auto abelha = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
@@ -4497,7 +4517,7 @@ TEST(TesteModelo, TesteElementalFogo) {
   auto vopt = VulnerabilidadeParaElemento(-5, proto, DESC_FRIO);
   ASSERT_TRUE(vopt.has_value());
   auto [delta, texto] = *vopt;
-  EXPECT_EQ(delta, -2);
+  EXPECT_EQ(delta, -2) << texto;
   vopt = VulnerabilidadeParaElemento(-5, proto, DESC_FOGO);
   ASSERT_FALSE(vopt.has_value());
 }

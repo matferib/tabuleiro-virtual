@@ -4310,10 +4310,12 @@ tabela_talentos {
   }
   talentos {
     id: 'usar_armas_comuns'
-    nome: 'usar todas armas comuns'
-    nome_ingles: 'martial weapon proficiency'
+    nome: 'usar todas armas comuns (Milícia)'
+    nome_ingles: 'militia'
     descricao: 'Para classes que sabem usar todas as armas comuns.'
-    nao_pode_ser_escolhido: true
+    regional: true
+    livro: 'PGtF'
+    link: 'https://dnd.arkalseif.info/feats/players-guide-to-faerun--22/militia--1948/'
   }
   talentos {
     id: 'usar_arma_exotica'
@@ -4795,6 +4797,7 @@ tabela_classes {
   }
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    talentos_automaticos: 'rastrear'
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armadura_leve'
     talentos_automaticos: 'usar_armas_simples'

@@ -222,6 +222,15 @@ tabela_armas {
 }
 tabela_talentos {
   talentos {
+    id: 'investida_furiosa'
+    nome: 'Investida Furiosa'
+    nome_ingles: 'furious charge'
+    link: 'https://www.dandwiki.com/wiki/Furious_Charge_(3.5e_Feat)'
+    descricao: '+4 ao investir.'
+    regional: true
+    livro: 'PGtF'
+  }
+  talentos {
     id: 'disciplina'
     nome: 'Disciplina'
     nome_ingles: 'discipline'

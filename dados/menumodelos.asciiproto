@@ -51,15 +51,13 @@ sub_menu {
     modelo { id: 'Tiranossauro' }
   }
   modelo { id: 'Falcão' }
-  modelo { id: 'Falcão Abissal' }
+  modelo { id: 'Guepardo' }
   modelo { id: 'Gorila' }
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
-  modelo { id: 'Leão Celestial' }
   modelo { id: 'Leão Atroz' }
   modelo { id: 'Lobo' }
   modelo { id: 'Lobo Atroz' }
-  modelo { id: 'Lobo Atroz Abissal' }
   modelo { id: 'Megaraptor' }
   modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
@@ -70,10 +68,13 @@ sub_menu {
   modelo { id: 'Tubarão Imenso' }
   modelo { id: 'Tigre' }
   modelo { id: 'Tigre Atroz' }
-  modelo { id: 'Urso Marrom' }
-  modelo { id: 'Urso Negro' }
-  modelo { id: 'Urso Negro 4 DV' }
-  modelo { id: 'Urso Negro 5 DV' }
+  sub_menu {
+    id: 'Ursos'
+    modelo { id: 'Urso Marrom' }
+    modelo { id: 'Urso Negro' }
+    modelo { id: 'Urso Negro 4 DV' }
+    modelo { id: 'Urso Negro 5 DV' }
+  }
 }
 sub_menu {
   id: 'Bestas Mágicas'
@@ -233,6 +234,15 @@ sub_menu {
     modelo { id: 'Humana Menina' texto: 'Menina' }
     modelo { id: 'Humana Menininha' texto: 'Menininha' }
   }
+  sub_menu {
+    id: 'Ranger'
+    modelo {
+      id: 'Humano Ranger 9 + Guepardo'
+      modelos { id: 'Humano Ranger 9' }
+      modelos { id: 'Guepardo' }
+    }
+  }
+
   sub_menu {
     id: 'Druidas'
     modelo {

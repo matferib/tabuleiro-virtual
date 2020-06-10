@@ -1892,13 +1892,13 @@ std::pair<int, int> Tabuleiro::LeValorListaPontosVida(
       AdicionaLogEvento(
           entidade->Id(),
           StringPrintf("Valor para ação: %s e %s", texto_pontos_vida.c_str(), std::get<1>(*valor_adicional_opt).c_str()));
-
+      VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
       return {delta_pontos_vida, delta_adicional};
     } else {
       AdicionaLogEvento(entidade->Id(), StringPrintf("Valor para ação: %s", texto_pontos_vida.c_str()));
+      VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
       return {delta_pontos_vida, 0 };
     }
-    VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
   } else {
     int delta_pontos_vida;
     std::vector<std::pair<int, int>> dados;

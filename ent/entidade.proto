@@ -263,6 +263,9 @@ message EntidadeProto {
     // Para referencias cruzadas. deve ser unico dentro de sua categoria para o
     // personagem.
     optional int32 id_unico = 4;
+    // Para ficar mais facil.
+    optional int32 bonus_magico = 9;
+    optional bool obra_prima = 10;
     // Os bonus do item.
     optional Bonus bonus = 5;
     optional bool em_uso = 7;
