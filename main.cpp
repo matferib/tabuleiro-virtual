@@ -32,6 +32,7 @@
 #include "net/servidor.h"
 #include "ntf/notificacao.h"
 #include "log/log.h"
+#include "som/som.h"
 #include "tex/texturas.h"
 
 #if USAR_GFLAGS
@@ -93,6 +94,12 @@ QSurfaceFormat Formato() {
   return formato;
 }
 
+class SomEscopo {
+ public:
+  SomEscopo() { som::Inicia(); }
+  ~SomEscopo() { som::Finaliza(); }
+};
+
 }  // namespace
 
 #if ANDROID
@@ -140,6 +147,7 @@ int main(int argc, char** argv) {
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
   //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
+  SomEscopo som;
 
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &modelos3d, &texturas, &teclado_mouse, &central));

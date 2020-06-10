@@ -5,7 +5,9 @@
 
 namespace som {
 
+void Inicia();
 void Toca(const std::string& nome);
+void Finaliza();
 
 }  // namespace som
 
