@@ -213,6 +213,7 @@ class Entidade {
   bool ProximaAcao();
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
+  void AtualizaAcaoPorGrupo(const std::string& grupo);
   /** Retorna a acao mais recente da entidade. Caso nao haja, proto vazio. */
   AcaoProto Acao() const;
 

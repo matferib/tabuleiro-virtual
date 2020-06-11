@@ -1371,7 +1371,7 @@ void PreencheNivelConhecidoSeVazio(
   if (il->has_nivel_conhecido()) return;
   const auto& fn  = FeiticosPorNivelOuPadrao(nivel_magia, fc);
   if (fn.conhecidos().empty()) {
-    LOG(ERROR) << "nivel magia invalido: " << nivel_magia;
+    VLOG(1) << "feiticos conhecidos vazios para nivel: " << nivel_magia;
     return;
   }
   il->set_nivel_conhecido(nivel_magia);
@@ -1741,7 +1741,7 @@ void PreencheFeiticoConhecidoAleatorio(
     }
 
     std::string id_sorteado = tabelas.FeiticoAleatorio(dfa);
-    LOG(INFO) << "Feitiço sorteado para " << id_para_magia << ", nivel " << dfa.nivel << ": " << id_sorteado;
+    VLOG(1) << "Feitiço sorteado para " << id_para_magia << ", nivel " << dfa.nivel << ": " << id_sorteado;
     ic->set_id(id_sorteado);
     ic->clear_nome();
   }
@@ -2055,49 +2055,91 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
   }
 }
 
-void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retornado) {
-  auto* dd = proto_retornado->mutable_dados_defesa();
+namespace {
+void AplicaOuRemoveBloqueioAmbidestro(bool permite_escudo, const DadosAtaque& da, const EntidadeProto& proto, Bonus* ca) {
+  VLOG(3) << "empunhadura de " << da.rotulo() << ": " << EmpunhaduraArma_Name(da.empunhadura());
+  if (!permite_escudo ||
+      (da.empunhadura() != EA_MAO_BOA && da.empunhadura() != EA_MAO_RUIM) ||
+      !PossuiTalento("bloqueio_ambidestro", proto)) {
+    LimpaBonus(TB_ESCUDO, "bloqueio_ambidestro", ca);
+    return;
+  }
+  const bool defensivo = BonusIndividualPorOrigem(TB_ESCUDO, "luta_defensiva", *ca) > 0 || BonusIndividualPorOrigem(TB_ESCUDO, "defesa_total", *ca) > 0;
+  AtribuiBonus(defensivo ? 2 : 1, TB_ESCUDO, "bloqueio_ambidestro", ca);
+}
+
+const DadosAtaque& DadoCorrenteParaCA(const EntidadeProto& proto) {
+  for (const auto& da : proto.dados_ataque()) {
+    if (proto.ultimo_grupo_acao().empty() || da.grupo() == proto.ultimo_grupo_acao()) return da;
+  }
+  return DadosAtaque::default_instance();
+}
+
+bool UsandoAtaqueComEscudo(const ArmaProto& arma_principal, const ArmaProto& arma_secundaria) {
+  const std::vector<std::string> escudos = {"escudo_grande", "escudo_pequeno", "escudo_grande_com_cravos", "escudo_pequeno_com_cravos"};
+  return c_any(escudos, arma_principal.id()) || c_any(escudos, arma_secundaria.id());
+}
+
+}  // namespace
+
+void RecomputaCAParaUmAtaque(const Tabelas& tabelas, const DadosAtaque& da, const EntidadeProto& proto, Bonus* ca) {
+  const auto& dd = proto.dados_defesa();
   int bonus_maximo = std::numeric_limits<int>::max();
-  if (dd->has_id_armadura()) {
-    bonus_maximo = std::min(tabelas.Armadura(dd->id_armadura()).max_bonus_destreza(), bonus_maximo);
+  if (dd.has_id_armadura()) {
+    bonus_maximo = std::min(tabelas.Armadura(dd.id_armadura()).max_bonus_destreza(), bonus_maximo);
   }
-  if (dd->has_id_escudo()) {
-    bonus_maximo = std::min(tabelas.Escudo(dd->id_escudo()).max_bonus_destreza(), bonus_maximo);
+  // Algum evento pode impossibilitar.
+  const auto& arma = tabelas.ArmaOuFeitico(da.id_arma());
+  const auto& arma_outra_mao = ArmaOutraMao(tabelas, da, proto);
+  const bool usando_ataque_escudo_aprimorado =
+      UsandoAtaqueComEscudo(arma, arma_outra_mao) && PossuiTalento("ataque_escudo_aprimorado", proto);
+  const bool permite_escudo = PermiteEscudo(proto);
+  const bool usando_escudo_na_defesa =
+      permite_escudo && dd.has_id_escudo() && (usando_ataque_escudo_aprimorado || da.empunhadura() == EA_ARMA_ESCUDO);
+  if (usando_escudo_na_defesa) {
+    bonus_maximo = std::min(tabelas.Escudo(dd.id_escudo()).max_bonus_destreza(), bonus_maximo);
   }
-  const int modificador_destreza = std::min(ModificadorAtributo(proto_retornado->atributos().destreza()), bonus_maximo);
-  AtribuiBonus(modificador_destreza, TB_ATRIBUTO, "destreza", dd->mutable_ca());
-  const int modificador_tamanho = ModificadorTamanho(proto_retornado->tamanho());
-  ent::AtribuiBonus(10, TB_BASE, "base",  dd->mutable_ca());
-  AtribuiOuRemoveBonus(modificador_tamanho, TB_TAMANHO, "tamanho", dd->mutable_ca());
-  AtribuiOuRemoveBonus(dd->has_id_armadura() ? tabelas.Armadura(dd->id_armadura()).bonus() : 0, TB_ARMADURA, "armadura", dd->mutable_ca());
-  AtribuiOuRemoveBonus(dd->has_bonus_magico_armadura()
-      ? dd->bonus_magico_armadura() : 0, TB_ARMADURA_MELHORIA, "armadura_melhoria", dd->mutable_ca());
-  if (dd->bonus_magico_armadura() > 0) {
-    dd->set_armadura_obra_prima(true);
-  }
-  AtribuiOuRemoveBonus(dd->has_id_escudo() ? tabelas.Escudo(dd->id_escudo()).bonus() : 0, TB_ESCUDO, "escudo", dd->mutable_ca());
-  AtribuiOuRemoveBonus(dd->has_bonus_magico_escudo()
-      ? dd->bonus_magico_escudo() : 0, TB_ESCUDO_MELHORIA, "escudo_melhoria", dd->mutable_ca());
-  if (dd->bonus_magico_escudo() > 0) {
-    dd->set_escudo_obra_prima(true);
-  }
+  const int modificador_destreza = std::min(ModificadorAtributo(proto.atributos().destreza()), bonus_maximo);
+  AtribuiBonus(modificador_destreza, TB_ATRIBUTO, "destreza", ca);
+  const int modificador_tamanho = ModificadorTamanho(proto.tamanho());
+  ent::AtribuiBonus(10, TB_BASE, "base", ca);
+  AtribuiOuRemoveBonus(modificador_tamanho, TB_TAMANHO, "tamanho", ca);
+  AtribuiOuRemoveBonus(dd.has_id_armadura() ? tabelas.Armadura(dd.id_armadura()).bonus() : 0, TB_ARMADURA, "armadura", ca);
+  AtribuiOuRemoveBonus(dd.has_bonus_magico_armadura()
+      ? dd.bonus_magico_armadura() : 0, TB_ARMADURA_MELHORIA, "armadura_melhoria", ca);
+  AtribuiOuRemoveBonus(usando_escudo_na_defesa && dd.has_id_escudo()
+      ? tabelas.Escudo(dd.id_escudo()).bonus() : 0, TB_ESCUDO, "escudo", ca);
+  AtribuiOuRemoveBonus(usando_escudo_na_defesa && da.empunhadura() == EA_ARMA_ESCUDO && dd.has_bonus_magico_escudo()
+      ? dd.bonus_magico_escudo() : 0, TB_ESCUDO_MELHORIA, "escudo_melhoria", ca);
 
   for (const auto& talento : tabelas.todas().tabela_talentos().talentos()) {
     if (talento.has_bonus_ca()) {
-      if (PossuiTalento(talento.id(), *proto_retornado)) {
-        CombinaBonus(talento.bonus_ca(), proto_retornado->mutable_dados_defesa()->mutable_ca());
+      if (PossuiTalento(talento.id(), proto)) {
+        CombinaBonus(talento.bonus_ca(), ca);
       } else {
-        LimpaBonus(talento.bonus_ca(), proto_retornado->mutable_dados_defesa()->mutable_ca());
+        LimpaBonus(talento.bonus_ca(), ca);
       }
     }
   }
-  const int nivel_monge = Nivel("monge", *proto_retornado);
-  if (nivel_monge > 0 && dd->id_armadura().empty() && dd->id_escudo().empty()) {
+  AplicaOuRemoveBloqueioAmbidestro(permite_escudo, da, proto, ca);
+  const int nivel_monge = Nivel("monge", proto);
+  if (nivel_monge > 0 && dd.id_armadura().empty() && dd.id_escudo().empty()) {
     int bonus_monge = nivel_monge / 5;
-    AtribuiOuRemoveBonus(bonus_monge, TB_SEM_NOME, "monge", dd->mutable_ca());
-    const int modificador_sabedoria = std::max(0, ModificadorAtributo(proto_retornado->atributos().sabedoria()));
-    AtribuiOuRemoveBonus(modificador_sabedoria, TB_SEM_NOME, "monge_sabedoria", dd->mutable_ca());
+    AtribuiOuRemoveBonus(bonus_monge, TB_SEM_NOME, "monge", ca);
+    const int modificador_sabedoria = std::max(0, ModificadorAtributo(proto.atributos().sabedoria()));
+    AtribuiOuRemoveBonus(modificador_sabedoria, TB_SEM_NOME, "monge_sabedoria", ca);
   }
+}
+
+void RecomputaDependenciasCA(const Tabelas& tabelas, EntidadeProto* proto_retornado) {
+  auto* dd = proto_retornado->mutable_dados_defesa();
+  if (dd->bonus_magico_armadura() > 0) {
+    dd->set_armadura_obra_prima(true);
+  }
+  if (dd->bonus_magico_escudo() > 0) {
+    dd->set_escudo_obra_prima(true);
+  }
+  RecomputaCAParaUmAtaque(tabelas, DadoCorrenteParaCA(*proto_retornado), *proto_retornado, dd->mutable_ca());
 }
 
 void RecomputaDependenciasSalvacoes(
@@ -2938,23 +2980,26 @@ void RecomputaAlcanceArma(const Tabelas& tabelas, const ArmaProto& arma, const E
   }
 }
 
-bool UsandoEscudoComCravos(const ArmaProto& arma_principal, const ArmaProto& arma_secundaria) {
-  const std::vector<std::string> escudos = {"escudo_grande_com_cravos", "escudo_pequeno_com_cravos"};
-  return c_any(escudos, arma_principal.id()) || c_any(escudos, arma_secundaria.id());
+// Essas funcoes calculam os valores antigos de CA, antes de nao haver dados de defesa. Talvez possa ser removido um dia.
+// TODO ver se criaturas sem dd ainda funcionam (barghest).
+int CATotalUmAtaque(const Bonus& ca) {
+  return BonusTotal(ca);
 }
 
-Bonus BonusDefesaAmbidestro(const DadosAtaque& da, const EntidadeProto& proto) {
-  if (da.empunhadura() != EA_MAO_BOA && da.empunhadura() != EA_MAO_RUIM) return Bonus::default_instance();
-  if (!PossuiTalento("bloqueio_ambidestro", proto)) return Bonus::default_instance();
-
-  Bonus bonus;
-  const auto& ca = proto.dados_defesa().ca();
-  const bool defensivo = BonusIndividualPorOrigem(TB_ESCUDO, "luta_defensiva", ca) > 0 || BonusIndividualPorOrigem(TB_ESCUDO, "defesa_total", ca) > 0;
-  AtribuiBonus(defensivo ? 2 : 1, TB_ESCUDO, "bloqueio_ambidestro", &bonus);
-  return bonus;
+int CASurpresoUmAtaque(const Bonus& ca, const EntidadeProto& proto) {
+  std::vector<TipoBonus> exclusao;
+  exclusao.push_back(TB_ESQUIVA);  // TODO isso nem é tao certo, esquiva sobrenatural mantem isso.
+  const int modificador_destreza = DestrezaNaCA(proto) ? 0 : ModificadorAtributo(proto.atributos().destreza());
+  return BonusTotalExcluindo(ca, exclusao) - std::max(modificador_destreza, 0);
 }
 
-void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
+int CAToqueUmAtaque(const Bonus& ca) {
+  return BonusTotalExcluindo(ca,
+         { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL,
+           TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA, TB_ARMADURA_NATURAL_MELHORIA });
+}
+
+void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, const Bonus& ca_base, DadosAtaque* da) {
   ResetDadosAtaque(da);
   *da->mutable_acao() = AcaoProto::default_instance();
 
@@ -2964,21 +3009,15 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
 
   const auto& arma_outra_mao = ArmaOutraMao(tabelas, *da, proto);
-  const bool usando_escudo =
-    da->empunhadura() == EA_ARMA_ESCUDO ||
-    ((da->empunhadura() == EA_MAO_RUIM || da->empunhadura() == EA_MAO_BOA) &&
-     PossuiTalento("ataque_escudo_aprimorado", proto) &&
-     UsandoEscudoComCravos(arma, arma_outra_mao));
-  //LOG(INFO) << "usando escudo: " << usando_escudo << " para arma " << arma.id()
-  //          << ", pt: " << PossuiTalento("ataque_escudo_aprimorado", proto) << ", uec: " << UsandoEscudoComCravos(arma, arma_outra_mao);
-  const int penalidade_ataque_escudo = usando_escudo ? PenalidadeEscudo(tabelas, proto) : 0;
+  const bool usando_escudo_na_defesa = da->empunhadura() == EA_ARMA_ESCUDO;
+  const int penalidade_ataque_escudo = usando_escudo_na_defesa ? PenalidadeEscudo(tabelas, proto) : 0;
   auto* bonus_ataque = da->mutable_bonus_ataque();
   LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
   LimpaBonus(TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
   LimpaBonus(TB_SEM_NOME, "nao_proficiente", bonus_ataque);
   const int bba_cac = proto.bba().cac();
   const int bba_distancia = proto.bba().distancia();
-  if (usando_escudo && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
+  if (usando_escudo_na_defesa && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
     AtribuiOuRemoveBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
   }
   if (!TalentoComArmadura(tabelas.Armadura(proto.dados_defesa().id_armadura()), proto)) {
@@ -3211,10 +3250,12 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   if (da->grupo().empty()) da->set_grupo(StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
   // CA do ataque.
-  Bonus bonus_defesa_ambidestro = BonusDefesaAmbidestro(*da, proto);
-  da->set_ca_normal(CATotal(proto, usando_escudo, bonus_defesa_ambidestro));
-  da->set_ca_surpreso(CASurpreso(proto, usando_escudo, bonus_defesa_ambidestro));
-  da->set_ca_toque(CAToque(proto));
+  Bonus ca = ca_base;
+  RecomputaCAParaUmAtaque(tabelas, *da, proto, &ca);
+  VLOG(3) << "ca para ataque '" << da->rotulo() << "': " << ca.DebugString();
+  da->set_ca_normal(CATotalUmAtaque(ca));
+  da->set_ca_surpreso(CASurpresoUmAtaque(ca, proto));
+  da->set_ca_toque(CAToqueUmAtaque(ca));
 
   // Veneno.
   RecomputaDependenciasVenenoParaAtaque(proto, da);
@@ -3223,8 +3264,14 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
 }
 
 void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
+  Bonus ca_base = proto->dados_defesa().ca();
+  {
+    LimpaBonus(TB_ESCUDO, "escudo", &ca_base);
+    LimpaBonus(TB_ESCUDO, "bloqueio_ambidestro", &ca_base);
+    LimpaBonus(TB_ESCUDO_MELHORIA, "escudo_melhoria", &ca_base);
+  }
   for (auto& da : *proto->mutable_dados_ataque()) {
-    RecomputaDependenciasUmDadoAtaque(tabelas, *proto, &da);
+    RecomputaDependenciasUmDadoAtaque(tabelas, *proto, ca_base, &da);
   }
   //EntidadeProto p;
   //*p.mutable_dados_ataque() = proto->dados_ataque();

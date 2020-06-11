@@ -729,8 +729,8 @@ TEST(TesteArmas, TesteEscudoComCravos) {
     EXPECT_EQ(da_espada.bonus_ataque_final(), -3) << da_espada.DebugString();
     const auto& da_escudo = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 1);
     EXPECT_EQ(da_escudo.bonus_ataque_final(), -7) << da_escudo.DebugString();
-    EXPECT_EQ(da_espada.ca_normal(), 13);
-    EXPECT_EQ(da_escudo.ca_normal(), 13);
+    plebeu->AtualizaAcaoPorGrupo("espada_longa_com_escudo");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 13) << plebeu->Proto().dados_defesa().ca().DebugString();
   }
   {
     modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("ataque_escudo_aprimorado");
@@ -739,8 +739,8 @@ TEST(TesteArmas, TesteEscudoComCravos) {
     EXPECT_EQ(da_espada.bonus_ataque_final(), -3) << da_espada.DebugString();
     const auto& da_escudo = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 1);
     EXPECT_EQ(da_escudo.bonus_ataque_final(), -7) << da_escudo.DebugString();
-    EXPECT_EQ(da_espada.ca_normal(), 14);
-    EXPECT_EQ(da_escudo.ca_normal(), 14);
+    plebeu->AtualizaAcaoPorGrupo("espada_longa_com_escudo");
+    EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 14) << plebeu->Proto().dados_defesa().ca().DebugString();
   }
 }
 
@@ -1788,6 +1788,7 @@ TEST(TesteTalentoPericias, TesteTalentoPericias) {
 
 TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   EntidadeProto proto;
+  proto.set_gerar_agarrar(false);
   AtribuiBaseAtributo(14, TA_FORCA, &proto);
   AtribuiBonus(2, TB_NIVEL, "nivel", BonusAtributo(TA_FORCA, &proto));
   AtribuiBaseAtributo(10, TA_DESTREZA, &proto);
@@ -1800,6 +1801,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
   proto.mutable_dados_defesa()->set_bonus_magico_armadura(2);
   proto.mutable_dados_defesa()->set_id_escudo("leve_madeira");
   proto.mutable_dados_defesa()->set_bonus_magico_escudo(1);
+  DadosAtaquePorGrupoOuCria("adaga_de_soco", &proto)->set_empunhadura(EA_ARMA_ESCUDO);
 
   EntidadeProto forma;
   AtribuiBaseAtributo(4, TA_FORCA, &forma);
@@ -1844,7 +1846,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
     EXPECT_EQ(24, BonusTotal(BonusAtributo(TA_CARISMA, proto_pos_forma)));
     EXPECT_EQ(TM_PEQUENO, proto_pos_forma.tamanho());
     // +1 tam, 0 des, +2 escudo, +4 armadura.
-    EXPECT_EQ(17, BonusTotal(proto_pos_forma.dados_defesa().ca()));
+    EXPECT_EQ(17, BonusTotal(proto_pos_forma.dados_defesa().ca())) << proto_pos_forma.dados_defesa().ca().DebugString();
   }
 }
 
@@ -2151,12 +2153,14 @@ TEST(TesteDependencias, TesteDependencias) {
   // Ataques.
   {
     auto* da = proto.add_dados_ataque();
+    da->set_grupo("espada_longa_2_maos");
     da->set_id_arma("espada_longa");
     da->set_obra_prima(true);
     da->set_empunhadura(EA_2_MAOS);
   }
   {
     auto* da = proto.add_dados_ataque();
+    da->set_grupo("espada_longa_escudo");
     da->set_id_arma("espada_longa");
     da->set_obra_prima(true);
     da->set_empunhadura(EA_ARMA_ESCUDO);
@@ -2184,6 +2188,7 @@ TEST(TesteDependencias, TesteDependencias) {
   dd->set_id_escudo("pesado_madeira");
   dd->set_bonus_magico_escudo(3);
   proto.mutable_tendencia()->set_simples(TD_LEAL_BOM);
+  proto.set_ultimo_grupo_acao("espada_longa_escudo");
   RecomputaDependencias(g_tabelas, &proto);
   EXPECT_EQ(3, ic->bba());
   // 16 da +3 de bonus.
@@ -2197,25 +2202,33 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_vontade()));
   // CA: 10 + 2 des + (5+2) cota, (2+3) escudo, -2 furia, -1 tamanho.
   EXPECT_EQ(21, BonusTotal(dd->ca()));
+
   // Primeiro ataque.
-  EXPECT_EQ("espada longa", proto.dados_ataque(0).rotulo());
-  // Espada longa grande com duas maos.
-  EXPECT_EQ("2d6+4", proto.dados_ataque(0).dano());
-  EXPECT_EQ(19, proto.dados_ataque(0).margem_critico());
-  // 3 base, 3 forca, -1 tamanho, 1 obra prima.
-  EXPECT_EQ(6, proto.dados_ataque(0).bonus_ataque_final());
-  EXPECT_EQ(16, proto.dados_ataque(0).ca_normal());
-  EXPECT_EQ(16, proto.dados_ataque(0).ca_surpreso());  // esquiva sobrenatural
-  EXPECT_EQ(9, proto.dados_ataque(0).ca_toque());
+  {
+    const auto& da = DadosAtaquePorGrupo("espada_longa_2_maos", proto);
+    EXPECT_EQ("espada longa", da.rotulo());
+    // Espada longa grande com duas maos.
+    EXPECT_EQ("2d6+4", da.dano());
+    EXPECT_EQ(19, da.margem_critico());
+    // 3 base, 3 forca, -1 tamanho, 1 obra prima.
+    EXPECT_EQ(6, da.bonus_ataque_final());
+    // CA: 10 + 2 des + (5+2) cota, -2 furia, -1 tamanho.
+    ASSERT_EQ(16, da.ca_normal());
+    EXPECT_EQ(16, da.ca_surpreso());  // esquiva sobrenatural
+    EXPECT_EQ(9, da.ca_toque());
+  }
   // Segundo ataque.
   // Espada longa grande com uma mao.
-  EXPECT_EQ("2d6+3", proto.dados_ataque(1).dano());
-  EXPECT_EQ(21, proto.dados_ataque(1).ca_normal());
-  EXPECT_EQ(21, proto.dados_ataque(1).ca_surpreso());  // esquiva sobrenatural.
-  EXPECT_EQ(9, proto.dados_ataque(1).ca_toque());
-
+  {
+    const auto& da = DadosAtaquePorGrupo("espada_longa_escudo", proto);
+    EXPECT_EQ("2d6+3", da.dano());
+    EXPECT_EQ(21, da.ca_normal());
+    EXPECT_EQ(21, da.ca_surpreso());  // esquiva sobrenatural.
+    EXPECT_EQ(9, da.ca_toque());
+  }
   EXPECT_GE(proto.tendencia().eixo_bem_mal(), 0.6f);
 
+  proto.set_ultimo_grupo_acao("espada_longa_2_maos");
   auto* ea = NovaEntidadeParaTestes(proto, g_tabelas);
   auto* ed = NovaEntidadeParaTestes(proto, g_tabelas);
   // 16 normal +2 contra o bem.
@@ -4193,6 +4206,8 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
 }
 
 TEST(TesteModelo, TesteRanger9) {
+  // Forca 16, +3.
+  // Destreza 15, +2.
   auto modelo = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas");
   auto ranger = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
   ASSERT_EQ(ranger->NivelClasse("ranger"), 9);
@@ -4201,8 +4216,48 @@ TEST(TesteModelo, TesteRanger9) {
     EXPECT_FALSE(c.id().empty());
     EXPECT_NE(c.id(), "auto");
   }
+  {
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 0);
+    // 9 bab, 3 forca, 1 arma magica, -2 duas armas segunda leve.
+    EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2);
+    EXPECT_EQ(da.dano(), "1d6+4");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    // 4+1 camisao magico, 2 des, 1 bloqueio ambidestro.
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2+1) << ranger->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 1);
+    // 9 bab, 3 forca, 1 arma magica, -2 duas armas segunda leve, segundo ataque.
+    EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2-5);
+    EXPECT_EQ(da.dano(), "1d6+4");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    // 4+1 camisao magico, 2 des, 1 bloqueio ambidestro.
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2+1) << ranger->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 2);
+    // 9 bab, 3 forca, 1 arma magica, -2 duas armas segunda leve, mão ruim.
+    EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2);
+    EXPECT_EQ(da.dano(), "1d4+2");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    // 4+1 camisao magico, 2 des, 1 bloqueio ambidestro.
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2+1) << ranger->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Arco", ranger->Proto());
+    // 9 bab, 2 des, 1 OP.
+    EXPECT_EQ(da.bonus_ataque_final(), 9+2+1);
+    EXPECT_EQ(da.dano(), "1d8+3");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 33);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    // 4+1 camisao magico, 2 des.
+    ranger->AtualizaAcaoPorGrupo("Arco");
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2) << ranger->Proto().dados_defesa().ca().DebugString();
+  }
 }
-
 
 TEST(TesteModelo, TesteGuepardo) {
   auto modelo = g_tabelas.ModeloEntidade("Guepardo");

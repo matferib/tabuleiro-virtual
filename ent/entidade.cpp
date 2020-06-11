@@ -1496,6 +1496,16 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
   } else {
     proto_.set_ultimo_grupo_acao(dado_corrente->grupo());
   }
+  RecomputaDependencias();
+}
+
+void Entidade::AtualizaAcaoPorGrupo(const std::string& grupo) {
+  proto_.set_ultimo_grupo_acao(grupo);
+  const auto* dado_corrente = DadoCorrente();
+  if (dado_corrente == nullptr) {
+    proto_.clear_ultimo_grupo_acao();
+  }
+  RecomputaDependencias();
 }
 
 bool Entidade::ProximaAcao() {
@@ -2062,8 +2072,8 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca, bool vs_oportunidade)
   Bonus outros_bonus;
   CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);
 
-  const auto* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
-  const bool destreza_na_ca = DestrezaNaCAContraAtaque(da, proto_, atacante.Proto());
+  const auto& da = DadoCorrenteNaoNull(/*ignora_ataques_na_rodada=*/true);
+  const bool destreza_na_ca = DestrezaNaCAContraAtaque(&da, proto_, atacante.Proto());
 
   // Cada tipo de CA sabera compensar a esquiva.
   const int bonus_esquiva =
@@ -2075,7 +2085,7 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca, bool vs_oportunidade)
   //LOG(INFO) << "destrezanaca: " << destreza_na_ca << ", vs_oportunidade: " << vs_oportunidade << ", caido: " << proto_.caida() << ", PossuiTalento(mobilidade): " << PossuiTalento("mobilidade") << ", bonus mobilidade: " << bonus_mobilidade;
   AtribuiBonus(bonus_mobilidade, TB_ESQUIVA, "mobilidade", &outros_bonus);
   if (proto_.dados_defesa().has_ca()) {
-    bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
+    const bool permite_escudo = true;  // o recomputa ja tirou o escudo. 
     if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
       return destreza_na_ca 
           ? CATotal(proto_, permite_escudo, outros_bonus)
@@ -2086,13 +2096,10 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca, bool vs_oportunidade)
           : CAToqueSurpreso(proto_, outros_bonus);
     }
   }
-  if (da == nullptr) {
-    return AtaqueCaInvalido;
-  }
   switch (tipo_ca) {
-    case CA_TOQUE: return da->ca_toque() + bonus_esquiva;
-    case CA_SURPRESO: return da->ca_surpreso();
-    default: return da->ca_normal() + bonus_esquiva;
+    case CA_TOQUE: return da.ca_toque() + bonus_esquiva;
+    case CA_SURPRESO: return da.ca_surpreso();
+    default: return da.ca_normal() + bonus_esquiva;
   }
 }
 

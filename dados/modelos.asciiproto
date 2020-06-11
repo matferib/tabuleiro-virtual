@@ -511,8 +511,8 @@ modelo {
   }
 }
 modelo {
-  id: 'Centopéia Grande Abissal'
-  id_entidade_base: 'Centopéia Grande Abissal ICII'
+  id: 'Centopéia Grande Abissal ICII'
+  id_entidade_base: 'Centopéia Grande Abissal'
   parametros {
     tipo_duracao: TD_RODADAS_NIVEL
   }
@@ -3644,7 +3644,6 @@ modelo {
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
         bonus_individual { tipo: TB_MELHORIA         por_origem { origem: 'armadura' valor: 1 } }
-        bonus_individual { tipo: TB_ESCUDO           por_origem { origem: 'bloqueio_ambidestro' valor: 1 } }
       }
     }
     atributos {
@@ -6618,16 +6617,11 @@ modelo {
     dados_ataque { grupo: '2 Armas com Chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_MAO_BOA bonus_magico: 1 ordem_ataque: 1 }
     dados_ataque { grupo : '2 Armas com Chicote' id_arma: 'picareta_leve' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
     # Arco.
-    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true }
-    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true ordem_ataque: 1 }
+    dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true }
+    dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true ordem_ataque: 1 }
     # Defesa.
     dados_defesa {
-      id_armadura: 'couro_batido' bonus_magico_armadura: 1
-      ca {
-        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
-        bonus_individual { tipo: TB_MELHORIA         por_origem { origem: 'armadura' valor: 1 } }
-        bonus_individual { tipo: TB_ESCUDO           por_origem { origem: 'bloqueio_ambidestro' valor: 1 } }
-      }
+      id_armadura: 'camisao' bonus_magico_armadura: 1
     }
     dados_ataque_global {
       inimigos_prediletos { classe: 'ranger' vezes: 2 tipo: TIPO_HUMANOIDE sub_tipo: SUBTIPO_HUMANO }
