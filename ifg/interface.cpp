@@ -44,7 +44,7 @@ std::string StringDuracao(ent::ModificadorRodadas mr) {
     case ent::MR_10_MINUTOS_NIVEL: return "10 minutos/nível";
     case ent::MR_HORAS_NIVEL: return "horas/nível";
     case ent::MR_2_HORAS_NIVEL: return "2 horas/nível";
-    case ent::MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6: return "1 rodada/ 3 níveis (max 6)";
+    case ent::MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6: return "1 rodada/3 níveis (max 6)";
     case ent::MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15: return "10 rodadas +1/nível (max 15)";
     case ent::MR_HORAS_NIVEL_MAX_15: return "horas/nivel (max 15)";
     case ent::MR_2_MINUTOS_NIVEL: return "2 minutos/nivel";
@@ -54,6 +54,7 @@ std::string StringDuracao(ent::ModificadorRodadas mr) {
     case ent::MR_CONTINUO: return "continuo";
     case ent::MR_MOD_CARISMA: return "modificador de carisma";
     case ent::MR_DRENAR_FORCA_VITAL: return "10 minutos/nivel do alvo";
+    case ent::MR_1_RODADA_A_CADA_2_NIVEIS: return "1 rodada/2 níveis";
   }
   // Nao deveria chegar aqui.
   return "desconhecida";
