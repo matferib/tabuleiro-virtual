@@ -80,6 +80,7 @@ enum ModificadorRodadas {
   MR_CONTINUO = 15;
   MR_MOD_CARISMA = 16;
   MR_DRENAR_FORCA_VITAL = 17;
+  MR_1_RODADA_A_CADA_2_NIVEIS = 18;
 }
 
 enum ModificadorComplementos {
@@ -104,7 +105,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 101.
+// Proximo id: 102.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -207,6 +208,7 @@ message AcaoProto {
   repeated TipoDnD afeta_apenas = 44;
   repeated TipoDnD nao_afeta_tipo = 56;
   repeated SubTipoDnD nao_afeta_sub_tipo = 57;
+  optional TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 101;
   optional bool nao_afeta_origem = 58;
   // Se presente, a acao afeta no maximo dv_mais_alto dados de vida.
   optional int32 dv_mais_alto = 61;

@@ -2583,7 +2583,7 @@ bool Entidade::Ordeira() const {
 }
 
 bool Entidade::PodeMover() const {
-  if (PossuiUmDosEfeitos({EFEITO_NAO_PODE_MOVER, EFEITO_IMOBILIZADO, EFEITO_PARALISIA})) {
+  if (PossuiUmDosEfeitos({EFEITO_NAO_PODE_MOVER, EFEITO_IMOBILIZADO, EFEITO_PARALISIA, EFEITO_APRISIONADO_ELEMENTAL})) {
     return false;
   }
   return true;
