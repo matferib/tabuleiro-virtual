@@ -493,7 +493,7 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'aberracao'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'pasmar' nome: 'Pasmar' }
         conhecidos { id: 'detectar_magia' nome: 'Detectar Magia' }
@@ -502,7 +502,7 @@ modelo {
         conhecidos { id: 'raio_gelo' nome: 'Raio de Gelo' }
         conhecidos { id: 'ler_magia' nome: 'Ler Magia' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'disco flutuante' nome: 'Disco Flutuante' }
         conhecidos { id: 'misseis_magicos' nome: 'Mísseis Mágicos' }
@@ -510,7 +510,7 @@ modelo {
         conhecidos { id: 'escudo_arcano' nome: 'Escudo Arcano' }
         conhecidos { id: 'armadura_arcana' nome: 'Armadura Arcana' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'nublar' nome: 'Nublar' }
         conhecidos { id: 'detectar_pensamento' nome: 'Detectar Pensamento' }
@@ -518,27 +518,27 @@ modelo {
         conhecidos { id: 'reflexos' nome: 'Reflexos' }
         conhecidos { id: 'imagem_menor' nome: 'Imagem Menor' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'dissipar_magia' nome: 'Dissipar Magia' }
         conhecidos { id: 'bola_de_fogo' nome: 'Bola de Fogo' }
         conhecidos { id: 'protecao_contra_elementos' nome: 'Proteção contra Elementos' }
         conhecidos { id: 'lentidao' nome: 'Lentidão' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 4
         conhecidos { id: 'desespero_esmagador' nome: 'Desespero Esmagador' }
         conhecidos { id: 'invisibilidade_maior' nome: 'Invisibilidade Maior' }
         conhecidos { id: 'confusao' nome: 'Confusão' }
         conhecidos { id: 'metamorfoso' nome: 'Metamorfose' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 5
         conhecidos { id: 'cone_glacial' nome: 'Cone Glacial' }
         conhecidos { id: 'dominar_pessoa' nome: 'Dominar Pessoa' }
         conhecidos { id: 'teletransporte' nome: 'Teletransporte' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 6
         conhecidos { id: 'corrente_relampagos' nome: 'Corrente de Relâmpagos' }
         conhecidos { id: 'globo_invulnerabilidade' nome: 'Globo de Invulnerabilidade' }
@@ -675,9 +675,8 @@ modelo {
     feiticos_classes {
       id_classe: 'bardo'
       operacao: OC_COMBINA
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
-        operacao: OC_SOBRESCREVE
         conhecidos { id: 'imobilizar_pessoa' }
         conhecidos { id: 'escuridao' }
         conhecidos { id: 'explosao_sonora' }
@@ -750,7 +749,7 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'feiticeiro'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'marca_arcana' }
         conhecidos { id: 'pasmar' }
@@ -762,7 +761,7 @@ modelo {
         conhecidos { id: 'resistencia' }
         conhecidos { id: 'toque_fadiga' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
@@ -770,25 +769,25 @@ modelo {
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 4
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 5
         conhecidos { id: 'auto' }
       }
@@ -970,7 +969,7 @@ modelo {
 
     feiticos_classes {
       id_classe: 'feiticeiro'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'romper_morto_vivo' }
@@ -979,7 +978,7 @@ modelo {
         conhecidos { id: 'mensagem' }
         conhecidos { id: 'resistencia' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'suportar_elementos' }
         conhecidos { id: 'escudo_arcano' }
@@ -987,7 +986,7 @@ modelo {
         para_lancar { usado: true }
         para_lancar { usado: true }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'agilidade_gato' }
         para_lancar { usado: true }
@@ -1098,7 +1097,7 @@ modelo {
       id_classe: 'clerigo'
       dominios: 'morte'
       dominios: 'enganacao'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'orientacao' }
@@ -1111,7 +1110,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'maldicao_menor' }
         conhecidos { id: 'bencao' }
@@ -1124,7 +1123,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'arma_espiritual' }
         conhecidos { id: 'arma_espiritual' }
@@ -1137,7 +1136,7 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'auto' }

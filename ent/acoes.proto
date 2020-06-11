@@ -385,7 +385,7 @@ message DanoAdicionalPorTendencia {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 96.
+// Proximo id: 97.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -544,6 +544,8 @@ message DadosAtaque {
   optional bool ataque_derrubar = 91;
   optional int32 chance_falha = 94;
   optional int32 tempo_execucao_rodadas = 95;
+  // se verdadeiro, ataque sera um desarme.
+  optional bool ataque_desarmar = 96;
 }
 
 message ConsequenciaEvento {

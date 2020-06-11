@@ -1056,7 +1056,6 @@ void PreencheConfiguraFeiticos(
           std::string id_classe = item->data(TCOL_ID_CLASSE, Qt::UserRole).toString().toStdString();
           int nivel = item->data(TCOL_NIVEL, Qt::UserRole).toInt();
           int indice = item->data(TCOL_INDICE, Qt::UserRole).toInt();
-          const auto& fc = ent::FeiticosClasse(id_classe, *proto_retornado);
           auto* fn = ent::FeiticosNivel(id_classe, nivel, proto_retornado);
           if (indice < 0 || indice >= fn->conhecidos_size()) {
             gerador.arvore_feiticos->blockSignals(false);
@@ -1067,10 +1066,10 @@ void PreencheConfiguraFeiticos(
           // aqui tem que corrigir todos para lancar que apontavam para feiticos do mesmo nivel:
           // 1- indice do removido: resetar para primeiro indice.
           // 2- indice > removido: diminuir o indice em 1.
-          if (ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
-            for (int i = 0; i < fc.feiticos_por_nivel().size(); ++i) {
-              auto* fn_correcao = ent::FeiticosNivel(id_classe, i, proto_retornado);
-              for (auto& pl : *fn_correcao->mutable_para_lancar()) {
+          if (auto* fc = ent::FeiticosClasse(id_classe, proto_retornado);
+              fc != nullptr && ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
+            for (auto& [nivel, fn_correcao] : *fc->mutable_mapa_feiticos_por_nivel()) {
+              for (auto& pl : *fn_correcao.mutable_para_lancar()) {
                 if (pl.nivel_conhecido() != nivel ||
                     !pl.has_indice_conhecido() || pl.indice_conhecido() < indice) continue;
                 if (pl.indice_conhecido() == indice) {

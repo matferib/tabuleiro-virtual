@@ -3463,7 +3463,8 @@ int NivelParaFeitico(const Tabelas& tabelas, const DadosAtaque& da, const Entida
 
 void RenovaFeiticos(EntidadeProto* proto) {
   for (auto& fc : *proto->mutable_feiticos_classes()) {
-    for (auto& fn : *fc.mutable_feiticos_por_nivel()) {
+    for (auto& [nivel, fn] : *fc.mutable_mapa_feiticos_por_nivel()) {
+      VLOG(1) << "compilador feliz: " << nivel;
       for (auto& pl : *fn.mutable_para_lancar()) {
         pl.set_usado(false);
       }
@@ -4019,30 +4020,30 @@ const EntidadeProto::FeiticosPorNivel& FeiticosNivel(
     const std::string& id_classe, int nivel, const EntidadeProto& proto) {
   nivel = std::min(nivel, 9);
   const auto& fc = FeiticosClasse(id_classe, proto);
-  if (nivel < 0 || nivel >= fc.feiticos_por_nivel().size()) return EntidadeProto::FeiticosPorNivel::default_instance();
-  return fc.feiticos_por_nivel(nivel);
+  if (auto it = fc.mapa_feiticos_por_nivel().find(nivel); it == fc.mapa_feiticos_por_nivel().end()) {
+    return EntidadeProto::FeiticosPorNivel::default_instance();
+  } else {
+    return it->second; 
+  }
 }
 
 EntidadeProto::FeiticosPorNivel* FeiticosNivel(const std::string& id_classe, int nivel, EntidadeProto* proto) {
-  nivel = std::min(nivel, 9);
   auto* fc = FeiticosClasse(id_classe, proto);
-  if (nivel < 0) return nullptr;
-  while (nivel >= fc->feiticos_por_nivel().size()) {
-    fc->add_feiticos_por_nivel();
-  }
-  return fc->mutable_feiticos_por_nivel(nivel);
+  if (nivel < 0 || nivel > 9) return nullptr;
+  return &(*fc->mutable_mapa_feiticos_por_nivel())[nivel];
 }
 
 EntidadeProto::FeiticosPorNivel* FeiticosNivelOuNullptr(
     const std::string& id_classe, int nivel, EntidadeProto* proto) {
-  nivel = std::min(nivel, 9);
-  if (nivel < 0) return nullptr;
+  if (nivel < 0 || nivel > 9) return nullptr;
   auto* fc = FeiticosClasseOuNullptr(id_classe, proto);
   if (fc == nullptr) return nullptr;
-  if (nivel >= fc->feiticos_por_nivel().size()) {
+  if (auto it = fc->mutable_mapa_feiticos_por_nivel()->find(nivel);
+      it == fc->mutable_mapa_feiticos_por_nivel()->end()) {
     return nullptr;
+  } else {
+    return &it->second; 
   }
-  return fc->mutable_feiticos_por_nivel(nivel);
 }
 
 bool ClasseDeveConhecerFeitico(const Tabelas& tabelas, const std::string& id_classe) {
@@ -4113,9 +4114,9 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
     auto* e_depois = n->mutable_entidade();
     auto* fc = e_depois->add_feiticos_classes();
     fc->set_id_classe(id_classe);
-    auto* fn = fc->add_feiticos_por_nivel();
-    fn->set_nivel(nivel);
-    auto* pl = fn->add_para_lancar();
+    auto& fn = (*fc->mutable_mapa_feiticos_por_nivel())[nivel];
+    fn.set_nivel(nivel);
+    auto* pl = fn.add_para_lancar();
     pl->set_usado(usado);
     pl->set_indice(indice);
   }
@@ -4123,9 +4124,9 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
     auto* e_antes = n->mutable_entidade_antes();
     auto* fc = e_antes->add_feiticos_classes();
     fc->set_id_classe(id_classe);
-    auto* fn = fc->add_feiticos_por_nivel();
-    fn->set_nivel(nivel);
-    auto* pl = fn->add_para_lancar();
+    auto& fn = (*fc->mutable_mapa_feiticos_por_nivel())[nivel];
+    fn.set_nivel(nivel);
+    auto* pl = fn.add_para_lancar();
     pl->set_usado(FeiticoParaLancar(id_classe, nivel, indice, proto).usado());
     pl->set_indice(indice);
   }
@@ -4506,21 +4507,22 @@ bool NotificacaoConsequenciaFeitico(
 // Retorna: id_classe, nivel, indice slot, usado e id entidade na notificacao de alterar feitico. Em caso de
 // erro, retorna nivel negativo.
 std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFeitico(const ntf::Notificacao& n) {
-  if (n.entidade().feiticos_classes().empty() ||
-      n.entidade().feiticos_classes().size() > 1 ||
-      n.entidade().feiticos_classes(0).feiticos_por_nivel().empty() ||
-      n.entidade().feiticos_classes(0).feiticos_por_nivel().size() > 1 ||
-      n.entidade().feiticos_classes(0).feiticos_por_nivel(0).para_lancar().empty() ||
-      n.entidade().feiticos_classes(0).feiticos_por_nivel(0).para_lancar().size() > 1) {
-    // Bizarramente, make_tuple da pau de linker se usar Entidade::IdInvalido.
-    unsigned int id_invalido = Entidade::IdInvalido;
+  // Bizarramente, make_tuple da pau de linker se usar Entidade::IdInvalido.
+  unsigned int id_invalido = Entidade::IdInvalido;
+  if (n.entidade().feiticos_classes().size() != 1) {
     return std::make_tuple("", -1, 0, false, id_invalido);
   }
   const auto& fc = n.entidade().feiticos_classes(0);
-  const auto& fn = fc.feiticos_por_nivel(0);
+  if (fc.mapa_feiticos_por_nivel().size() != 1) {
+    return std::make_tuple("", -1, 0, false, id_invalido);
+  }
+  const auto& [nivel, fn] = *fc.mapa_feiticos_por_nivel().begin();
+  if (fc.mapa_feiticos_por_nivel().begin()->second.para_lancar().size() != 1) {
+    return std::make_tuple("", -1, 0, false, id_invalido);
+  }
   const auto& pl = fn.para_lancar(0);
   return std::make_tuple(
-      fc.id_classe(), fn.has_nivel() ? fn.nivel() : -1, pl.indice(), pl.usado(), n.entidade().id());
+      fc.id_classe(), fn.has_nivel() ? fn.nivel() : nivel, pl.indice(), pl.usado(), n.entidade().id());
 }
 
 std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(
@@ -4540,9 +4542,8 @@ std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(
   *nfc = fc;
   nfc->set_conversao_espontanea(conversao_espontanea);
 
-  if ((nivel + 1) < fc.feiticos_por_nivel().size()) {
-    n->mutable_entidade()->mutable_feiticos_classes(0)->mutable_feiticos_por_nivel()->DeleteSubrange(
-        nivel + 1, (fc.feiticos_por_nivel().size() - nivel - 1));
+  for (int i = nivel + 1; i <= 9; ++i) {
+    n->mutable_entidade()->mutable_feiticos_classes(0)->mutable_mapa_feiticos_por_nivel()->erase(i);
   }
   return n;
 }

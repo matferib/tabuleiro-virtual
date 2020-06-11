@@ -2089,6 +2089,7 @@ TEST(TesteDependencias, TesteInvestida) {
   {
     auto* evento = proto.add_evento();
     evento->set_id_efeito(EFEITO_INVESTIDA);
+    evento->add_complementos(2);
   }
 
   RecomputaDependencias(g_tabelas, &proto);
@@ -3381,13 +3382,13 @@ TEST(TesteFeiticos, TesteFeiticos) {
     ASSERT_EQ(proto.feiticos_classes().size(), 1);
     EXPECT_EQ(proto.feiticos_classes(0).id_classe(), "mago");
     // Progressao tabelada: 4 2 1.
-    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel().size(), 3);
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().size(), 3UL);
     // Nivel 0: Fixo em 4.
-    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(0).para_lancar().size(), 4);
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().at(0).para_lancar().size(), 4);
     // Nivel 1: 2 + 1 de bonus de atributo.
-    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(1).para_lancar().size(), 3);
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().at(1).para_lancar().size(), 3);
     // Nivel 2: 1 + 1 de bonus de atributo.
-    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(2).para_lancar().size(), 2);
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().at(2).para_lancar().size(), 2);
   }
   {
     EntidadeProto proto;
@@ -3400,11 +3401,28 @@ TEST(TesteFeiticos, TesteFeiticos) {
     ASSERT_EQ(proto.feiticos_classes().size(), 1);
     EXPECT_EQ(proto.feiticos_classes(0).id_classe(), "clerigo");
     // Progressao tabelada: 3 1+1.
-    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel().size(), 2);
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().size(), 2UL);
     // Nivel 0: Fixo em 3.
-    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(0).para_lancar().size(), 3);
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().at(0).para_lancar().size(), 3);
     // Nivel 1: 1 + 1 dominio + 1 de bonus de atributo.
-    ASSERT_EQ(proto.feiticos_classes(0).feiticos_por_nivel(1).para_lancar().size(), 3);
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().at(1).para_lancar().size(), 3);
+  }
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("ranger");
+    ic->set_nivel(10);
+    AtribuiBaseAtributo(12, TA_SABEDORIA, &proto);
+    RecomputaDependencias(g_tabelas, &proto);
+
+    ASSERT_EQ(proto.feiticos_classes().size(), 1);
+    EXPECT_EQ(proto.feiticos_classes(0).id_classe(), "ranger");
+    // Progressao tabelada: 1 1 sem nivel 0.
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().size(), 2UL);
+    // Nivel 1: 1 + 1 de sabedoria.
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().at(1).para_lancar().size(), 2);
+    // Nivel 2: 1.
+    ASSERT_EQ(proto.feiticos_classes(0).mapa_feiticos_por_nivel().at(2).para_lancar().size(), 1);
   }
 }
 
@@ -4174,6 +4192,18 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, TesteRanger9) {
+  auto modelo = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas");
+  auto ranger = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  ASSERT_EQ(ranger->NivelClasse("ranger"), 9);
+  EXPECT_EQ(FeiticosNivel("ranger", 1, ranger->Proto()).conhecidos().size(), 2);
+  for (const auto& c : FeiticosNivel("ranger", 1, ranger->Proto()).conhecidos()) {
+    EXPECT_FALSE(c.id().empty());
+    EXPECT_NE(c.id(), "auto");
+  }
+}
+
+
 TEST(TesteModelo, TesteGuepardo) {
   auto modelo = g_tabelas.ModeloEntidade("Guepardo");
   auto guepardo = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
@@ -4191,7 +4221,6 @@ TEST(TesteModelo, TesteGuepardo) {
   EXPECT_EQ(ValorFinalPericia("ouvir", guepardo->Proto()), 4);
   EXPECT_EQ(ValorFinalPericia("furtividade", guepardo->Proto()), 6);
   EXPECT_EQ(ValorFinalPericia("observar", guepardo->Proto()), 4);
-  LOG(INFO) << Pericia("observar", guepardo->Proto()).DebugString();
 }
 
 TEST(TesteModelo, TesteAbelhaGiganteCelestial) {

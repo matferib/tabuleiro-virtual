@@ -3545,6 +3545,10 @@ modelo {
     dados_ataque { id_arma: 'arco_curto' }
     dados_ataque { rotulo: 'Machado com 2 mãos' id_arma: 'machado_de_batalha' empunhadura: EA_2_MAOS }
     dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 1 }
+    dados_ataque_global {
+      inimigos_prediletos { classe: 'ranger' vezes: 2 tipo: TIPO_HUMANOIDE sub_tipo: SUBTIPO_HUMANO }
+      inimigos_prediletos { classe: 'ranger' vezes: 1 tipo: TIPO_BESTA_MAGICA }
+    }
     dados_defesa {
       id_armadura: 'couro' id_escudo: 'pesado_aco' ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } } }
     }
@@ -5263,19 +5267,23 @@ modelo {
       dominios: 'forca'
       dominios: 'ordem'
 
-      feiticos_por_nivel {
-        nivel: 0
-        conhecidos { id: 'orientacao' }
-        conhecidos { id: 'auto' }
-        conhecidos { id: 'auto' }
-        conhecidos { id: 'auto' }
+      mapa_feiticos_por_nivel {
+        key: 0
+        value {
+          conhecidos { id: 'orientacao' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+        }
       }
-      feiticos_por_nivel {
-        nivel: 1
-        conhecidos { id: 'auto' }
-        conhecidos { id: 'auto' }
-        conhecidos { id: 'auto' }
-        conhecidos { id: 'auto' }
+      mapa_feiticos_por_nivel {
+        key: 1
+        value {
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+        }
       }
     }
   }
@@ -5336,14 +5344,14 @@ modelo {
       id_classe: 'clerigo'
       dominios: 'metal'
       dominios: 'terra'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'orientacao' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
@@ -5402,21 +5410,21 @@ modelo {
       id_classe: 'clerigo'
       dominios: 'fogo'
       dominios: 'terra'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'orientacao' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'ajuda' }
         conhecidos { id: 'forca_touro' }
@@ -5489,14 +5497,14 @@ modelo {
       id_classe: 'clerigo'
       dominios: 'fogo'
       dominios: 'metal'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
@@ -5504,7 +5512,7 @@ modelo {
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'ajuda' }
         conhecidos { id: 'forca_touro' }
@@ -5568,7 +5576,7 @@ modelo {
       id_classe: 'clerigo'
       dominios: 'ordem'
       dominios: 'cura'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'orientacao' }
@@ -5581,7 +5589,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'escudo_fe' }
         conhecidos { id: 'bencao' }
@@ -5594,7 +5602,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'ajuda' }
         conhecidos { id: 'forca_touro' }
@@ -5605,7 +5613,7 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'auto' }
@@ -5676,7 +5684,7 @@ modelo {
       id_classe: 'clerigo'
       dominios: 'renovacao'
       dominios: 'bem'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'orientacao' }
@@ -5689,7 +5697,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'maldicao_menor' }
         conhecidos { id: 'bencao' }
@@ -5700,7 +5708,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'ajuda' }
         conhecidos { id: 'forca_touro' }
@@ -5713,7 +5721,7 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'auto' }
@@ -5813,7 +5821,7 @@ modelo {
       id_classe: 'clerigo'
       dominios: 'renovacao'
       dominios: 'bem'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'luz' }
         conhecidos { id: 'resistencia' }
@@ -5826,7 +5834,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'compreender_idiomas' }
         conhecidos { id: 'escudo_fe' }
@@ -5840,7 +5848,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'ajuda' }
         conhecidos { id: 'arma_espiritual' }
@@ -5854,7 +5862,7 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'purgar_invisibilidade' }
@@ -5868,7 +5876,7 @@ modelo {
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 4
         conhecidos { id: 'poder_divino' }
         conhecidos { id: 'envenenamento' }
@@ -5878,7 +5886,7 @@ modelo {
         para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 5
         conhecidos { id: 'arma_rompimento' }
         conhecidos { id: 'cancelar_encantamento' }
@@ -5889,7 +5897,7 @@ modelo {
         para_lancar { nivel_conhecido: 5 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 5 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 6
         conhecidos { id: 'barreira_laminas' }
         conhecidos { id: 'cura_completa' }
@@ -5898,7 +5906,7 @@ modelo {
         para_lancar { nivel_conhecido: 6 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 1 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 7
         conhecidos { id: 'destruicao' }
         conhecidos { id: 'palavra_sagrada' }
@@ -5906,7 +5914,7 @@ modelo {
         para_lancar { nivel_conhecido: 7 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 1 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 8
         conhecidos { id: 'aliado_extra_planar_maior' }
         conhecidos { id: 'auto' }
@@ -6043,7 +6051,7 @@ modelo {
     info_pericias { id: 'cura' pontos: 1 }
     feiticos_classes {
       id_classe: 'druida'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'auto' }
         conhecidos { id: 'detectar_veneno' }
@@ -6052,7 +6060,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
         conhecidos { id: 'criar_chamas' }
@@ -6111,7 +6119,7 @@ modelo {
     info_pericias { id: 'cura' pontos: 1 }
     feiticos_classes {
       id_classe: 'druida'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'auto' }
         conhecidos { id: 'detectar_veneno' }
@@ -6120,7 +6128,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
         conhecidos { id: 'criar_chamas' }
@@ -6180,7 +6188,7 @@ modelo {
 
     feiticos_classes {
       id_classe: 'druida'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'auto' }
         conhecidos { id: 'detectar_veneno' }
@@ -6191,7 +6199,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
         conhecidos { id: 'criar_chamas' }
@@ -6258,7 +6266,7 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'druida'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'auto' }
         conhecidos { id: 'detectar_veneno' }
@@ -6269,7 +6277,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
         conhecidos { id: 'criar_chamas' }
@@ -6278,7 +6286,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'auto' }
         conhecidos { id: 'sabedoria_coruja' }
@@ -6287,7 +6295,7 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'auto' }
         conhecidos { id: 'curar_ferimentos_moderados' }
@@ -6386,7 +6394,7 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'druida'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'detectar_veneno' }
         conhecidos { id: 'orientacao' }
@@ -6401,7 +6409,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 5 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'criar_chamas' }
         conhecidos { id: 'pedra_encantada' }
@@ -6414,7 +6422,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 4 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'sabedoria_coruja' }
         conhecidos { id: 'esfera_flamejante' }
@@ -6427,7 +6435,7 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 4 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'curar_ferimentos_moderados' }
         conhecidos { id: 'convocar_relampagos' }
@@ -6438,7 +6446,7 @@ modelo {
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 4
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
@@ -6447,7 +6455,7 @@ modelo {
         para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 5
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
@@ -6565,7 +6573,7 @@ modelo {
 
     feiticos_classes {
       id_classe: 'feiticeiro'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'ler_magias' }
@@ -6574,14 +6582,14 @@ modelo {
         conhecidos { id: 'raio_gelo' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'missil_magico' }
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'esfera_flamejante' }
         conhecidos { id: 'auto' }
@@ -6598,19 +6606,20 @@ modelo {
   entidade {
     raca: 'humano'
     tendencia { simples: TD_NORMALMENTE_NEUTRO }
-    dados_vida: '8d8+8+18'
+    dados_vida: '8d8+8+9'
     info_textura { id: 'ranger.png' largura: 0.5 translacao_x: 0.25 }
     info_classes { id: 'ranger' nivel: 9 }
 
     # Espadas.
-    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
-    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
-    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
-    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 ordem_ataque: 1 }
-    dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 3 }
+    dados_ataque { grupo: '2 Armas' id_arma: 'picareta_pesada' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
+    dados_ataque { grupo: '2 Armas' id_arma: 'picareta_pesada' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Armas' id_arma: 'picareta_leve' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
+    dados_ataque { grupo: '2 Armas com Chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_MAO_BOA bonus_magico: 1 }
+    dados_ataque { grupo: '2 Armas com Chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_MAO_BOA bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { grupo : '2 Armas com Chicote' id_arma: 'picareta_leve' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
     # Arco.
-    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true }
-    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true ordem_ataque: 1 }
+    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true }
+    dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true ordem_ataque: 1 }
     # Defesa.
     dados_defesa {
       id_armadura: 'couro_batido' bonus_magico_armadura: 1
@@ -6620,16 +6629,22 @@ modelo {
         bonus_individual { tipo: TB_ESCUDO           por_origem { origem: 'bloqueio_ambidestro' valor: 1 } }
       }
     }
+    dados_ataque_global {
+      inimigos_prediletos { classe: 'ranger' vezes: 2 tipo: TIPO_HUMANOIDE sub_tipo: SUBTIPO_HUMANO }
+      inimigos_prediletos { classe: 'ranger' vezes: 1 tipo: TIPO_BESTA_MAGICA }
+    }
     atributos {
       # Usa o array elite 15 14 13 12 10 8
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
-      destreza {
-        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+      forca {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } }
         bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      destreza {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }  # para bloqueio ambidestro.
       }
       constituicao {
         bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } }
-        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
       }
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
@@ -6655,8 +6670,8 @@ modelo {
       # ja ganha rastrear da classe.
       gerais { id: 'investida_furiosa' } # 1
       gerais { id: 'bloqueio_ambidestro' } # 3
-      gerais { id: 'foco_em_arma' complemento: 'chicote' } # 6
-      gerais { id: 'esquiva' } # 9
+      gerais { id: 'esquiva' } # 6
+      gerais { id: 'sucesso_decisivo_aprimorado' complemento: 'picareta_pesada' } # 9
       # Humano.
       outros { id: 'usar_arma_exotica' complemento: 'chicote' origem: 'humano' } # 1
       # Ranger.
@@ -6668,14 +6683,11 @@ modelo {
       armas { id: 'chicote' bonus_magico: 1 }
       armas { id: 'picareta_pesada' bonus_magico: 1 }
       armas { id: 'picareta_leve' bonus_magico: 1 }
-      armas { id: 'arco_longo_composto_2' obra_prima: true }
+      armas { id: 'arco_longo_composto_3' obra_prima: true }
       armaduras { id: 'couro_batido' bonus_magico: 1 }
-      pergaminhos_divinos { id: 'forca_touro' } # 150
-      pergaminhos_divinos { id: 'agilidade_gato' } # 150
       pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
       pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'agilidade_gato' } # 25
       itens_mundanos { id: 'fogo_alquimico' }  # 20
       itens_mundanos { id: 'fogo_alquimico' }  # 20
       itens_mundanos { id: 'gas_alquimico_sono' }  # 30
@@ -6687,10 +6699,9 @@ modelo {
       itens_mundanos { id: 'pedra_trovao' }  # 30
       itens_mundanos { id: 'corda_canhamo' }  # 1
       pocoes { id: 'curar_ferimentos_serios' }  # 750
-      pocoes { id: 'heroismo' }  # 750
-      pocoes { id: 'escudo_fe_2' }  # 50
-      pocoes { id: 'escudo_fe_2' }  # 50
+      pocoes { id: 'lamina_afiada' }  # 750
       pocoes { id: 'pele_arvore_2' }  # 300
+      pocoes { id: 'forca_touro' }  # 300
       pocoes { id: 'protecao_contra_mal' }  # 50
       mantos { id: 'manto_resistencia_1' em_uso: true } # 1000
       moedas {
@@ -6699,7 +6710,7 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'ranger'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
         conhecidos { id: 'auto' }
@@ -7067,7 +7078,7 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'bardo'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'luz' }
@@ -7076,14 +7087,14 @@ modelo {
         conhecidos { id: 'abrir_fechar' }
         conhecidos { id: 'invocar_instrumento' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'confusao_menor' }
         conhecidos { id: 'curar_ferimentos_leves' }
         conhecidos { id: 'area_escorregadia' }
         conhecidos { id: 'remover_medo' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'imobilizar_pessoa' }
         conhecidos { id: 'esplendor_aguia' }
@@ -7166,7 +7177,7 @@ modelo {
     }
     feiticos_classes {
       id_classe: 'bardo'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'luz' }
@@ -7175,14 +7186,14 @@ modelo {
         conhecidos { id: 'abrir_fechar' }
         conhecidos { id: 'invocar_instrumento' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'confusao_menor' }
         conhecidos { id: 'curar_ferimentos_leves' }
         conhecidos { id: 'area_escorregadia' }
         conhecidos { id: 'remover_medo' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'invocar_enxames' }
         conhecidos { id: 'esplendor_aguia' }
@@ -7264,7 +7275,7 @@ modelo {
       especializacao: 'ilusao'
       escolas_proibidas: 'conjuracao'
       escolas_proibidas: 'evocacao'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         # Grimorio tem todas de 0 (exceto proibidas), 7 de primeiro, 2 de segundo.
         # 4+1
         nivel: 0
@@ -7280,7 +7291,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         # 3+1
         nivel: 1
         conhecidos { id: 'leque_cromatico' }
@@ -7293,7 +7304,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         # 1+1
         nivel: 2
         conhecidos { id: 'aterrorizar' }
@@ -7386,7 +7397,7 @@ modelo {
       especializacao: 'ilusao'
       escolas_proibidas: 'conjuracao'
       escolas_proibidas: 'evocacao'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         # 4+1
         nivel: 0
         conhecidos { id: 'pasmar' }
@@ -7401,7 +7412,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         # 4+1
         nivel: 1
         conhecidos { id: 'raio_enfraquecimento' }
@@ -7415,7 +7426,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         # 3+1
         nivel: 2
         conhecidos { id: 'reflexos' }
@@ -7516,7 +7527,7 @@ modelo {
 
     feiticos_classes {
       id_classe: 'mago'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'brilho' }
@@ -7530,7 +7541,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 0 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'leque_cromatico' }
         conhecidos { id: 'armadura_arcana' }
@@ -7544,7 +7555,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'flecha_acida' }
         conhecidos { id: 'vitalidade_ilusoria' }
@@ -7641,7 +7652,7 @@ modelo {
     # Deixar um slot sempre aberto para aleatorizar.
     feiticos_classes {
       id_classe: 'mago'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'brilho' }
@@ -7655,7 +7666,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'escudo_arcano' }
@@ -7668,7 +7679,7 @@ modelo {
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'vitalidade_ilusoria' }
         conhecidos { id: 'nublar' }
@@ -7678,7 +7689,7 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'bola_fogo' }
         conhecidos { id: 'auto' }
@@ -7758,7 +7769,7 @@ modelo {
 
     feiticos_classes {
       id_classe: 'mago'
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'detectar_magia' }
@@ -7772,7 +7783,7 @@ modelo {
         para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 5 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'leque_cromatico' }
         conhecidos { id: 'identificacao' }
@@ -7782,7 +7793,7 @@ modelo {
         conhecidos { id: 'ataque_certeiro' }
         conhecidos { id: 'auto' }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 2
         conhecidos { id: 'vitalidade_ilusoria' }
         conhecidos { id: 'nublar' }
@@ -7798,7 +7809,7 @@ modelo {
         para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 3
         conhecidos { id: 'dissipar_magia' }
         conhecidos { id: 'bola_fogo' }
@@ -7809,7 +7820,7 @@ modelo {
         para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 4
         conhecidos { id: 'tempestade_glacial' }
         conhecidos { id: 'invisibilidade_maior' }
@@ -7822,7 +7833,7 @@ modelo {
         para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 4 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 5
         conhecidos { id: 'expulsao' }
         conhecidos { id: 'metamorfose_torrida' }
@@ -7834,7 +7845,7 @@ modelo {
         para_lancar { nivel_conhecido: 5 indice_conhecido: 2 }
         para_lancar { nivel_conhecido: 5 indice_conhecido: 3 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 6
         conhecidos { id: 'globo_invulnerabilidade' }
         conhecidos { id: 'dissipar_magia_maior' }
@@ -7846,7 +7857,7 @@ modelo {
         para_lancar { nivel_conhecido: 6 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 6 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 7
         conhecidos { id: 'desejo_restrito' }
         conhecidos { id: 'palavra_poder_cegar' }
@@ -7857,7 +7868,7 @@ modelo {
         para_lancar { nivel_conhecido: 7 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 7 indice_conhecido: 2 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 8
         conhecidos { id: 'muralha_prismatica' }
         conhecidos { id: 'explosao_solar' }
@@ -7866,7 +7877,7 @@ modelo {
         para_lancar { nivel_conhecido: 8 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 8 indice_conhecido: 1 }
       }
-      feiticos_por_nivel {
+      feiticos_por_nivel_deprecated {
         nivel: 9
         conhecidos { id: 'desejo' }
         conhecidos { id: 'palavra_poder_matar' }
@@ -8882,7 +8893,7 @@ modelo {
     dados_vida: '3d8+6'
     rotulo_especial: 'impulso (pode investir com 10x movimento 1/hora\nfaro)'
     tamanho: TM_MEDIO
-    info_textura { id: 'cheetah.png' largura: 0.6 translacao_x: 0.2 altura: 0.7 translacao_y: 0.25 } cor { r: 0.4 g: 0.2 b: 0.2 }
+    info_textura { id: 'cheetah.png' altura: 0.7 translacao_y: 0.1 } cor { r: 0.4 g: 0.2 b: 0.2 }
     info_classes {
       id: 'animal' nivel: 3
       pericias_monstro: 'esconderse'
@@ -8924,6 +8935,9 @@ modelo {
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       derrubar_automatico: true
       alcance_q: 1
+      acao_fixa {
+        som_inicial: 'cheetah.wav'
+      }
     }
     dados_ataque {
       grupo: 'ataque'

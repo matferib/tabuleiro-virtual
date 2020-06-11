@@ -102,10 +102,22 @@ void CorrigeDadosAtaqueDeprecated(EntidadeProto* proto) {
   }
 }
 
+void CorrigeFeiticosPorNivelDeprecated(EntidadeProto* proto) {
+  for (auto& fc : *proto->mutable_feiticos_classes()) {
+    for (int nivel = 0; nivel < fc.feiticos_por_nivel_deprecated().size(); ++nivel) {
+      auto* fnd = fc.mutable_feiticos_por_nivel_deprecated(nivel);
+      VLOG(1) << "criando para '" << fc.id_classe() << "' nivel: " << (fnd->has_nivel() ? fnd->nivel() : nivel);
+      FeiticosNivel(fc.id_classe(), fnd->has_nivel() ? fnd->nivel() : nivel, proto)->Swap(fnd);
+    }
+    fc.clear_feiticos_por_nivel_deprecated();
+  }
+}
+
 void CorrigeCamposDeprecated(EntidadeProto* proto) {
   CorrigeAuraDeprecated(proto);
   CorrigeTranslacaoDeprecated(proto);
   CorrigeDadosAtaqueDeprecated(proto);
+  CorrigeFeiticosPorNivelDeprecated(proto);
 }
 
 }  // namespace
@@ -1193,7 +1205,7 @@ void AtualizaParcialInfoFeiticosClasse(const EntidadeProto::InfoFeiticosClasse& 
   // Campos excluidos, exceto alteracoes pontuais.
   *pic->mutable_dominios() = pic_backup.dominios();
   *pic->mutable_escolas_proibidas() = pic_backup.escolas_proibidas();
-  *pic->mutable_feiticos_por_nivel() = pic_backup.feiticos_por_nivel();
+  *pic->mutable_mapa_feiticos_por_nivel() = pic_backup.mapa_feiticos_por_nivel();
   *pic->mutable_poderes_dominio() = pic_backup.poderes_dominio();
   // Alteracoes pontuais.
   // Por algum motivo bizarro, isso da segfault no clang no mac!

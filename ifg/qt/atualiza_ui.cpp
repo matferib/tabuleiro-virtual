@@ -885,8 +885,8 @@ void AtualizaFeiticosClasse(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
     const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
-  const auto& fc = ent::FeiticosClasse(id_classe, proto);
-  for (int nivel = 0; nivel < fc.feiticos_por_nivel().size(); ++nivel) {
+  for (const auto& [nivel, fn] : ent::FeiticosClasse(id_classe, proto).mapa_feiticos_por_nivel()) {
+    VLOG(1) << "compilador feliz: " << fn.nivel();
     auto* item_nivel = new QTreeWidgetItem(pai);
     item_nivel->setText(0, QString::number(nivel));
     {

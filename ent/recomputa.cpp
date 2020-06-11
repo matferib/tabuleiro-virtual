@@ -12,6 +12,7 @@ namespace {
 
 using google::protobuf::StringPrintf;
 using google::protobuf::RepeatedPtrField;
+using google::protobuf::Map;
 
 std::string Origem(const std::string& origem, int id_unico) {
   return StringPrintf("%s (id: %d)", origem.c_str(), id_unico);
@@ -732,6 +733,11 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
       }
     }
     break;
+    case EFEITO_LAMINA_AFIADA: {
+      if (!evento->complementos_str().empty()) return false;
+    }
+    break;
+
     case EFEITO_ARMA_MAGICA: {
       if (evento->complementos_str().empty()) return false;
       int valor = 1;
@@ -740,8 +746,7 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
       }
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
       for (auto* da : das) {
-        AtribuiBonusPenalidadeSeMaior(
-            valor, TB_MELHORIA, evento->id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
+        AtribuiBonusPenalidadeSeMaior(valor, TB_MELHORIA, "arma_magica_magia", da->mutable_bonus_ataque());
       }
     }
     break;
@@ -1175,9 +1180,10 @@ void CombinaFeiticosClasse(RepeatedPtrField<EntidadeProto::InfoFeiticosClasse>* 
   }
 }
 
-void CombinaFeiticosPorNivel(RepeatedPtrField<EntidadeProto::FeiticosPorNivel>* feiticos_por_niveis) {
+/*
+void CombinaFeiticosPorNivel(Map<int, EntidadeProto::FeiticosPorNivel>* feiticos_por_niveis) {
   std::unordered_map<int, EntidadeProto::FeiticosPorNivel*> mapa;
-  for (auto& fn : *feiticos_por_niveis) {
+  for (auto& [nivel, fn] : *feiticos_por_niveis) {
     if (!fn.has_operacao()) {
       mapa[fn.nivel()] = &fn;
     }
@@ -1204,6 +1210,7 @@ void CombinaFeiticosPorNivel(RepeatedPtrField<EntidadeProto::FeiticosPorNivel>* 
     feiticos_por_niveis->DeleteSubrange(*it, 1);
   }
 }
+*/
 
 // Indica a restricao do slot e os dados da restricao.
 struct RestricaoFeitico {
@@ -1273,6 +1280,22 @@ EntidadeProto::InfoLancar* SlotRestrito(RepeatedPtrField<EntidadeProto::InfoLanc
   return nullptr;
 }
 
+EntidadeProto::FeiticosPorNivel* FeiticosPorNivelOuNull(int nivel, EntidadeProto::InfoFeiticosClasse* fc) {
+  auto it = fc->mutable_mapa_feiticos_por_nivel()->find(nivel);
+  if (it == fc->mutable_mapa_feiticos_por_nivel()->end()) {
+    return nullptr;
+  }
+  return &it->second;
+}
+
+const EntidadeProto::FeiticosPorNivel& FeiticosPorNivelOuPadrao(int nivel, const EntidadeProto::InfoFeiticosClasse& fc) {
+  auto it = fc.mapa_feiticos_por_nivel().find(nivel);
+  if (it == fc.mapa_feiticos_por_nivel().end()) {
+    return EntidadeProto::FeiticosPorNivel::default_instance();
+  }
+  return it->second;
+}
+
 // Limpa os feiticos que nao corresponderem as restricoes.
 void CorrigeSlotsRestritos(
     const Tabelas& tabelas, const RestricaoFeitico& restricao, const EntidadeProto::InfoFeiticosClasse& fc,
@@ -1282,20 +1305,14 @@ void CorrigeSlotsRestritos(
     LOG(ERROR) << "Nao achei slot restrito! Nivel" << il->nivel_conhecido() << ", indice: " << il->indice_conhecido();
     return;
   }
-  if (il->nivel_conhecido() < 0 || il->nivel_conhecido() >= fc.feiticos_por_nivel_size()) {
-    VLOG(1) << "nivel conhecido invalido: " << il->nivel_conhecido() << ", size: " << fc.feiticos_por_nivel_size();
-    il->clear_nivel_conhecido();
-    il->clear_indice_conhecido();
-    return;
-  }
-  if (il->indice_conhecido() < 0 || il->indice_conhecido() >= fc.feiticos_por_nivel(il->nivel_conhecido()).conhecidos_size()) {
-    VLOG(1) << "indice conhecido invalido: " << il->indice_conhecido()
-      << ", size: " << fc.feiticos_por_nivel(il->nivel_conhecido()).conhecidos_size();
+  const auto& fn = FeiticosPorNivelOuPadrao(il->nivel_conhecido(), fc);
+  if (il->indice_conhecido() < 0 || il->indice_conhecido() >= fn.conhecidos_size()) {
+    VLOG(1) << "indice conhecido invalido: " << il->indice_conhecido() << ", size: " << fn.conhecidos_size();
     il->clear_indice_conhecido();
     return;
   }
   // Slot restrito: aqui so pode usar feiticos de dominio ou especifico de escola.
-  const auto& feitico_conhecido = fc.feiticos_por_nivel(il->nivel_conhecido()).conhecidos(il->indice_conhecido());
+  const auto& feitico_conhecido = fn.conhecidos(il->indice_conhecido());
   const auto& feitico_tabelado = tabelas.Feitico(feitico_conhecido.id());
   // Nao limpa feiticos nao tabelados.
   if (!feitico_tabelado.has_id()) {
@@ -1328,7 +1345,7 @@ void ConfiguraSlotsRestritosCorrigindo(
 
 // Retorna true se o feitico for da escola proibida segundo a restricao.
 bool FeiticoEscolaProibida(const RestricaoFeitico& rf, const ArmaProto& feitico_tabelado) {
-  return ent::FeiticoEscolaProibida(rf.escolas_proibidas, feitico_tabelado); 
+  return ent::FeiticoEscolaProibida(rf.escolas_proibidas, feitico_tabelado);
 }
 
 // Retorna true se o feitico for de clerigo.
@@ -1348,17 +1365,16 @@ bool FeiticoEscolaEspecializada(const RestricaoFeitico& rf, const ArmaProto& fei
   return feitico_tabelado.escola() == rf.especializacao;
 }
 
-void ComputaFeiticoAleatorioComum(
+void PreencheNivelConhecidoSeVazio(
     int nivel_magia, const EntidadeProto::InfoFeiticosClasse& fc,
     EntidadeProto::InfoLancar* il) {
-  if (nivel_magia < 0 || nivel_magia >= fc.feiticos_por_nivel_size()) {
+  if (il->has_nivel_conhecido()) return;
+  const auto& fn  = FeiticosPorNivelOuPadrao(nivel_magia, fc);
+  if (fn.conhecidos().empty()) {
     LOG(ERROR) << "nivel magia invalido: " << nivel_magia;
     return;
   }
-
-  if (!il->has_nivel_conhecido()) {
-    il->set_nivel_conhecido(nivel_magia);
-  }
+  il->set_nivel_conhecido(nivel_magia);
 }
 
 void SorteiaIndice(const std::vector<int>& indices_validos, EntidadeProto::InfoLancar* il) {
@@ -1377,15 +1393,16 @@ void SorteiaIndice(const std::vector<int>& indices_validos, EntidadeProto::InfoL
 void ComputaFeiticoAleatorioGeral(
     const Tabelas& tabelas, const RestricaoFeitico& rf, int nivel_magia, const EntidadeProto::InfoFeiticosClasse& fc,
     EntidadeProto::InfoLancar* il) {
-  ComputaFeiticoAleatorioComum(nivel_magia, fc, il);
+  PreencheNivelConhecidoSeVazio(nivel_magia, fc, il);
   if (il->has_indice_conhecido()) {
     return;
   }
   // Essa linha permitira aleatoriedade para qq nivel.
   nivel_magia = il->nivel_conhecido();
   std::vector<int> indices_validos;
-  for (int i = 0; i < fc.feiticos_por_nivel(nivel_magia).conhecidos_size(); ++i) {
-    const auto& ic = fc.feiticos_por_nivel(nivel_magia).conhecidos(i);
+  const auto& fn = FeiticosPorNivelOuPadrao(nivel_magia, fc);
+  for (int i = 0; i < fn.conhecidos_size(); ++i) {
+    const auto& ic = fn.conhecidos(i);
     const auto& feitico_tabelado = tabelas.Feitico(ic.id());
     if ((rf.dominio && FeiticoClerigo(feitico_tabelado)) ||
         (!FeiticoEscolaProibida(rf, feitico_tabelado))) {
@@ -1399,15 +1416,16 @@ void ComputaFeiticoAleatorioGeral(
 void ComputaFeiticoAleatorioEspecializado(
     const Tabelas& tabelas, const RestricaoFeitico& rf, int nivel_magia, const EntidadeProto::InfoFeiticosClasse& fc,
     EntidadeProto::InfoLancar* il) {
-  ComputaFeiticoAleatorioComum(nivel_magia, fc, il);
+  PreencheNivelConhecidoSeVazio(nivel_magia, fc, il);
   if (il->has_indice_conhecido()) {
     return;
   }
   // Essa linha permitira aleatoriedade para qq nivel.
   nivel_magia = il->nivel_conhecido();
   std::vector<int> indices_validos;
-  for (int i = 0; i < fc.feiticos_por_nivel(nivel_magia).conhecidos_size(); ++i) {
-    const auto& ic = fc.feiticos_por_nivel(nivel_magia).conhecidos(i);
+  const auto& fn = FeiticosPorNivelOuPadrao(nivel_magia, fc);
+  for (int i = 0; i < fn.conhecidos_size(); ++i) {
+    const auto& ic = fn.conhecidos(i);
     const auto& feitico_tabelado = tabelas.Feitico(ic.id());
     if ((rf.dominio && FeiticoDominio(rf, feitico_tabelado)) ||
         (FeiticoEscolaEspecializada(rf, feitico_tabelado))) {
@@ -1420,7 +1438,9 @@ void ComputaFeiticoAleatorioEspecializado(
 // Computa os feiticos aleatorios por slot, respeitando as restricoes, assumindo que elas estao certas.
 void ComputaFeiticosAleatoriosParaLancarDoNivel(
     const Tabelas& tabelas, const RestricaoFeitico& rf, int nivel_magia, EntidadeProto::InfoFeiticosClasse* fc) {
-  for (auto& pl : *fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar()) {
+  auto* fn = FeiticosPorNivelOuNull(nivel_magia, fc);
+  if (fn == nullptr) return;
+  for (auto& pl : *fn->mutable_para_lancar()) {
     if (pl.restrito()) {
       ComputaFeiticoAleatorioEspecializado(tabelas, rf, nivel_magia, *fc, &pl);
     } else {
@@ -1446,14 +1466,19 @@ void RecomputaDependenciasMagiasParaLancarPorDia(const Tabelas& tabelas, Entidad
 
     const bool nao_possui_nivel_zero = classe_tabelada.progressao_feitico().nao_possui_nivel_zero();
 
-    CombinaFeiticosPorNivel(fc->mutable_feiticos_por_nivel());
+    // Nao tem como combinar mais por causa do mapa.
+    //CombinaFeiticosPorNivel(fc->mutable_feiticos_por_nivel());
 
     // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
     // Na tabela, o nivel zero nao esta presente entao tem que ser compensado aqui.
-    Redimensiona(nao_possui_nivel_zero ? magias_por_dia.size() + 1 : magias_por_dia.size(), fc->mutable_feiticos_por_nivel());
-
-    if (nao_possui_nivel_zero) {
-      fc->mutable_feiticos_por_nivel(0)->Clear();
+    const int nivel_minimo = nao_possui_nivel_zero ? 1 : 0;
+    const int nivel_maximo = nao_possui_nivel_zero ? magias_por_dia.size() : magias_por_dia.size() - 1;
+    for (int i = 0; i <= 9; ++i) {
+      if (i < nivel_minimo || i > nivel_maximo) {
+        fc->mutable_mapa_feiticos_por_nivel()->erase(i);
+      } else {
+        (*fc->mutable_mapa_feiticos_por_nivel())[i];
+      }
     }
     RestricaoFeitico rf;
     const bool classe_possui_dominio = classe_tabelada.possui_dominio();
@@ -1482,11 +1507,11 @@ void RecomputaDependenciasMagiasParaLancarPorDia(const Tabelas& tabelas, Entidad
               nivel_magia,
               BonusAtributo(classe_tabelada.atributo_conjuracao(), *proto)) +
           (feitico_extra ? 1 : 0);
-      Redimensiona(magias_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
+      Redimensiona(magias_do_nivel, (*fc->mutable_mapa_feiticos_por_nivel())[nivel_magia].mutable_para_lancar());
       rf.ha_restricao = feitico_extra;
       ConfiguraSlotsRestritosCorrigindo(
           tabelas, rf, *fc,
-          fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_para_lancar());
+          (*fc->mutable_mapa_feiticos_por_nivel())[nivel_magia].mutable_para_lancar());
       ComputaFeiticosAleatoriosParaLancarDoNivel(tabelas, rf, nivel_magia, fc);
     }
   }
@@ -1715,7 +1740,9 @@ void PreencheFeiticoConhecidoAleatorio(
       dfa.escolas_proibidas = EscolasProibidasMago(proto);
     }
 
-    ic->set_id(tabelas.FeiticoAleatorio(dfa));
+    std::string id_sorteado = tabelas.FeiticoAleatorio(dfa);
+    LOG(INFO) << "Feitiço sorteado para " << id_para_magia << ", nivel " << dfa.nivel << ": " << id_sorteado;
+    ic->set_id(id_sorteado);
     ic->clear_nome();
   }
   if (!ic->has_nome()) {
@@ -1723,6 +1750,7 @@ void PreencheFeiticoConhecidoAleatorio(
   }
 }
 
+// Cria o feitico do nivel se nao existir.
 void AdicionaFeiticosDominioSeAusentes(
     const Tabelas& tabelas, int nivel, const std::vector<std::string>& dominios,
     EntidadeProto::InfoFeiticosClasse* fc) {
@@ -1739,7 +1767,7 @@ void AdicionaFeiticosDominioSeAusentes(
     ids_feiticos_dominio.push_back(feiticos_dominio[0]->id());
   }
   std::vector<bool> added(ids_feiticos_dominio.size());
-  for (const auto& c : fc->feiticos_por_nivel(nivel).conhecidos()) {
+  for (const auto& c : FeiticosPorNivelOuPadrao(nivel, *fc).conhecidos()) {
     for (unsigned int i = 0; i < ids_feiticos_dominio.size(); ++i) {
       if (ids_feiticos_dominio[i] == c.id()) {
         added[i] = true;
@@ -1748,7 +1776,7 @@ void AdicionaFeiticosDominioSeAusentes(
   }
   for (unsigned int i = 0; i < added.size(); ++i) {
     if (added[i]) continue;
-    auto* c = fc->mutable_feiticos_por_nivel(nivel)->add_conhecidos();
+    auto* c = (*fc->mutable_mapa_feiticos_por_nivel())[nivel].add_conhecidos();
     c->set_id(ids_feiticos_dominio[i]);
   }
 }
@@ -1766,24 +1794,25 @@ void RecomputaDependenciasMagiasConhecidasParaClasse(
   if (!ic.has_progressao_conjurador() || ic.nivel() <= 0) return;
   auto* fc = FeiticosClasse(ic.id(), proto);
   // Le a progressao.
-  const int nivel = std::min(NivelConjurador(ic.id(), *proto), 20);
+  const int nivel_conjurador = std::min(NivelConjurador(ic.id(), *proto), 20);
   const auto& classe_tabelada = tabelas.Classe(ic.has_id_para_progressao_de_magia() ? ic.id_para_progressao_de_magia() : ic.id());
   // Esse caso deveria dar erro. O cara tem nivel acima do que esta na tabela.
-  if (nivel >= classe_tabelada.progressao_feitico().para_nivel_size()) return;
-  const std::string& magias_conhecidas = classe_tabelada.progressao_feitico().para_nivel(nivel).conhecidos();
+  if (nivel_conjurador >= classe_tabelada.progressao_feitico().para_nivel_size()) return;
+  const std::string& magias_conhecidas = classe_tabelada.progressao_feitico().para_nivel(nivel_conjurador).conhecidos();
   if (ic.possui_dominio()) {
     std::vector<std::string> dominios = DominiosClasse(*fc);
     // Adiciona os feiticos de dominio se nao estiverem presentes.
     // Seta os feiticos que sao auto.
-    for (int nivel_magia = 0; nivel_magia < fc->feiticos_por_nivel().size(); ++nivel_magia) {
+    for (int nivel_magia = 1; nivel_magia <= 9; ++nivel_magia) {
       AdicionaFeiticosDominioSeAusentes(tabelas, nivel_magia, dominios, fc);
     }
   }
-  // Classe nao tem magias conhecidas.
+  // Classe nao tem magias conhecidas: clerigos, magos, ranger, paladino.
   if (magias_conhecidas.empty()) {
     // Seta os feiticos que sao auto.
-    for (int nivel_magia = 0; nivel_magia < fc->feiticos_por_nivel().size(); ++nivel_magia) {
-      auto* fn = fc->mutable_feiticos_por_nivel(nivel_magia);
+    for (int nivel_magia = 0; nivel_magia <= 9; ++nivel_magia) {
+      auto* fn = FeiticosPorNivelOuNull(nivel_magia, fc);
+      if (fn == nullptr) continue;
       for (auto& conhecido : *fn->mutable_conhecidos()) {
         PreencheFeiticoConhecidoAleatorio(
             tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, fn->conhecidos(),
@@ -1796,16 +1825,21 @@ void RecomputaDependenciasMagiasConhecidasParaClasse(
 
   // Inclui o nivel 0. Portanto, se o nivel maximo eh 2, deve haver 3 elementos.
   // Como na tabela nao ha nivel zero, tem que compensar aqui.
-  Redimensiona(nao_possui_nivel_zero ? magias_conhecidas.size() + 1 : magias_conhecidas.size(), fc->mutable_feiticos_por_nivel());
-
-  if (nao_possui_nivel_zero) {
-    Redimensiona(0, fc->mutable_feiticos_por_nivel(0)->mutable_conhecidos());
+  const int nivel_minimo = nao_possui_nivel_zero ? 1 : 0;
+  const int nivel_maximo = nao_possui_nivel_zero ?  magias_conhecidas.size() : magias_conhecidas.size() - 1;
+  for (int i = 0; i <= 9; ++i) {
+    if (i < nivel_minimo || i > nivel_maximo) {
+      fc->mutable_mapa_feiticos_por_nivel()->erase(i);
+    } else {
+      (*fc->mutable_mapa_feiticos_por_nivel())[i];
+    }
   }
   for (unsigned int indice = 0; indice < magias_conhecidas.size(); ++indice) {
     const int magias_conhecidas_do_nivel = magias_conhecidas[indice] - '0';
     const int nivel_magia = indice + (classe_tabelada.progressao_feitico().nao_possui_nivel_zero() ? 1 : 0);
-    Redimensiona(magias_conhecidas_do_nivel, fc->mutable_feiticos_por_nivel(nivel_magia)->mutable_conhecidos());
-    auto* fn = fc->mutable_feiticos_por_nivel(nivel_magia);
+    auto* fn = FeiticosPorNivelOuNull(nivel_magia, fc);
+    if (fn == nullptr) continue;
+    Redimensiona(magias_conhecidas_do_nivel, fn->mutable_conhecidos());
     for (auto& conhecido : *fn->mutable_conhecidos()) {
       PreencheFeiticoConhecidoAleatorio(
           tabelas, classe_tabelada.has_id_para_magia() ? classe_tabelada.id_para_magia() : classe_tabelada.id(), nivel_magia, fn->conhecidos(),
@@ -2909,6 +2943,17 @@ bool UsandoEscudoComCravos(const ArmaProto& arma_principal, const ArmaProto& arm
   return c_any(escudos, arma_principal.id()) || c_any(escudos, arma_secundaria.id());
 }
 
+Bonus BonusDefesaAmbidestro(const DadosAtaque& da, const EntidadeProto& proto) {
+  if (da.empunhadura() != EA_MAO_BOA && da.empunhadura() != EA_MAO_RUIM) return Bonus::default_instance();
+  if (!PossuiTalento("bloqueio_ambidestro", proto)) return Bonus::default_instance();
+
+  Bonus bonus;
+  const auto& ca = proto.dados_defesa().ca();
+  const bool defensivo = BonusIndividualPorOrigem(TB_ESCUDO, "luta_defensiva", ca) > 0 || BonusIndividualPorOrigem(TB_ESCUDO, "defesa_total", ca) > 0;
+  AtribuiBonus(defensivo ? 2 : 1, TB_ESCUDO, "bloqueio_ambidestro", &bonus);
+  return bonus;
+}
+
 void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   ResetDadosAtaque(da);
   *da->mutable_acao() = AcaoProto::default_instance();
@@ -3166,8 +3211,9 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   if (da->grupo().empty()) da->set_grupo(StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
   // CA do ataque.
-  da->set_ca_normal(CATotal(proto, usando_escudo));
-  da->set_ca_surpreso(CASurpreso(proto, usando_escudo));
+  Bonus bonus_defesa_ambidestro = BonusDefesaAmbidestro(*da, proto);
+  da->set_ca_normal(CATotal(proto, usando_escudo, bonus_defesa_ambidestro));
+  da->set_ca_surpreso(CASurpreso(proto, usando_escudo, bonus_defesa_ambidestro));
   da->set_ca_toque(CAToque(proto));
 
   // Veneno.

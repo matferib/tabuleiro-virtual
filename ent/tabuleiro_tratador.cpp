@@ -1066,7 +1066,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
     const Entidade* entidade_destino = BuscaEntidade(id);
     if (entidade_destino == nullptr) {
       // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
-      LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
+      LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer." << (int)nao_usado;
       continue;
     }
     if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino)) {
@@ -1201,7 +1201,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     const Entidade* entidade_destino = BuscaEntidade(id);
     if (entidade_destino == nullptr) {
       // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
-      LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
+      LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer." << (int)nao_usado;
       continue;
     }
     if (!entidade_destino->Proto().has_max_pontos_vida()) {
@@ -1875,24 +1875,28 @@ float Tabuleiro::TrataAcaoIndividual(
     int delta_pv_adicional = 0;
     const bool acao_cura = da.cura();
     if (resultado.Sucesso()) {
-      int max_predileto = 0;
-      for (const auto& ip : entidade_origem->Proto().dados_ataque_global().inimigos_prediletos()) {
-        if (!acao_cura && entidade_destino->TemTipoDnD(ip.tipo()) && (!ip.has_sub_tipo() || entidade_destino->TemSubTipoDnD(ip.sub_tipo()))) {
-          max_predileto = std::max(2 * ip.vezes(), max_predileto);
-        }
-      }
-      if (max_predileto > 0) {
-        max_predileto *= resultado.vezes;
-        ConcatenaString(StringPrintf("inimigo predileto: %+d", max_predileto), por_entidade->mutable_texto());
-        AdicionaLogEvento(entidade_origem->Id(), StringPrintf("acertou inimigo predileto: %+d de dano", max_predileto));
-      }
-      delta_pv -= max_predileto;
       for (int i = 0; i < resultado.vezes; ++i) {
         const auto [delta_normal, delta_adicional] = LeValorListaPontosVida(
             entidade_origem, entidade_destino->Proto(), acao_proto->id());
         delta_pv += delta_normal;
         delta_pv_adicional += delta_adicional;
       }
+      if (delta_pv < 0 && da.eh_arma()) {
+        // Inimigo predileto: so aplica se for ataque de dano com arma.
+        int max_predileto = 0;
+        for (const auto& ip : entidade_origem->Proto().dados_ataque_global().inimigos_prediletos()) {
+          if (!acao_cura && entidade_destino->TemTipoDnD(ip.tipo()) && (!ip.has_sub_tipo() || entidade_destino->TemSubTipoDnD(ip.sub_tipo()))) {
+            max_predileto = std::max(2 * ip.vezes(), max_predileto);
+          }
+        }
+        if (max_predileto > 0) {
+          max_predileto *= resultado.vezes;
+          ConcatenaString(StringPrintf("inimigo predileto: %+d", max_predileto), por_entidade->mutable_texto());
+          AdicionaLogEvento(entidade_origem->Id(), StringPrintf("acertou inimigo predileto: %+d de dano", max_predileto));
+        }
+        delta_pv -= max_predileto;
+      }
+
       if (!entidade_destino->ImuneFurtivo(*entidade_origem) && !acao_cura) {
         if ((entidade_origem->Proto().dados_ataque_global().furtivo() || !DestrezaNaCA(entidade_destino->Proto()))
             && distancia_m <= (6 * QUADRADOS_PARA_METROS)) {
@@ -2310,6 +2314,7 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::TalvezPreenchaAcaoNaoPreenchida(
     // Tem que preencher antes de chamar EntidadesAfetadasPorAcao, porque a funcao depende do id_entidade_origem.
     PreencheCamposAcaoComum(acao_proto, entidade_origem, entidade_destino, pos_tabuleiro, pos_entidade_destino, n.get());
     for (auto& [id, nao_usado] : EntidadesAfetadasPorAcao(n->acao())) {
+      VLOG(1) << "compilador feliz: " << (int)nao_usado;
       n->mutable_acao()->add_ids_afetados(id);
     }
   }
@@ -3366,7 +3371,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     }
     VLOG(2) << "Movendo entidade " << id << ", dx: " << dx << ", dy: " << dy << ", dz: " << dz;
 
-    auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_MOVER_ENTIDADE, entidade_selecionada->Proto(), &grupo_notificacoes);
+    auto [e_antes, e_depois] = PreencheNotificacaoEntidade(ntf::TN_MOVER_ENTIDADE, *entidade_selecionada, grupo_notificacoes.add_notificacao());
     float nx = entidade_selecionada->X() + dx;
     float ny = entidade_selecionada->Y() + dy;
     float nz = entidade_selecionada->Z() + dz;

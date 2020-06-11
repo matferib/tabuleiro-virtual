@@ -1393,7 +1393,9 @@ void Tabuleiro::AlternaInvestida() {
       }
     } else {
       std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_selecionada));
-      PreencheNotificacaoEventoSemComplemento(entidade_selecionada->Id(), /*dados_iniciativa=*/std::nullopt, /*origem*/"carga", EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
+      PreencheNotificacaoEventoComComplementos(
+          entidade_selecionada->Id(), /*dados_iniciativa=*/std::nullopt, /*origem*/"investida", EFEITO_INVESTIDA,
+          {entidade_selecionada->PossuiTalento("investida_furiosa") ? 4 : 2}, /*rodadas=*/1, &ids_unicos, n, nullptr);
     }
   }
   if (grupo_notificacoes.notificacao().empty()) return;

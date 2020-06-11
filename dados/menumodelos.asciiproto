@@ -237,8 +237,8 @@ sub_menu {
   sub_menu {
     id: 'Ranger'
     modelo {
-      id: 'Humano Ranger 9 + Guepardo'
-      modelos { id: 'Humano Ranger 9' }
+      id: 'Humana Ranger 9 + Guepardo'
+      modelos { id: 'Humana Ranger 9 Duas Armas' }
       modelos { id: 'Guepardo' }
     }
   }

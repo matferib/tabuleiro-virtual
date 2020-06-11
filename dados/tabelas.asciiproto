@@ -1025,7 +1025,7 @@ tabela_armas {
     id: 'chicote'
     nome: 'chicote'
     preco: '1 PO'
-    dano { medio: '1d3' }
+    #dano { medio: '1d3' }
     categoria: CAT_CAC
     multiplicador_critico: 2
     peso { medio: '1kg' }
@@ -1636,13 +1636,11 @@ tabela_efeitos {
     nome: 'drenar temporário'
     formato_complementos: 'quantidade de niveis drenados.'
   }
-
   efeitos {
     id: EFEITO_LAMINA_AFIADA
     nome: 'lâmina afiada'
     formato_complementos: 'rótulo da arma afetada'
   }
-
   efeitos {
     id: EFEITO_FORMA_GASOSA
     nome: 'forma gasosa'
@@ -1963,7 +1961,8 @@ tabela_efeitos {
       dados_defesa {
         ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'investida' } } }
       }
-      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'carga' } } }
+      # Normalmente é 2, mas se tiver investida furiosa, vira 4.
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'investida' } } }
     }
   }
   efeitos {
@@ -3188,7 +3187,13 @@ tabela_pocoes {
     duracao_rodadas: 30
     custo_po: 300
   }
-
+  pocoes {
+    id: 'lamina_afiada'
+    nome: 'Lâmina Afiada'
+    tipo_efeito: EFEITO_LAMINA_AFIADA
+    duracao_rodadas: 500
+    custo_po: 750
+  }
   pocoes {
     id: 'furia'
     nome: 'Fúria'

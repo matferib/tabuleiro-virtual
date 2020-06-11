@@ -381,7 +381,7 @@ message EntidadeProto {
     repeated InfoConhecido conhecidos = 5;
     repeated InfoLancar para_lancar = 6;
     // Para combinacao modelos.
-    optional OperacaoCombinacao operacao = 7;
+    //optional OperacaoCombinacao operacao = 7;
   }
   message PoderesDominio {
     optional bool usado = 1;
@@ -394,7 +394,8 @@ message EntidadeProto {
     optional string especializacao = 9;
     repeated string escolas_proibidas = 10;
     // Cada repeticao vale para o nivel do indice. Por exemplo, nivel 0 eh a primeira entrada.
-    repeated FeiticosPorNivel feiticos_por_nivel = 5;
+    repeated FeiticosPorNivel feiticos_por_nivel_deprecated = 5;
+    map<int32, FeiticosPorNivel> mapa_feiticos_por_nivel = 12;
     // Indica operacao de conversao espontanea.
     optional bool conversao_espontanea = 8;
     optional OperacaoCombinacao operacao = 7;

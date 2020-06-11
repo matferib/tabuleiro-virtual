@@ -779,7 +779,7 @@ void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& no
 void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao) {
   if (notificacao.entidade().feiticos_classes().empty() ||
       notificacao.entidade().feiticos_classes(0).id_classe().empty() ||
-      notificacao.entidade().feiticos_classes(0).feiticos_por_nivel().empty()) {
+      notificacao.entidade().feiticos_classes(0).mapa_feiticos_por_nivel().empty()) {
     LOG(ERROR) << "Notificacao de escolher feitico invalida: " << notificacao.DebugString();
     return;
   }
@@ -796,11 +796,14 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     int indice_gasto = 0;
   };
   std::vector<NivelIndiceIndiceGasto> items;
-  int nivel_gasto = fc.feiticos_por_nivel().size() - 1;
+  int nivel_gasto = -1;
+  for (const auto& [nivel, fn] : fc.mapa_feiticos_por_nivel()) {
+    nivel_gasto = std::max(nivel, nivel_gasto);
+  }
+  const auto& fn = ent::FeiticosNivel(id_classe, nivel_gasto, notificacao.entidade());
   if (ClassePrecisaMemorizar(tabelas_, id_classe)) {
     std::string str_restricao = id_classe == "clerigo" ? " (dominio) " : " (especista) ";
     // Monta lista de feiticos para lancar do nivel.
-    const auto& fn = fc.feiticos_por_nivel(nivel_gasto);
     for (int indice = 0; indice < fn.para_lancar().size(); ++indice) {
       const auto& pl = fn.para_lancar(indice);
       if (pl.usado()) continue;
@@ -834,8 +837,8 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
           ntf::NovaNotificacaoErro(StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
-    for (int nivel = fc.feiticos_por_nivel().size() - 1; nivel >= 0; --nivel) {
-      const auto& fn = fc.feiticos_por_nivel(nivel);
+    for (int nivel = nivel_gasto; nivel >= 0; --nivel) {
+      const auto& fn = FeiticosNivel(id_classe, nivel, notificacao.entidade()); 
       for (int indice = 0; indice < fn.conhecidos().size(); ++indice) {
         const auto& c = fn.conhecidos(indice);
         const auto& feitico = tabelas_.Feitico(c.id());
