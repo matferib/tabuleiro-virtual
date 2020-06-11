@@ -2924,6 +2924,46 @@ modelo {
   }
 }
 modelo {
+  id: 'Vendaval Elemental do Ar (Pequeno)'
+  entidade {
+    modelo_3d { id: 'whirlwind' }
+    tamanho: TM_MEDIO
+    dados_ataque {
+      grupo: 'vendaval' rotulo: 'dano' dano_basico_fixo: '1d4'
+      ignora_origem: true
+      dificuldade_salvacao: 11
+      acao_fixa {
+        id: 'Feitiço de Toque'
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_MIUDO
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        ignora_resistencia_magia: true
+        tipo_salvacao: TS_REFLEXO
+        resultado_ao_salvar: RS_ANULOU
+      }
+    }
+    dados_ataque {
+      grupo: 'vendaval' rotulo: 'aprisionamento'
+      ignora_origem: true
+      dificuldade_salvacao: 11
+      acao_fixa {
+        id: 'Feitiço de Toque'
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_MIUDO
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        ignora_resistencia_magia: true
+        tipo_salvacao: TS_REFLEXO
+        resultado_ao_salvar: RS_ANULOU
+        efeitos_adicionais {
+          efeito: EFEITO_APRISIONADO_ELEMENTAL
+          descricao: 'deve salvar toda rodada'
+          rodadas: 1
+        }
+      }
+    }
+  }
+}
+modelo {
   id: 'Elemental do Ar (Pequeno)'
   id_entidade_base: 'Elemental Base'
   entidade {
@@ -2943,15 +2983,16 @@ modelo {
       grupo: 'pancada' rotulo: 'pancada' id_arma: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'redemoinho' rotulo: 'redemoinho (ler descrição)' tipo_ataque: 'Feitiço Pessoal' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      grupo: 'vendaval' rotulo: 'vendaval' tipo_ataque: 'Feitiço Pessoal' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       limite_vezes: 1
       mantem_com_limite_zerado: true
-      taxa_refrescamento: "100"
+      taxa_refrescamento: "100"  # 10 minutos.
       acao_fixa {
         efeitos_adicionais {
-          efeito: EFEITO_OUTRO
-          rodadas: 1
+          efeito: EFEITO_ALTERAR_FORMA
+          modificador_rodadas: MR_1_RODADA_A_CADA_2_NIVEIS
           descricao: 'redemoinho, 1d4 dano, salvação 11'
+          complementos_str: 'Vendaval Elemental do Ar (Pequeno)'
         }
       }
     }

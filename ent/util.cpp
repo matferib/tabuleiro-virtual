@@ -1901,9 +1901,7 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
     return;
   }
 
-  ntf::Notificacao* n;
-  EntidadeProto *e_antes, *e_depois;
-  std::tie(n, e_antes, e_depois) = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n_grupo);
+  auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n_grupo);
 
   int indice = proto.forma_alternativa_corrente();
   int proximo_indice = (indice + 1) % proto.formas_alternativas_size();
@@ -3688,6 +3686,9 @@ int Rodadas(
       case MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6:
         modificador = std::min(nivel_conjurador / 3, 6);
         break;
+      case MR_1_RODADA_A_CADA_2_NIVEIS:
+        modificador = nivel_conjurador / 2;
+        break;
       case MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15:
         modificador = std::min(15, 10 + nivel_conjurador);
         break;
@@ -4754,7 +4755,7 @@ ResultadoReducaoDano AlteraDeltaPontosVidaPorMelhorReducao(
   resultado.delta_pv = delta_pv;
   resultado.texto = texto_final;
   resultado.id_unico = id_unico;
-  return resultado; 
+  return resultado;
 }
 
 bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::string* texto) {
@@ -4774,9 +4775,14 @@ bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::s
   })) {
     return false;
   }
+  if (acao_proto.has_afeta_apenas_tamanhos_menores_ou_igual_a() &&
+      entidade.Proto().tamanho() > acao_proto.afeta_apenas_tamanhos_menores_ou_igual_a()) {
+    *texto = "alvo muito grande";
+    return false;
+  }
   if (acao_proto.has_dv_mais_alto() && Nivel(entidade.Proto()) > acao_proto.dv_mais_alto()) {
     if (texto != nullptr) {
-      *texto = StringPrintf("criatura tem mais dv que %d", acao_proto.dv_mais_alto());
+      *texto = StringPrintf("alvo tem mais dv que %d", acao_proto.dv_mais_alto());
     }
     return false;
   }

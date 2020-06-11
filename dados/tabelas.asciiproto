@@ -1246,8 +1246,24 @@ tabela_armas {
     categoria_pericia: CATPER_EXOTICA
   }
 }
-
 tabela_efeitos {
+  efeitos {
+    id: EFEITO_APRISIONADO_ELEMENTAL
+    nome: 'aprisionado ao elemental'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'aprisionado_elemental' } } }
+      atributos {
+        # Usa a mesma origem que fadiga para evitar acumulo.
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -4 origem: 'aprisionado_elemental' } } }
+      }
+    }
+    # Creatures caught in the whirlwind take a -4 penalty to Dexterity and a -2 penalty on attack rolls.
+    # The elemental can have only as many creatures trapped inside the whirlwind at one time as will fit inside the whirlwind’s volume.
+  }
+  efeitos {
+    id: EFEITO_ALTERAR_FORMA
+    nome: 'Assume as características no proto passado como complemento'
+  }
   efeitos {
     id: EFEITO_NAO_PODE_MOVER
     nome: 'não pode se mover, mas pode mexer'

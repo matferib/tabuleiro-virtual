@@ -394,6 +394,15 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
   }
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
+    case EFEITO_ALTERAR_FORMA: {
+      if (evento->complementos_str().empty()) break;
+        const auto& modelo = tabelas.ModeloEntidade(evento->complementos_str(0));
+        if (modelo.id().empty()) break;
+        EntidadeProto proto_salvo = ProtoFormaAlternativa(*proto);
+        evento->set_estado_anterior(proto_salvo.SerializeAsString());
+        proto->MergeFrom(ProtoFormaAlternativa(modelo.entidade()));
+      break;
+    }
     case EFEITO_IMUNIDADE_FEITICO: {
       if (!evento->has_id_unico() || evento->complementos_str().empty() || evento->complementos_str(0).empty() ||
           c_any_of(proto->dados_defesa().imunidade_feiticos(),
@@ -844,6 +853,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto->set_inconsciente(proto_salvo.inconsciente());
     }
     break;
+    case EFEITO_ALTERAR_FORMA: {
+      if (!evento.has_estado_anterior()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.ParseFromString(evento.estado_anterior());
+      proto->MergeFrom(ProtoFormaAlternativa(proto_salvo));
+      break;
+    }
     case EFEITO_DESTRUICAO_MORTO_VIVO: {
       if (!evento.has_estado_anterior()) break;
       EntidadeProto proto_salvo;
