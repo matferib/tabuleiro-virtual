@@ -414,6 +414,9 @@ class Entidade {
   /** Atualiza a matriz de acao da mão secundaria. */
   void AtualizaMatrizAcaoSecundaria(const Matrix4& matriz);
 
+  /** Atualizacao que sera executada na proxima chamada de atualizacao. */
+  void DeixaAtualizacaoPendente(const EntidadeProto& atualizacao_pendente) { atualizacao_pendente_ = atualizacao_pendente; }
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
   // Valor de ataque ou ca invalido.
@@ -678,6 +681,7 @@ class Entidade {
 
  private:
   EntidadeProto proto_;
+  std::optional<EntidadeProto> atualizacao_pendente_;  // para efeitos que alternam a forma.
   const Tabelas& tabelas_;
   const Tabuleiro* tabuleiro_ = nullptr;
   VariaveisDerivadas vd_;

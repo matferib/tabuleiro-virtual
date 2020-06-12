@@ -803,6 +803,11 @@ void Entidade::Atualiza(int intervalo_ms) {
     vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   }
 
+  if (atualizacao_pendente_.has_value()) {
+    AtualizaParcial(*atualizacao_pendente_);
+    atualizacao_pendente_.reset();
+  }
+
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
   AtualizaBolhas(intervalo_ms);
