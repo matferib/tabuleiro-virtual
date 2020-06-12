@@ -1,4 +1,5 @@
-#include <QSound>
+#include <QFileInfo>
+#include <QtMultimedia/QMediaPlayer>
 #include <QThread>
 #include <list>
 #include <memory>
@@ -12,46 +13,26 @@ using google::protobuf::StringPrintf;
 namespace som {
 namespace {
 
-class Gerenciador {
- public:
-  ~Gerenciador() {
-    while (!lista_.empty()) {
-      lista_.front()->wait();
-      lista_.pop_front();
-    }
-  }
-  void Dispara(QThread* thread) {
-    while (!lista_.empty() && lista_.front()->isFinished()) {
-      lista_.pop_front();
-    }
-    thread->start();
-    lista_.emplace_back(thread);
-  }
-
- private:
-  std::list<std::unique_ptr<QThread>> lista_;
-};
-
-void Handler(std::string s) {
-  QSound::play(QString::fromStdString(s));
-}
-
-std::unique_ptr<Gerenciador> g_gerenciador;
+std::unique_ptr<QMediaPlayer> g_media_player;
 
 }  // namespace
 
 void Inicia() {
-  g_gerenciador = std::make_unique<Gerenciador>();
+  g_media_player = std::make_unique<QMediaPlayer>();
 }
 
 void Finaliza() {
-  g_gerenciador.reset();
+  g_media_player.reset();
 }
 
 void Toca(const std::string& nome) {
-  VLOG(1) << "tocando: " << StringPrintf("%s/%s", arq::Diretorio(arq::TIPO_SOM).c_str(), nome.c_str());
-  auto* ts = QThread::create(Handler, StringPrintf("%s/%s", arq::Diretorio(arq::TIPO_SOM).c_str(), nome.c_str()));
-  g_gerenciador->Dispara(ts);
+  QString qs = QFileInfo(QString::fromStdString(s)).absoluteFilePath();
+  g_media_player->setMedia(QUrl::fromLocalFile(qs));
+  g_media_player->setVolume(100);
+  g_media_player->play();
+  VLOG(1)
+      << "tentando tocar " << s << " vol: " << g_media_player->volume() << ", error: " << static_cast<int>(g_media_player->error())
+      << ", availability: " << static_cast<int>(g_media_player->availability()) << ", media status: " << (int)g_media_player->mediaStatus();
 }
 
 }  // namespace som
