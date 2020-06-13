@@ -1445,6 +1445,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
         !proto_.dados_ataque(0).has_id_arma()) {
       proto_.clear_dados_ataque();
     }
+    for (const auto& da : proto_.dados_ataque()) {
+      if (da.has_disponivel_em()) {
+        LOG(INFO) << "disponivel_em: " << da.disponivel_em() << ", rotulo: " << da.rotulo();
+      }
+    }
   }
 
   // casos especiais.

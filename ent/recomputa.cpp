@@ -395,12 +395,12 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
     case EFEITO_ALTERAR_FORMA: {
+      if (evento->processado()) break;
       if (evento->complementos_str().empty()) break;
-        const auto& modelo = tabelas.ModeloEntidade(evento->complementos_str(0));
-        if (modelo.id().empty()) break;
-        EntidadeProto proto_salvo = ProtoFormaAlternativa(*proto);
-        evento->set_estado_anterior(proto_salvo.SerializeAsString());
-        proto->MergeFrom(ProtoFormaAlternativa(modelo.entidade()));
+      const auto& modelo = tabelas.ModeloEntidade(evento->complementos_str(0));
+      if (modelo.id().empty()) break;
+      evento->set_estado_anterior(ProtoFormaAlternativa(*proto).SerializeAsString());
+      entidade->DeixaAtualizacaoPendente(ProtoFormaAlternativa(modelo.entidade()));
       break;
     }
     case EFEITO_IMUNIDADE_FEITICO: {
@@ -854,10 +854,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
     }
     break;
     case EFEITO_ALTERAR_FORMA: {
+      // Isso da problema para desfazer. O proto salvo ja tera o ataque consumido.
+      // Ao desfazer, o efeito restaurara o proto anterior e deixara o ataque consumido.
+      // Nao tem uma solução fácil: se arrumar o desfazer, quebra aqui.
       if (!evento.has_estado_anterior()) break;
       EntidadeProto proto_salvo;
       proto_salvo.ParseFromString(evento.estado_anterior());
-      proto->MergeFrom(ProtoFormaAlternativa(proto_salvo));
+      entidade->DeixaAtualizacaoPendente(ProtoFormaAlternativa(proto_salvo));
       break;
     }
     case EFEITO_DESTRUICAO_MORTO_VIVO: {

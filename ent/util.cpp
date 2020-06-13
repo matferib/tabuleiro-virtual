@@ -1804,7 +1804,7 @@ void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::No
       if (np != nullptr) {
         LOG(ERROR) << "Grupo contem mais de uma notificacao de ataque!!i Ignorando a primeira.";
       }
-      np = &n; 
+      np = &n;
       reusando = true;
     }
   }
@@ -2116,6 +2116,7 @@ void PreencheNotificacaoConsumoAtaque(
       PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
   *proto_antes->mutable_dados_ataque() = entidade.Proto().dados_ataque();
   *proto->mutable_dados_ataque() = entidade.Proto().dados_ataque();
+  auto* da_antes = EncontraAtaque(da, proto_antes);
   auto* da_depois = EncontraAtaque(da, proto);
   if (da_depois != nullptr) {
     if (da.requer_carregamento()) {
@@ -2150,6 +2151,7 @@ void PreencheNotificacaoConsumoAtaque(
           valor = 0;
         }
         da_depois->set_disponivel_em(valor);
+        da_antes->set_disponivel_em(0);
         VLOG(1) << "refrescando valor para " << valor;
       }
     }
