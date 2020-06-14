@@ -1072,9 +1072,27 @@ int AplicaMaestriaElemental(int modificador, const EntidadeProto& ea, const Enti
   return modificador;
 }
 
-// Pode ser chamado com ed == default para ver alguns modificadores do atacante.
-int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed) {
+int ModificadoresDesarmar(const DadosAtaque& da) {
   int modificador = 0;
+  if (da.empunhadura() == EA_2_MAOS) {
+    modificador += 4;
+  }
+  const auto& arma = Tabelas::Unica().Arma(da.id_arma());
+  if (PossuiCategoria(CAT_LEVE, arma)) {
+    modificador -= 4;
+  }
+  // O modificador de tamanho sera computado em ModificadorAtaque, que tem o atacante e o alvo.
+  return modificador;
+}
+
+// Pode ser chamado com ed == default para ver alguns modificadores do atacante.
+int ModificadorAtaque(const DadosAtaque& da, const EntidadeProto& ea, const EntidadeProto& ed) {
+  TipoAtaque tipo_ataque = DaParaTipoAtaque(da);
+  int modificador = 0;
+  if (tipo_ataque == TipoAtaque::DESARMAR) {
+    modificador += ModificadoresDesarmar(da);
+    modificador += 4 * static_cast<int>(ea.tamanho()) - static_cast<int>(ed.tamanho());
+  }
   // ataque.
   if (ea.caida() && tipo_ataque != TipoAtaque::DISTANCIA) {
     modificador -= 4;
@@ -1324,22 +1342,24 @@ std::string TextoOuNada(const std::string& texto) {
   return texto;
 }
 
-bool ArmaAbencoada(const DadosAtaque* da, const Entidade& ea) {
-  return PossuiEvento(EFEITO_ABENCOAR_ARMA, da->rotulo(), ea.Proto());
+bool ArmaAbencoada(const DadosAtaque& da, const Entidade& ea) {
+  // TODO vorpal tb nao se aplica aqui.
+  return PossuiEvento(EFEITO_ABENCOAR_ARMA, da.rotulo(), ea.Proto()) && !PossuiEvento(EFEITO_LAMINA_AFIADA, da.rotulo(), ea.Proto());
 }
 
 // Retorna o numero de vezes que o critico da dano e o texto para o critico.
-std::tuple<int, std::string> ComputaCritico(
-    int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino, bool agarrar,
-    const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+std::tuple<int, std::string> AplicaCriticoSeDentroMargem(
+    int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino,
+    const DadosAtaque& da, const Entidade& ea, const Entidade& ed) {
   assert(modificador_incrementos <= 0);
-  if (d20 < ea.MargemCritico() || agarrar) return std::make_tuple(1, "");
+  TipoAtaque tipo_ataque = DaParaTipoAtaque(da);
+  if (d20 < ea.MargemCritico() || tipo_ataque == TipoAtaque::AGARRAR || tipo_ataque == TipoAtaque::DESARMAR) return std::make_tuple(1, "");
   if (ed.ImuneCritico()) {
     return std::make_tuple(1, ", imune a critico");
   }
   std::string texto_critico;
-  if (ArmaAbencoada(da, ea)) {
-    texto_critico = ", critico: arma abençoada";
+  if (ArmaAbencoada(da, ea) && ed.Mau()) {
+    texto_critico = ", critico: arma abençoada vs mal";
   } else {
     int d20_critico = RolaDado(20);
     int total_critico = ataque_origem + d20_critico + modificador_incrementos + outros_modificadores;
@@ -1361,11 +1381,12 @@ std::tuple<int, std::string> ComputaCritico(
 
 // Retorna -1 para falha critica, 0, para falha e total para sucesso.
 std::tuple<int, std::string, bool> ComputaAcertoOuErro(
-    int d20, int ataque_origem, int modificador_incrementos, int outros_modificadores, int ca_destino, bool agarrar,
+    int d20_ataque, int ataque_origem, int modificador_incrementos, int outros_modificadores, int d20_defesa, int modificadores_defesa, TipoAtaque tipo_ataque,
     const EntidadeProto& pea, const EntidadeProto& ped, bool confirmacao = false) {
   assert(modificador_incrementos <= 0);
-  int total = d20 + ataque_origem + modificador_incrementos + outros_modificadores;
-  if (d20 == 1) {
+  int valor_defesa = d20_defesa + modificadores_defesa;
+  int total = d20_ataque + ataque_origem + modificador_incrementos + outros_modificadores;
+  if (d20_ataque == 1) {
     VLOG(1) << "Possivel falha critica";
     if (confirmacao) {
       // Para confirmacao precisamos apenas do acerto ou erro.
@@ -1373,7 +1394,8 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
     } else {
       // Confirma a falha.
       auto [totalc, textoc, acertouc] =
-        ComputaAcertoOuErro(RolaDado(20), ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, agarrar, pea, ped, /*confirmacao=*/true);
+        ComputaAcertoOuErro(RolaDado(20), ataque_origem, modificador_incrementos, outros_modificadores, d20_defesa, modificadores_defesa, tipo_ataque, pea, ped,
+            /*confirmacao=*/true);
       VLOG(1) << "Confirmacao de falha critica: total: " << totalc << ", texto: " << textoc << ", acertou: " << acertouc;
       if (acertouc) {
         return std::make_tuple(0, StringPrintf("falha critica nao confirmada: %s", textoc.c_str()), false);
@@ -1383,29 +1405,34 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
     }
   }
 
-  if (agarrar && PossuiEvento(EFEITO_MOVIMENTACAO_LIVRE, ped)) {
+  if (tipo_ataque == TipoAtaque::AGARRAR && PossuiEvento(EFEITO_MOVIMENTACAO_LIVRE, ped)) {
     return std::make_tuple(0, "Defensor com movimentação livre", false);
   }
 
-  if ((d20 != 20 || agarrar) && total < ca_destino) {
+  if ((d20_ataque != 20 || tipo_ataque == TipoAtaque::AGARRAR) && total < valor_defesa) {
     std::string texto = google::protobuf::StringPrintf(
-        "falhou: %d%+d%s%s= %d < %d", d20, ataque_origem,
-        TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, ca_destino);
+        "falhou: %d%+d%s%s= %d < %d", d20_ataque, ataque_origem,
+        TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, valor_defesa);
     return std::make_tuple(0, texto, false);
-  } else if (agarrar && total == ca_destino) {
+  } else if (tipo_ataque == TipoAtaque::AGARRAR && total == valor_defesa) {
     // Maior modificador ganha.
     if (pea.bba().agarrar() < ped.bba().agarrar()) {
       // TODO em case de empate, deveria rolar de novo. Mas vou considerar vantagem do ataque.
-      return std::make_tuple(0, google::protobuf::StringPrintf("falhou: mod defesa %d > %d ataque", ped.bba().agarrar(), pea.bba().agarrar()).c_str(), false);
+      return std::make_tuple(0, StringPrintf("falhou: mod defesa %d > %d ataque", ped.bba().agarrar(), pea.bba().agarrar()).c_str(), false);
+    }
+  } else if (tipo_ataque == TipoAtaque::DESARMAR && total == valor_defesa) {
+    // Maior modificador ganha.
+    if (modificadores_defesa >= ataque_origem) {
+      return std::make_tuple(0, StringPrintf("falhou: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), false);
     }
   }
   return std::make_tuple(total, "", true);
 }
 
 // Retorna o resultado do ataque de toque o se acertou ou nao.
-std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, const DadosAtaque& da, const Entidade& ea, const Entidade& ed) {
   // TODO: aqui to hackeando pra pular o toque se ambos estiverem agarrando.
-  if (da->ignora_ataque_toque() || AgarradoA(ed.Id(), ea.Proto())) {
+  if (da.ignora_ataque_toque() || AgarradoA(ed.Id(), ea.Proto())) {
     return std::make_tuple("", true);
   }
   const int d20_toque = RolaDado(20);
@@ -1413,7 +1440,9 @@ std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, co
   const int ataque_toque = ea.BonusAtaqueToque();
   std::string texto_erro;
   bool acertou;
-  std::tie(std::ignore, texto_erro, acertou) = ComputaAcertoOuErro(d20_toque, ataque_toque, 0, outros_modificadores, ca_destino_toque, false, ea.Proto(), ed.Proto());
+  // O tipo desse ataque é normal, não é agarrar.
+  std::tie(std::ignore, texto_erro, acertou) =
+      ComputaAcertoOuErro(d20_toque, ataque_toque, 0, outros_modificadores, /*d20_defesa=*/0, ca_destino_toque, TipoAtaque::CORPO_A_CORPO, ea.Proto(), ed.Proto());
   if (!acertou) {
     std::string texto_falha_toque = google::protobuf::StringPrintf("Ataque de toque falhou: %s", texto_erro.c_str());
     return std::make_tuple(texto_falha_toque, false);
@@ -1428,7 +1457,7 @@ enum resultado_ataque_reflexos {
   RAR_FALHA_CRITICA = 2,
 };
 std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
-    int outros_modificadores, const DadosAtaque* da, const Entidade& ea, const Entidade& ed) {
+    int outros_modificadores, const DadosAtaque& da, const Entidade& ea, const Entidade& ed) {
   const int d20 = RolaDado(20);
   if (d20 == 1) {
     return std::make_tuple("falha crítica", RAR_FALHA_CRITICA);
@@ -1438,7 +1467,7 @@ std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
   std::string texto_erro;
   bool acertou;
   std::tie(std::ignore, texto_erro, acertou) =
-      ComputaAcertoOuErro(d20, ataque, 0, outros_modificadores, ca_reflexo, false, ea.Proto(), ed.Proto());
+      ComputaAcertoOuErro(d20, ataque, 0, outros_modificadores, /*d20_defesa=*/0, ca_reflexo, DaParaTipoAtaque(da), ea.Proto(), ed.Proto());
   return std::make_tuple(
     acertou ? "acertou reflexo" : "errou reflexo",
     acertou ? RAR_ACERTOU : RAR_FALHA_NORMAL);
@@ -1448,36 +1477,69 @@ std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
 
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade) {
-  const auto* da = ea.DadoCorrente();
-  if (da == nullptr) da = &DadosAtaque::default_instance();
+  const auto& da = ea.DadoCorrenteNaoNull();
   return AtaqueVsDefesa(distancia_m, ap, ea, da, ed, pos_alvo, ataque_oportunidade);
 }
 
-ResultadoAtaqueVsDefesa AtaqueVsDefesa(
-    float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque* da,
-    const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade) {
-  const int ataque_origem = ea.BonusAtaque();
-
-  const int bonus_agarrar_defesa = ed.Proto().bba().agarrar();
-
-  const int ca_destino = da->ataque_agarrar() ? RolaDado(20) + bonus_agarrar_defesa : ed.CA(ea, CATipoAtaque(*da), ataque_oportunidade);
-
-  ResultadoAtaqueVsDefesa resultado;
-  if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
-    VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
-            << ", defesa: " << ca_destino;
-    resultado.texto = "Ataque sem bonus ou defensor sem armadura";
-    return resultado;
+// Retorna o d20 da defesa e os modificadores.
+std::optional<std::pair<unsigned int, unsigned int>> D20ModificadoresDefesa(const DadosAtaque& da, const Entidade& ea, const Entidade& ed, bool ataque_oportunidade) {
+  if (da.ataque_agarrar()) {
+    const int bonus_agarrar_defesa = ed.Proto().bba().agarrar();
+    return std::make_pair(RolaDado(20), bonus_agarrar_defesa);
+  } else if (da.ataque_desarmar()) {
+    const int bonus_desarmar = ModificadoresDesarmar(ed.DadoCorrenteNaoNull());
+    return std::make_pair(RolaDado(20), ed.BonusAtaque() + bonus_desarmar);
   }
+  int ca = ed.CA(ea, CATipoAtaque(da), ataque_oportunidade);
+  if (ca == Entidade::AtaqueCaInvalido) return std::nullopt;
+  return std::make_pair(0, ca);
+}
+
+std::optional<int> BonusAtaque(const Entidade& ea) {
+  const int modificadores_ataque = ea.BonusAtaque();
+  if (modificadores_ataque == Entidade::AtaqueCaInvalido) return std::nullopt;
+  return modificadores_ataque;
+}
+
+std::string StringValorDestino(TipoAtaque tipo_ataque, int d20_defesa, int valor_defesa) {
+  switch (tipo_ataque) {
+    case TipoAtaque::AGARRAR:
+    case TipoAtaque::DESARMAR:
+      return StringPrintf("%d=%d+%d", d20_defesa + valor_defesa, d20_defesa, valor_defesa);
+    default:
+      return StringPrintf("%d", valor_defesa);
+  }
+}
+
+ResultadoAtaqueVsDefesa AtaqueVsDefesa(
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque& da,
+    const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade) {
+  ResultadoAtaqueVsDefesa resultado;
   if (EmDefesaTotal(ea.Proto())) {
     VLOG(1) << "Ignorando ataque vs defesa por causa de defesa total.";
     resultado.texto = "Atacante em defesa total";
     return resultado;
   }
-  int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
-  const int outros_modificadores = ModificadorAtaque(DaParaTipoAtaque(*da), ea.Proto(), ed.Proto());
 
-  if (ea.Id() != ed.Id() && !da->ignora_reflexos()) {
+  std::optional<int> opt_bonus_ataque = BonusAtaque(ea);
+  if (!opt_bonus_ataque.has_value()) {
+    VLOG(1) << "Ignorando ataque vs defesa por falta de dados de ataque";
+    resultado.texto = "Ataque sem bonus";
+    return resultado;
+  }
+  int bonus_ataque = *opt_bonus_ataque;
+
+  std::optional<std::pair<unsigned int, unsigned int>> opt_modificadores_defesa = D20ModificadoresDefesa(da, ea, ed, ataque_oportunidade);
+  if (!opt_modificadores_defesa.has_value()) {
+    VLOG(1) << "Ignorando ataque vs defesa por falta de dados de defesa.";
+    resultado.texto = "Ataque sem bonus ou defensor sem armadura";
+    return resultado;
+  }
+  auto [d20_defesa, modificadores_defesa] = *opt_modificadores_defesa;
+
+  int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
+  const int outros_modificadores = ModificadorAtaque(da, ea.Proto(), ed.Proto());
+  if (ea.Id() != ed.Id() && !da.ignora_reflexos()) {
     const int numero_reflexos = NumeroReflexos(ed.Proto());
     if (numero_reflexos > 0) {
       int num_total = numero_reflexos + 1;
@@ -1500,12 +1562,12 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
       VLOG(1) << "Ataque acertou alvo mesmo com reflexo";
     }
   } else {
-    VLOG(1) << "Ataque ignorou reflexos por ser pessoal.";
+    VLOG(1) << "Ataque ignorou reflexos " << (da.ignora_reflexos() ? "por flag." : "por ser pessoal.");
   }
 
   // Realiza um ataque de toque.
   std::string texto_toque_agarrar;
-  if (da->ataque_agarrar()) {
+  if (da.ataque_agarrar()) {
     bool acertou;
     std::tie(texto_toque_agarrar, acertou) = AtaqueToquePreAgarrar(outros_modificadores, da, ea, ed);
     if (!acertou) {
@@ -1524,7 +1586,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     bool acertou;
     std::tie(total, resultado.texto, acertou) =
         ComputaAcertoOuErro(
-            d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar(),
+            d20, bonus_ataque, modificador_incrementos, outros_modificadores, d20_defesa, modificadores_defesa, DaParaTipoAtaque(da),
             ea.Proto(), ed.Proto());
     if (!acertou) {
       resultado.resultado = total == -1 ? RA_FALHA_CRITICA : RA_FALHA_NORMAL;
@@ -1535,7 +1597,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   // Chance de falha.
   if (ea.Id() != ed.Id()) {
     bool passou_falha;
-    std::tie(resultado.texto, passou_falha) = AtaqueVsChanceFalha(*da, ea, ed);
+    std::tie(resultado.texto, passou_falha) = AtaqueVsChanceFalha(da, ea, ed);
     if (!passou_falha) {
       resultado.resultado = RA_FALHA_CHANCE_FALHA;
       return resultado;
@@ -1553,19 +1615,15 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   resultado.resultado = RA_SUCESSO;
   std::string texto_critico;
   std::tie(resultado.vezes, texto_critico) =
-    ComputaCritico(
-        d20, ataque_origem, modificador_incrementos, outros_modificadores, ca_destino, da->ataque_agarrar(),
-        da, ea, ed);
-
-  const std::string str_ca_destino = da->ataque_agarrar()
-      ? StringPrintf("%d=%d+d20", ca_destino, ed.Proto().bba().agarrar())
-      : StringPrintf("%d", ca_destino);
+      AplicaCriticoSeDentroMargem(
+          d20, bonus_ataque, modificador_incrementos, outros_modificadores, modificadores_defesa, da, ea, ed);
 
   if (ap.permite_ataque_vs_defesa()) {
     resultado.texto =
         StringPrintf("acertou: %d+%d%s%s= %d%s vs %s%s",
-             d20, ataque_origem, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total,
-             texto_critico.c_str(), str_ca_destino.c_str(), TextoOuNada(texto_toque_agarrar).c_str());
+             d20, bonus_ataque, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total,
+             texto_critico.c_str(), StringValorDestino(DaParaTipoAtaque(da), d20_defesa, modificadores_defesa).c_str(),
+             TextoOuNada(texto_toque_agarrar).c_str());
   } else {
     resultado.texto = "acertou (automático)";
   }
@@ -2983,7 +3041,7 @@ std::string StringCritico(const DadosAtaque& da) {
 }
 
 std::string StringAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
-  int modificador = ModificadorAtaque(DaParaTipoAtaque(da), proto, EntidadeProto());
+  int modificador = ModificadorAtaque(da, proto, EntidadeProto());
   std::string texto_modificador;
   if (modificador != 0) texto_modificador = google::protobuf::StringPrintf("%+d", modificador);
 
@@ -5099,15 +5157,6 @@ std::string BonusParaString(const Bonus& bonus) {
     resumo.pop_back();
   }
   return resumo;
-}
-
-std::pair<bool, std::string> PodeAgir(const EntidadeProto& proto) {
-  if (PossuiEvento(EFEITO_PASMAR, proto)) return std::make_pair(false, "pasmo");
-  if (PossuiEvento(EFEITO_ATORDOADO, proto)) return std::make_pair(false, "atordoado");
-  if (PossuiEvento(EFEITO_FASCINADO, proto)) return std::make_pair(false, "fascinado");
-  if (PossuiEvento(EFEITO_NAUSEA, proto)) return std::make_pair(false, "nauseado");
-  if (PossuiEventoNaoPossuiOutro(EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE, proto)) return std::make_pair(false, "paralisado");
-  return std::make_pair(true, "");
 }
 
 bool DestrezaNaCA(const EntidadeProto& proto) {

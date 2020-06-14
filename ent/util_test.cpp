@@ -690,7 +690,6 @@ TEST(TesteArmas, TesteRaioEnfraquecimento) {
     EXPECT_EQ(ModificadorAtributo(TA_FORCA, alvo->Proto()), ModificadorAtributo(14))
         << "bonus: " << BonusAtributo(TA_FORCA, alvo->Proto()).DebugString();
   }
-
 }
 
 TEST(TesteArmas, TesteArcoLongo) {
@@ -1450,22 +1449,22 @@ TEST(TestePergaminho, TesteLancarPergaminhoFalhaComFiasco) {
 TEST(TesteTalentoPericias, TesteMobilidade) {
   DadosAtaque da_ataque;
   da_ataque.set_bonus_ataque_final(12);
-  const auto& modelo_trex = g_tabelas.ModeloEntidade("Orc Capitão");
-  auto trex = NovaEntidadeParaTestes(modelo_trex.entidade(), g_tabelas);
+  const auto& modelo_orc = g_tabelas.ModeloEntidade("Orc Capitão");
+  auto orc = NovaEntidadeParaTestes(modelo_orc.entidade(), g_tabelas);
   auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
   modelo_druida.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("mobilidade");
   auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
   // 10 acerta na pinta.
   g_dados_teste.push(10);
-  ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", trex->Proto()).acao(), *trex, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+  ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/false);
   EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
   // 9 ja erra.
   g_dados_teste.push(9);
-  resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", trex->Proto()).acao(), *trex, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+  resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/false);
   EXPECT_FALSE(resultado.Sucesso()) << resultado.texto;
   // Com mobilidade, 10 erra (+4 na CA).
   g_dados_teste.push(10);
-  resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", trex->Proto()).acao(), *trex, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/true);
+  resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/true);
   EXPECT_FALSE(resultado.Sucesso()) << resultado.texto;
   // Caido, ganha +4 e perde mobilidade.
   {
@@ -1474,7 +1473,7 @@ TEST(TesteTalentoPericias, TesteMobilidade) {
     druida->AtualizaParcial(atu);
   }
   g_dados_teste.push(6);
-  resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", trex->Proto()).acao(), *trex, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/true);
+  resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/true);
   EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
 }
 
@@ -2673,13 +2672,33 @@ TEST(TesteFurtivo, TesteFurtivo) {
   }
 }
 
+// Wrapper por causa da mudanca de assinatura da funcao.
+int ModificadorAtaqueWrapper(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed) {
+  DadosAtaque da;
+  switch (tipo_ataque) {
+    case TipoAtaque::CORPO_A_CORPO:
+      da.set_ataque_corpo_a_corpo(true);
+      break;
+    case TipoAtaque::DISTANCIA:
+      da.set_ataque_distancia(true);
+      break;
+    case TipoAtaque::AGARRAR:
+      da.set_ataque_agarrar(true);
+      break;
+    case TipoAtaque::DESARMAR:
+      da.set_ataque_desarmar(true);
+      break;
+  }
+  return ModificadorAtaque(da, ea, ed);
+}
+
 TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
   EntidadeProto ea;
   ea.mutable_dados_ataque_global()->set_flanqueando(true);
   {
     EntidadeProto ed;
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
   {
     EntidadeProto ed;
@@ -2687,8 +2706,8 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
     ic->set_id("barbaro");
     ic->set_nivel(5);  // ganha esquiva sobrenatural.
     RecomputaDependencias(g_tabelas, &ed);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
   {
     EntidadeProto ed;
@@ -2696,8 +2715,8 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
     ic->set_id("ladino");
     ic->set_nivel(8);  // ganha esquiva sobrenatural.
     RecomputaDependencias(g_tabelas, &ed);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
   {
     EntidadeProto ed;
@@ -2712,8 +2731,8 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
       ic->set_nivel(4);  // ganha esquiva.
     }
     RecomputaDependencias(g_tabelas, &ed);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
   {
     EntidadeProto ed;
@@ -2728,8 +2747,8 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
       ic->set_nivel(4);  // sem esquiva.
     }
     RecomputaDependencias(g_tabelas, &ed);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
   {
     EntidadeProto ed;
@@ -2744,8 +2763,8 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
       ic->set_nivel(3);  // sem esquiva.
     }
     RecomputaDependencias(g_tabelas, &ed);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
 }
 
@@ -2753,25 +2772,25 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueElementalTerra) {
   const auto& modelo = g_tabelas.ModeloEntidade("Elemental da Terra (Pequeno)");
   auto el = modelo.entidade();
   EntidadeProto ed;
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 1);
   ed.set_voadora(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_voadora(false);
   ed.set_nadando(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_nadando(false);
   el.set_voadora(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
   el.set_voadora(false);
   el.set_nadando(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
   el.set_nadando(false);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 1);
 }
 
@@ -2780,29 +2799,29 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueElementalAgua) {
   ASSERT_EQ(modelo.id(), "Elemental da Água (Pequeno)");
   auto el = modelo.entidade();
   EntidadeProto ed;
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_voadora(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_voadora(false);
   ed.set_nadando(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_nadando(false);
   el.set_voadora(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   el.set_voadora(false);
   el.set_nadando(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), -4);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), -4);
   ed.set_nadando(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 1);
   el.set_nadando(false);
   el.set_voadora(true);
-  EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
+  EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), 0);
   EXPECT_EQ(ModificadorDano(DadosAtaquePorGrupo("pancada", el), el, ed), 0);
 }
 
@@ -2812,16 +2831,16 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaque) {
     EntidadeProto ed;
     ed.set_caida(true);
 
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 4);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), -4);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 4);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), -4);
   }
   {
     EntidadeProto ea;
     EntidadeProto ed;
     ed.set_em_corpo_a_corpo(true);
 
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), -4);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), -4);
   }
   {
     EntidadeProto ea;
@@ -2830,18 +2849,18 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaque) {
     EntidadeProto ed;
     ed.set_em_corpo_a_corpo(true);
 
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::DISTANCIA, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
   {
     EntidadeProto ea;
     EntidadeProto ed;
 
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::AGARRAR, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::AGARRAR, ea, ed), 0);
     ea.mutable_info_talentos()->add_gerais()->set_id("agarrar_aprimorado");
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::AGARRAR, ea, ed), 4);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::AGARRAR, ea, ed), 4);
     ed.mutable_info_talentos()->add_gerais()->set_id("agarrar_aprimorado");
-    EXPECT_EQ(ModificadorAtaque(TipoAtaque::AGARRAR, ea, ed), 0);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::AGARRAR, ea, ed), 0);
   }
 }
 
@@ -6057,6 +6076,22 @@ TEST(TesteTabelas, TesteFeiticoAleatorioMago) {
     EXPECT_NE(g_tabelas.Feitico(id).escola(), "encantamento");
     EXPECT_NE(g_tabelas.Feitico(id).escola(), "evocacao");
   }
+}
+
+TEST(TesteAtaqueVsDefesa, TesteCritico) {
+  DadosAtaque da_ataque;
+  da_ataque.set_bonus_ataque_final(12);
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_ABENCOAR_ARMA);
+  evento->add_complementos_str("machado_grande");
+  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  g_dados_teste.push(20);
+  // Nao usado, critico automatico.
+  g_dados_teste.push(1);
+  ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *orc, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+  EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+  EXPECT_EQ(resultado.vezes, 3) << resultado.texto;
 }
 
 }  // namespace ent.

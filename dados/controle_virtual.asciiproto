@@ -1209,7 +1209,7 @@ pagina {
     tamanho: 1
     linha: 3
     coluna: 9
-    rotulo: "D"
+    rotulo: "Dr"
     cor_rotulo {}
     textura: "icon_trip_attack.png"
     id: CONTROLE_DERRUBAR
@@ -1217,6 +1217,20 @@ pagina {
     mestre_apenas: false
     dica: "Derrubar."
     visibilidade { referencia { tipo: VIS_ATAQUE_DERRUBAR } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 3
+    coluna: 7
+    rotulo: "Ds"
+    cor_rotulo {}
+    textura: "icon_disarm.png"
+    id: CONTROLE_DESARMAR
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Desarmar."
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    #visibilidade { referencia { tipo: VIS_ATAQUE_DERRUBAR } }
   }
   dados_botoes {
     tamanho: 1

@@ -2622,4 +2622,14 @@ bool Entidade::Indefeso() const {
   return ent::Indefeso(proto_);
 }
 
+std::pair<bool, std::string> Entidade::PodeAgir() const {
+  if (PossuiEfeito(EFEITO_PASMAR)) return std::make_pair(false, "pasmo");
+  if (PossuiEfeito(EFEITO_ATORDOADO)) return std::make_pair(false, "atordoado");
+  if (PossuiEfeito(EFEITO_FASCINADO)) return std::make_pair(false, "fascinado");
+  if (PossuiEfeito(EFEITO_NAUSEA)) return std::make_pair(false, "nauseado");
+  if (PossuiUmDosEfeitos({EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE})) return std::make_pair(false, "paralisado");
+  if (const auto& da = DadoCorrenteNaoNull(); da.desarmado()) return std::make_pair(false, "desarmado");
+  return std::make_pair(true, "");
+}
+
 }  // namespace ent

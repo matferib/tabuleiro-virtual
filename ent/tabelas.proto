@@ -122,7 +122,7 @@ message InfoComponente {
   optional bool material = 6 [default=true];
 }
 
-// Proximo id: 40.
+// Proximo id: 41.
 message ArmaProto {
   optional string id = 1;
   optional string id_arma_base = 39;
@@ -232,6 +232,7 @@ message ArmaProto {
   optional Modelo3d info_modelo_3d = 34;
   // Se verdadeiro, arma pode ser usada para derrubar.
   optional bool pode_derrubar = 35;
+  optional int32 bonus_desarmar = 40;
   optional InfoComponente componente = 36;
   // tempo_conjuracao, casting_time;
   optional int32 tempo_execucao_rodadas = 38;

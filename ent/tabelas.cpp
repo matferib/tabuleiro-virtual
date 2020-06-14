@@ -45,7 +45,11 @@ void ConverteDano(ArmaProto* arma) {
   }
 }
 
+const Tabelas* g_tabela = nullptr;
+
 }  // namespace
+
+
 
 Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   if (central_ != nullptr) {
@@ -114,6 +118,15 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   }
 
   RecarregaMapas();
+  g_tabela = this;
+}
+
+// static
+const Tabelas& Tabelas::Unica() {
+  if (g_tabela == nullptr) {
+    LOG(FATAL) << "tabela indiponivel";
+  }
+  return *g_tabela;
 }
 
 // Quando nao houver origem no item, usa o id dele como a origem do efeito.

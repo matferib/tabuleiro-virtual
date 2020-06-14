@@ -303,12 +303,13 @@ struct MisturaPreNevoaEscopo {
 enum class TipoAtaque {
   CORPO_A_CORPO,
   DISTANCIA,
-  AGARRAR
+  AGARRAR,
+  DESARMAR
 };
 TipoAtaque DaParaTipoAtaque(const DadosAtaque& da);
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
 // Alguns modificadores que seriam de CA tb vem para ca.
-int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
+int ModificadorAtaque(const DadosAtaque& da, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status e o defensor.
 int ModificadorDano(const DadosAtaque& da, const EntidadeProto& ea, const EntidadeProto& ed);
 
@@ -337,7 +338,7 @@ struct ResultadoAtaqueVsDefesa {
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade = false);
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
-    float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque* da,
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque& da,
     const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade = false);
 
 // Rola o dado de ataque da manobra de derrubar (forca vs (destreza ou forca))

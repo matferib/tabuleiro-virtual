@@ -14,6 +14,9 @@ class Tabelas : public ntf::Receptor {
   // Carrega as tabelas.
   Tabelas(ntf::CentralNotificacoes* central);
 
+  // Retorna a instancia unica da tabela.
+  static const Tabelas& Unica();
+
   bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
   const TodasTabelas& todas() const { return tabelas_; }

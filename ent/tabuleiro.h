@@ -323,6 +323,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y);
 
+  /** Retorna id da entidade clicado (ou IdInvalido), a posicao do clique na entidade e a posicao do clique no tabuleiro. */
+  std::tuple<unsigned int, Posicao, Posicao> IdPosicaoEntidadePosicaoTabuleiro(int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade);
+
   /** Trata o botao de esquiva. */
   void TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
 
@@ -633,6 +636,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Alterna o modo de ataque de derrubar da entidade selecionada. */
   void AlternaAtaqueDerrubar();
+  /** Alterna o modo de ataque de desarmar da entidade selecionada. */
+  void AlternaAtaqueDesarmar();
 
   /** Desliga a esquiva da primeira pessoa ou selecionado, notificando clientes. */
   void DesligaEsquivaNotificando();

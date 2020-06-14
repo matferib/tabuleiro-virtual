@@ -706,6 +706,8 @@ tabela_armas {
     peso { medio: '25kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_COMUM
+    pode_derrubar: true
+    bonus_desarmar: 2
   }
   armas {
     id: 'martelo_de_guerra'
@@ -894,6 +896,7 @@ tabela_armas {
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_COMUM
     pode_derrubar: true
+    bonus_desarmar: 2
   }
   armas {
     id: 'ranseur'
@@ -907,6 +910,7 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
     haste: true
+    bonus_desarmar: 2
   }
   # Ranged Weapons
   armas {
@@ -993,6 +997,7 @@ tabela_armas {
     peso { medio: '1Kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
+    bonus_desarmar: 2
   }
   armas {
     id: 'sai'
@@ -1007,6 +1012,7 @@ tabela_armas {
     peso { medio: '0,5kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
+    bonus_desarmar: 4
   }
   armas {
     id: 'siangham'
@@ -1035,6 +1041,7 @@ tabela_armas {
     haste: true
     multiplicador_haste: 3
     pode_derrubar: true
+    bonus_desarmar: 2
     nao_letal: true
     acao {
       som_inicial: 'whip.wav'
@@ -1081,6 +1088,7 @@ tabela_armas {
     haste: true
     atinge_adjacentes: true
     pode_derrubar: true
+    bonus_desarmar: 2
   }
   armas {
     id: 'espada_de_duas_laminas'
@@ -1124,6 +1132,7 @@ tabela_armas {
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
     pode_derrubar: true
+    bonus_desarmar: 2
   }
 
   armas {

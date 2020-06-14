@@ -209,6 +209,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_DERRUBAR:
       AlternaAtaqueDerrubar();
       break;
+    case CONTROLE_DESARMAR:
+      AlternaAtaqueDesarmar();
+      break;
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:
     case CONTROLE_USAR_FEITICO_2:
@@ -1124,6 +1127,16 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           if (da == nullptr) return false;
           return tabelas_.Arma(da->id_arma()).pode_derrubar();
         }
+          /*
+        case VIS_ATAQUE_DESARMAR: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr) return false;
+          const auto* da = e->DadoCorrente();
+          if (da == nullptr) return false;
+          return PossuiTalento() || tabelas_.Arma(da->id_arma()).pode_desarmar();
+        }
+        */
+
         default: {
           LOG(WARNING) << "Tipo de visibilidade de botao invalido: " << ref.tipo();
         }

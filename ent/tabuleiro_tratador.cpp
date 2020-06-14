@@ -2202,7 +2202,7 @@ float Tabuleiro::TrataPreAcaoComum(
   if (acao_proto->has_dado_pv_mais_alto()) {
     acao_proto->set_pv_mais_alto(RolaValor(acao_proto->dado_pv_mais_alto()));
   }
-  auto [pode_agir, razao] = PodeAgir(entidade_origem.Proto());
+  auto [pode_agir, razao] = entidade_origem.PodeAgir();
   if (!pode_agir) {
     AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Entidade nao pode agir: %s", razao.c_str()), atraso_s);
     acao_proto->set_bem_sucedida(false);
@@ -2444,13 +2444,7 @@ void Tabuleiro::TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Pos
   TrataNotificacao(n);
 }
 
-void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
-    bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
-  if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE) && (tipo_objeto != OBJ_ENTIDADE_LISTA)) {
-    // invalido.
-    return;
-  }
-  // Primeiro, entidades.
+std::tuple<unsigned int, Posicao, Posicao> Tabuleiro::IdPosicaoEntidadePosicaoTabuleiro(int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
   unsigned int id_entidade_destino = Entidade::IdInvalido;
   Posicao pos_entidade_destino;
   Posicao pos_tabuleiro;
@@ -2481,7 +2475,16 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     pos_tabuleiro.set_z(z3d);
     pos_tabuleiro.set_id_cenario(IdCenario());
   }
+  return {id_entidade_destino, pos_entidade_destino, pos_tabuleiro };
+}
 
+void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
+    bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
+  if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE) && (tipo_objeto != OBJ_ENTIDADE_LISTA)) {
+    // invalido.
+    return;
+  }
+  auto [id_entidade_destino, pos_entidade_destino, pos_tabuleiro] = IdPosicaoEntidadePosicaoTabuleiro(x, y, id, tipo_objeto, profundidade);
   // Executa a acao: se nao houver ninguem selecionado, faz sinalizacao. Se houver, ha dois modos de execucao:
   // - Efeito de area
   // - Efeito individual.
@@ -3472,7 +3475,7 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
         AcaoProto acao_proto;
         acao_proto.set_id("Agarrar");
         acao_proto.set_tipo(ACAO_AGARRAR);
-        resultado = AtaqueVsDefesa(0.1/*distancia*/, acao_proto, *e, e->DadoAgarrar(), *ealvo, ealvo->Pos());
+        resultado = AtaqueVsDefesa(0.1/*distancia*/, acao_proto, *e, *e->DadoAgarrar(), *ealvo, ealvo->Pos());
         resultado.texto = "desagarrar: " + resultado.texto;
         AdicionaAcaoTextoLogado(e->Id(), resultado.texto, 0.0f  /*atraso*/);
         if (!resultado.Sucesso()) continue;
@@ -3534,6 +3537,36 @@ void Tabuleiro::AlternaAtaqueDerrubar() {
   }
   da_depois->set_ataque_derrubar(!da_depois->ataque_derrubar());
   da_antes->set_ataque_derrubar(da_antes->ataque_derrubar());
+  TrataNotificacao(n);
+  AdicionaNotificacaoListaEventos(n);
+}
+
+void Tabuleiro::AlternaAtaqueDesarmar() {
+  auto* e = EntidadePrimeiraPessoaOuSelecionada();
+  if (e == nullptr) {
+    LOG(INFO) << "Nao ha entidade selecionada para alternar ataque de desarmar";
+    return;
+  }
+  const auto* da = e->DadoCorrente();
+  if (da == nullptr) {
+    LOG(INFO) << "Ataque invalido para desarmar.";
+    return;
+  }
+  ntf::Notificacao n;
+  auto [proto_antes, proto] =
+      PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *e, &n);
+  *proto_antes->mutable_dados_ataque() = e->Proto().dados_ataque();
+  *proto->mutable_dados_ataque() = e->Proto().dados_ataque();
+  auto* da_depois = EncontraAtaque(*da, proto);
+  if (da_depois == nullptr) {
+    return;
+  }
+  auto* da_antes = EncontraAtaque(*da, proto_antes);
+  if (da_antes == nullptr) {
+    return;
+  }
+  da_depois->set_ataque_desarmar(!da_depois->ataque_desarmar());
+  da_antes->set_ataque_desarmar(da_antes->ataque_desarmar());
   TrataNotificacao(n);
   AdicionaNotificacaoListaEventos(n);
 }

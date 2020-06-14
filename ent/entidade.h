@@ -285,6 +285,9 @@ class Entidade {
   const DadosAtaque* DadoCorrenteSecundario() const;
   const DadosAtaque* DadoAtaque(const std::string& grupo, int indice_ataque) const;
   const DadosAtaque* DadoAgarrar() const;
+  const DadosAtaque& DadoAgarrarNaoNull() const {
+    if (const auto* da = DadoAgarrar(); da != nullptr) { return *da; } else { return DadosAtaque::default_instance(); }
+  }
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
   // Retorna modificadores para ataques de toque.
@@ -335,6 +338,7 @@ class Entidade {
   * 1.0f para entidades medias. Multiplicado pelo tamanho do quadrado da o tamanho da entidade.
   */
   float MultiplicadorTamanho() const;
+  TamanhoEntidade Tamanho() const { return proto_.tamanho(); }
 
   /** O espaco da entidade, baseado no seu tamanho. */
   float Espaco() const;
@@ -356,6 +360,8 @@ class Entidade {
   bool ImuneDoenca() const;
 
   bool PodeMover() const;
+  // Retorna se pode agir e caso nao possa, a razao.
+  std::pair<bool, std::string> PodeAgir() const;
 
   /** Por padrao, apenas entidades podem ser afetadas por acao. */
   inline bool PodeSerAfetadoPorAcoes() const {
