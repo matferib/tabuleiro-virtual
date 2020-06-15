@@ -93,7 +93,7 @@ bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, floa
   return true;
 }
 
-// As funcoes Preenchem assumem ATUALIZAR_PARCIAL, permitindo multiplas chamadas sem comprometer as anteriores.
+// As funcoes Preenchem* assumem ATUALIZAR_PARCIAL, permitindo multiplas chamadas sem comprometer as anteriores.
 // n e n_desfazer podem ser iguais.
 void PreencheNotificacaoDerrubar(
     const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
@@ -108,6 +108,21 @@ void PreencheNotificacaoDerrubar(
     auto* e_antes = n_desfazer->mutable_entidade_antes();
     e_antes->set_id(entidade.Id());
     e_antes->set_caida(entidade.Proto().caida());
+  }
+}
+
+void PreencheNotificacaoDesarmar(
+    const std::optional<DadosIniciativa>& dados_iniciativa, const Entidade& entidade,
+    std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
+  auto [e_antes, e_depois] =
+      PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  auto* evento = AdicionaEvento(
+      dados_iniciativa, "desarmar", EFEITO_DESARMADO, /*rodadas=*/0, false, ids_unicos, e_depois);
+  if (n_desfazer != nullptr) {
+    auto* evento_antes = e_antes->add_evento();
+    *evento_antes = *evento;
+    evento_antes->set_rodadas(-1);
+    *n_desfazer = *n;
   }
 }
 
@@ -1828,9 +1843,9 @@ float Tabuleiro::TrataAcaoIndividual(
 
     if (resultado.resultado == RA_FALHA_CRITICA || resultado.resultado == RA_SEM_ACAO) {
       if (resultado.resultado == RA_FALHA_CRITICA) {
-        std::unique_ptr<ntf::Notificacao> n_derrubar(new ntf::Notificacao);
-        PreencheNotificacaoDerrubar(*entidade_origem, n_derrubar.get(), grupo_desfazer->add_notificacao());
-        central_->AdicionaNotificacao(n_derrubar.release());
+        std::unique_ptr<ntf::Notificacao> n_extra(new ntf::Notificacao);
+        PreencheNotificacaoDerrubar(*entidade_origem, n_extra.get(), grupo_desfazer->add_notificacao());
+        central_->AdicionaNotificacao(n_extra.release());
       }
       AdicionaAcaoTexto(entidade_origem->Id(), resultado.texto, atraso_s);
       return atraso_s;
@@ -1874,7 +1889,7 @@ float Tabuleiro::TrataAcaoIndividual(
     int delta_pv = 0;
     int delta_pv_adicional = 0;
     const bool acao_cura = da.cura();
-    if (resultado.Sucesso()) {
+    if (resultado.Sucesso() && !da.ataque_desarmar()) {
       for (int i = 0; i < resultado.vezes; ++i) {
         const auto [delta_normal, delta_adicional] = LeValorListaPontosVida(
             entidade_origem, entidade_destino->Proto(), acao_proto->id());
@@ -2022,6 +2037,19 @@ float Tabuleiro::TrataAcaoIndividual(
       atraso_s = AplicaEfeitosAdicionais(
           tabelas_, atraso_s, salvou, *entidade_origem, *entidade_destino, ent::TAL_DESCONHECIDO, da,
           por_entidade, acao_proto, &ids_unicos_entidade_origem, &ids_unicos_entidade_destino, grupo_desfazer, central_);
+    }
+
+    // Desarmar.
+    if (da.ataque_desarmar()) {
+      std::unique_ptr<ntf::Notificacao> n_extra(new ntf::Notificacao);
+      if (resultado.resultado == RA_FALHA_CONTRA_ATAQUE) {
+        PreencheNotificacaoDesarmar(DadosIniciativaEntidade(entidade_origem), *entidade_origem, &ids_unicos_entidade_origem, n_extra.get(), grupo_desfazer->add_notificacao());
+      } else if (resultado.resultado == RA_SUCESSO) {
+        PreencheNotificacaoDesarmar(DadosIniciativaEntidade(entidade_origem), *entidade_destino, &ids_unicos_entidade_destino, n_extra.get(), grupo_desfazer->add_notificacao());
+      }
+      if (n_extra->has_tipo()) {
+        central_->AdicionaNotificacao(n_extra.release());
+      }
     }
 
     if (resultado.Sucesso() &&
@@ -3536,7 +3564,9 @@ void Tabuleiro::AlternaAtaqueDerrubar() {
     return;
   }
   da_depois->set_ataque_derrubar(!da_depois->ataque_derrubar());
+  da_depois->set_ataque_desarmar(false);
   da_antes->set_ataque_derrubar(da_antes->ataque_derrubar());
+  da_depois->set_ataque_desarmar(da_antes->ataque_desarmar());
   TrataNotificacao(n);
   AdicionaNotificacaoListaEventos(n);
 }
@@ -3566,7 +3596,9 @@ void Tabuleiro::AlternaAtaqueDesarmar() {
     return;
   }
   da_depois->set_ataque_desarmar(!da_depois->ataque_desarmar());
+  da_depois->set_ataque_derrubar(false);
   da_antes->set_ataque_desarmar(da_antes->ataque_desarmar());
+  da_antes->set_ataque_derrubar(da_antes->ataque_derrubar());
   TrataNotificacao(n);
   AdicionaNotificacaoListaEventos(n);
 }

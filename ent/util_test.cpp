@@ -6115,6 +6115,10 @@ TEST(TesteAtaqueVsDefesa, TesteDesarmar) {
   auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
   auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
   {
+    // Defesa primeiro.
+    g_dados_teste.push(10);
+    g_dados_teste.push(10);
+    // Contra ataques.
     g_dados_teste.push(10);
     g_dados_teste.push(10);
     ResultadoAtaqueVsDefesa resultado =
@@ -6151,6 +6155,9 @@ TEST(TesteAtaqueVsDefesa, TesteDesarmar2) {
     g_dados_teste.push(10);
     // +7 bab, +5 for, +1 foco, +4 duas mãos, +1 magico, -4 dif tamanho = 14.
     g_dados_teste.push(13);
+    // Contra ataques.
+    g_dados_teste.push(14);  // um a mais por causa do desempate.
+    g_dados_teste.push(10);
     ResultadoAtaqueVsDefesa resultado =
         AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orca->Proto()).acao(), *orca, *orcd, Posicao::default_instance(), /*ataque_oportunidade=*/false);
     EXPECT_FALSE(resultado.Sucesso()) << resultado.texto;
@@ -6162,6 +6169,29 @@ TEST(TesteAtaqueVsDefesa, TesteDesarmar2) {
         AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orca->Proto()).acao(), *orca, *orcd, Posicao::default_instance(), /*ataque_oportunidade=*/false);
     EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
   }
+}
+
+TEST(TesteAtaqueVsDefesa, TesteDesarmarContraAtaque) {
+  DadosAtaque da_ataque;
+  da_ataque.set_bonus_ataque_final(12);
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
+  da->set_ataque_desarmar(true);
+  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Defesa primeiro.
+    g_dados_teste.push(10);
+    g_dados_teste.push(10);
+    // Contra ataques.
+    g_dados_teste.push(10);
+    g_dados_teste.push(11);
+    ResultadoAtaqueVsDefesa resultado =
+        AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orca->Proto()).acao(), *orca, *orcd, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+    EXPECT_FALSE(resultado.Sucesso()) << resultado.texto;
+    EXPECT_EQ(resultado.resultado, RA_FALHA_CONTRA_ATAQUE);
+  }
+
 }
 
 }  // namespace ent.

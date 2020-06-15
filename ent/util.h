@@ -323,6 +323,7 @@ enum resultado_ataque_e {
   RA_FALHA_CHANCE_FALHA = 7,  // falha por chance de falha.
   RA_FALHA_IMUNE = 8,         // falha por imunidade ao tipo de ataque.
   RA_FALHA_REDUCAO = 9,       // falha por reducao de dano (reduzido a zero).
+  RA_FALHA_CONTRA_ATAQUE= 10, // para ataques de desarmar e derrubar, no qual o oponente pode contraatacar.
 };
 struct ResultadoAtaqueVsDefesa {
   resultado_ataque_e resultado = RA_SEM_ACAO;

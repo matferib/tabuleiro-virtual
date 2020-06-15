@@ -1073,7 +1073,7 @@ int AplicaMaestriaElemental(int modificador, const EntidadeProto& ea, const Enti
   return modificador;
 }
 
-int ModificadoresDesarmarSemBonusAtaque(const DadosAtaque& da) {
+int ModificadoresDesarmarSemBonusAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
   int modificador = 0;
   if (da.empunhadura() == EA_2_MAOS) {
     modificador += 4;
@@ -1083,6 +1083,9 @@ int ModificadoresDesarmarSemBonusAtaque(const DadosAtaque& da) {
     modificador -= 4;
   }
   modificador += arma.bonus_desarmar();
+  if (PossuiTalento("desarme_aprimorado", proto)) {
+    modificador += 4;
+  }
   // O modificador de tamanho sera computado em ModificadorAtaque, que tem o atacante e o alvo.
   return modificador;
 }
@@ -1092,7 +1095,7 @@ int ModificadorAtaque(const DadosAtaque& da, const EntidadeProto& ea, const Enti
   TipoAtaque tipo_ataque = DaParaTipoAtaque(da);
   int modificador = 0;
   if (tipo_ataque == TipoAtaque::DESARMAR) {
-    modificador += ModificadoresDesarmarSemBonusAtaque(da);
+    modificador += ModificadoresDesarmarSemBonusAtaque(da, ea);
     modificador += 4 * (static_cast<int>(ea.tamanho()) - static_cast<int>(ed.tamanho()));
   }
   // ataque.
@@ -1489,7 +1492,7 @@ std::optional<std::pair<unsigned int, unsigned int>> D20ModificadoresDefesa(cons
     const int bonus_agarrar_defesa = ed.Proto().bba().agarrar();
     return std::make_pair(RolaDado(20), bonus_agarrar_defesa);
   } else if (da.ataque_desarmar()) {
-    return std::make_pair(RolaDado(20), ed.BonusAtaque() + ModificadoresDesarmarSemBonusAtaque(ed.DadoCorrenteNaoNull()));
+    return std::make_pair(RolaDado(20), ed.BonusAtaque() + ModificadoresDesarmarSemBonusAtaque(ed.DadoCorrenteNaoNull(), ed.Proto()));
   }
   int ca = ed.CA(ea, CATipoAtaque(da), ataque_oportunidade);
   if (ca == Entidade::AtaqueCaInvalido) return std::nullopt;
@@ -1589,6 +1592,22 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
             ea.Proto(), ed.Proto());
     if (!acertou) {
       resultado.resultado = total == -1 ? RA_FALHA_CRITICA : RA_FALHA_NORMAL;
+      if (da.ataque_desarmar() && !ea.PossuiTalento("desarme_aprimorado")) {
+        // Manter a ordem de defesa primeiro por causa dos testes.
+        int d20_contra_defesa = RolaDado(20);
+        int d20_contra = RolaDado(20);
+        // Modificadores da defesa ja inclui o bonus, por isso passamos 0.
+        auto [total_contra, texto_contra, acertou_contra] = ComputaAcertoOuErro(
+            d20_contra, /*bonus_ataque=*/modificadores_defesa, 0, 0, d20_contra_defesa, bonus_ataque + modificadores_ataque, TipoAtaque::DESARMAR,
+            ed.Proto(), ea.Proto());
+        VLOG(1) << "compilador feliz: " << total_contra;
+        if (acertou_contra) {
+          resultado.resultado = RA_FALHA_CONTRA_ATAQUE;
+          resultado.texto = StringPrintf("%s, sucesso contra ataque: %s", resultado.texto.c_str(), texto_contra.c_str());
+        } else {
+          resultado.texto = StringPrintf("%s, falha contra ataque: %s", resultado.texto.c_str(), texto_contra.c_str());
+        }
+      }
       return resultado;
     }
   }
@@ -1603,7 +1622,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     }
   }
 
-  // Imunidade: nao texta resistencia porque aqui eh so pra ver se acertou e como..
+  // Imunidade: nao testa resistencia porque aqui eh so pra ver se acertou e como..
   if (EntidadeImuneElemento(ed.Proto(), ap.elemento())) {
     resultado.resultado = RA_FALHA_IMUNE;
     resultado.texto = StringPrintf("defensor imune a %s", TextoDescritor(ap.elemento()));
