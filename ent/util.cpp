@@ -1415,7 +1415,7 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
   }
 
   if ((d20_ataque != 20 || tipo_ataque == TipoAtaque::AGARRAR) && total < valor_defesa) {
-    std::string texto = google::protobuf::StringPrintf(
+    std::string texto = StringPrintf(
         "falhou: %d%+d%s%s= %d < %d", d20_ataque, ataque_origem,
         TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, valor_defesa);
     return std::make_tuple(0, texto, false);
@@ -1425,13 +1425,20 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
       // TODO em case de empate, deveria rolar de novo. Mas vou considerar vantagem do ataque.
       return std::make_tuple(0, StringPrintf("falhou: mod defesa %d > %d ataque", ped.bba().agarrar(), pea.bba().agarrar()).c_str(), false);
     }
-  } else if (tipo_ataque == TipoAtaque::DESARMAR && total == valor_defesa) {
-    // Maior modificador ganha.
-    if (modificadores_defesa >= ataque_origem) {
-      return std::make_tuple(0, StringPrintf("falhou: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), false);
+  } else if (tipo_ataque == TipoAtaque::DESARMAR) {
+    if (total == valor_defesa) {
+      // Maior modificador ganha.
+      if (modificadores_defesa >= ataque_origem) {
+        return std::make_tuple(0, StringPrintf("falhou: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), false);
+      }
+    } else {
+      // Acertou agarrar.
+      return std::make_tuple(total, StringPrintf("sucesso: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), true);
     }
   }
-  return std::make_tuple(total, "", true);
+  return std::make_tuple(total, StringPrintf(
+        "sucesso: %d%+d%s%s= %d >= %d", d20_ataque, ataque_origem,
+        TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, valor_defesa), true);
 }
 
 // Retorna o resultado do ataque de toque o se acertou ou nao.
@@ -1603,10 +1610,8 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
         VLOG(1) << "compilador feliz: " << total_contra;
         if (acertou_contra) {
           resultado.resultado = RA_FALHA_CONTRA_ATAQUE;
-          resultado.texto = StringPrintf("%s, sucesso contra ataque: %s", resultado.texto.c_str(), texto_contra.c_str());
-        } else {
-          resultado.texto = StringPrintf("%s, falha contra ataque: %s", resultado.texto.c_str(), texto_contra.c_str());
         }
+        resultado.texto = StringPrintf("%s, contra ataque: %s", resultado.texto.c_str(), texto_contra.c_str());
       }
       return resultado;
     }
@@ -2146,7 +2151,8 @@ namespace {
 bool AtaqueIgual(const DadosAtaque& lda, const DadosAtaque& rda) {
   return lda.rotulo() == rda.rotulo() &&
          lda.tipo_ataque() == rda.tipo_ataque() &&
-         lda.grupo() == rda.grupo();
+         lda.grupo() == rda.grupo() &&
+         lda.ordem_ataque() == rda.ordem_ataque();
 }
 
 }  // namespace
