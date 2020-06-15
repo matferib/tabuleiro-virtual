@@ -1384,10 +1384,10 @@ void Tabuleiro::DesenhaControleVirtual() {
   // Mapeia id do botao para a funcao de estado. A entidade recebida vem da funcao EntidadePrimeiraPessoaOuSelecionada.
   static const std::unordered_map<int, std::function<bool(const Entidade* entidade)>> mapa_botoes = {
     { CONTROLE_DERRUBAR,          [this] (const Entidade* entidade) {
-       if (entidade == nullptr) return false;
-       const auto* da = entidade->DadoCorrente();
-       if (da == nullptr) return false;
-       return da->ataque_derrubar();
+       return entidade != nullptr && entidade->DadoCorrenteNaoNull().ataque_derrubar();
+    } },
+    { CONTROLE_DESARMAR,          [this] (const Entidade* entidade) {
+       return entidade != nullptr && entidade->DadoCorrenteNaoNull().ataque_desarmar();
     } },
     { CONTROLE_ACAO,              [this] (const Entidade* entidade) { return modo_clique_ != MODO_NORMAL; } },
     { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },

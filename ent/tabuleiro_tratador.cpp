@@ -3550,23 +3550,23 @@ void Tabuleiro::AlternaAtaqueDerrubar() {
     return;
   }
   ntf::Notificacao n;
-  EntidadeProto *proto = nullptr, *proto_antes = nullptr;
-  std::tie(proto_antes, proto) =
+  auto [e_antes, e_depois] =
       PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *e, &n);
-  *proto_antes->mutable_dados_ataque() = e->Proto().dados_ataque();
-  *proto->mutable_dados_ataque() = e->Proto().dados_ataque();
-  auto* da_depois = EncontraAtaque(*da, proto);
+  *e_antes->mutable_dados_ataque() = e->Proto().dados_ataque();
+  *e_depois->mutable_dados_ataque() = e->Proto().dados_ataque();
+  auto* da_depois = EncontraAtaque(*da, e_depois);
   if (da_depois == nullptr) {
     return;
   }
-  auto* da_antes = EncontraAtaque(*da, proto_antes);
+  auto* da_antes = EncontraAtaque(*da, e_antes);
   if (da_antes == nullptr) {
     return;
   }
   da_depois->set_ataque_derrubar(!da_depois->ataque_derrubar());
   da_depois->set_ataque_desarmar(false);
+  // Essa bizarrice aqui é pra setar o campo do proto independente do valor padrao.
   da_antes->set_ataque_derrubar(da_antes->ataque_derrubar());
-  da_depois->set_ataque_desarmar(da_antes->ataque_desarmar());
+  da_antes->set_ataque_desarmar(da_antes->ataque_desarmar());
   TrataNotificacao(n);
   AdicionaNotificacaoListaEventos(n);
 }
@@ -3597,6 +3597,7 @@ void Tabuleiro::AlternaAtaqueDesarmar() {
   }
   da_depois->set_ataque_desarmar(!da_depois->ataque_desarmar());
   da_depois->set_ataque_derrubar(false);
+  // Essa bizarrice aqui é pra setar o campo do proto independente do valor padrao.
   da_antes->set_ataque_desarmar(da_antes->ataque_desarmar());
   da_antes->set_ataque_derrubar(da_antes->ataque_derrubar());
   TrataNotificacao(n);
