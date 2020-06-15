@@ -3111,7 +3111,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
       da->set_multiplicador_critico(arma.multiplicador_critico());
     } else if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma) && arma.has_dano_secundario()) {
       da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano_secundario()));
-      da->set_margem_critico(arma.margem_critico_secundario());
+      da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
     } else if (arma.has_dano()) {
       da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano()));

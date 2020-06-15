@@ -147,7 +147,8 @@ message ArmaProto {
   optional ModificadorAlcance modificador_alcance = 22;
   optional int32 margem_critico = 7 [default=20];
   optional int32 multiplicador_critico = 11 [default=2];
-  optional int32 margem_critico_secundario = 12 [default=20];
+  //optional int32 margem_critico_secundario = 12 [default=20];
+  reserved 12;
   optional int32 multiplicador_critico_secundario = 13 [default=2];
   // Maximo modificador de forca permitido pela arma (valido para arcos).
   optional int32 max_forca = 14;
