@@ -6653,12 +6653,11 @@ modelo {
     info_classes { id: 'ranger' nivel: 9 }
 
     # Espadas.
-    dados_ataque { grupo: '2 Armas' id_arma: 'picareta_pesada' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
-    dados_ataque { grupo: '2 Armas' id_arma: 'picareta_pesada' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
-    dados_ataque { grupo: '2 Armas' rotulo: 'picareta_leve' id_arma: 'picareta_leve' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
-    dados_ataque { grupo: '2 Armas com Chicote' rotulo: 'chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_MAO_BOA bonus_magico: 1 }
-    dados_ataque { grupo: '2 Armas com Chicote' rotulo: 'chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_MAO_BOA bonus_magico: 1 ordem_ataque: 1 }
-    dados_ataque { grupo : '2 Armas com Chicote' rotulo: 'picareta_leve' id_arma: 'picareta_leve' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
+    dados_ataque { grupo: 'Chicote' rotulo: 'chicote' id_arma: 'chicote' ataque_desarmar: true empunhadura: EA_2_MAOS bonus_magico: 1 }
+    dados_ataque { grupo: 'Chicote' rotulo: 'chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_2_MAOS bonus_magico: 1 ordem_ataque: 1 }
     # Arco.
     dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true }
     dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true ordem_ataque: 1 }
@@ -6705,10 +6704,10 @@ modelo {
     # Talentos.
     info_talentos {
       # ja ganha rastrear da classe.
-      gerais { id: 'investida_furiosa' } # 1
+      gerais { id: 'usar_arma_exotica' complemento: 'espada_de_duas_laminas' } # 1
       gerais { id: 'bloqueio_ambidestro' } # 3
       gerais { id: 'esquiva' } # 6
-      gerais { id: 'sucesso_decisivo_aprimorado' complemento: 'picareta_pesada' } # 9
+      gerais { id: 'sucesso_decisivo_aprimorado' complemento: 'espada_de_duas_laminas' } # 9
       # Humano.
       outros { id: 'usar_arma_exotica' complemento: 'chicote' origem: 'humano' } # 1
       # Ranger.
@@ -6718,8 +6717,7 @@ modelo {
     }
     tesouro {
       armas { id: 'chicote' bonus_magico: 1 }
-      armas { id: 'picareta_pesada' bonus_magico: 1 }
-      armas { id: 'picareta_leve' bonus_magico: 1 }
+      armas { id: 'espada_de_duas_laminas' bonus_magico: 1 bonus_magico_secundario: 1 }
       armas { id: 'arco_longo_composto_3' obra_prima: true }
       armaduras { id: 'couro_batido' bonus_magico: 1 }
       pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
@@ -6734,7 +6732,7 @@ modelo {
       itens_mundanos { id: 'corda_canhamo' }  # 1
       pocoes { id: 'abencoar_arma' }  # 100
       pocoes { id: 'curar_ferimentos_serios' }  # 750
-      pocoes { id: 'lamina_afiada' }  # 750
+      pocoes { id: 'curar_ferimentos_serios' }  # 750
       pocoes { id: 'pele_arvore_2' }  # 300
       pocoes { id: 'forca_touro' }  # 300
       pocoes { id: 'protecao_contra_mal' }  # 50

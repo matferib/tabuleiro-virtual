@@ -3166,10 +3166,10 @@ tabela_pocoes {
   pocoes {
     id: 'abencoar_arma'
     nome: 'Abençoar Arma'
-    duracao_rodadas: 2
-    tipo_efeito: EFEITO_OUTRO
-    descricao: 'Arma equivale a +1 para redução de dano e alinha como boa'
-    custo_po: 50
+    duracao_rodadas: 10
+    tipo_efeito: EFEITO_ABENCOAR_ARMA
+    descricao: 'Arma equivale a +1 para redução de dano e alinha como boa, confirma críticos contra mal.'
+    custo_po: 100
   }
   pocoes {
     id: 'velocidade'
@@ -6006,7 +6006,7 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
-    id: 'abencoar_agura'
+    id: 'abencoar_agua'
     nome: 'abençoar água'
     nome_ingles: 'bless water'
     tempo_execucao_rodadas: 10
@@ -6029,7 +6029,26 @@ tabela_feiticos {
     }
     escola: 'transmutacao'
   }
-
+  armas {
+    id: 'abencoar_arma'
+    nome: 'abençoar arma'
+    nome_ingles: 'bless weapon'
+    componente {
+      material: false
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque Aliado'
+      efeitos_adicionais {
+        efeito: EFEITO_ABENCOAR_ARMA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
   armas {
     id: 'voo'
     nome: 'vôo'
@@ -14307,6 +14326,47 @@ tabela_feiticos {
       dv_mais_alto: 4
       total_dv: 4
       mais_fracos_primeiro: true
+      elemento: DESC_MENTAL
+      efeitos_adicionais {
+        efeito: EFEITO_SONO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
+  armas {
+    id: 'sono_profundo'
+    nome: 'sono profundo'
+    nome_ingles: 'deep slumber'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 2  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_sleep.png'
+      duracao_s: 0.350
+      ignora_luz: false
+      # Mais modificador de conjurador.
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      ignora_reducao_dano_barbaro: true
+      resultado_ao_salvar: RS_ANULOU
+      dv_mais_alto: 10
+      total_dv: 10
+      mais_fracos_primeiro: true
+      elemento: DESC_MENTAL
       efeitos_adicionais {
         efeito: EFEITO_SONO
         modificador_rodadas: MR_MINUTOS_NIVEL
