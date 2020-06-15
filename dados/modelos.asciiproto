@@ -6655,10 +6655,10 @@ modelo {
     # Espadas.
     dados_ataque { grupo: '2 Armas' id_arma: 'picareta_pesada' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
     dados_ataque { grupo: '2 Armas' id_arma: 'picareta_pesada' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
-    dados_ataque { grupo: '2 Armas' id_arma: 'picareta_leve' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
-    dados_ataque { grupo: '2 Armas com Chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_MAO_BOA bonus_magico: 1 }
-    dados_ataque { grupo: '2 Armas com Chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_MAO_BOA bonus_magico: 1 ordem_ataque: 1 }
-    dados_ataque { grupo : '2 Armas com Chicote' id_arma: 'picareta_leve' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'picareta_leve' id_arma: 'picareta_leve' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
+    dados_ataque { grupo: '2 Armas com Chicote' rotulo: 'chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_MAO_BOA bonus_magico: 1 }
+    dados_ataque { grupo: '2 Armas com Chicote' rotulo: 'chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_MAO_BOA bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { grupo : '2 Armas com Chicote' rotulo: 'picareta_leve' id_arma: 'picareta_leve' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
     # Arco.
     dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true }
     dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true ordem_ataque: 1 }
