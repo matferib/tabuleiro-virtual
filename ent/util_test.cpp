@@ -4359,7 +4359,7 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
 
 TEST(TesteModelo, TesteRanger9) {
   // Forca 16, +3.
-  // Destreza 15, +2.
+  // Destreza 12, +1.
   auto modelo = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas");
   auto ranger = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
   ASSERT_EQ(ranger->NivelClasse("ranger"), 9);
@@ -4375,8 +4375,8 @@ TEST(TesteModelo, TesteRanger9) {
     EXPECT_EQ(da.dano(), "1d8+4");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
-    // 4+1 camisao magico, 2 des, 1 bloqueio ambidestro.
-    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    // 4+1 camisao magico, 1 des.
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+1) << ranger->Proto().dados_defesa().ca().DebugString();
     EXPECT_EQ(da.margem_critico(), 17);
   }
   {
@@ -4386,8 +4386,8 @@ TEST(TesteModelo, TesteRanger9) {
     EXPECT_EQ(da.dano(), "1d8+4");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
-    // 4+1 camisao magico, 2 des, 1 bloqueio ambidestro.
-    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    // 4+1 camisao magico, 1 des.
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+1) << ranger->Proto().dados_defesa().ca().DebugString();
     EXPECT_EQ(da.margem_critico(), 17);
   }
   {
@@ -4397,20 +4397,20 @@ TEST(TesteModelo, TesteRanger9) {
     EXPECT_EQ(da.dano(), "1d8+2");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
-    // 4+1 camisao magico, 2 des, 1 bloqueio ambidestro.
-    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    // 4+1 camisao magico, 1 des.
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+1) << ranger->Proto().dados_defesa().ca().DebugString();
     EXPECT_EQ(da.margem_critico(), 17);
   }
   {
     const auto& da = DadosAtaquePorGrupo("Arco", ranger->Proto());
-    // 9 bab, 2 des, 1 OP.
-    EXPECT_EQ(da.bonus_ataque_final(), 9+2+1);
+    // 9 bab, 1 des, 1 OP.
+    EXPECT_EQ(da.bonus_ataque_final(), 9+1+1);
     EXPECT_EQ(da.dano(), "1d8+3");
     EXPECT_FLOAT_EQ(da.alcance_m(), 33);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
-    // 4+1 camisao magico, 2 des.
+    // 4+1 camisao magico, 1 des.
     ranger->AtualizaAcaoPorGrupo("Arco");
-    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2) << ranger->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+1) << ranger->Proto().dados_defesa().ca().DebugString();
   }
 }
 
