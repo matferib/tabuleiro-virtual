@@ -81,7 +81,7 @@ void Principal::Executa() {
   // maximiza janela
   //QDesktopWidget* qdw = QApplication::desktop();
   //setGeometry(qdw->screenGeometry());
-  setGeometry(QRect(100, 100, 800, 600));
+  setGeometry(QRect(100, 100, 1024, 768));
 
   // layout grid com o menu, barra de ferramentas e o tabuleiro
   QLayout* ql = new QGridLayout;
