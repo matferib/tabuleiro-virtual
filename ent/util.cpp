@@ -6313,7 +6313,8 @@ ntf::Notificacao PreencheNotificacaoDefesaTotal(bool ativar, const EntidadeProto
 }
 
 namespace {
-void PreencheEntidadeLutarDefensivamente(bool ativar, const EntidadeProto& proto, EntidadeProto* proto_ntf) {
+void PreencheEntidadeLutarDefensivamente(bool ativar, const Entidade& entidade, EntidadeProto* proto_ntf) {
+  const auto& proto = entidade.Proto();
   proto_ntf->set_id(proto.id());
   auto* ca = proto_ntf->mutable_dados_defesa()->mutable_ca();
   *proto_ntf->mutable_dados_ataque() = proto.dados_ataque();
@@ -6322,14 +6323,16 @@ void PreencheEntidadeLutarDefensivamente(bool ativar, const EntidadeProto& proto
     int penalidade_ataque = -4;
     auto* t = Talento("especializacao_em_combate", proto);
     if (t != nullptr) {
-      penalidade_ataque = 2;
+      // Se tiver complemento, respeita ate o limite de 5.
       if (t->has_complemento()) {
         int complemento = atoi(t->complemento().c_str());
-        if (complemento > 0 && complemento <= 5) {
-          bonus_defesa = complemento;
-          penalidade_ataque = -complemento;
+        if (complemento > 0) {
+          bonus_defesa = std::min(complemento, 5);
         }
       }
+      // Respeita o limite de BBA. Se nao teve complemento, vai usar o valor padrao.
+      bonus_defesa = std::min(bonus_defesa, entidade.BonusBaseAtaque());
+      penalidade_ataque = -bonus_defesa;
     }
     // Entra em luta defensiva (exclui defesa total).
     AtribuiBonus(bonus_defesa, TB_ESQUIVA, "luta_defensiva", ca);
@@ -6347,11 +6350,11 @@ void PreencheEntidadeLutarDefensivamente(bool ativar, const EntidadeProto& proto
 }
 }  // namespace
 
-ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const EntidadeProto& proto) {
+ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entidade& entidade) {
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-  PreencheEntidadeLutarDefensivamente(ativar, proto, n.mutable_entidade());
-  PreencheEntidadeLutarDefensivamente(!ativar, proto, n.mutable_entidade_antes());
+  PreencheEntidadeLutarDefensivamente(ativar, entidade, n.mutable_entidade());
+  PreencheEntidadeLutarDefensivamente(!ativar, entidade, n.mutable_entidade_antes());
   return n;
 }
 

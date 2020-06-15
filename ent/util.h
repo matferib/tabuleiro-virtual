@@ -483,7 +483,7 @@ void PreencheNotificacaoObjetoDesviado(bool valor, const Entidade& entidade, ntf
 // Preenche a notificacao para entidade entrar em defesa total (aumenta CA, nao pode atacar).
 ntf::Notificacao PreencheNotificacaoDefesaTotal(bool ativar, const EntidadeProto& proto);
 // Preenche a notificacao para entidade entrar em luta defensiva (aumenta CA, ataque com penalidade).
-ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const EntidadeProto& proto);
+ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entidade& entidade);
 
 // Alguns efeitos valem ate a proxima salvacao. Cria uma notificacao para expira-los.
 // Caso nao haja eventos assim, retorna uma notificacao defaul (vazia).

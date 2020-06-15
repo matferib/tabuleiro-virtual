@@ -8197,7 +8197,7 @@ void Tabuleiro::AlternaDefesaTotal() {
 void Tabuleiro::AlternaLutaDefensiva() {
   Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
   if (entidade == nullptr) return;
-  ntf::Notificacao n = PreencheNotificacaoLutarDefensivamente(!LutandoDefensivamente(entidade->Proto()), entidade->Proto());
+  ntf::Notificacao n = PreencheNotificacaoLutarDefensivamente(!LutandoDefensivamente(entidade->Proto()), *entidade);
   // Vai notificar remoto.
   TrataNotificacao(n);
   // Desfazer.

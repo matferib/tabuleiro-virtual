@@ -980,12 +980,135 @@ TEST(TesteCA, TesteLutaDefensiva) {
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
-  auto n = PreencheNotificacaoLutarDefensivamente(true, e->Proto());
+  auto n = PreencheNotificacaoLutarDefensivamente(true, *e);
   e->AtualizaParcial(n.entidade());
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 12);
   EXPECT_FALSE(e->Proto().dados_ataque().empty());
   for (const auto& da : e->Proto().dados_ataque()) {
     EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), -4) << ", da: " << da.DebugString();
+  }
+  e->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), 0) << ", da: " << da.DebugString();
+  }
+}
+
+TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombate) {
+  std::unique_ptr<Entidade> e;
+  {
+    EntidadeProto proto;
+    AtribuiBaseAtributo(13, TA_INTELIGENCIA, &proto);
+    auto* ic = proto.add_info_classes();
+    ic->set_id("guerreiro");
+    ic->set_nivel(2);
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("fogo_alquimico");
+    auto* t = proto.mutable_info_talentos()->add_outros();
+    t->set_id("especializacao_em_combate");
+    t->set_complemento("4");
+    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  auto n = PreencheNotificacaoLutarDefensivamente(true, *e);
+  e->AtualizaParcial(n.entidade());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 12);
+  EXPECT_FALSE(e->Proto().dados_ataque().empty());
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), -2) << ", da: " << da.DebugString();
+  }
+  e->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), 0) << ", da: " << da.DebugString();
+  }
+}
+
+TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombateSemComplementos) {
+  std::unique_ptr<Entidade> e;
+  {
+    EntidadeProto proto;
+    AtribuiBaseAtributo(13, TA_INTELIGENCIA, &proto);
+    auto* ic = proto.add_info_classes();
+    ic->set_id("guerreiro");
+    ic->set_nivel(3);
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("fogo_alquimico");
+    auto* t = proto.mutable_info_talentos()->add_outros();
+    t->set_id("especializacao_em_combate");
+    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  auto n = PreencheNotificacaoLutarDefensivamente(true, *e);
+  e->AtualizaParcial(n.entidade());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 12);
+  EXPECT_FALSE(e->Proto().dados_ataque().empty());
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), -2) << ", da: " << da.DebugString();
+  }
+  e->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), 0) << ", da: " << da.DebugString();
+  }
+}
+
+TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombateComplementoMaiorQueBba) {
+  std::unique_ptr<Entidade> e;
+  {
+    EntidadeProto proto;
+    AtribuiBaseAtributo(13, TA_INTELIGENCIA, &proto);
+    auto* ic = proto.add_info_classes();
+    ic->set_id("guerreiro");
+    ic->set_nivel(3);
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("fogo_alquimico");
+    auto* t = proto.mutable_info_talentos()->add_outros();
+    t->set_id("especializacao_em_combate");
+    t->set_complemento("4");
+    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  auto n = PreencheNotificacaoLutarDefensivamente(true, *e);
+  e->AtualizaParcial(n.entidade());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 13);
+  EXPECT_FALSE(e->Proto().dados_ataque().empty());
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), -3) << ", da: " << da.DebugString();
+  }
+  e->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), 0) << ", da: " << da.DebugString();
+  }
+}
+
+TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombateComplementoMaiorQue5) {
+  std::unique_ptr<Entidade> e;
+  {
+    EntidadeProto proto;
+    AtribuiBaseAtributo(13, TA_INTELIGENCIA, &proto);
+    auto* ic = proto.add_info_classes();
+    ic->set_id("guerreiro");
+    ic->set_nivel(10);
+    auto* da = proto.add_dados_ataque();
+    da->set_id_arma("fogo_alquimico");
+    auto* t = proto.mutable_info_talentos()->add_outros();
+    t->set_id("especializacao_em_combate");
+    t->set_complemento("6");
+    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+  }
+
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
+  auto n = PreencheNotificacaoLutarDefensivamente(true, *e);
+  e->AtualizaParcial(n.entidade());
+  EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 15);
+  EXPECT_FALSE(e->Proto().dados_ataque().empty());
+  for (const auto& da : e->Proto().dados_ataque()) {
+    EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "luta_defensiva", da.bonus_ataque()), -5) << ", da: " << da.DebugString();
   }
   e->AtualizaParcial(n.entidade_antes());
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1010,7 +1133,7 @@ TEST(TesteCA, TesteLutaDefensivaComAcrobacias) {
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
-  auto n = PreencheNotificacaoLutarDefensivamente(true, e->Proto());
+  auto n = PreencheNotificacaoLutarDefensivamente(true, *e);
   e->AtualizaParcial(n.entidade());
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 13);
   EXPECT_FALSE(e->Proto().dados_ataque().empty());
