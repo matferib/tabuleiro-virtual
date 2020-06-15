@@ -6648,7 +6648,7 @@ modelo {
     rotulo: 'Ranger 9'
     raca: 'humano'
     tendencia { simples: TD_NORMALMENTE_NEUTRO }
-    dados_vida: '8d8+8+9'
+    dados_vida: '8d8+8+18'
     info_textura { id: 'ranger.png' largura: 0.5 translacao_x: 0.25 }
     info_classes { id: 'ranger' nivel: 9 }
 
@@ -6672,18 +6672,24 @@ modelo {
     atributos {
       # Usa o array elite 15 14 13 12 10 8
       forca {
-        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } }
-        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
         bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
       }
       destreza {
-        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }  # para bloqueio ambidestro.
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } }
       }
       constituicao {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } }
+      }
+      inteligencia {
+        # Pre requisito de talento especializacao em combate.
         bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } }
       }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual {
+        tipo: TB_BASE por_origem { origem: 'base' valor: 10 } }
+        # Para poder soltar magia nivel 1.
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
     # Pericias: 24+48+4+8=84, max 12 (7 pericias)
@@ -6705,11 +6711,11 @@ modelo {
     info_talentos {
       # ja ganha rastrear da classe.
       gerais { id: 'usar_arma_exotica' complemento: 'espada_de_duas_laminas' } # 1
-      gerais { id: 'bloqueio_ambidestro' } # 3
+      gerais { id: 'desarme_aprimorado' } # 3
       gerais { id: 'esquiva' } # 6
       gerais { id: 'sucesso_decisivo_aprimorado' complemento: 'espada_de_duas_laminas' } # 9
       # Humano.
-      outros { id: 'usar_arma_exotica' complemento: 'chicote' origem: 'humano' } # 1
+      outros { id: 'especializacao_em_combate' origem: 'humano' } # 1
       # Ranger.
       outros { id: 'combater_duas_armas' origem: 'ranger' } # 2: estilo duas armas.
       outros { id: 'tolerancia' origem: 'ranger' } # 3: todo ranger.
