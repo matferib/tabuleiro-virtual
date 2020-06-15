@@ -6645,6 +6645,7 @@ modelo {
 modelo {
   id: 'Humana Ranger 9 Duas Armas'
   entidade {
+    rotulo: 'Ranger 9'
     raca: 'humano'
     tendencia { simples: TD_NORMALMENTE_NEUTRO }
     dados_vida: '8d8+8+9'
