@@ -190,6 +190,20 @@ std::vector<DadosAtaque*> DadosAtaqueNaturais(const Tabelas& tabelas, EntidadePr
   return das;
 }
 
+std::vector<const DadosAtaque*> DadosAtaqueLaminaAfiada(const Tabelas& tabelas, const EntidadeProto& proto) {
+  std::vector<const DadosAtaque*> das;
+  for (auto& da : proto.dados_ataque()) {
+    if (da.id_arma().empty()) continue;
+    if (AtaqueNatural(tabelas, da)) continue;
+    const auto& arma = tabelas.Arma(da.id_arma());
+    if (!PossuiCategoria(CAT_ARMA, arma)) continue;
+    if (c_none(arma.tipo_dano(), TD_CORTANTE) && c_none(arma.tipo_dano(), TD_PERFURANTE)) continue;
+    if (PossuiTalento("sucesso_decisivo_aprimorado", da.id_arma(), proto)) continue;
+    das.push_back(&da);
+  }
+  return das;
+}
+
 std::vector<DadosAtaque*> DadosAtaqueNaturaisPorRotulo(const Tabelas& tabelas, const std::string& rotulo, EntidadeProto* proto) {
   auto das = DadosAtaquePorRotulo(rotulo, proto);
   std::vector<DadosAtaque*> das_ret;
@@ -743,10 +757,18 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
     }
     break;
     case EFEITO_LAMINA_AFIADA: {
-      if (!evento->complementos_str().empty()) return false;
+      if (evento->complementos_str().empty()) {
+        std::vector<const DadosAtaque*> das = DadosAtaqueLaminaAfiada(tabelas, *proto);
+        if (!das.empty()) {
+          evento->add_complementos_str(das[0]->rotulo());
+          LOG(INFO) << "aplicando em: " << das[0]->rotulo();
+        } else {
+          LOG(INFO) << "entidade sem ataques para lamina afiada";
+          break;
+        }
+      }
     }
     break;
-
     case EFEITO_ARMA_MAGICA: {
       if (evento->complementos_str().empty()) return false;
       int valor = 1;
@@ -3096,14 +3118,12 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
     }
-    // TODO o efeito de lamina afiada se aplica a uma arma. Aqui to robando, usando id arma. Se for uma arma diferente com o mesmo id
-    // vai dar errado (por exemplo, duas espadas iguais).
+    *da->mutable_tipo_ataque_fisico() = TiposDanoParaAtaqueFisico(arma.tipo_dano());
     if (PossuiTalento("sucesso_decisivo_aprimorado", da->id_arma(), proto) ||
         (PossuiEvento(EFEITO_LAMINA_AFIADA, da->rotulo(), proto) &&
-         (c_any(da->descritores(), DESC_CORTANTE) || c_any(da->descritores(), DESC_PERFURANTE)))) {
+         (c_any(arma.tipo_dano(), TD_CORTANTE) || c_any(arma.tipo_dano(), TD_PERFURANTE)))) {
       DobraMargemCritico(da);
     }
-    *da->mutable_tipo_ataque_fisico() = TiposDanoParaAtaqueFisico(arma.tipo_dano());
   } else if (da->ataque_agarrar() && !da->has_dano_basico_medio_natural()) {
     int nivel_monge = Nivel("monge", proto);
     if (nivel_monge > 0) {

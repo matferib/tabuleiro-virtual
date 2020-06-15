@@ -225,6 +225,24 @@ TEST(TesteArmas, TesteEspadaLaminaAfiada) {
   EXPECT_EQ(proto.dados_ataque(1).margem_critico(), 19);
 }
 
+TEST(TesteArmas, TesteLaminaAfiadaAutomatico) {
+  auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_LAMINA_AFIADA);
+  evento->set_rodadas(1);
+  auto ranger = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Ja tem por talento na picareta.
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 0);
+    EXPECT_EQ(da.margem_critico(), 19);
+  }
+  {
+    // Essa vai pelo efeito.
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 2);
+    EXPECT_EQ(da.margem_critico(), 19) << da.rotulo();
+  }
+}
+
 TEST(TesteArmas, TesteArmaAbencoadaComPorrete) {
   EntidadeProto proto;
   {
