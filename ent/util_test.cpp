@@ -226,21 +226,13 @@ TEST(TesteArmas, TesteEspadaLaminaAfiada) {
 }
 
 TEST(TesteArmas, TesteLaminaAfiadaAutomatico) {
-  auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_LAMINA_AFIADA);
   evento->set_rodadas(1);
-  auto ranger = NovaEntidadeParaTestes(proto, g_tabelas);
-  {
-    // Ja tem por talento na picareta.
-    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 0);
-    EXPECT_EQ(da.margem_critico(), 19);
-  }
-  {
-    // Essa vai pelo efeito.
-    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 2);
-    EXPECT_EQ(da.margem_critico(), 19) << da.rotulo();
-  }
+  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  const auto& da = DadosAtaquePorGrupo("ataque_total_machado", orc->Proto(), 0);
+  EXPECT_EQ(da.margem_critico(), 19);
 }
 
 TEST(TesteArmas, TesteArmaAbencoadaComPorrete) {
@@ -4257,31 +4249,34 @@ TEST(TesteModelo, TesteRanger9) {
     const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 0);
     // 9 bab, 3 forca, 1 arma magica, -2 duas armas segunda leve.
     EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2);
-    EXPECT_EQ(da.dano(), "1d6+4");
+    EXPECT_EQ(da.dano(), "1d8+4");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
     // 4+1 camisao magico, 2 des, 1 bloqueio ambidestro.
     EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.margem_critico(), 17);
   }
   {
     const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 1);
     // 9 bab, 3 forca, 1 arma magica, -2 duas armas segunda leve, segundo ataque.
     EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2-5);
-    EXPECT_EQ(da.dano(), "1d6+4");
+    EXPECT_EQ(da.dano(), "1d8+4");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
     // 4+1 camisao magico, 2 des, 1 bloqueio ambidestro.
     EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.margem_critico(), 17);
   }
   {
     const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 2);
     // 9 bab, 3 forca, 1 arma magica, -2 duas armas segunda leve, mão ruim.
     EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2);
-    EXPECT_EQ(da.dano(), "1d4+2");
+    EXPECT_EQ(da.dano(), "1d8+2");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
     // 4+1 camisao magico, 2 des, 1 bloqueio ambidestro.
     EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+2+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.margem_critico(), 17);
   }
   {
     const auto& da = DadosAtaquePorGrupo("Arco", ranger->Proto());
