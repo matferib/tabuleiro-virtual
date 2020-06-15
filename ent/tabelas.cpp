@@ -303,9 +303,6 @@ void Tabelas::RecarregaMapas() {
     if (c_any_of(arma.categoria(), [](int c) { return c == CAT_ARCO || c == CAT_ARREMESSO; })) {
       arma.add_categoria(CAT_DISTANCIA);
     }
-    if (c_any_of(arma.categoria(), [](int c) { return c == CAT_ARMA_DUPLA; })) {
-      arma.add_categoria(CAT_DUAS_MAOS);
-    }
     // seta os tipos de acoes.
     if (!arma.acao().has_id()) {
       if (c_any(arma.categoria(), CAT_PROJETIL_AREA)) {

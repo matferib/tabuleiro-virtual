@@ -324,6 +324,7 @@ modelo {
 }
 modelo {
   id: 'Águia Celestial'
+  id_entidade_base: 'Águia'
   entidade {
     modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
     tendencia { simples: TD_CAOTICO_BOM }

@@ -6086,12 +6086,82 @@ TEST(TesteAtaqueVsDefesa, TesteCritico) {
   evento->set_id_efeito(EFEITO_ABENCOAR_ARMA);
   evento->add_complementos_str("machado_grande");
   auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
-  g_dados_teste.push(20);
-  // Nao usado, critico automatico.
-  g_dados_teste.push(1);
-  ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *orc, Posicao::default_instance(), /*ataque_oportunidade=*/false);
-  EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
-  EXPECT_EQ(resultado.vezes, 3) << resultado.texto;
+  auto aguia_celestial = NovaEntidadeParaTestes(g_tabelas.ModeloEntidade("Águia Celestial").entidade(), g_tabelas);
+  {
+    g_dados_teste.push(20);
+    ResultadoAtaqueVsDefesa resultado =
+        AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *orc, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+    EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+    EXPECT_EQ(resultado.vezes, 3) << resultado.texto;
+  }
+  {
+    // Este caso é interessante pq o 1 pegaria, entao cobre o caso de verificacao de 1 no critico.
+    // Nao pega automatico por causa de alinhamento.
+    g_dados_teste.push(20);
+    g_dados_teste.push(1);
+    ResultadoAtaqueVsDefesa resultado =
+        AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *aguia_celestial, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+    EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+    EXPECT_EQ(resultado.vezes, 1) << resultado.texto;
+  }
+}
+
+TEST(TesteAtaqueVsDefesa, TesteDesarmar) {
+  DadosAtaque da_ataque;
+  da_ataque.set_bonus_ataque_final(12);
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
+  da->set_ataque_desarmar(true);
+  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    g_dados_teste.push(10);
+    g_dados_teste.push(10);
+    ResultadoAtaqueVsDefesa resultado =
+        AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orca->Proto()).acao(), *orca, *orcd, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+    EXPECT_FALSE(resultado.Sucesso()) << resultado.texto;
+  }
+  {
+    // Defesa primeiro.
+    g_dados_teste.push(9);
+    g_dados_teste.push(10);
+    ResultadoAtaqueVsDefesa resultado =
+        AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orca->Proto()).acao(), *orca, *orcd, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+    EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+  }
+}
+
+TEST(TesteAtaqueVsDefesa, TesteDesarmar2) {
+  DadosAtaque da_ataque;
+  da_ataque.set_bonus_ataque_final(12);
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
+  da->set_ataque_desarmar(true);
+  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+
+  proto.set_tamanho(TM_GRANDE);  // +4.
+  auto* dam = DadosAtaquePorGrupoOuCria("mangual_pesado", &proto);  // +2.
+  dam->set_id_arma("mangual_pesado");
+  proto.set_ultimo_grupo_acao("mangual_pesado");
+  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+
+  {
+    // Defesa primeiro. Nao tem foco em mangual.
+    // +7 bab, +5 for, -1 tam, +4 duas mãos, +2 mangual = 17.
+    g_dados_teste.push(10);
+    // +7 bab, +5 for, +1 foco, +4 duas mãos, +1 magico, -4 dif tamanho = 14.
+    g_dados_teste.push(13);
+    ResultadoAtaqueVsDefesa resultado =
+        AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orca->Proto()).acao(), *orca, *orcd, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+    EXPECT_FALSE(resultado.Sucesso()) << resultado.texto;
+  }
+  {
+    g_dados_teste.push(10);
+    g_dados_teste.push(14);
+    ResultadoAtaqueVsDefesa resultado =
+        AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orca->Proto()).acao(), *orca, *orcd, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+    EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+  }
 }
 
 }  // namespace ent.

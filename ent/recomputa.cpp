@@ -2708,6 +2708,9 @@ void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, con
     da->set_ataque_distancia(true);
     da->set_ataque_arremesso(true);
   }
+  if (PossuiCategoria(CAT_DUAS_MAOS, arma)) {
+    da->set_empunhadura(EA_2_MAOS);
+  }
 
   if (arma.has_modelo_dano()) {
     // Computa o dano basico fixo (independente de tamanho).
