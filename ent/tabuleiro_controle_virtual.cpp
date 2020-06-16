@@ -1263,7 +1263,7 @@ void Tabuleiro::DesenhaIniciativas() {
   largura_fonte *= escala;
   altura_fonte *= escala;
   raster_y = altura_ - (altura_fonte * 3);  // deixa a linha livre pra nao baguncar acoes.
-  raster_x = (opcoes_.mostra_fps() ? largura_fonte  * 9 : 0) + 2;
+  raster_x = (largura_fonte  * 9) + 2;
   PosicionaRaster2d(raster_x, raster_y);
 
   const unsigned int indice_corrigido = static_cast<unsigned int>(indice_iniciativa_) < iniciativas_.size() ? indice_iniciativa_ : iniciativas_.size() - 1;
