@@ -4402,7 +4402,7 @@ TEST(TesteModelo, TesteRanger9) {
   auto modelo = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas");
   auto ranger = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
   ASSERT_EQ(ranger->NivelClasse("ranger"), 9);
-  EXPECT_EQ(FeiticosNivel("ranger", 1, ranger->Proto()).conhecidos().size(), 2);
+  EXPECT_EQ(FeiticosNivel("ranger", 1, ranger->Proto()).conhecidos().size(), 1);
   for (const auto& c : FeiticosNivel("ranger", 1, ranger->Proto()).conhecidos()) {
     EXPECT_FALSE(c.id().empty());
     EXPECT_NE(c.id(), "auto");
