@@ -1047,6 +1047,7 @@ tabela_armas {
       som_inicial: 'whip.wav'
       som_sucesso: 'whip_hit.wav'
       som_fracasso: ''
+      icone: 'icon_whip.png'
     }
     # TODO nao da dano se alvo tiver armadura.
   }
