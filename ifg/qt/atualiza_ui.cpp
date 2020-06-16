@@ -873,7 +873,7 @@ void AtualizaFeiticosParaLancarNivel(
   int slot = 0;
   VLOG(1)
       << "Para lancar nivel: " << nivel << ", qde: " << feiticos_nivel.para_lancar().size()
-      << ", proto: " << proto.feiticos_classes(0).DebugString();
+      << ", proto: " << feiticos_nivel.DebugString();
   for (const auto& para_lancar : feiticos_nivel.para_lancar()) {
     AdicionaItemFeiticoParaLancar(tabelas, gerador, id_classe, nivel, slot++, para_lancar, proto, pai);
     gerador.arvore_feiticos->blockSignals(true);
@@ -885,10 +885,14 @@ void AtualizaFeiticosClasse(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
     const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
-  for (const auto& [nivel, fn] : ent::FeiticosClasse(id_classe, proto).mapa_feiticos_por_nivel()) {
-    VLOG(1) << "compilador feliz: " << fn.nivel();
+  for (int i = 0; i <= 9; ++i) {
+    auto it = ent::FeiticosClasse(id_classe, proto).mapa_feiticos_por_nivel().find(i);
+    if (it == ent::FeiticosClasse(id_classe, proto).mapa_feiticos_por_nivel().end()) continue;
+    const auto& [nivel, fn] = *it;
+    VLOG(1) << "atualizando " << id_classe << " nivel: " << nivel << ", tem " << fn.conhecidos().size() << " conhecidos e " << fn.para_lancar().size() << " para lancar";
     auto* item_nivel = new QTreeWidgetItem(pai);
     item_nivel->setText(0, QString::number(nivel));
+    item_nivel->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));
     {
       auto* item_conhecidos = new ItemConhecidos(id_classe, nivel, item_nivel);
       item_conhecidos->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(RAIZ_CONHECIDO));
@@ -1000,8 +1004,10 @@ void AtualizaCombosParaLancar(
     return;
   }
   // Itera nos niveis da classe.
-  for (int nivel = 0; nivel < item_classe->childCount(); ++nivel) {
-    AtualizaCombosParaLancarDoNivel(tabelas, gerador, id_classe, nivel, proto, item_classe->child(nivel));
+  for (int i = 0; i < item_classe->childCount(); ++i) {
+    auto* item = item_classe->child(i);
+    int nivel = item->data(TCOL_NIVEL, Qt::UserRole).toInt();
+    AtualizaCombosParaLancarDoNivel(tabelas, gerador, id_classe, nivel, proto, item);
   }
 }
 
