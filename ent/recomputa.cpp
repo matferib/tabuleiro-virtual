@@ -679,6 +679,14 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
       }
     break;
     case EFEITO_ABENCOAR_ARMA: {
+      if (evento->complementos_str().empty()) {
+        if (!proto->dados_ataque().empty()) {
+          evento->add_complementos_str(proto->dados_ataque(0).rotulo());
+          VLOG(1) << "aplicando em: " << proto->dados_ataque(0).rotulo();
+        } else {
+          VLOG(1) << "entidade sem ataques para abencoar arma";
+        }
+      }
       if (evento->complementos_str().empty()) return false;
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
       for (auto* da : das) {

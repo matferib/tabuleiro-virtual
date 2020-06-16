@@ -3114,6 +3114,21 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteEfeitosAdicionaisMultiplos) {
   }
 }
 
+TEST(TesteEfeitos, TesteAbencoarArma) {
+  auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_ABENCOAR_ARMA);
+    evento->set_rodadas(1);
+    evento->set_id_unico(666);
+  }
+  auto ranger = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto* evento = AchaEvento(666, ranger->Proto());
+  ASSERT_NE(evento, nullptr);
+  ASSERT_FALSE(evento->complementos_str().empty());
+  EXPECT_EQ(evento->complementos_str(0), "espada_de_duas_laminas_mao_boa") << evento->DebugString();
+}
+
 TEST(TesteEfeitos, TesteFuriaFadiga) {
   EntidadeProto proto;
   AtribuiBaseAtributo(10, TA_FORCA, &proto);
