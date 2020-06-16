@@ -104,8 +104,9 @@ void CorrigeDadosAtaqueDeprecated(EntidadeProto* proto) {
 
 void CorrigeFeiticosPorNivelDeprecated(EntidadeProto* proto) {
   for (auto& fc : *proto->mutable_feiticos_classes()) {
-    for (int nivel = 0; nivel < fc.feiticos_por_nivel_deprecated().size(); ++nivel) {
-      auto* fnd = fc.mutable_feiticos_por_nivel_deprecated(nivel);
+    for (int i = 0; i < fc.feiticos_por_nivel_deprecated().size(); ++i) {
+      auto* fnd = fc.mutable_feiticos_por_nivel_deprecated(i);
+      int nivel = fnd->has_nivel() ? fnd->nivel() : i;
       VLOG(1) << "criando para '" << fc.id_classe() << "' nivel: " << (fnd->has_nivel() ? fnd->nivel() : nivel);
       FeiticosNivel(fc.id_classe(), fnd->has_nivel() ? fnd->nivel() : nivel, proto)->Swap(fnd);
     }
