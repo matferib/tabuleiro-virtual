@@ -4,6 +4,7 @@
 
 //#include "ent/constantes.h"
 //#define VLOG_NIVEL 1
+#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "net/servidor.h"
 #include "net/util.h"
@@ -11,6 +12,9 @@
 #include "ntf/notificacao.pb.h"
 
 namespace net {
+namespace {
+using ::google::protobuf::StringPrintf;
+}  // namespace
 
 Servidor::Servidor(Sincronizador* sincronizador, ntf::CentralNotificacoes* central) {
   sincronizador_ = sincronizador;
@@ -142,7 +146,6 @@ void Servidor::AguardaClientesProxy() {
         erro_str = "Erro recebendo mensagem do proxy: conexao fechada.";
       } else {
         erro_str = "Erro recebendo tamanho de dados do proxy: msg menor que 4.";
-        LOG(ERROR) << erro_str;
       }
       LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
       socket_proxy_->Fecha();
@@ -291,14 +294,15 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
     if (erro || (bytes_recebidos < cliente->buffer_recepcao.size())) {
       // remove o cliente.
       auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
-      std::string erro_str(std::string("Erro recebendo dados do cliente '") + cliente->id + "': ");
+      std::string erro_str;
       if (erro.ConexaoFechada()) {
-        erro_str += "Conexao fechada.";
+        erro_str = StringPrintf("Conexão fechada por cliente '%d'.", cliente->id);
+        LOG(INFO) << erro_str << ", msg: " << erro.mensagem().c_str();
       } else {
-        erro_str += ": " + erro.mensagem() + ", esperava: " + to_string((int)cliente->buffer_recepcao.size()) +
-                    ", recebi: " + to_string((int)bytes_recebidos);
+        erro_str = StringPrintf("Erro recebendo mensagem de cliente: '%d'. Erro: %s. Esperava: %d, recebi: %d",
+            cliente->id, erro.mensagem().c_str(), (int)cliente->buffer_recepcao.size(), (int)bytes_recebidos);
+        LOG(INFO) << erro_str;
       }
-      LOG(INFO) << "erro recebendo dados cliente: " << erro_str;
       n->set_erro(erro_str);
       central_->AdicionaNotificacao(n.release());
       DesconectaCliente(cliente);
