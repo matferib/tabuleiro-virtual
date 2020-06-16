@@ -6649,7 +6649,9 @@ modelo {
     raca: 'humano'
     tendencia { simples: TD_NORMALMENTE_NEUTRO }
     dados_vida: '8d8+8+18'
-    info_textura { id: 'ranger.png' largura: 0.5 translacao_x: 0.25 }
+    modelo_3d { id: 'human_female_ranger' }
+    posicao_acao { x: 0.12 y: -0.2 z: 0.9 }
+    posicao_acao_secundaria { x: 0.12 y: 0.2 z: 0.9 }
     info_classes { id: 'ranger' nivel: 9 }
 
     # Espadas.

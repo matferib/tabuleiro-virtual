@@ -3700,6 +3700,7 @@ int Rodadas(
     } else {
       // Usa o valor final do anterior.
       rodadas_base = efeito_anterior->rodadas();
+      //LOG(INFO) << "efeito_anterior: " << efeito_anterior->DebugString();
     }
   }
   if (efeito_adicional.has_dado_modificador_rodadas()) {
@@ -3782,7 +3783,7 @@ int Rodadas(
     VLOG(1) << "Calculo de rodadas, valor final: " << (rodadas_base + modificador);
     return modificador == kEfeitoContinuo ? kEfeitoContinuo : rodadas_base + modificador;
   }
-  if (efeito_adicional.has_rodadas_base()) {
+  if (efeito_adicional.has_rodadas_base() || efeito_adicional.rodadas_base_igual_efeito_anterior()) {
     VLOG(1) << "Calculo de rodadas base, valor final: " << rodadas_base;
     return rodadas_base;
   }

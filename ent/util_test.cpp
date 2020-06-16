@@ -3060,6 +3060,30 @@ TEST(TesteRodadasDinamico, TesteRodadasDinamicoDependenciaAnterior) {
   EXPECT_EQ(acao.efeitos_adicionais(2).rodadas(), acao.efeitos_adicionais(1).rodadas() + 1);
 }
 
+TEST(TesteRodadasDinamico, TesteRodadasDinamicoDependenciaAnterior2) {
+  ntf::Notificacao n;
+  EntidadeProto proto;
+  proto.set_gerar_agarrar(false);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(4);
+    ic->set_id("mago");
+  }
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+
+  proto.mutable_tesouro()->add_itens_mundanos()->set_id("bolsa_cola");
+  RecomputaDependencias(g_tabelas, &proto);
+
+  std::vector<int> ids_unicos = IdsUnicosEntidade(*alvo);
+  AcaoProto acao = DadosAtaquePorGrupo("bolsa_cola", proto).acao();
+  g_dados_teste.push(1);
+  g_dados_teste.push(1);
+  ResolveEfeitosAdicionaisVariaveis(/*nivel_conjurador=*/0, proto, *alvo, &acao);
+  ASSERT_EQ(acao.efeitos_adicionais().size(), 2) << acao.DebugString();
+  EXPECT_EQ(acao.efeitos_adicionais(0).rodadas(), 2);
+  EXPECT_EQ(acao.efeitos_adicionais(1).rodadas(), 2);
+}
+
 // Este teste simula mais ou menos a forma como os efeitos adicionais de feiticos sao aplicados.
 TEST(TesteEfeitosAdicionaisMultiplos, TesteEfeitosAdicionaisMultiplos) {
   {

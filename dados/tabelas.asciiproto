@@ -1092,6 +1092,7 @@ tabela_armas {
   }
   armas {
     id: 'espada_de_duas_laminas'
+    info_modelo_3d { id: 'two_bladed_sword' }
     nome: 'espada de duas lâminas'
     preco: '100 PO'
     dano { medio: '1d8'  }
@@ -1104,7 +1105,6 @@ tabela_armas {
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_EXOTICA
   }
-
   armas {
     id: 'machado_orc_duplo'
     nome: 'machado orc duplo'
