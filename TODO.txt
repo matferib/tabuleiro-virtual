@@ -1,3 +1,4 @@
+Como ranger ta soltando pergaminho de nivel 2 com sabedoria 11?
 Derrubar: contra ataque
 Implementar desarmar: armas que nao podem desarmar (gauntlet), natural. Colocar a arma que esta desarmado.
 Chance de falha de conjuracao (dretch conjurando dretch) e tempo de execucao.
