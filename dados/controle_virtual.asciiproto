@@ -444,6 +444,19 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
+    linha: 7
+    coluna: -3
+    id: CONTROLE_ROLAR_INICIATIVA
+    forma: FORMA_RETANGULO
+    rotulo: "R"
+    dica: "Rola iniciativas de entidades selecionadas."
+    textura: "icon_roll_initiative.png"
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    #translacao_x: -0.53
+  }
+  dados_botoes {
+    tamanho: 1
     linha: 8
     coluna: -2
     id: CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE

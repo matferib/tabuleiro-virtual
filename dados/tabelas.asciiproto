@@ -9149,11 +9149,8 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
-      ignora_resistencia_magia: true
-      permite_ataque_vs_defesa: false
-      ataque_toque: true
-      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
+      id: 'Feitiço de Toque Aliado'
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 1 }
       efeitos_adicionais {
         efeito: EFEITO_PRESA_MAGICA
         modificador_rodadas: MR_MINUTOS_NIVEL

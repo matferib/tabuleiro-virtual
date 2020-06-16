@@ -6754,8 +6754,6 @@ modelo {
       feiticos_por_nivel_deprecated {
         nivel: 1
         conhecidos { id: 'auto' }
-        conhecidos { id: 'auto' }
-        para_lancar { nivel_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 }
       }
     }
