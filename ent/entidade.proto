@@ -197,58 +197,6 @@ message EntidadeProto {
 
   repeated DadosAtaque dados_ataque = 44;
 
-  // Por enquanto, apenas para ranger.
-  message InimigoPredileto {
-    // ranger.
-    optional string classe = 1;
-    // Quantas vezes foi escolhido.
-    optional int32 vezes = 2;
-    // Qual o tipo.
-    optional TipoDnD tipo = 3;
-    // E o subtipo, se houver.
-    optional SubTipoDnD sub_tipo = 4;
-  }
-
-  // Independe de ataque especifico.
-  message DadosAtaqueGlobal {
-    optional string dano_furtivo = 1;
-    // Ver funcao ModificadorAtaque em util.
-    // Alguns bonus de ataque genericos.
-    optional bool ataque_menos_1 = 2;
-    optional bool ataque_menos_2 = 3;
-    optional bool ataque_menos_4 = 4;
-    optional bool ataque_menos_8 = 14;
-    optional bool ataque_mais_1 = 5;
-    optional bool ataque_mais_2 = 6;
-    optional bool ataque_mais_4 = 7;
-    optional bool ataque_mais_8 = 15;
-    optional bool ataque_mais_16 = 27;
-    // Dano generico.
-    optional bool dano_menos_1 = 8;
-    optional bool dano_menos_2 = 9;
-    optional bool dano_menos_4 = 10;
-    optional bool dano_menos_8 = 19;
-    optional bool dano_mais_1 = 11;
-    optional bool dano_mais_2 = 12;
-    optional bool dano_mais_4 = 13;
-    optional bool dano_mais_8 = 16;
-    optional bool dano_mais_16 = 17;
-    optional bool dano_mais_32 = 18;
-
-    // Se presente, representa a chance de falha de ataque. Um valor negativo indica que ignora
-    // a chance de falha causada pela defesa.
-    optional int32 chance_falha = 25;
-    // Algumas criaturas tem isso por serem naturalmente cegas, mas nao sao consideradas cegas.
-    optional int32 chance_falha_permanente = 31;
-    repeated InimigoPredileto inimigos_prediletos = 26;
-    // indica modo furtivo, proximo dano dara dano furtivo.
-    optional bool furtivo = 28;
-    // Expulsar/fascinar mortos vivos.
-    optional int32 maximo_expulsoes_por_dia = 29;
-    optional int32 expulsoes_realizadas = 30;
-
-    optional bool flanqueando = 32;
-  }
   optional DadosAtaqueGlobal dados_ataque_global = 73;
 
   optional DadosDefesa dados_defesa = 45;

@@ -6347,8 +6347,6 @@ TEST(TesteAtaqueVsDefesa, TesteDesarmar2) {
 }
 
 TEST(TesteAtaqueVsDefesa, TesteDesarmarContraAtaque) {
-  DadosAtaque da_ataque;
-  da_ataque.set_bonus_ataque_final(12);
   auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
   auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
   da->set_ataque_desarmar(true);
@@ -6367,6 +6365,59 @@ TEST(TesteAtaqueVsDefesa, TesteDesarmarContraAtaque) {
     EXPECT_EQ(resultado.resultado, RA_FALHA_CONTRA_ATAQUE);
   }
 
+}
+
+TEST(TesteAtaqueVsDefesa, TesteDerrubarSucesso) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
+  da->set_ataque_desarmar(true);
+  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Defesa primeiro.
+    g_dados_teste.push(10);
+    g_dados_teste.push(11);
+    ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaDerrubar(*orca, *orcd);
+    EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+  }
+}
+
+TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaNormal) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
+  da->set_ataque_desarmar(true);
+  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Defesa primeiro.
+    g_dados_teste.push(11);
+    g_dados_teste.push(10);
+    // Contra ataque.
+    g_dados_teste.push(11);
+    g_dados_teste.push(10);
+
+    ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaDerrubar(*orca, *orcd);
+    EXPECT_EQ(resultado.resultado, RA_FALHA_NORMAL) << resultado.texto;
+  }
+}
+
+TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaContraAtaque) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
+  da->set_ataque_desarmar(true);
+  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Defesa primeiro.
+    g_dados_teste.push(11);
+    g_dados_teste.push(10);
+    // Contra ataque.
+    g_dados_teste.push(10);
+    g_dados_teste.push(11);
+
+    ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaDerrubar(*orca, *orcd);
+    EXPECT_EQ(resultado.resultado, RA_FALHA_CONTRA_ATAQUE) << resultado.texto;
+  }
 }
 
 }  // namespace ent.

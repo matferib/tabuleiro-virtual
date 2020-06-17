@@ -1684,7 +1684,8 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaAgarrar(const Entidade& ea, const Entidade
   return resultado;
 }
 
-ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed) {
+namespace {
+ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed, bool eh_contra_ataque = false) {
   TamanhoEntidade tamanho_atacante = ea.Proto().tamanho();
   TamanhoEntidade tamanho_defensor = ed.Proto().tamanho();
   ResultadoAtaqueVsDefesa resultado;
@@ -1694,18 +1695,35 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidad
   }
   const int diferenca_tamanho = tamanho_atacante - tamanho_defensor;
   const int modificadores_ataque = ea.ModificadorAtributo(TA_FORCA) + 4 * diferenca_tamanho;
-  const int modificadores_defesa = std::max(ed.ModificadorAtributo(TA_FORCA), ed.ModificadorAtributo(TA_DESTREZA)) + (ea.MaisDeDuasPernas() ? 4 : 0);
-  const int dado_ataque = RolaDado(20);
+  const int modificadores_defesa =
+      std::max(ed.ModificadorAtributo(TA_FORCA), ed.ModificadorAtributo(TA_DESTREZA)) +
+      (ea.MaisDeDuasPernas() || Tabelas::Unica().Raca(ed.Proto().raca()).estabilidade() ? 4 : 0);
   const int dado_defesa = RolaDado(20);
-
+  const int dado_ataque = RolaDado(20);
   if (dado_ataque + modificadores_ataque >= dado_defesa + modificadores_defesa) {
     resultado.resultado = RA_SUCESSO;
-    resultado.texto = StringPrintf("derrubar sucesso: %d%+d >= %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
+    resultado.texto = StringPrintf("%s sucesso: %d%+d >= %d%+d",
+        (eh_contra_ataque ? "contra ataque" : "derrubar"), dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
   } else {
-    resultado.resultado = RA_FALHA_NORMAL;
-    resultado.texto = StringPrintf("derrubar falhou: %d%+d < %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
+    if (eh_contra_ataque) {
+      // Retorna o resultado do contra ataque. 
+      resultado.resultado = RA_FALHA_NORMAL;
+      resultado.texto = StringPrintf("contra ataque falhou: %d%+d < %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
+    } else {
+      // Realiza o contra ataque
+      ResultadoAtaqueVsDefesa resultado_contra_ataque = AtaqueVsDefesaDerrubar(ed, ea, /*contra_ataque=*/true);
+      resultado.resultado = resultado_contra_ataque.Sucesso() ? RA_FALHA_CONTRA_ATAQUE : RA_FALHA_NORMAL;
+      resultado.texto = StringPrintf(
+           "derrubar falhou: %d%+d < %d%+d, %s",
+           dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa, resultado_contra_ataque.texto.c_str());
+    }
   }
   return resultado;
+}
+}  // namespace
+
+ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed) {
+  return AtaqueVsDefesaDerrubar(ea, ed, false);
 }
 
 const char* NomeSalvacao(TipoSalvacao ts) {

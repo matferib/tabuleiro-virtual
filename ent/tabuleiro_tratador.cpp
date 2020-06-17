@@ -223,7 +223,7 @@ void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, fl
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
+
   if (faces_dado_ <= 0) {
     LOG(ERROR) << "Erro rolando dado: faces <= 0, " << faces_dado_ ;
     return;
@@ -2068,11 +2068,29 @@ float Tabuleiro::TrataAcaoIndividual(
         resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade_origem, *entidade_destino);
       }
       if (resultado_derrubar.Sucesso()) {
+        AdicionaLogEvento(entidade_origem->Id(), "sucesso em derrubar");
         por_entidade->set_forca_consequencia(true);
         acao_proto->set_consequencia(TC_DERRUBA_ALVO);
         // Apenas para desfazer, pois a consequencia derrubara.
         auto* nd = grupo_desfazer->add_notificacao();
         PreencheNotificacaoDerrubar(*entidade_destino, nd, nd);
+        if (entidade_origem->PossuiTalento("derrubar_aprimorado")) {
+          AdicionaAcaoTextoLogadoComDuracaoAtraso(entidade_origem->Id(), "ataque livre", 1.0f, atraso_s);
+          atraso_s += 1.0f;
+        }
+      } else if (resultado_derrubar.resultado == RA_FALHA_CONTRA_ATAQUE) {
+        AdicionaLogEvento(entidade_origem->Id(), resultado_derrubar.texto);
+        // Se origem esta usando arma no ataque, fica desarmado, senao, cai.
+        const auto& arma_tabelada = Tabelas::Unica().Arma(da.id_arma());
+        std::unique_ptr<ntf::Notificacao> n_extra(new ntf::Notificacao);
+        if (arma_tabelada.pode_derrubar() && !ArmaNatural(arma_tabelada)) {
+          PreencheNotificacaoDesarmar(
+              DadosIniciativaEntidade(entidade_origem), *entidade_origem, &ids_unicos_entidade_origem, n_extra.get(), grupo_desfazer->add_notificacao());
+        } else {
+          PreencheNotificacaoDerrubar(*entidade_origem, n_extra.get(), grupo_desfazer->add_notificacao());
+        }
+        atraso_s += 1.0f;
+        central_->AdicionaNotificacao(n_extra.release());
       }
       ConcatenaString(resultado_derrubar.texto, por_entidade->mutable_texto());
     }

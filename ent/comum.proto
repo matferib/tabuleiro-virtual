@@ -286,6 +286,8 @@ enum TipoDnD {
   // TODO outros.
 }
 
+// Atencao: os valores aqui sao usados como inteiros nos mapas dos dados em formato texto (a chave nao pode ser enum).
+// Se mudar aqui, conferir os dados todos.
 enum SubTipoDnD {
   SUBTIPO_AQUATICO = 0;
   SUBTIPO_ANAO = 1;
@@ -512,13 +514,70 @@ enum TipoEvasao {
   TE_EVASAO_APRIMORADA = 2;
 }
 
+// Por enquanto, apenas para ranger.
+message InimigoPredileto {
+  // ranger.
+  optional string classe = 1;
+  // Quantas vezes foi escolhido.
+  optional int32 vezes = 2;
+  // Qual o tipo.
+  optional TipoDnD tipo = 3;
+  // E o subtipo, se houver.
+  optional SubTipoDnD sub_tipo = 4;
+}
+
+// Independe de ataque especifico.
+message DadosAtaqueGlobal {
+  optional string dano_furtivo = 1;
+  // Ver funcao ModificadorAtaque em util.
+  // Alguns bonus de ataque genericos.
+  optional bool ataque_menos_1 = 2;
+  optional bool ataque_menos_2 = 3;
+  optional bool ataque_menos_4 = 4;
+  optional bool ataque_menos_8 = 14;
+  optional bool ataque_mais_1 = 5;
+  optional bool ataque_mais_2 = 6;
+  optional bool ataque_mais_4 = 7;
+  optional bool ataque_mais_8 = 15;
+  optional bool ataque_mais_16 = 27;
+  // Dano generico.
+  optional bool dano_menos_1 = 8;
+  optional bool dano_menos_2 = 9;
+  optional bool dano_menos_4 = 10;
+  optional bool dano_menos_8 = 19;
+  optional bool dano_mais_1 = 11;
+  optional bool dano_mais_2 = 12;
+  optional bool dano_mais_4 = 13;
+  optional bool dano_mais_8 = 16;
+  optional bool dano_mais_16 = 17;
+  optional bool dano_mais_32 = 18;
+
+  // Se presente, representa a chance de falha de ataque. Um valor negativo indica que ignora
+  // a chance de falha causada pela defesa.
+  optional int32 chance_falha = 25;
+  // Algumas criaturas tem isso por serem naturalmente cegas, mas nao sao consideradas cegas.
+  optional int32 chance_falha_permanente = 31;
+  repeated InimigoPredileto inimigos_prediletos = 26;
+  // indica modo furtivo, proximo dano dara dano furtivo.
+  optional bool furtivo = 28;
+  // Expulsar/fascinar mortos vivos.
+  optional int32 maximo_expulsoes_por_dia = 29;
+  optional int32 expulsoes_realizadas = 30;
+  optional bool flanqueando = 32;
+  // A chave deveria ser SubTipoDnD mas mapa nao aceita.
+  map<int32, Bonus> bonus_ataque_por_sub_tipo = 33;
+}
+
 // Dados de defesa global (independe de ataque).
-// Proximo id: 36.
+// Proximo id: 38.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
   optional bool imune_furtivo = 20;
   optional int32 ca_deprecated = 2 [deprecated=true];
+  // Para racas que tem bonus contra certos tipos (como anoes).
+  // A chave na verdade é TipoDnD, mas o mapa nao permite.
+  map<int32, Bonus> bonus_ca_por_tipo = 36;
   optional Bonus ca = 4;
   optional Bonus salvacao_fortitude = 5;
   optional Bonus salvacao_reflexo = 6;
@@ -548,7 +607,7 @@ message DadosDefesa {
   optional int32 resistencia_magia_racial = 27;
   optional Bonus resistencia_magia_variavel = 24;
   repeated DescritorAtaque imunidades = 17;
-  repeated DescritorAtaque vulnerabilidades = 36;
+  repeated DescritorAtaque vulnerabilidades = 37;
   // Recomputado.
   repeated TipoEfeito imunidade_efeitos = 34;
   // Para monstros usarem.

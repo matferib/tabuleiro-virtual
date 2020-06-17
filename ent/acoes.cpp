@@ -956,6 +956,11 @@ class AcaoCorpoCorpo : public Acao {
     }
   }
 
+  bool AcaoPerfurante(const ArmaProto& arma_tabelada) {
+    if (arma_tabelada.has_tipo_movimento_acao()) return arma_tabelada.tipo_movimento_acao() == TD_PERFURANTE;
+    return arma_tabelada.tipo_dano().size() == 1 && arma_tabelada.tipo_dano(0) == TD_PERFURANTE;
+  }
+
   void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (eo == nullptr) {
@@ -976,7 +981,7 @@ class AcaoCorpoCorpo : public Acao {
     }
 
     const auto& arma_tabelada = tabelas_.Arma(dados_ataque_.id_arma());
-    if (arma_tabelada.tipo_dano().size() == 1 && arma_tabelada.tipo_dano(0) == TD_PERFURANTE) {
+    if (AcaoPerfurante(arma_tabelada)) {
       rotacao_graus_ = 90.0f;
       if (progresso_ <= 0.5f) {
         translacao_m_ = progresso_ * TAMANHO_LADO_QUADRADO;

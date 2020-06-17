@@ -1085,11 +1085,17 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
+    tipo_movimento_acao: TD_CORTANTE
     categoria_pericia: CATPER_EXOTICA
     haste: true
     atinge_adjacentes: true
     pode_derrubar: true
     bonus_desarmar: 2
+    acao {
+      icone: 'icon_spiked_chain.png'
+      som_inicial: 'spiked_chain.wav'
+      som_fracasso: ''
+    }
   }
   armas {
     id: 'espada_de_duas_laminas'
@@ -14563,15 +14569,29 @@ tabela_racas {
     dados_defesa {
       bonus_salvacao_veneno { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       bonus_salvacao_feitico { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      bonus_ca_por_tipo {
+        key: 11 # TIPO_GIGANTE
+        value { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 4 origem: 'racial' } } }
+      }
+    }
+    dados_ataque_global {
+      bonus_ataque_por_sub_tipo {
+        key: 3 # SUBTIPO_GOBLINOIDE
+        value { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial' } } }
+      }
+    }
+    dados_ataque_global {
+      bonus_ataque_por_sub_tipo {
+        key: 8 # SUBTIPO_ORC
+        value { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial' } } }
+      }
     }
     movimento { terrestre_basico_q: 4 }
     tamanho: TM_MEDIO
-    # +1 ataque contra orc e goblin
-    # +4 CA contra gigantes.
-    # +2 avaliacao
+    estabilidade: true
     bonus_pericias { id: 'avaliacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     # +2 craft stone metal
-    # +4 contra empurrao ou trip.
+    # +4 contra empurrao.
     # Pericias em algumas armas.
     # +2 procurar stone work.
   }

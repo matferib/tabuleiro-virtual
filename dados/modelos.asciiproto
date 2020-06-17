@@ -6658,8 +6658,8 @@ modelo {
     dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
     dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
     dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
-    dados_ataque { grupo: 'Chicote' rotulo: 'chicote' id_arma: 'chicote' ataque_desarmar: true empunhadura: EA_2_MAOS bonus_magico: 1 }
-    dados_ataque { grupo: 'Chicote' rotulo: 'chicote' id_arma: 'chicote' ataque_derrubar: true empunhadura: EA_2_MAOS bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma: 'corrente_com_cravos' ataque_desarmar: true empunhadura: EA_2_MAOS bonus_magico: 1 }
+    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma: 'corrente_com_cravos' ataque_derrubar: true empunhadura: EA_2_MAOS bonus_magico: 1 ordem_ataque: 1 }
     # Arco.
     dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true }
     dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true ordem_ataque: 1 }
@@ -6724,7 +6724,7 @@ modelo {
       outros { id: 'combater_duas_armas_aprimorado' origem: 'ranger' } # 6: estilo duas armas.
     }
     tesouro {
-      armas { id: 'chicote' bonus_magico: 1 }
+      armas { id: 'corrente_com_cravos' bonus_magico: 1 }
       armas { id: 'espada_de_duas_laminas' bonus_magico: 1 bonus_magico_secundario: 1 }
       armas { id: 'arco_longo_composto_3' obra_prima: true }
       armaduras { id: 'couro_batido' bonus_magico: 1 }
