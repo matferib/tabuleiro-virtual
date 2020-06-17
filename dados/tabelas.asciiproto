@@ -4457,7 +4457,7 @@ tabela_talentos {
   talentos {
     id: 'criar_varinha'
     nome: 'Criar Varinha'
-    nome_ingles: 'craft want'
+    nome_ingles: 'craft wand'
     # pre_requisitos { nivel { conjurador: 5 } }
     descricao: 'Permite a criação de varinhas mágicas .'
     # mago: 1
@@ -14577,13 +14577,11 @@ tabela_racas {
     dados_ataque_global {
       bonus_ataque_por_sub_tipo {
         key: 3 # SUBTIPO_GOBLINOIDE
-        value { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial' } } }
+        value: 1
       }
-    }
-    dados_ataque_global {
       bonus_ataque_por_sub_tipo {
         key: 8 # SUBTIPO_ORC
-        value { bonus_individual { tipo: TB_RACIAL por_origem { valor: 1 origem: 'racial' } } }
+        value: 1
       }
     }
     movimento { terrestre_basico_q: 4 }
@@ -14591,31 +14589,50 @@ tabela_racas {
     estabilidade: true
     bonus_pericias { id: 'avaliacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     # +2 craft stone metal
+    bonus_pericias { id: 'oficios_armoraria' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'oficios_armeiro' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     # +4 contra empurrao.
     # Pericias em algumas armas.
     # +2 procurar stone work.
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18  # 12 q
+    # familiares com machado anao e urgroshes.
+    familiaridade_com_arma: 'machado_de_guerra_anao'
+    familiaridade_com_arma: 'urgrosh_anao'
   }
   racas {
     tipo: TIPO_HUMANOIDE
     sub_tipo: SUBTIPO_ELFO
     id: 'elfo'
     nome: 'Elfo da Lua'
+    movimento { terrestre_basico_q: 6 }
+    dados_defesa {
+      imunidade_efeitos: EFEITO_SONO  # mas nao a veneno do sono.
+      bonus_salvacao_encantamento { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
+    }
     descricao: 'Raça mais comum de elfos.'
     bonus_atributos {
       destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
-    movimento {
-      terrestre_basico_q: 6
-    }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'espada_longa' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'sabre' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'arco_longo' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'arco_curto' }
+    bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'procurar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     tamanho: TM_MEDIO
+    # Elves receive the Martial Weapon Proficiency feats for the longsword, rapier, longbow (including composite longbow), and shortbow (including composite shortbow)
+    # as bonus feats.
   }
   racas {
     tipo: TIPO_HUMANOIDE
     sub_tipo: SUBTIPO_HALFLING
     id: 'halfling'
     nome: 'Halfling Pés Leves'
-    descricao: ''
+    descricao: 'raça mais comum de halflings'
     bonus_atributos {
       destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
@@ -14632,6 +14649,12 @@ tabela_racas {
     bonus_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     movimento {
       terrestre_basico_q: 4
+    }
+    dados_ataque_global {
+      bonus_ataque_por_categoria_arma {
+        key: 5 # CAT_ARREMESSO
+        value: 1
+      }
     }
     tamanho: TM_PEQUENO
   }
@@ -14664,6 +14687,17 @@ tabela_racas {
     dados_defesa {
       bonus_salvacao_ilusao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
     }
+    dados_ataque_global {
+      bonus_ataque_por_sub_tipo {
+        key: 3 # SUBTIPO_GOBLINOIDE
+        value: 1
+      }
+      bonus_ataque_por_sub_tipo {
+        key: 23 # SUBTIPO_KOBOLD
+        value: 1
+      }
+    }
+    familiaridade_com_arma: 'martelo_gnomo_com_gancho'
     tamanho: TM_PEQUENO
   }
   racas {
@@ -14706,6 +14740,8 @@ tabela_racas {
     movimento {
       terrestre_basico_q: 6
     }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18 # 12 q
   }
 }
 

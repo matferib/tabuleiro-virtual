@@ -6394,10 +6394,10 @@ modelo {
     dados_defesa {
         id_armadura: 'gibao_peles' bonus_magico_armadura: 1 id_escudo: 'pesado_madeira' bonus_magico_escudo: 1
     }
-    dados_ataque { id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: true }
-    dados_ataque { id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: true municao: 20 }
-    dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 5 }
-    dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 5 }
+    dados_ataque { grupo: 'cimitarra' id_arma: 'cimitarra' empunhadura: EA_ARMA_ESCUDO obra_prima: true }
+    dados_ataque { grupo: 'funda' id_arma: 'funda' empunhadura: EA_ARMA_ESCUDO obra_prima: true municao: 20 }
+    dados_ataque { grupo: 'fogo_alquimico' id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 5 }
+    dados_ataque { grupo: 'acido' id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 5 }
     info_talentos {
       gerais { id: 'escrever_pergaminho' }  # 1
       gerais { id: 'tiro_certeiro' }        # 3
