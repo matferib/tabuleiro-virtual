@@ -312,6 +312,7 @@ enum SubTipoDnD {
   SUBTIPO_DEMONIO = 20;
   SUBTIPO_PLANAR = 21;
   SUBTIPO_ARCONTE = 22;
+  SUBTIPO_KOBOLD = 23;  // Nao existe, so pro bonus de gnomo funcionar.
 }
 
 enum DescritorAtaque {
@@ -565,7 +566,9 @@ message DadosAtaqueGlobal {
   optional int32 expulsoes_realizadas = 30;
   optional bool flanqueando = 32;
   // A chave deveria ser SubTipoDnD mas mapa nao aceita.
-  map<int32, Bonus> bonus_ataque_por_sub_tipo = 33;
+  map<int32, int32> bonus_ataque_por_sub_tipo = 33;
+  // A chave deveria ser CategoriaArma, mas mapa nao aceita.
+  map<int32, int32> bonus_ataque_por_categoria_arma = 34;
 }
 
 // Dados de defesa global (independe de ataque).
@@ -788,11 +791,8 @@ message InfoClasse {
   optional TipoClasse tipo_classe = 26;
   // Talentos que a classe ganha automaticamente.
   repeated string talentos_automaticos = 29;
-  message TalentoComComplementos {
-    optional string id = 1;
-    optional string complemento = 2;
-  }
-  repeated TalentoComComplementos talentos_com_complemento_automaticos = 31;
+  // so id e complemento.
+  repeated TalentoProto talentos_com_complemento_automaticos = 31;
 }
 
 // Informacao sobre a pericia do personagem.

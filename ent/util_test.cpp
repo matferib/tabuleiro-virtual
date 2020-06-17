@@ -4751,11 +4751,20 @@ TEST(TesteModelo, TesteHalflingDruida10) {
   EXPECT_EQ(BonusTotal(druida->Proto().dados_defesa().salvacao_vontade()), 7 + 3 + 1 + 1) << druida->Proto().dados_defesa().salvacao_vontade().DebugString();
   EXPECT_EQ(SalvacaoFeitico(g_tabelas.Feitico("aterrorizar"), druida->Proto(), EntidadeProto::default_instance(), TS_VONTADE), 7 + 3 + 1 + 1 + 2) << druida->Proto().dados_defesa().salvacao_vontade().DebugString();
 
-
-  const auto* da = druida->DadoAtaque("relampago", 0);
-  ASSERT_NE(da, nullptr);
-  // Nao pode aplicar modificador de tiro certeiro.
-  EXPECT_EQ(std::get<0>(StringDanoParaAcao(*da, druida->Proto(), druida->Proto())), "3d6");
+  {
+    const auto* da = druida->DadoAtaque("relampago", 0);
+    ASSERT_NE(da, nullptr);
+    // Nao pode aplicar modificador de tiro certeiro.
+    EXPECT_EQ(std::get<0>(StringDanoParaAcao(*da, druida->Proto(), druida->Proto())), "3d6");
+  }
+  {
+    // Destreza +2.
+    // +7 BAB, destreza +4, tamanho +1, +1 OP, +1 halfling.
+    const auto& da = DadosAtaquePorGrupo("funda", druida->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 14) << da.bonus_ataque().DebugString();
+    // Forca foi pra 8 por ser halfling.
+    EXPECT_EQ(da.dano(), "1d3-1");
+  }
 }
 
 TEST(TesteModelo, CamposResetadosNaoSetados) {
@@ -5889,6 +5898,111 @@ TEST(TestFeiticos, RodadasBaseAnterior) {
   }
 }
 
+TEST(TesteRacas, TesteGnomo) {
+  EntidadeProto proto;
+  proto.set_raca("gnomo");
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(1);
+    ic->set_id("guerreiro");
+  }
+  std::unique_ptr<Entidade> gnomo(NovaEntidadeParaTestes(proto, g_tabelas));
+  EXPECT_EQ(BonusTotal(gnomo->Proto().movimento().terrestre_q()), 4);
+  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("martelo_gnomo_com_gancho"), gnomo->Proto()));
+}
+
+
+TEST(TesteRacas, TesteElfo) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(10, TA_DESTREZA, &proto);
+  AtribuiBaseAtributo(10, TA_SABEDORIA, &proto);
+  AtribuiBaseAtributo(10, TA_CONSTITUICAO, &proto);
+  AtribuiBaseAtributo(10, TA_DESTREZA, &proto);
+  proto.set_raca("elfo");
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(1);
+    ic->set_id("guerreiro");
+  }
+  std::unique_ptr<Entidade> elfo(NovaEntidadeParaTestes(proto, g_tabelas));
+  EXPECT_EQ(BonusTotal(elfo->Proto().movimento().terrestre_q()), 6);
+  EXPECT_EQ(ValorFinalPericia("ouvir", elfo->Proto()), 2);
+  EXPECT_EQ(ValorFinalPericia("procurar", elfo->Proto()), 2);
+  EXPECT_EQ(ValorFinalPericia("observar", elfo->Proto()), 2);
+  EXPECT_EQ(ValorFinalPericia("diplomacia", elfo->Proto()), 0);
+  EXPECT_EQ(ValorFinalPericia("obter_informacao", elfo->Proto()), 0);
+  EXPECT_TRUE(elfo->ImuneEfeito(EFEITO_SONO));
+  EXPECT_EQ(elfo->Proto().tipo_visao(), VISAO_BAIXA_LUMINOSIDADE);
+
+  // Salvacoes contra alguns ataques.
+  std::unique_ptr<Entidade> ea;
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(1);
+    AtribuiBaseAtributo(20, TA_INTELIGENCIA, &proto);  // +5
+    {
+      // 16 de CD, mas nao é feitico.
+      auto* da = proto.mutable_dados_ataque()->Add();
+      da->set_dificuldade_salvacao(16);
+      da->set_tipo_salvacao(TS_FORTITUDE);
+    }
+    {
+      // 16 de CD reflexo.
+      auto* da = proto.mutable_dados_ataque()->Add();
+      da->set_tipo_ataque("Feitiço de Mago");
+      da->set_id_arma("maos_flamejantes");
+    }
+    {
+      // 13 de CD vontade.
+      auto* da = proto.mutable_dados_ataque()->Add();
+      da->set_tipo_ataque("Pergaminho Arcano");
+      da->set_nivel_conjurador_pergaminho(1);
+      da->set_modificador_atributo_pergaminho(2);
+      da->set_id_arma("enfeiticar_pessoa");
+    }
+    ea.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    ASSERT_GE(ea->Proto().dados_ataque_size(), 3);
+  }
+  EXPECT_EQ(elfo->Salvacao(*ea, TS_FORTITUDE), 1);
+  EXPECT_EQ(elfo->Salvacao(*ea, TS_REFLEXO), 1);
+  EXPECT_EQ(elfo->Salvacao(*ea, TS_VONTADE), 0);
+  EXPECT_EQ(elfo->SalvacaoVeneno(), 1);
+
+  // Testa o ataque nao feitico, bonus 1 vs CD 16.
+  g_dados_teste.push(14);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(0), *ea, *elfo)), false) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
+  g_dados_teste.push(15);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(0), *ea, *elfo)), true) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
+  // Testa o ataque feitico, bonus 1 vs CD 16.
+  g_dados_teste.push(14);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(1), *ea, *elfo)), false)
+      << "bonus: " << elfo->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(1))
+      << ", cd: " << ea->Proto().dados_ataque(1).dificuldade_salvacao();
+  g_dados_teste.push(15);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(1), *ea, *elfo)), true)
+      << "bonus: " << elfo->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(1))
+      << ", cd: " << ea->Proto().dados_ataque(1).dificuldade_salvacao();
+  // Testa o pergaminho feitico, bonus 0+2 vs CD 13.
+  g_dados_teste.push(10);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(2), *ea, *elfo)), false)
+      << "bonus: " << elfo->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(2))
+      << ", cd: " << ea->Proto().dados_ataque(2).dificuldade_salvacao();
+  g_dados_teste.push(11);
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(2), *ea, *elfo)), true)
+      << "bonus: " << elfo->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(2))
+      << ", cd: " << ea->Proto().dados_ataque(2).dificuldade_salvacao();
+
+  EXPECT_FALSE(TalentoComArma(g_tabelas.Arma("machado_de_guerra_anao"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("espada_longa"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("espada_curta"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("arco_longo"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("arco_curto"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("arco_longo_composto"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("sabre"), elfo->Proto()));
+}
+
 TEST(TesteRacas, TesteMeioElfo) {
   EntidadeProto proto;
   AtribuiBaseAtributo(10, TA_SABEDORIA, &proto);
@@ -5973,20 +6087,24 @@ TEST(TesteRacas, TesteMeioElfo) {
 }
 
 TEST(TesteRacas, TesteAnao) {
-  EntidadeProto proto;
-  AtribuiBaseAtributo(15, TA_CONSTITUICAO, &proto);  // com bonus de anao, vai para 17.
-  AtribuiBaseAtributo(10, TA_CARISMA, &proto);  // com penalidade de anao, vai para 8.
-  proto.set_raca("anao");
+  std::unique_ptr<Entidade> anao;
   {
+    EntidadeProto proto;
+    AtribuiBaseAtributo(15, TA_CONSTITUICAO, &proto);  // com bonus de anao, vai para 17.
+    AtribuiBaseAtributo(10, TA_CARISMA, &proto);  // com penalidade de anao, vai para 8.
+    proto.set_raca("anao");
     auto* ic = proto.add_info_classes();
     ic->set_nivel(1);
     ic->set_id("guerreiro");
+    auto* da = proto.mutable_dados_ataque()->Add();
+    da->set_id_arma("machado_de_batalha");
+    anao.reset(NovaEntidadeParaTestes(proto, g_tabelas));
   }
-  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, g_tabelas));
 
-  std::unique_ptr<Entidade> ea;
+  std::unique_ptr<Entidade> gigante;
   {
     EntidadeProto proto;
+    proto.add_tipo_dnd(TIPO_GIGANTE);
     auto* ic = proto.add_info_classes();
     ic->set_id("mago");
     ic->set_nivel(1);
@@ -6012,39 +6130,56 @@ TEST(TesteRacas, TesteAnao) {
       da->set_id_arma("maos_flamejantes");
     }
 
-    ea.reset(NovaEntidadeParaTestes(proto, g_tabelas));
-    ASSERT_GE(ea->Proto().dados_ataque_size(), 3);
+    gigante.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    ASSERT_GE(gigante->Proto().dados_ataque_size(), 3);
   }
 
-  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, ed->Proto())), 17);
-  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, ed->Proto())), 8);
-  EXPECT_EQ(ed->Salvacao(*ea, TS_FORTITUDE), 5);  // 2 + 3.
-  EXPECT_EQ(ed->SalvacaoVeneno(), 7);  // 2 + 3 + 2.
-  EXPECT_EQ(ed->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(1)), 2);  // 0 + 0 + 2.
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, anao->Proto())), 17);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, anao->Proto())), 8);
+  EXPECT_EQ(anao->Salvacao(*gigante, TS_FORTITUDE), 5);  // 2 + 3.
+  EXPECT_EQ(anao->SalvacaoVeneno(), 7);  // 2 + 3 + 2.
+  EXPECT_EQ(anao->SalvacaoFeitico(*gigante, gigante->Proto().dados_ataque(1)), 2);  // 0 + 0 + 2.
 
   // Testa o ataque nao feitico, bonus 5 vs CD 16.
   g_dados_teste.push(10);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(0), *ea, *ed)), false) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, gigante->Proto().dados_ataque(0), *gigante, *anao)), false) << "cd: " << gigante->Proto().dados_ataque(0).dificuldade_salvacao();
   g_dados_teste.push(11);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(0), *ea, *ed)), true) << "cd: " << ea->Proto().dados_ataque(0).dificuldade_salvacao();
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, gigante->Proto().dados_ataque(0), *gigante, *anao)), true) << "cd: " << gigante->Proto().dados_ataque(0).dificuldade_salvacao();
   // Testa o ataque feitico, bonus 2 vs CD 16.
   g_dados_teste.push(13);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(1), *ea, *ed)), false)
-      << "bonus: " << ed->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(1))
-      << ", cd: " << ea->Proto().dados_ataque(1).dificuldade_salvacao();
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, gigante->Proto().dados_ataque(1), *gigante, *anao)), false)
+      << "bonus: " << anao->SalvacaoFeitico(*gigante, gigante->Proto().dados_ataque(1))
+      << ", cd: " << gigante->Proto().dados_ataque(1).dificuldade_salvacao();
   g_dados_teste.push(14);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(1), *ea, *ed)), true)
-      << "bonus: " << ed->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(1))
-      << ", cd: " << ea->Proto().dados_ataque(1).dificuldade_salvacao();
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, gigante->Proto().dados_ataque(1), *gigante, *anao)), true)
+      << "bonus: " << anao->SalvacaoFeitico(*gigante, gigante->Proto().dados_ataque(1))
+      << ", cd: " << gigante->Proto().dados_ataque(1).dificuldade_salvacao();
   // Testa o pergaminho feitico, bonus 2 vs CD 13.
   g_dados_teste.push(10);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(2), *ea, *ed)), false)
-      << "bonus: " << ed->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(2))
-      << ", cd: " << ea->Proto().dados_ataque(2).dificuldade_salvacao();
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, gigante->Proto().dados_ataque(2), *gigante, *anao)), false)
+      << "bonus: " << anao->SalvacaoFeitico(*gigante, gigante->Proto().dados_ataque(2))
+      << ", cd: " << gigante->Proto().dados_ataque(2).dificuldade_salvacao();
   g_dados_teste.push(11);
-  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, ea->Proto().dados_ataque(2), *ea, *ed)), true)
-      << "bonus: " << ed->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(2))
-      << ", cd: " << ea->Proto().dados_ataque(2).dificuldade_salvacao();
+  EXPECT_EQ(std::get<1>(AtaqueVsSalvacao(0, gigante->Proto().dados_ataque(2), *gigante, *anao)), true)
+      << "bonus: " << anao->SalvacaoFeitico(*gigante, gigante->Proto().dados_ataque(2))
+      << ", cd: " << gigante->Proto().dados_ataque(2).dificuldade_salvacao();
+
+  EXPECT_EQ(anao->CA(*gigante, Entidade::CA_NORMAL), 14);
+  {
+    EntidadeProto a;
+    a.set_surpreso(true);
+    anao->AtualizaParcial(a);
+  }
+  EXPECT_EQ(anao->CA(*gigante, Entidade::CA_NORMAL), 10);
+
+  for (SubTipoDnD sub_tipo : {SUBTIPO_ORC, SUBTIPO_GOBLINOIDE}) {
+    EntidadeProto proto;
+    proto.add_sub_tipo_dnd(sub_tipo);
+    EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, anao->Proto(), proto), 1);
+  }
+
+  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("machado_de_guerra_anao"), anao->Proto()));
+  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("urgrosh_anao"), anao->Proto()));
 }
 
 TEST(TesteRacas, TesteAasimar) {

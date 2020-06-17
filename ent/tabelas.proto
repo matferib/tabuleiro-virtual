@@ -27,12 +27,14 @@ message RacaProto {
   optional TipoDnD tipo = 7;
   optional SubTipoDnD sub_tipo = 8;
   repeated DadosAtaque dados_ataque = 10;
-  repeated DadosAtaqueGlobal dados_ataque_global = 15;
+  optional DadosAtaqueGlobal dados_ataque_global = 15;
   optional Movimento movimento = 11;
   optional TipoVisao tipo_visao = 12;
   optional int32 alcance_visao_m = 13;
   // Para raças estaveis como anões.
   optional bool estabilidade = 14;
+  repeated TalentoProto talentos_com_complemento_automaticos = 16;
+  repeated string familiaridade_com_arma = 17;
 }
 
 message ArmaduraOuEscudoProto {
@@ -57,6 +59,7 @@ enum CategoriaPericia {
   CATPER_EXOTICA = 2;
 }
 
+// Atencao: os valores aqui sao usados em mapas do dado de ataque global. Nao mudar.
 // Uma arma pode ter varias categorias.
 enum CategoriaArma {
   // arma corpo a corpo.

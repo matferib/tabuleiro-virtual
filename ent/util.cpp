@@ -1174,6 +1174,11 @@ int ModificadorAtaque(const DadosAtaque& da, const EntidadeProto& ea, const Enti
     else modificador += 4;
   }
   modificador = AplicaMaestriaElemental(modificador, ea, ed);
+  for (const auto& [sub_tipo, valor] : Tabelas::Unica().Raca(ea.raca()).dados_ataque_global().bonus_ataque_por_sub_tipo()) {
+    if (TemSubTipoDnD(static_cast<SubTipoDnD>(sub_tipo), ed)) {
+      modificador += valor;
+    }
+  }
   return modificador;
 }
 
@@ -5272,11 +5277,16 @@ bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto) 
   if (id.empty()) return true;
   if (c_any(arma_tabelada.categoria(), CAT_ARMA_NATURAL)) return true;
   if (arma_tabelada.has_categoria_pericia()) {
-    if (arma_tabelada.categoria_pericia() == CATPER_SIMPLES) {
+    auto categoria = arma_tabelada.categoria_pericia();
+    bool familiaridade = false;
+    if (c_any(Tabelas::Unica().Raca(proto.raca()).familiaridade_com_arma(), arma_tabelada.id())) {
+      familiaridade = true;
+    }
+    if (categoria == CATPER_SIMPLES) {
       return PossuiTalento("usar_armas_simples", proto) || PossuiTalento("usar_uma_arma_simples", id, proto);
-    } else if (arma_tabelada.categoria_pericia() == CATPER_COMUM) {
+    } else if (categoria == CATPER_COMUM || familiaridade) {
       return PossuiTalento("usar_armas_comuns", proto) || PossuiTalento("usar_arma_comum", id, proto);
-    } else if (arma_tabelada.categoria_pericia() == CATPER_EXOTICA) {
+    } else if (categoria == CATPER_EXOTICA) {
       return PossuiTalento("usar_arma_exotica", id, proto);
     }
   }

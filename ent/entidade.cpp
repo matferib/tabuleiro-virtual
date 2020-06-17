@@ -2087,30 +2087,38 @@ int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca, bool vs_oportunidade)
   const bool destreza_na_ca = DestrezaNaCAContraAtaque(&da, proto_, atacante.Proto());
 
   // Cada tipo de CA sabera compensar a esquiva.
-  const int bonus_esquiva =
-      destreza_na_ca && PossuiTalento("esquiva") && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
-  AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
+  {
+    const int bonus_esquiva =
+        destreza_na_ca && PossuiTalento("esquiva") && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
+    AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
+  }
+  for (const auto& [tipo, bonus] : tabelas_.Raca(proto_.raca()).dados_defesa().bonus_ca_por_tipo()) {
+    if (atacante.TemTipoDnD(static_cast<TipoDnD>(tipo)) && (destreza_na_ca || !PossuiBonus(TB_ESQUIVA, bonus))) {
+      // Meio roubado. Se a raca tiver um bonus composto por 2 tipos diferentes, um for esquiva, vai dar pau. Mas na pratica, nunca deve acontecer.
+      CombinaBonus(bonus, &outros_bonus);
+    }
+  }
   // TODO na verdade, é so para ataques de oportunidade oriundos de movimento.
   const int bonus_mobilidade =
       destreza_na_ca && vs_oportunidade && !proto_.caida() && PossuiTalento("mobilidade") ? 4 : 0;
   //LOG(INFO) << "destrezanaca: " << destreza_na_ca << ", vs_oportunidade: " << vs_oportunidade << ", caido: " << proto_.caida() << ", PossuiTalento(mobilidade): " << PossuiTalento("mobilidade") << ", bonus mobilidade: " << bonus_mobilidade;
   AtribuiBonus(bonus_mobilidade, TB_ESQUIVA, "mobilidade", &outros_bonus);
   if (proto_.dados_defesa().has_ca()) {
-    const bool permite_escudo = true;  // o recomputa ja tirou o escudo. 
+    const bool permite_escudo = true;  // o recomputa ja tirou o escudo.
     if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
-      return destreza_na_ca 
+      return destreza_na_ca
           ? CATotal(proto_, permite_escudo, outros_bonus)
           : CASurpreso(proto_, permite_escudo, outros_bonus);
     } else {
-      return destreza_na_ca 
+      return destreza_na_ca
           ? CAToque(proto_, outros_bonus)
           : CAToqueSurpreso(proto_, outros_bonus);
     }
   }
+  // Aqui é para quando a entidade nao tiver nenhuma informacao de CA.
   switch (tipo_ca) {
-    case CA_TOQUE: return da.ca_toque() + bonus_esquiva;
-    case CA_SURPRESO: return da.ca_surpreso();
-    default: return da.ca_normal() + bonus_esquiva;
+    case CA_TOQUE: return da.ca_toque() + BonusTotalExcluindo(outros_bonus, destreza_na_ca ? std::vector<ent::TipoBonus>{} : std::vector<ent::TipoBonus>{TB_ESQUIVA});
+    default: return da.ca_normal() + BonusTotalExcluindo(outros_bonus, destreza_na_ca ? std::vector<ent::TipoBonus>{} : std::vector<ent::TipoBonus>{TB_ESQUIVA});
   }
 }
 

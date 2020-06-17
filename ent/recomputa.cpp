@@ -2102,6 +2102,12 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
       talento->set_origem(tabelas.Classe(ic.id()).nome());
     }
   }
+  for (const auto& tc : tabelas.Raca(proto->raca()).talentos_com_complemento_automaticos()) {
+    auto* talento = proto->mutable_info_talentos()->add_automaticos();
+    talento->set_id(tc.id());
+    talento->set_complemento(tc.complemento());
+    talento->set_origem(tabelas.Raca(proto->raca()).nome());
+  }
 }
 
 namespace {
@@ -3097,6 +3103,12 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     }
     da->set_acuidade(false);
     da->set_nao_letal(arma.nao_letal());
+    LimpaBonus(TB_RACIAL, "racial", bonus_ataque);
+    for (const auto& [cat, valor] : tabelas.Raca(proto.raca()).dados_ataque_global().bonus_ataque_por_categoria_arma()) {
+      if (PossuiCategoria(static_cast<CategoriaArma>(cat), arma)) {
+        AtribuiBonus(valor, TB_RACIAL, "racial", bonus_ataque);
+      }
+    }
     if (PossuiTalento("acuidade_arma", proto) &&
         bba_distancia > bba_cac &&
         (PossuiCategoria(CAT_LEVE, arma) ||
@@ -3228,9 +3240,9 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   }
 
   {
-    auto* bonus_dano = da->mutable_bonus_dano();
     // Obra prima e bonus magico.
     AtribuiBonus(bba, TB_BASE, "base", bonus_ataque);
+    auto* bonus_dano = da->mutable_bonus_dano();
     if (da->bonus_magico() > 0) {
       da->set_obra_prima(true);  // Toda arma magica eh obra prima.
       AtribuiBonus(da->bonus_magico(), TB_MELHORIA, "arma_magica", bonus_ataque);

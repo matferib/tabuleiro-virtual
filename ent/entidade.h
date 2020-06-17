@@ -304,7 +304,6 @@ class Entidade {
   enum TipoCA {
     CA_NORMAL,
     CA_TOQUE,
-    CA_SURPRESO  // Nao faz sentido, coisa do defensor.
   };
   // Retorna a CA da entidade, contra um atacante e um tipo de CA.
   int CA(const Entidade& atacante, TipoCA tipo, bool vs_oportunidade = false) const;
