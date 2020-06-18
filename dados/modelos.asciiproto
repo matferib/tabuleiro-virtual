@@ -2180,19 +2180,24 @@ modelo {
 modelo {
   id: 'Constrição'
   entidade {
-    modelo_3d { id: 'builtin:esfera' escala { x: 8 y: 8 z: 0.1 } }
-    cor { r: 0 g: 1 b: 0 a: 1 }
+    tipo: TE_FORMA
+    faz_sombra: false
+    sub_tipo: TF_ESFERA
+    pos { z: 0.05 }
+    escala { x: 24 y: 24 z: 0.1 }
+    cor { r: 1 g: 1 b: 1 a: 1.0 }
+    info_textura { id: 'terrain_grass.png' }
+    gerar_agarrar: false
     pode_ser_afetada_por_acao: false
     dados_ataque {
-      rotulo: 'Prender' tipo_ataque: 'Feitiço de Toque'
+      rotulo: 'Prender' tipo_ataque: 'Feitiço de Toque' alcance_q: 8
       dificuldade_salvacao: 11  # template vai adicionar os modificadores de atributo.
+      incrementa_proximo_ataque: false
       acao_fixa {
-        tipo: ACAO_DISPERSAO
-        geometria: ACAO_GEO_ESFERA
-        raio_quadrados: 8
         cor: { r: 0 b: 0 g: 1 a: 0.8 }
         permite_ataque_vs_defesa: false
         permite_salvacao: true
+        ignora_resistencia_magia: true
         tipo_salvacao: TS_REFLEXO
         resultado_ao_salvar: RS_ANULOU
         dificuldade_salvacao_por_nivel: false
