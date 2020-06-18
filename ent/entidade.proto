@@ -202,7 +202,10 @@ message EntidadeProto {
   optional DadosDefesa dados_defesa = 45;
 
   message ArmaArmaduraOuEscudoPersonagem {
+    // Id da arma.
     optional string id = 1;
+    // Usado para ataques referenciarem.
+    optional string id_para_ataques = 12;
     optional string nome = 6;  // nome legivel.
     // Isso nao muda.
     repeated DescritorAtaque descritores_basicos = 2;

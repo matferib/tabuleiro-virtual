@@ -2695,6 +2695,34 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   }
 }
 
+const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& BuscaArmaTesouro(const std::string& id_arma_tesouro, const EntidadeProto& proto) {
+  const EntidadeProto::ArmaArmaduraOuEscudoPersonagem* candidato = nullptr;
+  for (const auto& arma_tesouro : proto.tesouro().armas()) {
+    if (arma_tesouro.id_para_ataques() == id_arma_tesouro) {
+      return arma_tesouro;
+    }
+    if (arma_tesouro.id() == id_arma_tesouro && candidato == nullptr) {
+      candidato = &arma_tesouro;
+    }
+  }
+  return candidato == nullptr ? EntidadeProto::ArmaArmaduraOuEscudoPersonagem::default_instance() : *candidato;
+}
+
+void ArmaTesouroParaDadosAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
+  if (!da->has_id_arma_tesouro()) return;
+
+  const auto& arma_tesouro = BuscaArmaTesouro(da->id_arma_tesouro(), proto);
+  da->set_id_arma(arma_tesouro.id());
+  // Arma dupla se for magica de um lado é no mínimo obra prima do outro.
+  da->set_obra_prima(arma_tesouro.obra_prima() || arma_tesouro.bonus_magico() > 0);
+  VLOG(2) << "setando obra prima para " << arma_tesouro.obra_prima() << ", arma: " << arma_tesouro.id();
+  if (da->empunhadura() == EA_MAO_RUIM) {
+    da->set_bonus_magico(arma_tesouro.bonus_magico_secundario());
+  } else {
+    da->set_bonus_magico(arma_tesouro.bonus_magico());
+  }
+}
+
 // Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
 void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
   // Aplica acao da arma.
@@ -3060,6 +3088,8 @@ int CAToqueUmAtaque(const Bonus& ca) {
 void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, const Bonus& ca_base, DadosAtaque* da) {
   ResetDadosAtaque(da);
   *da->mutable_acao() = AcaoProto::default_instance();
+
+  ArmaTesouroParaDadosAtaque(tabelas, proto, da);
 
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());

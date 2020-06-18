@@ -4498,8 +4498,8 @@ TEST(TesteModelo, TesteRanger9) {
   }
   {
     const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 2);
-    // 9 bab, 3 forca, 1 arma magica, -2 duas armas segunda leve, mão ruim.
-    EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2);
+    // 9 bab, 3 forca, +1 OP -2 duas armas segunda leve, mão ruim.
+    EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2) << da.DebugString();
     EXPECT_EQ(da.dano(), "1d8+1");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);

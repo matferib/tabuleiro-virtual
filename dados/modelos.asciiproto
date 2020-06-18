@@ -6660,14 +6660,14 @@ modelo {
     info_classes { id: 'ranger' nivel: 9 }
 
     # Espadas.
-    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
-    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
-    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_RUIM obra_prima: true }
-    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma: 'corrente_com_cravos' ataque_desarmar: true empunhadura: EA_2_MAOS obra_prima: true }
-    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma: 'corrente_com_cravos' ataque_derrubar: true empunhadura: EA_2_MAOS ordem_ataque: 1  obra_prima: true }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma_tesouro: 'espada_de_duas_laminas' empunhadura: EA_MAO_RUIM }
+    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma_tesouro: 'corrente_com_cravos' ataque_desarmar: true empunhadura: EA_2_MAOS }
+    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma_tesouro: 'corrente_com_cravos' ataque_derrubar: true empunhadura: EA_2_MAOS ordem_ataque: 1 }
     # Arco.
-    dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true }
-    dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true ordem_ataque: 1 }
+    dados_ataque { grupo: 'Arco' id_arma_tesouro: 'arco_longo_composto_3' }
+    dados_ataque { grupo: 'Arco' id_arma_tesouro: 'arco_longo_composto_3' ordem_ataque: 1 }
     # Defesa.
     dados_defesa {
       id_armadura: 'camisao' bonus_magico_armadura: 1
@@ -6730,7 +6730,7 @@ modelo {
     }
     tesouro {
       armas { id: 'corrente_com_cravos' obra_prima: true }
-      armas { id: 'espada_de_duas_laminas' bonus_magico: 1 } # bonus magico so de um lado.
+      armas { id: 'espada_de_duas_laminas' bonus_magico: 1 obra_prima: true } # bonus magico so de um lado.
       armas { id: 'arco_longo_composto_3' obra_prima: true }
       armaduras { id: 'camisao' bonus_magico: 1 }
       pergaminhos_divinos { id: 'constricao' } # 25

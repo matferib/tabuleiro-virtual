@@ -387,7 +387,7 @@ message DanoAdicionalPorTendencia {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 98.
+// Proximo id: 99.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -447,6 +447,8 @@ message DadosAtaque {
   optional bool cura = 54;
   // Chave da arma na tabela de armas (Exemplo: 'espada_longa').
   optional string id_arma = 24;
+  // Se presente, ao recomputar ira buscar a arma do tesouro.
+  optional string id_arma_tesouro = 98;
   // A arma pode ter tamanho diferente.
   optional TamanhoEntidade tamanho = 26;
   // Dano adicional nao eh multiplicado em criticos. Exemplo: dano de fogo de uma arma flamejante.
