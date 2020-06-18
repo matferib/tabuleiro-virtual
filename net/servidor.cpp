@@ -296,11 +296,11 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
       std::string erro_str;
       if (erro.ConexaoFechada()) {
-        erro_str = StringPrintf("Conexão fechada por cliente '%d'.", cliente->id);
+        erro_str = StringPrintf("Conexão fechada por cliente '%s'.", cliente->id.c_str());
         LOG(INFO) << erro_str << ", msg: " << erro.mensagem().c_str();
       } else {
-        erro_str = StringPrintf("Erro recebendo mensagem de cliente: '%d'. Erro: %s. Esperava: %d, recebi: %d",
-            cliente->id, erro.mensagem().c_str(), (int)cliente->buffer_recepcao.size(), (int)bytes_recebidos);
+        erro_str = StringPrintf("Erro recebendo mensagem de cliente: '%s'. Erro: %s. Esperava: %d, recebi: %d",
+            cliente->id.c_str(), erro.mensagem().c_str(), (int)cliente->buffer_recepcao.size(), (int)bytes_recebidos);
         LOG(INFO) << erro_str;
       }
       n->set_erro(erro_str);
