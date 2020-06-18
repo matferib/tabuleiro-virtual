@@ -6652,7 +6652,7 @@ modelo {
   entidade {
     rotulo: 'Ranger 9'
     raca: 'humano'
-    tendencia { simples: TD_NORMALMENTE_NEUTRO }
+    tendencia { simples: TD_NORMALMENTE_NEUTRO_BOM }
     dados_vida: '8d8+8+9'
     modelo_3d { id: 'human_female_ranger' }
     posicao_acao { x: 0.12 y: -0.2 z: 0.9 }
