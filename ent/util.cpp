@@ -1690,7 +1690,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaAgarrar(const Entidade& ea, const Entidade
 }
 
 namespace {
-ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed, bool eh_contra_ataque = false) {
+ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubarInterno(const Entidade& ea, const Entidade& ed, bool permite_contra_ataque, bool eh_contra_ataque) {
   TamanhoEntidade tamanho_atacante = ea.Proto().tamanho();
   TamanhoEntidade tamanho_defensor = ed.Proto().tamanho();
   ResultadoAtaqueVsDefesa resultado;
@@ -1714,21 +1714,28 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidad
       // Retorna o resultado do contra ataque. 
       resultado.resultado = RA_FALHA_NORMAL;
       resultado.texto = StringPrintf("contra ataque falhou: %d%+d < %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
-    } else {
+    } else if (permite_contra_ataque) {
       // Realiza o contra ataque
-      ResultadoAtaqueVsDefesa resultado_contra_ataque = AtaqueVsDefesaDerrubar(ed, ea, /*contra_ataque=*/true);
+      ResultadoAtaqueVsDefesa resultado_contra_ataque = AtaqueVsDefesaDerrubarInterno(ed, ea, /*permite_contra_ataque=*/false, /*eh_contra_ataque=*/true);
       resultado.resultado = resultado_contra_ataque.Sucesso() ? RA_FALHA_CONTRA_ATAQUE : RA_FALHA_NORMAL;
       resultado.texto = StringPrintf(
            "derrubar falhou: %d%+d < %d%+d, %s",
            dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa, resultado_contra_ataque.texto.c_str());
+    } else {
+      // Falha normal.
+      resultado.resultado = RA_FALHA_NORMAL;
+      resultado.texto = StringPrintf(
+           "derrubar falhou: %d%+d < %d%+d sem contra ataque",
+           dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
+
     }
   }
   return resultado;
 }
 }  // namespace
 
-ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed) {
-  return AtaqueVsDefesaDerrubar(ea, ed, false);
+ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed, bool permite_contra_ataque) {
+  return AtaqueVsDefesaDerrubarInterno(ea, ed, permite_contra_ataque, /*eh_contra_ataque=*/false);
 }
 
 const char* NomeSalvacao(TipoSalvacao ts) {

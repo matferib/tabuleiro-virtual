@@ -2065,7 +2065,10 @@ float Tabuleiro::TrataAcaoIndividual(
           resultado_derrubar.texto = "salvou";
         }
       } else {
-        resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade_origem, *entidade_destino);
+        // Os ataques da.derrubar_automatico() sao nativos.
+        const bool permite_contra_ataque = da.ataque_derrubar();
+        LOG(INFO) << "da: " << da.DebugString();
+        resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade_origem, *entidade_destino, permite_contra_ataque);
       }
       if (resultado_derrubar.Sucesso()) {
         AdicionaLogEvento(entidade_origem->Id(), "sucesso em derrubar");

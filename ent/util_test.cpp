@@ -4482,8 +4482,8 @@ TEST(TesteModelo, TesteRanger9) {
     EXPECT_EQ(da.dano(), "1d8+4");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
-    // 4+1 camisao magico, 1 des.
-    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    // 4+1 camisao magico, +2 des, +1 anel, +1 amuleto.
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 19) << ranger->Proto().dados_defesa().ca().DebugString();
     EXPECT_EQ(da.margem_critico(), 17);
   }
   {
@@ -4493,31 +4493,28 @@ TEST(TesteModelo, TesteRanger9) {
     EXPECT_EQ(da.dano(), "1d8+4");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
-    // 4+1 camisao magico, 1 des.
-    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 19) << ranger->Proto().dados_defesa().ca().DebugString();
     EXPECT_EQ(da.margem_critico(), 17);
   }
   {
     const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 2);
     // 9 bab, 3 forca, 1 arma magica, -2 duas armas segunda leve, mão ruim.
     EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2);
-    EXPECT_EQ(da.dano(), "1d8+2");
+    EXPECT_EQ(da.dano(), "1d8+1");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
-    // 4+1 camisao magico, 1 des.
-    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 19) << ranger->Proto().dados_defesa().ca().DebugString();
     EXPECT_EQ(da.margem_critico(), 17);
   }
   {
     const auto& da = DadosAtaquePorGrupo("Arco", ranger->Proto());
-    // 9 bab, 1 des, 1 OP.
-    EXPECT_EQ(da.bonus_ataque_final(), 9+1+1);
+    // 9 bab, 2 des, 1 OP.
+    EXPECT_EQ(da.bonus_ataque_final(), 9+2+1);
     EXPECT_EQ(da.dano(), "1d8+3");
     EXPECT_FLOAT_EQ(da.alcance_m(), 33);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
-    // 4+1 camisao magico, 1 des.
     ranger->AtualizaAcaoPorGrupo("Arco");
-    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 14+1+1) << ranger->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 19) << ranger->Proto().dados_defesa().ca().DebugString();
   }
 }
 
@@ -6572,8 +6569,6 @@ TEST(TesteAtaqueVsDefesa, TesteDesarmarContraAtaque) {
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarSucesso) {
   auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
-  auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
-  da->set_ataque_desarmar(true);
   auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
   auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
   {
@@ -6587,8 +6582,6 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarSucesso) {
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaNormal) {
   auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
-  auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
-  da->set_ataque_desarmar(true);
   auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
   auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
   {
@@ -6606,8 +6599,6 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaNormal) {
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaContraAtaque) {
   auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
-  auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
-  da->set_ataque_desarmar(true);
   auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
   auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
   {
@@ -6622,6 +6613,23 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaContraAtaque) {
     EXPECT_EQ(resultado.resultado, RA_FALHA_CONTRA_ATAQUE) << resultado.texto;
   }
 }
+
+TEST(TesteAtaqueVsDefesa, TesteDerrubarNaoPermiteContraAtaque) {
+  auto orc = NovaEntidadeParaTestes(g_tabelas.ModeloEntidade("Orc Capitão").entidade(), g_tabelas);
+  auto guepardo = NovaEntidadeParaTestes(g_tabelas.ModeloEntidade("Guepardo").entidade(), g_tabelas);
+  {
+    // Defesa primeiro.
+    g_dados_teste.push(19);
+    g_dados_teste.push(2);
+    // Contra ataque. Nao sera usado.
+    g_dados_teste.push(2);
+    g_dados_teste.push(19);
+
+    ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaDerrubar(*guepardo, *orc, guepardo->DadoCorrenteNaoNull().ataque_derrubar());
+    EXPECT_NE(resultado.resultado, RA_FALHA_CONTRA_ATAQUE) << resultado.texto;
+  }
+}
+
 
 }  // namespace ent.
 
