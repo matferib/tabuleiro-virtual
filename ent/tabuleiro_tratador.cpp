@@ -2067,7 +2067,6 @@ float Tabuleiro::TrataAcaoIndividual(
       } else {
         // Os ataques da.derrubar_automatico() sao nativos.
         const bool permite_contra_ataque = da.ataque_derrubar();
-        LOG(INFO) << "da: " << da.DebugString();
         resultado_derrubar = AtaqueVsDefesaDerrubar(*entidade_origem, *entidade_destino, permite_contra_ataque);
       }
       if (resultado_derrubar.Sucesso()) {

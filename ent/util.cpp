@@ -1397,11 +1397,10 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
   int valor_defesa = d20_defesa + modificadores_defesa;
   int total = d20_ataque + ataque_origem + modificador_incrementos + outros_modificadores;
   if (d20_ataque == 1) {
-    VLOG(1) << "Possivel falha critica";
     if (confirmacao) {
-      // Para confirmacao precisamos apenas do acerto ou erro.
-      return std::make_tuple(0, "", false);
+      return std::make_tuple(0, "outro 1", false);
     } else {
+      VLOG(1) << "Possivel falha critica";
       // Confirma a falha.
       auto [totalc, textoc, acertouc] =
         ComputaAcertoOuErro(RolaDado(20), ataque_origem, modificador_incrementos, outros_modificadores, d20_defesa, modificadores_defesa, tipo_ataque, pea, ped,
@@ -1419,7 +1418,7 @@ std::tuple<int, std::string, bool> ComputaAcertoOuErro(
     return std::make_tuple(0, "Defensor com movimentação livre", false);
   }
 
-  if ((d20_ataque != 20 || tipo_ataque == TipoAtaque::AGARRAR) && total < valor_defesa) {
+  if ((d20_ataque != 20 || (tipo_ataque == TipoAtaque::AGARRAR || tipo_ataque == TipoAtaque::DESARMAR)) && total < valor_defesa) {
     std::string texto = StringPrintf(
         "falhou: %d%+d%s%s= %d < %d", d20_ataque, ataque_origem,
         TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, valor_defesa);
