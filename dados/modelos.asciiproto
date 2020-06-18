@@ -6648,7 +6648,7 @@ modelo {
     rotulo: 'Ranger 9'
     raca: 'humano'
     tendencia { simples: TD_NORMALMENTE_NEUTRO }
-    dados_vida: '8d8+8+18'
+    dados_vida: '8d8+8+9'
     modelo_3d { id: 'human_female_ranger' }
     posicao_acao { x: 0.12 y: -0.2 z: 0.9 }
     posicao_acao_secundaria { x: 0.12 y: 0.2 z: 0.9 }
@@ -6657,9 +6657,9 @@ modelo {
     # Espadas.
     dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
     dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
-    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
-    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma: 'corrente_com_cravos' ataque_desarmar: true empunhadura: EA_2_MAOS bonus_magico: 1 }
-    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma: 'corrente_com_cravos' ataque_derrubar: true empunhadura: EA_2_MAOS bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma: 'espada_de_duas_laminas' empunhadura: EA_MAO_RUIM obra_prima: true }
+    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma: 'corrente_com_cravos' ataque_desarmar: true empunhadura: EA_2_MAOS obra_prima: true }
+    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma: 'corrente_com_cravos' ataque_derrubar: true empunhadura: EA_2_MAOS ordem_ataque: 1  obra_prima: true }
     # Arco.
     dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true }
     dados_ataque { grupo: 'Arco' id_arma: 'arco_longo_composto_3' obra_prima: true ordem_ataque: 1 }
@@ -6678,10 +6678,10 @@ modelo {
         bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
       }
       destreza {
-        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } }
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } }
       }
       constituicao {
-        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } }
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } }
       }
       inteligencia {
         # Pre requisito de talento especializacao em combate.
@@ -6724,13 +6724,13 @@ modelo {
       outros { id: 'combater_duas_armas_aprimorado' origem: 'ranger' } # 6: estilo duas armas.
     }
     tesouro {
-      armas { id: 'corrente_com_cravos' bonus_magico: 1 }
-      armas { id: 'espada_de_duas_laminas' bonus_magico: 1 bonus_magico_secundario: 1 }
+      armas { id: 'corrente_com_cravos' obra_prima: true }
+      armas { id: 'espada_de_duas_laminas' bonus_magico: 1 } # bonus magico so de um lado.
       armas { id: 'arco_longo_composto_3' obra_prima: true }
-      armaduras { id: 'couro_batido' bonus_magico: 1 }
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
-      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
-      pergaminhos_divinos { id: 'agilidade_gato' } # 25
+      armaduras { id: 'camisao' bonus_magico: 1 }
+      pergaminhos_divinos { id: 'constricao' } # 25
+      pergaminhos_divinos { id: 'passos_longos' } # 25
+      pergaminhos_divinos { id: 'presa_magica' } # 25
       itens_mundanos { id: 'fogo_alquimico' }  # 20
       itens_mundanos { id: 'gas_alquimico_sono' }  # 30
       itens_mundanos { id: 'acido' }  # 10
@@ -6740,11 +6740,10 @@ modelo {
       itens_mundanos { id: 'corda_canhamo' }  # 1
       pocoes { id: 'abencoar_arma' }  # 100
       pocoes { id: 'curar_ferimentos_serios' }  # 750
-      pocoes { id: 'curar_ferimentos_serios' }  # 750
-      pocoes { id: 'pele_arvore_2' }  # 300
       pocoes { id: 'forca_touro' }  # 300
       pocoes { id: 'protecao_contra_mal' }  # 50
-      mantos { id: 'manto_resistencia_1' em_uso: true } # 1000
+      aneis { id: 'protecao_1' em_uso: true } # 2000
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true } # 2000
       moedas {
         po: 5
       }
@@ -8968,7 +8967,6 @@ modelo {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 1 } }
       }
     }
-    # TODO +3 no teste de derrubar.
     dados_ataque {
       grupo: 'ataque'
       tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
