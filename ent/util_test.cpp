@@ -1435,6 +1435,74 @@ TEST(TestePergaminho, PodeLancar) {
   EXPECT_TRUE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(3)).first);
 }
 
+TEST(TestePergaminho, PodeLancarRangerCurarFerimentosLeves) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("ranger");
+    ic->set_nivel(9);
+    {
+      // Arcano: barrado.
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("curar_ferimentos_leves");
+    }
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  // Tipo errado.
+  auto [pode_lancar, texto] = PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0));
+  EXPECT_FALSE(pode_lancar) << texto;
+}
+
+TEST(TestePergaminho, PodeLancarRangerClerigoCurarFerimentosLeves) {
+  EntidadeProto proto;
+  proto.set_classe_feitico_ativa("clerigo");
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("ranger");
+    ic->set_nivel(9);
+    ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(1);
+    {
+      // Arcano: barrado.
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("curar_ferimentos_leves");
+    }
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  // Tipo errado.
+  auto [pode_lancar, texto] = PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0));
+  EXPECT_TRUE(pode_lancar) << texto;
+}
+
+TEST(TestePergaminho, PodeLancarMagoClerigoCurarFerimentosLeves) {
+  EntidadeProto proto;
+  proto.set_classe_feitico_ativa("mago");
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(9);
+    ic = proto.add_info_classes();
+    ic->set_id("clerigo");
+    ic->set_nivel(1);
+    {
+      // Arcano: barrado.
+      auto* da = proto.add_dados_ataque();
+      da->set_tipo_ataque("Pergaminho Divino");
+      da->set_id_arma("curar_ferimentos_leves");
+    }
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  // Tipo errado.
+  auto [pode_lancar, texto] = PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0));
+  EXPECT_TRUE(pode_lancar) << texto;
+}
+
 TEST(TestePergaminho, PodeLancarDominio) {
   EntidadeProto proto;
   AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);

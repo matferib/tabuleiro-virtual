@@ -1843,7 +1843,7 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
     return std::make_tuple(false, google::protobuf::StringPrintf("RM: ataque anulado; %d < %d (d20=%d, mod=%d)", total, rm, d20, mod));
   }
   return std::make_tuple(
-      true, google::protobuf::StringPrintf("RM: ataque bem sucedido; %d >= %d (d20=%d, mod=%d)", total, rm, d20, mod));
+      true, StringPrintf("RM: ataque bem sucedido; %d >= %d (d20=%d, mod=%d)", total, rm, d20, mod));
 }
 
 namespace {
@@ -5156,7 +5156,7 @@ bool EntidadeTemModeloDesligavelLigado(const Tabelas& tabelas, const EntidadePro
 bool FeiticoPessoal(const Tabelas& tabelas, const ArmaProto& feitico_tabelado) {
   AcaoProto acao = feitico_tabelado.acao().id().empty() ? AcaoProto::default_instance() : tabelas.Acao(feitico_tabelado.acao().id());
   acao.MergeFrom(feitico_tabelado.acao());
-  return acao.pessoal(); 
+  return acao.pessoal();
 }
 
 int NivelMaximoFeitico(const Tabelas& tabelas, const std::string& id_classe, int nivel_para_conjuracao) {
@@ -5460,8 +5460,7 @@ std::vector<std::string> DominiosClasse(const std::string& id_classe, const Enti
 const InfoClasse& ClasseParaLancarPergaminho(
     const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto) {
   const auto& feitico_tabelado = tabelas.Feitico(id_feitico);
-  int nivel = -1;
-  const InfoClasse* ret = nullptr;
+  std::vector<const InfoClasse*> candidatos;
   for (const auto& ic : proto.info_classes()) {
     const auto& classe_tabelada = tabelas.Classe(ic.id());
     if (classe_tabelada.tipo_magia() != tipo_magia) continue;
@@ -5476,13 +5475,21 @@ const InfoClasse& ClasseParaLancarPergaminho(
     const bool feitico_de_classe = de_dominio || NivelFeiticoParaClasse(ic.has_id_para_magia() ? ic.id_para_magia() : ic.id(), feitico_tabelado) > -1;
     if (!feitico_de_classe) continue;
 
-    const int nivel_conjurador_candidato = NivelConjurador(ic.id(), proto);
-    if (nivel_conjurador_candidato > nivel) {
-      ret = &ic;
-      nivel = nivel_conjurador_candidato;
-    }
+    candidatos.push_back(&ic);
   }
-  return ret == nullptr ? InfoClasse::default_instance() : *ret;
+  if (candidatos.empty()) return InfoClasse::default_instance();
+  if (candidatos.size() == 1) return *candidatos[0];
+  int maior_nivel = 0;
+  const InfoClasse* melhor_candidato = nullptr;
+  for (const auto* ic : candidatos) {
+    if (ic->id() == proto.classe_feitico_ativa()) return *ic;
+    int nivel_conjurador = NivelConjurador(ic->id(), proto);
+    if (nivel_conjurador > maior_nivel) {
+      maior_nivel = nivel_conjurador; 
+      melhor_candidato = ic;
+    } 
+  }
+  return melhor_candidato == nullptr ? InfoClasse::default_instance() : *melhor_candidato; 
 }
 
 int NivelConjuradorParaLancarPergaminho(const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto) {
@@ -5552,9 +5559,17 @@ std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const 
     return std::make_pair(
         false,
         StringPrintf(
-            "atributo de conjuração do personagem abaixo do minimo: %d < %d",
+            "modificador atributo de conjuração do personagem abaixo do minimo: %d < %d",
             ModificadorAtributoConjuracao(ic.id(), proto),
             da.modificador_atributo_pergaminho()));
+  }
+  if (const Bonus& bonus = BonusAtributo(ic.atributo_conjuracao(), proto); BonusTotal(bonus) < 10 + NivelFeiticoParaClasse(ic.id(), feitico)) {
+    return std::make_pair(
+        false,
+        StringPrintf(
+            "atributo de conjuração abaixo do mínimo: %d < %d",
+            BonusTotal(bonus), 10 + NivelFeiticoParaClasse(ic.id(), feitico)));
+
   }
   return std::make_pair(true, "");
 }
