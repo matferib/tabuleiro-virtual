@@ -105,7 +105,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 102.
+// Proximo id: 103.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -357,6 +357,8 @@ message AcaoProto {
   optional string som_fracasso = 95;
   optional string som_inicial = 96;
   optional bool adiciona_ao_log_se_local = 100;
+  // Caso o alvo e o lancador sejam de tipos diferentes, aplica este bonus.
+  optional int32 bonus_salvacao_por_tipo_diferente = 102;
 }
 
 // Como uma arma esta empunhada.

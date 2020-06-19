@@ -6055,7 +6055,7 @@ tabela_feiticos {
       id: 'Feitiço a Distância'
       tipo_salvacao: TS_VONTADE
       elemento: DESC_MENTAL
-      # TODO: nao afeta int 2 ou menos.
+      bonus_salvacao_por_tipo_diferente: 4
       # Criaturas de tipo diferente do conjurador tem +4 de bonus.
       efeitos_adicionais {
         efeito: EFEITO_RISO_HISTERICO
