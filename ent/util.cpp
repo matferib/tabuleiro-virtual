@@ -1698,7 +1698,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubarInterno(const Entidade& ea, const 
     return resultado;
   }
   const int diferenca_tamanho = tamanho_atacante - tamanho_defensor;
-  const int modificadores_ataque = ea.ModificadorAtributo(TA_FORCA) + 4 * diferenca_tamanho;
+  const int modificadores_ataque = ea.ModificadorAtributo(TA_FORCA) + 4 * diferenca_tamanho + (ea.PossuiTalento("derrubar_aprimorado") ? 4 : 0);
   const int modificadores_defesa =
       std::max(ed.ModificadorAtributo(TA_FORCA), ed.ModificadorAtributo(TA_DESTREZA)) +
       (ea.MaisDeDuasPernas() || Tabelas::Unica().Raca(ed.Proto().raca()).estabilidade() ? 4 : 0);
@@ -1710,7 +1710,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubarInterno(const Entidade& ea, const 
         (eh_contra_ataque ? "contra ataque" : "derrubar"), dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
   } else {
     if (eh_contra_ataque) {
-      // Retorna o resultado do contra ataque. 
+      // Retorna o resultado do contra ataque.
       resultado.resultado = RA_FALHA_NORMAL;
       resultado.texto = StringPrintf("contra ataque falhou: %d%+d < %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
     } else if (permite_contra_ataque) {
@@ -3342,7 +3342,9 @@ TalentoProto* TalentoOuCria(const std::string& chave_talento, EntidadeProto* pro
   for (auto& t : *proto->mutable_info_talentos()->mutable_automaticos()) {
     if (chave_talento == t.id()) return &t;
   }
-  return proto->mutable_info_talentos()->add_outros();
+  auto* nt = proto->mutable_info_talentos()->add_outros();
+  nt->set_id(chave_talento);
+  return nt;
 }
 
 const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade) {

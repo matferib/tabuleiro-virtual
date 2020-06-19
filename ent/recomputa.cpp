@@ -2079,10 +2079,12 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
 void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto) {
   // Limitar talentos gerais por nivel de personagem.
   const int nivel = Nivel(*proto);
-  const int numero = (nivel / 3) + 1;
+  const int numero = nivel > 0 ? (nivel / 3) + 1 : 0;
   if (proto->info_talentos().gerais().size() > numero) {
     LOG(WARNING) << "Um dia irei capar talentos da entidade "
       << RotuloEntidade(*proto) << ", gerais: " << proto->info_talentos().gerais().size() << ", permitido: " << numero;
+  } else if (proto->info_talentos().gerais().size() < numero) {
+    Redimensiona(numero, proto->mutable_info_talentos()->mutable_gerais());
   }
   //while (proto->info_talentos().gerais().size() > numero) {
   //  proto->mutable_info_talentos()->mutable_gerais()->RemoveLast();
