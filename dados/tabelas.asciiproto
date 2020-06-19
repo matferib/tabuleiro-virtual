@@ -6013,6 +6013,60 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'recuo_acelerado'
+    nome: 'recuo acelerado'
+    nome_ingles: 'expeditious retreat'
+    componente {
+      material: false
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'bonus de melhoria em movimento terrestre de 6 quadrados'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'riso_histerico'
+    nome: 'riso histérico'
+    nome_ingles: 'hideous laughter'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      tipo_salvacao: TS_VONTADE
+      # TODO: nao afeta int 2 ou menos.
+      # Criaturas de tipo diferente do conjurador tem +4 de bonus.
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'alvo cai e fica rindo (mas não fica indefeso)'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+      som_sucesso: 'hideous_laugher.wav'
+    }
+    escola: 'transmutacao'
+  }
+
+  armas {
     id: 'abencoar_agua'
     nome: 'abençoar água'
     nome_ingles: 'bless water'
