@@ -235,7 +235,7 @@ message AcaoProto {
   // Descritores do ataque: computado dinamicamente.
   repeated DescritorAtaque descritores_ataque_dreprecated = 52;
   optional IluminacaoPontual luz_origem = 54;
-  // Proximo id: 28.
+  // Proximo id: 29.
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
     optional TipoEfeito combinar_com_efeito = 16;  // Usado para combinacao.
@@ -281,6 +281,12 @@ message AcaoProto {
     optional TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 25;
     optional bool afeta_aliados_apenas = 26;
     optional bool afeta_inimigos_apenas = 27;
+    message ValorAtributo {
+      optional TipoAtributo atributo = 1;
+      optional int32 valor = 2;
+    }
+    // Caso a criatura tenha atributo menor igual ao passado, nao sera afetada pelo efeito.
+    optional ValorAtributo nao_afeta_se_atributo_menor_igual_a = 28;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.

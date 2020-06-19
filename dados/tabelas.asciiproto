@@ -6054,16 +6054,20 @@ tabela_feiticos {
     acao {
       id: 'Feitiço a Distância'
       tipo_salvacao: TS_VONTADE
+      elemento: DESC_MENTAL
       # TODO: nao afeta int 2 ou menos.
       # Criaturas de tipo diferente do conjurador tem +4 de bonus.
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
-        descricao: 'alvo cai e fica rindo (mas não fica indefeso)'
+        efeito: EFEITO_RISO_HISTERICO
         modificador_rodadas: MR_RODADAS_NIVEL
+        nao_afeta_se_atributo_menor_igual_a {
+          atributo: TA_INTELIGENCIA
+          valor: 2
+        }
       }
       som_sucesso: 'hideous_laugher.wav'
     }
-    escola: 'transmutacao'
+    escola: 'encantamento'
   }
 
   armas {
@@ -6320,9 +6324,9 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço a Distância'
-      elemento: DESC_MENTAL
       afeta_apenas: TIPO_HUMANOIDE
       tipo_salvacao: TS_VONTADE
+      elemento: DESC_MENTAL
       efeitos_adicionais {
         efeito: EFEITO_DOMINAR_PESSOA
         modificador_rodadas: MR_RODADAS_NIVEL
