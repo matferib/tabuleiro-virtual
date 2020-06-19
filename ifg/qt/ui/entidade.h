@@ -299,6 +299,12 @@ public:
     QSpacerItem *horizontalSpacer_5;
     QLabel *label_44;
     QComboBox *combo_mod_conjuracao;
+    QSpacerItem *horizontalSpacer_6;
+    QLabel *label_87;
+    QComboBox *combo_especializacao_escola;
+    QLabel *label_88;
+    QComboBox *combo_escola_proibida_1;
+    QComboBox *combo_escola_proibida_2;
     QSpacerItem *horizontalSpacer_8;
     QLabel *label_102;
     QComboBox *combo_dominio_1;
@@ -325,6 +331,10 @@ public:
     QLabel *label_38;
     QLineEdit *linha_furtivo;
     QHBoxLayout *horizontalLayout_50;
+    QHBoxLayout *horizontalLayout_52;
+    QLabel *label_86;
+    QComboBox *combo_esquiva_sobrenatural;
+    QHBoxLayout *horizontalLayout_69;
     QLabel *label_103;
     QComboBox *combo_evasao_estatica;
     QComboBox *combo_evasao_dinamica;
@@ -521,7 +531,7 @@ public:
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QStringLiteral("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(1425, 815);
+        ifg__qt__DialogoEntidade->resize(1476, 874);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -2078,6 +2088,60 @@ public:
 
         horizontalLayout_48->addWidget(combo_mod_conjuracao);
 
+        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_48->addItem(horizontalSpacer_6);
+
+        label_87 = new QLabel(groupBox_2);
+        label_87->setObjectName(QStringLiteral("label_87"));
+
+        horizontalLayout_48->addWidget(label_87);
+
+        combo_especializacao_escola = new QComboBox(groupBox_2);
+        combo_especializacao_escola->addItem(QString());
+        combo_especializacao_escola->addItem(QString());
+        combo_especializacao_escola->addItem(QString());
+        combo_especializacao_escola->addItem(QString());
+        combo_especializacao_escola->addItem(QString());
+        combo_especializacao_escola->addItem(QString());
+        combo_especializacao_escola->addItem(QString());
+        combo_especializacao_escola->addItem(QString());
+        combo_especializacao_escola->addItem(QString());
+        combo_especializacao_escola->setObjectName(QStringLiteral("combo_especializacao_escola"));
+
+        horizontalLayout_48->addWidget(combo_especializacao_escola);
+
+        label_88 = new QLabel(groupBox_2);
+        label_88->setObjectName(QStringLiteral("label_88"));
+
+        horizontalLayout_48->addWidget(label_88);
+
+        combo_escola_proibida_1 = new QComboBox(groupBox_2);
+        combo_escola_proibida_1->addItem(QString());
+        combo_escola_proibida_1->addItem(QString());
+        combo_escola_proibida_1->addItem(QString());
+        combo_escola_proibida_1->addItem(QString());
+        combo_escola_proibida_1->addItem(QString());
+        combo_escola_proibida_1->addItem(QString());
+        combo_escola_proibida_1->addItem(QString());
+        combo_escola_proibida_1->addItem(QString());
+        combo_escola_proibida_1->setObjectName(QStringLiteral("combo_escola_proibida_1"));
+
+        horizontalLayout_48->addWidget(combo_escola_proibida_1);
+
+        combo_escola_proibida_2 = new QComboBox(groupBox_2);
+        combo_escola_proibida_2->addItem(QString());
+        combo_escola_proibida_2->addItem(QString());
+        combo_escola_proibida_2->addItem(QString());
+        combo_escola_proibida_2->addItem(QString());
+        combo_escola_proibida_2->addItem(QString());
+        combo_escola_proibida_2->addItem(QString());
+        combo_escola_proibida_2->addItem(QString());
+        combo_escola_proibida_2->addItem(QString());
+        combo_escola_proibida_2->setObjectName(QStringLiteral("combo_escola_proibida_2"));
+
+        horizontalLayout_48->addWidget(combo_escola_proibida_2);
+
         horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_48->addItem(horizontalSpacer_8);
@@ -2103,7 +2167,7 @@ public:
         gridLayout_20->addLayout(horizontalLayout_48, 1, 0, 1, 1);
 
 
-        gridLayout_9->addWidget(groupBox_2, 2, 0, 1, 5);
+        gridLayout_9->addWidget(groupBox_2, 2, 0, 1, 4);
 
         verticalLayout_14 = new QVBoxLayout();
         verticalLayout_14->setObjectName(QStringLiteral("verticalLayout_14"));
@@ -2124,7 +2188,7 @@ public:
         verticalLayout_14->addWidget(botao_remover_nivel);
 
 
-        gridLayout_9->addLayout(verticalLayout_14, 3, 4, 1, 1);
+        gridLayout_9->addLayout(verticalLayout_14, 3, 3, 1, 1);
 
         lista_niveis = new QListWidget(tab_nivel);
         lista_niveis->setObjectName(QStringLiteral("lista_niveis"));
@@ -2134,7 +2198,7 @@ public:
         sizePolicy8.setHeightForWidth(lista_niveis->sizePolicy().hasHeightForWidth());
         lista_niveis->setSizePolicy(sizePolicy8);
 
-        gridLayout_9->addWidget(lista_niveis, 3, 0, 1, 4);
+        gridLayout_9->addWidget(lista_niveis, 3, 0, 1, 3);
 
         tabs->addTab(tab_nivel, QString());
         tab_3 = new QWidget();
@@ -2224,32 +2288,58 @@ public:
 
         horizontalLayout_50 = new QHBoxLayout();
         horizontalLayout_50->setObjectName(QStringLiteral("horizontalLayout_50"));
+        horizontalLayout_52 = new QHBoxLayout();
+        horizontalLayout_52->setObjectName(QStringLiteral("horizontalLayout_52"));
+        label_86 = new QLabel(tab_5);
+        label_86->setObjectName(QStringLiteral("label_86"));
+        label_86->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_52->addWidget(label_86);
+
+        combo_esquiva_sobrenatural = new QComboBox(tab_5);
+        combo_esquiva_sobrenatural->addItem(QString());
+        combo_esquiva_sobrenatural->addItem(QString());
+        combo_esquiva_sobrenatural->addItem(QString());
+        combo_esquiva_sobrenatural->setObjectName(QStringLiteral("combo_esquiva_sobrenatural"));
+
+        horizontalLayout_52->addWidget(combo_esquiva_sobrenatural);
+
+
+        horizontalLayout_50->addLayout(horizontalLayout_52);
+
+        horizontalLayout_69 = new QHBoxLayout();
+        horizontalLayout_69->setObjectName(QStringLiteral("horizontalLayout_69"));
         label_103 = new QLabel(tab_5);
         label_103->setObjectName(QStringLiteral("label_103"));
         label_103->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_50->addWidget(label_103);
+        horizontalLayout_69->addWidget(label_103);
 
         combo_evasao_estatica = new QComboBox(tab_5);
         combo_evasao_estatica->addItem(QString());
         combo_evasao_estatica->addItem(QString());
         combo_evasao_estatica->addItem(QString());
         combo_evasao_estatica->setObjectName(QStringLiteral("combo_evasao_estatica"));
-        combo_evasao_estatica->setEnabled(false);
+        combo_evasao_estatica->setEnabled(true);
         sizePolicy1.setHeightForWidth(combo_evasao_estatica->sizePolicy().hasHeightForWidth());
         combo_evasao_estatica->setSizePolicy(sizePolicy1);
+        combo_evasao_estatica->setEditable(false);
 
-        horizontalLayout_50->addWidget(combo_evasao_estatica);
+        horizontalLayout_69->addWidget(combo_evasao_estatica);
 
         combo_evasao_dinamica = new QComboBox(tab_5);
         combo_evasao_dinamica->addItem(QString());
         combo_evasao_dinamica->addItem(QString());
         combo_evasao_dinamica->addItem(QString());
         combo_evasao_dinamica->setObjectName(QStringLiteral("combo_evasao_dinamica"));
+        combo_evasao_dinamica->setEnabled(false);
         sizePolicy1.setHeightForWidth(combo_evasao_dinamica->sizePolicy().hasHeightForWidth());
         combo_evasao_dinamica->setSizePolicy(sizePolicy1);
 
-        horizontalLayout_50->addWidget(combo_evasao_dinamica);
+        horizontalLayout_69->addWidget(combo_evasao_dinamica);
+
+
+        horizontalLayout_50->addLayout(horizontalLayout_69);
 
 
         verticalLayout_18->addLayout(horizontalLayout_50);
@@ -3751,6 +3841,45 @@ public:
         combo_mod_conjuracao->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", nullptr));
         combo_mod_conjuracao->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", nullptr));
 
+        label_87->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Especializa\303\247ao Escola", nullptr));
+        combo_especializacao_escola->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Nenhuma", nullptr));
+        combo_especializacao_escola->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Abjura\303\247\303\243o", nullptr));
+        combo_especializacao_escola->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Adivinha\303\247\303\243o", nullptr));
+        combo_especializacao_escola->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Conjura\303\247\303\243o", nullptr));
+        combo_especializacao_escola->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Evoca\303\247\303\243o", nullptr));
+        combo_especializacao_escola->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Encantamento", nullptr));
+        combo_especializacao_escola->setItemText(6, QApplication::translate("ifg::qt::DialogoEntidade", "Ilus\303\243o", nullptr));
+        combo_especializacao_escola->setItemText(7, QApplication::translate("ifg::qt::DialogoEntidade", "Necromancia", nullptr));
+        combo_especializacao_escola->setItemText(8, QApplication::translate("ifg::qt::DialogoEntidade", "Transmuta\303\247\303\243o", nullptr));
+
+#ifndef QT_NO_TOOLTIP
+        combo_especializacao_escola->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Caso mago seja especialista, escolha uma esocla de magia", nullptr));
+#endif // QT_NO_TOOLTIP
+        label_88->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Proibidas", nullptr));
+        combo_escola_proibida_1->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Nenhuma", nullptr));
+        combo_escola_proibida_1->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Abjura\303\247\303\243o", nullptr));
+        combo_escola_proibida_1->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Conjura\303\247\303\243o", nullptr));
+        combo_escola_proibida_1->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Evoca\303\247\303\243o", nullptr));
+        combo_escola_proibida_1->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Encantamento", nullptr));
+        combo_escola_proibida_1->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Ilus\303\243o", nullptr));
+        combo_escola_proibida_1->setItemText(6, QApplication::translate("ifg::qt::DialogoEntidade", "Necromancia", nullptr));
+        combo_escola_proibida_1->setItemText(7, QApplication::translate("ifg::qt::DialogoEntidade", "Transmuta\303\247\303\243o", nullptr));
+
+#ifndef QT_NO_TOOLTIP
+        combo_escola_proibida_1->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Caso mago seja especialista, escolha uma escola proibida (exceto adivinha\303\247\303\243o)", nullptr));
+#endif // QT_NO_TOOLTIP
+        combo_escola_proibida_2->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Nenhuma", nullptr));
+        combo_escola_proibida_2->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Abjura\303\247\303\243o", nullptr));
+        combo_escola_proibida_2->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Conjura\303\247\303\243o", nullptr));
+        combo_escola_proibida_2->setItemText(3, QApplication::translate("ifg::qt::DialogoEntidade", "Evoca\303\247\303\243o", nullptr));
+        combo_escola_proibida_2->setItemText(4, QApplication::translate("ifg::qt::DialogoEntidade", "Encantamento", nullptr));
+        combo_escola_proibida_2->setItemText(5, QApplication::translate("ifg::qt::DialogoEntidade", "Ilus\303\243o", nullptr));
+        combo_escola_proibida_2->setItemText(6, QApplication::translate("ifg::qt::DialogoEntidade", "Necromancia", nullptr));
+        combo_escola_proibida_2->setItemText(7, QApplication::translate("ifg::qt::DialogoEntidade", "Transmuta\303\247\303\243o", nullptr));
+
+#ifndef QT_NO_TOOLTIP
+        combo_escola_proibida_2->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Caso mago seja especialista, escolha uma escola proibida (exceto adivinha\303\247\303\243o)", nullptr));
+#endif // QT_NO_TOOLTIP
         label_102->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dom\303\255nios", nullptr));
         botao_adicionar_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar N\303\255vel", nullptr));
         botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", nullptr));
@@ -3765,6 +3894,11 @@ public:
         linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", nullptr));
 #endif // QT_NO_TOOLTIP
         linha_furtivo->setText(QString());
+        label_86->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Esquiva Sobrenatural", nullptr));
+        combo_esquiva_sobrenatural->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "N\303\243o Possui", nullptr));
+        combo_esquiva_sobrenatural->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Normal", nullptr));
+        combo_esquiva_sobrenatural->setItemText(2, QApplication::translate("ifg::qt::DialogoEntidade", "Aprimorada", nullptr));
+
         label_103->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Evas\303\243o", nullptr));
         combo_evasao_estatica->setItemText(0, QApplication::translate("ifg::qt::DialogoEntidade", "Sem Evas\303\243o", nullptr));
         combo_evasao_estatica->setItemText(1, QApplication::translate("ifg::qt::DialogoEntidade", "Evas\303\243o", nullptr));

@@ -70,6 +70,20 @@ void AtualizaUIEvasao(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.combo_evasao_estatica->blockSignals(false);
 }
 
+int TipoEsquivaSobrenaturalParaIndiceCombo(const ent::EntidadeProto& proto) {
+  if (PossuiHabilidadeEspecial("esquiva_sobrenatural_aprimorada", proto)) {
+    return 2;
+  } else if (PossuiHabilidadeEspecial("esquiva_sobrenatural", proto)) {
+    return 1;
+  }
+  return 0;
+}
+
+void AtualizaUIEsquivaSobrenatural(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.combo_esquiva_sobrenatural->setEnabled(false);
+  gerador.combo_esquiva_sobrenatural->setCurrentIndex(TipoEsquivaSobrenaturalParaIndiceCombo(proto));
+}
+
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   AtualizaUIClassesNiveis(tabelas, gerador, proto);
   AtualizaUIAtributos(tabelas, gerador, proto);
@@ -83,6 +97,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIFeiticos(tabelas, gerador, proto);
   AtualizaUIEventos(tabelas, gerador, proto);
   AtualizaUIEvasao(tabelas, gerador, proto);
+  AtualizaUIEsquivaSobrenatural(tabelas, gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {
@@ -162,6 +177,19 @@ void AtualizaUINiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
         LOG(ERROR) << "dominios de tamanho errado";
       }
     }
+    if (classe_tabelada.id() == "mago") {
+      const auto& fc = ent::FeiticosClasse(ic.id(), proto);
+      if (!fc.especializacao().empty()) {
+        StringAppendF(
+            &string_nivel, ", especialização: %s, %s",
+            fc.especializacao().c_str(),
+            fc.escolas_proibidas().size() != 2
+              ? "faltando escolas proibidas"
+              : StringPrintf("escolas proibidas: %s, %s", fc.escolas_proibidas(0).c_str(), fc.escolas_proibidas(1).c_str()).c_str());
+      } else {
+        StringAppendF(&string_nivel, ", sem especialização");
+      }
+    }
     gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
   }
   if (indice_antes < proto.info_classes().size()) {
@@ -189,7 +217,7 @@ void AtualizaUIClassesNiveis(
   std::vector<QObject*> objs = {
       gerador.spin_niveis_negativos, gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
       gerador.combo_mod_conjuracao, gerador.lista_niveis, gerador.combo_salvacoes_fortes, gerador.combo_classe, gerador.combo_raca,
-      gerador.combo_dominio_1, gerador.combo_dominio_2,
+      gerador.combo_dominio_1, gerador.combo_dominio_2, gerador.combo_especializacao_escola, gerador.combo_escola_proibida_1, gerador.combo_escola_proibida_2
   };
   auto BloqueiaSinais = [objs] {
     for (auto* obj : objs) obj->blockSignals(true);
@@ -233,6 +261,20 @@ void AtualizaUIClassesNiveis(
       gerador.combo_dominio_1->setToolTip("");
       SelecionaIndicePorId("nenhum", gerador.combo_dominio_2);
       gerador.combo_dominio_2->setToolTip("");
+    }
+    if (classe_tabelada.id() == "mago") {
+      const auto& fc = ent::FeiticosClasse(classe_tabelada.id(), proto);
+      gerador.combo_especializacao_escola->setEnabled(true);
+      SelecionaIndicePorId(fc.especializacao().empty() ? "nenhuma" : fc.especializacao(), gerador.combo_especializacao_escola);
+      const bool habilitar = gerador.combo_especializacao_escola->itemData(gerador.combo_especializacao_escola->currentIndex()).toString().toStdString() != "nenhuma";
+      gerador.combo_escola_proibida_1->setEnabled(habilitar);
+      gerador.combo_escola_proibida_2->setEnabled(habilitar);
+      SelecionaIndicePorId(fc.escolas_proibidas().size() < 1 ? "nenhuma" : fc.escolas_proibidas(0), gerador.combo_escola_proibida_1);
+      SelecionaIndicePorId(fc.escolas_proibidas().size() < 2 ? "nenhuma" : fc.escolas_proibidas(1), gerador.combo_escola_proibida_2);
+    } else {
+      gerador.combo_especializacao_escola->setEnabled(false);
+      gerador.combo_escola_proibida_1->setEnabled(false);
+      gerador.combo_escola_proibida_2->setEnabled(false);
     }
   }
 
@@ -401,7 +443,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   for (const auto* item : lista_itens) {
     selecionados.insert(gerador.lista_ataques->row(item));
   }
- 
+
   gerador.lista_ataques->clear();
   for (const auto& da : proto.dados_ataque()) {
     gerador.lista_ataques->addItem(QString::fromUtf8(ent::StringResumoArma(tabelas, da).c_str()));
@@ -412,7 +454,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
     if (indice == -1 || indice >= proto.dados_ataque().size()) continue;
     gerador.lista_ataques->item(indice)->setSelected(true);
   }
- 
+
   // BBA.
   int bba = 0;
   for (const auto& info_classe : proto.info_classes()) {
@@ -831,7 +873,7 @@ void AtualizaFeiticosParaLancarNivel(
   int slot = 0;
   VLOG(1)
       << "Para lancar nivel: " << nivel << ", qde: " << feiticos_nivel.para_lancar().size()
-      << ", proto: " << proto.feiticos_classes(0).DebugString();
+      << ", proto: " << feiticos_nivel.DebugString();
   for (const auto& para_lancar : feiticos_nivel.para_lancar()) {
     AdicionaItemFeiticoParaLancar(tabelas, gerador, id_classe, nivel, slot++, para_lancar, proto, pai);
     gerador.arvore_feiticos->blockSignals(true);
@@ -843,10 +885,14 @@ void AtualizaFeiticosClasse(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador,
     const std::string& id_classe, const ent::EntidadeProto& proto, QTreeWidgetItem* pai) {
   gerador.arvore_feiticos->blockSignals(true);
-  const auto& fc = ent::FeiticosClasse(id_classe, proto);
-  for (int nivel = 0; nivel < fc.feiticos_por_nivel().size(); ++nivel) {
+  for (int i = 0; i <= 9; ++i) {
+    auto it = ent::FeiticosClasse(id_classe, proto).mapa_feiticos_por_nivel().find(i);
+    if (it == ent::FeiticosClasse(id_classe, proto).mapa_feiticos_por_nivel().end()) continue;
+    const auto& [nivel, fn] = *it;
+    VLOG(1) << "atualizando " << id_classe << " nivel: " << nivel << ", tem " << fn.conhecidos().size() << " conhecidos e " << fn.para_lancar().size() << " para lancar";
     auto* item_nivel = new QTreeWidgetItem(pai);
     item_nivel->setText(0, QString::number(nivel));
+    item_nivel->setData(TCOL_NIVEL, Qt::UserRole, QVariant(nivel));
     {
       auto* item_conhecidos = new ItemConhecidos(id_classe, nivel, item_nivel);
       item_conhecidos->setData(TCOL_CONHECIDO_OU_PARA_LANCAR, Qt::UserRole, QVariant(RAIZ_CONHECIDO));
@@ -958,8 +1004,10 @@ void AtualizaCombosParaLancar(
     return;
   }
   // Itera nos niveis da classe.
-  for (int nivel = 0; nivel < item_classe->childCount(); ++nivel) {
-    AtualizaCombosParaLancarDoNivel(tabelas, gerador, id_classe, nivel, proto, item_classe->child(nivel));
+  for (int i = 0; i < item_classe->childCount(); ++i) {
+    auto* item = item_classe->child(i);
+    int nivel = item->data(TCOL_NIVEL, Qt::UserRole).toInt();
+    AtualizaCombosParaLancarDoNivel(tabelas, gerador, id_classe, nivel, proto, item);
   }
 }
 

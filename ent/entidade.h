@@ -93,6 +93,9 @@ class Entidade {
     return Achatar(proto_, parametros_desenho_);
   }
 
+  // Personagem esta indefeso (helpless).
+  bool Indefeso() const;
+
   /** Exporta o VBO ja extraido.
   * @throw caso nao haja ainda (por exemplo, carregando modelo 3d).
   */
@@ -210,6 +213,7 @@ class Entidade {
   bool ProximaAcao();
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
+  void AtualizaAcaoPorGrupo(const std::string& grupo);
   /** Retorna a acao mais recente da entidade. Caso nao haja, proto vazio. */
   AcaoProto Acao() const;
 
@@ -262,6 +266,9 @@ class Entidade {
 
   bool PossuiTalento(const std::string& talento, const std::optional<std::string>& complemento = std::nullopt) const;
 
+  bool PossuiVisaoEscuro() const { return (proto_.tipo_visao() & VISAO_ESCURO) != 0; }
+  bool PossuiVisaoBaixaLuminosidade() const { return (proto_.tipo_visao() & VISAO_BAIXA_LUMINOSIDADE) != 0; }
+
   // Acesso simplificado a alinhamento parcial.
   bool Boa() const;
   bool Ma() const;
@@ -278,6 +285,9 @@ class Entidade {
   const DadosAtaque* DadoCorrenteSecundario() const;
   const DadosAtaque* DadoAtaque(const std::string& grupo, int indice_ataque) const;
   const DadosAtaque* DadoAgarrar() const;
+  const DadosAtaque& DadoAgarrarNaoNull() const {
+    if (const auto* da = DadoAgarrar(); da != nullptr) { return *da; } else { return DadosAtaque::default_instance(); }
+  }
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
   // Retorna modificadores para ataques de toque.
@@ -294,10 +304,9 @@ class Entidade {
   enum TipoCA {
     CA_NORMAL,
     CA_TOQUE,
-    CA_SURPRESO  // Nao faz sentido, coisa do defensor.
   };
   // Retorna a CA da entidade, contra um atacante e um tipo de CA.
-  int CA(const Entidade& atacante, TipoCA tipo) const;
+  int CA(const Entidade& atacante, TipoCA tipo, bool vs_oportunidade = false) const;
   // Retorna 10 + modificador tamanho + destreza.
   int CAReflexos() const;
   bool ImuneCritico() const;
@@ -328,6 +337,7 @@ class Entidade {
   * 1.0f para entidades medias. Multiplicado pelo tamanho do quadrado da o tamanho da entidade.
   */
   float MultiplicadorTamanho() const;
+  TamanhoEntidade Tamanho() const { return proto_.tamanho(); }
 
   /** O espaco da entidade, baseado no seu tamanho. */
   float Espaco() const;
@@ -349,6 +359,8 @@ class Entidade {
   bool ImuneDoenca() const;
 
   bool PodeMover() const;
+  // Retorna se pode agir e caso nao possa, a razao.
+  std::pair<bool, std::string> PodeAgir() const;
 
   /** Por padrao, apenas entidades podem ser afetadas por acao. */
   inline bool PodeSerAfetadoPorAcoes() const {
@@ -362,14 +374,15 @@ class Entidade {
 
   // Acesso a tendencia.
   bool Bom() const { return ::ent::Bom(proto_); }
-  bool Mal() const { return ::ent::Mal(proto_); }
+  bool Mau() const { return ::ent::Mau(proto_); }
   bool Ordeiro() const { return ::ent::Ordeiro(proto_); }
   bool Caotico() const { return ::ent::Caotico(proto_); }
 
   /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. A string eh a descricao. */
-  std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const;
+  std::pair<std::tuple<int, std::string>, std::optional<std::tuple<int, std::string>>>
+      ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const;
   /** Retorna a string de dano para a acao corrente para o alvo: '1d8+3'. */
-  std::string StringDanoParaAcao(const EntidadeProto& alvo) const;
+  std::pair<std::string, std::optional<std::string>> StringDanoParaAcao(const EntidadeProto& alvo) const;
   /** Retorna a string de CA para a acao corrente (normal, toque): '(esc+surp) 15, tq: 12. */
   std::string StringCAParaAcao() const;
   /** Retorna alguns detalhes da acao: rotulo, string dano. */
@@ -405,6 +418,9 @@ class Entidade {
   void AtualizaMatrizAcaoPrincipal(const Matrix4& matriz);
   /** Atualiza a matriz de acao da mão secundaria. */
   void AtualizaMatrizAcaoSecundaria(const Matrix4& matriz);
+
+  /** Atualizacao que sera executada na proxima chamada de atualizacao. */
+  void DeixaAtualizacaoPendente(const EntidadeProto& atualizacao_pendente) { atualizacao_pendente_ = atualizacao_pendente; }
 
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
@@ -670,6 +686,7 @@ class Entidade {
 
  private:
   EntidadeProto proto_;
+  std::optional<EntidadeProto> atualizacao_pendente_;  // para efeitos que alternam a forma.
   const Tabelas& tabelas_;
   const Tabuleiro* tabuleiro_ = nullptr;
   VariaveisDerivadas vd_;

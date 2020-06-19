@@ -231,8 +231,11 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaUltimoPontoVidaListaPontosVida();
   /** Retorna true se houver valor na lista ou se for automatico e a entidade tiver os dados necessarios. */
   bool HaValorListaPontosVida();
-  /** Retorna a frente da lista e a remove. Caso o dano seja automatico, le da entidade para o tipo de acao. */
-  int LeValorListaPontosVida(const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao);
+  /** Retorna a frente da lista e a remove. Caso o dano seja automatico, le da entidade para o tipo de acao.
+  * Os dois valores se referem ao dano normal e o dano adicional.
+  */
+  std::pair<int, int> LeValorListaPontosVida(
+      const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao);
   /** Retorna o valor de ataque furtivo, se estiver ligado e houver. */
   int LeValorAtaqueFurtivo(const Entidade* entidade);
 
@@ -319,6 +322,9 @@ class Tabuleiro : public ntf::Receptor {
   * Se acao_padrao == true, usa a acao de sinalizacao, caso contrario, usa a acao selecionada.
   */
   void TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y);
+
+  /** Retorna id da entidade clicado (ou IdInvalido), a posicao do clique na entidade e a posicao do clique no tabuleiro. */
+  std::tuple<unsigned int, Posicao, Posicao> IdPosicaoEntidadePosicaoTabuleiro(int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade);
 
   /** Trata o botao de esquiva. */
   void TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);
@@ -630,6 +636,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Alterna o modo de ataque de derrubar da entidade selecionada. */
   void AlternaAtaqueDerrubar();
+  /** Alterna o modo de ataque de desarmar da entidade selecionada. */
+  void AlternaAtaqueDesarmar();
 
   /** Desliga a esquiva da primeira pessoa ou selecionado, notificando clientes. */
   void DesligaEsquivaNotificando();
@@ -846,8 +854,8 @@ class Tabuleiro : public ntf::Receptor {
   std::vector<unsigned int> IdsEntidadesSelecionadasEMontadas() const;
   /** Retorna os ids das entidades selecionadas e tambem daquelas montadas nelas. */
   std::vector<unsigned int> IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa() const;
-  /** Se estiver em primeira pessoa, retorna o id dela, senao das entidades selecionadas e montadas. */
-  std::vector<unsigned int> IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas() const;
+  /** Se estiver em primeira pessoa, retorna o id dela e das montadas, senao das entidades selecionadas e montadas nelas. */
+  std::vector<unsigned int> IdsPrimeiraPessoaMontadasOuEntidadesSelecionadasMontadas() const;
 
   /** Retorna a entidade selecionada se houver apenas uma, ou a primeira pessoa. */
   Entidade* EntidadeSelecionadaOuPrimeiraPessoa();

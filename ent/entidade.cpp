@@ -102,10 +102,23 @@ void CorrigeDadosAtaqueDeprecated(EntidadeProto* proto) {
   }
 }
 
+void CorrigeFeiticosPorNivelDeprecated(EntidadeProto* proto) {
+  for (auto& fc : *proto->mutable_feiticos_classes()) {
+    for (int i = 0; i < fc.feiticos_por_nivel_deprecated().size(); ++i) {
+      auto* fnd = fc.mutable_feiticos_por_nivel_deprecated(i);
+      int nivel = fnd->has_nivel() ? fnd->nivel() : i;
+      VLOG(1) << "criando para '" << fc.id_classe() << "' nivel: " << (fnd->has_nivel() ? fnd->nivel() : nivel);
+      FeiticosNivel(fc.id_classe(), fnd->has_nivel() ? fnd->nivel() : nivel, proto)->Swap(fnd);
+    }
+    fc.clear_feiticos_por_nivel_deprecated();
+  }
+}
+
 void CorrigeCamposDeprecated(EntidadeProto* proto) {
   CorrigeAuraDeprecated(proto);
   CorrigeTranslacaoDeprecated(proto);
   CorrigeDadosAtaqueDeprecated(proto);
+  CorrigeFeiticosPorNivelDeprecated(proto);
 }
 
 }  // namespace
@@ -141,6 +154,44 @@ void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivada
 #endif
 }
 
+namespace {
+
+void TalvezCorrijaTipoCelestialAbissal(EntidadeProto* proto) {
+  if (c_none_of(
+        proto->modelos(),
+        [](const ModeloDnD& modelo) { return modelo.id_efeito() == EFEITO_MODELO_CELESTIAL || modelo.id_efeito() == EFEITO_MODELO_ABISSAL; })) {
+    return;
+  }
+  for (auto& tipo : *proto->mutable_tipo_dnd()) {
+    if (tipo == TIPO_ANIMAL || tipo == TIPO_VERME) {
+      tipo = TIPO_BESTA_MAGICA;
+    }
+  }
+  if (!TemSubTipoDnD(SUBTIPO_PLANAR, *proto)) {
+    proto->add_sub_tipo_dnd(SUBTIPO_PLANAR);
+  }
+  for (auto& ic : *proto->mutable_info_classes()) {
+    if (ic.id() == "animal" || ic.id() == "verme") {
+      ic.set_id("besta_magica");
+    }
+  }
+}
+
+void TalvezCorrijaVisao(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (const auto& modelo : proto->modelos()) {
+    const auto& modelo_tabelado = tabelas.EfeitoModelo(modelo.id_efeito());
+    if (modelo_tabelado.desligavel()) continue;
+    if (modelo_tabelado.consequencia().has_tipo_visao()) {
+      proto->set_tipo_visao(static_cast<TipoVisao>(proto->tipo_visao() | modelo_tabelado.consequencia().tipo_visao()));
+    }
+    if (modelo_tabelado.consequencia().has_alcance_visao_m()) {
+      proto->set_alcance_visao_m(std::max(proto->alcance_visao_m(), modelo_tabelado.consequencia().alcance_visao_m()));
+    }
+  }
+}
+
+}  // namespace
+
 void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // Preciso do tipo aqui para atualizar as outras coisas de acordo.
   proto_.set_tipo(novo_proto.tipo());
@@ -149,6 +200,8 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   AtualizaModelo3d(novo_proto);
   // mantem o tipo.
   proto_ = novo_proto;
+  TalvezCorrijaTipoCelestialAbissal(&proto_);
+  TalvezCorrijaVisao(tabelas_, &proto_);
   CorrigeCamposDeprecated(&proto_);
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
@@ -751,6 +804,11 @@ void Entidade::Atualiza(int intervalo_ms) {
     vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   }
 
+  if (atualizacao_pendente_.has_value()) {
+    AtualizaParcial(*atualizacao_pendente_);
+    atualizacao_pendente_.reset();
+  }
+
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
   AtualizaBolhas(intervalo_ms);
@@ -1153,7 +1211,7 @@ void AtualizaParcialInfoFeiticosClasse(const EntidadeProto::InfoFeiticosClasse& 
   // Campos excluidos, exceto alteracoes pontuais.
   *pic->mutable_dominios() = pic_backup.dominios();
   *pic->mutable_escolas_proibidas() = pic_backup.escolas_proibidas();
-  *pic->mutable_feiticos_por_nivel() = pic_backup.feiticos_por_nivel();
+  *pic->mutable_mapa_feiticos_por_nivel() = pic_backup.mapa_feiticos_por_nivel();
   *pic->mutable_poderes_dominio() = pic_backup.poderes_dominio();
   // Alteracoes pontuais.
   // Por algum motivo bizarro, isso da segfault no clang no mac!
@@ -1388,6 +1446,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
         !proto_.dados_ataque(0).has_id_arma()) {
       proto_.clear_dados_ataque();
     }
+    for (const auto& da : proto_.dados_ataque()) {
+      if (da.has_disponivel_em()) {
+        LOG(INFO) << "disponivel_em: " << da.disponivel_em() << ", rotulo: " << da.rotulo();
+      }
+    }
   }
 
   // casos especiais.
@@ -1444,6 +1507,16 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
   } else {
     proto_.set_ultimo_grupo_acao(dado_corrente->grupo());
   }
+  RecomputaDependencias();
+}
+
+void Entidade::AtualizaAcaoPorGrupo(const std::string& grupo) {
+  proto_.set_ultimo_grupo_acao(grupo);
+  const auto* dado_corrente = DadoCorrente();
+  if (dado_corrente == nullptr) {
+    proto_.clear_ultimo_grupo_acao();
+  }
+  RecomputaDependencias();
 }
 
 bool Entidade::ProximaAcao() {
@@ -1817,15 +1890,10 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
   proto_.mutable_direcao_queda()->Swap(&v);
 }
 
-std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const {
-  std::string s = StringDanoParaAcao(alvo);
-  if (s.empty()) {
-    VLOG(1) << "Acao nao encontrada: " << id_acao;
-    return std::make_tuple(0, "ação não encontrada");
-  }
+std::tuple<int, std::string> TuplaValorString(const std::string& string_dano) {
   try {
     // Valor minimo de dano é 1, caso haja algum dano.
-    auto [valor, dados] = GeraPontosVida(s);
+    auto [valor, dados] = GeraPontosVida(string_dano);
     std::string texto_dados;
     for (const auto& fv : dados) {
       texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
@@ -1833,11 +1901,26 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao,
     if (valor <= 0) {
       valor = 1;
     }
-    return std::make_tuple(valor, std::string("Valor para acao. ") + s + ", total: " + net::to_string(valor) + ", dados: " + texto_dados);
-  } catch (const std::exception& e) {
-    return std::make_tuple(0, std::string("string de dano malformada: ") + s);
+    return std::make_tuple(
+        valor, StringPrintf("%s, total: %d (dados: %s)", string_dano.c_str(), valor, texto_dados.c_str()));
+  } catch (...) {
   }
-  return std::make_tuple(0, "nunca deveria chegar aqui");
+  return std::make_tuple(0, StringPrintf("string de dano malformada: %s", string_dano.c_str()));
+}
+
+std::pair<std::tuple<int, std::string>, std::optional<std::tuple<int, std::string>>>
+    Entidade::ValorParaAcao(const std::string& id_acao, const EntidadeProto& alvo) const {
+  auto [string_normal, string_adicional_opt] = StringDanoParaAcao(alvo);
+  if (string_normal.empty()) {
+    VLOG(1) << "Acao nao encontrada: " << id_acao;
+    return std::make_pair(std::make_tuple(0, "ação não encontrada"), std::nullopt);
+  }
+  auto tupla_normal = TuplaValorString(string_normal);
+  std::optional<std::tuple<int, std::string>> tupla_adicional_opt;
+  if (string_adicional_opt.has_value()) {
+    tupla_adicional_opt = TuplaValorString(*string_adicional_opt);
+  }
+  return std::make_pair(tupla_normal, tupla_adicional_opt);
 }
 
 std::string Entidade::DetalhesAcao() const {
@@ -1849,10 +1932,10 @@ std::string Entidade::DetalhesAcao() const {
   return StringAtaque(*da, proto_);
 }
 
-std::string Entidade::StringDanoParaAcao(const EntidadeProto& alvo) const {
+std::pair<std::string, std::optional<std::string>> Entidade::StringDanoParaAcao(const EntidadeProto& alvo) const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {
-   return "";
+   return std::make_pair("", std::nullopt);
   }
   return ent::StringDanoParaAcao(*da, proto_, alvo);
 }
@@ -1996,34 +2079,46 @@ int Entidade::BonusAtaqueToqueDistancia() const {
   return proto_.bba().distancia();
 }
 
-int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca) const {
+int Entidade::CA(const Entidade& atacante, TipoCA tipo_ca, bool vs_oportunidade) const {
   Bonus outros_bonus;
   CombinaBonus(BonusContraTendenciaNaCA(atacante.Proto(), proto_), &outros_bonus);
 
+  const auto& da = DadoCorrenteNaoNull(/*ignora_ataques_na_rodada=*/true);
+  const bool destreza_na_ca = DestrezaNaCAContraAtaque(&da, proto_, atacante.Proto());
+
   // Cada tipo de CA sabera compensar a esquiva.
-  const int bonus_esquiva =
-      PossuiTalento("esquiva") && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
-  AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
-  const auto* da = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
+  {
+    const int bonus_esquiva =
+        destreza_na_ca && PossuiTalento("esquiva") && atacante.Id() == proto_.dados_defesa().entidade_esquiva() ? 1 : 0;
+    AtribuiBonus(bonus_esquiva, TB_ESQUIVA, "esquiva", &outros_bonus);
+  }
+  for (const auto& [tipo, bonus] : tabelas_.Raca(proto_.raca()).dados_defesa().bonus_ca_por_tipo()) {
+    if (atacante.TemTipoDnD(static_cast<TipoDnD>(tipo)) && (destreza_na_ca || !PossuiBonus(TB_ESQUIVA, bonus))) {
+      // Meio roubado. Se a raca tiver um bonus composto por 2 tipos diferentes, um for esquiva, vai dar pau. Mas na pratica, nunca deve acontecer.
+      CombinaBonus(bonus, &outros_bonus);
+    }
+  }
+  // TODO na verdade, é so para ataques de oportunidade oriundos de movimento.
+  const int bonus_mobilidade =
+      destreza_na_ca && vs_oportunidade && !proto_.caida() && PossuiTalento("mobilidade") ? 4 : 0;
+  //LOG(INFO) << "destrezanaca: " << destreza_na_ca << ", vs_oportunidade: " << vs_oportunidade << ", caido: " << proto_.caida() << ", PossuiTalento(mobilidade): " << PossuiTalento("mobilidade") << ", bonus mobilidade: " << bonus_mobilidade;
+  AtribuiBonus(bonus_mobilidade, TB_ESQUIVA, "mobilidade", &outros_bonus);
   if (proto_.dados_defesa().has_ca()) {
-    bool permite_escudo = (da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO) && PermiteEscudo(proto_);
+    const bool permite_escudo = true;  // o recomputa ja tirou o escudo.
     if (tipo_ca == CA_NORMAL && !PossuiEvento(EFEITO_FORMA_GASOSA, proto_)) {
-      return DestrezaNaCAContraAtaque(da, proto_, atacante.Proto())
+      return destreza_na_ca
           ? CATotal(proto_, permite_escudo, outros_bonus)
           : CASurpreso(proto_, permite_escudo, outros_bonus);
     } else {
-      return DestrezaNaCAContraAtaque(da, proto_, atacante.Proto())
+      return destreza_na_ca
           ? CAToque(proto_, outros_bonus)
           : CAToqueSurpreso(proto_, outros_bonus);
     }
   }
-  if (da == nullptr) {
-    return AtaqueCaInvalido;
-  }
+  // Aqui é para quando a entidade nao tiver nenhuma informacao de CA.
   switch (tipo_ca) {
-    case CA_TOQUE: return da->ca_toque() + bonus_esquiva;
-    case CA_SURPRESO: return da->ca_surpreso();
-    default: return da->ca_normal() + bonus_esquiva;
+    case CA_TOQUE: return da.ca_toque() + BonusTotalExcluindo(outros_bonus, destreza_na_ca ? std::vector<ent::TipoBonus>{} : std::vector<ent::TipoBonus>{TB_ESQUIVA});
+    default: return da.ca_normal() + BonusTotalExcluindo(outros_bonus, destreza_na_ca ? std::vector<ent::TipoBonus>{} : std::vector<ent::TipoBonus>{TB_ESQUIVA});
   }
 }
 
@@ -2119,7 +2214,8 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   }
   // Vbos de armas.
   std::vector<std::string> dados_vbo = {
-    "kama", "quarterstaff", "sword", "short_sword", "bow", "club", "shield", "hammer", "flail", "crossbow", "axe", "shield", "mace", "morning_star", "spear"
+    "kama", "quarterstaff", "sword", "short_sword", "bow", "club", "shield", "hammer", "flail",
+    "crossbow", "axe", "shield", "mace", "morning_star", "spear", "two_bladed_sword"
   };
   for (const auto& id : dados_vbo) {
     std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
@@ -2526,10 +2622,24 @@ bool Entidade::Ordeira() const {
 }
 
 bool Entidade::PodeMover() const {
-  if (PossuiUmDosEfeitos({EFEITO_NAO_PODE_MOVER, EFEITO_IMOBILIZADO, EFEITO_PARALISIA})) {
+  if (PossuiUmDosEfeitos({EFEITO_NAO_PODE_MOVER, EFEITO_IMOBILIZADO, EFEITO_PARALISIA, EFEITO_APRISIONADO_ELEMENTAL})) {
     return false;
   }
   return true;
+}
+
+bool Entidade::Indefeso() const {
+  return ent::Indefeso(proto_);
+}
+
+std::pair<bool, std::string> Entidade::PodeAgir() const {
+  if (PossuiEfeito(EFEITO_PASMAR)) return std::make_pair(false, "pasmo");
+  if (PossuiEfeito(EFEITO_ATORDOADO)) return std::make_pair(false, "atordoado");
+  if (PossuiEfeito(EFEITO_FASCINADO)) return std::make_pair(false, "fascinado");
+  if (PossuiEfeito(EFEITO_NAUSEA)) return std::make_pair(false, "nauseado");
+  if (PossuiUmDosEfeitos({EFEITO_PARALISIA, EFEITO_MOVIMENTACAO_LIVRE})) return std::make_pair(false, "paralisado");
+  if (const auto& da = DadoCorrenteNaoNull(); da.desarmado()) return std::make_pair(false, "desarmado");
+  return std::make_pair(true, "");
 }
 
 }  // namespace ent

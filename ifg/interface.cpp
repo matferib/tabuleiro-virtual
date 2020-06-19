@@ -44,7 +44,7 @@ std::string StringDuracao(ent::ModificadorRodadas mr) {
     case ent::MR_10_MINUTOS_NIVEL: return "10 minutos/nível";
     case ent::MR_HORAS_NIVEL: return "horas/nível";
     case ent::MR_2_HORAS_NIVEL: return "2 horas/nível";
-    case ent::MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6: return "1 rodada/ 3 níveis (max 6)";
+    case ent::MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6: return "1 rodada/3 níveis (max 6)";
     case ent::MR_10_RODADAS_MAIS_UMA_POR_NIVEL_MAX_15: return "10 rodadas +1/nível (max 15)";
     case ent::MR_HORAS_NIVEL_MAX_15: return "horas/nivel (max 15)";
     case ent::MR_2_MINUTOS_NIVEL: return "2 minutos/nivel";
@@ -53,6 +53,8 @@ std::string StringDuracao(ent::ModificadorRodadas mr) {
     case ent::MR_PALAVRA_PODER_CEGAR: return "variável por PV: max permanente";
     case ent::MR_CONTINUO: return "continuo";
     case ent::MR_MOD_CARISMA: return "modificador de carisma";
+    case ent::MR_DRENAR_FORCA_VITAL: return "10 minutos/nivel do alvo";
+    case ent::MR_1_RODADA_A_CADA_2_NIVEIS: return "1 rodada/2 níveis";
   }
   // Nao deveria chegar aqui.
   return "desconhecida";
@@ -781,7 +783,7 @@ void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& no
 void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao) {
   if (notificacao.entidade().feiticos_classes().empty() ||
       notificacao.entidade().feiticos_classes(0).id_classe().empty() ||
-      notificacao.entidade().feiticos_classes(0).feiticos_por_nivel().empty()) {
+      notificacao.entidade().feiticos_classes(0).mapa_feiticos_por_nivel().empty()) {
     LOG(ERROR) << "Notificacao de escolher feitico invalida: " << notificacao.DebugString();
     return;
   }
@@ -798,11 +800,14 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     int indice_gasto = 0;
   };
   std::vector<NivelIndiceIndiceGasto> items;
-  int nivel_gasto = fc.feiticos_por_nivel().size() - 1;
+  int nivel_gasto = -1;
+  for (const auto& [nivel, fn] : fc.mapa_feiticos_por_nivel()) {
+    nivel_gasto = std::max(nivel, nivel_gasto);
+  }
+  const auto& fn = ent::FeiticosNivel(id_classe, nivel_gasto, notificacao.entidade());
   if (ClassePrecisaMemorizar(tabelas_, id_classe)) {
     std::string str_restricao = id_classe == "clerigo" ? " (dominio) " : " (especista) ";
     // Monta lista de feiticos para lancar do nivel.
-    const auto& fn = fc.feiticos_por_nivel(nivel_gasto);
     for (int indice = 0; indice < fn.para_lancar().size(); ++indice) {
       const auto& pl = fn.para_lancar(indice);
       if (pl.usado()) continue;
@@ -836,8 +841,8 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
           ntf::NovaNotificacaoErro(StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
-    for (int nivel = fc.feiticos_por_nivel().size() - 1; nivel >= 0; --nivel) {
-      const auto& fn = fc.feiticos_por_nivel(nivel);
+    for (int nivel = nivel_gasto; nivel >= 0; --nivel) {
+      const auto& fn = FeiticosNivel(id_classe, nivel, notificacao.entidade()); 
       for (int indice = 0; indice < fn.conhecidos().size(); ++indice) {
         const auto& c = fn.conhecidos(indice);
         const auto& feitico = tabelas_.Feitico(c.id());
@@ -862,25 +867,23 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     // Consome o feitico.
     const auto& item = items[indice_lista];
 
-    ntf::Notificacao grupo_notificacao;
-    grupo_notificacao.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-
+    auto grupo_notificacao = ent::NovoGrupoNotificacoes();
     const auto* entidade = tabuleiro_->BuscaEntidade(notificacao.entidade().id());
     if (entidade == nullptr) {
       LOG(INFO) << "Erro, entidade nao existe";
       return;
     }
     if (ent::NotificacaoConsequenciaFeitico(
-          tabelas_, DadosIniciativaEntidade(entidade), id_classe, conversao_espontanea, item.nivel, item.indice, *entidade, &grupo_notificacao)) {
+          tabelas_, DadosIniciativaEntidade(entidade), id_classe, conversao_espontanea, item.nivel, item.indice, *entidade, grupo_notificacao.get())) {
       tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ACAO);
     }
 
     auto n_alteracao_feitico = ent::NotificacaoAlterarFeitico(
         id_classe, nivel_gasto, item.indice_gasto, /*usado=*/true, notificacao.entidade());
-    *grupo_notificacao.add_notificacao() = *n_alteracao_feitico;
+    *grupo_notificacao->add_notificacao() = *n_alteracao_feitico;
 
-    tabuleiro_->AdicionaNotificacaoListaEventos(grupo_notificacao);
-    tabuleiro_->TrataNotificacao(grupo_notificacao);
+    tabuleiro_->AdicionaNotificacaoListaEventos(*grupo_notificacao);
+    central_->AdicionaNotificacao(grupo_notificacao.release());
     VLOG(1) << "gastando feitico nivel: " << nivel_gasto << ", indice: " << item.indice_gasto;
   };
 

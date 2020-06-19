@@ -209,6 +209,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_DERRUBAR:
       AlternaAtaqueDerrubar();
       break;
+    case CONTROLE_DESARMAR:
+      AlternaAtaqueDesarmar();
+      break;
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:
     case CONTROLE_USAR_FEITICO_2:
@@ -1124,6 +1127,16 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           if (da == nullptr) return false;
           return tabelas_.Arma(da->id_arma()).pode_derrubar();
         }
+          /*
+        case VIS_ATAQUE_DESARMAR: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr) return false;
+          const auto* da = e->DadoCorrente();
+          if (da == nullptr) return false;
+          return PossuiTalento() || tabelas_.Arma(da->id_arma()).pode_desarmar();
+        }
+        */
+
         default: {
           LOG(WARNING) << "Tipo de visibilidade de botao invalido: " << ref.tipo();
         }
@@ -1250,7 +1263,7 @@ void Tabuleiro::DesenhaIniciativas() {
   largura_fonte *= escala;
   altura_fonte *= escala;
   raster_y = altura_ - (altura_fonte * 3);  // deixa a linha livre pra nao baguncar acoes.
-  raster_x = (opcoes_.mostra_fps() ? largura_fonte  * 9 : 0) + 2;
+  raster_x = (largura_fonte  * 9) + 2;
   PosicionaRaster2d(raster_x, raster_y);
 
   const unsigned int indice_corrigido = static_cast<unsigned int>(indice_iniciativa_) < iniciativas_.size() ? indice_iniciativa_ : iniciativas_.size() - 1;
@@ -1371,10 +1384,10 @@ void Tabuleiro::DesenhaControleVirtual() {
   // Mapeia id do botao para a funcao de estado. A entidade recebida vem da funcao EntidadePrimeiraPessoaOuSelecionada.
   static const std::unordered_map<int, std::function<bool(const Entidade* entidade)>> mapa_botoes = {
     { CONTROLE_DERRUBAR,          [this] (const Entidade* entidade) {
-       if (entidade == nullptr) return false;
-       const auto* da = entidade->DadoCorrente();
-       if (da == nullptr) return false;
-       return da->ataque_derrubar();
+       return entidade != nullptr && entidade->DadoCorrenteNaoNull().ataque_derrubar();
+    } },
+    { CONTROLE_DESARMAR,          [this] (const Entidade* entidade) {
+       return entidade != nullptr && entidade->DadoCorrenteNaoNull().ataque_desarmar();
     } },
     { CONTROLE_ACAO,              [this] (const Entidade* entidade) { return modo_clique_ != MODO_NORMAL; } },
     { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },

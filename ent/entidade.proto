@@ -26,7 +26,7 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Proximo id: 115.
+// Proximo id: 116.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -112,6 +112,7 @@ message EntidadeProto {
   optional bool visivel = 10 [default=true];
   // Verdadeiro se a entidade for voadora.
   optional bool voadora = 13 [default=false];
+  optional bool nadando = 115 [default=false];
   optional float z_antes_voo = 49;
   // Entidade esta caida.
   optional bool caida = 14 [default=false];
@@ -196,64 +197,15 @@ message EntidadeProto {
 
   repeated DadosAtaque dados_ataque = 44;
 
-  // Por enquanto, apenas para ranger.
-  message InimigoPredileto {
-    // ranger.
-    optional string classe = 1;
-    // Quantas vezes foi escolhido.
-    optional int32 vezes = 2;
-    // Qual o tipo.
-    optional TipoDnD tipo = 3;
-    // E o subtipo, se houver.
-    optional SubTipoDnD sub_tipo = 4;
-  }
-
-  // Independe de ataque especifico.
-  message DadosAtaqueGlobal {
-    optional string dano_furtivo = 1;
-    // Ver funcao ModificadorAtaque em util.
-    // Alguns bonus de ataque genericos.
-    optional bool ataque_menos_1 = 2;
-    optional bool ataque_menos_2 = 3;
-    optional bool ataque_menos_4 = 4;
-    optional bool ataque_menos_8 = 14;
-    optional bool ataque_mais_1 = 5;
-    optional bool ataque_mais_2 = 6;
-    optional bool ataque_mais_4 = 7;
-    optional bool ataque_mais_8 = 15;
-    optional bool ataque_mais_16 = 27;
-    // Dano generico.
-    optional bool dano_menos_1 = 8;
-    optional bool dano_menos_2 = 9;
-    optional bool dano_menos_4 = 10;
-    optional bool dano_menos_8 = 19;
-    optional bool dano_mais_1 = 11;
-    optional bool dano_mais_2 = 12;
-    optional bool dano_mais_4 = 13;
-    optional bool dano_mais_8 = 16;
-    optional bool dano_mais_16 = 17;
-    optional bool dano_mais_32 = 18;
-
-    // Se presente, representa a chance de falha de ataque. Um valor negativo indica que ignora
-    // a chance de falha causada pela defesa.
-    optional int32 chance_falha = 25;
-    // Algumas criaturas tem isso por serem naturalmente cegas, mas nao sao consideradas cegas.
-    optional int32 chance_falha_permanente = 31;
-    repeated InimigoPredileto inimigos_prediletos = 26;
-    // indica modo furtivo, proximo dano dara dano furtivo.
-    optional bool furtivo = 28;
-    // Expulsar/fascinar mortos vivos.
-    optional int32 maximo_expulsoes_por_dia = 29;
-    optional int32 expulsoes_realizadas = 30;
-
-    optional bool flanqueando = 32;
-  }
   optional DadosAtaqueGlobal dados_ataque_global = 73;
 
   optional DadosDefesa dados_defesa = 45;
 
   message ArmaArmaduraOuEscudoPersonagem {
+    // Id da arma.
     optional string id = 1;
+    // Usado para ataques referenciarem.
+    optional string id_para_ataques = 12;
     optional string nome = 6;  // nome legivel.
     // Isso nao muda.
     repeated DescritorAtaque descritores_basicos = 2;
@@ -262,6 +214,10 @@ message EntidadeProto {
     // Para referencias cruzadas. deve ser unico dentro de sua categoria para o
     // personagem.
     optional int32 id_unico = 4;
+    // Para ficar mais facil.
+    optional int32 bonus_magico = 9;
+    optional int32 bonus_magico_secundario = 11;
+    optional bool obra_prima = 10;
     // Os bonus do item.
     optional Bonus bonus = 5;
     optional bool em_uso = 7;
@@ -377,7 +333,7 @@ message EntidadeProto {
     repeated InfoConhecido conhecidos = 5;
     repeated InfoLancar para_lancar = 6;
     // Para combinacao modelos.
-    optional OperacaoCombinacao operacao = 7;
+    //optional OperacaoCombinacao operacao = 7;
   }
   message PoderesDominio {
     optional bool usado = 1;
@@ -390,7 +346,8 @@ message EntidadeProto {
     optional string especializacao = 9;
     repeated string escolas_proibidas = 10;
     // Cada repeticao vale para o nivel do indice. Por exemplo, nivel 0 eh a primeira entrada.
-    repeated FeiticosPorNivel feiticos_por_nivel = 5;
+    repeated FeiticosPorNivel feiticos_por_nivel_deprecated = 5;
+    map<int32, FeiticosPorNivel> mapa_feiticos_por_nivel = 12;
     // Indica operacao de conversao espontanea.
     optional bool conversao_espontanea = 8;
     optional OperacaoCombinacao operacao = 7;

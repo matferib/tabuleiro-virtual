@@ -1,12 +1,520 @@
 # Este arquivo eh uma representacao texto do proto ControleVirtual.
 #modo_debug: true
 fixo {
-  # Coisas da primeira pessoa ou selecionada.
-  # Linha 5.
+  # Habilidades de classe e talentos.
+  dados_botoes {
+    tamanho: 1
+    linha: 8
+    coluna: 4
+    rotulo: "Ag"
+    cor_rotulo {}
+    textura: "icon_grapple.png"
+    id: CONTROLE_AGARRANDO
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Agarra/desagarra personagem."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 9
+    coluna: 4
+    rotulo: "LD"
+    cor_rotulo {}
+    textura: "icon_fight_defensively.png"
+    id: CONTROLE_LUTA_DEFENSIVA
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Entra em luta defensiva."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 10
+    coluna: 4
+    rotulo: "DT"
+    cor_rotulo {}
+    textura: "icon_total_defense.png"
+    id: CONTROLE_DEFESA_TOTAL
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Entra em defesa total."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 11
+    coluna: 4
+    rotulo: "I"
+    cor_rotulo {}
+    textura: "icon_charge.png"
+    id: CONTROLE_INVESTIDA
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Investida (carga)."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 12
+    coluna: 4
+    rotulo: "F"
+    cor_rotulo {}
+    textura: "icon_flank.png"
+    id: CONTROLE_ALTERNAR_FLANQUEANDO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Flanquear."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 13
+    coluna: 4
+    rotulo: "Ds"
+    cor_rotulo {}
+    textura: "icon_disarm.png"
+    id: CONTROLE_DESARMAR
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Desarmar."
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    #visibilidade { referencia { tipo: VIS_ATAQUE_DERRUBAR } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 14
+    coluna: 4
+    rotulo: "Dr"
+    cor_rotulo {}
+    textura: "icon_trip_attack.png"
+    id: CONTROLE_DERRUBAR
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Derrubar."
+    visibilidade { referencia { tipo: VIS_ATAQUE_DERRUBAR } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 15
+    coluna: 4
+    rotulo: "Es"
+    cor_rotulo {}
+    textura: "icon_dodge.png"
+    id: CONTROLE_MODO_ESQUIVA
+    forma: FORMA_RETANGULO
+    dica: "Escolhe uma entidade para se esquivar."
+    visibilidade { referencia { tipo: VIS_ESQUIVA } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 16
+    coluna: 4
+    rotulo: "Fu"
+    cor_rotulo {}
+    textura: "icon_rage.png"
+    id: CONTROLE_FURIA
+    forma: FORMA_RETANGULO
+    dica: "Entra em fúria."
+    visibilidade { referencia { tipo: VIS_FURIA } }
+  }
+
+  # Coisas gerais.
+  dados_botoes {
+    tamanho: 1
+    linha: 6
+    coluna: 3
+    rotulo: "Zz"
+    cor_rotulo {}
+    textura: "icon_rest.png"
+    id: CONTROLE_DESCANSAR_PERSONAGEM
+    forma: FORMA_RETANGULO
+    dica: "Descansa personagem."
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 6
+    coluna: 4
+    id: CONTROLE_ROLAR_INICIATIVA
+    forma: FORMA_RETANGULO
+    rotulo: "R"
+    dica: "Rola iniciativas de entidades selecionadas."
+    textura: "icon_roll_initiative.png"
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+    #translacao_x: -0.53
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 6
+    coluna: 5
+    rotulo: "Re"
+    cor_rotulo {}
+    textura: "icon_ruler.png"
+    id: CONTROLE_REGUA
+    forma: FORMA_RETANGULO
+    visibilidade {
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
+    dica: "Régua."
+  }
+
   dados_botoes {
     tamanho: 1
     linha: 5
     coluna: 3
+    rotulo: "T"
+    cor_rotulo {}
+    textura: "icon_enter.png"
+    id: CONTROLE_TRANSICAO
+    forma: FORMA_RETANGULO
+    # Este nao depende de entidade.
+    dica: "Entra em um objeto."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 3
+    rotulo: "?"
+    cor_rotulo {}
+    textura: "icon_help.png"
+    id: CONTROLE_AJUDA
+    forma: FORMA_RETANGULO
+    dica: "Ajuda."
+  }
+  # Cameras.
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 4
+    rotulo: "Is"
+    cor_rotulo {}
+    textura: "icon_isometric_camera.png"
+    id: CONTROLE_CAMERA_ISOMETRICA
+    forma: FORMA_RETANGULO
+    dica: "Câmera isométrica."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 5
+    rotulo: "Is"
+    cor_rotulo {}
+    textura: "icon_tracking_camera.png"
+    id: CONTROLE_CAMERA_PRESA
+    forma: FORMA_RETANGULO
+    dica: "Prende a câmera a um personagem."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: 6
+    cor_rotulo {}
+    id: CONTROLE_CAMERA_PRESA_PROXIMO
+    textura: "icon_next_tracked_entity.png"
+    rotacao_graus: -90.0
+    translacao_x: -0.3
+    forma: FORMA_TRIANGULO
+    dica: "Muda de entidade presa."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 5
+    coluna: 4
+    rotulo: "FoV"
+    cor_rotulo {}
+    id: CONTROLE_ANGULO_VISAO_ORIGINAL
+    textura: "icon_camera_fov_default.png"
+    forma: FORMA_RETANGULO
+    dica: "Restaura angulo de visao para 70 graus."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 5
+    coluna: 5
+    rotulo: "1p"
+    cor_rotulo {}
+    textura: "icon_first_person_camera.png"
+    id: CONTROLE_CAMERA_PRIMEIRA_PESSOA
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+    dica: "Poe a camera em primeira pessoa ao personagem selecionado."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 5
+    coluna: 6
+    rotulo: "Ve"
+    cor_rotulo {}
+    textura: "icon_darkvision.png"
+    id: CONTROLE_VISAO_ESCURO
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+    dica: "Liga/desliga visão no escuro (requer câmera presa)."
+  }
+
+  # status
+  dados_botoes {
+    tamanho: 1
+    linha: 8
+    coluna: 3
+    rotulo: "S"
+    cor_rotulo {}
+    textura: "icon_surprise.png"
+    id: CONTROLE_SURPRESO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Surpreso."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 9
+    coluna: 3
+    rotulo: "M"
+    cor_rotulo {}
+    textura: "icon_mount.png"
+    id: CONTROLE_MODO_MONTAR
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Montar/desmontar."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 10
+    coluna: 3
+    rotulo: "CC"
+    cor_rotulo {}
+    textura: "icon_melee.png"
+    id: CONTROLE_ALTERNAR_EM_CORPO_A_CORPO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Alternar 'em corpo a corpo'."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 11
+    coluna: 3
+    rotulo: "Vo"
+    cor_rotulo {}
+    textura: "icon_feather.png"
+    id: CONTROLE_VOO
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Liga/desliga vôo para entidades selecionadas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 12
+    coluna: 3
+    rotulo: "Vi"
+    cor_rotulo {}
+    textura: "icon_hide.png"
+    id: CONTROLE_VISIBILIDADE
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Liga/desliga invisibilidade para entidades selecionadas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 13
+    coluna: 3
+    rotulo: "Q"
+    cor_rotulo {}
+    textura: "icon_slide.png"
+    id: CONTROLE_QUEDA
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Liga/desliga queda para entidades selecionadas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 14
+    coluna: 3
+    rotulo: "20"
+    cor_rotulo {}
+    textura: "icon_20_miss.png"
+    id: CONTROLE_FALHA_20
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Chance de falha de 20%."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 15
+    coluna: 3
+    rotulo: "50"
+    cor_rotulo {}
+    textura: "icon_50_miss.png"
+    id: CONTROLE_FALHA_50
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Chance de falha de 50%."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 16
+    coluna: 3
+    rotulo: "00"
+    cor_rotulo {}
+    textura: "icon_no_miss.png"
+    id: CONTROLE_FALHA_NEGATIVO
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Ignora chance de falha."
+  }
+
+
+  # Itens
+  dados_botoes {
+    tamanho: 1
+    linha: 8
+    coluna: 5
+    rotulo: "L"
+    cor_rotulo {}
+    textura: "icon_light.png"
+    id: CONTROLE_LUZ
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Liga/desliga luz para entidades selecionadas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 9
+    coluna: 5
+    rotulo: "dP"
+    id: CONTROLE_ROLAR_PERICIA
+    textura: "icon_roll_skill.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Rola uma pericia."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 10
+    coluna: 5
+    rotulo: "dd"
+    id: CONTROLE_DADOS
+    textura: "icon_dices.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Rola dados."
+    visibilidade {
+      #referencia { tipo: VIS_INVERSO_DE id: CONTROLE_DADOS }
+      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+    }
+  }
+  # dados filho de CONTROLE_DADOS.
+    dados_botoes {
+      tamanho: 1
+      linha: 10
+      coluna: 6
+      rotulo: "d4"
+      id: CONTROLE_ROLAR_D4
+      textura: "icon_d4.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d4."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+        referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 10
+      coluna: 7
+      rotulo: "d6"
+      id: CONTROLE_ROLAR_D6
+      textura: "icon_d6.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d6."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+        referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 10
+      coluna: 8
+      rotulo: "d8"
+      id: CONTROLE_ROLAR_D8
+      textura: "icon_d8.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d8."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+        referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 10
+      coluna: 9
+      rotulo: "d10"
+      id: CONTROLE_ROLAR_D10
+      textura: "icon_d10.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d10."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+        referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 10
+      coluna: 10
+      rotulo: "d12"
+      id: CONTROLE_ROLAR_D12
+      textura: "icon_d12.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d12."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+        referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 10
+      coluna: 11
+      rotulo: "20"
+      id: CONTROLE_ROLAR_D20
+      textura: "icon_d20.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d20."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+        referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 10
+      coluna: 12
+      rotulo: "d%"
+      id: CONTROLE_ROLAR_D100
+      textura: "icon_d100.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d100."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+        referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+      }
+    }
+  # fim dados
+  dados_botoes {
+    tamanho: 1
+    linha: 11
+    coluna: 5
     rotulo: "Pc"
     cor_rotulo {}
     textura: "icon_potion.png"
@@ -17,8 +525,8 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: 5
-    coluna: 4
+    linha: 12
+    coluna: 5
     rotulo: "Pg"
     cor_rotulo {}
     textura: "icon_scroll.png"
@@ -29,7 +537,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: 5
+    linha: 13
     coluna: 5
     rotulo: "Pg"
     cor_rotulo {}
@@ -40,27 +548,208 @@ fixo {
     visibilidade { referencia { tipo: VIS_PERGAMINHO_DIVINO } }
   }
 
-  # Linha 4.
-  # Feiticos.
+  # Coisas de mestre.
   dados_botoes {
-    largura: 3
-    altura: 1
-    linha: 6
-    coluna: 6
-    rotulo: "Nivel"
-    id: CONTROLE_NOP
-    forma: FORMA_NULA
-    cor_rotulo { r: 1.0 g: 1.0 }
-    # Translacao nao funciona com rotulo.
-    #translacao_y: -3.3
-    visibilidade { referencia { tipo: VIS_CLASSE_FEITICO_ATIVA } }
+    tamanho: 1
+    linha: 9
+    coluna: -1
+    rotulo: "S"
+    cor_rotulo {}
+    textura: "icon_selectable.png"
+    id: CONTROLE_SELECIONAVEL
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    dica: "Torna entidades selecionadas selecionaveis para jogadores."
   }
   dados_botoes {
+    tamanho: 1
+    linha: 10
+    coluna: -1
+    rotulo: "M"
+    cor_rotulo {}
+    textura: "icon_templates.png"
+    id: CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    dica: "Alterna os modelos desligaveis da entidade."
+  }
+
+  # Iniciativa.
+  dados_botoes {
+    tamanho: 2
+    linha: 6
+    coluna: -2
+    id: CONTROLE_RODADA
+    forma: FORMA_DISCO
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    dica: "Passa uma rodada."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 8
+    coluna: -3
+    id: CONTROLE_APAGAR_INICIATIVAS
+    rotulo: ""
+    dica: "Apaga iniciativas."
+    mestre_apenas: true
+    textura: "icon_erase_initiatives.png"
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    #translacao_x: -0.53
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 7
+    coluna: -3
+    id: CONTROLE_ROLAR_INICIATIVA
+    forma: FORMA_RETANGULO
+    rotulo: "R"
+    dica: "Rola iniciativas de entidades selecionadas."
+    textura: "icon_roll_initiative.png"
+    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    #translacao_x: -0.53
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 8
+    coluna: -2
+    id: CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE
+    rotulo: "I"
+    dica: "Inicia/Finaliza iniciativas para combate."
+    mestre_apenas: true
+    textura: "icon_initiative.png"
+    forma: FORMA_RETANGULO
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    #translacao_x: -0.53
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 8
+    coluna: -1
+    id: CONTROLE_PROXIMA_INICIATIVA
+    forma: FORMA_TRIANGULO
+    textura: "icon_initiative.png"
+    rotacao_graus: -90.0
+    dica: "Proxima iniciativa."
+    mestre_apenas: true
+    translacao_x: -0.3
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+  }
+
+  # Movimento
+  dados_botoes {
+    tamanho: 1.2
+    linha: 5
+    coluna: -3
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_CIMA
+    forma: FORMA_TRIANGULO
+    rotacao_graus: 180.0
+    translacao_y: 0.3
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Move entidade selecionada para direcao contraria ao visualizador"
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+  }
+  dados_botoes {
+    tamanho: 1.2
+    linha: 4
+    coluna: -3
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_BAIXO
+    forma: FORMA_TRIANGULO
+    rotacao_graus: 0.0
+    translacao_y: -0.3
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Move entidade selecionada para direcao do visualizador"
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+  }
+  dados_botoes {
+    tamanho: 1.2
+    linha: 4
+    coluna: -4
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_ESQUERDA
+    forma: FORMA_TRIANGULO
+    rotacao_graus: 270.0
+    translacao_y: 0.5
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Move entidade selecionada para esquerda do visualizador"
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+  }
+  dados_botoes {
+    tamanho: 1.2
+    linha: 4
+    coluna: -2
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_DIREITA
+    forma: FORMA_TRIANGULO
+    rotacao_graus: 90.0
+    translacao_y: 0.5
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Move entidade selecionada para direita do visualizador"
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+  }
+
+  dados_botoes {
+    tamanho: 1
+    linha: 5
+    coluna: -1
+    rotulo: "^"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_CIMA_VERTICAL
+    forma: FORMA_RETANGULO
+    dica: "Movimento vertical para cima."
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 4
+    coluna: -1
+    rotulo: "v"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_BAIXO_VERTICAL
+    forma: FORMA_RETANGULO
+    dica: "Movimento vertical para baixo."
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+  }
+
+  # Feiticos.
+  #dados_botoes {
+  #  largura: 3
+  #  altura: 1
+  #  linha: 6
+  #  coluna: 6
+  #  rotulo: "Nivel"
+  #  id: CONTROLE_NOP
+  #  forma: FORMA_NULA
+  #  cor_rotulo { r: 1.0 g: 1.0 }
+    # Translacao nao funciona com rotulo.
+    #translacao_y: -3.3
+  #  visibilidade { referencia { tipo: VIS_CLASSE_FEITICO_ATIVA } }
+  #}
+  dados_botoes {
     largura: 3
     altura: 1
-    linha: 5
-    coluna: 6
+    linha: -1
+    coluna: 0
     rotulo: "Feitico"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_CLASSE_FEITICO_ATIVA
     forma: FORMA_RETANGULO
     visibilidade { referencia { tipo: VIS_CLASSE_FEITICO_ATIVA } }
@@ -69,9 +758,10 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 9
-    rotulo: "0"
+    linha: -2
+    coluna: 0
+    rotulo: "n0"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
@@ -81,8 +771,9 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 9
+    linha: -2
+    coluna: 1
+    alinhamento_vertical: ALINHAMENTO_CIMA
     rotulo: "0"
     id: CONTROLE_USAR_FEITICO_0
     forma: FORMA_DISCO
@@ -92,10 +783,11 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 10
-    rotulo: "1"
+    linha: -3
+    coluna: 0
+    rotulo: "n1"
     id: CONTROLE_NOP
+    alinhamento_vertical: ALINHAMENTO_CIMA
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
     #translacao_y: -0.3
@@ -104,9 +796,10 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 10
+    linha: -3
+    coluna: 1
     rotulo: "1"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_USAR_FEITICO_1
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_1 } }
@@ -115,21 +808,23 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 11
-    rotulo: "2"
+    linha: -4
+    coluna: 0
+    rotulo: "n2"
     id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
+    alinhamento_vertical: ALINHAMENTO_CIMA
     #translacao_y: -0.3
     visibilidade { referencia { tipo: VIS_FEITICO_2 } }
   }
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 11
+    linha: -4
+    coluna: 1
     rotulo: "2"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_USAR_FEITICO_2
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_2 } }
@@ -138,9 +833,10 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 12
-    rotulo: "3"
+    linha: -5
+    coluna: 0
+    rotulo: "n3"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
@@ -150,9 +846,10 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 12
+    linha: -5
+    coluna: 1
     rotulo: "3"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_USAR_FEITICO_3
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_3 } }
@@ -161,9 +858,10 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 13
-    rotulo: "4"
+    linha: -6
+    coluna: 0
+    rotulo: "n4"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
@@ -173,9 +871,10 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 13
+    linha: -6
+    coluna: 1
     rotulo: "4"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_USAR_FEITICO_4
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_4 } }
@@ -184,9 +883,10 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 14
-    rotulo: "5"
+    linha: -7
+    coluna: 0
+    rotulo: "n5"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_NOP
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
@@ -196,8 +896,9 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 14
+    linha: -7
+    coluna: 1
+    alinhamento_vertical: ALINHAMENTO_CIMA
     rotulo: "5"
     id: CONTROLE_USAR_FEITICO_5
     forma: FORMA_DISCO
@@ -207,10 +908,11 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 15
-    rotulo: "6"
+    linha: -8
+    coluna: 0
+    rotulo: "n6"
     id: CONTROLE_NOP
+    alinhamento_vertical: ALINHAMENTO_CIMA
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
     #translacao_y: -0.3
@@ -219,10 +921,11 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 15
+    linha: -8
+    coluna: 1
     rotulo: "6"
     id: CONTROLE_USAR_FEITICO_6
+    alinhamento_vertical: ALINHAMENTO_CIMA
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_6 } }
   }
@@ -230,10 +933,11 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 16
-    rotulo: "7"
+    linha: -9
+    coluna: 0
+    rotulo: "n7"
     id: CONTROLE_NOP
+    alinhamento_vertical: ALINHAMENTO_CIMA
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
     #translacao_y: -3.3
@@ -242,9 +946,10 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 16
+    linha: -9
+    coluna: 1
     rotulo: "7"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_USAR_FEITICO_7
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_7 } }
@@ -253,10 +958,11 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 17
-    rotulo: "8"
+    linha: -10
+    coluna: 0
+    rotulo: "n8"
     id: CONTROLE_NOP
+    alinhamento_vertical: ALINHAMENTO_CIMA
     forma: FORMA_NULA
     cor_rotulo { r: 1.0 g: 1.0 }
     #translacao_y: -3.3
@@ -265,10 +971,11 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 17
+    linha: -10
+    coluna: 1
     rotulo: "8"
     id: CONTROLE_USAR_FEITICO_8
+    alinhamento_vertical: ALINHAMENTO_CIMA
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_8 } }
   }
@@ -276,11 +983,12 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 6
-    coluna: 18
-    rotulo: "9"
+    linha: -11
+    coluna: 0
+    rotulo: "n9"
     id: CONTROLE_NOP
     forma: FORMA_NULA
+    alinhamento_vertical: ALINHAMENTO_CIMA
     cor_rotulo { r: 1.0 g: 1.0 }
     #translacao_y: -3.3
     visibilidade { referencia { tipo: VIS_FEITICO_9 } }
@@ -288,14 +996,17 @@ fixo {
   dados_botoes {
     largura: 1
     altura: 1
-    linha: 5
-    coluna: 18
+    linha: -11
+    coluna: 1
     rotulo: "9"
+    alinhamento_vertical: ALINHAMENTO_CIMA
     id: CONTROLE_USAR_FEITICO_9
     forma: FORMA_DISCO
     visibilidade { referencia { tipo: VIS_FEITICO_9 } }
   }
 
+
+  # Linha 5.
   # Linha 5.
   dados_botoes {
     tamanho: 1
@@ -323,45 +1034,8 @@ fixo {
     dica: "Ataque furtivo."
     visibilidade { referencia { tipo: VIS_ATAQUE_FURTIVO } }
   }
-  dados_botoes {
-    tamanho: 1
-    linha: 6
-    coluna: 5
-    rotulo: "Es"
-    cor_rotulo {}
-    textura: "icon_dodge.png"
-    id: CONTROLE_MODO_ESQUIVA
-    forma: FORMA_RETANGULO
-    dica: "Escolhe uma entidade para se esquivar."
-    visibilidade { referencia { tipo: VIS_ESQUIVA } }
-  }
   # Linha 6.
-  dados_botoes {
-    tamanho: 1
-    linha: 6
-    coluna: 3
-    rotulo: "Fu"
-    cor_rotulo {}
-    textura: "icon_rage.png"
-    id: CONTROLE_FURIA
-    forma: FORMA_RETANGULO
-    dica: "Entra em fúria."
-    visibilidade { referencia { tipo: VIS_FURIA } }
-  }
-
   # Linha 8.
-  dados_botoes {
-    tamanho: 1
-    linha: 8
-    coluna: 1
-    rotulo: "Zz"
-    cor_rotulo {}
-    textura: "icon_rest.png"
-    id: CONTROLE_DESCANSAR_PERSONAGEM
-    forma: FORMA_RETANGULO
-    dica: "Descansa personagem."
-    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
-  }
 
   # Coisas la da direita.
   # Salvar e abrir.
@@ -472,200 +1146,6 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -5
-    coluna: -1
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "dP"
-    id: CONTROLE_ROLAR_PERICIA
-    textura: "icon_roll_skill.png"
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Rola uma pericia."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -5
-    coluna: -2
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "dd"
-    id: CONTROLE_DADOS
-    textura: "icon_d20.png"
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Rola dados."
-    visibilidade {
-      referencia { tipo: VIS_INVERSO_DE id: CONTROLE_DADOS }
-      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
-    }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -5
-    coluna: -2
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "d4"
-    id: CONTROLE_ROLAR_D4
-    textura: "icon_d4.png"
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Rola um d4."
-    visibilidade {
-      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
-      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
-    }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -5
-    coluna: -3
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "d6"
-    id: CONTROLE_ROLAR_D6
-    textura: "icon_d6.png"
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Rola um d6."
-    visibilidade {
-      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
-      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
-    }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -5
-    coluna: -4
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "d8"
-    id: CONTROLE_ROLAR_D8
-    textura: "icon_d8.png"
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Rola um d8."
-    visibilidade {
-      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
-      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
-    }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -5
-    coluna: -5
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "d10"
-    id: CONTROLE_ROLAR_D10
-    textura: "icon_d10.png"
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Rola um d10."
-    visibilidade {
-      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
-      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
-    }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -5
-    coluna: -6
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "d12"
-    id: CONTROLE_ROLAR_D12
-    textura: "icon_d12.png"
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Rola um d12."
-    visibilidade {
-      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
-      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
-    }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -5
-    coluna: -7
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "20"
-    id: CONTROLE_ROLAR_D20
-    textura: "icon_d20.png"
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Rola um d20."
-    visibilidade {
-      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
-      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
-    }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -5
-    coluna: -8
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "d%"
-    id: CONTROLE_ROLAR_D100
-    textura: "icon_d100.png"
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Rola um d100."
-    visibilidade {
-      referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
-      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
-    }
-  }
-
-  dados_botoes {
-    tamanho: 1
-    linha: -6
-    coluna: -1
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "Re"
-    cor_rotulo {}
-    textura: "icon_ruler.png"
-    id: CONTROLE_REGUA
-    forma: FORMA_RETANGULO
-    visibilidade {
-      referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
-    }
-    dica: "Modo régua (requer câmera presa)."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -6
-    coluna: -2
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "T"
-    cor_rotulo {}
-    textura: "icon_enter.png"
-    id: CONTROLE_TRANSICAO
-    forma: FORMA_RETANGULO
-    # Este nao depende de entidade.
-    dica: "Entra em um objeto."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -7
-    coluna: -3
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
-    rotulo: "?"
-    cor_rotulo {}
-    textura: "icon_help.png"
-    id: CONTROLE_AJUDA
-    forma: FORMA_RETANGULO
-    dica: "Ajuda."
-  }
-  dados_botoes {
-    tamanho: 1
     linha: -7
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
@@ -747,8 +1227,9 @@ pagina {
     textura: ""
     id: CONTROLE_ALTERNA_CURA
     forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    #visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     #visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO tipo: VIS_INVERSO_DE } }
+    visibilidade { referencia { tipo: VIS_INVISIVEL } }
     dica: "Alterna entre cura e dano."
   }
   dados_botoes {
@@ -1143,232 +1624,6 @@ pagina {
     dica: "Modificador -8 ataque"
   }
 
-  # Status.
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 11
-    rotulo: "L"
-    cor_rotulo {}
-    textura: "icon_light.png"
-    id: CONTROLE_LUZ
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Liga/desliga luz para entidades selecionadas."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 12
-    rotulo: "Q"
-    cor_rotulo {}
-    textura: "icon_slide.png"
-    id: CONTROLE_QUEDA
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Liga/desliga queda para entidades selecionadas."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 13
-    rotulo: "S"
-    cor_rotulo {}
-    textura: "icon_selectable.png"
-    id: CONTROLE_SELECIONAVEL
-    forma: FORMA_RETANGULO
-    mestre_apenas: true
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Torna entidades selecionadas selecionaveis para jogadores."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 12
-    rotulo: "LD"
-    cor_rotulo {}
-    textura: "icon_fight_defensively.png"
-    id: CONTROLE_LUTA_DEFENSIVA
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Entra em luta defensiva."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 13
-    rotulo: "DT"
-    cor_rotulo {}
-    textura: "icon_total_defense.png"
-    id: CONTROLE_DEFESA_TOTAL
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Entra em defesa total."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 3
-    coluna: 9
-    rotulo: "D"
-    cor_rotulo {}
-    textura: "icon_trip_attack.png"
-    id: CONTROLE_DERRUBAR
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Derrubar."
-    visibilidade { referencia { tipo: VIS_ATAQUE_DERRUBAR } }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 3
-    coluna: 8
-    rotulo: "F"
-    cor_rotulo {}
-    textura: "icon_flank.png"
-    id: CONTROLE_ALTERNAR_FLANQUEANDO
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Flanquear."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 3
-    coluna: 10
-    rotulo: "S"
-    cor_rotulo {}
-    textura: "icon_surprise.png"
-    id: CONTROLE_SURPRESO
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Surpreso."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 3
-    coluna: 11
-    rotulo: "I"
-    cor_rotulo {}
-    textura: "icon_charge.png"
-    id: CONTROLE_INVESTIDA
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Investida (carga)."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 3
-    coluna: 13
-    rotulo: "M"
-    cor_rotulo {}
-    textura: "icon_templates.png"
-    id: CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE
-    forma: FORMA_RETANGULO
-    mestre_apenas: true
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Alterna os modelos desligaveis da entidade."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 3
-    coluna: 12
-    rotulo: "M"
-    cor_rotulo {}
-    textura: "icon_mount.png"
-    id: CONTROLE_MODO_MONTAR
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Montar/desmontar."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 13
-    rotulo: "CC"
-    cor_rotulo {}
-    textura: "icon_melee.png"
-    id: CONTROLE_ALTERNAR_EM_CORPO_A_CORPO
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Alternar 'em corpo a corpo'."
-  }
-
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 10
-    rotulo: "00"
-    cor_rotulo {}
-    textura: "icon_no_miss.png"
-    id: CONTROLE_FALHA_NEGATIVO
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Ignora chance de falha."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 11
-    rotulo: "20"
-    cor_rotulo {}
-    textura: "icon_20_miss.png"
-    id: CONTROLE_FALHA_20
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Chance de falha de 20%."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 12
-    rotulo: "50"
-    cor_rotulo {}
-    textura: "icon_50_miss.png"
-    id: CONTROLE_FALHA_50
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Chance de falha de 50%."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 11
-    rotulo: "Vo"
-    cor_rotulo {}
-    textura: "icon_feather.png"
-    id: CONTROLE_VOO
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Liga/desliga vôo para entidades selecionadas."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 10
-    rotulo: "Vi"
-    cor_rotulo {}
-    textura: "icon_hide.png"
-    id: CONTROLE_VISIBILIDADE
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Liga/desliga invisibilidade para entidades selecionadas."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 10
-    rotulo: "Ag"
-    cor_rotulo {}
-    textura: "icon_grapple.png"
-    id: CONTROLE_AGARRANDO
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Agarra/desagarra personagem."
-  }
 
   # Setas.
   dados_botoes {
@@ -1385,225 +1640,19 @@ pagina {
     visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
     dica: ""
   }
-  dados_botoes {
-    tamanho: 1.2
-    linha: 1
-    coluna: 15
-    rotulo: ""
-    cor_rotulo {}
-    textura: ""
-    id: CONTROLE_CIMA
-    forma: FORMA_TRIANGULO
-    rotacao_graus: 180.0
-    translacao_y: 0.3
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Move entidade selecionada para direcao contraria ao visualizador"
-  }
-  dados_botoes {
-    tamanho: 1.2
-    linha: 0
-    coluna: 15
-    rotulo: ""
-    cor_rotulo {}
-    textura: ""
-    id: CONTROLE_BAIXO
-    forma: FORMA_TRIANGULO
-    rotacao_graus: 0.0
-    translacao_y: -0.3
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Move entidade selecionada para direcao do visualizador"
-  }
-  dados_botoes {
-    tamanho: 1.2
-    linha: 0
-    coluna: 14
-    rotulo: ""
-    cor_rotulo {}
-    textura: ""
-    id: CONTROLE_ESQUERDA
-    forma: FORMA_TRIANGULO
-    rotacao_graus: 270.0
-    translacao_y: 0.5
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Move entidade selecionada para esquerda do visualizador"
-  }
-  dados_botoes {
-    tamanho: 1.2
-    linha: 0
-    coluna: 16
-    rotulo: ""
-    cor_rotulo {}
-    textura: ""
-    id: CONTROLE_DIREITA
-    forma: FORMA_TRIANGULO
-    rotacao_graus: 90.0
-    translacao_y: 0.5
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Move entidade selecionada para direita do visualizador"
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 17
-    rotulo: "^"
-    cor_rotulo {}
-    textura: ""
-    id: CONTROLE_CIMA_VERTICAL
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Movimento vertical para cima."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 17
-    rotulo: "v"
-    cor_rotulo {}
-    textura: ""
-    id: CONTROLE_BAIXO_VERTICAL
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
-    dica: "Movimento vertical para baixo."
-  }
 
-  # Cameras.
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 18
-    rotulo: "Is"
-    cor_rotulo {}
-    textura: "icon_isometric_camera.png"
-    id: CONTROLE_CAMERA_ISOMETRICA
-    forma: FORMA_RETANGULO
-    dica: "Câmera isométrica."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 19
-    rotulo: "Is"
-    cor_rotulo {}
-    textura: "icon_tracking_camera.png"
-    id: CONTROLE_CAMERA_PRESA
-    forma: FORMA_RETANGULO
-    dica: "Prende a câmera a um personagem."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 20
-    cor_rotulo {}
-    id: CONTROLE_CAMERA_PRESA_PROXIMO
-    textura: "icon_next_tracked_entity.png"
-    rotacao_graus: -90.0
-    translacao_x: -0.3
-    forma: FORMA_TRIANGULO
-    dica: "Muda de entidade presa."
-  }
 
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 18
-    rotulo: "1p"
-    cor_rotulo {}
-    textura: "icon_first_person_camera.png"
-    id: CONTROLE_CAMERA_PRIMEIRA_PESSOA
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
-    dica: "Poe a camera em primeira pessoa ao personagem selecionado."
-  }
-  dados_botoes {
-    tamanho: 1
     linha: 0
-    coluna: 19
-    rotulo: "FoV"
-    cor_rotulo {}
-    id: CONTROLE_ANGULO_VISAO_ORIGINAL
-    textura: "icon_camera_fov_default.png"
-    forma: FORMA_RETANGULO
-    dica: "Restaura angulo de visao para 70 graus."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 20
-    rotulo: "Ve"
-    cor_rotulo {}
-    textura: "icon_darkvision.png"
-    id: CONTROLE_VISAO_ESCURO
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
-    dica: "Liga/desliga visão no escuro (requer câmera presa)."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 22
-    id: CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE
-    rotulo: "I"
-    dica: "Inicia/Finaliza iniciativas para combate."
-    mestre_apenas: true
-    textura: "icon_initiative.png"
-    forma: FORMA_RETANGULO
-    #translacao_x: -0.53
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 23
-    id: CONTROLE_APAGAR_INICIATIVAS
-    rotulo: ""
-    dica: "Apaga iniciativas."
-    mestre_apenas: true
-    textura: "icon_erase_initiatives.png"
-    forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
-    #translacao_x: -0.53
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 24
-    id: CONTROLE_ROLAR_INICIATIVA
-    forma: FORMA_RETANGULO
-    rotulo: "R"
-    dica: "Rola iniciativas de entidades selecionadas."
-    textura: "icon_roll_initiative.png"
-    visibilidade { referencia { tipo: VIS_CAMERA_PRIMEIRA_PESSOA_OU_SELECIONADA } }
-    #translacao_x: -0.53
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 25
-    id: CONTROLE_PROXIMA_INICIATIVA
-    forma: FORMA_TRIANGULO
-    textura: "icon_initiative.png"
-    rotacao_graus: -90.0
-    dica: "Proxima iniciativa."
-    mestre_apenas: true
-    translacao_x: -0.3
-  }
-  dados_botoes {
-    tamanho: 2
-    linha: 0
-    coluna: 23
-    id: CONTROLE_RODADA
-    forma: FORMA_DISCO
-    dica: "Passa uma rodada."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 25
+    coluna: -1
     rotulo: "->"
     cor_rotulo {}
     textura: ""
     id: CONTROLE_PAGINACAO_PROXIMO
     forma: FORMA_RETANGULO
     dica: "Próxima página."
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
   }
 }
 pagina {
@@ -1930,28 +1979,6 @@ pagina {
     id: CONTROLE_DESENHO_COR_PERSONALIZADA
     forma: FORMA_DISCO
     dica: "Cor personalizada. Clique duas vezes para escolher."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 13
-    rotulo: "^"
-    cor_rotulo {}
-    textura: ""
-    id: CONTROLE_CIMA_VERTICAL
-    forma: FORMA_RETANGULO
-    dica: "Movimento vertical."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 13
-    rotulo: "v"
-    cor_rotulo {}
-    textura: ""
-    id: CONTROLE_BAIXO_VERTICAL
-    forma: FORMA_RETANGULO
-    dica: "Movimento vertical."
   }
   dados_botoes {
     tamanho: 2

@@ -79,6 +79,8 @@ enum ModificadorRodadas {
   MR_PALAVRA_PODER_CEGAR = 14;
   MR_CONTINUO = 15;
   MR_MOD_CARISMA = 16;
+  MR_DRENAR_FORCA_VITAL = 17;
+  MR_1_RODADA_A_CADA_2_NIVEIS = 18;
 }
 
 enum ModificadorComplementos {
@@ -103,7 +105,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 100.
+// Proximo id: 102.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -206,6 +208,7 @@ message AcaoProto {
   repeated TipoDnD afeta_apenas = 44;
   repeated TipoDnD nao_afeta_tipo = 56;
   repeated SubTipoDnD nao_afeta_sub_tipo = 57;
+  optional TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 101;
   optional bool nao_afeta_origem = 58;
   // Se presente, a acao afeta no maximo dv_mais_alto dados de vida.
   optional int32 dv_mais_alto = 61;
@@ -347,6 +350,7 @@ message AcaoProto {
   optional string som_sucesso = 94;
   optional string som_fracasso = 95;
   optional string som_inicial = 96;
+  optional bool adiciona_ao_log_se_local = 100;
 }
 
 // Como uma arma esta empunhada.
@@ -374,9 +378,16 @@ message DanoPorTipoDnD {
   optional TipoDnD tipo = 2;
 }
 
+message DanoAdicionalPorTendencia {
+  optional int32 bom = 1;
+  optional int32 mau = 2;
+  optional int32 leal = 3;
+  optional int32 caotico = 4;
+}
+
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 93.
+// Proximo id: 99.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -390,6 +401,8 @@ message DadosAtaque {
   optional int32 bonus_ataque_final = 2;
   // O dano final da arma: 1d8+5.
   optional string dano = 3;
+  // Adicionais de dano de acordo com tendencia do alvo.
+  optional DanoAdicionalPorTendencia dano_adicional_por_tendencia = 93;
   // Se presente, aplicara ao dano de acordo com tipo do alvo. Se nao houver, fallback pra dano.
   repeated DanoPorTipoDnD dano_por_tipo = 79;
   optional int32 margem_critico = 6 [default=20];
@@ -434,11 +447,13 @@ message DadosAtaque {
   optional bool cura = 54;
   // Chave da arma na tabela de armas (Exemplo: 'espada_longa').
   optional string id_arma = 24;
+  // Se presente, ao recomputar ira buscar a arma do tesouro.
+  optional string id_arma_tesouro = 98;
   // A arma pode ter tamanho diferente.
   optional TamanhoEntidade tamanho = 26;
   // Dano adicional nao eh multiplicado em criticos. Exemplo: dano de fogo de uma arma flamejante.
-  // TODO implementar.
   optional string dano_adicional = 27;
+  optional DescritorAtaque elemento_dano_adicional = 86;
   // Indica ataque de toque.
   optional bool ataque_toque = 28;
   // Indica que o ataque eh a distancia.
@@ -501,7 +516,6 @@ message DadosAtaque {
   // Computado dinamicamente.
   repeated DescritorAtaque descritores = 57;
   optional DescritorAtaque elemento = 58;
-  optional DescritorAtaque elemento_dano_adicional = 86;
   optional int32 dificuldade_salvacao = 59;
   optional string icone = 60;
   optional TipoSalvacao tipo_salvacao = 61;
@@ -532,6 +546,12 @@ message DadosAtaque {
   optional bool eh_feitico = 90;
   // Se verdadeiro, ataque sera para derrubar.
   optional bool ataque_derrubar = 91;
+  optional int32 chance_falha = 94;
+  optional int32 tempo_execucao_rodadas = 95;
+  // se verdadeiro, ataque sera um desarme.
+  optional bool ataque_desarmar = 96;
+  // Indica que este ataque esta desarmado.
+  optional bool desarmado = 97;
 }
 
 message ConsequenciaEvento {
@@ -558,6 +578,9 @@ message ConsequenciaEvento {
   optional Movimento movimento = 14;
   // Pontos de vida temporarios.
   optional Bonus pontos_vida_temporarios = 15;
+  // Muda o tipo de visao: apenas para modelos.
+  optional TipoVisao tipo_visao = 16;
+  optional float alcance_visao_m = 17;
 }
 
 message EfeitoProto {

@@ -24,6 +24,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
 
 // Atualiza combos de evasao.
 void AtualizaUIEvasao(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
+void AtualizaUIEsquivaSobrenatural(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
 // Atualiza sliders de tendencia.
 void AtualizaUITendencia(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);

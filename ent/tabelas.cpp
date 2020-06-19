@@ -45,7 +45,11 @@ void ConverteDano(ArmaProto* arma) {
   }
 }
 
+const Tabelas* g_tabela = nullptr;
+
 }  // namespace
+
+
 
 Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   if (central_ != nullptr) {
@@ -114,6 +118,15 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   }
 
   RecarregaMapas();
+  g_tabela = this;
+}
+
+// static
+const Tabelas& Tabelas::Unica() {
+  if (g_tabela == nullptr) {
+    LOG(FATAL) << "tabela indiponivel";
+  }
+  return *g_tabela;
 }
 
 // Quando nao houver origem no item, usa o id dele como a origem do efeito.
@@ -169,6 +182,72 @@ int NivelConjuradorMinimoParaFeiticoNivel(const std::string& id_classe, int nive
   return std::max(1, (nivel * 2) - 1);
 }
 
+namespace {
+
+const ArmaProto& FeiticoInvocarNivelAbaixo(const Tabelas& tabelas, const ArmaProto& feitico, int niveis_abaixo) {
+  std::string chave = StringPrintf("%s_%d", feitico.id().c_str(), niveis_abaixo);
+  static std::unordered_map<std::string, std::string> mapa = {
+    {"invocar_aliado_natureza_ii_1", "invocar_aliado_natureza_i"},
+    {"invocar_aliado_natureza_iii_1", "invocar_aliado_natureza_ii"},
+    {"invocar_aliado_natureza_iii_2", "invocar_aliado_natureza_i"},
+    {"invocar_aliado_natureza_iv_1", "invocar_aliado_natureza_iii"},
+    {"invocar_aliado_natureza_iv_2", "invocar_aliado_natureza_ii"},
+    {"invocar_aliado_natureza_v_1", "invocar_aliado_natureza_iv"},
+    {"invocar_aliado_natureza_v_2", "invocar_aliado_natureza_iii"},
+    {"invocar_aliado_natureza_vi_1", "invocar_aliado_natureza_v"},
+    {"invocar_aliado_natureza_vi_2", "invocar_aliado_natureza_iv"},
+    {"invocar_aliado_natureza_vii_1", "invocar_aliado_natureza_vi"},
+    {"invocar_aliado_natureza_vii_2", "invocar_aliado_natureza_v"},
+    {"invocar_aliado_natureza_viii_1", "invocar_aliado_natureza_vii"},
+    {"invocar_aliado_natureza_viii_2", "invocar_aliado_natureza_vi"},
+    {"invocar_aliado_natureza_ix_1", "invocar_aliado_natureza_viii"},
+    {"invocar_aliado_natureza_ix_2", "invocar_aliado_natureza_vii"},
+    {"invocar_criaturas_ii_1", "invocar_criaturas_i"},
+    {"invocar_criaturas_iii_1", "invocar_criaturas_ii"},
+    {"invocar_criaturas_iii_2", "invocar_criaturas_i"},
+    {"invocar_criaturas_iv_1", "invocar_criaturas_iii"},
+    {"invocar_criaturas_iv_2", "invocar_criaturas_ii"},
+    {"invocar_criaturas_v_1", "invocar_criaturas_iv"},
+    {"invocar_criaturas_v_2", "invocar_criaturas_iii"},
+    {"invocar_criaturas_vi_1", "invocar_criaturas_v"},
+    {"invocar_criaturas_vi_2", "invocar_criaturas_iv"},
+    {"invocar_criaturas_vii_1", "invocar_criaturas_vi"},
+    {"invocar_criaturas_vii_2", "invocar_criaturas_v"},
+    {"invocar_criaturas_viii_1", "invocar_criaturas_vii"},
+    {"invocar_criaturas_viii_2", "invocar_criaturas_vi"},
+    {"invocar_criaturas_ix_1", "invocar_criaturas_viii"},
+    {"invocar_criaturas_ix_2", "invocar_criaturas_vii"},
+  };
+  auto it = mapa.find(chave);
+  if (it != mapa.end()) {
+    return tabelas.Feitico(it->second);
+  }
+  return ArmaProto::default_instance();
+}
+
+void PreencheNiveisInferioresInvocarCriaturasOuAliadosDaNatureza(const Tabelas& tabelas, ArmaProto* feitico) {
+  const auto& feitico_abaixo = FeiticoInvocarNivelAbaixo(tabelas, *feitico, 1);
+  VLOG(1) << "preenchendo " << feitico->id() << " com " << feitico_abaixo.id();
+  for (const auto& pabaixo : feitico_abaixo.acao().parametros_lancamento().parametros()) {
+    if (pabaixo.has_quantidade()) continue;
+    auto p = feitico->mutable_acao()->mutable_parametros_lancamento()->add_parametros();
+    *p = pabaixo;
+    p->set_quantidade("1d3");
+    p->set_texto(StringPrintf("%s (1d3)", p->texto().c_str()));
+  }
+  const auto& feitico_2_abaixo = FeiticoInvocarNivelAbaixo(tabelas, *feitico, 2);
+  VLOG(1) << "preenchendo " << feitico->id() << " com " << feitico_2_abaixo.id();
+  for (const auto& p2abaixo : feitico_2_abaixo.acao().parametros_lancamento().parametros()) {
+    if (p2abaixo.has_quantidade()) continue;
+    auto p = feitico->mutable_acao()->mutable_parametros_lancamento()->add_parametros();
+    *p = p2abaixo;
+    p->set_quantidade("1d4+1");
+    p->set_texto(StringPrintf("%s (1d4+1)", p->texto().c_str()));
+  }
+}
+
+}  // namespac
+
 void Tabelas::RecarregaMapas() {
   armaduras_.clear();
   escudos_.clear();
@@ -223,9 +302,6 @@ void Tabelas::RecarregaMapas() {
     }
     if (c_any_of(arma.categoria(), [](int c) { return c == CAT_ARCO || c == CAT_ARREMESSO; })) {
       arma.add_categoria(CAT_DISTANCIA);
-    }
-    if (c_any_of(arma.categoria(), [](int c) { return c == CAT_ARMA_DUPLA; })) {
-      arma.add_categoria(CAT_DUAS_MAOS);
     }
     // seta os tipos de acoes.
     if (!arma.acao().has_id()) {
@@ -332,6 +408,12 @@ void Tabelas::RecarregaMapas() {
       }
     }
   }
+  // Tem que ser chamado depois de preecher tudo.
+  for (auto& feitico : *tabelas_.mutable_tabela_feiticos()->mutable_armas()) {
+    if (feitico.id().find("invocar_aliado_natureza_") == 0 || feitico.id().find("invocar_criaturas_") == 0) {
+      PreencheNiveisInferioresInvocarCriaturasOuAliadosDaNatureza(*this, &feitico);
+    }
+  }
 
   auto CriaArcoComposto = [this] (int i, int preco, const ArmaProto& arco_base) {
     auto* novo_arco = tabelas_.mutable_tabela_armas()->add_armas();
@@ -413,8 +495,26 @@ void Tabelas::RecarregaMapas() {
     botas_[botas.id()] = &botas;
   }
 
-  for (const auto& talento : tabelas_.tabela_talentos().talentos()) {
+  for (auto& talento : *tabelas_.mutable_tabela_talentos()->mutable_talentos()) {
     talentos_[talento.id()] = &talento;
+    if (!talento.link().empty()) continue;
+    std::vector<std::string> res;
+    SplitStringUsing(talento.nome_ingles(), " ,-'/", &res);
+    for (unsigned int i = 1; i < res.size(); ++i) {
+      if (!res[i].empty() && (res[i][0] >= 'a') && (res[i][0] <= 'z')) {
+        // Pega o caso do 's.
+        if (res[i].size() > 1 || res[i][0] != 's') {
+          res[i][0] += 'A' - 'a';
+        }
+      }
+    }
+    std::string joined;
+    JoinStrings(res, "", &joined);
+    if (talento.monstro()) {
+      talento.set_link(StringPrintf("https://www.d20srd.org/srd/monsterFeats.htm#%s", joined.c_str()));
+    } else {
+      talento.set_link(StringPrintf("https://www.d20srd.org/srd/feats.htm#%s", joined.c_str()));
+    }
   }
 
   for (const auto& efeito : tabelas_.tabela_efeitos().efeitos()) {
@@ -702,21 +802,28 @@ const std::vector<const ArmaProto*> Tabelas::Feiticos(const std::string& id_clas
   return feiticos;
 }
 
-const std::string& Tabelas::FeiticoAleatorio(const std::string& id_classe, int nivel, const std::vector<std::string>& excluindo) const {
-  auto it_classe = feiticos_por_classe_por_nivel_.find(id_classe);
+const std::string& Tabelas::FeiticoAleatorio(const DadosParaFeiticoAleatorio& dfa) const {
+  auto it_classe = feiticos_por_classe_por_nivel_.find(dfa.id_classe);
   if (it_classe == feiticos_por_classe_por_nivel_.end()) return ArmaProto::default_instance().id();
-  auto it_nivel = it_classe->second.find(nivel);
+  auto it_nivel = it_classe->second.find(dfa.nivel);
   if (it_nivel == it_classe->second.end()) return ArmaProto::default_instance().id();
   const std::vector<const ArmaProto*>& feiticos = it_nivel->second;
   std::vector<const std::string*> ids_validos;
   for (const auto& feitico : feiticos) {
-    if (c_none(excluindo, feitico->id())) {
-      ids_validos.emplace_back(&feitico->id());
+    if (c_any(dfa.feiticos_excluidos, feitico->id())) continue;
+    if (dfa.descritores_proibidos.has_value()) {
+      if (c_any(*dfa.descritores_proibidos, feitico->acao().alinhamento_bem_mal()) ||
+          c_any(*dfa.descritores_proibidos, feitico->acao().alinhamento_ordem_caos()) ||
+          c_any(*dfa.descritores_proibidos, feitico->acao().elemento())) {
+        continue;
+      }
     }
+    if (dfa.escolas_proibidas.has_value() && c_any(*dfa.escolas_proibidas, feitico->escola())) continue;
+    ids_validos.emplace_back(&feitico->id());
   }
   if (ids_validos.empty()) return ArmaProto::default_instance().id();
   int indice = RolaDado(ids_validos.size()) - 1;
-  VLOG(1) << "retornando aleatoriamente " << ids_validos[indice] << " para classe " << id_classe << ", nivel " << nivel;
+  VLOG(1) << "retornando aleatoriamente " << ids_validos[indice] << " para classe " << dfa.id_classe << ", nivel " << dfa.nivel;
   return *ids_validos[indice];
 }
 

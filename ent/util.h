@@ -303,12 +303,13 @@ struct MisturaPreNevoaEscopo {
 enum class TipoAtaque {
   CORPO_A_CORPO,
   DISTANCIA,
-  AGARRAR
+  AGARRAR,
+  DESARMAR
 };
 TipoAtaque DaParaTipoAtaque(const DadosAtaque& da);
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
 // Alguns modificadores que seriam de CA tb vem para ca.
-int ModificadorAtaque(TipoAtaque tipo_ataque, const EntidadeProto& ea, const EntidadeProto& ed);
+int ModificadorAtaque(const DadosAtaque& da, const EntidadeProto& ea, const EntidadeProto& ed);
 // Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status e o defensor.
 int ModificadorDano(const DadosAtaque& da, const EntidadeProto& ea, const EntidadeProto& ed);
 
@@ -322,6 +323,7 @@ enum resultado_ataque_e {
   RA_FALHA_CHANCE_FALHA = 7,  // falha por chance de falha.
   RA_FALHA_IMUNE = 8,         // falha por imunidade ao tipo de ataque.
   RA_FALHA_REDUCAO = 9,       // falha por reducao de dano (reduzido a zero).
+  RA_FALHA_CONTRA_ATAQUE= 10, // para ataques de desarmar e derrubar, no qual o oponente pode contraatacar.
 };
 struct ResultadoAtaqueVsDefesa {
   resultado_ataque_e resultado = RA_SEM_ACAO;
@@ -335,13 +337,13 @@ struct ResultadoAtaqueVsDefesa {
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
-    float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade = false);
 ResultadoAtaqueVsDefesa AtaqueVsDefesa(
-    float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque* da,
-    const Entidade& ed, const Posicao& pos_alvo);
+    float distancia_m, const AcaoProto& ap, const Entidade& ea, const DadosAtaque& da,
+    const Entidade& ed, const Posicao& pos_alvo, bool ataque_oportunidade = false);
 
 // Rola o dado de ataque da manobra de derrubar (forca vs (destreza ou forca))
-ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed);
+ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidade& ed, bool permite_contra_ataque = true);
 // Rola o teste de agarrar, ja considerando que tudo antes (ataque de toque), funcionou.
 ResultadoAtaqueVsDefesa AtaqueVsDefesaAgarrar(const Entidade& ea, const Entidade& ed);
 
@@ -481,7 +483,7 @@ void PreencheNotificacaoObjetoDesviado(bool valor, const Entidade& entidade, ntf
 // Preenche a notificacao para entidade entrar em defesa total (aumenta CA, nao pode atacar).
 ntf::Notificacao PreencheNotificacaoDefesaTotal(bool ativar, const EntidadeProto& proto);
 // Preenche a notificacao para entidade entrar em luta defensiva (aumenta CA, ataque com penalidade).
-ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const EntidadeProto& proto);
+ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entidade& entidade);
 
 // Alguns efeitos valem ate a proxima salvacao. Cria uma notificacao para expira-los.
 // Caso nao haja eventos assim, retorna uma notificacao defaul (vazia).
@@ -609,7 +611,8 @@ std::string StringAtaque(const DadosAtaque& da, const EntidadeProto& proto);
 // Retorna a string de dano para o ataque, sem critico e com modificadores.
 // Exemplo: 1d8+5+2.
 // Usado para gerar dano.
-std::string StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo);
+std::pair<std::string, std::optional<std::string>>
+    StringDanoParaAcao(const DadosAtaque& da, const EntidadeProto& proto, const EntidadeProto& alvo);
 
 // Retorna a string de dano para o ataque, com informacao de critico e sem modificadores.
 // Exemplo: 1d8(19-20).
@@ -656,7 +659,7 @@ int TotalPontosPericiaPermitidos(const Tabelas& tabelas, const EntidadeProto& pr
 
 // Funcoes de tendencia.
 inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() > 0.666f; }
-inline bool Mal(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }
+inline bool Mau(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }
 inline bool Ordeiro(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() > 0.666f;  }
 inline bool Caotico(const EntidadeProto& proto) { return proto.tendencia().eixo_ordem_caos() <= 0.333f; }
 // Retorna o bonus contra tendencia de um atacante.
@@ -873,8 +876,9 @@ std::tuple<std::string, int, int, bool, unsigned int> DadosNotificacaoAlterarFei
 // de feitico com todos ate o nivel desejado.
 std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(bool conversao_espontanea, const std::string& id_classe, int nivel, const EntidadeProto& proto);
 
-// Retorna true se a entidade for imune a todos os descritores do elemento.
-bool EntidadeImuneElemento(const EntidadeProto& proto, int elementos);
+bool EntidadeVulneravelElemento(const EntidadeProto& proto, DescritorAtaque elemento);
+// Retorna true se a entidade for imune ao elemento.
+bool EntidadeImuneElemento(const EntidadeProto& proto, DescritorAtaque elemento);
 // Retorna a melhor resistencia da entidade contra o elemento ou nullptr se nao houver.
 const ResistenciaElementos* EntidadeResistenciaElemento(const EntidadeProto& proto, DescritorAtaque elemento);
 // Retorna true se a entidade for imune ao feitico.
@@ -897,6 +901,10 @@ struct ResultadoImunidadeOuResistencia {
 };
 // Retorna se o ataque foi resistido, por que tipo de defesa e qual o valor resistido, que nunca passara de -delta_pv.
 ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento);
+
+// Retorna o novo delta_pv e o texto de vulnerabilidade.
+std::optional<std::pair<int, std::string>> VulnerabilidadeParaElemento(
+    int delta_pv, const EntidadeProto& proto, DescritorAtaque elemento);
 
 // Altera o delta_pv de acordo com as reducoes do alvo e tipo de ataque.
 std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoNormal(
@@ -984,6 +992,8 @@ bool PermiteEscudo(const EntidadeProto& proto);
 bool TalentoComEscudo(const std::string& id_escudo, const EntidadeProto& proto);
 // Retorna true se o personagem puder usar a armadura passada (por chave).
 bool TalentoComArmadura(const ArmaduraOuEscudoProto& armadura_tabelada, const EntidadeProto& proto);
+// Id da arma base para talentos relacionados (como foco_em_arma).
+const std::string& IdArmaBase(const ArmaProto& arma_tabelada);
 // Retorna true se o personagem puder usar a arma passada (por chave).
 bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto);
 
@@ -1102,6 +1112,12 @@ void ImprimeDadosRolados();
 // Rola a pericia do proto, retornando se rolou, o total rolado e o texto descrevendo a rolagem.
 // Em caso de erro, retorna nullopt.
 std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const EntidadeProto& proto);
+
+// Retorna true se a arma for um feitico.
+bool EhFeitico(const ArmaProto& arma);
+
+// Proto esta indefeso (helpless).
+bool Indefeso(const EntidadeProto& proto);
 
 }  // namespace ent
 

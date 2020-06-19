@@ -9,26 +9,34 @@ Sessão:
   - Passar pelas finas lâminas.
   - chegar ao portão.
 
-Teste de concentração para enredados.
+
+Fazer kobold.
+Testar conexao.
+Como ranger ta soltando pergaminho de nivel 2 com sabedoria 11?
+Implementar desarmar: armas que nao podem desarmar (gauntlet), natural. Colocar a arma que esta desarmado.
+Chance de falha de conjuracao (dretch conjurando dretch) e tempo de execucao.
+Fazer hell hound (cão infernal).
+Fazer os invocar criaturas: estao praticamente todos faltando, especialmente o do nivel (ii, iii)
+Conferir link no windows: parou de funcionar pro talko.
+Mobilidade: como diferenciar ataques de arco e magias de movimentacao?
+Fazer: manto do caos: dificil bagarai.
+Som posicional.
+
+
 Fazer unit test para verificar pericias faltando ou sobrando.
-Icone para gas sono.
 
 Acao de recarregar municao da arma (basear em procurar, cada 5 pontos uma munição?).
 Vincular luz a numero de tochas.
 Terminar a iniciativa de eventos.
 
 Fazer furia maior de barbaro e limitar usos por dia.
-Feiticos automaticos respeitar o descritor de bom mal caos ordem.
 Nova tabela de encontro para batalha de Tilverton.
-Montado nao funciona quando movimento é remoto.
 Ao criar peao, esta desalgemando
-Concentracao em criaturas enredadas.
 Movimento reduzido ou anulado em criaturas enredadas.
-Comando de dano por teclado nao gera desfazer??
 Menu para recarregar tabelas.
 Lista de entidades afetadas ordenada.
 Nao consigo desagarrar sem acao.
-Tab igual shift tab, zera ataques.
+Fazer tab igual shift tab, zera ataques, ta confuso.
 
 Circulo magico contra mal: implementar aura.
 Fazer lufada de vento.
@@ -41,7 +49,6 @@ Modificador de raio_quadrados para acao (ver feitico cativar).
 
 Fazer empunhadura de rajada.
 Criar ataques naturais com dano basico. Ja fiz mordida.
-Drenar forca vital: terminar.
 Testar se outras classes tb funcionam a aleatoriedade.
 atualizar tabuleiro prontos com entidades atualizadas.
 dano_adicional e elemento_dano_adicional. Testar formiga.
@@ -61,10 +68,7 @@ Botao de aplicar efeitos na UI.
 Feiticos de druida ate 5o nivel.
 Druida 10.
 Feiticos de cura e infligir em massa para clerigo.
-Modificadores de ataque e dano de elementais.
-Imunidade a sono e atordoado de elementais.
 Flanquear: fazer automatico?
-Elemental: terminar outros.
 Feitico de Aliados da natureza.
 Fazer os druidas direito. outros niveis.
 Permitir criacao de entidades com recursos usados.
@@ -73,7 +77,6 @@ Se perder conexao tentar reconectar.
 Botao de doar no menu de pergaminhos.
 Para armas de arremesso e corpo a corpo, usar o apropriado pela distancia (exemplo, adaga).
 Barra de progresso de carregamento.
-Ui de talentos, colocar origem.
 Fazer objetos esfumacarem tb.
 Colocar posicao da acao na UI.
 Icone para amedrontado e abalado.

@@ -14,7 +14,7 @@ namespace qt {
 // Modelo de talento para ser usado pelos views de tabela.
 class ModeloInimigoPredileto : public QAbstractTableModel {
  public:
-  using InimigoPredileto = ent::EntidadeProto::InimigoPredileto;
+  using InimigoPredileto = ent::InimigoPredileto;
 
   ModeloInimigoPredileto(const ent::Tabelas& tabelas, const ent::EntidadeProto& proto, QTableView* tabela)
       : QAbstractTableModel(tabela)/*, tabelas_(tabelas)*/ {

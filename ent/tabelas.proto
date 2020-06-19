@@ -27,9 +27,14 @@ message RacaProto {
   optional TipoDnD tipo = 7;
   optional SubTipoDnD sub_tipo = 8;
   repeated DadosAtaque dados_ataque = 10;
+  optional DadosAtaqueGlobal dados_ataque_global = 15;
   optional Movimento movimento = 11;
   optional TipoVisao tipo_visao = 12;
   optional int32 alcance_visao_m = 13;
+  // Para raças estaveis como anões.
+  optional bool estabilidade = 14;
+  repeated TalentoProto talentos_com_complemento_automaticos = 16;
+  repeated string familiaridade_com_arma = 17;
 }
 
 message ArmaduraOuEscudoProto {
@@ -54,6 +59,7 @@ enum CategoriaPericia {
   CATPER_EXOTICA = 2;
 }
 
+// Atencao: os valores aqui sao usados em mapas do dado de ataque global. Nao mudar.
 // Uma arma pode ter varias categorias.
 enum CategoriaArma {
   // arma corpo a corpo.
@@ -107,21 +113,25 @@ enum TipoCarregamento {
   TC_RODADA_COMPLETA = 2;
 }
 
-enum TipoComponente {
+enum TipoComponenteMaterial {
   COMP_NENHUM = 0;
   COMP_FOCO = 1;
   COMP_MATERIAL = 2;
 }
 
 message InfoComponente {
-  optional TipoComponente tipo = 1;
+  optional TipoComponenteMaterial tipo = 1;
   optional Moedas custo = 2;
   optional string descricao = 3;
+  optional bool verbal = 4 [default=true];
+  optional bool somatico = 5 [default=true];
+  optional bool material = 6 [default=true];
 }
 
-// Proximo id: 39.
+// Proximo id: 42.
 message ArmaProto {
   optional string id = 1;
+  optional string id_arma_base = 39;
   optional string nome = 2;
   repeated CategoriaArma categoria = 3;
   optional string preco = 4;
@@ -130,6 +140,8 @@ message ArmaProto {
   optional StringPorTamanho dano_secundario = 6;
   optional StringPorTamanho peso = 8;
   repeated TipoDano tipo_dano = 9;
+  // Algumas armas tem dano perfurante, mas o movimento é de outro tipo.
+  optional TipoDano tipo_movimento_acao = 41;
   optional int32 alcance_quadrados = 10;
   // Para armas como chicote e corrente com cravos.
   optional bool atinge_adjacentes = 17;
@@ -143,7 +155,8 @@ message ArmaProto {
   optional ModificadorAlcance modificador_alcance = 22;
   optional int32 margem_critico = 7 [default=20];
   optional int32 multiplicador_critico = 11 [default=2];
-  optional int32 margem_critico_secundario = 12 [default=20];
+  //optional int32 margem_critico_secundario = 12 [default=20];
+  reserved 12;
   optional int32 multiplicador_critico_secundario = 13 [default=2];
   // Maximo modificador de forca permitido pela arma (valido para arcos).
   optional int32 max_forca = 14;
@@ -228,6 +241,7 @@ message ArmaProto {
   optional Modelo3d info_modelo_3d = 34;
   // Se verdadeiro, arma pode ser usada para derrubar.
   optional bool pode_derrubar = 35;
+  optional int32 bonus_desarmar = 40;
   optional InfoComponente componente = 36;
   // tempo_conjuracao, casting_time;
   optional int32 tempo_execucao_rodadas = 38;

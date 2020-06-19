@@ -55,6 +55,9 @@ tabela_classes {
     pericias: 'profissao'
     pericias: 'identificar_magia'
     pericias_por_nivel: 2
+    talentos_automaticos: 'magia_traicoeira'
+    talentos_automaticos: 'magia_perniciosa'
+    talentos_automaticos: 'magia_tenaz'
 
     salvacoes_fortes: TS_VONTADE
   }
@@ -219,8 +222,19 @@ tabela_armas {
 }
 tabela_talentos {
   talentos {
+    id: 'investida_furiosa'
+    nome: 'Investida Furiosa'
+    nome_ingles: 'furious charge'
+    link: 'https://www.dandwiki.com/wiki/Furious_Charge_(3.5e_Feat)'
+    descricao: '+4 ao investir.'
+    regional: true
+    livro: 'PGtF'
+  }
+  talentos {
     id: 'disciplina'
     nome: 'Disciplina'
+    nome_ingles: 'discipline'
+    link: 'https://dndtools.org/feats/players-guide-to-faerun--22/discipline--629/'
     descricao: '+2 em testes de vontade e concentração.'
     regional: true
     livro: 'PGtF'
@@ -231,33 +245,45 @@ tabela_talentos {
     bonus_pericias { id: 'concentracao' valor: 2 }
   }
   talentos {
+    id: 'magia_trama_sombras'
+    nome: 'Magia da Trama das Sombras'
+    nome_ingles: 'shadow weave magic'
+    link: 'http://dnd.arkalseif.info/feats/players-guide-to-faerun--22/shadow-weave-magic--2569/index.html'
+    descricao: 'Personagem pode usar magia através da Trama das Sombras'
+    livro: 'PGtF'
+  }
+  talentos {
     id: 'magia_traicoeira'
     nome: 'Magia Traiçoeira'
+    nome_ingles: 'insidious magic'
+    pre_requisitos { talentos: 'magia_trama_sombras' }
+    link: 'http://dnd.arkalseif.info/feats/players-guide-to-faerun--22/insidious-magic--1660/index.html'
     descricao: 'Personagem pode usar a trama das sombras para tornar suas magias mais difíceis de serem detectadas.'
     livro: 'PGtF'
   }
   talentos {
     id: 'magia_perniciosa'
     nome: 'Magia Perniciosa'
+    nome_ingles: 'pernicious magic'
+    pre_requisitos { talentos: 'magia_trama_sombras' }
+    link: 'http://dnd.arkalseif.info/feats/players-guide-to-faerun--22/pernicious-magic--2136/index.html'
     descricao: '+4 em testes de superar resistência a magia de usuários da trama.'
-    livro: 'PGtF'
-  }
-  talentos {
-    id: 'magia_trama_sombras'
-    nome: 'Magia da Trama das Sombras'
-    descricao: 'Personagem pode usar magia através da Trama das Sombras'
     livro: 'PGtF'
   }
   talentos {
     id: 'magia_tenaz'
     nome: 'Magia Tenaz'
+    nome_ingles: 'tenacious magic'
+    link: 'http://dnd.arkalseif.info/feats/players-guide-to-faerun--22/tenacious-magic--2899/index.html'
+    pre_requisitos { talentos: 'magia_trama_sombras' }
     descricao: 'Testes de dissipar contra as magias da trama das sombras tem CD base 15 ao invés de 10.'
     livro: 'PGtF'
   }
   talentos {
     id: 'sorte_dos_herois'
     nome: 'Sorte dos Herois'
-    # guerreiro: true Ataque Poderoso
+    nome_ingles: 'luck of heroes'
+    link: 'https://dnd.arkalseif.info/feats/forgotten-realms-campaign-setting--19/luck-of-heroes--1796/'
     descricao: '+1 sorte todas salvacoes e +1 sorte na CA.'
     bonus_salvacao {
       tipo: TS_REFLEXO
@@ -289,7 +315,9 @@ tabela_efeitos_modelos {
         constituicao { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vulto' } } }
         carisma { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'vulto' } } }
       }
-      # visao no escuro. 18m
+      # Nao vai funcionar, modelo é desligavel.
+      tipo_visao: VISAO_ESCURO
+      alcance_visao_m: 18
       #dados_ataque {
       # reflexos 3/dia
       # invisibilidade a vontade

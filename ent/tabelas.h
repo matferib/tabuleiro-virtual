@@ -14,6 +14,9 @@ class Tabelas : public ntf::Receptor {
   // Carrega as tabelas.
   Tabelas(ntf::CentralNotificacoes* central);
 
+  // Retorna a instancia unica da tabela.
+  static const Tabelas& Unica();
+
   bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
   const TodasTabelas& todas() const { return tabelas_; }
@@ -21,7 +24,14 @@ class Tabelas : public ntf::Receptor {
   // Retorna os feiticos de uma determinada classe, por nivel.
   const std::vector<const ArmaProto*> Feiticos(const std::string& id_classe, int nivel) const;
   // Retorna id de um feitico aleatoriamente.
-  const std::string& FeiticoAleatorio(const std::string& id_classe, int nivel, const std::vector<std::string>& excluindo = {}) const;
+  struct DadosParaFeiticoAleatorio {
+    std::string id_classe;
+    int nivel;
+    std::optional<std::vector<DescritorAtaque>> descritores_proibidos;
+    std::optional<std::vector<std::string>> escolas_proibidas;
+    std::vector<std::string> feiticos_excluidos;
+  };
+  const std::string& FeiticoAleatorio(const DadosParaFeiticoAleatorio& dfa) const;
 
   // As funcoes retornam a instancia padrao caso nao encontrem a chave.
   const ArmaduraOuEscudoProto& Armadura(const std::string& id) const;

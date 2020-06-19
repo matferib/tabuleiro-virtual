@@ -3,7 +3,7 @@ package ent;
 
 import "ent/comum.proto";
 
-// Proximo id: 156, mas conferir pq ha gaps.
+// Proximo id: 157, mas conferir pq ha gaps.
 enum IdBotao {
   CONTROLE_ACAO = 1;
   CONTROLE_ACAO_ANTERIOR = 2;
@@ -166,6 +166,7 @@ enum IdBotao {
   CONTROLE_DERRUBAR = 153;
   CONTROLE_MODO_AGUARDANDO = 154;
   CONTROLE_ALTERNAR_FLANQUEANDO = 155;
+  CONTROLE_DESARMAR = 156;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;

@@ -41,7 +41,7 @@ sub_menu {
       id: 'Víboras'
       modelo { id: 'Cobra, Víbora Miúda' texto: 'Miúda' }
       modelo { id: 'Cobra, Víbora Pequena' texto: 'Pequena' }
-      modelo { id: 'Cobra, Víbora Pequena Abissal' texto: 'Pequena Abissal' }
+      modelo { id: 'Cobra, Víbora Média' texto: 'Média' }
     }
   }
   modelo { id: 'Águia' }
@@ -51,15 +51,13 @@ sub_menu {
     modelo { id: 'Tiranossauro' }
   }
   modelo { id: 'Falcão' }
-  modelo { id: 'Falcão Abissal' }
+  modelo { id: 'Guepardo' }
   modelo { id: 'Gorila' }
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
-  modelo { id: 'Leão Celestial' }
   modelo { id: 'Leão Atroz' }
   modelo { id: 'Lobo' }
   modelo { id: 'Lobo Atroz' }
-  modelo { id: 'Lobo Atroz Abissal' }
   modelo { id: 'Megaraptor' }
   modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
@@ -70,10 +68,13 @@ sub_menu {
   modelo { id: 'Tubarão Imenso' }
   modelo { id: 'Tigre' }
   modelo { id: 'Tigre Atroz' }
-  modelo { id: 'Urso Marrom' }
-  modelo { id: 'Urso Negro' }
-  modelo { id: 'Urso Negro 4 DV' }
-  modelo { id: 'Urso Negro 5 DV' }
+  sub_menu {
+    id: 'Ursos'
+    modelo { id: 'Urso Marrom' }
+    modelo { id: 'Urso Negro' }
+    modelo { id: 'Urso Negro 4 DV' }
+    modelo { id: 'Urso Negro 5 DV' }
+  }
 }
 sub_menu {
   id: 'Bestas Mágicas'
@@ -110,8 +111,13 @@ sub_menu {
     modelos { id: 'Leão Atroz' }
   }
 }
-
-modelo { id: 'Elemental do Ar (Pequeno)' }
+sub_menu {
+  id: 'Elementais'
+  modelo { id: 'Elemental da Água (Pequeno)' }
+  modelo { id: 'Elemental do Ar (Pequeno)' }
+  modelo { id: 'Elemental do Fogo (Pequeno)' }
+  modelo { id: 'Elemental da Terra (Pequeno)' }
+}
 sub_menu {
   id: 'Enxames'
   modelo { id: 'Enxame (centopéias)' }
@@ -229,6 +235,15 @@ sub_menu {
     modelo { id: 'Humana Menininha' texto: 'Menininha' }
   }
   sub_menu {
+    id: 'Ranger'
+    modelo {
+      id: 'Humana Ranger 9 + Guepardo'
+      modelos { id: 'Humana Ranger 9 Duas Armas' }
+      modelos { id: 'Guepardo' }
+    }
+  }
+
+  sub_menu {
     id: 'Druidas'
     modelo {
       id: 'Humano Druida 1 + Rato Atroz'
@@ -344,6 +359,7 @@ modelo { id: 'Troll' }
 modelo { id: 'Uivante' }
 sub_menu {
   id: 'Vermes'
+  modelo { id: 'Abelha Gigante' }
   modelo { id: 'Aranha Gigante Enorme' }
   modelo { id: 'Besouro do Fogo' }
   modelo { id: 'Centopéia Média' }

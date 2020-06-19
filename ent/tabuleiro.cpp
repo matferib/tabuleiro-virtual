@@ -790,13 +790,13 @@ int Tabuleiro::Desenha() {
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   gl::TipoShader tipo_shader;
   auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
-  if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_ESCURO && visao_escuro_ &&
+  if (entidade_referencia != nullptr && entidade_referencia->PossuiVisaoEscuro() && visao_escuro_ &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_mapa_sombras(false);
     tipo_shader = gl::TSH_PRETO_BRANCO;
-  } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
+  } else if (entidade_referencia != nullptr && entidade_referencia->PossuiVisaoBaixaLuminosidade()) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_multiplicador_visao_penumbra(1.4f);
     tipo_shader = gl::TSH_LUZ;
@@ -1393,7 +1393,9 @@ void Tabuleiro::AlternaInvestida() {
       }
     } else {
       std::vector<int> ids_unicos(IdsUnicosEntidade(*entidade_selecionada));
-      PreencheNotificacaoEventoSemComplemento(entidade_selecionada->Id(), /*dados_iniciativa=*/std::nullopt, /*origem*/"carga", EFEITO_INVESTIDA, /*rodadas=*/1, &ids_unicos, n, nullptr);
+      PreencheNotificacaoEventoComComplementos(
+          entidade_selecionada->Id(), /*dados_iniciativa=*/std::nullopt, /*origem*/"investida", EFEITO_INVESTIDA,
+          {entidade_selecionada->PossuiTalento("investida_furiosa") ? 4 : 2}, /*rodadas=*/1, &ids_unicos, n, nullptr);
     }
   }
   if (grupo_notificacoes.notificacao().empty()) return;
@@ -1877,19 +1879,28 @@ void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
   EntraModoClique(MODO_ACAO);
 }
 
-int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao) {
+std::pair<int, int> Tabuleiro::LeValorListaPontosVida(
+    const Entidade* entidade, const EntidadeProto& alvo, const std::string& id_acao) {
   if (modo_dano_automatico_) {
     if (entidade == nullptr) {
       LOG(WARNING) << "entidade eh nula";
-      return 0;
+      return {0, 0};
     }
-    int delta_pontos_vida;
-    std::string texto_pontos_vida;
-    std::tie(delta_pontos_vida, texto_pontos_vida) = entidade->ValorParaAcao(id_acao, alvo);
+    auto [valor_normal, valor_adicional_opt] = entidade->ValorParaAcao(id_acao, alvo);
+    auto [delta_pontos_vida, texto_pontos_vida] = valor_normal;
     delta_pontos_vida = -delta_pontos_vida;
+    if (valor_adicional_opt.has_value()) {
+      int delta_adicional = -std::get<0>(*valor_adicional_opt);
+      AdicionaLogEvento(
+          entidade->Id(),
+          StringPrintf("Valor para ação: %s e %s", texto_pontos_vida.c_str(), std::get<1>(*valor_adicional_opt).c_str()));
+      VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
+      return {delta_pontos_vida, delta_adicional};
+    } else if (delta_pontos_vida != 0) {
+      AdicionaLogEvento(entidade->Id(), StringPrintf("Valor para ação: %s", texto_pontos_vida.c_str()));
+    }
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
-    AdicionaLogEvento(entidade->Id(), texto_pontos_vida);
-    return delta_pontos_vida;
+    return {delta_pontos_vida, 0 };
   } else {
     int delta_pontos_vida;
     std::vector<std::pair<int, int>> dados;
@@ -1898,9 +1909,8 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const EntidadePr
                       ent::DadosParaString(delta_pontos_vida, dados));
     delta_pontos_vida *= lista_pontos_vida_.front().first;
     lista_pontos_vida_.pop_front();
-
     VLOG(1) << "Lendo valor da lista de pontos de vida: " << delta_pontos_vida;
-    return delta_pontos_vida;
+    return {delta_pontos_vida, 0};
   }
 }
 
@@ -2102,6 +2112,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AdicionaEntidadesNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
+      if (notificacao.local() && notificacao.acao().adiciona_ao_log_se_local()) {
+        const auto& [id, texto] = IdTextoAcao(notificacao.acao());
+        AdicionaLogEvento(id, texto);
+      }
       std::unique_ptr<Acao> acao(NovaAcao(tabelas_, notificacao.acao(), this, texturas_, m3d_, central_));
       // A acao pode estar finalizada se o setup dela estiver incorreto. Eh possivel haver estes casos
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
@@ -4736,7 +4750,7 @@ void Tabuleiro::AtualizaIniciativas() {
   std::vector<const Entidade*> entidades_adicionar;
   for (auto& [id, entidade] : entidades_) {
     if (!entidade->TemIniciativa()) {
-      VLOG(3) << "Entidade sem iniciativa";
+      VLOG(3) << "Entidade sem iniciativa: " << id;  // esse id aqui é so pro compilador ficar feliz.
       continue;
     }
     auto it = mapa_iniciativas.find(entidade->Id());
@@ -7225,9 +7239,14 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
   }
 }
 
-std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadasMontadas() const {
+std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaMontadasOuEntidadesSelecionadasMontadas() const {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return { IdCameraPresa() };
+    const auto* e1 = EntidadePrimeiraPessoa();
+    if (e1 == nullptr) { return  {}; }
+    std::vector<unsigned int> ids;
+    ids.push_back(e1->Id());
+    std::copy(e1->Proto().entidades_montadas().begin(), e1->Proto().entidades_montadas().end(), std::back_inserter(ids));
+    return ids;
   } else {
     return IdsEntidadesSelecionadasEMontadas();
   }
@@ -7571,7 +7590,7 @@ void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, nt
 
 // TODO Pra desfazer, tem que salvar muita coisa. Por enquanto nao muda nada.
 void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
-  auto [e_antes, e_depois] = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao());
+  auto e_depois = std::get<1>(ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao()));
   e_depois->set_reiniciar_ataque(true);
 }
 
@@ -8178,7 +8197,7 @@ void Tabuleiro::AlternaDefesaTotal() {
 void Tabuleiro::AlternaLutaDefensiva() {
   Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
   if (entidade == nullptr) return;
-  ntf::Notificacao n = PreencheNotificacaoLutarDefensivamente(!LutandoDefensivamente(entidade->Proto()), entidade->Proto());
+  ntf::Notificacao n = PreencheNotificacaoLutarDefensivamente(!LutandoDefensivamente(entidade->Proto()), *entidade);
   // Vai notificar remoto.
   TrataNotificacao(n);
   // Desfazer.

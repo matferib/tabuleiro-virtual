@@ -91,6 +91,13 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
   }
   armas {
+    id: 'ferroada_padrao'
+    categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
+    tipo_dano: TD_PERFURANTE
+    dano { medio: '1d4' }
+  }
+  armas {
     id: 'chifrada'
     categoria: CAT_ARMA_NATURAL
     categoria: CAT_CAC
@@ -526,7 +533,7 @@ tabela_armas {
     categoria_pericia: CATPER_COMUM
   }
   armas {
-    id: 'escudo_pequeno_com_cavos'
+    id: 'escudo_pequeno_com_cravos'
     nome: 'escudo pequeno com cravos'
     preco: 'especial'
     dano { medio: '1d4'}
@@ -699,6 +706,8 @@ tabela_armas {
     peso { medio: '25kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_COMUM
+    pode_derrubar: true
+    bonus_desarmar: 2
   }
   armas {
     id: 'martelo_de_guerra'
@@ -887,6 +896,7 @@ tabela_armas {
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_COMUM
     pode_derrubar: true
+    bonus_desarmar: 2
   }
   armas {
     id: 'ranseur'
@@ -900,6 +910,7 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
     categoria_pericia: CATPER_COMUM
     haste: true
+    bonus_desarmar: 2
   }
   # Ranged Weapons
   armas {
@@ -916,6 +927,7 @@ tabela_armas {
   }
   armas {
     id: 'arco_curto_composto'
+    id_arma_base: 'arco_curto'
     nome: 'arco curto composto'
     preco: '75 PO'
     dano { medio: '1d6'  }
@@ -943,6 +955,7 @@ tabela_armas {
   }
   armas {
     id: 'arco_longo_composto'
+    id_arma_base: 'arco_longo'
     nome: 'arco longo composto'
     preco: '100 PO'
     dano { medio: '1d8'  }
@@ -984,6 +997,7 @@ tabela_armas {
     peso { medio: '1Kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
+    bonus_desarmar: 2
   }
   armas {
     id: 'sai'
@@ -998,6 +1012,7 @@ tabela_armas {
     peso { medio: '0,5kg' }
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
+    bonus_desarmar: 4
   }
   armas {
     id: 'siangham'
@@ -1016,7 +1031,7 @@ tabela_armas {
     id: 'chicote'
     nome: 'chicote'
     preco: '1 PO'
-    dano { medio: '1d3' }
+    #dano { medio: '1d3' }
     categoria: CAT_CAC
     multiplicador_critico: 2
     peso { medio: '1kg' }
@@ -1026,11 +1041,13 @@ tabela_armas {
     haste: true
     multiplicador_haste: 3
     pode_derrubar: true
+    bonus_desarmar: 2
     nao_letal: true
     acao {
       som_inicial: 'whip.wav'
       som_sucesso: 'whip_hit.wav'
       som_fracasso: ''
+      icone: 'icon_whip.png'
     }
     # TODO nao da dano se alvo tiver armadura.
   }
@@ -1068,13 +1085,21 @@ tabela_armas {
     multiplicador_critico: 2
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
+    tipo_movimento_acao: TD_CORTANTE
     categoria_pericia: CATPER_EXOTICA
     haste: true
     atinge_adjacentes: true
     pode_derrubar: true
+    bonus_desarmar: 2
+    acao {
+      icone: 'icon_spiked_chain.png'
+      som_inicial: 'spiked_chain.wav'
+      som_fracasso: ''
+    }
   }
   armas {
     id: 'espada_de_duas_laminas'
+    info_modelo_3d { id: 'two_bladed_sword' }
     nome: 'espada de duas lâminas'
     preco: '100 PO'
     dano { medio: '1d8'  }
@@ -1087,7 +1112,6 @@ tabela_armas {
     tipo_dano: TD_CORTANTE
     categoria_pericia: CATPER_EXOTICA
   }
-
   armas {
     id: 'machado_orc_duplo'
     nome: 'machado orc duplo'
@@ -1115,6 +1139,7 @@ tabela_armas {
     tipo_dano: TD_CONCUSSAO
     categoria_pericia: CATPER_EXOTICA
     pode_derrubar: true
+    bonus_desarmar: 2
   }
 
   armas {
@@ -1237,8 +1262,24 @@ tabela_armas {
     categoria_pericia: CATPER_EXOTICA
   }
 }
-
 tabela_efeitos {
+  efeitos {
+    id: EFEITO_APRISIONADO_ELEMENTAL
+    nome: 'aprisionado ao elemental'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'aprisionado_elemental' } } }
+      atributos {
+        # Usa a mesma origem que fadiga para evitar acumulo.
+        destreza { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -4 origem: 'aprisionado_elemental' } } }
+      }
+    }
+    # Creatures caught in the whirlwind take a -4 penalty to Dexterity and a -2 penalty on attack rolls.
+    # The elemental can have only as many creatures trapped inside the whirlwind at one time as will fit inside the whirlwind’s volume.
+  }
+  efeitos {
+    id: EFEITO_ALTERAR_FORMA
+    nome: 'Assume as características no proto passado como complemento'
+  }
   efeitos {
     id: EFEITO_NAO_PODE_MOVER
     nome: 'não pode se mover, mas pode mexer'
@@ -1627,13 +1668,11 @@ tabela_efeitos {
     nome: 'drenar temporário'
     formato_complementos: 'quantidade de niveis drenados.'
   }
-
   efeitos {
     id: EFEITO_LAMINA_AFIADA
     nome: 'lâmina afiada'
     formato_complementos: 'rótulo da arma afetada'
   }
-
   efeitos {
     id: EFEITO_FORMA_GASOSA
     nome: 'forma gasosa'
@@ -1954,7 +1993,8 @@ tabela_efeitos {
       dados_defesa {
         ca { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'investida' } } }
       }
-      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 2 origem: 'carga' } } }
+      # Normalmente é 2, mas se tiver investida furiosa, vira 4.
+      jogada_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { indice_complemento: 0 origem: 'investida' } } }
     }
   }
   efeitos {
@@ -3133,10 +3173,10 @@ tabela_pocoes {
   pocoes {
     id: 'abencoar_arma'
     nome: 'Abençoar Arma'
-    duracao_rodadas: 2
-    tipo_efeito: EFEITO_OUTRO
-    descricao: 'Arma equivale a +1 para redução de dano e alinha como boa'
-    custo_po: 50
+    duracao_rodadas: 10
+    tipo_efeito: EFEITO_ABENCOAR_ARMA
+    descricao: 'Arma equivale a +1 para redução de dano e alinha como boa, confirma críticos contra mal.'
+    custo_po: 100
   }
   pocoes {
     id: 'velocidade'
@@ -3179,7 +3219,13 @@ tabela_pocoes {
     duracao_rodadas: 30
     custo_po: 300
   }
-
+  pocoes {
+    id: 'lamina_afiada'
+    nome: 'Lâmina Afiada'
+    tipo_efeito: EFEITO_LAMINA_AFIADA
+    duracao_rodadas: 500
+    custo_po: 750
+  }
   pocoes {
     id: 'furia'
     nome: 'Fúria'
@@ -3633,78 +3679,99 @@ tabela_talentos {
   talentos {
     id: 'encontrao_aprimorado'
     nome: 'Encontrão Aprimorado'
-    # guerreiro: true Ataque Poderoso
+    nome_ingles: 'improved bull rush'
+    guerreiro: true
+    pre_requisitos { talentos: 'ataque_poderoso' }
     descricao: '+4 de bônus nas tentativas de encontrão e não provoca ataques de oportunidade.'
   }
   talentos {
     id: 'atropelar_aprimorado'
     nome: 'Atropelar Aprimorado'
-    #guerreiro: true Ataque Poderoso
+    nome_ingles: 'improved overrun'
+    guerreiro: true
+    pre_requisitos { talentos: 'ataque_poderoso' }
     descricao: '+4 de bônus nas tentativas de atropelar e não provoca ataques de oportunidade.'
   }
   talentos {
     id: 'separar_aprimorado'
     nome: 'Separar Aprimorado'
-    #guerreiro: true Ataque Poderoso
+    nome_ingles: 'improved sunder'
+    guerreiro: true
+    pre_requisitos { talentos: 'ataque_poderoso' }
     descricao: '+4 de bônus nas tentativas de Separar e não provoca ataques de oportunidade.'
   }
   talentos {
     id: 'arquearia_montada'
     nome: 'Arquearia Montada'
-    #guerreiro: true Combate Montado
+    nome_ingles: 'mounted archery'
+    guerreiro: true
+    pre_requisitos { talentos: 'combate_montado' }
     descricao: 'Sofre metade das penalidades nos ataques à distância realizados sobre montarias.'
   }
   talentos {
     id: 'investida_implacavel'
     nome: 'Investida Implacável'
-    #guerreiro: true Combate Montado, Investida Montada
+    nome_ingles: 'spirited charge'
+    guerreiro: true
+    pre_requisitos { talentos: 'combate_montado' talentos: 'investida_montada' }
     descricao: 'Investidas montadas causam dano dobrado.'
   }
   talentos {
     id: 'pisotear'
     nome: 'Pisotear'
-    #guerreiro: true Combate Montado
+    nome_ingles: 'trample'
+    guerreiro: true
+    pre_requisitos { talentos: 'combate_montado' }
     descricao: 'A vítima não pode evitar um atropelamento montada.'
   }
   talentos {
     id: 'bloqueio_ambidestro'
     nome: 'Bloqueio Ambidestro'
-    #guerreiro: true Combater com Duas Armas des 15
+    nome_ingles: 'two-weapon defense'
+    guerreiro: true
+    pre_requisitos { talentos: 'combater_duas_armas' atributos { destreza: 15 } }
     descricao: 'A arma da mão inábil concede +1 de bônus de escudo na CA.'
   }
   talentos {
     id: 'contramagica_aprimorada'
     nome: 'Contramágica Aprimorada'
+    nome_ingles: 'improved counterspell'
     descricao: 'Contramágica com magias da mesma escola.'
   }
   talentos {
     id: 'ataque_giratorio'
     nome: 'Ataque Giratório'
-    #guerreiro: true Des 13, Especialização em Combate, Esquiva, Mobilidade, Ataque em Movimento, bônus base de ataque +4
+    nome_ingles: 'whirlwind attack'
+    guerreiro: true
+    pre_requisitos { atributos { destreza: 13 } talentos: 'especializacao_em_combate' talentos: 'esquiva' talentos: 'mobilidade' talentos: 'ataque_movimento' bba: 4 }
     descricao: 'Realiza um ataque corporal contra cada oponente dentro do alcance.'
   }
   talentos {
     id: 'expulsao_aprimorada'
     nome: 'Expulsão Aprimorada'
+    nome_ingles: 'improved turning'
     # Habilidade de expulsar ou fascinar criaturas
     descricao: '+1 nível efetivo para testes de expulsão.'
   }
   talentos {
     id: 'potencializar_invocacao'
     nome: 'Potencializar Invocação'
-    # Foco em Magia (conjuração)
-    # pre_requisitos { talentos: [ 'ataque_desarmado_aprimorado' ] }
+    nome_ingles: 'augment summoning'
+    pre_requisitos { talentos: 'foco_em_magia' }  # conjuracao
     descricao: 'As criaturas invocadas recebem +4 For e +4 Cons.'
   }
   talentos {
     id: 'rapidez_recarga'
     nome: 'Rapidez de Recarga'
-    #guerreiro: true Usar Arma Simples (besta)
+    nome_ingles: 'rapid reload'
+    guerreiro: true
+    pre_requisitos { talentos: 'usar_armas_simples' }   # besta
     descricao: 'Recarrega bestas mais rapidamente.'
   }
   talentos {
     id: 'sorrateiro'
     nome: 'Sorrateiro'
+    nome_ingles: 'stealthy'
     descricao: '+2 nos testes de Esconder-se e Furtividade.'
     bonus_pericias { id: 'esconderse' valor: 2 }
     bonus_pericias { id: 'furtividade' valor: 2 }
@@ -3712,177 +3779,206 @@ tabela_talentos {
   talentos {
     id: 'tiro_longo'
     nome: 'Tiro Longo'
-    #guerreiro: true Tiro Certeiro
+    nome_ingles: 'far shot'
+    guerreiro: true
+    pre_requisitos { talentos: 'tiro_certeiro' }
     descricao: 'Aumenta o incremento de distância em 50% ou 100%.'
   }
   talentos {
     id: 'tiro_movimento'
     nome: 'Tiro em Movimento'
-    #guerreiro: true Des 13, Esquiva, Mobilidade, Tiro Certeiro, bônus base de ataque +4
+    nome_ingles: 'shot on the run'
+    guerreiro: true
+    pre_requisitos { atributos { destreza: 13 } talentos: 'esquiva' talentos: 'mobilidade' talentos: 'tiro_certeiro' bba: 4 }
     descricao: 'Pode se deslocar antes e depois de um ataque à distância.'
   }
   talentos {
     id: 'tiro_preciso_aprimorado'
     nome: 'Tiro Preciso Aprimorado'
-    #guerreiro: true Des 19, Tiro Certeiro, Tiro Preciso, bônus base de ataque +11
+    nome_ingles: 'improved precise shot'
+    guerreiro: true
+    pre_requisitos { atributos { destreza: 19 } talentos: 'tiro_certeiro' talentos: 'tiro_preciso' bba: 11 }
     descricao: 'Ignorar qualquer cobertura ou camuflagem (exceto total) para ataques à distância.'
   }
   talentos {
     id: 'acrobatico'
     nome: 'Acrobático'
+    nome_ingles: 'acrobatic'
     bonus_pericias { id: 'saltar' valor: 2 }
     bonus_pericias { id: 'acrobacias' valor: 2 }
   }
   talentos {
     id: 'acuidade_arma'
     nome: 'Acuidade com Arma'
-    # guerreiro: true
-    # pre_requisitos { bba: 1, proficiencia_arma: true, arma_leve: true }
+    nome_ingles: 'weapon finesse'
+    guerreiro: true
+    pre_requisitos { bba: 1 } #, proficiencia_arma: true, arma_leve: true }
     descricao: 'Aplica o modificador de Des (em vez de For) nas jogadas de ataque corporal com armas leves.'
   }
   talentos {
     id: 'afinidade_com_animais'
     nome: 'Afinidade com Animais'
+    nome_ingles: 'animal affinity'
     bonus_pericias { id: 'cavalgar' valor: 2 }
     bonus_pericias { id: 'adestrar_animais' valor: 2 }
   }
   talentos {
     id: 'agarrar_aprimorado'
     nome: 'Agarrar Aprimorado'
-    # guerreiro: true
-    # monge: 1
-    # pre_requisitos { atributos { destreza: 13 } talentos: [ 'ataque_desarmado_aprimorado' ] }
+    nome_ingles: 'improved grapple'
+    guerreiro: true
+    monge: 1
+    pre_requisitos { atributos { destreza: 13 } talentos: 'ataque_desarmado_aprimorado' }
     descricao: '+4 de bônus nos testes de Agarrar e não provoca ataques de oportunidade.'
   }
   talentos {
     id: 'agil'
     nome: 'Ágil'
+    nome_ingles: 'agile'
     bonus_pericias { id: 'equilibrio' valor: 2 }
     bonus_pericias { id: 'arte_da_fuga' valor: 2 }
   }
   talentos {
     id: 'apanhar_objetos'
     nome: 'Apanhar Objetos'
-    # pre_requisitos { atributos { destreza: 15 } talentos: ['desviar_objetos', 'ataque_desarmado_aprimorado'] }
+    nome_ingles: 'snatch arrows'
+    pre_requisitos { atributos { destreza: 15 } talentos: 'desviar_objetos' talentos: 'ataque_desarmado_aprimorado' }
     descricao: 'Apanha uma arma arremessada ou projétil'
-    # guerreiro: true
+    guerreiro: true
   }
   talentos {
     id: 'aptidao_magica'
     nome: 'Aptidão Mágica'
+    nome_ingles: 'magical aptitude'
     bonus_pericias { id: 'identificar_magia' valor: 2 }
     bonus_pericias { id: 'usar_instrumento_magico' valor: 2 }
   }
   talentos {
     id: 'ataque_atordoante'
     nome: 'Ataque Atordoante'
-    # monge: 1
-    # guerreiro: true
+    nome_ingles: 'stunning fist'
+    monge: 1
+    guerreiro: true
     descricao: 'Atordoa a vítima com um ataque desarmado.'
-    # pre_requisitos { bba: 8, talentos: [ 'ataque_desarmado_aprimorado' ], atributos { destreza: 13, sabedoria: 13 } }
+    pre_requisitos { bba: 8 talentos: 'ataque_desarmado_aprimorado' atributos { destreza: 13 sabedoria: 13 } }
   }
   talentos {
     id: 'ataque_desarmado_aprimorado'
     nome: 'Ataque Desarmado Aprimorado'
-    # guerreiro: true
+    nome_ingles: 'improved unarmed strike'
+    guerreiro: true
     descricao: 'Considerado armado quando estiver desarmado'
   }
   talentos {
     id: 'ataque_movimento'
     nome: 'Ataque em Movimento'
+    nome_ingles: 'spring attack'
     descricao: 'Capaz de deslocar antes e depois do ataque'
-    # pre_requisitos { bba: 4, talentos: [ 'mobilidade' ] }
-    # guerreiro: true
+    pre_requisitos { bba: 4 talentos: 'mobilidade' }
+    guerreiro: true
   }
   talentos {
     id: 'ataque_poderoso'
     nome: 'Ataque Poderoso'
-    # pre_requisitos { atributos { forca: 13 } }
-    # guerreiro: true
+    nome_ingles: 'power attack'
+    pre_requisitos { atributos { forca: 13 } }
+    guerreiro: true
     descricao: 'Substitui bônus de ataque por dano (máximo: bônus base de ataque).'
   }
   talentos {
     id: 'atletico'
-    nome: 'Atlético'
+    nome: 'Atlético' # franga!
+    nome_ingles: 'athletic'
     bonus_pericias { id: 'escalar' valor: 2 }
     bonus_pericias { id: 'natacao' valor: 2 }
   }
   talentos {
     id: 'auto_suficiente'
     nome: 'Auto-Suficiente'
+    nome_ingles: 'self-sufficient'
     bonus_pericias { id: 'cura' valor: 2 }
     bonus_pericias { id: 'sobrevivencia' valor: 2 }
   }
   talentos {
     id: 'combate_montado'
     nome: 'Combate Montado'
-    # pre_requisitos { pericias { cavalgar: 1 } }
-    # guerreiro: true
+    nome_ingles: 'mounted combat'
+    pre_requisitos { pericias { id: 'cavalgar' pontos: 1 } }
+    guerreiro: true
     descricao: 'Evita os ataques contra a montaria com um teste de Cavalgar'
   }
   talentos {
     id: 'combater_duas_armas'
     nome: 'Combater com duas armas'
-    # pre_requisitos { atributos { destreza: 15 } }
-    # guerreiro: true
-    # ranger: 2
+    nome_ingles: 'two-weapon fighting'
+    pre_requisitos { atributos { destreza: 15 } }
+    guerreiro: true
+    ranger: 2
     descricao: 'Reduz penalidade ao usar duas maos em 2.'
   }
   talentos {
     id: 'combater_duas_armas_aprimorado'
     nome: 'Combater com duas armas aprimorado'
-    # pre_requisitos { atributos { destreza: 17 } bba: 6, talentos: [ 'combater_duas_armas'] }
-    # guerreiro: true
-    # ranger: 6
+    nome_ingles: 'improved two-weapon fighting'
+    pre_requisitos { atributos { destreza: 17 } bba: 6 talentos: 'combater_duas_armas' }
+    guerreiro: true
+    ranger: 6
     descricao: 'Ataque adicional com a segunda mao.'
   }
   # TODO regra do terceiro ataque.
   talentos {
     id: 'combater_duas_armas_maior'
     nome: 'Combater com Duas Armas Maior'
-    # guerreiro: true
-    # ranger: 11
-    # pre_requisitos { atributos { destreza: 19 } talentos: ['combater_duas_armas_aprimorado', ], bba: 11 }
+    nome_ingles: 'greater two-weapon fighting'
+    guerreiro: true
+    ranger: 11
+    pre_requisitos { atributos { destreza: 19 } talentos: 'combater_duas_armas_aprimorado' bba: 11 }
     descricao: 'Adquire um terceiro ataque com a mão inábil'
   }
   # TODO teoricamente esse bonus eh so se correr...
   talentos {
     id: 'corrida'
     nome: 'Corrida'
+    nome_ingles: 'run'
     bonus_pericias { id: 'saltar' valor: 4 }
     descricao: 'Percorre 5 vezes o deslocamento padrão +4 de bônus nos testes de Saltar no final de uma corrida.'
   }
   talentos {
     id: 'dedos_lepidos'
     nome: 'Dedos Lépidos'
+    nome_ingles: 'nimble fingers'
     bonus_pericias { id: 'operar_mecanismos' valor: 2 }
     bonus_pericias { id: 'abrir_fechaduras' valor: 2 }
   }
   talentos {
     id: 'desarme_aprimorado'
     nome: 'Desarme Aprimorado'
-    # guerreiro: true
-    # monge: 6
+    nome_ingles: 'improved disarm'
+    guerreiro: true
+    monge: 6
     descricao: '+4 de bônus nas tentativas de desarme e não provoca ataques de oportunidade.'
   }
   talentos {
     id: 'desviar_objetos'
     nome: 'Desviar Objetos'
-    # pre_requisitos { atributos { destreza: 13 } } talentos: [ 'ataque_desarmado_aprimorado' ]
-    # monge: 2
-    # guerreiro: true
+    nome_ingles: 'deflect arrows'
+    pre_requisitos { atributos { destreza: 13 } talentos: 'ataque_desarmado_aprimorado' }
+    monge: 2
+    guerreiro: true
     descricao: 'Desvia um ataque à distância por rodada'
   }
   talentos {
     id: 'diligente'
     nome: 'Diligente'
+    nome_ingles: 'diligent'
     bonus_pericias { id: 'avaliacao' valor: 2 }
     bonus_pericias { id: 'decifrar_escrita' valor: 2 }
   }
   talentos {
     id: 'duro_de_matar'
     nome: 'Duro de Matar'
-    # pre_requisitos { talentos: [ 'tolerancia' ] }
+    nome_ingles: 'diehard'
+    pre_requisitos { talentos: 'tolerancia' }
     descricao: 'Permanece consciente entre -1 e -9 PV.'
   }
   # Nao da pra modelar automatico porque as dependencias de especiais vem
@@ -3890,6 +3986,7 @@ tabela_talentos {
   talentos {
     id: 'expulsao_adicional'
     nome: 'Expulsão Adicional'
+    nome_ingles: 'improved turning'
   }
   # Escrever Pergaminho 1° nível de conjurador Criar pergaminhos mágicos
   talentos {
@@ -3902,75 +3999,85 @@ tabela_talentos {
   talentos {
     id: 'especializacao_arma'
     nome: 'Especialização em Arma'
-    # guerreiro: true
+    nome_ingles: 'weapon specialization'
+    guerreiro: true
     tipo_complemento: TCT_ARMA
-    # pre_requisitos { proficiencia_arma: true, talentos: [ 'foco_em_arma'], nivel { # guerreiro: 4 }}
+    pre_requisitos { talentos: 'foco_em_arma' nivel { id: 'guerreiro'  nivel: 4 } }
     descricao: '+2 de bônus no dano com a arma escolhida.'
   }
   # TODO implementar/mostrar esse bonus de alguma forma.
   talentos {
     id: 'esquiva'
     nome: 'Esquiva'
-    # pre_requisitos { atributos { destreza: 13 } }
+    nome_ingles: 'dodge'
+    pre_requisitos { atributos { destreza: 13 } }
     descricao: '+1 de bônus de esquiva na CA contra um adversário à sua escolha.'
     # bonus_ca { esquiva: 1 }
-    # guerreiro: true
+    guerreiro: true
   }
   talentos {
     id: 'especializacao_arma_maior'
     nome: 'Especialização em Arma Maior'
-    # guerreiro: true
+    nome_ingles: 'greater weapon specialization'
+    guerreiro: true
     tipo_complemento: TCT_ARMA
-    # pre_requisitos { talentos: [ 'foco_em_arma_maior', 'especializacao_arma'] nivel { # guerreiro: 12 } }
+    pre_requisitos { talentos: 'foco_em_arma_maior' talentos: 'especializacao_arma' nivel { id: 'guerreiro' nivel: 12 } }
     descricao: '+4 de bônus no dano com a arma escolhida (ao invés de 2 da especialização normal).'
   }
   talentos {
     id: 'fintar_aprimorado'
     nome: 'Fintar Aprimorado'
-    # pre_requisitos { talentos: ['especializacao_em_combate'], atributos { inteligencia: 13 } }
-    # guerreiro: true
+    nome_ingles: 'improved feint'
+    pre_requisitos { talentos: 'especializacao_em_combate' atributos { inteligencia: 13 } }
+    guerreiro: true
     descricao: 'Fintar em combate se torna uma ação de movimento.'
   }
   # TODO fazer funcionar.
   talentos {
     id: 'foco_em_pericia'
     nome: 'Foco em Perícia'
+    nome_ingles: 'skill focus'
     tipo_complemento: TCT_PERICIA
     descricao: '+3 de bônus nos teste da perícia escolhida.'
   }
   talentos {
     id: 'foco_em_arma'
     nome: 'Foco em arma'
+    nome_ingles: 'weapon focus'
     tipo_complemento: TCT_ARMA
-    # pre_requisitos { bba: 1, proficiencia_arma: true }
-    # guerreiro: true
+    pre_requisitos { bba: 1 } # proficiencia_arma: true
+    guerreiro: true
     descricao: '+1 de bônus nas jogadas de ataque com a arma escolhida.'
   }
   talentos {
     id: 'foco_em_arma_maior'
     nome: 'Foco em arma maior'
+    nome_ingles: 'greater weapon focus'
     tipo_complemento: TCT_ARMA
-    # pre_requisitos { talentos: [ 'foco_em_arma'], nivel { # guerreiro: 8 } }
-    # guerreiro: true
+    pre_requisitos { talentos: 'foco_em_arma' nivel { id: 'guerreiro' nivel: 8 } }
+    guerreiro: true
     descricao: '+2 de bônus nas jogadas de ataque com a arma escolhida.'
   }
   # TODO aplicar os bonus de CD.
   talentos {
     id: 'foco_em_magia'
     nome: 'Foco em Magia'
+    nome_ingles: 'spell_focus'
     tipo_complemento: TCT_ESCOLA_MAGIA
     descricao: '+1 de bônus na CD dos testes de resistência de uma escola de magia específica.'
   }
   talentos {
     id: 'foco_em_magia_maior'
     nome: 'Foco em Magia Maior'
+    nome_ingles: 'greater weapon focus'
     tipo_complemento: TCT_ESCOLA_MAGIA
-    # pre_requisitos { talentos: ['foco_em_magia'] }
+    pre_requisitos { talentos: 'foco_em_magia' }
     descricao: '+1 de bônus na CD dos testes de resistência de uma escola de magia específica.'
   }
   talentos {
     id: 'forjar_anel'
     nome: 'Forjar Anel'
+    nome_ingles: 'forge ring'
     # pre_requisitos { nivel { conjurador: 12 } }
     descricao: 'Criar anéis mágicos.'
     # mago: 1
@@ -3978,6 +4085,7 @@ tabela_talentos {
   talentos {
     id: 'fortitude_maior'
     nome: 'Fortitude Maior'
+    nome_ingles: 'great fortitude'
     descricao: '+2 de bônus nos teste de resistência de Fortitude.'
     bonus_salvacao {
       tipo: TS_FORTITUDE
@@ -3987,77 +4095,88 @@ tabela_talentos {
   talentos {
     id: 'fraudulento'
     nome: 'Fraudulento'
+    nome_ingles: 'disguise'
     bonus_pericias { id: 'disfarces' valor: 2 }
     bonus_pericias { id: 'falsificacao' valor: 2 }
   }
   talentos {
     id: 'ignorar_componentes_materiais'
     nome: 'Ignorar Componentes Materiais'
+    nome_ingles: 'eschew materials'
     descricao: 'Conjura magias ignorando os componentes materiais.'
   }
   talentos {
     id: 'investida_montada'
     nome: 'Investida Montada'
-    # guerreiro: true
-    # pre_requisitos { talentos: ['combate_montado'] }
+    nome_ingles: 'ride-by attack'
+    guerreiro: true
+    pre_requisitos { talentos: 'combate_montado' }
     descricao: 'Pode se deslocar antes e depois de uma investida montada'
   }
   talentos {
     id: 'derrubar_aprimorado'
-    nome: 'Derrubar Aprimorado (Imobilização Aprimorada)'
-    # pre_requisitos { talentos: ['especializacao_em_combate'] }
-    # guerreiro: true
-    # monge: 6
+    nome: 'Derrubar Aprimorado (original: Imobilização Aprimorada)'
+    nome_ingles: 'improved trip'
+    pre_requisitos { talentos: 'especializacao_em_combate' }
+    guerreiro: true
+    monge: 6
     descricao: '+4 de bônus nas tentativas de derrubar e não provoca ataques de oportunidade.'
   }
   talentos {
     id: 'especializacao_em_combate'
     nome: 'Especialização em Combate'
-    # guerreiro: true
-    # pre_requisitos { atributos { inteligencia: 13 } }
+    nome_ingles: 'combat expertise'
+    guerreiro: true
+    pre_requisitos { atributos { inteligencia: 13 } }
     descricao: 'Substitui bônus de ataque por CA (máximo 5 pontos).'
   }
   talentos {
     id: 'iniciativa_aprimorada'
     nome: 'Iniciativa Aprimorada'
+    nome_ingles: 'improved initiative'
     # bonus_iniciativa: 4
-    # guerreiro: true
+    guerreiro: true
     descricao: '+4 de bônus nos testes de iniciativa.'
   }
   talentos {
     id: 'investigador'
     nome: 'Investigador'
+    nome_ingles: 'investigator'
     bonus_pericias { id: 'obter_informacao' valor: 2 }
     bonus_pericias { id: 'procurar' valor: 2 }
   }
   talentos {
     id: 'lideranca'
     nome: 'Liderança'
+    nome_ingles: 'leadership'
     # pre_requisitos { nivel { total: 6 } }
     descricao: 'Personagem atrai parceiros e seguidores.'
   }
   talentos {
     id: 'lutar_as_cegas'
     nome: 'Lutar as Cegas'
-    # guerreiro: true
+    nome_ingles: 'blind-fight'
+    guerreiro: true
     descricao: 'Joga novamente a chance de falha por camuflagem.'
   }
   talentos {
     id: 'dominar_magia'
-    nome: "Dominar Magia"
+    nome: 'Dominar Magia'
+    nome_ingles: 'spell mastery'
     descricao: "Capaz de preparar magias escolhidas (bônus inteligência) sem um grimório."
-    # pre_requisito { nivel { # mago: 1, # mago_necromante: 1 } }
-    # mago: 1
+    pre_requisitos { nivel { id: 'mago' nivel: 1 } }
   }
   # Habilidade Forma Selvagem Capaz de lançar magias na forma selvagem
   talentos {
     id: 'magia_natural'
     nome: 'Magia Natural'
+    nome_ingles: 'natural spell'
     # pre_requisitos { atributos { sabedoria: 13 } }
   }
   talentos {
     id: 'magia_penetrante'
     nome: 'Magia Penetrante'
+    nome_ingles: 'spell penetration'
     descricao: '+2 de bônus nos testes de conjurador contra Resistência à Magia.'
   }
   # Magia Penetrante TODO +2 de bônus nos testes de conjurador contra Resistência à Magia
@@ -4065,31 +4184,37 @@ tabela_talentos {
   talentos {
     id: 'magia_penetrante_maior'
     nome: 'Magia Penetrante Maior'
+    nome_ingles: 'greater spell penetration'
     # pre_requisitos { talentos: [ 'magia_penetrante' ] }
     descricao: '+2 de bônus nos testes de conjurador contra Resistência à Magia (cumulativo).'
   }
   talentos {
     id: 'magia_combate'
     nome: 'Magia em Combate'
+    nome_ingles: 'combat casting'
+    bonus_pericias { id: 'concentracao' valor: 4 }
     descricao: '+4 de bônus nos teste de Concentração para conjurar na defensiva.'
   }
   talentos {
     id: 'maos_leves'
     nome: 'Mãos Leves'
+    nome_ingles: 'deft hands'
     bonus_pericias { id: 'prestidigitacao' valor: 2 }
     bonus_pericias { id: 'usar_cordas' valor: 2 }
   }
   talentos {
     id: 'mobilidade'
     nome: 'Mobilidade'
-    # pre_requisitos { talentos: [ 'esquiva'] }
+    nome_ingles: 'mobility'
+    pre_requisitos { talentos: 'esquiva' }
     descricao: '+4 de bônus de esquiva na CA contra ataques de oportunidade.'
     # bonus_ca { esquiva: 4 }
-    # guerreiro: true
+    guerreiro: true
   }
   talentos {
     id: 'negociador'
     nome: 'Negociador'
+    nome_ingles: 'negotiator'
     descricao: '+2 de bônus nos testes de Diplomacia e Sentir Motivação.'
     bonus_pericias { id: 'diplomacia' valor: 2 }
     bonus_pericias { id: 'sentir_motivacao' valor: 2 }
@@ -4097,13 +4222,15 @@ tabela_talentos {
   talentos {
     id: 'persuasivo'
     nome: 'Persuasivo'
+    nome_ingles: 'persuasive'
     descricao: '+2 de bônus nos testes de blefar e intimidação.'
     bonus_pericias { id: 'blefar' valor: 2 }
     bonus_pericias { id: 'intimidacao' valor: 2 }
   }
   talentos {
-    id: 'prontidao'  # alertness
+    id: 'prontidao'
     nome: 'Prontidão'
+    nome_ingles: 'alertness'
     bonus_pericias { id: 'ouvir' valor: 2 }
     bonus_pericias { id: 'observar' valor: 2 }
     descricao: 'Bonus de +2 em ouvir e observar.'
@@ -4111,18 +4238,21 @@ tabela_talentos {
   talentos {
     id: 'rastrear'
     nome: 'Rastrear'
+    nome_ingles: 'track'
     descricao: 'Utiliza Sobrevivência para rastrear.'
   }
   talentos {
     id: 'reflexos_em_combate'
     nome: 'Reflexos em Combate'
-    # guerreiro: true
-    # monge: 2
+    nome_ingles: 'combat reflexes'
+    guerreiro: true
+    monge: 2
     descricao: 'Permite número de ataques de oportunidade na rodada igual ao bonus de destreza.'
   }
   talentos {
     id: 'reflexos_rapidos'
     nome: 'Reflexos Rápidos'
+    nome_ingles: 'lightning reflexes'
     descricao: '+2 de bônus nos testes de resistência de Reflexos.'
     bonus_salvacao {
       tipo: TS_REFLEXO
@@ -4132,106 +4262,124 @@ tabela_talentos {
   talentos {
     id: 'saque_rapido'
     nome: 'Saque rápido'
-    # pre_requisitos { bba: 1 }
-    # guerreiro: true
+    nome_ingles: 'quick draw'
+    pre_requisitos { bba: 1 }
+    guerreiro: true
     descricao: 'Saca uma arma branca como ação livre.'
   }
   talentos {
     # Seria melhor: tiro_queima_roupa.
     id: 'tiro_certeiro'
     nome: 'Tiro Certeiro (queima roupa)'
-    # guerreiro: true
+    nome_ingles: 'point blank shot'
+    guerreiro: true
     descricao: '+1 de bônus nos ataques à distância e dano contra alvos num raio de 9 metros (6 quadrados).'
   }
   talentos {
     id: 'tiro_multiplo'
     nome: 'Tiro Múltiplo'
-    # guerreiro: true
-    # ranger: 6
-    # pre_requisitos { atributos { destreza: 17 } talentos: ['tiro_certeiro', 'tiro_rapido'] bba: 6 }
+    nome_ingles: 'manyshot'
+    guerreiro: true
+    ranger: 6
+    pre_requisitos { atributos { destreza: 17 } talentos: 'tiro_certeiro' talentos: 'tiro_rapido' bba: 6 }
     descricao: 'Dispara duas ou mais flechas simultaneamente.'
   }
   talentos {
     id: 'tiro_preciso'
     nome: 'Tiro Preciso'
-    # guerreiro: true
-    # ranger: 11
-    # pre_requisitos { talentos: [ 'tiro_certeiro'] }
+    nome_ingles: 'precise shot'
+    guerreiro: true
+    ranger: 11
+    pre_requisitos { talentos: 'tiro_certeiro' }
     descricao: 'Anula a penalidade por disparar contra um adversário em combate corporal com um aliado (-4)'
   }
   talentos {
     id: 'tiro_rapido'
     nome: 'Tiro Rápido'
-    # guerreiro: true
-    # ranger: 2
-    # pre_requisitos { atributos { destreza: 13 } talentos: ['tiro_certeiro'] }
+    nome_ingles: 'rapid shot'
+    guerreiro: true
+    ranger: 2
+    pre_requisitos { atributos { destreza: 13 } talentos: 'tiro_certeiro' }
     descricao: 'Um ataque à distância adicional por rodada.'
   }
   talentos {
     id: 'tolerancia'
-    nome: 'Tolerância'  # Endurance.
+    nome: 'Tolerância'
+    nome_ingles: 'endurance'
     descricao: '+4 de bônus nos testes para resistir a danos não letais (nadar, correr marcha forçada, respiração, fome e sede, frio, calor e sufocamento). Pode dormir em armadura leve ou média sem fatigar.'
   }
   talentos {
     id: 'trespassar'
-    nome: 'Trespassar'  # Cleave
+    nome: 'Trespassar'
+    nome_ingles: 'cleave'
     descricao: 'Desfere um ataque corporal extra depois de imobilizar um oponente'
-    # pre_requisitos { talentos: [ 'ataque_poderoso' ] }
-    # guerreiro: true
+    pre_requisitos { talentos: 'ataque_poderoso' }
+    guerreiro: true
   }
   talentos {
     id: 'trespassar_aprimorado'
-    nome: 'Trespassar Aprimorado'  # Great Cleave
+    nome: 'Trespassar Aprimorado'
+    nome_ingles: 'great cleave'
     descricao: 'Igual a trespassar, sem limites de vezes'
-    # pre_requisitos { bba: 4, talentos: [ 'trespassar' ] }
-    # guerreiro: true
+    pre_requisitos { bba: 4 talentos: 'trespassar' }
+    guerreiro: true
   }
   talentos {
     id: 'usar_armas_simples'
     nome: 'Usar armas simples'
+    nome_ingles: 'simple weapon proficiency'
     descricao: 'Não sofre penalidades nos ataques com armas simples.'
   }
   talentos {
-    id: 'usar_uma_armas_simples'
+    id: 'usar_uma_arma_simples'
     nome: 'Usar uma arma simples'
-    descricao: 'Não sofre penalidades nos ataques com uma arma simples. Para plebeus.'
+    nome_ingles: 'simple weapon proficiency'
+    descricao: 'Não sofre penalidades nos ataques com uma arma simples. Para classes que conhecem uma arma simples específica.'
     tipo_complemento: TCT_ARMA_SIMPLES
     nao_pode_ser_escolhido: true
   }
   talentos {
     id: 'usar_arma_comum'
     nome: 'Usar arma comum'
+    nome_ingles: 'martial weapon proficiency'
     tipo_complemento: TCT_ARMA_COMUM
     descricao: 'Não sofre penalidade nos ataques com uma arma comum específica.'
   }
   talentos {
     id: 'usar_armas_comuns'
-    nome: 'usar todas armas comuns'
+    nome: 'usar todas armas comuns (Milícia)'
+    nome_ingles: 'militia'
     descricao: 'Para classes que sabem usar todas as armas comuns.'
-    nao_pode_ser_escolhido: true
+    regional: true
+    livro: 'PGtF'
+    link: 'https://dnd.arkalseif.info/feats/players-guide-to-faerun--22/militia--1948/'
   }
   talentos {
     id: 'usar_arma_exotica'
     nome: 'Usar arma exótica'
+    nome_ingles: 'exotic weapon proficiency'
     tipo_complemento: TCT_ARMA_EXOTICA
-    # pre_requisitos { bba: 1 }
-    # guerreiro: true
+    pre_requisitos { bba: 1 }
+    guerreiro: true
     descricao: 'Não sofre penalidade nos ataques com uma arma exótica específica.'
   }
   talentos {
     id: 'usar_armadura_leve'
     nome: 'Usar Armadura (leve)'
+    nome_ingles: 'armor proficiency (light)'
     descricao: 'Não sofre penalidade de armadura nas jogadas de ataque.'
   }
   talentos {
     id: 'usar_armadura_media'
     nome: 'Usar Armadura (média)'
+    nome_ingles: 'armor proficiency (medium)'
     # pre_requisitos { talentos: ['usar_armadura_leve'] }
     descricao: 'Não sofre penalidade de armadura nas jogadas de ataque.'
   }
   talentos {
     id: 'usar_armadura_pesada'
     nome: 'Usar Armadura (pesada)'
+    nome_ingles: 'armor proficiency (heavy)'
     # pre_requisitos { talentos: ['usar_armadura_leve', 'usar_armadura_media'] }
     descricao: 'Não sofre penalidade de armadura nas jogadas de ataque.'
   }
@@ -4239,25 +4387,27 @@ tabela_talentos {
   talentos {
     id: 'usar_escudo'
     nome: 'Usar Escudo'
+    nome_ingles: 'shield proficiency'
     descricao: 'Não sofre penalidade de armadura nas jogadas de ataque.'
   }
-  # TODO A chave certa desse aqui eh ataque_escudo_aprimorado.
   talentos {
-    id: 'usar_escudo_aprimorado'
+    id: 'ataque_escudo_aprimorado'
     nome: 'Ataque com Escudo Aprimorado'
-    # guerreiro: true
-    # pre_requisitos { talentos: [ 'usar_escudo', ] }
+    nome_ingles: 'improved shield bash'
+    guerreiro: true
+    pre_requisitos { talentos: 'usar_escudo' }
     descricao: 'Conserva o bônus do escudo na CA quando ataca com ele.'
   }
   # Usar Escudo de Corpo Usar Escudo Não sofre penalidade de armadura nas jogadas de ataque
   talentos {
     id: 'usar_escudo_corpo'
     nome: 'Usar Escudo de Corpo'
+    nome_ingles: 'tower shield proficiency'
   }
-  # toughness em ingles.
   talentos {
     id: 'vitalidade'
     nome: 'Vitalidade'
+    nome_ingles: 'toughness'
     # bonus_pv: 3
     # cumulativo: true
     descricao: '+3 pontos de vida.'
@@ -4265,6 +4415,7 @@ tabela_talentos {
   talentos {
     id: 'vontade_ferro'
     nome: 'Vontade de Ferro'
+    nome_ingles: 'iron will'
     bonus_salvacao {
       tipo: TS_VONTADE
       bonus { bonus_individual { tipo: TB_TALENTO por_origem { origem: 'vontade_ferro' valor: 2 } } }
@@ -4274,6 +4425,7 @@ tabela_talentos {
   talentos {
     id: 'criar_armaduras_e_armas_magicas'
     nome: 'Criar Armaduras e Armas Mágicas'
+    nome_ingles: 'craft magic arms and armor'
     # pre_requisitos { nivel { conjurador: 5 } }
     descricao: 'Permite a criação de armas, armaduras e escudos mágicos.'
     # mago: 1
@@ -4281,6 +4433,7 @@ tabela_talentos {
   talentos {
     id: 'criar_bastao'
     nome: 'Criar Bastão'
+    nome_ingles: 'craft staff'
     # pre_requisitos { nivel { conjurador: 9 } }
     descricao: 'Permite a criação de bastões mágicos.'
     # mago: 1
@@ -4288,6 +4441,7 @@ tabela_talentos {
   talentos {
     id: 'criar_cajado'
     nome: 'Criar Cajado'
+    nome_ingles: 'craft rod'
     # pre_requisitos { nivel { conjurador: 12 } }
     descricao: 'Permite a criação de cajados mágicos'
     # mago: 1
@@ -4295,6 +4449,7 @@ tabela_talentos {
   talentos {
     id: 'criar_item_maravilhoso'
     nome: 'Criar Item Maravilhoso'
+    nome_ingles: 'craft wondrous item'
     # pre_requisitos { nivel { conjurador: 3 } }
     descricao: 'Permite a criação de itens mágicos maravilhosos.'
     # mago: 1
@@ -4302,6 +4457,7 @@ tabela_talentos {
   talentos {
     id: 'criar_varinha'
     nome: 'Criar Varinha'
+    nome_ingles: 'craft wand'
     # pre_requisitos { nivel { conjurador: 5 } }
     descricao: 'Permite a criação de varinhas mágicas .'
     # mago: 1
@@ -4309,6 +4465,7 @@ tabela_talentos {
   talentos {
     id: 'preparar_pocao'
     nome: 'Preparar Poção'
+    nome_ingles: 'brew potion'
     # pre_requisitos { nivel { conjurador: 3 } }
     descricao: 'Permite a criação de poções mágicas.'
     # mago: 1
@@ -4317,16 +4474,18 @@ tabela_talentos {
   talentos {
     id: 'sucesso_decisivo_aprimorado'
     nome: 'Sucesso Decisivo Aprimorado'
+    nome_ingles: 'improved critical'
     # pre_requisitos { proficiencia_arma: true }
     tipo_complemento: TCT_ARMA
     descricao: 'Dobra margem de ameaça da arma.'
-    # guerreiro: true
+    guerreiro: true
   }
   # Talentos Metamágicos
   # TODO implementar niveis_adicionais.
   talentos {
     id: 'acelerar_magia'
     nome: 'Acelerar Magia'
+    nome_ingles: 'quicken spell'
     descricao: 'Permite conjurar magia como ação livre, ao custo de três níveis adicionais.'
     # niveis_adicionais: 3
     # mago: 1
@@ -4334,21 +4493,23 @@ tabela_talentos {
   talentos {
     id: 'ampliar_magia'
     nome: 'Ampliar Magia'
+    nome_ingles: 'widen_spell'
     descricao: 'Dobra a área da magia, ao custo de três níveis adicionais'
     # niveis_adicionais: 3
     # mago: 1
   }
   talentos {
     id: 'aumentar_magia'
-    nome: 'Aumentar Magia'
+    nome: 'Aumentar Magia (alcance)'
+    nome_ingles: 'enlarge spell'
     descricao: 'Dobra o alcance da magia, ao custo de um nível adicional'
     # niveis_adicionais: 1
     # mago: 1
   }
   talentos {
-    # Heighten spell.
     id: 'elevar_magia'
     nome: 'Elevar Magia'
+    nome_ingles: 'heighten spell'
     descricao: 'Conjura a magia num nível mais elevado, alterando sua classe de dificuldade, nível etc.'
     # mago: 1
     # niveis_adicionais: variavel
@@ -4356,6 +4517,7 @@ tabela_talentos {
   talentos {
     id: 'estender_magia'
     nome: 'Estender Magia'
+    nome_ingles: 'extend spell'
     descricao: 'Dobra a duração da magia, ao custo de um nível adicional.'
     # niveis_adicionais: 1
     # mago: 1
@@ -4363,6 +4525,7 @@ tabela_talentos {
   talentos {
     id: 'magia_sem_gestos'
     nome: 'Magia sem Gestos'
+    nome_ingles: 'still spell'
     descricao: 'Ignora os componentes gestuais da magia, ao custo de um nível adicional.'
     # niveis_adicionais: 1
     # mago: 1
@@ -4370,6 +4533,7 @@ tabela_talentos {
   talentos {
     id: 'magia_silenciosa'
     nome: 'Magia Silenciosa'
+    nome_ingles: 'silent spell'
     descricao: 'Ignora os componentes verbais da magia, ao custo de um nível adicional'
     # niveis_adicionais: 1
     # mago: 1
@@ -4378,6 +4542,7 @@ tabela_talentos {
   talentos {
     id: 'maximizar_magia'
     nome: 'Maximizar Magia'
+    nome_ingles: 'maximize spell'
     descricao: 'Maximiza todas as variáveis numéricas dos efeitos da magia, ao custo de três níveis adicionais'
     # niveis_adicionais: 3
     # mago: 1
@@ -4385,6 +4550,7 @@ tabela_talentos {
   talentos {
     id: 'potencializar_magia'
     nome: 'Potencializar Magia'
+    nome_ingles: 'empower spell'
     descricao: 'Aumenta em 50% todas as variáveis numéricas dos efeitos da magia, ao custo de dois níveis adicionais.'
     # niveis_adicionais: 2
     # mago: 1
@@ -4398,6 +4564,7 @@ tabela_talentos {
   talentos {
     id: 'ataques_multiplos'  # multiattack
     nome: 'Ataques Múltiplos'
+    nome_ingles: 'multiattack'
     descricao: 'Diminui a penalidade de ataques secundários de -5 para -2 para monstros com múltiplos ataques naturais.'
     monstro: true
     # Pre requisito: 3 ou mais ataques naturais.
@@ -4405,12 +4572,14 @@ tabela_talentos {
   talentos {
     id: 'inversao'  # wingover
     nome: 'Inversão'
+    nome_ingles: 'wingover'
     descricao: 'A criatura pode fazer um retorno de 180 graus independente de sua classificação de manobra. Custa 2 quadrados de movimento e não pode ganhar altitude.'
     # Pre requisito: voar.
   }
   talentos {
     id: 'investida_aerea'  # flyby attack
     nome: 'Investida Aérea'
+    nome_ingles: 'flyby attack'
     descricao: 'Pode atacar durante o movimento, mas não pode dobrar o movimento.'
     monstro: true
     # Pre requisito: voar.
@@ -4418,12 +4587,14 @@ tabela_talentos {
   talentos {
     id: 'pairar'  # hover
     nome: 'Pairar'
+    nome_ingles: 'hover'
     descricao: 'Pode parar movimento como ação de movimento e realizar ataque total se estiver pairando no início da ação.'
     # Pre requisito: voar.
   }
   talentos {
     id: 'arma_natural_aprimorada'  # improved natural attack
     nome: 'Arma Natural Aprimorada'
+    nome_ingles: 'improved natural attack'
     descricao: 'O ataque natural escolhido da dano uma categoria de tamanho acima.'
   }
 }
@@ -4663,6 +4834,7 @@ tabela_classes {
   }
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    talentos_automaticos: 'rastrear'
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armadura_leve'
     talentos_automaticos: 'usar_armas_simples'
@@ -5323,9 +5495,14 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     pericias_por_nivel: 2
+    #dados_defesa {
+    #  imunidade_efeitos: EFEITO_SONO  # mas nao a veneno do sono.
+    #  imunidade_efeitos: EFEITO_PARALISIA
+    #  imunidade_efeitos: EFEITO_ATORDOADO
+    #  imunidades: DESC_VENENO
+    #}
     # d8
     # visao_escuro: 12 quadrados
-    # imune a veneno, sono, paralisia, atordoamento
     # imune a critico ou flanqueamento
   }
   info_classes {
@@ -5334,10 +5511,15 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_REFLEXO
     pericias_por_nivel: 2
-    # visao_escuro: 12 quadrados
-    # imune a veneno, sono, paralisia, atordoamento
-    # imune a critico ou flanqueamento
+    #dados_defesa {
+    #  imunidade_efeitos: EFEITO_SONO  # mas nao a veneno do sono.
+    #  imunidade_efeitos: EFEITO_PARALISIA
+    #  imunidade_efeitos: EFEITO_ATORDOADO
+    #  imunidades: DESC_VENENO
+    #}
     # d8
+    # visao_escuro: 12 quadrados
+    # imune a critico ou flanqueamento
   }
   info_classes {
     id: 'fada' nome: 'Fada'
@@ -5769,6 +5951,7 @@ tabela_pericias {
     # classes: [  'bardo'  'ladino']
     atributo: TA_DESTREZA
     penalidade_armadura: true
+    id_resistido: 'observar'
   }
   pericias {
     id: 'procurar'
@@ -5829,6 +6012,50 @@ tabela_pericias {
   }
 }
 tabela_feiticos {
+  armas {
+    id: 'abencoar_agua'
+    nome: 'abençoar água'
+    nome_ingles: 'bless water'
+    tempo_execucao_rodadas: 10
+    componente {
+      tipo: COMP_MATERIAL
+      custo { po: 25 }
+      descricao: '2,5kg de prata em pó'
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque Aliado'
+      alinhamento_bem_mal: DESC_BEM
+    }
+    escola: 'transmutacao'
+  }
+  armas {
+    id: 'abencoar_arma'
+    nome: 'abençoar arma'
+    nome_ingles: 'bless weapon'
+    componente {
+      material: false
+    }
+    info_classes {
+      id: 'paladino'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço de Toque Aliado'
+      efeitos_adicionais {
+        efeito: EFEITO_ABENCOAR_ARMA
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
   armas {
     id: 'voo'
     nome: 'vôo'
@@ -6222,6 +6449,10 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
+          texto: 'Cobra, Víbora Média'
+          id_modelo_entidade: 'Cobra, Víbora Média IANII'
+        }
+        parametros {
           texto: 'Urso Negro'
           id_modelo_entidade: 'Urso Negro IANII'
         }
@@ -6232,31 +6463,6 @@ tabela_feiticos {
         parametros {
           texto: 'Elemental do Ar (Pequeno)'
           id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
-        }
-        parametros {
-          texto: 'Rato Atroz (1d3)'
-          id_modelo_entidade: 'Rato Atroz IANI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Águia (1d3)'
-          id_modelo_entidade: 'Águia IANI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Coruja (1d3)'
-          id_modelo_entidade: 'Coruja IANI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Cobra, Víbora Pequena (1d3)'
-          id_modelo_entidade: 'Cobra, Víbora Pequena IANI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Lobo (1d3)'
-          id_modelo_entidade: 'Lobo IANI'
-          quantidade: '1d3'
         }
       }
     }
@@ -6294,46 +6500,6 @@ tabela_feiticos {
           texto: 'Gorila'
           id_modelo_entidade: 'Gorila IANIII'
         }
-        parametros {
-          texto: 'Urso Negro (1d3)'
-          id_modelo_entidade: 'Urso Negro IANII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Hipogrifo (1d3)'
-          id_modelo_entidade: 'Hipogrifo IANII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Elemental do Ar (Pequeno) (1d3)'
-          id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Rato Atroz (1d4+1)'
-          id_modelo_entidade: 'Rato Atroz IANI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Águia (1d4+1)'
-          id_modelo_entidade: 'Águia IANI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Coruja (1d4+1)'
-          id_modelo_entidade: 'Coruja IANI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Cobra, Víbora Pequena (1d4+1)'
-          id_modelo_entidade: 'Cobra, Víbora Pequena IANI'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Lobo (1d4+1)'
-          id_modelo_entidade: 'Lobo IANI'
-          quantidade: '1d4+1'
-        }
       }
     }
     escola: 'conjuracao'
@@ -6367,36 +6533,6 @@ tabela_feiticos {
           texto: 'Urso Marrom'
           id_modelo_entidade: 'Urso Marrom IANIV'
         }
-        parametros {
-          texto: 'Lobo Atroz (1d3)'
-          id_modelo_entidade: 'Lobo Atroz IANIII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Leão (1d3)'
-          id_modelo_entidade: 'Leão IANIII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Gorila (1d3)'
-          id_modelo_entidade: 'Gorila IANIII'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Urso Negro (1d4+1)'
-          id_modelo_entidade: 'Urso Negro IANII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Hipogrifo (1d4+1)'
-          id_modelo_entidade: 'Hipogrifo IANII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Elemental do Ar (Pequeno) (1d4+1)'
-          id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
-          quantidade: '1d4+1'
-        }
       }
     }
     escola: 'conjuracao'
@@ -6425,26 +6561,6 @@ tabela_feiticos {
           texto: 'Leão Atroz'
           id_modelo_entidade: 'Leão Atroz IANV'
         }
-        parametros {
-          texto: 'Urso Marrom (1d3)'
-          id_modelo_entidade: 'Urso Marrom IANIV'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Lobo Atroz (1d4+1)'
-          id_modelo_entidade: 'Lobo Atroz IANIII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Leão (1d4+1)'
-          id_modelo_entidade: 'Leão IANIII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Gorila (1d4+1)'
-          id_modelo_entidade: 'Gorila IANIII'
-          quantidade: '1d4+1'
-        }
       }
     }
     escola: 'conjuracao'
@@ -6468,36 +6584,6 @@ tabela_feiticos {
         parametros {
           texto: 'Megaraptor'
           id_modelo_entidade: 'Megaraptor IANVI'
-        }
-        parametros {
-          texto: 'Grifo (1d3)'
-          id_modelo_entidade: 'Grifo IANV'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Leão Atroz (1d3)'
-          id_modelo_entidade: 'Leão Atroz IANV'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Urso Marrom (1d4+1)'
-          id_modelo_entidade: 'Urso Marrom IANIV'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Lobo Atroz (1d4+1)'
-          id_modelo_entidade: 'Lobo Atroz IANIII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Leão (1d4+1)'
-          id_modelo_entidade: 'Leão IANIII'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Gorila (1d4+1)'
-          id_modelo_entidade: 'Gorila IANIII'
-          quantidade: '1d4+1'
         }
       }
     }
@@ -6527,21 +6613,51 @@ tabela_feiticos {
           texto: 'Tigre Atroz'
           id_modelo_entidade: 'Tigre Atroz IANVII'
         }
-        parametros {
-          texto: 'Megaraptor (1d3)'
-          id_modelo_entidade: 'Megaraptor IANVI'
-          quantidade: '1d3'
-        }
-        parametros {
-          texto: 'Grifo (1d4+1)'
-          id_modelo_entidade: 'Grifo IANV'
-          quantidade: '1d4+1'
-        }
-        parametros {
-          texto: 'Leão Atroz (1d4+1)'
-          id_modelo_entidade: 'Leão Atroz IANV'
-          quantidade: '1d4+1'
-        }
+      }
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'invocar_aliado_natureza_viii'
+    tempo_execucao_rodadas: 1 
+    nome: 'invocar aliado da natureza VIII'
+    nome_ingles: "summon nature's ally VIII"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 8
+    }
+    info_classes {
+      id: 'animal'
+      nivel: 8
+      dominio: true
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'invocar_aliado_natureza_ix'
+    tempo_execucao_rodadas: 1 
+    nome: 'invocar aliado da natureza IX'
+    nome_ingles: "summon nature's ally IX"
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'druida'
+      nivel: 9
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
       }
     }
     escola: 'conjuracao'
@@ -7014,6 +7130,22 @@ tabela_feiticos {
         rodadas: 14400  # 24 horas
       }
     }
+  }
+  armas {
+    id: 'nuvem_fetida'
+    nome_ingles: 'stinking cloud'
+    nome: 'nuvem fétida'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Nuvem Fétida'
+    }
+    escola: 'conjuracao'
   }
 
   armas {
@@ -7652,11 +7784,108 @@ tabela_feiticos {
     }
     escola: 'necromancia'
   }
+  armas {
+    id: 'palavra_caos'
+    nome_ingles: 'word of chaos'
+    nome: 'palavra do caos'
+    componente {
+      somatico: false
+      material: false
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 7
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 7
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal Dispersão Esfera'
+      cor: { r: 1.0 b: 1.0 g: 1.0 }
+      raio_quadrados: 8
+      efeito_area: true
+      duracao_s: 0.350
+      permite_salvacao: false
+      elemento: DESC_SONICO
+      alinhamento_ordem_caos: DESC_CAOS
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: 0  # nivel de conjurador ou menor.
+        efeito: EFEITO_ENSURDECIDO
+        dado_modificador_rodadas: '1d4'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
 
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -1  # nivel de conjurador -1.
+        efeito: EFEITO_ATORDOADO
+        rodadas: 1
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
+
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -5  # nivel de conjurador -5.
+        efeito: EFEITO_CONFUSAO
+        # 1d10 minutos.
+        dado_modificador_rodadas: '1d100'
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
+
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -10  # nivel de conjurador -10.
+        efeito: EFEITO_MORTE
+      }
+      efeitos_adicionais {
+        afeta_apenas_tendencias: TD_LEAL_MAU
+        afeta_apenas_tendencias: TD_LEAL_NEUTRO
+        afeta_apenas_tendencias: TD_LEAL_BOM
+        afeta_apenas_tendencias: TD_NEUTRO_MAU
+        afeta_apenas_tendencias: TD_NEUTRO
+        afeta_apenas_tendencias: TD_NEUTRO_BOM
+
+        afeta_apenas: TIPO_MORTO_VIVO
+        referencia_dados_vida_nivel_conjurador: true
+        afeta_apenas_dados_vida_menor_igual_a: -10  # nivel de conjurador -10.
+        efeito: EFEITO_DESTRUICAO_MORTO_VIVO
+      }
+      # Tb bane extra planares nao caoticos se falhar salvacao -4 vontade.
+    }
+    escola: 'evocacao'
+  }
   armas {
     id: 'palavra_sagrada'
     nome_ingles: 'holy word'
     nome: 'palavra sagrada'
+    componente {
+      somatico: false
+      material: false
+    }
     info_classes {
       id: 'clerigo'
       nivel: 7
@@ -8926,11 +9155,8 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
-      ignora_resistencia_magia: true
-      permite_ataque_vs_defesa: false
-      ataque_toque: true
-      cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
+      id: 'Feitiço de Toque Aliado'
+      cor { r: 0.0 g: 1.0 b: 0.0 a: 1 }
       efeitos_adicionais {
         efeito: EFEITO_PRESA_MAGICA
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -9246,16 +9472,18 @@ tabela_feiticos {
       id: 'Feitiço de Toque'
       permite_ataque_vs_defesa: false
       tipo_salvacao: TS_VONTADE
+      elemento: DESC_MORTE
+      alinhamento_bem_mal: DESC_MAL
       efeitos_adicionais_conjurador {
         efeito: EFEITO_DRENAR_FORCA_VITAL
-        rodadas: 100  # na verdade, é variavel pelo numero de HD do alvo. Mas aqui ta de bom tamanho.
+        modificador_rodadas: MR_DRENAR_FORCA_VITAL
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_MORTE
       }
     }
-    # TODO: mata alvo  com -1 ou menos PV, se falhar na salvacao.
-    # Entao origem ganha 1d8 PV, +2 força e aumenta nivel de conjurador em 1. Efeito dura 10 minutos por HD do alvo.
     escola: 'necromancia'
   }
-
   armas {
     id: 'condicao'
     nome_ingles: 'status'
@@ -9769,6 +9997,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
+      alinhamento_bem_mal: DESC_BEM
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_MAL
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -9798,6 +10027,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
+      alinhamento_bem_mal: DESC_MAL
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_BEM
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -9827,6 +10057,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
+      alinhamento_ordem_caos: DESC_CAOS
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_ORDEM
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -9861,6 +10092,7 @@ tabela_feiticos {
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
       permite_salvacao: false
+      alinhamento_ordem_caos: DESC_LEAL
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_CAOS
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -10106,7 +10338,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_i'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar criaturas I'
     nome_ingles: 'summon monster I'
     alcance_quadrados: 5
@@ -10150,7 +10382,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_criaturas_ii'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar criaturas II'
     nome_ingles: 'summon monster II'
     alcance_quadrados: 5
@@ -10173,24 +10405,28 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
-          texto: 'Cachorro Celestial (1d3)'
-          id_modelo_entidade: 'Cachorro Celestial ICI'
-          quantidade: '1d3'
+          texto: 'Abelha Celestial'
+          id_modelo_entidade: 'Abelha Gigante Celestial ICII'
         }
         parametros {
-          texto: 'Coruja Celestial (1d3)'
-          id_modelo_entidade: 'Coruja Celestial ICI'
-          quantidade: '1d3'
+          texto: 'Águia Celestial'
+          id_modelo_entidade: 'Águia Celestial ICII'
         }
         parametros {
-          texto: 'Falcão Abissal (1d3)'
-          id_modelo_entidade: 'Falcão Abissal'
-          quantidade: '1d3'
+          texto: 'Cachorro de Montaria Celestial'
+          id_modelo_entidade: 'Cachorro de Montaria Celestial ICII'
         }
         parametros {
-          texto: 'Víbora Pequena Abissal (1d3)'
-          id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
-          quantidade: '1d3'
+          texto: 'Centopéia Grande Abissal'
+          id_modelo_entidade: 'Cachorro de Montaria Celestial ICII'
+        }
+        parametros {
+          texto: 'Lobo Abissal'
+          id_modelo_entidade: 'Lobo Abissal ICII'
+        }
+        parametros {
+          texto: 'Víbora Média Abissal'
+          id_modelo_entidade: 'Cobra, Víbora Média Abissal ICII'
         }
       }
     }
@@ -10199,7 +10435,7 @@ tabela_feiticos {
   armas {
     # TODO
     id: 'invocar_criaturas_iii'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar criaturas III'
     nome_ingles: 'summon monster III'
     alcance_quadrados: 5
@@ -10216,16 +10452,51 @@ tabela_feiticos {
       id: 'mago'
       nivel: 3
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Urso Negro Celestial'
+          id_modelo_entidade: 'Urso Negro Celestial ICIII'
+        }
+        parametros {
+          texto: 'Hipogrifo Celestial'
+          id_modelo_entidade: 'Hipogrifo Celestial ICIII'
+        }
+        parametros {
+          texto: 'Víbora Grande Abissal'
+          id_modelo_entidade: 'Cobra, Víbora Grande Abissal ICIII'
+        }
+        parametros {
+          texto: 'Demônio Dretch'
+          id_modelo_entidade: 'Demônio Dretch ICIII'
+        }
+        parametros {
+          texto: 'Elemental da Terra (Pequeno)'
+          id_modelo_entidade: 'Elemental da Terra (Pequeno) ICIII'
+        }
+        parametros {
+          texto: 'Elemental da Água (Pequeno)'
+          id_modelo_entidade: 'Elemental da Água (Pequeno) ICIII'
+        }
+        parametros {
+          texto: 'Elemental do Ar (Pequeno)'
+          id_modelo_entidade: 'Elemental do Ar (Pequeno) ICIII'
+        }
+        parametros {
+          texto: 'Elemental da Fogo (Pequeno)'
+          id_modelo_entidade: 'Elemental do Fogo (Pequeno) ICIII'
+        }
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
     # TODO
     id: 'invocar_criaturas_iv'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar criaturas IV'
     nome_ingles: 'summon monster IV'
     alcance_quadrados: 5
@@ -10242,10 +10513,13 @@ tabela_feiticos {
       id: 'mago'
       nivel: 4
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10268,10 +10542,29 @@ tabela_feiticos {
       id: 'mago'
       nivel: 5
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Elemental da Terra (Médio)'
+          id_modelo_entidade: 'Elemental da Terra (Médio) ICV'
+        }
+        parametros {
+          texto: 'Elemental da Água (Médio)'
+          id_modelo_entidade: 'Elemental da Água (Médio) ICV'
+        }
+        parametros {
+          texto: 'Elemental do Ar (Médio)'
+          id_modelo_entidade: 'Elemental do Ar (Médio) ICV'
+        }
+        parametros {
+          texto: 'Elemental da Fogo (Médio)'
+          id_modelo_entidade: 'Elemental do Fogo (Médio) ICV'
+        }
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10294,10 +10587,12 @@ tabela_feiticos {
       id: 'mago'
       nivel: 6
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10316,10 +10611,12 @@ tabela_feiticos {
       id: 'mago'
       nivel: 7
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10338,10 +10635,12 @@ tabela_feiticos {
       id: 'mago'
       nivel: 8
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
   armas {
@@ -10380,13 +10679,14 @@ tabela_feiticos {
       nivel: 9
       dominio: true
     }
-    #acao {
-    #  tipo: ACAO_CRIACAO_ENTIDADE
-      #id_modelo_entidade: 'Orc'
-    #}
+    acao {
+      id: 'Criação de Entidade'
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+      }
+    }
     escola: 'conjuracao'
   }
-
   armas {
     id: 'toque_fadiga'
     nome_ingles: ' touch of fatigue'
@@ -12159,6 +12459,7 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: true
       duracao_s: 0.350
+      alinhamento_bem_mal: DESC_BEM
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_MAL
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -12194,6 +12495,7 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: true
       duracao_s: 0.350
+      alinhamento_bem_mal: DESC_MAL
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_BEM
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -12229,6 +12531,7 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: true
       duracao_s: 0.350
+      alinhamento_ordem_caos: DESC_LEAL
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_CAOS
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -12264,6 +12567,7 @@ tabela_feiticos {
       permite_salvacao: false
       ignora_resistencia_magia: true
       duracao_s: 0.350
+      alinhamento_ordem_caos: DESC_CAOS
       efeitos_adicionais {
         efeito: EFEITO_PROTECAO_CONTRA_ORDEM
         modificador_rodadas: MR_10_MINUTOS_NIVEL
@@ -12421,6 +12725,66 @@ tabela_feiticos {
     }
     escola: 'evocacao'
   }
+  armas {
+    id: 'porta_dimensional'
+    nome_ingles: 'dimension door'
+    nome: 'porta dimensional'
+    #alcance_quadrados: 80
+    #modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 4
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 4
+      dominio: true
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'encontrar_caminho'
+    nome_ingles: 'find_the_path'
+    nome: 'encontrar o caminho'
+    #alcance_quadrados:
+    #modificador_alcance: MOD_8_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 6
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 6
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 6
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 6
+      dominio: true
+    }
+    info_classes {
+      id: 'conhecimento'
+      nivel: 6
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque Aliado'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'encontrar o caminho'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'adivinhacao'
+  }
+
   armas {
     id: 'ancora_dimensional'
     nome_ingles: 'dimensional anchor'
@@ -13207,6 +13571,7 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       ignora_reducao_dano_barbaro: true
       resultado_ao_salvar: RS_MEIO
+      alinhamento_ordem_caos: DESC_CAOS
       efeitos_adicionais {
         efeito: EFEITO_OUTRO
         # Apenas em criaturas leais.
@@ -13215,7 +13580,37 @@ tabela_feiticos {
     }
     escola: 'evocacao'
   }
-
+  armas {
+    id: 'manto_caos'
+    nome: 'manto do caos'
+    nome_ingles: 'cloak of chaos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 8
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 8
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal Dispersão Esfera'
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      info_textura { id: 'rainbow.png' }
+      raio_quadrados: 4  # quadrados.
+      efeito_area: true
+      permite_salvacao: false 
+      duracao_s: 0.350
+      ignora_luz: false
+      alinhamento_ordem_caos: DESC_CAOS
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'manto do caos'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'abjuracao'
+  }
   armas {
     id: 'nuvem_profana'
     nome_ingles: 'unholy blight'
@@ -13333,42 +13728,6 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
-    id: 'detectar_veneno'
-    nome: 'detectar veneno'
-    nome_ingles: 'detect poison'
-    info_classes {
-      id: 'clerigo'
-      nivel: 0
-    }
-    info_classes {
-      id: 'druida'
-      nivel: 0
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 0
-    }
-    info_classes {
-      id: 'paladino'
-      nivel: 1
-    }
-    info_classes {
-      id: 'ranger'
-      nivel: 1
-    }
-    ataque_toque: true
-    acao {
-      tipo: ACAO_FEITICO_TOQUE
-      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
-      duracao_s: 0.5
-      permite_salvacao: false
-      permite_ataque_vs_defesa: false
-      ataque_distancia: false
-    }
-    escola: 'adivinhacao'
-  }
-
-  armas {
     id: 'pedra_encantada'
     nome_ingles: 'magic stone'
     nome: 'pedra encantada'
@@ -13479,6 +13838,10 @@ tabela_feiticos {
     id: 'palavra_poder_cegar'
     nome: 'palavra do poder: cegar'
     nome_ingles: 'power word blind'
+    componente {
+      somatico: false
+      material: false
+    }
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -13510,6 +13873,10 @@ tabela_feiticos {
     id: 'palavra_poder_atordoar'
     nome: 'palavra do poder: atordoar'
     nome_ingles: 'power word stun'
+    componente {
+      somatico: false
+      material: false
+    }
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -13540,6 +13907,10 @@ tabela_feiticos {
     id: 'palavra_poder_matar'
     nome: 'palavra do poder: matar'
     nome_ingles: 'power word kill'
+    componente {
+      somatico: false
+      material: false
+    }
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
@@ -13634,6 +14005,9 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal'
+      alinhamento_bem_mal: DESC_BEM
+      cor { r: 1 g: 1 b: 1 a: 1 }
+      ignora_luz: true
       efeitos_adicionais {
         efeito: EFEITO_DISSIPAR_MAL
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -13657,6 +14031,8 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal'
+      alinhamento_bem_mal: DESC_MAL
+      cor { r: 0 g: 0 b: 0 a: 1 }
       efeitos_adicionais {
         efeito: EFEITO_DISSIPAR_BEM
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -13680,6 +14056,9 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal'
+      alinhamento_ordem_caos: DESC_LEAL
+      cor { r: 0 g: 0 b: 1 }
+      ignora_luz: true
       efeitos_adicionais {
         efeito: EFEITO_DISSIPAR_CAOS
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -13703,6 +14082,9 @@ tabela_feiticos {
     }
     acao {
       id: 'Feitiço Pessoal'
+      cor { r: 1 g: 1 b: 0 a: 1 }
+      alinhamento_ordem_caos: DESC_CAOS
+      ignora_luz: true
       efeitos_adicionais {
         efeito: EFEITO_DISSIPAR_ORDEM
         modificador_rodadas: MR_RODADAS_NIVEL
@@ -13799,6 +14181,36 @@ tabela_feiticos {
       }
     }
     escola: 'necromancia'
+  }
+  armas {
+    id: 'localizar_objetos'
+    nome_ingles: 'locate object'
+    nome: 'localizar objetos'
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    info_classes {
+      id: 'viagem'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'localizar objetos.'
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'adivinhacao'
   }
 
   armas {
@@ -13918,6 +14330,47 @@ tabela_feiticos {
       dv_mais_alto: 4
       total_dv: 4
       mais_fracos_primeiro: true
+      elemento: DESC_MENTAL
+      efeitos_adicionais {
+        efeito: EFEITO_SONO
+        modificador_rodadas: MR_MINUTOS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
+  armas {
+    id: 'sono_profundo'
+    nome: 'sono profundo'
+    nome_ingles: 'deep slumber'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 3
+    }
+    acao {
+      tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 2  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_sleep.png'
+      duracao_s: 0.350
+      ignora_luz: false
+      # Mais modificador de conjurador.
+      dificuldade_salvacao_por_nivel: true
+      tipo_salvacao: TS_VONTADE
+      ignora_reducao_dano_barbaro: true
+      resultado_ao_salvar: RS_ANULOU
+      dv_mais_alto: 10
+      total_dv: 10
+      mais_fracos_primeiro: true
+      elemento: DESC_MENTAL
       efeitos_adicionais {
         efeito: EFEITO_SONO
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -14116,39 +14569,70 @@ tabela_racas {
     dados_defesa {
       bonus_salvacao_veneno { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       bonus_salvacao_feitico { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      bonus_ca_por_tipo {
+        key: 11 # TIPO_GIGANTE
+        value { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 4 origem: 'racial' } } }
+      }
+    }
+    dados_ataque_global {
+      bonus_ataque_por_sub_tipo {
+        key: 3 # SUBTIPO_GOBLINOIDE
+        value: 1
+      }
+      bonus_ataque_por_sub_tipo {
+        key: 8 # SUBTIPO_ORC
+        value: 1
+      }
     }
     movimento { terrestre_basico_q: 4 }
     tamanho: TM_MEDIO
-    # +1 ataque contra orc e goblin
-    # +4 CA contra gigantes.
-    # +2 avaliacao
+    estabilidade: true
     bonus_pericias { id: 'avaliacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     # +2 craft stone metal
-    # +4 contra empurrao ou trip.
+    bonus_pericias { id: 'oficios_armoraria' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'oficios_armeiro' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    # +4 contra empurrao.
     # Pericias em algumas armas.
     # +2 procurar stone work.
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18  # 12 q
+    # familiares com machado anao e urgroshes.
+    familiaridade_com_arma: 'machado_de_guerra_anao'
+    familiaridade_com_arma: 'urgrosh_anao'
   }
   racas {
     tipo: TIPO_HUMANOIDE
     sub_tipo: SUBTIPO_ELFO
     id: 'elfo'
     nome: 'Elfo da Lua'
+    movimento { terrestre_basico_q: 6 }
+    dados_defesa {
+      imunidade_efeitos: EFEITO_SONO  # mas nao a veneno do sono.
+      bonus_salvacao_encantamento { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
+    }
     descricao: 'Raça mais comum de elfos.'
     bonus_atributos {
       destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
     }
-    movimento {
-      terrestre_basico_q: 6
-    }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'espada_longa' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'sabre' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'arco_longo' }
+    talentos_com_complemento_automaticos { id: 'usar_arma_comum' complemento: 'arco_curto' }
+    bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'procurar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     tamanho: TM_MEDIO
+    # Elves receive the Martial Weapon Proficiency feats for the longsword, rapier, longbow (including composite longbow), and shortbow (including composite shortbow)
+    # as bonus feats.
   }
   racas {
     tipo: TIPO_HUMANOIDE
     sub_tipo: SUBTIPO_HALFLING
     id: 'halfling'
     nome: 'Halfling Pés Leves'
-    descricao: ''
+    descricao: 'raça mais comum de halflings'
     bonus_atributos {
       destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
       forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
@@ -14165,6 +14649,12 @@ tabela_racas {
     bonus_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     movimento {
       terrestre_basico_q: 4
+    }
+    dados_ataque_global {
+      bonus_ataque_por_categoria_arma {
+        key: 5 # CAT_ARREMESSO
+        value: 1
+      }
     }
     tamanho: TM_PEQUENO
   }
@@ -14197,6 +14687,17 @@ tabela_racas {
     dados_defesa {
       bonus_salvacao_ilusao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
     }
+    dados_ataque_global {
+      bonus_ataque_por_sub_tipo {
+        key: 3 # SUBTIPO_GOBLINOIDE
+        value: 1
+      }
+      bonus_ataque_por_sub_tipo {
+        key: 23 # SUBTIPO_KOBOLD
+        value: 1
+      }
+    }
+    familiaridade_com_arma: 'martelo_gnomo_com_gancho'
     tamanho: TM_PEQUENO
   }
   racas {
@@ -14239,6 +14740,8 @@ tabela_racas {
     movimento {
       terrestre_basico_q: 6
     }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18 # 12 q
   }
 }
 
@@ -14389,7 +14892,6 @@ tabela_dominios {
     nome: 'viagem'
     descricao: 'Durante 1 rodada/nível de clérigo por dia, você pode agir sem ser incomodado por efeitos mágicos que impedem o movimento (similar ao efeito da magia movimentação livre). Esse efeito é automático e permanece até seu tempo máximo diário se esgotar ou não ser mais necessário. Ele pode ser ativado várias vezes em um dia (até a quantidade máxima de rodadas disponível). Essa é uma habilidade sobrenatural. A Sobrevivência passa a ser uma perícia de classe.'
   }
-
 }
 
 tabela_efeitos_modelos {
@@ -14402,7 +14904,11 @@ tabela_efeitos_modelos {
     nome: 'modelo celestial'
     desligavel: false
     consequencia {
-      # visao no escuro. 18m
+      tipo_visao: VISAO_ESCURO
+      alcance_visao_m: 18
+      atributos {
+        inteligencia { bonus_individual { tipo: TB_BASE por_origem { valor: 3 origem: 'celestial' } } }
+      }
       dados_defesa {
         resistencia_magia_variavel {
           bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'celestial' } }
@@ -14420,7 +14926,7 @@ tabela_efeitos_modelos {
           indice_complemento: 1
         }
       }
-      # reducao de dano: 4-11=5/magia, 12 em diante: 10/magia.
+      # hard coded: reducao de dano: 4-11=5/magia, 12 em diante: 10/magia.
 #      dados_ataque {
 #        rotulo: 'destruir o mal' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: ''
 #        taxa_refrescamento: '14400' # 1 dia
@@ -14437,7 +14943,11 @@ tabela_efeitos_modelos {
     nome: 'modelo abissal'
     desligavel: false
     consequencia {
-      # visao no escuro. 18m
+      tipo_visao: VISAO_ESCURO
+      alcance_visao_m: 18
+      atributos {
+        inteligencia { bonus_individual { tipo: TB_BASE por_origem { valor: 3 origem: 'celestial' } } }
+      }
       dados_defesa {
         resistencia_magia_variavel {
           bonus_individual { tipo: TB_BASE por_origem { indice_complemento: 0 origem: 'abissal' } }
