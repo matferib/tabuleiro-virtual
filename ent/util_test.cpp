@@ -3498,6 +3498,43 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
   }
 }
 
+TEST(TesteSalvacao, TesteModificadoresPorTipoDiferente) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("feiticeiro");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(13, TA_CARISMA, &proto);
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Feiticeiro");
+  da->set_id_arma("riso_histerico");
+  da->set_eh_feitico(true);
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+  {
+    g_dados_teste.push(9);
+    auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *referencia);
+    EXPECT_FALSE(passou) << "tirou " << delta << ", " << texto;
+  }
+  {
+    g_dados_teste.push(10);
+    auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *referencia);
+    EXPECT_TRUE(passou) << "tirou " << delta << ", " << texto;
+  }
+
+  // Ganha +4 de bonus.
+  proto.add_tipo_dnd(TIPO_BESTA_MAGICA);
+  std::unique_ptr<Entidade> besta_magica(NovaEntidadeParaTestes(proto, g_tabelas));
+  {
+    g_dados_teste.push(5);
+    auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *besta_magica);
+    EXPECT_FALSE(passou) << "tirou " << delta << ", " << texto;
+  }
+  {
+    g_dados_teste.push(6);
+    auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *besta_magica);
+    EXPECT_TRUE(passou) << "tirou " << delta << ", " << texto;
+  }
+}
+
 TEST(TesteFeiticos, TesteCurarNaoAplicaForca) {
   {
     EntidadeProto proto;

@@ -6434,6 +6434,14 @@ int SalvacaoVeneno(const EntidadeProto& proto) {
   return Salvacao(proto, proto.dados_defesa().bonus_salvacao_veneno(), EntidadeProto::default_instance(), TS_FORTITUDE);
 }
 
+// Retorna true caso haja algum tipo do defensor que o atacante nao tem.
+bool TipoDnDDiferentes(const EntidadeProto& proto_atacante, const EntidadeProto& proto_defensor) {
+  for (auto tipo_defensor : proto_defensor.tipo_dnd()) {
+    if (c_none(proto_atacante.tipo_dnd(), tipo_defensor)) return true;
+  }
+  return false;
+}
+
 int SalvacaoFeitico(const ArmaProto& feitico_tabelado, const EntidadeProto& proto, const EntidadeProto& proto_atacante, TipoSalvacao tipo) {
   Bonus outros_bonus = proto.dados_defesa().bonus_salvacao_feitico();
   if (feitico_tabelado.escola() == "encantamento") {
@@ -6443,6 +6451,12 @@ int SalvacaoFeitico(const ArmaProto& feitico_tabelado, const EntidadeProto& prot
   }
   if (feitico_tabelado.acao().elemento() == DESC_MEDO) {
     CombinaBonus(proto.dados_defesa().bonus_salvacao_medo(), &outros_bonus);
+  }
+  if (feitico_tabelado.acao().has_bonus_salvacao_por_tipo_diferente() &&
+      TipoDnDDiferentes(proto_atacante, proto)) {
+    Bonus b;
+    AtribuiBonus(feitico_tabelado.acao().bonus_salvacao_por_tipo_diferente(), TB_SEM_NOME, "tipos_diferentes", &b);
+    CombinaBonus(b, &outros_bonus);
   }
   return Salvacao(proto, outros_bonus, proto_atacante, tipo);
 }

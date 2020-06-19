@@ -472,6 +472,14 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
         }
       }
       break;
+    case EFEITO_RISO_HISTERICO:
+      if (!evento->processado()) {
+        EntidadeProto proto_salvo;
+        proto_salvo.set_caida(proto->caida());
+        evento->set_estado_anterior(proto_salvo.SerializeAsString());
+        proto->set_caida(true);
+      }
+      break;
     case EFEITO_MORTE:
       if (!evento->processado()) {
         if (!ImuneMorte(*proto)) {
@@ -902,6 +910,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto->set_pontos_vida(proto_salvo.pontos_vida());
     }
     break;
+    case EFEITO_RISO_HISTERICO: {
+      if (!evento.has_estado_anterior()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.ParseFromString(evento.estado_anterior());
+      proto->set_caida(proto_salvo.caida());
+      break;
+    }
     case EFEITO_MORTE: {
       if (!evento.has_estado_anterior()) break;
       EntidadeProto proto_salvo;

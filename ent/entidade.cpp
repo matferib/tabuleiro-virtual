@@ -1855,7 +1855,7 @@ int Entidade::Salvacao(const Entidade& atacante, TipoSalvacao tipo) const {
 }
 
 int Entidade::SalvacaoVeneno() const {
-  return ent::SalvacaoVeneno(proto_); 
+  return ent::SalvacaoVeneno(proto_);
 }
 
 int Entidade::SalvacaoSemAtacante(TipoSalvacao tipo) const {
@@ -2622,7 +2622,7 @@ bool Entidade::Ordeira() const {
 }
 
 bool Entidade::PodeMover() const {
-  if (PossuiUmDosEfeitos({EFEITO_NAO_PODE_MOVER, EFEITO_IMOBILIZADO, EFEITO_PARALISIA, EFEITO_APRISIONADO_ELEMENTAL})) {
+  if (PossuiUmDosEfeitos({EFEITO_RISO_HISTERICO, EFEITO_NAO_PODE_MOVER, EFEITO_IMOBILIZADO, EFEITO_PARALISIA, EFEITO_APRISIONADO_ELEMENTAL})) {
     return false;
   }
   return true;
@@ -2633,6 +2633,7 @@ bool Entidade::Indefeso() const {
 }
 
 std::pair<bool, std::string> Entidade::PodeAgir() const {
+  if (PossuiEfeito(EFEITO_RISO_HISTERICO)) return std::make_pair(false, "riso histérico");
   if (PossuiEfeito(EFEITO_PASMAR)) return std::make_pair(false, "pasmo");
   if (PossuiEfeito(EFEITO_ATORDOADO)) return std::make_pair(false, "atordoado");
   if (PossuiEfeito(EFEITO_FASCINADO)) return std::make_pair(false, "fascinado");
