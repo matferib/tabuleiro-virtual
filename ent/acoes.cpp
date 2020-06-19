@@ -1104,6 +1104,7 @@ class AcaoFeitico : public Acao {
     if (desenhando_origem_) {
       raio_ -= DELTA_RAIO;
       if (raio_ <= 0) {
+        TocaSomSucessoOuFracasso(camera);
         desenhando_origem_ = false;
         AtualizaAlvo(intervalo_ms);
         raio_ = 0.0f;
