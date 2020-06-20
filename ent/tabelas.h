@@ -1,7 +1,9 @@
 #ifndef ENT_TABELAS_H
 #define ENT_TABELAS_H
 
+#include <optional>
 #include <unordered_map>
+
 #include "ent/acoes.pb.h"
 #include "ent/tabelas.pb.h"
 #include "ntf/notificacao.h"
