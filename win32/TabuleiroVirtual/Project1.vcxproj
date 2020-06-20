@@ -75,7 +75,9 @@
     <ClCompile Include="..\..\gltab\gl_comum.cpp" />
     <ClCompile Include="..\..\gltab\gl_normal.cpp" />
     <ClCompile Include="..\..\gltab\gl_vbo.cpp" />
-    <ClCompile Include="..\..\ifg\interface.cpp" />
+    <ClCompile Include="..\..\ifg\interface.cpp">
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpplatest</LanguageStandard>
+    </ClCompile>
     <ClCompile Include="..\..\ifg\modelos.pb.cc" />
     <ClCompile Include="..\..\ifg\qt\atualiza_ui.cpp" />
     <ClCompile Include="..\..\ifg\qt\constantes.cpp">
@@ -88,6 +90,7 @@
     <ClCompile Include="..\..\ifg\qt\moc_menuprincipal.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_pericias_util.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_principal.cpp" />
+    <ClCompile Include="..\..\ifg\qt\moc_talentos_util.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_util.cpp" />
     <ClCompile Include="..\..\ifg\qt\principal.cpp" />
     <ClCompile Include="..\..\ifg\qt\qt_interface.cpp" />

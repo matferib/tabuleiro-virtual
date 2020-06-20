@@ -212,6 +212,9 @@
     <ClCompile Include="..\..\som\som_qt.cpp">
       <Filter>som</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\moc_talentos_util.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gltab\gl.h">
