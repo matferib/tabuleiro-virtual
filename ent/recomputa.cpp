@@ -472,6 +472,14 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
         }
       }
       break;
+    case EFEITO_RISO_HISTERICO:
+      if (!evento->processado()) {
+        EntidadeProto proto_salvo;
+        proto_salvo.set_caida(proto->caida());
+        evento->set_estado_anterior(proto_salvo.SerializeAsString());
+        proto->set_caida(true);
+      }
+      break;
     case EFEITO_MORTE:
       if (!evento->processado()) {
         if (!ImuneMorte(*proto)) {
@@ -902,6 +910,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto->set_pontos_vida(proto_salvo.pontos_vida());
     }
     break;
+    case EFEITO_RISO_HISTERICO: {
+      if (!evento.has_estado_anterior()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.ParseFromString(evento.estado_anterior());
+      proto->set_caida(proto_salvo.caida());
+      break;
+    }
     case EFEITO_MORTE: {
       if (!evento.has_estado_anterior()) break;
       EntidadeProto proto_salvo;
@@ -2079,10 +2094,12 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
 void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto) {
   // Limitar talentos gerais por nivel de personagem.
   const int nivel = Nivel(*proto);
-  const int numero = (nivel / 3) + 1;
+  const int numero = nivel > 0 ? (nivel / 3) + 1 : 0;
   if (proto->info_talentos().gerais().size() > numero) {
     LOG(WARNING) << "Um dia irei capar talentos da entidade "
       << RotuloEntidade(*proto) << ", gerais: " << proto->info_talentos().gerais().size() << ", permitido: " << numero;
+  } else if (proto->info_talentos().gerais().size() < numero) {
+    Redimensiona(numero, proto->mutable_info_talentos()->mutable_gerais());
   }
   //while (proto->info_talentos().gerais().size() > numero) {
   //  proto->mutable_info_talentos()->mutable_gerais()->RemoveLast();

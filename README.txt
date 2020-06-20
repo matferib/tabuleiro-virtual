@@ -12,3 +12,6 @@ som miss: https://freesound.org/people/CGEffex/sounds/93081/
 som punch: https://freesound.org/people/ztrees1/sounds/134934/
 som whip: https://freesound.org/people/CGEffex/sounds/93100/
 som glass_break: https://freesound.org/people/unfa/sounds/221528/
+som spiked_chain: https://freesound.org/people/daveincamas/sounds/44076/
+
+terrain_foliage_coarse.png: CC BY-SA 3.0 -- Heath Rezabek -- Vessel CC -- http://vessel.cc

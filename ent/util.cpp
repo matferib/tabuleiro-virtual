@@ -1698,7 +1698,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubarInterno(const Entidade& ea, const 
     return resultado;
   }
   const int diferenca_tamanho = tamanho_atacante - tamanho_defensor;
-  const int modificadores_ataque = ea.ModificadorAtributo(TA_FORCA) + 4 * diferenca_tamanho;
+  const int modificadores_ataque = ea.ModificadorAtributo(TA_FORCA) + 4 * diferenca_tamanho + (ea.PossuiTalento("derrubar_aprimorado") ? 4 : 0);
   const int modificadores_defesa =
       std::max(ed.ModificadorAtributo(TA_FORCA), ed.ModificadorAtributo(TA_DESTREZA)) +
       (ea.MaisDeDuasPernas() || Tabelas::Unica().Raca(ed.Proto().raca()).estabilidade() ? 4 : 0);
@@ -1710,7 +1710,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubarInterno(const Entidade& ea, const 
         (eh_contra_ataque ? "contra ataque" : "derrubar"), dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
   } else {
     if (eh_contra_ataque) {
-      // Retorna o resultado do contra ataque. 
+      // Retorna o resultado do contra ataque.
       resultado.resultado = RA_FALHA_NORMAL;
       resultado.texto = StringPrintf("contra ataque falhou: %d%+d < %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
     } else if (permite_contra_ataque) {
@@ -3342,7 +3342,9 @@ TalentoProto* TalentoOuCria(const std::string& chave_talento, EntidadeProto* pro
   for (auto& t : *proto->mutable_info_talentos()->mutable_automaticos()) {
     if (chave_talento == t.id()) return &t;
   }
-  return proto->mutable_info_talentos()->add_outros();
+  auto* nt = proto->mutable_info_talentos()->add_outros();
+  nt->set_id(chave_talento);
+  return nt;
 }
 
 const TalentoProto* Talento(const std::string& chave_talento, const EntidadeProto& entidade) {
@@ -6432,6 +6434,14 @@ int SalvacaoVeneno(const EntidadeProto& proto) {
   return Salvacao(proto, proto.dados_defesa().bonus_salvacao_veneno(), EntidadeProto::default_instance(), TS_FORTITUDE);
 }
 
+// Retorna true caso haja algum tipo do defensor que o atacante nao tem.
+bool TipoDnDDiferentes(const EntidadeProto& proto_atacante, const EntidadeProto& proto_defensor) {
+  for (auto tipo_defensor : proto_defensor.tipo_dnd()) {
+    if (c_none(proto_atacante.tipo_dnd(), tipo_defensor)) return true;
+  }
+  return false;
+}
+
 int SalvacaoFeitico(const ArmaProto& feitico_tabelado, const EntidadeProto& proto, const EntidadeProto& proto_atacante, TipoSalvacao tipo) {
   Bonus outros_bonus = proto.dados_defesa().bonus_salvacao_feitico();
   if (feitico_tabelado.escola() == "encantamento") {
@@ -6441,6 +6451,12 @@ int SalvacaoFeitico(const ArmaProto& feitico_tabelado, const EntidadeProto& prot
   }
   if (feitico_tabelado.acao().elemento() == DESC_MEDO) {
     CombinaBonus(proto.dados_defesa().bonus_salvacao_medo(), &outros_bonus);
+  }
+  if (feitico_tabelado.acao().has_bonus_salvacao_por_tipo_diferente() &&
+      TipoDnDDiferentes(proto_atacante, proto)) {
+    Bonus b;
+    AtribuiBonus(feitico_tabelado.acao().bonus_salvacao_por_tipo_diferente(), TB_SEM_NOME, "tipos_diferentes", &b);
+    CombinaBonus(b, &outros_bonus);
   }
   return Salvacao(proto, outros_bonus, proto_atacante, tipo);
 }

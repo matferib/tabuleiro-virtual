@@ -1104,6 +1104,7 @@ class AcaoFeitico : public Acao {
     if (desenhando_origem_) {
       raio_ -= DELTA_RAIO;
       if (raio_ <= 0) {
+        TocaSomSucessoOuFracasso(camera);
         desenhando_origem_ = false;
         AtualizaAlvo(intervalo_ms);
         raio_ = 0.0f;
@@ -1962,7 +1963,10 @@ bool EntidadeAfetadaPorEfeito(const Tabelas& tabelas, int nivel_conjurador, cons
       c_any_of(efeito_tabelado.nao_afeta(), [&alvo](int tipo) { return TemTipoDnD(static_cast<TipoDnD>(tipo), alvo); })) {
     return false;
   }
-
+  if (const auto& por_atributo = efeito.nao_afeta_se_atributo_menor_igual_a();
+      efeito.has_nao_afeta_se_atributo_menor_igual_a() && BonusTotal(BonusAtributo(por_atributo.atributo(), alvo)) <= por_atributo.valor()) {
+    return false;
+  }
   return true;
 }
 

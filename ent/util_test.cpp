@@ -1722,10 +1722,10 @@ TEST(TesteTalentoPericias, TesteTabeladoTalentosPericias) {
     const int antes = proto.info_talentos().gerais().size();
     RecomputaDependencias(g_tabelas, &proto);
     const int depois = proto.info_talentos().gerais().size();
-    EXPECT_EQ(antes, depois) << "falhou para: " << modelo.id();
+    EXPECT_LE(antes, depois) << "falhou para: " << modelo.id();
     for (const auto& talentos : { proto.info_talentos().gerais(), proto.info_talentos().automaticos(), proto.info_talentos().outros()}) {
       for (const auto& talento : talentos) {
-        EXPECT_FALSE(g_tabelas.Talento(talento.id()).id().empty())
+        EXPECT_FALSE(!talento.id().empty() && g_tabelas.Talento(talento.id()).id().empty())
             << "talento invalido: " << talento.id() << " para modelo " << modelo.id();
       }
     }
@@ -2465,8 +2465,8 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
     po->set_valor(14);  // +2.
   }
 
-  proto.mutable_info_talentos()->add_gerais()->set_id("fortitude_maior");
-
+  // Fortitude maior.
+  TalentoOuCria("fortitude_maior", &proto);
   RecomputaDependencias(g_tabelas, &proto);
   // 3 + 4 con + 2 fortitude maior;
   EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
@@ -2476,7 +2476,7 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
   EXPECT_EQ(3, BonusTotal(proto.dados_defesa().salvacao_vontade()));
 
   // Adiciona reflexos rapidos.
-  proto.mutable_info_talentos()->add_gerais()->set_id("reflexos_rapidos");
+  TalentoOuCria("reflexos_rapidos", &proto);
   RecomputaDependencias(g_tabelas, &proto);
   // 3 + 3 con + 2 fortitude maior;
   EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
@@ -2486,7 +2486,7 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
   EXPECT_EQ(3, BonusTotal(proto.dados_defesa().salvacao_vontade()));
 
   // Adiciona vontade de ferro.
-  proto.mutable_info_talentos()->add_outros()->set_id("vontade_ferro");
+  TalentoOuCria("vontade_ferro", &proto);
   RecomputaDependencias(g_tabelas, &proto);
   // 3 + 3 con + 2 fortitude maior;
   EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
@@ -2500,7 +2500,7 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
   EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
 
   // Remove reflexos rapidos.
-  proto.mutable_info_talentos()->mutable_gerais()->DeleteSubrange(1, 1);
+  TalentoOuCria("reflexos_rapidos", &proto)->set_id("");
   RecomputaDependencias(g_tabelas, &proto);
   // 1 + 3 destreza.
   EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
@@ -3495,6 +3495,43 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
     RecomputaDependencias(g_tabelas, &proto);
 
     EXPECT_EQ(da->dificuldade_salvacao(), 15);
+  }
+}
+
+TEST(TesteSalvacao, TesteModificadoresPorTipoDiferente) {
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("feiticeiro");
+  ic->set_nivel(3);
+  AtribuiBaseAtributo(13, TA_CARISMA, &proto);
+  auto* da = proto.add_dados_ataque();
+  da->set_tipo_ataque("Feitiço de Feiticeiro");
+  da->set_id_arma("riso_histerico");
+  da->set_eh_feitico(true);
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+  {
+    g_dados_teste.push(9);
+    auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *referencia);
+    EXPECT_FALSE(passou) << "tirou " << delta << ", " << texto;
+  }
+  {
+    g_dados_teste.push(10);
+    auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *referencia);
+    EXPECT_TRUE(passou) << "tirou " << delta << ", " << texto;
+  }
+
+  // Ganha +4 de bonus.
+  proto.add_tipo_dnd(TIPO_BESTA_MAGICA);
+  std::unique_ptr<Entidade> besta_magica(NovaEntidadeParaTestes(proto, g_tabelas));
+  {
+    g_dados_teste.push(5);
+    auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *besta_magica);
+    EXPECT_FALSE(passou) << "tirou " << delta << ", " << texto;
+  }
+  {
+    g_dados_teste.push(6);
+    auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *besta_magica);
+    EXPECT_TRUE(passou) << "tirou " << delta << ", " << texto;
   }
 }
 
@@ -6577,6 +6614,54 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarSucesso) {
     g_dados_teste.push(11);
     ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaDerrubar(*orca, *orcd);
     EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+  }
+}
+
+TEST(TesteAtaqueVsDefesa, TesteDerrubarSucessoDerrubarAprimorado) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  proto.mutable_info_talentos()->add_outros()->set_id("derrubar_aprimorado");
+  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Defesa primeiro.
+    g_dados_teste.push(10);
+    g_dados_teste.push(7);
+    ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaDerrubar(*orca, *orcd);
+    EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+  }
+}
+
+TEST(TesteAtaqueVsDefesa, TesteDerrubarAprimoradoSemContraAtaqu) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  proto.mutable_info_talentos()->add_outros()->set_id("derrubar_aprimorado");
+  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Defesa primeiro.
+    g_dados_teste.push(10);
+    g_dados_teste.push(6);
+    // Contra ataque.
+    g_dados_teste.push(2);
+    g_dados_teste.push(19);
+    ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaDerrubar(*orca, *orcd);
+    EXPECT_NE(resultado.resultado, RA_FALHA_CONTRA_ATAQUE) << resultado.texto;
+  }
+}
+
+TEST(TesteAtaqueVsDefesa, TesteDerrubarComTamanho) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  proto.mutable_info_talentos()->add_outros()->set_id("derrubar_aprimorado");
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_AUMENTAR_PESSOA);
+  evento->set_rodadas(1);
+  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    // Defesa primeiro.
+    g_dados_teste.push(10);
+    g_dados_teste.push(3);
+    ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaDerrubar(*orca, *orcd);
+    EXPECT_EQ(resultado.resultado, RA_SUCESSO) << resultado.texto;
   }
 }
 

@@ -340,6 +340,22 @@ TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeito) {
   }
 }
 
+TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeitoRisoHisterico) {
+  auto modelo_ankheg = g_tabelas.ModeloEntidade("Ankheg");
+  auto ankheg = NovaEntidadeParaTestes(modelo_ankheg.entidade(), g_tabelas);
+  auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
+  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
+  const auto& feitico_tabelado = g_tabelas.Feitico("riso_histerico");
+  auto modelo_esqueleto = g_tabelas.ModeloEntidade("Esqueleto (Humano Combatente)");
+  auto esqueleto = NovaEntidadeParaTestes(modelo_esqueleto.entidade(), g_tabelas);
+ 
+  ASSERT_EQ(feitico_tabelado.acao().efeitos_adicionais_size(), 1);
+  EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(0), ankheg->Proto()));
+  EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(0), druida->Proto()));
+  EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(0), esqueleto->Proto()));
+}
+
+
 TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeitoBolsaCola) {
   auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
   auto alvo_pequeno = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);

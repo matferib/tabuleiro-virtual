@@ -105,7 +105,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 102.
+// Proximo id: 103.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -235,7 +235,7 @@ message AcaoProto {
   // Descritores do ataque: computado dinamicamente.
   repeated DescritorAtaque descritores_ataque_dreprecated = 52;
   optional IluminacaoPontual luz_origem = 54;
-  // Proximo id: 28.
+  // Proximo id: 29.
   message EfeitoAdicional {
     optional TipoEfeito efeito = 1;
     optional TipoEfeito combinar_com_efeito = 16;  // Usado para combinacao.
@@ -281,6 +281,12 @@ message AcaoProto {
     optional TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 25;
     optional bool afeta_aliados_apenas = 26;
     optional bool afeta_inimigos_apenas = 27;
+    message ValorAtributo {
+      optional TipoAtributo atributo = 1;
+      optional int32 valor = 2;
+    }
+    // Caso a criatura tenha atributo menor igual ao passado, nao sera afetada pelo efeito.
+    optional ValorAtributo nao_afeta_se_atributo_menor_igual_a = 28;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.
@@ -351,6 +357,8 @@ message AcaoProto {
   optional string som_fracasso = 95;
   optional string som_inicial = 96;
   optional bool adiciona_ao_log_se_local = 100;
+  // Caso o alvo e o lancador sejam de tipos diferentes, aplica este bonus.
+  optional int32 bonus_salvacao_por_tipo_diferente = 102;
 }
 
 // Como uma arma esta empunhada.
