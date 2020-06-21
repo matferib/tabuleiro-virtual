@@ -6488,7 +6488,7 @@ tabela_feiticos {
   }
   armas {
     id: 'invocar_aliado_natureza_ii'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar aliado da natureza II'
     nome_ingles: "summon nature's ally II"
     alcance_quadrados: 5
@@ -6522,13 +6522,25 @@ tabela_feiticos {
           texto: 'Elemental do Ar (Pequeno)'
           id_modelo_entidade: 'Elemental do Ar (Pequeno) IANII'
         }
+        parametros {
+          texto: 'Elemental do Fogo (Pequeno)'
+          id_modelo_entidade: 'Elemental do Fogo (Pequeno) IANII'
+        }
+        parametros {
+          texto: 'Elemental da Terra (Pequeno)'
+          id_modelo_entidade: 'Elemental da Terra (Pequeno) IANII'
+        }
+        parametros {
+          texto: 'Elemental da Água (Pequeno)'
+          id_modelo_entidade: 'Elemental da Água (Pequeno) IANII'
+        }
       }
     }
     escola: 'conjuracao'
   }
   armas {
     id: 'invocar_aliado_natureza_iii'
-    tempo_execucao_rodadas: 1 
+    tempo_execucao_rodadas: 1
     nome: 'invocar aliado da natureza III'
     nome_ingles: "summon nature's ally III"
     alcance_quadrados: 5

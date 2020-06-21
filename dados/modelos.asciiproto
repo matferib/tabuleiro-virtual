@@ -734,6 +734,27 @@ modelo {
   }
 }
 modelo {
+  id: 'Elemental da Terra (Pequeno) IANII'
+  id_entidade_base: 'Elemental da Terra (Pequeno)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Elemental do Fogo (Pequeno) IANII'
+  id_entidade_base: 'Elemental do Fogo (Pequeno)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Elemental da Água (Pequeno) IANII'
+  id_entidade_base: 'Elemental da Água (Pequeno)'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
   id: 'Lobo Atroz IANIII'
   id_entidade_base: 'Lobo Atroz'
   parametros {
@@ -2741,7 +2762,7 @@ modelo {
   entidade {
     rotulo: 'elemental da terra médio'
     sub_tipo_dnd: SUBTIPO_TERRA
-    dados_vida: '4d8+12' tamanho: TM_PEQUENO cor { r: 0.5 g: 0.25 b: 0.1 }
+    dados_vida: '4d8+12' tamanho: TM_MEDIO cor { r: 0.5 g: 0.25 b: 0.1 }
     info_classes { id: 'elemental_agua_terra' nivel: 4 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     rotulo_especial: 'deslizar na terra'
@@ -2994,10 +3015,10 @@ modelo {
       mantem_com_limite_zerado: true
       taxa_refrescamento: "100"  # 10 minutos.
       acao_fixa {
+        icone: 'icon_whirlwind.png'
         efeitos_adicionais {
           efeito: EFEITO_ALTERAR_FORMA
           modificador_rodadas: MR_1_RODADA_A_CADA_2_NIVEIS
-          descricao: 'redemoinho, 1d4 dano, salvação 11'
           complementos_str: 'Vendaval Elemental do Ar (Pequeno)'
         }
       }
@@ -3019,6 +3040,47 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Vendaval Elemental do Ar (Médio)'
+  entidade {
+    modelo_3d { id: 'whirlwind' }
+    tamanho: TM_MEDIO
+    dados_ataque {
+      grupo: 'vendaval' rotulo: 'dano' dano_basico_fixo: '1d6'
+      ignora_origem: true
+      dificuldade_salvacao: 13
+      acao_fixa {
+        id: 'Feitiço de Toque'
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_PEQUENO
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        ignora_resistencia_magia: true
+        tipo_salvacao: TS_REFLEXO
+        resultado_ao_salvar: RS_ANULOU
+      }
+    }
+    dados_ataque {
+      grupo: 'vendaval' rotulo: 'aprisionamento'
+      ignora_origem: true
+      dificuldade_salvacao: 13
+      acao_fixa {
+        id: 'Feitiço de Toque'
+        afeta_apenas_tamanhos_menores_ou_igual_a: TM_PEQUENO
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        ignora_resistencia_magia: true
+        tipo_salvacao: TS_REFLEXO
+        resultado_ao_salvar: RS_ANULOU
+        efeitos_adicionais {
+          efeito: EFEITO_APRISIONADO_ELEMENTAL
+          descricao: 'deve salvar toda rodada'
+          rodadas: 1
+        }
+      }
+    }
+  }
+}
+
 modelo {
   id: 'Elemental do Ar (Médio)'
   id_entidade_base: 'Elemental Base'
@@ -3043,10 +3105,11 @@ modelo {
       mantem_com_limite_zerado: true
       taxa_refrescamento: "100"
       acao_fixa {
+        icone: 'icon_whirlwind.png'
         efeitos_adicionais {
-          efeito: EFEITO_OUTRO
-          rodadas: 1
-          descricao: 'redemoinho, 1d4 dano, salvação 11'
+          efeito: EFEITO_ALTERAR_FORMA
+          modificador_rodadas: MR_1_RODADA_A_CADA_2_NIVEIS
+          complementos_str: 'Vendaval Elemental do Ar (Médio)'
         }
       }
     }
