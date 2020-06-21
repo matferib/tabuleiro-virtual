@@ -374,6 +374,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_LUTA_DEFENSIVA:
       AlternaLutaDefensiva();
       break;
+    case CONTROLE_ATAQUE_PODEROSO:
+      AlternaAtaquePoderoso();
+      break;
     case CONTROLE_CIMA:
       TrataMovimentoEntidadesSelecionadas(true, 1.0f);
       break;
@@ -1413,6 +1416,10 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_LUTA_DEFENSIVA,      [this] (const Entidade* entidade) {
       if (entidade == nullptr) return false;
       return LutandoDefensivamente(entidade->Proto());
+    } },
+    { CONTROLE_ATAQUE_PODEROSO,      [this] (const Entidade* entidade) {
+      if (entidade == nullptr) return false;
+      return AtacandoPoderosamente(entidade->Proto());
     } },
     { CONTROLE_FURIA,             [this] (const Entidade* entidade) {
       if (entidade == nullptr) return false;

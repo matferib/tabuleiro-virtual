@@ -8204,6 +8204,16 @@ void Tabuleiro::AlternaLutaDefensiva() {
   AdicionaNotificacaoListaEventos(n);
 }
 
+void Tabuleiro::AlternaAtaquePoderoso() {
+  Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+  if (entidade == nullptr || !entidade->PossuiTalento("ataque_poderoso")) return;
+  ntf::Notificacao n = PreencheNotificacaoAtacandoPoderosamente(!AtacandoPoderosamente(entidade->Proto()), *entidade);
+  // Vai notificar remoto.
+  TrataNotificacao(n);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(n);
+}
+
 bool Tabuleiro::HaEntidadesSelecionaveis() const {
   for (const auto& kv : entidades_) {
     if (kv.second->SelecionavelParaJogador()) return true;

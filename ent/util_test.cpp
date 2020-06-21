@@ -1647,6 +1647,87 @@ TEST(TestePergaminho, TesteLancarPergaminhoFalhaComFiasco) {
   EXPECT_TRUE(res.fiasco) << res.texto;
 }
 
+TEST(TesteTalentoPericias, TesteAtaquePoderoso) {
+  const auto& modelo_orc = g_tabelas.ModeloEntidade("Orc Capitão");
+  auto orc = NovaEntidadeParaTestes(modelo_orc.entidade(), g_tabelas);
+  EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
+  auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
+  orc->AtualizaParcial(n.entidade());
+  EXPECT_TRUE(AtacandoPoderosamente(orc->Proto()));
+  const auto& da = DadosAtaquePorGrupo("ataque_total_machado", orc->Proto());
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_ataque()), -3);
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_dano()), 6);
+  orc->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_ataque()), 0);
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_dano()), 0);
+}
+
+TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplemento) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* t = TalentoOuCria("ataque_poderoso", &proto);
+  t->set_complemento("5");
+  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
+  auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
+  orc->AtualizaParcial(n.entidade());
+  EXPECT_TRUE(AtacandoPoderosamente(orc->Proto()));
+  const auto& da = DadosAtaquePorGrupo("ataque_total_machado", orc->Proto());
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_ataque()), -5);
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_dano()), 10);
+  const auto& darco = DadosAtaquePorGrupo("ataque_total_arco", orc->Proto());
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", darco.bonus_ataque()), 0);
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", darco.bonus_dano()), 0);
+ 
+  orc->AtualizaParcial(n.entidade_antes());
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_ataque()), 0);
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_dano()), 0);
+}
+
+TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplementoAcimaBba) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* t = TalentoOuCria("ataque_poderoso", &proto);
+  t->set_complemento("8");
+  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
+  auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
+  orc->AtualizaParcial(n.entidade());
+  EXPECT_TRUE(AtacandoPoderosamente(orc->Proto()));
+  const auto& da = DadosAtaquePorGrupo("ataque_total_machado", orc->Proto());
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_ataque()), -7);
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_dano()), 14);
+}
+
+TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplementoInvalido) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* t = TalentoOuCria("ataque_poderoso", &proto);
+  t->set_complemento("fooooo");
+  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
+  auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
+  orc->AtualizaParcial(n.entidade());
+  EXPECT_TRUE(AtacandoPoderosamente(orc->Proto()));
+  const auto& da = DadosAtaquePorGrupo("ataque_total_machado", orc->Proto());
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_ataque()), -1);
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_dano()), 2);
+}
+
+TEST(TesteTalentoPericias, TesteAtaquePoderosoUmaMao) {
+  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  {
+    auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
+    da->set_empunhadura(EA_ARMA_APENAS);
+    da->set_id_arma("espada_longa");
+  }
+  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
+  auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
+  orc->AtualizaParcial(n.entidade());
+  EXPECT_TRUE(AtacandoPoderosamente(orc->Proto()));
+  const auto& da = DadosAtaquePorGrupo("ataque_total_machado", orc->Proto());
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_ataque()), -3);
+  EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_dano()), 3) << EmpunhaduraArma_Name(da.empunhadura());
+}
+
 TEST(TesteTalentoPericias, TesteMobilidade) {
   DadosAtaque da_ataque;
   da_ataque.set_bonus_ataque_final(12);

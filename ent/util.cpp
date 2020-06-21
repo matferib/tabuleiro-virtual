@@ -3609,6 +3609,15 @@ bool LutandoDefensivamente(const EntidadeProto& proto) {
   return false;
 }
 
+bool AtacandoPoderosamente(const EntidadeProto& proto) {
+  for (const auto& da : proto.dados_ataque()) {
+    if (da.ataque_corpo_a_corpo()) {
+      return BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", proto.dados_ataque(0).bonus_ataque()) < 0;
+    }
+  }
+  return false;
+}
+
 bool EventosIguais(const EntidadeProto::Evento& lhs, const EntidadeProto::Evento& rhs) {
   return lhs.SerializeAsString() == rhs.SerializeAsString();
 }
@@ -6400,6 +6409,31 @@ void PreencheEntidadeLutarDefensivamente(bool ativar, const Entidade& entidade, 
     }
   }
 }
+
+void PreencheEntidadeAtacandoPoderosamente(bool ativar, const Entidade& entidade, EntidadeProto* proto_ntf) {
+  const auto& proto = entidade.Proto();
+  proto_ntf->set_id(proto.id());
+  *proto_ntf->mutable_dados_ataque() = proto.dados_ataque();
+  if (ativar) {
+    const auto* talento = Talento("ataque_poderoso", entidade.Proto()); 
+    LOG(INFO) << "complemento: " << talento->complemento();
+    const int bba = entidade.BonusBaseAtaque();
+    int valor = talento == nullptr || talento->complemento().empty() ? bba / 2 : atoi(talento->complemento().c_str());
+    valor = std::max(1, std::min(valor, bba));
+    for (auto& da : *proto_ntf->mutable_dados_ataque()) {
+      if (da.ataque_corpo_a_corpo()) {
+        AtribuiBonus(da.empunhadura() == EA_2_MAOS ? 2 * valor : valor, TB_SEM_NOME, "ataque_poderoso", da.mutable_bonus_dano());
+        AtribuiBonus(-valor, TB_SEM_NOME, "ataque_poderoso", da.mutable_bonus_ataque());
+      }
+    }
+  } else {
+    for (auto& da : *proto_ntf->mutable_dados_ataque()) {
+      RemoveBonus(TB_SEM_NOME, "ataque_poderoso", da.mutable_bonus_dano());
+      RemoveBonus(TB_SEM_NOME, "ataque_poderoso", da.mutable_bonus_ataque());
+    }
+  }
+}
+
 }  // namespace
 
 ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entidade& entidade) {
@@ -6407,6 +6441,14 @@ ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entid
   n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
   PreencheEntidadeLutarDefensivamente(ativar, entidade, n.mutable_entidade());
   PreencheEntidadeLutarDefensivamente(!ativar, entidade, n.mutable_entidade_antes());
+  return n;
+}
+
+ntf::Notificacao PreencheNotificacaoAtacandoPoderosamente(bool ativar, const Entidade& entidade) {
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+  PreencheEntidadeAtacandoPoderosamente(ativar, entidade, n.mutable_entidade());
+  PreencheEntidadeAtacandoPoderosamente(!ativar, entidade, n.mutable_entidade_antes());
   return n;
 }
 

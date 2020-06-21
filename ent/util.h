@@ -502,6 +502,8 @@ void PreencheNotificacaoObjetoDesviado(bool valor, const Entidade& entidade, ntf
 ntf::Notificacao PreencheNotificacaoDefesaTotal(bool ativar, const EntidadeProto& proto);
 // Preenche a notificacao para entidade entrar em luta defensiva (aumenta CA, ataque com penalidade).
 ntf::Notificacao PreencheNotificacaoLutarDefensivamente(bool ativar, const Entidade& entidade);
+// Preenche a notificacao para entidade entrar ou sair do modo de ataque poderoso.
+ntf::Notificacao PreencheNotificacaoAtacandoPoderosamente(bool ativar, const Entidade& entidade);
 
 // Alguns efeitos valem ate a proxima salvacao. Cria uma notificacao para expira-los.
 // Caso nao haja eventos assim, retorna uma notificacao defaul (vazia).
@@ -739,6 +741,7 @@ google::protobuf::RepeatedPtrField<EntidadeProto_Evento> LeEventos(const std::st
 // Funcoes que retornam o estado da entidade de acordo com a origem e valor dos bonus de esquiva.
 bool EmDefesaTotal(const EntidadeProto& proto);
 bool LutandoDefensivamente(const EntidadeProto& proto);
+bool AtacandoPoderosamente(const EntidadeProto& proto);
 
 // Retorna um rotulo para a entidade. Tenta o rotulo, id e se for null, retorna null.
 std::string RotuloEntidade(const Entidade* entidade);
