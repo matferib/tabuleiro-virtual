@@ -8425,9 +8425,6 @@ modelo {
 
     dados_defesa {
       id_armadura: 'peitoral_de_aco' bonus_magico_armadura: 1
-      ca {
-        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'amuleto' valor: 5 } }
-      }
     }
     info_classes { id: 'barbaro' nivel: 7 }
     info_talentos {
@@ -8446,6 +8443,7 @@ modelo {
       pocoes { id: 'escudo_fe_3' }
       pocoes { id: 'protecao_contra_bem' }
       pocoes { id: 'protecao_contra_mal' }
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
       moedas { po: 50 }
     }
     atributos {

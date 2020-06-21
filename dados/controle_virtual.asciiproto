@@ -107,6 +107,18 @@ fixo {
     tamanho: 1
     linha: 16
     coluna: 4
+    rotulo: "AP"
+    cor_rotulo {}
+    textura: "icon_power_attack.png"
+    id: CONTROLE_ATAQUE_PODEROSO
+    forma: FORMA_RETANGULO
+    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    dica: "Ativa ataque poderoso."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 17
+    coluna: 4
     rotulo: "Fu"
     cor_rotulo {}
     textura: "icon_rage.png"
