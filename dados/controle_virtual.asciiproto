@@ -112,7 +112,7 @@ fixo {
     textura: "icon_power_attack.png"
     id: CONTROLE_ATAQUE_PODEROSO
     forma: FORMA_RETANGULO
-    visibilidade { referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS } }
+    visibilidade { referencia { tipo: VIS_ATAQUE_PODEROSO } }
     dica: "Ativa ataque poderoso."
   }
   dados_botoes {

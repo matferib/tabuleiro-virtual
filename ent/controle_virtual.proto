@@ -231,6 +231,7 @@ enum TipoVisibilidade {
   VIS_INVISIVEL = 22;
   // Botao so é visivel se houver uma ou mais entidades selecionadas ou primeira pessoa.
   VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS = 26;
+  VIS_ATAQUE_PODEROSO = 27;
 }
 
 message Visibilidade {

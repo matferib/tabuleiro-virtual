@@ -1130,6 +1130,11 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
           if (da == nullptr) return false;
           return tabelas_.Arma(da->id_arma()).pode_derrubar();
         }
+        case VIS_ATAQUE_PODEROSO: {
+          const auto* e = EntidadePrimeiraPessoaOuSelecionada();
+          if (e == nullptr || !e->PossuiTalento("ataque_poderoso")) return false;
+          return true;
+        }
           /*
         case VIS_ATAQUE_DESARMAR: {
           const auto* e = EntidadePrimeiraPessoaOuSelecionada();
@@ -1418,7 +1423,7 @@ void Tabuleiro::DesenhaControleVirtual() {
       return LutandoDefensivamente(entidade->Proto());
     } },
     { CONTROLE_ATAQUE_PODEROSO,      [this] (const Entidade* entidade) {
-      if (entidade == nullptr) return false;
+      if (entidade == nullptr || !entidade->PossuiTalento("ataque_poderoso")) return false;
       return AtacandoPoderosamente(entidade->Proto());
     } },
     { CONTROLE_FURIA,             [this] (const Entidade* entidade) {
