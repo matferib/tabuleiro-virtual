@@ -2953,8 +2953,8 @@ modelo {
 modelo {
   id: 'Vendaval Elemental do Ar (Pequeno)'
   entidade {
-    modelo_3d { id: 'whirlwind' }
-    tamanho: TM_MEDIO
+    modelo_3d { id: 'whirlwind' escala { x: 4 y: 4 z: 8 } }
+    info_textura { id: 'whirlwind.png' }
     dados_ataque {
       grupo: 'vendaval' rotulo: 'dano' dano_basico_fixo: '1d4'
       ignora_origem: true
@@ -2996,7 +2996,9 @@ modelo {
   entidade {
     voadora: true
     sub_tipo_dnd: SUBTIPO_AR
-    dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 a: 0.9 }
+    modelo_3d { id: 'male_humanoid_base' }
+    info_textura { id: 'whirlwind.png' }
+    dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
     info_classes { id: 'elemental_fogo_ar' nivel: 2 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
     rotulo_especial: 'criaturas voando tem -1 de penalidade de ataque e dano\nredemoinho'
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
@@ -3011,7 +3013,6 @@ modelo {
     }
     dados_ataque {
       grupo: 'vendaval' rotulo: 'vendaval' tipo_ataque: 'Feitiço Pessoal' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      limite_vezes: 1
       mantem_com_limite_zerado: true
       taxa_refrescamento: "100"  # 10 minutos.
       acao_fixa {
@@ -3043,8 +3044,8 @@ modelo {
 modelo {
   id: 'Vendaval Elemental do Ar (Médio)'
   entidade {
-    modelo_3d { id: 'whirlwind' }
-    tamanho: TM_MEDIO
+    modelo_3d { id: 'whirlwind' escala { x: 5 y: 5 z: 10 } }
+    info_textura { id: 'whirlwind.png' }
     dados_ataque {
       grupo: 'vendaval' rotulo: 'dano' dano_basico_fixo: '1d6'
       ignora_origem: true
@@ -3087,7 +3088,9 @@ modelo {
   entidade {
     voadora: true
     sub_tipo_dnd: SUBTIPO_AR
-    dados_vida: '4d8+8' tamanho: TM_MEDIO cor { r: 0.7 g: 0.7 b: 1.0 a: 0.9 }
+    modelo_3d { id: 'male_humanoid_base' }
+    info_textura { id: 'whirlwind.png' }
+    dados_vida: '4d8+8' tamanho: TM_MEDIO cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
     info_classes { id: 'elemental_fogo_ar' nivel: 4 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
     rotulo_especial: 'criaturas voando tem -1 de penalidade de ataque e dano\nredemoinho'
     dados_defesa {
@@ -3101,7 +3104,6 @@ modelo {
     }
     dados_ataque {
       grupo: 'redemoinho' rotulo: 'redemoinho (ler descrição)' tipo_ataque: 'Feitiço Pessoal' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
-      limite_vezes: 1
       mantem_com_limite_zerado: true
       taxa_refrescamento: "100"
       acao_fixa {
@@ -6723,14 +6725,14 @@ modelo {
     info_classes { id: 'ranger' nivel: 9 }
 
     # Espadas.
-    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA }
-    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'espada_de_duas_laminas' empunhadura: EA_MAO_BOA ordem_ataque: 1 }
-    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma_tesouro: 'espada_de_duas_laminas' empunhadura: EA_MAO_RUIM }
-    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma_tesouro: 'corrente_com_cravos' ataque_desarmar: true empunhadura: EA_2_MAOS }
-    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma_tesouro: 'corrente_com_cravos' ataque_derrubar: true empunhadura: EA_2_MAOS ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_BOA }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_BOA ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_RUIM }
+    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma_tesouro: 'Corrente OP' ataque_desarmar: true empunhadura: EA_2_MAOS }
+    dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma_tesouro: 'Corrente OP' ataque_derrubar: true empunhadura: EA_2_MAOS ordem_ataque: 1 }
     # Arco.
-    dados_ataque { grupo: 'Arco' id_arma_tesouro: 'arco_longo_composto_3' }
-    dados_ataque { grupo: 'Arco' id_arma_tesouro: 'arco_longo_composto_3' ordem_ataque: 1 }
+    dados_ataque { grupo: 'Arco' id_arma_tesouro: 'Arco Longo Composto (3) OP' }
+    dados_ataque { grupo: 'Arco' id_arma_tesouro: 'Arco Longo Composto (3) OP' ordem_ataque: 1 }
     # Defesa.
     dados_defesa {
       id_armadura: 'camisao' bonus_magico_armadura: 1
@@ -6792,9 +6794,9 @@ modelo {
       outros { id: 'combater_duas_armas_aprimorado' origem: 'ranger' } # 6: estilo duas armas.
     }
     tesouro {
-      armas { id: 'corrente_com_cravos' obra_prima: true }
-      armas { id: 'espada_de_duas_laminas' bonus_magico: 1 obra_prima: true } # bonus magico so de um lado.
-      armas { id: 'arco_longo_composto_3' obra_prima: true }
+      armas { id: 'Corrente OP' id_tabela: 'corrente_com_cravos' obra_prima: true }
+      armas { id: 'Espada de Duas Lâminas +1/OP' id_tabela: 'espada_de_duas_laminas' bonus_magico: 1 obra_prima: true } # bonus magico so de um lado.
+      armas { id: 'Arco Longo Composto (3) OP' id_tabela: 'arco_longo_composto_3' obra_prima: true }
       armaduras { id: 'camisao' bonus_magico: 1 }
       pergaminhos_divinos { id: 'constricao' } # 25
       pergaminhos_divinos { id: 'passos_longos' } # 25

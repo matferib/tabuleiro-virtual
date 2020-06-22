@@ -19,6 +19,7 @@
 namespace ifg {
 namespace qt {
 
+using google::protobuf::RepeatedPtrField;
 using google::protobuf::StringPrintf;
 using google::protobuf::StringAppendF;
 
@@ -339,7 +340,7 @@ namespace {
 void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.botao_ataque_cima->setEnabled(false);
   gerador.botao_ataque_baixo->setEnabled(false);
-  gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
+  gerador.botao_clonar_ataque->setEnabled(false);
 
   gerador.combo_empunhadura->setCurrentIndex(0);
   gerador.checkbox_op->setCheckState(Qt::Unchecked);
@@ -358,13 +359,23 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
 
 void PreencheComboArma(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const std::string& tipo_ataque, const ent::EntidadeProto& proto) {
-  const bool cac = tipo_ataque == "Ataque Corpo a Corpo";
+  const bool cac = tipo_ataque == "Ataque Corpo a Corpo" || tipo_ataque.empty();
   const bool projetil_area = tipo_ataque == "Projétil de Área";
   const bool distancia = tipo_ataque == "Ataque a Distância";
   const bool feitico_de = tipo_ataque.find("Feitiço de ") == 0;
   const bool pergaminho = tipo_ataque.find("Pergaminho") == 0;
   std::map<std::string, std::string> nome_id_map;
   if (cac || projetil_area || distancia) {
+    for (const auto& arma_tesouro : proto.tesouro().armas()) {
+      // Arma do personagem.
+      const auto& arma_tabelada = tabelas.Arma(arma_tesouro.id_tabela());
+      const bool arma_projetil_area = ent::PossuiCategoria(ent::CAT_PROJETIL_AREA, arma_tabelada);
+      if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma_tabelada)) ||
+          (projetil_area && arma_projetil_area) ||
+          (distancia && !arma_projetil_area && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma_tabelada))) {
+        nome_id_map[StringPrintf(" do equipamento: %s", arma_tesouro.id().c_str())] = StringPrintf("equipamento:%s", arma_tesouro.id().c_str());
+      }
+    }
     for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
       const bool arma_projetil_area = ent::PossuiCategoria(ent::CAT_PROJETIL_AREA, arma);
       if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma)) ||
@@ -421,6 +432,15 @@ int MaterialEscudoParaIndice(ent::DescritorAtaque descritor) {
     case ent::DESC_MADEIRA_NEGRA: return 3;
     case ent::DESC_MITRAL: return 4;
     default: return 0;
+  }
+}
+
+// retorna o identificador que vai pro QVariant do item do combo.
+std::string DadoArma(const ent::DadosAtaque& da) {
+  if (da.id_arma_tesouro().empty()) {
+    return da.id_arma();
+  } else {
+    return StringPrintf("equipamento:%s", da.id_arma_tesouro().c_str());
   }
 }
 
@@ -484,7 +504,8 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
     return;
   }
   const auto& da = proto.dados_ataque(linha);
-  gerador.combo_arma->setCurrentIndex(da.id_arma().empty() ? 0 : gerador.combo_arma->findData(da.id_arma().c_str()));
+  std::string id_arma = DadoArma(da);
+  gerador.combo_arma->setCurrentIndex(id_arma.empty() ? 0 : gerador.combo_arma->findData(id_arma.c_str()));
   gerador.combo_material_arma->setCurrentIndex(MaterialArmaParaIndice(da.material_arma()));
   gerador.botao_remover_ataque->setEnabled(true);
   gerador.linha_grupo_ataque->setText(QString::fromUtf8(da.grupo().c_str()));
@@ -512,7 +533,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
 
   gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.bonus_ataque())));
   gerador.botao_bonus_dano->setText(QString::number(ent::BonusTotal(da.bonus_dano())));
-  gerador.botao_clonar_ataque->setText(QObject::tr("Clonar"));
+  gerador.botao_clonar_ataque->setEnabled(true);
   if (proto.dados_ataque().size() > 1) {
     gerador.botao_ataque_cima->setEnabled(true);
     gerador.botao_ataque_baixo->setEnabled(true);
@@ -609,6 +630,35 @@ void AtualizaListaItemMagico(const ent::Tabelas& tabelas, ent::TipoItem tipo, QL
   lista->setCurrentRow(indice);
 }
 
+enum arma_armadura_ou_escudo_e {
+  ITEM_ARMA = 0,
+  ITEM_ARMADURA = 1,
+  ITEM_ESCUDO = 2
+};
+
+const RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& BuscaArmasArmadurasEscudos(arma_armadura_ou_escudo_e tipo, const ent::EntidadeProto& proto) {
+  switch (tipo) {
+    case ITEM_ARMA:
+      return proto.tesouro().armas();
+      break;
+    case ITEM_ARMADURA:
+      return proto.tesouro().armaduras();
+      break;
+    default:
+      return proto.tesouro().escudos();
+  }
+}
+
+void AtualizaListaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, arma_armadura_ou_escudo_e tipo, QListWidget* lista, const ent::EntidadeProto& proto) {
+  const int indice = lista->currentRow();
+  lista->clear();
+  for (const auto& item : BuscaArmasArmadurasEscudos(tipo, proto)) {
+    auto* wi = new QListWidgetItem(QString::fromUtf8(item.id().c_str()), lista);
+    wi->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+  }
+  lista->setCurrentRow(indice);
+}
+
 template <class Dialogo>
 void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, const ent::EntidadeProto& proto) {
   std::vector<QWidget*> objs = {
@@ -617,7 +667,7 @@ void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, co
       gerador.lista_amuletos, gerador.lista_botas, gerador.lista_chapeus,
       gerador.lista_pergaminhos_arcanos, gerador.lista_pergaminhos_divinos,
       gerador.spin_po, gerador.spin_pp, gerador.spin_pc, gerador.spin_pl, gerador.spin_pe,
-      gerador.lista_itens_mundanos,
+      gerador.lista_itens_mundanos, gerador.lista_armas, gerador.lista_armaduras, gerador.lista_escudos,
   };
   for (auto* obj : objs) obj->blockSignals(true);
 
@@ -650,6 +700,9 @@ void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, co
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_ARCANO, gerador.lista_pergaminhos_arcanos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_DIVINO, gerador.lista_pergaminhos_divinos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_ITEM_MUNDANO, gerador.lista_itens_mundanos, proto);
+  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMA, gerador.lista_armas, proto);
+  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMADURA, gerador.lista_armaduras, proto);
+  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ESCUDO, gerador.lista_escudos, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
 }

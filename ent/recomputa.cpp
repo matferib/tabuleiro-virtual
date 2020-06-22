@@ -2713,23 +2713,19 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
 }
 
 const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& BuscaArmaTesouro(const std::string& id_arma_tesouro, const EntidadeProto& proto) {
-  const EntidadeProto::ArmaArmaduraOuEscudoPersonagem* candidato = nullptr;
   for (const auto& arma_tesouro : proto.tesouro().armas()) {
-    if (arma_tesouro.id_para_ataques() == id_arma_tesouro) {
+    if (arma_tesouro.id() == id_arma_tesouro) {
       return arma_tesouro;
     }
-    if (arma_tesouro.id() == id_arma_tesouro && candidato == nullptr) {
-      candidato = &arma_tesouro;
-    }
   }
-  return candidato == nullptr ? EntidadeProto::ArmaArmaduraOuEscudoPersonagem::default_instance() : *candidato;
+  return EntidadeProto::ArmaArmaduraOuEscudoPersonagem::default_instance();
 }
 
 void ArmaTesouroParaDadosAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   if (!da->has_id_arma_tesouro()) return;
 
   const auto& arma_tesouro = BuscaArmaTesouro(da->id_arma_tesouro(), proto);
-  da->set_id_arma(arma_tesouro.id());
+  da->set_id_arma(arma_tesouro.id_tabela());
   // Arma dupla se for magica de um lado é no mínimo obra prima do outro.
   da->set_obra_prima(arma_tesouro.obra_prima() || arma_tesouro.bonus_magico() > 0);
   VLOG(2) << "setando obra prima para " << arma_tesouro.obra_prima() << ", arma: " << arma_tesouro.id();

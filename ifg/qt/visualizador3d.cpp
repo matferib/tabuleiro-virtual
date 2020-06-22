@@ -674,6 +674,8 @@ void AdicionaOuAtualizaAtaqueEntidade(
     da.set_dano_basico(dano_arma.dano);
     da.set_multiplicador_critico(dano_arma.multiplicador);
     da.set_margem_critico(dano_arma.margem_critico);
+  } else if (id.find("equipamento:") == 0) {
+    da.set_id_arma_tesouro(id.substr(strlen("equipamento:")));
   } else {
     da.set_id_arma(id);
     // Se houver dano, usa ele mesmo com id. Deixa RecomputaDependencias decidir.
@@ -1170,6 +1172,25 @@ void PreencheConfiguraFormasAlternativas(
   });
 }
 
+enum arma_armadura_ou_escudo_e {
+  ITEM_ARMA = 0,
+  ITEM_ARMADURA = 1,
+  ITEM_ESCUDO = 2
+};
+
+RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>* BuscaArmasArmadurasEscudos(arma_armadura_ou_escudo_e tipo, ent::EntidadeProto* proto) {
+  switch (tipo) {
+    case ITEM_ARMA:
+      return proto->mutable_tesouro()->mutable_armas();
+      break;
+    case ITEM_ARMADURA:
+      return proto->mutable_tesouro()->mutable_armaduras();
+      break;
+    default:
+      return proto->mutable_tesouro()->mutable_escudos();
+  }
+}
+
 template <class Dialogo, class Gerador>
 void ConfiguraListaItensMagicos(
     Dialogo* dialogo, const ent::Tabelas& tabelas, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
@@ -1283,6 +1304,41 @@ void DuplicaItem(const ent::Tabelas& tabelas, Gerador& gerador, ent::TipoItem ti
 }
 
 template <class Gerador>
+void DuplicaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, Gerador& gerador, arma_armadura_ou_escudo_e tipo, QListWidget* lista, ent::EntidadeProto* proto_retornado) {
+  auto* itens = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
+  int indice_antes = lista->currentRow();
+  std::string id_selecionado;
+  if (indice_antes < 0 || indice_antes >= itens->size()) {
+    return;
+  }
+  auto* item = itens->Add();
+  *item = itens->Get(indice_antes);
+  item->set_id(StringPrintf("%s_", item->id().c_str()));  // para num ficar com mesmo id.
+  AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+}
+
+template <class Gerador>
+void OrdenaArmasArmadurasOuEscudos(const ent::Tabelas& tabelas, Gerador& gerador, arma_armadura_ou_escudo_e tipo, QListWidget* lista, ent::EntidadeProto* proto_retornado) {
+  auto* itens = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
+  std::string id_selecionado;
+  int indice_antes = lista->currentRow();
+  if (indice_antes >= 0 && indice_antes < itens->size()) {
+    id_selecionado = itens->Get(indice_antes).id();
+  }
+  std::sort(itens->begin(), itens->end(), [&tabelas, tipo](const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& lhs,
+                                                           const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& rhs) {
+      return lhs.id() < rhs.id();
+  } );
+  AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+  for (int i = 0; indice_antes != -1 && i < itens->size(); ++i) {
+    if (itens->Get(i).id() == id_selecionado) {
+      lista->setCurrentRow(i);
+      break;
+    }
+  }
+}
+
+template <class Gerador>
 void OrdenaItens(const ent::Tabelas& tabelas, Gerador& gerador, ent::TipoItem tipo, QListWidget* lista, ent::EntidadeProto* proto_retornado) {
   auto* itens = ent::ItensProtoMutavel(tipo, proto_retornado);
   std::string id_selecionado;
@@ -1314,11 +1370,72 @@ void ConfiguraListaPergaminhosMundanosOuPocoes(
   lambda_connect(botao_ordenar, SIGNAL(clicked()), [&tabelas, &gerador, tipo, lista, proto_retornado] () {
     OrdenaItens(tabelas, gerador, tipo, lista, proto_retornado);
   });
-
   ConfiguraListaItensMagicos(
       dialogo, tabelas, gerador, f_atualiza_ui, tipo, lista,
       botao_usar, botao_adicionar, botao_remover, botao_doar,
       proto, proto_retornado, central);
+}
+
+template <class Dialogo, class Gerador>
+void ConfiguraArmasArmaduraOuEscudo(
+    Dialogo* dialogo, const ent::Tabelas& tabelas, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
+    arma_armadura_ou_escudo_e tipo, QListWidget* lista,
+    QPushButton* botao_adicionar, QPushButton* botao_duplicar, QPushButton* botao_remover, QPushButton* botao_ordenar, QPushButton* botao_doar,
+    const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
+  // Delegado.
+  //std::unique_ptr<QAbstractItemDelegate> delete_old(lista->itemDelegate());
+  //auto* delegado = new ItemMagicoDelegate(tabelas, tipo, lista, proto_retornado);
+  //lista->setItemDelegate(delegado);
+  //delegado->deleteLater();
+
+  lambda_connect(botao_duplicar, SIGNAL(clicked()), [&tabelas, &gerador, tipo, lista, proto_retornado] () {
+    DuplicaArmaArmaduraOuEscudo(tabelas, gerador, tipo, lista, proto_retornado);
+  });
+  lambda_connect(botao_ordenar, SIGNAL(clicked()), [&tabelas, &gerador, tipo, lista, proto_retornado] () {
+    OrdenaArmasArmadurasOuEscudos(tabelas, gerador, tipo, lista, proto_retornado);
+  });
+  lambda_connect(botao_adicionar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado] () {
+    auto* itens = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
+    itens->Add()->set_id("teste");
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+    lista->setCurrentRow(itens->size() - 1);
+  });
+  lambda_connect(botao_remover, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, f_atualiza_ui] () {
+    const int indice = lista->currentRow();
+    auto* itens = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
+    if (indice < 0 || indice >= itens->size()) {
+      return;
+    }
+    if (indice >= 0 && indice < itens->size()) {
+      itens->DeleteSubrange(indice, 1);
+    }
+    ent::RecomputaDependencias(tabelas, proto_retornado);
+    // AtualizaUI.
+    f_atualiza_ui(tabelas, gerador, *proto_retornado);
+    lista->setCurrentRow(indice >= itens->size() ? - 1 : indice);
+  });
+  lambda_connect(botao_doar, SIGNAL(clicked()), [tipo, dialogo, &tabelas, lista, &gerador, &proto, proto_retornado, central] {
+    const int indice = lista->currentRow();
+    const auto* itens = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
+    if (indice < 0 || indice >= itens->size()) {
+      return;
+    }
+    const auto& item = itens->Get(indice);
+    auto notificacao = ntf::NovaNotificacao(ntf::TN_ENTRAR_MODO_DOACAO);
+    notificacao->mutable_entidade()->set_id(proto_retornado->id());
+    auto* itens_notificacao = BuscaArmasArmadurasEscudos(tipo, notificacao->mutable_entidade());
+    if (itens_notificacao == nullptr) {
+      LOG(WARNING) << "tipo de item invalido: " << tipo;
+      return;
+    }
+    auto* item_notificacao = itens_notificacao->Add();
+    *item_notificacao = item;
+    central->AdicionaNotificacao(notificacao.release());
+    LOG(INFO) << "fechando dialogo para doacao de: " << item.DebugString();
+    dialogo->reject();
+  });
+
 }
 
 template <class Dialogo, class Gerador>
@@ -1402,6 +1519,14 @@ void PreencheConfiguraTesouro(
       gerador.botao_adicionar_item_mundano, gerador.botao_duplicar_item_mundano,
       gerador.botao_remover_item_mundano, gerador.botao_ordenar_item_mundano,
       gerador.botao_doar_item_mundano,
+      proto, proto_retornado, central);
+  // Armas.
+  ConfiguraArmasArmaduraOuEscudo(
+      dialogo, tabelas, gerador, f_atualiza_ui, ITEM_ARMA,
+      gerador.lista_armas,
+      gerador.botao_adicionar_arma, gerador.botao_duplicar_arma,
+      gerador.botao_remover_arma, gerador.botao_ordenar_armas,
+      gerador.botao_doar_arma,
       proto, proto_retornado, central);
   // Aneis.
   ConfiguraListaItensMagicos(
@@ -1686,7 +1811,6 @@ void PreencheConfiguraDadosAtaque(
     }
   };
 
-  gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
   PreencheConfiguraComboTipoAtaque(tabelas, gerador, EditaAtualizaUIAtaque, proto_retornado);
   ConfiguraComboArma(tabelas, gerador, proto_retornado);
   ConfiguraComboMaterial(tabelas, gerador, proto_retornado);
@@ -1704,10 +1828,15 @@ void PreencheConfiguraDadosAtaque(
   lambda_connect(gerador.botao_clonar_ataque, SIGNAL(clicked()), [this_, &tabelas, &gerador, proto_retornado] () {
     int indice = gerador.lista_ataques->currentRow();
     if (indice < 0 || indice >= proto_retornado->dados_ataque().size()) {
-      AdicionaOuAtualizaAtaqueEntidade(tabelas, gerador, proto_retornado);
+      return;
     } else {
       *proto_retornado->mutable_dados_ataque()->Add() = proto_retornado->dados_ataque(indice);
     }
+    AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
+    gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1, QItemSelectionModel::Clear);
+  });
+  lambda_connect(gerador.botao_adicionar_ataque, SIGNAL(clicked()), [this_, &tabelas, &gerador, proto_retornado] () {
+    proto_retornado->mutable_dados_ataque()->Add();
     AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
     gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1, QItemSelectionModel::Clear);
   });

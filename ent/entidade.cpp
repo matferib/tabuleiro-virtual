@@ -1448,7 +1448,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
     }
     for (const auto& da : proto_.dados_ataque()) {
       if (da.has_disponivel_em()) {
-        LOG(INFO) << "disponivel_em: " << da.disponivel_em() << ", rotulo: " << da.rotulo();
+        //LOG(INFO) << "disponivel_em: " << da.disponivel_em() << ", rotulo: " << da.rotulo();
       }
     }
   }
