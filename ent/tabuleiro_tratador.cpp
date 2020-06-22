@@ -3744,7 +3744,6 @@ void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, bool
   // TODO recomputando por agora, ver como fazer melhor.
   local_apenas = EmModoMestreIncluindoSecundario() && !proto.selecionavel_para_jogador() && !proto.visivel();
   std::string texto = std::get<2>(*resultado);
-  LOG(INFO) << "local apenas: " << local_apenas;
   AdicionaAcaoTextoLogado(proto.id(), texto, atraso_s, local_apenas);
 }
 
