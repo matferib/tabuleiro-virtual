@@ -127,6 +127,19 @@ fixo {
     dica: "Entra em fúria."
     visibilidade { referencia { tipo: VIS_FURIA } }
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 18
+    coluna: 4
+    rotulo: "F"
+    cor_rotulo {}
+    textura: "icon_sneak.png"
+    id: CONTROLE_FURTIVO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Ataque furtivo."
+    visibilidade { referencia { tipo: VIS_ATAQUE_FURTIVO } }
+  }
 
   # Coisas gerais.
   dados_botoes {
@@ -1032,19 +1045,6 @@ fixo {
     mestre_apenas: false
     dica: "Mudar forma."
     visibilidade { referencia { tipo: VIS_FORMA_ALTERNATIVA } }
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 7
-    coluna: 3
-    rotulo: "F"
-    cor_rotulo {}
-    textura: "icon_sneak.png"
-    id: CONTROLE_FURTIVO
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Ataque furtivo."
-    visibilidade { referencia { tipo: VIS_ATAQUE_FURTIVO } }
   }
   # Linha 6.
   # Linha 8.

@@ -2428,13 +2428,22 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
   }
   EntraModoClique(MODO_NORMAL);
   float atraso_s = 0.0f;
+  std::optional<unsigned int> id_origem;
   if (notificacao_pericia_.notificacao().empty() && notificacao_pericia_.has_entidade()) {
-    TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), atraso_s, notificacao_pericia_.entidade());
+    const auto* entidade = BuscaEntidade(notificacao_pericia_.entidade().id());
+    if (entidade == nullptr) return;
+    TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), false, atraso_s, entidade->Proto());
+    id_origem = entidade->Id();
     atraso_s += 1.0f;
   } else {
     for (const auto& n : notificacao_pericia_.notificacao()) {
-      TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), atraso_s, n.entidade());
+      const auto* entidade = BuscaEntidade(n.entidade().id());
+      if (entidade == nullptr) return;
+      TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), false, atraso_s, entidade->Proto());
       atraso_s += 1.0f;
+    }
+    if (notificacao_pericia_.notificacao().size() == 1) {
+      id_origem = notificacao_pericia_.notificacao(0).entidade().id();
     }
   }
   const auto& pericia_tabelada = tabelas_.Pericia(notificacao_pericia_.str_generica());
@@ -2445,10 +2454,10 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
     return;
   }
   const auto* entidade = BuscaEntidade(id);
-  if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE || entidade->Id() == notificacao_pericia_.entidade().id()) {
+  if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE || (id_origem.has_value() && entidade->Id() == *id_origem)) {
     return;
   }
-  TrataRolarPericiaNotificando(pericia_tabelada.id_resistido(), atraso_s, entidade->Proto());
+  TrataRolarPericiaNotificando(pericia_tabelada.id_resistido(), false, atraso_s, entidade->Proto());
 }
 
 void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
@@ -3726,14 +3735,17 @@ void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
   TrataNotificacao(n);
 }
 
-void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, float atraso_s, const EntidadeProto& proto) {
+void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, bool local_apenas, float atraso_s, const EntidadeProto& proto) {
   auto resultado = RolaPericia(tabelas_, id_pericia, proto);
   if (!resultado.has_value()) {
     LOG(ERROR) << "Pericia invalida " << id_pericia;
     return;
   }
+  // TODO recomputando por agora, ver como fazer melhor.
+  local_apenas = EmModoMestreIncluindoSecundario() && !proto.selecionavel_para_jogador() && !proto.visivel();
   std::string texto = std::get<2>(*resultado);
-  AdicionaAcaoTextoLogado(proto.id(), texto, atraso_s);
+  LOG(INFO) << "local apenas: " << local_apenas;
+  AdicionaAcaoTextoLogado(proto.id(), texto, atraso_s, local_apenas);
 }
 
 }  // namespace ent

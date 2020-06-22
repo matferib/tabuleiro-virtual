@@ -1,4 +1,4 @@
-UI de armas e ataques ligados a elas.
+UI de armas e ataques ligados a elas: delegate de arma; completar armaduras, escudos;
 
 Sessão:
 * fazer andalara.
