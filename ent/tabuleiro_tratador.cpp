@@ -2422,42 +2422,59 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   return atraso_s;
 }
 
+namespace {
+
+Bonus OutrosBonusPericia(
+    const Entidade& entidade_origem, const std::string& pericia_origem, const Entidade* entidade_destino, const std::string& pericia_destino) {
+  if (entidade_destino == nullptr) return Bonus::default_instance();
+  Bonus bonus;
+  if (pericia_origem == "ouvir") {
+    const float d = DistanciaMinimaAcaoAlvoMetros(entidade_origem, entidade_destino->Pos());
+    // Computa distancia.
+    AtribuiBonus(-d * METROS_PARA_QUADRADOS / 2.0f, TB_SEM_NOME, "distancia", &bonus);
+  }
+  return bonus;
+}
+
+}  // namespace
+
 void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
   EntraModoClique(MODO_NORMAL);
   float atraso_s = 0.0f;
-  std::optional<unsigned int> id_origem;
+  const Entidade* entidade_origem = nullptr;
+  std::string pericia_origem = notificacao_pericia_.str_generica();
+  const auto& pericia_tabelada = tabelas_.Pericia(pericia_origem);
+  const auto* entidade_destino = tipo_objeto == OBJ_ENTIDADE ? BuscaEntidade(id) : nullptr;
+  std::string pericia_destino = pericia_tabelada.id_resistido();
+
   if (notificacao_pericia_.notificacao().empty() && notificacao_pericia_.has_entidade()) {
-    const auto* entidade = BuscaEntidade(notificacao_pericia_.entidade().id());
-    if (entidade == nullptr) return;
-    TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), false, atraso_s, entidade->Proto());
-    id_origem = entidade->Id();
+    entidade_origem = BuscaEntidade(notificacao_pericia_.entidade().id());
+    if (entidade_origem == nullptr) return;
+    TrataRolarPericiaNotificando(
+        pericia_origem, false, atraso_s, OutrosBonusPericia(*entidade_origem, pericia_origem, entidade_destino, pericia_destino), entidade_origem->Proto());
     atraso_s += 1.0f;
   } else {
     for (const auto& n : notificacao_pericia_.notificacao()) {
-      const auto* entidade = BuscaEntidade(n.entidade().id());
-      if (entidade == nullptr) return;
-      TrataRolarPericiaNotificando(notificacao_pericia_.str_generica(), false, atraso_s, entidade->Proto());
+      entidade_origem = BuscaEntidade(n.entidade().id());
+      if (entidade_origem == nullptr) continue;
+      TrataRolarPericiaNotificando(
+          pericia_origem, false, atraso_s, OutrosBonusPericia(*entidade_origem, pericia_origem, entidade_destino, pericia_destino), entidade_origem->Proto());
       atraso_s += 1.0f;
     }
-    if (notificacao_pericia_.notificacao().size() == 1) {
-      id_origem = notificacao_pericia_.notificacao(0).entidade().id();
+    if (notificacao_pericia_.notificacao().size() != 1) {
+      entidade_origem = nullptr;
     }
   }
-  const auto& pericia_tabelada = tabelas_.Pericia(notificacao_pericia_.str_generica());
-  if (pericia_tabelada.id_resistido().empty()) {
+  if (pericia_destino.empty() || entidade_destino == nullptr || entidade_origem->Id() == entidade_destino->Id()) {
     return;
   }
-  if (tipo_objeto != OBJ_ENTIDADE) {
-    return;
-  }
-  const auto* entidade = BuscaEntidade(id);
-  if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE || (id_origem.has_value() && entidade->Id() == *id_origem)) {
-    return;
-  }
-  TrataRolarPericiaNotificando(pericia_tabelada.id_resistido(), false, atraso_s, entidade->Proto());
+  TrataRolarPericiaNotificando(
+      pericia_destino, /*local_apenas=*/false, atraso_s,
+      OutrosBonusPericia(*entidade_destino, pericia_destino, entidade_origem, pericia_origem),
+      entidade_destino->Proto());
 }
 
 void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
@@ -3735,8 +3752,9 @@ void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
   TrataNotificacao(n);
 }
 
-void Tabuleiro::TrataRolarPericiaNotificando(const std::string& id_pericia, bool local_apenas, float atraso_s, const EntidadeProto& proto) {
-  auto resultado = RolaPericia(tabelas_, id_pericia, proto);
+void Tabuleiro::TrataRolarPericiaNotificando(
+    const std::string& id_pericia, bool local_apenas, float atraso_s, const Bonus& outros_bonus, const EntidadeProto& proto) {
+  auto resultado = RolaPericia(tabelas_, id_pericia, outros_bonus, proto);
   if (!resultado.has_value()) {
     LOG(ERROR) << "Pericia invalida " << id_pericia;
     return;

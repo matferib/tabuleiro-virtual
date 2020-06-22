@@ -1132,7 +1132,7 @@ void ImprimeDadosRolados();
 
 // Rola a pericia do proto, retornando se rolou, o total rolado e o texto descrevendo a rolagem.
 // Em caso de erro, retorna nullopt.
-std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const EntidadeProto& proto);
+std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto);
 
 // Retorna true se a arma for um feitico.
 bool EhFeitico(const ArmaProto& arma);

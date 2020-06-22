@@ -450,7 +450,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataTranslacaoZ(float delta);
 
   /** Rola a pericia do proto e mostra notifica clientes. */
-  void TrataRolarPericiaNotificando(const std::string& pericia, bool local_apenas, float atraso_s, const EntidadeProto& proto);
+  void TrataRolarPericiaNotificando(const std::string& pericia, bool local_apenas, float atraso_s, const Bonus& outros_bonus, const EntidadeProto& proto);
 
   // Funcao auxiliar pra realizar algum hack qualquer em entidades selecionadas.
   void Hack();
