@@ -1,4 +1,4 @@
-Fazer botao ataque poderoso.
+UI de armas e ataques ligados a elas.
 
 Sessão:
 * fazer andalara.
