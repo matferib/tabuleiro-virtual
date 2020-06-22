@@ -2454,21 +2454,25 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
     entidade_origem = BuscaEntidade(notificacao_pericia_.entidade().id());
     if (entidade_origem == nullptr) return;
     TrataRolarPericiaNotificando(
-        pericia_origem, false, atraso_s, OutrosBonusPericia(*entidade_origem, pericia_origem, entidade_destino, pericia_destino), entidade_origem->Proto());
+        pericia_origem, false, atraso_s,
+        OutrosBonusPericia(*entidade_origem, pericia_origem, entidade_origem != entidade_destino ? entidade_destino : nullptr, pericia_destino),
+        entidade_origem->Proto());
     atraso_s += 1.0f;
   } else {
     for (const auto& n : notificacao_pericia_.notificacao()) {
       entidade_origem = BuscaEntidade(n.entidade().id());
       if (entidade_origem == nullptr) continue;
       TrataRolarPericiaNotificando(
-          pericia_origem, false, atraso_s, OutrosBonusPericia(*entidade_origem, pericia_origem, entidade_destino, pericia_destino), entidade_origem->Proto());
+          pericia_origem, false, atraso_s,
+          OutrosBonusPericia(*entidade_origem, pericia_origem, entidade_origem != entidade_destino ? entidade_destino : nullptr, pericia_destino),
+          entidade_origem->Proto());
       atraso_s += 1.0f;
     }
     if (notificacao_pericia_.notificacao().size() != 1) {
       entidade_origem = nullptr;
     }
   }
-  if (pericia_destino.empty() || entidade_destino == nullptr || entidade_origem->Id() == entidade_destino->Id()) {
+  if (pericia_destino.empty() || entidade_destino == nullptr || (entidade_origem != nullptr && entidade_origem->Id() == entidade_destino->Id())) {
     return;
   }
   TrataRolarPericiaNotificando(
