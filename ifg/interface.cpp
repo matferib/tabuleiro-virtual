@@ -204,7 +204,7 @@ void InterfaceGrafica::VoltaEscolherTipoTesouro(const ntf::Notificacao notificac
   const auto* doador = tabuleiro_->BuscaEntidade(notificacao.entidade().id());
   if (receptor == nullptr || doador == nullptr) {
     LOG(ERROR) << (receptor == nullptr && doador == nullptr
-        ? "receptor e doador são nulos" 
+        ? "receptor e doador são nulos"
         : (receptor == nullptr ? "receptor é nulo" : "doador é nulo"));
     // TODO dar mensagem de erro.
     return;
