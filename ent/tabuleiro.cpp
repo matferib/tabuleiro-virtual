@@ -3305,7 +3305,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
       parametros_desenho_.set_observador_ve_invisivel(entidade != nullptr && PossuiEvento(EFEITO_VER_INVISIVEL, entidade->Proto()));
       gl::HabilitaEscopo blend_escopo(GL_BLEND);
       gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
-      DesenhaEntidadesTranslucidas();
+      DesenhaEntidadesTranslucidas(/*ordena=*/true);
       parametros_desenho_.clear_alfa_translucidos();
       DesenhaAuras();
       if (parametros_desenho_.desenha_acoes()) {
@@ -3315,7 +3315,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     } else {
       gl::TipoEscopo nomes(OBJ_ENTIDADE);
       // Desenha os translucidos de forma solida para picking.
-      DesenhaEntidadesTranslucidas();
+      DesenhaEntidadesTranslucidas(/*ordena=*/false);
     }
   }
   V_ERRO("desenhando entidades alfa");
@@ -4298,15 +4298,22 @@ bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
 }  // namespace
 
 void Tabuleiro::OrdenaEntidades() {
-  auto MaisProximoOlho = [this] (Entidade* lhs, Entidade* rhs) {
+  int cenario_olho = olho_.pos().id_cenario();
+  Vector3 olho_pos(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
+  auto MaisLongeOlho = [this, &olho_pos, cenario_olho] (Entidade* lhs, Entidade* rhs) {
+    if (lhs->IdCenario() != cenario_olho) {
+      return true;
+    }
+    if (rhs->IdCenario() != cenario_olho) {
+      return false;
+    }
     Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
     Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
-    Vector3 olho_pos(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
     Vector3 olho_lhs = olho_pos - lhs_pos;
     Vector3 olho_rhs = olho_pos - rhs_pos;
-    return olho_lhs.length() < olho_rhs.length();
+    return olho_lhs.length() > olho_rhs.length();
   };
-  std::set<Entidade*, std::function<bool(Entidade*, Entidade*)>> set_entidades(MaisProximoOlho);
+  std::set<Entidade*, std::function<bool(Entidade*, Entidade*)>> set_entidades(MaisLongeOlho);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* entidade = it->second.get();
     if (entidade->IdCenario() == IdCenario()) {
@@ -4319,10 +4326,19 @@ void Tabuleiro::OrdenaEntidades() {
   }
 }
 
-void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
+void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool ordena) {
   //LOG(INFO) << "LOOP";
-  for (auto& it : entidades_) {
-    auto* entidade = it.second.get();
+  std::vector<Entidade*> entidades;
+  if (ordena) {
+    OrdenaEntidades();
+    entidades.assign(entidades_ordenadas_.begin(), entidades_ordenadas_.end());
+  } else {
+    for (auto& it : entidades_) {
+      entidades.push_back(it.second.get());
+    }
+  }
+  for (auto* entidade : entidades) {
+    //LOG(INFO) << "entidade: " << RotuloEntidade(entidade);
     if (entidade == nullptr) {
       LOG(ERROR) << "Entidade nao existe.";
       continue;

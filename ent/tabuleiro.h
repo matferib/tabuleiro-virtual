@@ -711,9 +711,9 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaElosAgarrar();
 
   /** Desenha as entidades. */
-  void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
-  void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
-  void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
+  void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool ordenar = false);
+  void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha, false); }
+  void DesenhaEntidadesTranslucidas(bool ordenar) { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido, ordenar); }
   void OrdenaEntidades();
 
   /** Detecta se havera colisao no movimento da entidade. */
