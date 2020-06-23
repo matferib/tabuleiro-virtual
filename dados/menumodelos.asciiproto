@@ -141,6 +141,7 @@ sub_menu {
 sub_menu {
   id: 'Extra-Planares'
   modelo { id: 'Arconte Guardião' }
+  modelo { id: 'Cão Infernal' }
 }
 sub_menu {
   id: 'Esfinges'

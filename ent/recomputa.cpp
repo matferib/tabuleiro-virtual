@@ -2750,6 +2750,7 @@ void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, con
   }
 
   // Toda acao valida deve ter um tipo. Se comecou sem, ja preenche com alguns automaticos.
+  // A acao fixa sera Merged mais tarde.
   if (!da->acao().has_tipo()) {
     // Padrao.
     if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
@@ -2771,7 +2772,7 @@ void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, con
     da->set_ataque_toque(arma.ataque_toque());
   }
   // Como corpo a corpo é o padrao se nao tiver nada, verifica aqui ao inves da categoria.
-  if (PossuiCategoria(CAT_CAC, arma) || da->acao().tipo() == ACAO_CORPO_A_CORPO) {
+  if (PossuiCategoria(CAT_CAC, arma)) {
     da->set_ataque_corpo_a_corpo(true);
   }
   if (PossuiCategoria(CAT_DISTANCIA, arma)) {

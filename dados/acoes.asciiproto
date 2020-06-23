@@ -302,6 +302,7 @@ acao {
   permite_ataque_vs_defesa: false
   permite_salvacao: true
   ignora_reducao_dano_barbaro: true
+  efeito_area: true
 }
 acao {
   id: 'Sinalização'

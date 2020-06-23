@@ -4582,6 +4582,35 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, TesteCaoInfernal) {
+  auto modelo = g_tabelas.ModeloEntidade("Cão Infernal");
+  auto cao = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("mordida", cao->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 5);
+    EXPECT_EQ(da.dano(), "1d8+1");
+    EXPECT_EQ(da.dano_adicional(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(cao->CA(*cao, Entidade::CA_NORMAL), 16) << cao->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("sopro_fogo", cao->Proto());
+    EXPECT_EQ(da.dano(), "2d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(da.dificuldade_salvacao(), 13);
+    EXPECT_EQ(cao->CA(*cao, Entidade::CA_NORMAL), 16) << cao->Proto().dados_defesa().ca().DebugString();
+  }
+  EXPECT_EQ(ValorFinalPericia("esconderse", cao->Proto()), 13);
+  EXPECT_EQ(ValorFinalPericia("ouvir", cao->Proto()), 7);
+  EXPECT_EQ(ValorFinalPericia("furtividade", cao->Proto()), 13);
+  EXPECT_EQ(ValorFinalPericia("observar", cao->Proto()), 7);
+  EXPECT_EQ(ValorFinalPericia("saltar", cao->Proto()), 12);
+  EXPECT_EQ(ValorFinalPericia("sobrevivencia", cao->Proto()), 15);
+}
+
+
 TEST(TesteModelo, TesteRanger9) {
   // Forca 16, +3.
   // Destreza 12, +1.
@@ -4606,6 +4635,16 @@ TEST(TesteModelo, TesteRanger9) {
   }
   {
     const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 1);
+    // 9 bab, 3 forca, +1 OP -2 duas armas segunda leve, mão ruim.
+    EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2) << da.DebugString();
+    EXPECT_EQ(da.dano(), "1d8+1");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
+    EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
+    EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 19) << ranger->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.margem_critico(), 17);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 2);
     // 9 bab, 3 forca, 1 arma magica, -2 duas armas segunda leve, segundo ataque.
     EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2-5);
     EXPECT_EQ(da.dano(), "1d8+4");
@@ -4615,15 +4654,16 @@ TEST(TesteModelo, TesteRanger9) {
     EXPECT_EQ(da.margem_critico(), 17);
   }
   {
-    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 2);
-    // 9 bab, 3 forca, +1 OP -2 duas armas segunda leve, mão ruim.
-    EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2) << da.DebugString();
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 3);
+    // 9 bab, 3 forca, 1 OP, -2 duas armas segunda leve, segundo ataque.
+    EXPECT_EQ(da.bonus_ataque_final(), 9+3+1-2-5);
     EXPECT_EQ(da.dano(), "1d8+1");
     EXPECT_FLOAT_EQ(da.alcance_m(), 1.5f);
     EXPECT_FLOAT_EQ(da.alcance_minimo_m(), 0.0f);
     EXPECT_EQ(ranger->CA(*ranger, Entidade::CA_NORMAL), 19) << ranger->Proto().dados_defesa().ca().DebugString();
     EXPECT_EQ(da.margem_critico(), 17);
   }
+
   {
     const auto& da = DadosAtaquePorGrupo("Arco", ranger->Proto());
     // 9 bab, 2 des, 1 OP.
