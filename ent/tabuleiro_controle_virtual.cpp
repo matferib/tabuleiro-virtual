@@ -253,12 +253,17 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     case CONTROLE_ROLAR_PERICIA: {
       auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERICIA));
-      for (const auto* entidade : EntidadesSelecionadas()) {
+      std::vector<const Entidade*> entidades = EntidadesSelecionadas();
+      for (const auto* entidade : entidades) {
         auto* e = n->add_notificacao()->mutable_entidade();
         e->set_id(entidade->Id());
         *e->mutable_info_pericias() = entidade->Proto().info_pericias();
       }
-      central_->AdicionaNotificacao(n.release());
+      if (entidades.size() == 1 && alterna_selecao && !entidades[0]->UltimaPericia().empty()) {
+        EntraModoPericia(entidades[0]->UltimaPericia(), *n);
+      } else {
+        central_->AdicionaNotificacao(n.release());
+      }
       break;
     }
     case CONTROLE_APAGAR_INICIATIVAS:
