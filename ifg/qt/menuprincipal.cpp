@@ -169,9 +169,10 @@ MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabule
         // Esse sub menu tem tratamento especial.
         const char* ARQUIVO_MENU_MODELOS = "menumodelos.asciiproto";
         const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelos_nao_srd.asciiproto";
+        const char* ARQUIVO_MENU_MODELOS_HOMEBREW = "menumodelos_homebrew.asciiproto";
         auto* grupo = new QActionGroup(this);
         grupo->setExclusive(true);
-        const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD };
+        const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD, ARQUIVO_MENU_MODELOS_HOMEBREW };
         auto* menu_modelos = menu->addMenu(tr(menuitem_str));
         menu_modelos->setStyleSheet("* { menu-scrollable: 1 }");
         std::vector<ent::EntidadeProto*> entidades;
