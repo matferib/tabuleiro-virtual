@@ -1390,6 +1390,74 @@ modelo {
   }
 }
 modelo {
+  id: 'Cão Infernal'
+  entidade {
+    tendencia { simples: TD_LEAL_MAU }
+    tipo_dnd: TIPO_EXTRA_PLANAR
+    sub_tipo_dnd: SUBTIPO_MAL
+    sub_tipo_dnd: SUBTIPO_PLANAR
+    sub_tipo_dnd: SUBTIPO_FOGO
+    sub_tipo_dnd: SUBTIPO_ORDEM
+    tamanho: TM_MEDIO
+    info_classes {
+      id: 'extra_planar' nivel: 4
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'sobrevivencia'
+    }
+    rotulo: 'cão infernal'
+    dados_vida: '4d8+4' #modelo_3d { id: 'hellhound' }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'mordida' rotulo: 'mordida' id_arma: 'mordida' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
+      dano_adicional: '1d6'
+      elemento_dano_adicional: DESC_FOGO
+    }
+    dados_ataque {
+      tipo_ataque: 'Sopro' grupo: 'sopro_fogo' rotulo: 'sopro' dano_basico_fixo: '2d6' elemento: DESC_FOGO
+      alcance_q: 2
+      taxa_refrescamento: '2d4'
+      acao_fixa {
+        distancia_quadrados: 2
+        dificuldade_salvacao_por_meio_nivel: true
+        atributo_dificuldade_salvacao: TA_CONSTITUICAO
+      }
+    }
+    # Defesa.
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } } }
+      vulnerabilidades: DESC_FRIO
+      imunidades: DESC_FOGO
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    movimento {
+      terrestre_basico_q: 8
+    }
+    info_talentos {
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'corrida' }
+      outros { id: 'rastrear' origem: 'bonus' }
+    }
+    info_pericias { id: 'esconderse' pontos: 7 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 5 } } } }
+    info_pericias { id: 'saltar' pontos: 7 }
+    info_pericias { id: 'ouvir' pontos: 7 }
+    info_pericias { id: 'furtividade' pontos: 7 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 5 } } } }
+    info_pericias { id: 'observar' pontos: 7 }
+    info_pericias { id: 'sobrevivencia' pontos: 7 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+  }
+}
+
+modelo {
   id: 'Coruja'
   entidade {
     tipo_dnd: TIPO_ANIMAL
@@ -2877,10 +2945,12 @@ modelo {
   id: 'Elemental do Fogo (Pequeno)'
   id_entidade_base: 'Elemental Base'
   entidade {
+    tendencia { simples: TD_NEUTRO }
     sub_tipo_dnd: SUBTIPO_FOGO
     dados_vida: '2d8' tamanho: TM_PEQUENO
     cor { r: 1 g: 1 b: 0 a: 0.9 }
     info_classes { id: 'elemental_fogo_ar' nivel: 2 }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
       imunidades: DESC_FOGO
@@ -2918,7 +2988,7 @@ modelo {
     sub_tipo_dnd: SUBTIPO_FOGO
     dados_vida: '4d8+8' tamanho: TM_MEDIO
     cor { r: 1 g: 1 b: 0 a: 0.9 }
-    info_classes { id: 'elemental_fogo_ar' nivel: 4 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_REFLEXO }
+    info_classes { id: 'elemental_fogo_ar' nivel: 4 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
@@ -3742,10 +3812,10 @@ modelo {
     }
 
     # Espadas.
-    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
-    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
-    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
-    dados_ataque { rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Espadas' rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 }
+    dados_ataque { grupo: '2 Espadas' rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 }
+    dados_ataque { grupo: '2 Espadas' rotulo: '2 Espadas' id_arma: 'espada_longa' empunhadura: EA_MAO_BOA  bonus_magico: 1 ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Espadas' rotulo: '2 Espadas' id_arma: 'espada_curta' empunhadura: EA_MAO_RUIM bonus_magico: 1 ordem_ataque: 1 }
     dados_ataque { tipo_ataque: 'Projetil de Área' id_arma: 'acido' municao: 3 }
     # Arco.
     dados_ataque { rotulo: 'Arco' id_arma: 'arco_longo_composto_4' obra_prima: true }
@@ -6726,8 +6796,9 @@ modelo {
 
     # Espadas.
     dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_BOA }
-    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_BOA ordem_ataque: 1 }
     dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_RUIM }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_BOA ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_RUIM ordem_ataque: 1 }
     dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma_tesouro: 'Corrente OP' ataque_desarmar: true empunhadura: EA_2_MAOS }
     dados_ataque { grupo: 'Corrente' rotulo: 'corrente_com_cravos' id_arma_tesouro: 'Corrente OP' ataque_derrubar: true empunhadura: EA_2_MAOS ordem_ataque: 1 }
     # Arco.

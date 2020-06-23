@@ -1,20 +1,12 @@
-UI de armas e ataques ligados a elas: delegate de arma; completar armaduras, escudos;
+UI de armas e ataques ligados a elas: delegate de arma;
 
 Sessão:
 * fazer andalara.
 * Fazer os 4 acompanhantes.
-* Bolar a missão:
-  - começar com um resgate em uma casa: chegando lá, incendiada.
-  - passar para a próxima: assalto.
-  - a outra: dizimada.
-  - passar por um bloqueio de vultos.
-  - Passar pelas finas lâminas.
-  - chegar ao portão.
-
+* Bolar a aventura;
 
 Fazer kobold.
 Testar conexao.
-Como ranger ta soltando pergaminho de nivel 2 com sabedoria 11?
 Implementar desarmar: armas que nao podem desarmar (gauntlet), natural. Colocar a arma que esta desarmado.
 Chance de falha de conjuracao (dretch conjurando dretch) e tempo de execucao.
 Fazer hell hound (cão infernal).

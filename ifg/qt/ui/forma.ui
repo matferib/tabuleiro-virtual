@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1403</width>
-    <height>809</height>
+    <height>972</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1978,7 +1978,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_ordenar_escudo">
+             <widget class="QPushButton" name="botao_ordenar_escudos">
               <property name="text">
                <string>Ordenar</string>
               </property>

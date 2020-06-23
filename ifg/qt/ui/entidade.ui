@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1486</width>
-    <height>852</height>
+    <width>1582</width>
+    <height>961</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -4700,7 +4700,7 @@ QGroupBox::title {
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="botao_ordenar_escudo">
+               <widget class="QPushButton" name="botao_ordenar_escudos">
                 <property name="text">
                  <string>Ordenar</string>
                 </property>

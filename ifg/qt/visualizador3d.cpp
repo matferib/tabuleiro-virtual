@@ -1528,6 +1528,23 @@ void PreencheConfiguraTesouro(
       gerador.botao_remover_arma, gerador.botao_ordenar_armas,
       gerador.botao_doar_arma,
       proto, proto_retornado, central);
+  // Armaduras.
+  ConfiguraArmasArmaduraOuEscudo(
+      dialogo, tabelas, gerador, f_atualiza_ui, ITEM_ARMADURA,
+      gerador.lista_armaduras,
+      gerador.botao_adicionar_armadura, gerador.botao_duplicar_armadura,
+      gerador.botao_remover_armadura, gerador.botao_ordenar_armaduras,
+      gerador.botao_doar_armadura,
+      proto, proto_retornado, central);
+  // Escudo.
+  ConfiguraArmasArmaduraOuEscudo(
+      dialogo, tabelas, gerador, f_atualiza_ui, ITEM_ESCUDO,
+      gerador.lista_escudos,
+      gerador.botao_adicionar_escudo, gerador.botao_duplicar_escudo,
+      gerador.botao_remover_escudo, gerador.botao_ordenar_escudos,
+      gerador.botao_doar_escudo,
+      proto, proto_retornado, central);
+
   // Aneis.
   ConfiguraListaItensMagicos(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_ANEL,
