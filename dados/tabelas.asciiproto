@@ -10528,6 +10528,10 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
+          texto: 'Cão Infernal'
+          id_modelo_entidade: 'Cão Infernal ICIII'
+        }
+        parametros {
           texto: 'Urso Negro Celestial'
           id_modelo_entidade: 'Urso Negro Celestial ICIII'
         }
