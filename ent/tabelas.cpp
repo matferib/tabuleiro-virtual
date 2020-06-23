@@ -97,7 +97,7 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   }
   // Modelos de entidades.
   tabela_modelos_entidades_.Clear();
-  std::vector<const char*> arquivos_modelos= {ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD};
+  std::vector<const char*> arquivos_modelos= {ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD, ARQUIVO_MODELOS_HOMEBREW};
   for (const char* arquivo : arquivos_modelos) {
     try {
       Modelos modelos_arquivo;

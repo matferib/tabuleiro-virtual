@@ -1,0 +1,122 @@
+modelo {
+  id: 'Andalara Ranger 9'
+  entidade {
+    rotulo: 'Andalara Ranger 9'
+    raca: 'humano'
+    tendencia { simples: TD_CAOTICO_BOM }
+    dados_vida: '8d8+8+9'
+    modelo_3d { id: 'human_female_ranger' }
+    posicao_acao { x: 0.12 y: -0.2 z: 0.9 }
+    posicao_acao_secundaria { x: 0.12 y: 0.2 z: 0.9 }
+    info_classes { id: 'ranger' nivel: 9 }
+
+    # Espadas.
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_BOA }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_RUIM }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_boa' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_BOA ordem_ataque: 1 }
+    dados_ataque { grupo: '2 Armas' rotulo: 'espada_de_duas_laminas_mao_ruim' id_arma_tesouro: 'Espada de Duas Lâminas +1/OP' empunhadura: EA_MAO_RUIM ordem_ataque: 1 }
+    # Arco.
+    dados_ataque { grupo: 'Arco' id_arma_tesouro: 'Arco Longo Composto (3) OP' }
+    dados_ataque { grupo: 'Arco' id_arma_tesouro: 'Arco Longo Composto (3) OP' ordem_ataque: 1 }
+    # Defesa.
+    dados_defesa {
+      id_armadura: 'camisao' bonus_magico_armadura: 1
+    }
+    dados_ataque_global {
+      inimigos_prediletos { classe: 'ranger' vezes: 2 tipo: TIPO_HUMANOIDE sub_tipo: SUBTIPO_HUMANO }
+      inimigos_prediletos { classe: 'ranger' vezes: 1 tipo: TIPO_BESTA_MAGICA }
+    }
+    atributos {
+      # Usa o array elite 15 14 13 12 10 8
+      forca {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      destreza {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } }
+        # Bloqueio ambidestro.
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
+      constituicao {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } }
+      }
+      inteligencia {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } }
+      }
+      sabedoria {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } }
+      }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    # Pericias: 7x4 + 7x8 = 84.
+    info_pericias { id: 'acrobacias' pontos: 12 } # nao eh de classe, vira 6.
+    info_pericias { id: 'observar' pontos: 10 }
+    info_pericias { id: 'ouvir' pontos: 10 }
+    info_pericias { id: 'esconderse' pontos: 10 }
+    info_pericias { id: 'furtividade' pontos: 5 }
+    info_pericias { id: 'arte_da_fuga' pontos: 5 }
+    info_pericias { id: 'adestrar_animais' pontos: 5 }
+    info_pericias { id: 'cura' pontos: 5 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 5 }
+    info_pericias { id: 'procurar' pontos: 1 }
+    info_pericias { id: 'sobrevivencia' pontos: 5 }
+    info_pericias { id: 'usar_cordas' pontos: 2 }
+    info_pericias { id: 'escalar' pontos: 2 }
+    info_pericias { id: 'natacao' pontos: 2 }
+    info_pericias { id: 'saltar' pontos: 5 }  # da +2 acrobacias.
+
+    # Talentos.
+    info_talentos {
+      # ja ganha rastrear da classe.
+      gerais { id: 'foco_em_arma' complemento: 'espada_de_duas_laminas' } # 1
+      gerais { id: 'esquiva' } # 3
+      gerais { id: 'bloqueio_ambidestro' } # 6
+      gerais { id: 'sucesso_decisivo_aprimorado' complemento: 'espada_de_duas_laminas' } # 9
+      # Humano.
+      outros { id: 'usar_arma_exotica' complemento: 'espada_de_duas_laminas' origem: 'humano' } # 1
+      # Ranger.
+      outros { id: 'combater_duas_armas' origem: 'ranger' } # 2: estilo duas armas.
+      outros { id: 'tolerancia' origem: 'ranger' } # 3: todo ranger.
+      outros { id: 'combater_duas_armas_aprimorado' origem: 'ranger' } # 6: estilo duas armas.
+    }
+    tesouro {
+      armas { id: 'Espada de Duas Lâminas +1/OP' id_tabela: 'espada_de_duas_laminas' bonus_magico: 1 obra_prima: true } # bonus magico so de um lado.
+      armas { id: 'Arco Longo Composto (3) OP' id_tabela: 'arco_longo_composto_3' obra_prima: true }
+      armaduras { id: 'camisao' bonus_magico: 1 }
+      pergaminhos_divinos { id: 'constricao' } # 25
+      pergaminhos_divinos { id: 'passos_longos' } # 25
+      pergaminhos_divinos { id: 'presa_magica' } # 25
+      pergaminhos_divinos { id: 'agilidade_gato' } # 150
+      pergaminhos_divinos { id: 'pele_arvore' } # 150
+      itens_mundanos { id: 'fogo_alquimico' }  # 20
+      itens_mundanos { id: 'gas_alquimico_sono' }  # 30
+      itens_mundanos { id: 'acido' }  # 10
+      itens_mundanos { id: 'acido' }  # 10
+      itens_mundanos { id: 'bolsa_cola' }  # 50
+      itens_mundanos { id: 'pedra_trovao' }  # 30
+      itens_mundanos { id: 'corda_canhamo' }  # 1
+      pocoes { id: 'abencoar_arma' }  # 100
+      pocoes { id: 'curar_ferimentos_serios' }  # 750
+      pocoes { id: 'forca_touro' }  # 300
+      pocoes { id: 'protecao_contra_mal' }  # 50
+      aneis { id: 'protecao_1' em_uso: true } # 2000
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true } # 2000
+      moedas {
+        po: 5
+      }
+    }
+    feiticos_classes {
+      id_classe: 'ranger'
+      feiticos_por_nivel_deprecated {
+        nivel: 1
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 }
+      }
+    }
+  }
+}
+
+
+

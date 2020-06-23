@@ -1,0 +1,8 @@
+sub_menu {
+  id: 'PdMs (NPCs)'
+  modelo {
+    id: 'Andalara Ranger 9 + Guepardo'
+    modelos { id: 'Andalara Ranger 9' }
+    modelos { id: 'Guepardo' }
+  }
+}
