@@ -12121,12 +12121,8 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false
-      ignora_resistencia_magia: true
-      permite_salvacao: false
       efeitos_adicionais {
         efeito: EFEITO_FORCA_TOURO
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -12159,12 +12155,8 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false
-      ignora_resistencia_magia: true
-      permite_salvacao: false
       efeitos_adicionais {
         efeito: EFEITO_SABEDORIA_CORUJA
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -12193,12 +12185,8 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false
-      ignora_resistencia_magia: true
-      permite_salvacao: false
       efeitos_adicionais {
         efeito: EFEITO_AGILIDADE_GATO
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -12251,12 +12239,8 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false
-      ignora_resistencia_magia: true
-      permite_salvacao: false
       efeitos_adicionais {
         efeito: EFEITO_ESPLENDOR_AGUIA
         modificador_rodadas: MR_MINUTOS_NIVEL
@@ -12344,11 +12328,8 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false
-      ignora_resistencia_magia: true
       permite_salvacao: false
       efeitos_adicionais {
         efeito: EFEITO_VIGOR_URSO
@@ -12370,9 +12351,8 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
       efeitos_adicionais {
         efeito: EFEITO_ASTUCIA_RAPOSA
         modificador_rodadas: MR_MINUTOS_NIVEL
