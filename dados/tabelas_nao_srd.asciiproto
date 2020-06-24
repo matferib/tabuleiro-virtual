@@ -228,7 +228,7 @@ tabela_talentos {
     link: 'https://dndtools.net/feats/players-guide-to-faerun--22/mind-over-body--1954/'
     descricao: 'Adiciona bonus de inteligência ou carisma aos pontos de vida de primeiro nível e +1 a cada talento metamágico, além de +1 de bônus de intuição em CA se conjurar magias arcanas'
     bonus_ca {
-      condicoes { conjura_magia_arcana: true }
+      condicoes_bonus { conjura_magia_arcana: true }
       bonus_individual { tipo: TB_INTUICAO por_origem { origem: 'mente_sobre_materia' valor: 1 } }
     }
 
