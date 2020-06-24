@@ -96,7 +96,7 @@ class InterfaceGrafica : public ntf::Receptor {
   void VoltaEscolherPericia(const ntf::Notificacao notificacao, std::vector<std::string> mapa_indice_id, bool ok, int indice_pericia);
 
   void TrataEscolherTipoTesouro(const ntf::Notificacao& notificacao);
-  void VoltaEscolherTipoTesouro(const ntf::Notificacao notificacao, std::vector<ent::TipoItem> mapa_indice_id, bool ok, int indice_tipo);
+  void VoltaEscolherTipoTesouro(const ntf::Notificacao notificacao, std::vector<ent::TipoTesouro> mapa_indice_id, bool ok, int indice_tipo);
 
   void TrataEscolherPocao(const ntf::Notificacao& notificacao);
   void VoltaEscolherPocao(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_selecionado);
