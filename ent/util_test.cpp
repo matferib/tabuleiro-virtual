@@ -3263,6 +3263,57 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteEfeitosAdicionaisMultiplos) {
   }
 }
 
+TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(3);
+    std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+    ntf::Notificacao n;
+    std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
+    const auto& feitico = g_tabelas.Feitico("toque_idiotice");
+    ASSERT_EQ(feitico.acao().efeitos_adicionais().size(), 3);
+    g_dados_teste.push(1);
+    g_dados_teste.push(2);
+    g_dados_teste.push(3);
+    PreencheNotificacaoEventoEfeitoAdicional(
+        proto.id(), std::nullopt, /*nivel=*/3, *e,
+        feitico.acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(
+        proto.id(), std::nullopt, /*nivel=*/3, *e,
+        feitico.acao().efeitos_adicionais(1), &ids_unicos,
+        n.add_notificacao(), nullptr);
+    PreencheNotificacaoEventoEfeitoAdicional(
+        proto.id(), std::nullopt, /*nivel=*/3, *e,
+        feitico.acao().efeitos_adicionais(2), &ids_unicos,
+        n.add_notificacao(), nullptr);
+    e->AtualizaParcial(n.notificacao(0).entidade());
+    e->AtualizaParcial(n.notificacao(1).entidade());
+    e->AtualizaParcial(n.notificacao(2).entidade());
+    // Int.
+    ASSERT_EQ(e->Proto().evento().size(), 3);
+    EXPECT_EQ(e->Proto().evento(0).id_efeito(), EFEITO_PENALIDADE_INTELIGENCIA);
+    ASSERT_FALSE(e->Proto().evento(0).complementos().empty());
+    EXPECT_EQ(e->Proto().evento(0).complementos(0), 1);
+    // Sab.
+    EXPECT_EQ(e->Proto().evento(1).id_efeito(), EFEITO_PENALIDADE_SABEDORIA);
+    ASSERT_FALSE(e->Proto().evento(1).complementos().empty());
+    EXPECT_EQ(e->Proto().evento(1).complementos(0), 2);
+    // Car.
+    EXPECT_EQ(e->Proto().evento(2).id_efeito(), EFEITO_PENALIDADE_CARISMA);
+    ASSERT_FALSE(e->Proto().evento(2).complementos().empty());
+    EXPECT_EQ(e->Proto().evento(2).complementos(0), 3);
+
+    // Ids unicos.
+    ASSERT_EQ(ids_unicos.size(), 3ULL);
+    EXPECT_EQ(ids_unicos[0], 0);
+    EXPECT_EQ(ids_unicos[1], 1);
+    EXPECT_EQ(ids_unicos[2], 2);
+  }
+}
+
+
 TEST(TesteEfeitos, TesteAbencoarArma) {
   auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
   {

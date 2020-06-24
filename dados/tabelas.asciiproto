@@ -11476,7 +11476,41 @@ tabela_feiticos {
     }
     escola: 'encantamento'
   }
-
+  armas {
+    id: 'toque_idiotice'
+    nome_ingles: 'touch of idiocy'
+    nome: 'toque da idiotice'
+    componente {
+      material: false
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      tipo_salvacao: TS_VONTADE
+      permite_salvacao: false
+      elemento: DESC_MENTAL
+      efeitos_adicionais {
+        efeito: EFEITO_PENALIDADE_INTELIGENCIA
+        dado_complementos_str: '1d6'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_PENALIDADE_SABEDORIA
+        dado_complementos_str: '1d6'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+      efeitos_adicionais {
+        efeito: EFEITO_PENALIDADE_CARISMA
+        dado_complementos_str: '1d6'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
   armas {
     id: 'velocidade'
     nome_ingles: 'haste'
