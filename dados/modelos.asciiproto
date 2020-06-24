@@ -7797,7 +7797,7 @@ modelo {
       # Cada pergaminho sai por 70% do preco (DMG 110), mais os que tem componente materiais.
       # 0 nivel: 9 PO cada
       pergaminhos_arcanos { id: 'detectar_magia' }
-      pergaminhos_arcanos { id: 'detectar_veneno' }
+      pergaminhos_arcanos { id: 'detectar_venenos' }
       pergaminhos_arcanos { id: 'raio_gelo' }
       pergaminhos_arcanos { id: 'raio_gelo' }
       pergaminhos_arcanos { id: 'raio_acido' }
