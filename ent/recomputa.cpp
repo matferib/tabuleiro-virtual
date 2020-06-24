@@ -3163,7 +3163,7 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     }
     if (PossuiTalento("acuidade_arma", proto) &&
         bba_distancia > bba_cac &&
-        (PossuiCategoria(CAT_LEVE, arma) ||
+        (PossuiCategoria(CAT_LEVE, arma) || PossuiCategoria(CAT_ARMA_NATURAL, arma) ||
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
       da->set_acuidade(true);
       AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
