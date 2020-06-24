@@ -2428,7 +2428,7 @@ Bonus OutrosBonusPericia(
     const Entidade& entidade_origem, const std::string& pericia_origem, const Entidade* entidade_destino, const std::string& pericia_destino) {
   if (entidade_destino == nullptr) return Bonus::default_instance();
   Bonus bonus;
-  if (pericia_origem == "ouvir") {
+  if (pericia_origem == "ouvir" || pericia_origem == "observar") {
     const float d = DistanciaMinimaAcaoAlvoMetros(entidade_origem, entidade_destino->Pos());
     // Computa distancia.
     AtribuiBonus(-d * METROS_PARA_QUADRADOS / 2.0f, TB_SEM_NOME, "distancia", &bonus);
@@ -2444,7 +2444,7 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
   }
   EntraModoClique(MODO_NORMAL);
   float atraso_s = 0.0f;
-  const Entidade* entidade_origem = nullptr;
+  Entidade* entidade_origem = nullptr;
   std::string pericia_origem = notificacao_pericia_.str_generica();
   const auto& pericia_tabelada = tabelas_.Pericia(pericia_origem);
   const auto* entidade_destino = tipo_objeto == OBJ_ENTIDADE ? BuscaEntidade(id) : nullptr;
@@ -2470,6 +2470,8 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
     }
     if (notificacao_pericia_.notificacao().size() != 1) {
       entidade_origem = nullptr;
+    } else {
+      entidade_origem->SalvaUltimaPericia(pericia_origem);
     }
   }
   if (pericia_destino.empty() || entidade_destino == nullptr || (entidade_origem != nullptr && entidade_origem->Id() == entidade_destino->Id())) {

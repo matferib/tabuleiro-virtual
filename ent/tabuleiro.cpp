@@ -7600,7 +7600,9 @@ void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, nt
 
   auto* n = grupo->add_notificacao();
   PreencheNotificacaoCuraAcelerada(entidade, n);
-  *grupo_desfazer->add_notificacao() = *n;
+  if (grupo_desfazer != nullptr) {
+    *grupo_desfazer->add_notificacao() = *n;
+  }
   AdicionaAcaoDeltaPontosVidaSemAfetar(entidade.Id(), CuraAcelerada(entidade.Proto()));
 }
 

@@ -1667,6 +1667,13 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   }
 }
 
+const DadosAtaque& DadoCorrenteParaCA(const EntidadeProto& proto) {
+  for (const auto& da : proto.dados_ataque()) {
+    if (proto.ultimo_grupo_acao().empty() || da.grupo() == proto.ultimo_grupo_acao()) return da;
+  }
+  return DadosAtaque::default_instance();
+}
+
 void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto) {
   // Pericias afetadas por talentos.
   std::unordered_map<std::string, std::vector<const TalentoProto*>> talentos_por_pericia;
@@ -1731,7 +1738,13 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
 
     // Heroismo
     AtribuiOuRemoveBonus(heroismo ? 2 : 0, TB_MORAL, "heroismo", pericia_proto.mutable_bonus());
-   //LOG(INFO) << "pericia_proto: " << pericia_proto.ShortDebugString();
+
+    if (pt.penalidade_armadura()) {
+      AtribuiOuRemoveBonus(-PenalidadeArmadura(tabelas, *proto), TB_SEM_NOME, "armadura", pericia_proto.mutable_bonus());
+      AtribuiOuRemoveBonus(
+          DadoCorrenteParaCA(*proto).empunhadura() == EA_ARMA_ESCUDO ? -PenalidadeEscudo(tabelas, *proto) : 0, TB_SEM_NOME, "escudo", pericia_proto.mutable_bonus());
+    }
+    //LOG(INFO) << "pericia_proto: " << pericia_proto.ShortDebugString();
   }
 
   // Atribui de volt ao proto.
@@ -2138,13 +2151,6 @@ void AplicaOuRemoveBloqueioAmbidestro(bool permite_escudo, const DadosAtaque& da
   }
   const bool defensivo = BonusIndividualPorOrigem(TB_ESCUDO, "luta_defensiva", *ca) > 0 || BonusIndividualPorOrigem(TB_ESCUDO, "defesa_total", *ca) > 0;
   AtribuiBonus(defensivo ? 2 : 1, TB_ESCUDO, "bloqueio_ambidestro", ca);
-}
-
-const DadosAtaque& DadoCorrenteParaCA(const EntidadeProto& proto) {
-  for (const auto& da : proto.dados_ataque()) {
-    if (proto.ultimo_grupo_acao().empty() || da.grupo() == proto.ultimo_grupo_acao()) return da;
-  }
-  return DadosAtaque::default_instance();
 }
 
 bool UsandoAtaqueComEscudo(const ArmaProto& arma_principal, const ArmaProto& arma_secundaria) {

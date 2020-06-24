@@ -422,6 +422,9 @@ class Entidade {
   /** Atualizacao que sera executada na proxima chamada de atualizacao. */
   void DeixaAtualizacaoPendente(const EntidadeProto& atualizacao_pendente) { atualizacao_pendente_ = atualizacao_pendente; }
 
+  void SalvaUltimaPericia(const std::string& ultima_pericia) { proto_.set_ultima_pericia(ultima_pericia); }
+  const std::string& UltimaPericia() const { return proto_.ultima_pericia(); }
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
   // Valor de ataque ou ca invalido.
