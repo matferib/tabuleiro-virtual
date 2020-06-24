@@ -3266,6 +3266,9 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteEfeitosAdicionaisMultiplos) {
 TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
   {
     EntidadeProto proto;
+    AtribuiBaseAtributo(12, TA_INTELIGENCIA, &proto);
+    AtribuiBaseAtributo(10, TA_SABEDORIA, &proto);
+    AtribuiBaseAtributo(8, TA_CARISMA, &proto);
     auto* ic = proto.add_info_classes();
     ic->set_id("mago");
     ic->set_nivel(3);
@@ -3296,23 +3299,29 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
     EXPECT_EQ(e->Proto().evento(0).id_efeito(), EFEITO_PENALIDADE_INTELIGENCIA);
     ASSERT_FALSE(e->Proto().evento(0).complementos().empty());
     EXPECT_EQ(e->Proto().evento(0).complementos(0), 1);
+    EXPECT_EQ(11, BonusTotal(BonusAtributo(TA_INTELIGENCIA, e->Proto())));
     // Sab.
     EXPECT_EQ(e->Proto().evento(1).id_efeito(), EFEITO_PENALIDADE_SABEDORIA);
     ASSERT_FALSE(e->Proto().evento(1).complementos().empty());
     EXPECT_EQ(e->Proto().evento(1).complementos(0), 2);
+    EXPECT_EQ(8, BonusTotal(BonusAtributo(TA_SABEDORIA, e->Proto())));
     // Car.
     EXPECT_EQ(e->Proto().evento(2).id_efeito(), EFEITO_PENALIDADE_CARISMA);
     ASSERT_FALSE(e->Proto().evento(2).complementos().empty());
     EXPECT_EQ(e->Proto().evento(2).complementos(0), 3);
+    EXPECT_EQ(5, BonusTotal(BonusAtributo(TA_CARISMA, e->Proto())));
 
     // Ids unicos.
     ASSERT_EQ(ids_unicos.size(), 3ULL);
     EXPECT_EQ(ids_unicos[0], 0);
     EXPECT_EQ(ids_unicos[1], 1);
     EXPECT_EQ(ids_unicos[2], 2);
+
+    // Aplica de novo pra ver se nao acumula.
+    e->AtualizaParcial(n.notificacao(0).entidade());
+    EXPECT_EQ(11, BonusTotal(BonusAtributo(TA_INTELIGENCIA, e->Proto())));
   }
 }
-
 
 TEST(TesteEfeitos, TesteAbencoarArma) {
   auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
