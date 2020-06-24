@@ -689,8 +689,14 @@ message BonusIndividual {
   repeated PorOrigem por_origem = 2;
 }
 
+message CondicoesBonus {
+  optional bool conjura_magia_arcana = 1;
+} 
+
 // Diferentes tipos de bonus.
 message Bonus {
+  // Se presente, bonus so devera ser aplicado caso o pre requisito seja atendido.
+  optional CondicoesBonus condicoes_bonus = 2;
   repeated BonusIndividual bonus_individual = 1;
 }
 
@@ -752,7 +758,7 @@ message InfoClasse {
   optional int32 pericias_por_nivel = 25;
   // Qual o tipo de magia para a classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
   optional string id_para_magia = 12;
-  // Pode lancar magia arcna? Divina? Nenhum tipo.
+  // Pode lancar magia arcana? Divina? Nenhum tipo.
   optional TipoMagia tipo_magia = 28;
   // Para monstros, que conjuram feiticos como classes. Exemplo: phaerimm usa feiticeiro.
   optional string id_para_progressao_de_magia = 18;
