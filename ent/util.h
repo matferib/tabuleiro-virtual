@@ -416,13 +416,30 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
 
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+
+enum TipoTesouro {
+  TT_ANEL = ent::TIPO_ANEL,
+  TT_MANTO = ent::TIPO_MANTO,
+  TT_LUVAS = ent::TIPO_LUVAS,
+  TT_BRACADEIRAS = ent::TIPO_BRACADEIRAS,
+  TT_POCAO = ent::TIPO_POCAO,
+  TT_AMULETO = ent::TIPO_AMULETO,
+  TT_BOTAS = ent::TIPO_BOTAS,
+  TT_CHAPEU = ent::TIPO_CHAPEU,
+  TT_PERGAMINHO_ARCANO = ent::TIPO_PERGAMINHO_ARCANO,
+  TT_PERGAMINHO_DIVINO = ent::TIPO_PERGAMINHO_DIVINO,
+  TT_ITEM_MUNDANO = ent::TIPO_ITEM_MUNDANO,
+  TT_ARMA = ent::TipoItem_MAX + 1,
+  TT_ARMADURA = ent::TipoItem_MAX + 2,
+  TT_ESCUDO = ent::TipoItem_MAX + 3,
+};
 void PreencheNotificacoesTransicaoUmTipoTesouro(
-    const Tabelas& tabelas, TipoItem tipo, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
+    const Tabelas& tabelas, TipoTesouro tipo, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
 // Preenche o tesouro_final para enviar uma atualizacao parcial para a entidade. Tesouros vazios terão uma entrada fake para indicar que é vazio no merge.
 void AtribuiTesouroTodoOuCriaVazios(
     const EntidadeProto::DadosTesouro& tesouro_receber, EntidadeProto::DadosTesouro* tesouro_final);
- 
+
 // Preenche proto com todos os itens mundanos da entidade menos um com o id igual a id_item.
 void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& entidade, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
@@ -660,6 +677,9 @@ void RemoveFormaAlternativa(int indice, EntidadeProto* proto);
 
 // Retorna true se uma arma possui a categoria passada.
 bool PossuiCategoria(CategoriaArma categoria, const ArmaProto& arma);
+
+// Retorna verdadeiro se o proto preenche as condicoes do bonus (ou seja, bonus pode ser aplicado).
+bool PreencheCondicoesBonus(const CondicoesBonus& condicoes, const EntidadeProto& proto);
 
 // Retorna true se o personagem tiver o talento.
 bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& proto);
@@ -966,6 +986,7 @@ const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto&
 
 // Retorna o repeated do tipo passado para o proto.
 std::string NomeTipoItem(TipoItem tipo);
+const google::protobuf::RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& ArmasArmadurasOuEscudosProto(TipoTesouro tipo, const EntidadeProto& proto);
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
 google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
 // Retorna todos os itens do proto, exceto pocoes.
