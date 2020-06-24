@@ -228,14 +228,14 @@ class ElementoContainerVertical : public ElementoContainer {
 class ElementoBarraOkCancela : public ElementoContainerHorizontal {
  public:
   ElementoBarraOkCancela(
-      int x, int y, int largura, int altura,
+      int x, int y, int largura, int altura, const std::optional<std::string>& rotulo_ok,
       std::function<void()> volta_ok, std::function<void()> volta_cancela, ElementoInterface* pai)
       : ElementoContainerHorizontal(x, y, largura, altura, pai) {
     auto* botao_cancela = new ElementoBotao("Cancela", volta_cancela, this);
     botao_cancela->CorRotulo(COR_VERMELHA);
     botao_cancela->CorFundo(COR_CINZA);
     AdicionaFilho(botao_cancela);
-    auto* botao_ok = new ElementoBotao("Ok", volta_ok, this);
+    auto* botao_ok = new ElementoBotao(rotulo_ok.has_value() ? *rotulo_ok : "Ok", volta_ok, this);
     botao_ok->CorRotulo(COR_VERDE);
     botao_ok->CorFundo(COR_CINZA);
     AdicionaFilho(botao_ok);
@@ -376,6 +376,7 @@ class ElementoListaPaginada : public ElementoInterface {
 class ElementoItemLista : public ElementoInterface {
  public:
   ElementoItemLista(InterfaceGraficaOpengl* interface_grafica,
+                    const std::optional<std::string>& rotulo_ok,
                     const std::vector<std::string>& lista,
                     std::function<void(bool, int)> funcao_volta)
     : interface_grafica_(interface_grafica) {
@@ -398,7 +399,7 @@ class ElementoItemLista : public ElementoInterface {
       interface_grafica_->FechaElemento();
     };
     barra_ok_cancela_.reset(
-        new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx),
+        new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx), rotulo_ok, 
                                    volta_ok, volta_cancela, this));
     lista_paginada_.reset(new ElementoListaPaginada(
           lista,
@@ -467,7 +468,7 @@ class ElementoAbrirTabuleiro : public ElementoInterface {
       }
     };
     barra_ok_cancela_.reset(
-        new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx),
+        new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx), std::nullopt,
                                    volta_ok, volta_cancela, this));
     std::vector<std::string> lista;
     lista.insert(lista.end(), tab_estaticos.begin(), tab_estaticos.end());
@@ -529,7 +530,7 @@ class ElementoSalvarTabuleiro : public ElementoInterface {
       interface_grafica_->FechaElemento();
     };
     barra_ok_cancela_.reset(
-        new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx),
+        new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx), std::nullopt,
                                    volta_ok, volta_cancela, this));
   }
   ~ElementoSalvarTabuleiro() {}
@@ -558,13 +559,14 @@ class ElementoSalvarTabuleiro : public ElementoInterface {
 //-------------------------
 void InterfaceGraficaOpengl::EscolheItemLista(
     const std::string& titulo,
+    const std::optional<std::string>& rotulo_ok,
     const std::vector<std::string>& lista,
     std::function<void(bool, int)> funcao_volta) {
   if (elemento_.get() != nullptr) {
     LOG(WARNING) << "So pode haver um elemento por vez.";
     return;
   }
-  elemento_.reset(new ElementoItemLista(this, lista, funcao_volta));
+  elemento_.reset(new ElementoItemLista(this, rotulo_ok, lista, funcao_volta));
 }
 
 void InterfaceGraficaOpengl::EscolheArquivoAbrirTabuleiro(

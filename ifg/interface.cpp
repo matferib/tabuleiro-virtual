@@ -200,7 +200,7 @@ void InterfaceGrafica::TrataEscolherTipoTesouro(const ntf::Notificacao& notifica
   if (nomes_itens.empty()) return;
   tabuleiro_->DesativaWatchdogSeMestre();
   EscolheItemLista(
-      "Escolha o tipo de item", nomes_itens,
+      "Escolha o tipo de item", std::nullopt, nomes_itens,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherTipoTesouro,
           this, notificacao, mapa_indice_tipo,
@@ -255,7 +255,7 @@ void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao)
     mapa_indice_id.push_back(it.second);
   }
   EscolheItemLista(
-      "Escolha a pericia", nomes_pericias,
+      "Escolha a pericia", "Usar Perícia", nomes_pericias,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPericia,
           this, notificacao, mapa_indice_id,
@@ -368,7 +368,7 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
   std::vector<std::string> nomes;
   std::tie(nomes, mapa_indices) = PreencheNomesEMapaIndices(mapa_nomes_para_indices);
   EscolheItemLista(
-      "Escolha o pergaminho", nomes,
+      "Escolha o pergaminho", "Usar Pergaminho", nomes,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPergaminho,
           this, notificacao, mapa_indices,
@@ -423,7 +423,7 @@ void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
   std::vector<int> mapa_indices;
   std::tie(nomes, mapa_indices) = PreencheNomesEMapaIndices(mapa_nomes_para_indices);
   EscolheItemLista(
-      "Escolha a poção", nomes,
+      "Escolha a poção", "Beber", nomes,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPocao,
           this, notificacao, mapa_indices,
@@ -448,7 +448,7 @@ void InterfaceGrafica::VoltaEscolherPocao(const ntf::Notificacao notificacao, co
     efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)tipo_efeito));
   }
   EscolheItemLista(
-      "Escolha o efeito", efeitos,
+      "Escolha o efeito", std::nullopt, efeitos,
       std::bind(
         &ifg::InterfaceGrafica::VoltaEscolherEfeito,
         this, notificacao, indice_pocao,
@@ -757,7 +757,7 @@ void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& no
     return;
   }
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheItemLista("Parâmetros de Lancamento", lista_parametros, [this, notificacao, lista_parametros, ids] (bool ok_decisao, int indice_decisao) {
+  EscolheItemLista("Parâmetros de Lancamento", std::nullopt, lista_parametros, [this, notificacao, lista_parametros, ids] (bool ok_decisao, int indice_decisao) {
     ent::RodaNoRetorno([this]() {
       this->tabuleiro_->ReativaWatchdogSeMestre();
     });
@@ -906,7 +906,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
   };
 
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheItemLista(conversao_espontanea ? "Converter qual feitiço" : "Escolha o Feitiço", lista, funcao_final);
+  EscolheItemLista(conversao_espontanea ? "Converter qual feitiço" : "Escolha o Feitiço", std::nullopt, lista, funcao_final);
 }
 
 void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int)> funcao_volta) {
@@ -919,7 +919,7 @@ void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::fu
       items.push_back(descricao);
     }
   }
-  EscolheItemLista(titulo, items, [this, funcao_volta](bool aceito, int indice) {
+  EscolheItemLista(titulo, std::nullopt, items, [this, funcao_volta](bool aceito, int indice) {
     if (aceito && indice >= 0 && indice < tabuleiro_->Proto().versoes().size()) {
       funcao_volta(indice);
     } else {

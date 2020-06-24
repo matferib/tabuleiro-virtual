@@ -42,6 +42,7 @@ class InterfaceGrafica : public ntf::Receptor {
   // em caso de cancelamento, ou com o indice escolhido caso contrario.
   virtual void EscolheItemLista(
       const std::string& titulo,
+      const std::optional<std::string>& rotulo_ok,
       const std::vector<std::string>& lista,
       std::function<void(bool, int)> funcao_volta) = 0;
 
