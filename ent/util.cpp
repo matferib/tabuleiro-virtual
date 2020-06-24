@@ -4430,7 +4430,7 @@ bool FeiticoGeraAcao(const Tabelas& tabelas, const ArmaProto& feitico_tabelado) 
 }
 
 void CriaNovoAtaqueComFeitico(
-    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, const std::string& id_classe, const EntidadeProto& proto,
+    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, const std::string& id_classe, int nivel_slot, const EntidadeProto& proto,
     ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   auto [e_antes, e_depois] = PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
   {
@@ -4448,6 +4448,7 @@ void CriaNovoAtaqueComFeitico(
     da->set_rotulo(StringPrintf("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
     da->set_id_arma(feitico_tabelado.id());
     da->set_limite_vezes(limite_vezes);
+    da->set_nivel_slot(nivel_slot);
     if (feitico_tabelado.has_modelo_total_dv()) {
       da->mutable_acao()->set_total_dv(ComputaTotalDadosVida(feitico_tabelado.modelo_total_dv(), nivel_conjurador));
     }
@@ -4508,7 +4509,7 @@ bool FeiticoPessoalDispersao(const Tabelas& tabelas, const ArmaProto& feitico_ta
 
 // Retorna true se uma acao foi criada.
 bool ExecutaFeitico(
-    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, int nivel_conjurador, const std::string& id_classe,
+    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, int nivel_conjurador, const std::string& id_classe, int nivel_slot,
     const std::optional<DadosIniciativa>& dados_iniciativa, const Entidade& entidade,
     ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   // Fazer a dispersão funcionar é complicado, porque tem que Chamar a funcao EntidadesAfetadasPorAcao para preencher os ids da acao
@@ -4537,7 +4538,7 @@ bool ExecutaFeitico(
     return false;
   } else if (FeiticoGeraAcao(tabelas, feitico_tabelado)) {
     CriaNovoAtaqueComFeitico(
-        tabelas, feitico_tabelado, id_classe, entidade.Proto(),
+        tabelas, feitico_tabelado, id_classe, nivel_slot, entidade.Proto(),
         grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
     return true;
   }
@@ -4636,7 +4637,10 @@ bool NotificacaoConsequenciaFeitico(
       ep.set_iniciativa(dados_iniciativa->iniciativa);
       ep.set_modificador_iniciativa(dados_iniciativa->modificador);
     }
-    ep.add_dados_ataque()->set_id_arma(feitico_tabelado.id());
+    auto* eda = ep.add_dados_ataque();
+    eda->set_id_arma(feitico_tabelado.id());
+    eda->set_nivel_slot(nivel);
+    
     std::string entidade_str;
     google::protobuf::TextFormat::PrintToString(ep, &entidade_str);
     auto ids_unicos = IdsUnicosEntidade(entidade);
@@ -4648,7 +4652,7 @@ bool NotificacaoConsequenciaFeitico(
           feitico_tabelado.tempo_execucao_rodadas(), feitico_tabelado.tempo_execucao_rodadas() > 1 ? "s" : ""), proto, atraso_s).get());
     return false;
   }
-  return ExecutaFeitico(tabelas, feitico_tabelado, nivel_conjurador, id_classe, dados_iniciativa, entidade, grupo, nullptr);
+  return ExecutaFeitico(tabelas, feitico_tabelado, nivel_conjurador, id_classe, nivel, dados_iniciativa, entidade, grupo, nullptr);
 }
 
 // Retorna: id_classe, nivel, indice slot, usado e id entidade na notificacao de alterar feitico. Em caso de

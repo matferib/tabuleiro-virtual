@@ -7411,7 +7411,7 @@ std::string PreencheNotificacaoFimConjuracao(
   }
   const auto& feitico_tabelado = tabelas.Feitico(ep.dados_ataque(0).id_arma());
   ExecutaFeitico(
-    tabelas, feitico_tabelado, ep.info_classes(0).nivel_conjurador(), ep.info_classes(0).id(),
+    tabelas, feitico_tabelado, ep.info_classes(0).nivel_conjurador(), ep.info_classes(0).id(), ep.dados_ataque(0).nivel_slot(),
     ep.has_iniciativa() ? std::make_optional(DadosIniciativa{ep.iniciativa(), ep.modificador_iniciativa()}) : std::nullopt, entidade,
     grupo, grupo_desfazer);
   return StringPrintf("conjuração de %s terminada", feitico_tabelado.nome().c_str());

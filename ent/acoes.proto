@@ -395,7 +395,7 @@ message DanoAdicionalPorTendencia {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 99.
+// Proximo id: 100.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -520,6 +520,8 @@ message DadosAtaque {
   // Para pergaminhos, que já vem com estas variaveis definidas.
   optional int32 nivel_conjurador_pergaminho = 52;
   optional int32 modificador_atributo_pergaminho = 53;
+  // Se presente, indica um slot maior para a magia para fins de calculo de CD.
+  optional int32 nivel_slot = 99;
   optional TipoMagia tipo_pergaminho = 55;
   // Computado dinamicamente.
   repeated DescritorAtaque descritores = 57;

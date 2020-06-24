@@ -2674,6 +2674,8 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     } else {
       if (da->has_nivel_conjurador_pergaminho()) {
         base += NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), feitico);
+      } else if (PossuiTalento("elevar_magia", proto) && da->has_nivel_slot()) {
+        base += da->nivel_slot(); 
       } else {
         base += da->acao().dificuldade_salvacao_por_nivel()
           ? NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico) + mod_especializacao

@@ -881,7 +881,7 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
     const std::string& id_classe, int nivel, int indice, bool usado, const EntidadeProto& proto);
 
 bool ExecutaFeitico(
-    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, int nivel_conjurador, const std::string& id_classe,
+    const Tabelas& tabelas, const ArmaProto& feitico_tabelado, int nivel_conjurador, const std::string& id_classe, int nivel_slot,
     const std::optional<DadosIniciativa>& dados_iniciativa, const Entidade& entidade,
     ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer); 
 

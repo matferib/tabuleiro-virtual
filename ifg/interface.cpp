@@ -842,7 +842,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       return;
     }
     for (int nivel = nivel_gasto; nivel >= 0; --nivel) {
-      const auto& fn = FeiticosNivel(id_classe, nivel, notificacao.entidade()); 
+      const auto& fn = FeiticosNivel(id_classe, nivel, notificacao.entidade());
       for (int indice = 0; indice < fn.conhecidos().size(); ++indice) {
         const auto& c = fn.conhecidos(indice);
         const auto& feitico = tabelas_.Feitico(c.id());

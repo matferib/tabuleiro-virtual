@@ -3613,6 +3613,39 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaGarraTraseira) {
   EXPECT_EQ(proto.dados_ataque(7).bonus_ataque_final(), 14) << proto.dados_ataque(0).DebugString();
 }
 
+TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamicaSlotAcima) {
+  {
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(3);
+    AtribuiBaseAtributo(12, TA_INTELIGENCIA, &proto);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Mago");
+    da->set_id_arma("bola_fogo");
+    da->set_nivel_slot(5);
+    RecomputaDependencias(g_tabelas, &proto);
+
+    EXPECT_EQ(da->dificuldade_salvacao(), 14);
+  }
+  {
+    EntidadeProto proto;
+    auto* talento = proto.mutable_info_talentos()->add_gerais();
+    talento->set_id("elevar_magia");
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(3);
+    AtribuiBaseAtributo(12, TA_INTELIGENCIA, &proto);
+    auto* da = proto.add_dados_ataque();
+    da->set_tipo_ataque("Feitiço de Mago");
+    da->set_id_arma("bola_fogo");
+    da->set_nivel_slot(5);
+    RecomputaDependencias(g_tabelas, &proto);
+
+    EXPECT_EQ(da->dificuldade_salvacao(), 16);
+  }
+}
+
 TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
   {
     EntidadeProto proto;
@@ -3928,7 +3961,7 @@ TEST(TesteFeiticos, TesteMaosFlamejantesComoDominio) {
   }
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
   auto grupo = NovoGrupoNotificacoes();
-  ExecutaFeitico(g_tabelas, g_tabelas.Feitico("maos_flamejantes"), 5, "clerigo", std::nullopt, *entidade, grupo.get(), nullptr);
+  ExecutaFeitico(g_tabelas, g_tabelas.Feitico("maos_flamejantes"), /*nivel_conjurador=*/3, "clerigo", 1, std::nullopt, *entidade, grupo.get(), nullptr);
   for (const auto& n : grupo->notificacao()) {
     entidade->AtualizaParcial(n.entidade());
   }
