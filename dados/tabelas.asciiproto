@@ -7705,7 +7705,7 @@ tabela_feiticos {
       tipo_salvacao: TS_VONTADE
       ignora_resistencia_magia: false
       resultado_ao_salvar: RS_ANULOU
-      afeta_apenas:  TIPO_HUMANOIDE
+      afeta_apenas: TIPO_HUMANOIDE
       icone: 'icon_hold.png'
       efeitos_adicionais {
         efeito: EFEITO_PARALISIA
@@ -11434,14 +11434,41 @@ tabela_feiticos {
       nivel: 0
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço a Distância'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      permite_ataque_vs_defesa: false
-      permite_salvacao: true
       tipo_salvacao: TS_VONTADE
       dificuldade_salvacao_por_nivel: true
       dv_mais_alto: 4
+      afeta_apenas: TIPO_HUMANOIDE
+      elemento: DESC_MENTAL
+      efeitos_adicionais {
+        efeito: EFEITO_PASMAR
+        rodadas: 1
+      }
+    }
+    escola: 'encantamento'
+  }
+  armas {
+    id: 'pasmar_monstro'
+    nome_ingles: 'daze monster'
+    nome: 'pasmar monstro'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      tipo_salvacao: TS_VONTADE
+      dificuldade_salvacao_por_nivel: true
+      dv_mais_alto: 6
+      elemento: DESC_MENTAL
       efeitos_adicionais {
         efeito: EFEITO_PASMAR
         rodadas: 1
