@@ -5881,7 +5881,7 @@ TEST(TesteTesouro, TesteTransicao) {
   }
 }
 
-TEST(TesteTesouro, TesteTransicaoTipo) {
+TEST(TesteTesouro, TesteTransicaoTipoAnel) {
   EntidadeProto doador_proto;
   {
     auto* anel = doador_proto.mutable_tesouro()->add_aneis();
@@ -5974,6 +5974,49 @@ TEST(TesteTesouro, TesteTransicaoTipo) {
   }
 }
 
+TEST(TesteTesouro, TesteTransicaoTipoArma) {
+  EntidadeProto doador_proto;
+  {
+    auto* armadura = doador_proto.mutable_tesouro()->add_armaduras();
+    armadura->set_id("cota_malha");
+    auto* arma = doador_proto.mutable_tesouro()->add_armas();
+    arma->set_id("espada_longa");
+  }
+  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, g_tabelas));
+
+  EntidadeProto receptor_proto;
+  {
+    auto* arma = receptor_proto.mutable_tesouro()->add_armas();
+    arma->set_id("espada_curta");
+  }
+  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, g_tabelas));
+
+  ntf::Notificacao n_grupo;
+  n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  PreencheNotificacoesTransicaoUmTipoTesouro(g_tabelas, TT_ARMA, *doador, *receptor, &n_grupo, nullptr);
+
+  {
+    // Aplica.
+    ASSERT_GE(n_grupo.notificacao_size(), 2);
+    doador->AtualizaParcial(n_grupo.notificacao(0).entidade());
+    EXPECT_FALSE(doador->Proto().tesouro().armaduras().empty());
+    EXPECT_TRUE(doador->Proto().tesouro().armas().empty());
+
+    receptor->AtualizaParcial(n_grupo.notificacao(1).entidade());
+    EXPECT_EQ(receptor->Proto().tesouro().armaduras().size(), 0);
+    EXPECT_EQ(receptor->Proto().tesouro().armas().size(), 2);
+  }
+  {
+    // Aplica desfazer.
+    doador->AtualizaParcial(n_grupo.notificacao(0).entidade_antes());
+    EXPECT_FALSE(doador->Proto().tesouro().armaduras().empty());
+    EXPECT_FALSE(doador->Proto().tesouro().armas().empty());
+
+    receptor->AtualizaParcial(n_grupo.notificacao(1).entidade_antes());
+    EXPECT_TRUE(receptor->Proto().tesouro().armaduras().empty());
+    EXPECT_FALSE(receptor->Proto().tesouro().armas().empty());
+  }
+}
 
 TEST(TesteTesouro, TesteDoacao) {
   EntidadeProto doador_proto;
