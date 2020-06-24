@@ -1409,7 +1409,9 @@ modelo {
       pericias_monstro: 'sobrevivencia'
     }
     rotulo: 'cão infernal'
-    dados_vida: '4d8+4' #modelo_3d { id: 'hellhound' }
+    dados_vida: '4d8+4'
+    modelo_3d { id: 'hell_hound' }
+    info_textura { id: 'fire.png' }
     dados_ataque {
       tipo_ataque: 'Ataque Corpo a Corpo'
       grupo: 'mordida' rotulo: 'mordida' id_arma: 'mordida' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d8'
@@ -1421,8 +1423,12 @@ modelo {
       alcance_q: 2
       taxa_refrescamento: '2d4'
       acao_fixa {
+        cor { r: 1 g: 1 b: 1 }
+        info_textura { id: 'fire.png' }
+        ignora_luz: true
         distancia_quadrados: 2
         dificuldade_salvacao_por_meio_nivel: true
+        resultado_ao_salvar: RS_MEIO
         atributo_dificuldade_salvacao: TA_CONSTITUICAO
       }
     }
