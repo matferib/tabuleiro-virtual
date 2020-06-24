@@ -1684,7 +1684,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 1
+    coluna: 3
     rotulo: "Lv"
     cor_rotulo {}
     textura: "icon_free.png"
@@ -1695,7 +1695,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 2
+    coluna: 4
     rotulo: "Rt"
     cor_rotulo {}
     textura: "icon_rectangle.png"
@@ -1706,7 +1706,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 1
+    coluna: 3
     rotulo: "Ci"
     cor_rotulo {}
     textura: "icon_circle.png"
@@ -1717,7 +1717,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 2
+    coluna: 4
     rotulo: "Tr"
     cor_rotulo {}
     textura: "icon_triangle.png"
@@ -1729,7 +1729,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 1
+    coluna: 3
     rotulo: "HS"
     cor_rotulo {}
     textura: "icon_hemisphere.png"
@@ -1740,7 +1740,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 3
+    coluna: 5
     rotulo: "Es"
     cor_rotulo {}
     textura: "icon_sphere.png"
@@ -1751,7 +1751,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 4
+    coluna: 6
     rotulo: "Pi"
     cor_rotulo {}
     textura: "icon_pyramid.png"
@@ -1762,7 +1762,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 5
+    coluna: 7
     rotulo: "Cb"
     cor_rotulo {}
     textura: "icon_cube.png"
@@ -1773,7 +1773,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 3
+    coluna: 5
     rotulo: "Cn"
     cor_rotulo {}
     textura: "icon_cone.png"
@@ -1784,7 +1784,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 4
+    coluna: 6
     rotulo: "Ci"
     cor_rotulo {}
     textura: "icon_cylinder.png"
@@ -1795,7 +1795,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 5
+    coluna: 7
     rotulo: "Vi"
     cor_rotulo {}
     textura: "icon_hide.png"
@@ -1807,7 +1807,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 6
+    coluna: 8
     rotulo: "Gr"
     cor_rotulo {}
     textura: "icon_group.png"
@@ -1818,7 +1818,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 6
+    coluna: 8
     rotulo: "Dg"
     cor_rotulo {}
     textura: "icon_ungroup.png"
@@ -1829,7 +1829,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 6
+    coluna: 8
     rotulo: "Rc"
     cor_rotulo {}
     textura: "icon_remove_from.png"
@@ -1842,7 +1842,7 @@ pagina {
     largura: 5
     altura: 1
     linha: 3
-    coluna: 1
+    coluna: 3
     rotulo: "Textura:"
     id: CONTROLE_NOP
     forma: FORMA_NULA
@@ -1851,7 +1851,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 3
-    coluna: 6
+    coluna: 8
     rotulo: "<"
     id: CONTROLE_TEXTURA_ENTIDADE_ANTERIOR
     forma: FORMA_RETANGULO
@@ -1860,14 +1860,14 @@ pagina {
     altura: 1
     largura: 9
     linha: 3
-    coluna: 7
+    coluna: 9
     id: CONTROLE_TEXTURA_ENTIDADE
     forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
     linha: 3
-    coluna: 16
+    coluna: 18
     rotulo: ">"
     id: CONTROLE_TEXTURA_ENTIDADE_PROXIMA
     forma: FORMA_RETANGULO
@@ -1876,7 +1876,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 4
-    coluna: 6
+    coluna: 8
     rotulo: "<"
     id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
     forma: FORMA_RETANGULO
@@ -1886,7 +1886,7 @@ pagina {
     altura: 1
     largura: 5
     linha: 4
-    coluna: 1
+    coluna: 3
     id: CONTROLE_NOP
     forma: FORMA_NULA
     rotulo: "Modelo padrão:"
@@ -1896,7 +1896,7 @@ pagina {
     altura: 1
     largura: 9
     linha: 4
-    coluna: 7
+    coluna: 9
     id: CONTROLE_MODELO_ENTIDADE
     forma: FORMA_RETANGULO
     dica: "O modelo de entidade padrão (ao adicionar)."
@@ -1904,7 +1904,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 4
-    coluna: 16
+    coluna: 18
     rotulo: ">"
     id: CONTROLE_MODELO_ENTIDADE_PROXIMA
     forma: FORMA_RETANGULO
@@ -1914,7 +1914,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 7
+    coluna: 9
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_VERMELHO
     cor_fundo { r: 1.0 }
@@ -1923,7 +1923,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 8
+    coluna: 10
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_VERDE
     cor_fundo { g: 1.0 }
@@ -1932,7 +1932,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 9
+    coluna: 11
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_AZUL
     cor_fundo { b: 1.0 }
@@ -1941,7 +1941,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 7
+    coluna: 9
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_AMARELO
     cor_fundo { r: 1.0 g: 1.0 }
@@ -1950,7 +1950,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 8
+    coluna: 10
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_MAGENTA
     cor_fundo { r: 1.0 b:1.0 }
@@ -1959,7 +1959,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 9
+    coluna: 11
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_CIANO
     cor_fundo { g: 1.0 b: 1.0 }
@@ -1968,7 +1968,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 10
+    coluna: 12
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_BRANCO
     cor_fundo { r: 1.0 g: 1.0 b:1.0 }
@@ -1977,7 +1977,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 10
+    coluna: 12
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_PRETO
     cor_fundo { r: 0.0 g: 0.0 b: 0.0 }
@@ -1986,7 +1986,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 11
+    coluna: 13
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_PERSONALIZADA
     forma: FORMA_DISCO
@@ -1995,7 +1995,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 14
+    coluna: 16
     textura: "icon_copy.png"
     id: CONTROLE_COPIAR
     forma: FORMA_RETANGULO
@@ -2004,7 +2004,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 16
+    coluna: 18
     textura: "icon_paste.png"
     id: CONTROLE_COLAR
     forma: FORMA_RETANGULO
