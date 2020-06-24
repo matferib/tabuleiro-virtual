@@ -515,7 +515,7 @@ void DesenhaStencil3d(float xi, float yi, float xs, float ys, const float* cor) 
 namespace {
 
 struct MultDadoSoma {
-  unsigned int mult = 0;  // O numero antes do dado.
+  int mult = 0;           // O numero antes do dado.
   unsigned int dado = 0;  // O numero de faces do dado
   int soma = 0;           // A soma fixa apos o dado.
   void Reset() {
@@ -535,6 +535,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
   boost::tokenizer<boost::char_separator<char>> tokenizador(dados_vida, sep);
   enum EstadoTokenizer {
     ET_INICIAL,
+    ET_ESPERANDO_NUMERO,
     ET_LEU_D,
     ET_LEU_DADO,
     ET_LEU_MAIS_MENOS,
@@ -547,6 +548,20 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
     VLOG(2) << "token: " << token;
     switch (et) {
       case ET_INICIAL:
+        //LOG(INFO) << "inicial";
+        if (token == "d") {
+          LOG(ERROR) << "Estado inicial deve comecar com numero ou sinal, encontrei: 'd', string: " << dados_vida;
+          et = ET_ERRO;
+        } else if (token == "+" || token == "-") {
+          num = (token == "+") ? 1 : -1;
+          et = ET_LEU_MAIS_MENOS;
+        } else {
+          num = atoi(token.c_str());
+          et = ET_LEU_NUM;
+        }
+        break;
+      case ET_ESPERANDO_NUMERO:
+        //LOG(INFO) << "esperando numero";
         if (token == "+" || token == "-" || token == "d") {
           LOG(ERROR) << "Estado inicial deve comecar com numero, encontrei: " << token << ", string: " << dados_vida;
           et = ET_ERRO;
@@ -556,6 +571,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
         }
         break;
       case ET_LEU_NUM:
+        //LOG(INFO) << "leu numero";
         if (token == "d") {
           if (corrente.mult != 0) {
            vetor_mult_dado_soma.push_back(corrente);
@@ -567,7 +583,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
           corrente.soma = num;
           vetor_mult_dado_soma.push_back(corrente);
           corrente.Reset();
-          et = ET_INICIAL;
+          et = ET_ESPERANDO_NUMERO;
           num = (token == "+") ? 1 : -1;
         } else {
           LOG(ERROR) << "Esperava d ou +- apos numero, encontrei: " << token;
@@ -575,6 +591,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
         }
         break;
       case ET_LEU_D:
+        //LOG(INFO) << "leu d";
         if (token == "+" || token == "-" || token == "d") {
           LOG(ERROR) << "Esperando numero apos d, encontrei: " << token;
           et = ET_ERRO;
@@ -584,6 +601,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
         }
         break;
       case ET_LEU_DADO:
+        //LOG(INFO) << "leu dado";
         if (token == "+" || token == "-") {
           num = (token == "+") ? 1 : -1;
           et = ET_LEU_MAIS_MENOS;
@@ -593,6 +611,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
         }
         break;
       case ET_LEU_MAIS_MENOS:
+        //LOG(INFO) << "leu +-";
         if (token == "+" || token == "-") {
           LOG(ERROR) << "Esperando numero ou dado apos +-, encontrei: " << token;
           et = ET_ERRO;
@@ -602,6 +621,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
         }
         break;
       case ET_ERRO:
+        //LOG(INFO) << "erro";
         break;
       default:
         break;
@@ -610,6 +630,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
       break;
     }
   }
+  //LOG(INFO) << "fim!";
   if (et == ET_LEU_NUM) {
     corrente.soma = num;
     vetor_mult_dado_soma.push_back(corrente);
@@ -800,8 +821,8 @@ std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::stri
   int res = 0;
   for (const auto& mds : vetor_mds) {
     //mds.Imprime();
-    for (unsigned int i = 0; i < mds.mult; ++i) {
-      int valor_dado = RolaDado(mds.dado);
+    for (int i = 0; i < std::abs<int>(mds.mult); ++i) {
+      int valor_dado = RolaDado(mds.dado) * ((mds.mult < 0) ? -1 : 1);
       dados.push_back(std::make_pair(mds.dado, valor_dado));
       res += valor_dado;
     }
@@ -5651,10 +5672,10 @@ void ConcatenaString(const std::string& s, std::string* alvo) {
 int DesviaObjetoSeAplicavel(
     const Tabelas& tabelas, int delta_pontos_vida, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
     AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer) {
-  //LOG(INFO) << "aqui " << delta_pontos_vida << ", " << da.eh_arma() << ", " << da.id_arma();
+  //LOG(INFO) << "delta_pontos_vida: " << delta_pontos_vida << ", " << da.eh_arma() << ", " << da.id_arma();
   if (delta_pontos_vida >= 0 || !da.eh_arma() || da.id_arma().empty()) return delta_pontos_vida;
   const auto& arma = tabelas.Arma(da.id_arma());
-  //LOG(INFO) << "ali " << arma.DebugString();
+  //LOG(INFO) << "arma: " << arma.DebugString();
   if (!PossuiCategoria(CAT_DISTANCIA, arma) || !da.ataque_distancia()) return delta_pontos_vida;
   if (!DestrezaNaCA(alvo.Proto())) return delta_pontos_vida;
 
@@ -5847,7 +5868,7 @@ void PreencheNotificacaoConsequenciaAlteracaoPontosVida(int pontos_vida, int dan
   }
   // Se contar o nao letal, passa do limiar, quase morto.
   if (pontos_vida - dano_nao_letal <= limiar_morte) {
-    LOG(INFO) << "aqui: pv: " << pontos_vida << ", dano nl: " << dano_nao_letal << ", limiar: " << limiar_morte;
+    //LOG(INFO) << "pv: " << pontos_vida << ", dano nl: " << dano_nao_letal << ", limiar: " << limiar_morte;
     // A regra nao eh clara aqui, entao extrapolei. Se contando com o dano nao letal passar do limiar, fica inconsciente.
     e_depois->set_morta(false);
     e_depois->set_caida(true);

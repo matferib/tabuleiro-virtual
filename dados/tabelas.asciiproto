@@ -11495,17 +11495,17 @@ tabela_feiticos {
       elemento: DESC_MENTAL
       efeitos_adicionais {
         efeito: EFEITO_PENALIDADE_INTELIGENCIA
-        dado_complementos_str: '1d6'
+        dado_complementos_str: '-1d6'
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
       efeitos_adicionais {
         efeito: EFEITO_PENALIDADE_SABEDORIA
-        dado_complementos_str: '1d6'
+        dado_complementos_str: '-1d6'
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
       efeitos_adicionais {
         efeito: EFEITO_PENALIDADE_CARISMA
-        dado_complementos_str: '1d6'
+        dado_complementos_str: '-1d6'
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }

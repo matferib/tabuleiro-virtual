@@ -3280,13 +3280,16 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
     g_dados_teste.push(1);
     g_dados_teste.push(2);
     g_dados_teste.push(3);
+    LOG(INFO) << "int";
     PreencheNotificacaoEventoEfeitoAdicional(
         proto.id(), std::nullopt, /*nivel=*/3, *e,
         feitico.acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
+    LOG(INFO) << "sab";
     PreencheNotificacaoEventoEfeitoAdicional(
         proto.id(), std::nullopt, /*nivel=*/3, *e,
         feitico.acao().efeitos_adicionais(1), &ids_unicos,
         n.add_notificacao(), nullptr);
+    LOG(INFO) << "car";
     PreencheNotificacaoEventoEfeitoAdicional(
         proto.id(), std::nullopt, /*nivel=*/3, *e,
         feitico.acao().efeitos_adicionais(2), &ids_unicos,
@@ -3298,17 +3301,17 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
     ASSERT_EQ(e->Proto().evento().size(), 3);
     EXPECT_EQ(e->Proto().evento(0).id_efeito(), EFEITO_PENALIDADE_INTELIGENCIA);
     ASSERT_FALSE(e->Proto().evento(0).complementos().empty());
-    EXPECT_EQ(e->Proto().evento(0).complementos(0), 1);
+    EXPECT_EQ(e->Proto().evento(0).complementos(0), -1);
     EXPECT_EQ(11, BonusTotal(BonusAtributo(TA_INTELIGENCIA, e->Proto())));
     // Sab.
     EXPECT_EQ(e->Proto().evento(1).id_efeito(), EFEITO_PENALIDADE_SABEDORIA);
     ASSERT_FALSE(e->Proto().evento(1).complementos().empty());
-    EXPECT_EQ(e->Proto().evento(1).complementos(0), 2);
+    EXPECT_EQ(e->Proto().evento(1).complementos(0), -2);
     EXPECT_EQ(8, BonusTotal(BonusAtributo(TA_SABEDORIA, e->Proto())));
     // Car.
     EXPECT_EQ(e->Proto().evento(2).id_efeito(), EFEITO_PENALIDADE_CARISMA);
     ASSERT_FALSE(e->Proto().evento(2).complementos().empty());
-    EXPECT_EQ(e->Proto().evento(2).complementos(0), 3);
+    EXPECT_EQ(e->Proto().evento(2).complementos(0), -3);
     EXPECT_EQ(5, BonusTotal(BonusAtributo(TA_CARISMA, e->Proto())));
 
     // Ids unicos.
