@@ -65,7 +65,7 @@ message OpcoesProto {
 }
 
 // Mensagem enviada para os clientes de um jogo.
-// Proximo id: 31
+// Proximo id: 31.
 message TabuleiroProto {
   // Identificador do cenario. Um tabuleiro pode ser composto por varios cenarios. O principal sera sempre o -1.
   optional int32 id_cenario = 17 [default = -1];

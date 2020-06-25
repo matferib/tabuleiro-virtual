@@ -367,9 +367,10 @@ class Tabuleiro : public ntf::Receptor {
   void IniciaGL(bool reinicio = false);
 
   struct IdModeloComPeso {
-    IdModeloComPeso(const std::string& id, int peso = 1) : id(id), peso(peso) {}
+    IdModeloComPeso(const std::string& id, int peso = 1, const std::string& quantidade = "1") : id(id), peso(peso), quantidade(quantidade) {}
     std::string id;
     int peso = 1;
+    std::string quantidade = "1";
   };
   struct ModelosComPesos {
     std::vector<IdModeloComPeso> ids_com_peso;
