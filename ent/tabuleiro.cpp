@@ -1076,30 +1076,39 @@ int QuantidadeAdicionar(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
   return quantidade;
 }
 
-std::vector<std::string> MontaVetorIdsAdicionar(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
-  std::vector<std::string> ids;
+// Retorna o vetor com o id e a quantidade daquele tipo (exemplo de retorno, ('Lobo Atroz', '1d4+4').
+// O peso indica quantas vezes o modelo é adicionado.
+std::vector<std::pair<std::string, std::string>> MontaVetorIdsQuantidadeAdicionar(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
+  std::vector<std::pair<std::string, std::string>> ids;
   for (const auto& id_com_peso : modelos_com_pesos.ids_com_peso) {
     VLOG(1) << "adicionando " << id_com_peso.id << ", peso: " << id_com_peso.peso;
     for (int i = 0; i < id_com_peso.peso; ++i) {
-      ids.push_back(id_com_peso.id);
+      ids.push_back(std::make_pair(id_com_peso.id, id_com_peso.quantidade.empty() ? std::string("1") : id_com_peso.quantidade));
     }
   }
   return ids;
 }
 
-const Modelo& SorteiaModelo(const Tabelas& tabelas, int i, const std::vector<std::string>& ids, const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
-  int sorteio = modelos_com_pesos.aleatorio ? RolaDado(ids.size()) - 1 : i;
-  if (sorteio < 0 || sorteio >= (int)ids.size()) {
-    LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << ids.size();
-    return Modelo::default_instance();
+std::pair<Modelo, int> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const std::vector<std::pair<std::string, std::string>>& ids_com_quantidades, bool aleatorio) {
+  int sorteio = aleatorio ? RolaDado(ids_com_quantidades.size()) - 1 : i;
+  if (sorteio < 0 || sorteio >= (int)ids_com_quantidades.size()) {
+    LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << ids_com_quantidades.size();
+    return std::make_pair(Modelo::default_instance(), 0);
   }
-  LOG(INFO) << "numero sorteado: " << sorteio << " de " << ids.size() << "; id sorteado: " << ids[sorteio];
-  const auto& modelo_com_parametros = tabelas.ModeloEntidade(ids[sorteio]);
+  const auto& [id, quantidade_str] = ids_com_quantidades[sorteio];
+  LOG(INFO) << "numero sorteado: " << (sorteio + 1) << " de " << ids_com_quantidades.size() << "; id sorteado: " << id;
+  const auto& modelo_com_parametros = tabelas.ModeloEntidade(id);
   if (!modelo_com_parametros.has_id()) {
     LOG(INFO) << "modelo invalido, ignorando";
-    return Modelo::default_instance();
+    return std::make_pair(Modelo::default_instance(), 0);
   }
-  return modelo_com_parametros;
+  int valor = RolaValor(quantidade_str);
+  LOG(INFO) << "valor rolado para modelo: " << valor << ", em string: " << quantidade_str;
+  if (valor <= 0 || valor > 100) {
+    LOG(INFO) << "valor invalido para " << quantidade_str << ", valor: " << valor;
+    return std::make_pair(Modelo::default_instance(), 0);
+  }
+  return std::make_pair(modelo_com_parametros, valor);
 }
 
 Vector2 ComputaOffset(int i) {
@@ -1146,15 +1155,18 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         AdicionaUmaEntidadeNotificando(notificacao, referencia, Modelo(), x, y, z + 0, grupo_desfazer.add_notificacao());
       } else {
         VLOG(1) << "gerando " << quantidade << " entidades";
-        std::vector<std::string> ids = MontaVetorIdsAdicionar(modelos_selecionados_);
+        std::vector<std::pair<std::string, std::string>> ids_com_quantidades = MontaVetorIdsQuantidadeAdicionar(modelos_selecionados_);
+        int indice_offset = 0;
         for (int i = 0; i < quantidade; ++i) {
-          const auto& modelo_com_parametros = SorteiaModelo(tabelas_, i, ids, modelos_selecionados_);
+          const auto& [modelo_com_parametros, quantidade_modelo] = SorteiaOuEscolheModelo(tabelas_, i, ids_com_quantidades, modelos_selecionados_.aleatorio);
           if (!modelo_com_parametros.has_id()) {
             continue;
           }
-          Vector2 offset = ComputaOffset(i);
-          AdicionaUmaEntidadeNotificando(
-              notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
+          for (int j = 0; j < quantidade_modelo; ++j) {
+            Vector2 offset = ComputaOffset(indice_offset++);
+            AdicionaUmaEntidadeNotificando(
+                notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
+          }
         }
       }
       LOG(INFO) << "tamanho de entidades adicionadas: " << ids_adicionados_.size();
@@ -4185,17 +4197,21 @@ void Tabuleiro::DesenhaTabuleiro() {
   }
   V_ERRO("textura");
   {
-    if (cenario_piso.ladrilho()) {
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    {
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
-      gl::Escala(proto_corrente_->largura(), proto_corrente_->altura(), 1.0f);
+      if (cenario_piso.ladrilho()) {
+        gl::Escala(proto_corrente_->largura() * cenario_piso.info_textura_piso().escala_x(), proto_corrente_->altura() * cenario_piso.info_textura_piso().escala_y(), 1.0f);
+      } else {
+        gl::Escala(cenario_piso.info_textura_piso().escala_x(), cenario_piso.info_textura_piso().escala_y(), 1.0f);
+      }
       gl::AtualizaMatrizes();
     }
     vbos_tabuleiro_.Desenha();
-    if (cenario_piso.ladrilho()) {
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    {
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
       gl::AtualizaMatrizes();
     }
@@ -6738,8 +6754,14 @@ void Tabuleiro::DesenhaLuzes() {
       pos[1] = epos.y();
       pos[2] = epos.z();
     }
+    float cor_nevoa[3] = { cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2] };
+    if (cenario_nevoa.nevoa().has_cor()) {
+      cor_nevoa[0] = cenario_nevoa.nevoa().cor().r();
+      cor_nevoa[1] = cenario_nevoa.nevoa().cor().g();
+      cor_nevoa[2] = cenario_nevoa.nevoa().cor().b();
+    }
     ConfiguraNevoa(cenario_nevoa.nevoa().minimo(), cenario_nevoa.nevoa().maximo(),
-                   cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2], pos, &parametros_desenho_);
+                   cor_nevoa[0], cor_nevoa[1], cor_nevoa[2], pos, &parametros_desenho_);
   } else {
     gl::Desabilita(GL_FOG);
   }

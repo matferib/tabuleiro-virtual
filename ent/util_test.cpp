@@ -5173,6 +5173,21 @@ TEST(TesteModelo, TesteLeaoAtroz) {
   EXPECT_EQ(proto.dados_ataque(7).dano(), "1d8+3") << proto.dados_ataque(7).DebugString();
 }
 
+TEST(TesteModelo, TesteUrsoAtroz) {
+  const auto& modelo = g_tabelas.ModeloEntidade("Urso Atroz");
+  EntidadeProto proto = modelo.entidade();
+  proto.set_gerar_agarrar(false);
+  std::unique_ptr<Entidade> urso(NovaEntidadeParaTestes(proto, g_tabelas));
+  // Normal;
+  EXPECT_EQ(DadosAtaquePorGrupo("ataque", urso->Proto(), 0).dano(), "2d4+10");
+  EXPECT_EQ(DadosAtaquePorGrupo("ataque", urso->Proto(), 1).dano(), "2d4+10");
+  EXPECT_EQ(DadosAtaquePorGrupo("ataque", urso->Proto(), 2).dano(), "2d8+5");
+  EXPECT_EQ(urso->CA(*urso, Entidade::CA_NORMAL), 17);
+  EXPECT_EQ(ValorFinalPericia("ouvir", urso->Proto()), 10);
+  EXPECT_EQ(ValorFinalPericia("observar", urso->Proto()), 10);
+  EXPECT_EQ(ValorFinalPericia("natacao", urso->Proto()), 13);
+}
+
 TEST(TesteModelo, TesteTigreAtroz) {
   const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
   EntidadeProto proto = modelo.entidade();

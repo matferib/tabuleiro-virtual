@@ -4468,7 +4468,68 @@ modelo {
     }
   }
 }
-
+modelo {
+  id: 'Urso Atroz'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '12d8+51' tamanho: TM_GRANDE
+    info_textura { id: 'brown_bear.png' }
+    info_classes {
+      id: 'animal_atroz' nivel: 12
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'natacao'
+    }
+    movimento {
+      terrestre_basico_q: 8
+    }
+    rotulo_especial: 'faro'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    mais_de_duas_pernas: true
+    dados_ataque {
+      grupo: 'ataque' alcance_q: 1
+      rotulo: 'garra' id_arma: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true
+    }
+    dados_ataque {
+      grupo: 'ataque' alcance_q: 1
+      rotulo: 'garra' id_arma: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true
+    }
+    dados_ataque {
+      grupo: 'ataque' alcance_q: 1
+      rotulo: 'mordida' id_arma: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d8' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      agarrar_aprimorado: true
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 7 } }
+      }
+    }
+    info_pericias { id: 'ouvir' pontos: 7 }
+    info_pericias { id: 'observar' pontos: 7 }
+    info_pericias { id: 'natacao' pontos: 3 }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'tolerancia' }
+      gerais { id: 'corrida' }
+      gerais { id: 'vitalidade' }
+      gerais { id: 'foco_em_arma' complemento: 'garra' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 31 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+    }
+  }
+}
 modelo {
   id: 'Lobo Atroz'
   entidade {

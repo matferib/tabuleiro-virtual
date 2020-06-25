@@ -70,6 +70,7 @@ sub_menu {
   modelo { id: 'Tigre Atroz' }
   sub_menu {
     id: 'Ursos'
+    modelo { id: 'Urso Atroz' }
     modelo { id: 'Urso Marrom' }
     modelo { id: 'Urso Negro' }
     modelo { id: 'Urso Negro 4 DV' }
