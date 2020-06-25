@@ -6,3 +6,25 @@ sub_menu {
     modelos { id: 'Guepardo' }
   }
 }
+sub_menu {
+  id: 'Encontros'
+  modelo {
+    id: 'bosque_andalara'
+    texto: 'Bosque de Andalara'
+    quantidade: '1'
+    aleatorio: true
+    # 90% de nao dar nada.
+    modelos { id: 'NADA' peso: 9 }
+    modelos {
+      id: 'Lobo Atroz'
+      quantidade: '1d4+4'
+      peso: 1
+    }
+    modelos {
+      id: 'Urso Atroz'
+      quantidade: '1d2'
+      peso: 1
+    }
+  }
+}
+
