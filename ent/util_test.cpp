@@ -1647,6 +1647,20 @@ TEST(TestePergaminho, TesteLancarPergaminhoFalhaComFiasco) {
   EXPECT_TRUE(res.fiasco) << res.texto;
 }
 
+TEST(TesteTalentoPericias, TesteTalentoMenteSobreMateriaCA) {
+  auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* talento = proto_orc.mutable_info_talentos()->add_outros();
+  talento->set_id("mente_sobre_materia");
+  auto orc_sem = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  EXPECT_EQ(orc_sem->CA(*orc_sem, Entidade::CA_NORMAL), 19) << orc_sem->Proto().dados_defesa().ca().DebugString();
+
+  auto* ic = proto_orc.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(1);
+  auto orc_com = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  EXPECT_EQ(orc_com->CA(*orc_com, Entidade::CA_NORMAL), 20) << orc_com->Proto().dados_defesa().ca().DebugString();
+}
+
 TEST(TesteTalentoPericias, TesteAtaquePoderoso) {
   const auto& modelo_orc = g_tabelas.ModeloEntidade("Orc Capitão");
   auto orc = NovaEntidadeParaTestes(modelo_orc.entidade(), g_tabelas);
@@ -1677,7 +1691,7 @@ TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplemento) {
   const auto& darco = DadosAtaquePorGrupo("ataque_total_arco", orc->Proto());
   EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", darco.bonus_ataque()), 0);
   EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", darco.bonus_dano()), 0);
- 
+
   orc->AtualizaParcial(n.entidade_antes());
   EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_ataque()), 0);
   EXPECT_EQ(BonusIndividualPorOrigem(TB_SEM_NOME, "ataque_poderoso", da.bonus_dano()), 0);
@@ -5963,7 +5977,7 @@ TEST(TesteTesouro, TesteTransicao) {
   }
 }
 
-TEST(TesteTesouro, TesteTransicaoTipo) {
+TEST(TesteTesouro, TesteTransicaoTipoAnel) {
   EntidadeProto doador_proto;
   {
     auto* anel = doador_proto.mutable_tesouro()->add_aneis();
@@ -5999,7 +6013,7 @@ TEST(TesteTesouro, TesteTransicaoTipo) {
 
   ntf::Notificacao n_grupo;
   n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  PreencheNotificacoesTransicaoUmTipoTesouro(g_tabelas, TIPO_ANEL, *doador, *receptor, &n_grupo, nullptr);
+  PreencheNotificacoesTransicaoUmTipoTesouro(g_tabelas, TT_ANEL, *doador, *receptor, &n_grupo, nullptr);
 
   {
     // Aplica.
@@ -6056,6 +6070,49 @@ TEST(TesteTesouro, TesteTransicaoTipo) {
   }
 }
 
+TEST(TesteTesouro, TesteTransicaoTipoArma) {
+  EntidadeProto doador_proto;
+  {
+    auto* armadura = doador_proto.mutable_tesouro()->add_armaduras();
+    armadura->set_id("cota_malha");
+    auto* arma = doador_proto.mutable_tesouro()->add_armas();
+    arma->set_id("espada_longa");
+  }
+  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, g_tabelas));
+
+  EntidadeProto receptor_proto;
+  {
+    auto* arma = receptor_proto.mutable_tesouro()->add_armas();
+    arma->set_id("espada_curta");
+  }
+  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, g_tabelas));
+
+  ntf::Notificacao n_grupo;
+  n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  PreencheNotificacoesTransicaoUmTipoTesouro(g_tabelas, TT_ARMA, *doador, *receptor, &n_grupo, nullptr);
+
+  {
+    // Aplica.
+    ASSERT_GE(n_grupo.notificacao_size(), 2);
+    doador->AtualizaParcial(n_grupo.notificacao(0).entidade());
+    EXPECT_FALSE(doador->Proto().tesouro().armaduras().empty());
+    EXPECT_TRUE(doador->Proto().tesouro().armas().empty());
+
+    receptor->AtualizaParcial(n_grupo.notificacao(1).entidade());
+    EXPECT_EQ(receptor->Proto().tesouro().armaduras().size(), 0);
+    EXPECT_EQ(receptor->Proto().tesouro().armas().size(), 2);
+  }
+  {
+    // Aplica desfazer.
+    doador->AtualizaParcial(n_grupo.notificacao(0).entidade_antes());
+    EXPECT_FALSE(doador->Proto().tesouro().armaduras().empty());
+    EXPECT_FALSE(doador->Proto().tesouro().armas().empty());
+
+    receptor->AtualizaParcial(n_grupo.notificacao(1).entidade_antes());
+    EXPECT_TRUE(receptor->Proto().tesouro().armaduras().empty());
+    EXPECT_FALSE(receptor->Proto().tesouro().armas().empty());
+  }
+}
 
 TEST(TesteTesouro, TesteDoacao) {
   EntidadeProto doador_proto;

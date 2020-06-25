@@ -3345,6 +3345,13 @@ void RemoveFormaAlternativa(int indice, EntidadeProto* proto) {
 }
 // Fim Formas Alternativas
 
+bool PreencheCondicoesBonus(const CondicoesBonus& condicoes, const EntidadeProto& proto) {
+  if (condicoes.conjura_magia_arcana()) {
+    if (c_none_of(proto.info_classes(), [] (const InfoClasse& ic) { return ic.tipo_magia() == TM_ARCANA; })) return false;
+  }
+  return true;
+}
+
 bool PossuiTalento(const std::string& chave_talento, const EntidadeProto& entidade) {
   return Talento(chave_talento, entidade) != nullptr;
 }
@@ -5011,6 +5018,18 @@ std::string NomeTipoItem(TipoItem tipo) {
   return nome.find("TIPO_") == 0 ? nome.substr(5) : nome;
 }
 
+const RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& ArmasArmadurasOuEscudosProto(
+    TipoTesouro tipo, const EntidadeProto& proto) {
+  switch (tipo) {
+    case TT_ARMA: return proto.tesouro().armas();
+    case TT_ARMADURA: return proto.tesouro().armaduras();
+    case TT_ESCUDO: return proto.tesouro().escudos();
+    default: ;
+  }
+  LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando armas";
+  return proto.tesouro().armas();
+}
+
 const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
     TipoItem tipo, const EntidadeProto& proto) {
   switch (tipo) {
@@ -5029,6 +5048,18 @@ const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
   return proto.tesouro().aneis();
+}
+
+RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>* ArmasArmadurasOuEscudosProtoMutavel(
+    TipoTesouro tipo, EntidadeProto* proto) {
+  switch (tipo) {
+    case TT_ARMA: return proto->mutable_tesouro()->mutable_armas();
+    case TT_ARMADURA: return proto->mutable_tesouro()->mutable_armaduras();
+    case TT_ESCUDO: return proto->mutable_tesouro()->mutable_escudos();
+    default: ;
+  }
+  LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando armas";
+  return proto->mutable_tesouro()->mutable_armas();
 }
 
 RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
@@ -6042,29 +6073,18 @@ void RemoveTesourosDoados(const EntidadeProto::DadosTesouro& tesouro_doado, Enti
   RemoveMoedasDoadas(tesouro_doado.moedas(), tesouro_final->mutable_moedas());
 }
 
-template <typename T>
-void MergeMensagemTesouro(
-    const T& tesouro, std::function<const ItemMagicoProto&(const std::string&)> f_pega_item_tabela, std::string* texto) {
+void MergeMensagemTesouro(TipoItem tipo, const RepeatedPtrField<ItemMagicoProto>& tesouro, std::string* texto) {
   for (const auto& item : tesouro) {
     texto->append("\n");
-    texto->append(item.nome().empty() ? f_pega_item_tabela(item.id()).nome() : item.nome());
+    texto->append(item.nome().empty() ? ItemTabela(Tabelas::Unica(), tipo, item.id()).nome() : item.nome());
   }
 }
 
-void MergeMensagemArma(
-    const Tabelas& tabelas, const RepeatedPtrField<EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& armas, std::string* texto) {
-  for (const auto& arma : armas) {
+void MergeMensagemArmaArmaduraOuEscudo(
+    TipoTesouro tipo, const RepeatedPtrField<EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& itens, std::string* texto) {
+  for (const auto& item : itens) {
     texto->append("\n");
-    texto->append(arma.nome().empty() ? tabelas.Arma(arma.id()).nome() : arma.nome());
-  }
-}
-
-template <typename T>
-void MergeMensagemArmaduraEscudo(
-    const T& tesouro, std::function<const ArmaduraOuEscudoProto&(const std::string&)> f_pega_item_tabela, std::string* texto) {
-  for (const auto& item : tesouro) {
-    texto->append("\n");
-    texto->append(item.nome().empty() ? f_pega_item_tabela(item.id()).nome() : item.nome());
+    texto->append(item.nome().empty() ? item.id_tabela() : item.nome());
   }
 }
 
@@ -6081,20 +6101,20 @@ void MergeMensagemMoedas(const Moedas& moedas, std::string* texto) {
 
 void MergeMensagensTesouro(const EntidadeProto::DadosTesouro& tesouro, const Tabelas& tabelas, std::string* texto) {
   // Os lambdas aqui devem ter o retorno explicit, caso contrario o C++ assumira copia e a referencia retornada pela funcao ficara invalida.
-  MergeMensagemTesouro(tesouro.pocoes(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Pocao(id); }, texto);
-  MergeMensagemTesouro(tesouro.aneis(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Anel(id); }, texto);
-  MergeMensagemTesouro(tesouro.mantos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Manto(id); }, texto);
-  MergeMensagemTesouro(tesouro.luvas(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Luvas(id); }, texto);
-  MergeMensagemTesouro(tesouro.bracadeiras(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Bracadeiras(id); }, texto);
-  MergeMensagemTesouro(tesouro.amuletos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Amuleto(id); }, texto);
-  MergeMensagemTesouro(tesouro.botas(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Botas(id); }, texto);
-  MergeMensagemTesouro(tesouro.chapeus(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.Chapeu(id); }, texto);
-  MergeMensagemTesouro(tesouro.pergaminhos_arcanos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.PergaminhoArcano(id); }, texto);
-  MergeMensagemTesouro(tesouro.pergaminhos_divinos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.PergaminhoDivino(id); }, texto);
-  MergeMensagemTesouro(tesouro.itens_mundanos(), [&tabelas](const std::string& id) -> const ItemMagicoProto& { return tabelas.ItemMundano(id); }, texto);
-  MergeMensagemArma(tabelas, tesouro.armas(), texto);
-  MergeMensagemArmaduraEscudo(tesouro.armaduras(), [&tabelas](const std::string& id) -> const ArmaduraOuEscudoProto& { return tabelas.Armadura(id); }, texto);
-  MergeMensagemArmaduraEscudo(tesouro.escudos(), [&tabelas](const std::string& id) -> const ArmaduraOuEscudoProto& { return tabelas.Escudo(id); }, texto);
+  MergeMensagemTesouro(TIPO_POCAO, tesouro.pocoes(), texto);
+  MergeMensagemTesouro(TIPO_ANEL, tesouro.aneis(), texto);
+  MergeMensagemTesouro(TIPO_MANTO, tesouro.mantos(), texto);
+  MergeMensagemTesouro(TIPO_LUVAS, tesouro.luvas(), texto);
+  MergeMensagemTesouro(TIPO_BRACADEIRAS, tesouro.bracadeiras(), texto);
+  MergeMensagemTesouro(TIPO_AMULETO, tesouro.amuletos(), texto);
+  MergeMensagemTesouro(TIPO_BOTAS, tesouro.botas(), texto);
+  MergeMensagemTesouro(TIPO_CHAPEU, tesouro.chapeus(), texto);
+  MergeMensagemTesouro(TIPO_PERGAMINHO_ARCANO, tesouro.pergaminhos_arcanos(), texto);
+  MergeMensagemTesouro(TIPO_PERGAMINHO_DIVINO, tesouro.pergaminhos_divinos(), texto);
+  MergeMensagemTesouro(TIPO_ITEM_MUNDANO, tesouro.itens_mundanos(), texto);
+  MergeMensagemArmaArmaduraOuEscudo(TT_ARMA, tesouro.armas(), texto);
+  MergeMensagemArmaArmaduraOuEscudo(TT_ARMADURA, tesouro.armaduras(), texto);
+  MergeMensagemArmaArmaduraOuEscudo(TT_ESCUDO, tesouro.escudos(), texto);
   MergeMensagemMoedas(tesouro.moedas(), texto);
 }
 
@@ -6126,18 +6146,50 @@ void CriaTesouroTodoVazio(EntidadeProto::DadosTesouro* tesouro) {
   LimpaMoedas(tesouro->mutable_moedas());
 }
 
+void DoadorPerdeTesouroTipo(TipoTesouro tipo, const Entidade& doador, EntidadeProto* e_antes, EntidadeProto* e_depois) {
+  if (TipoItem_IsValid(tipo)) {
+    auto ti = static_cast<TipoItem>(tipo);
+    AtribuiTesouroOuCriaVazio(ItensProto(ti, doador.Proto()), ItensProtoMutavel(ti, e_antes));
+    auto* itens_perdidos = ItensProtoMutavel(ti, e_depois);
+    itens_perdidos->Clear();
+    itens_perdidos->Add();
+  } else {
+    AtribuiTesouroOuCriaVazio(ArmasArmadurasOuEscudosProto(tipo, doador.Proto()), ArmasArmadurasOuEscudosProtoMutavel(tipo, e_antes));
+    auto* itens_perdidos = ArmasArmadurasOuEscudosProtoMutavel(tipo, e_depois);
+    itens_perdidos->Clear();
+    itens_perdidos->Add();
+  }
+}
+
+void ReceptorGanhaTesouroDoadoTipo(TipoTesouro tipo, const Entidade& receptor, const Entidade& doador, EntidadeProto* e_antes, EntidadeProto* e_depois) {
+  if (TipoItem_IsValid(tipo)) {
+    auto ti = static_cast<TipoItem>(tipo);
+    AtribuiTesouroOuCriaVazio(ItensProto(ti, receptor.Proto()), ItensProtoMutavel(ti, e_antes));
+    MergeTesouro(ItensProto(ti, receptor.Proto()), ItensProto(ti, doador.Proto()), ItensProtoMutavel(ti, e_depois));
+  } else {
+    AtribuiTesouroOuCriaVazio(ArmasArmadurasOuEscudosProto(tipo, receptor.Proto()), ArmasArmadurasOuEscudosProtoMutavel(tipo, e_antes));
+    MergeTesouro(ArmasArmadurasOuEscudosProto(tipo, receptor.Proto()), ArmasArmadurasOuEscudosProto(tipo, doador.Proto()), ArmasArmadurasOuEscudosProtoMutavel(tipo, e_depois));
+  }
+}
+
+std::string GeraMensagemTesouroDoado(TipoTesouro tipo, const Entidade& doador) {
+  std::string texto;
+  if (TipoItem_IsValid(tipo)) {
+    const auto& tesouro_doador = ItensProto(static_cast<TipoItem>(tipo), doador.Proto());
+    MergeMensagemTesouro(static_cast<TipoItem>(tipo), tesouro_doador, &texto);
+  } else {
+    MergeMensagemArmaArmaduraOuEscudo(tipo, ArmasArmadurasOuEscudosProto(tipo, doador.Proto()), &texto);
+  }
+  return texto;
+}
+
 void PreencheNotificacoesTransicaoUmTipoTesouro(
-    const Tabelas& tabelas, TipoItem tipo, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
+    const Tabelas& tabelas, TipoTesouro tipo, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer) {
   {
     // Doador perde so o tipo passado.
     auto [n_perdeu, e_antes, e_depois] = NovaNotificacaoFilha(
         ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, doador.Proto(), n_grupo);
-
-    AtribuiTesouroOuCriaVazio(ItensProto(tipo, doador.Proto()), ItensProtoMutavel(tipo, e_antes));
-    auto* itens_perdidos = ItensProtoMutavel(tipo, e_depois);
-    itens_perdidos->Clear();
-    itens_perdidos->Add();
-
+    DoadorPerdeTesouroTipo(tipo, doador, e_antes, e_depois);
     if (n_desfazer != nullptr) {
       *n_desfazer->add_notificacao() = *n_perdeu;
     }
@@ -6146,9 +6198,7 @@ void PreencheNotificacoesTransicaoUmTipoTesouro(
     // Receptor ganha alem do que ja tem.
     auto [n_ganhou, e_antes, e_depois] = NovaNotificacaoFilha(
         ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, receptor.Proto(), n_grupo);
-    AtribuiTesouroOuCriaVazio(ItensProto(tipo, receptor.Proto()), ItensProtoMutavel(tipo, e_antes));
-    MergeTesouro(ItensProto(tipo, receptor.Proto()), ItensProto(tipo, doador.Proto()), ItensProtoMutavel(tipo, e_depois));
-
+    ReceptorGanhaTesouroDoadoTipo(tipo, receptor, doador, e_antes, e_depois);
     if (n_desfazer != nullptr) {
       *n_desfazer->add_notificacao() = *n_ganhou;
     }
@@ -6157,10 +6207,7 @@ void PreencheNotificacoesTransicaoUmTipoTesouro(
     // Texto de transicao.
     auto* acao = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ACAO, n_grupo)->mutable_acao();
     acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-    const auto& tesouro_doador = ItensProto(tipo, doador.Proto());;
-    std::string texto;
-    MergeMensagemTesouro(tesouro_doador,
-        [&tabelas, tipo](const std::string& id) -> const ItemMagicoProto& { return ItemTabela(tabelas, tipo, id); }, &texto);
+    std::string texto = GeraMensagemTesouroDoado(tipo, doador);
     acao->set_texto(texto);
     acao->add_por_entidade()->set_id(receptor.Id());
   }

@@ -2,6 +2,7 @@ modelo {
   id: 'Andalara Ranger 9'
   entidade {
     rotulo: 'Andalara Ranger 9'
+    rotulo_especial: 'Truques animal (7): dar poção [auto], procurar, atacar, recuar, seguir, guardar, defender'
     raca: 'humano'
     tendencia { simples: TD_CAOTICO_BOM }
     dados_vida: '8d8+8+9'

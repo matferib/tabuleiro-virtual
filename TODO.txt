@@ -1,3 +1,5 @@
+Modelo sapo.
+Ordenar pergaminhos por nivel.
 UI de armas e ataques ligados a elas: delegate de arma;
 
 Sessão:

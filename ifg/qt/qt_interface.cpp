@@ -7,6 +7,7 @@
 #include <QDialogButtonBox>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QString>
 
 #include "arq/arquivo.h"
@@ -37,6 +38,7 @@ void InterfaceGraficaQt::MostraMensagem(
 
 void InterfaceGraficaQt::EscolheItemLista(
     const std::string& titulo,
+    const std::optional<std::string>& rotulo_ok,
     const std::vector<std::string>& lista,
     std::function<void(bool, int)> funcao_volta) {
   // Popula.
@@ -61,6 +63,9 @@ void InterfaceGraficaQt::EscolheItemLista(
     funcao_volta(false, -1);
     dialogo->reject();
   };
+  if (rotulo_ok.has_value()) {
+    gerador.botoes->button(QDialogButtonBox::Ok)->setText(QString::fromUtf8(rotulo_ok->c_str()));
+  }
 
   lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
   lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);

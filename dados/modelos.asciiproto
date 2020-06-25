@@ -533,6 +533,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Cão Infernal ICIII'
+  id_entidade_base: 'Cão Infernal'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
   id: 'Cobra, Víbora Grande Abissal ICIII'
   id_entidade_base: 'Cobra, Víbora Grande Abissal'
   parametros {
@@ -1392,6 +1399,8 @@ modelo {
 modelo {
   id: 'Cão Infernal'
   entidade {
+    modelo_3d { id: 'barghest' }
+    # modelo_3d { id: 'hellhound' }
     tendencia { simples: TD_LEAL_MAU }
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_MAL

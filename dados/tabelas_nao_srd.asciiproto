@@ -222,6 +222,23 @@ tabela_armas {
 }
 tabela_talentos {
   talentos {
+    id: 'mente_sobre_materia'
+    nome: 'Mente sobre Matéria'
+    nome_ingles: 'mind over body'
+    link: 'https://dndtools.net/feats/players-guide-to-faerun--22/mind-over-body--1954/'
+    descricao: 'Adiciona bonus de inteligência ou carisma aos pontos de vida de primeiro nível e +1 a cada talento metamágico, além de +1 de bônus de intuição em CA se conjurar magias arcanas'
+    bonus_ca {
+      condicoes_bonus { conjura_magia_arcana: true }
+      bonus_individual { tipo: TB_INTUICAO por_origem { origem: 'mente_sobre_materia' valor: 1 } }
+    }
+
+    regional: true
+    # regioes: Elf (Silverymoon or Snow Eagle Aerie), half-elf (Silverymoon), human (Calimshan, Mulhorand, Shou Expatriate, or Thay)
+    # , or spirit folk (Ashane), planetouched (Calimshan or Thay).
+    livro: 'PGtF'
+  }
+
+  talentos {
     id: 'investida_furiosa'
     nome: 'Investida Furiosa'
     nome_ingles: 'furious charge'

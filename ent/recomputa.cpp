@@ -2192,7 +2192,7 @@ void RecomputaCAParaUmAtaque(const Tabelas& tabelas, const DadosAtaque& da, cons
 
   for (const auto& talento : tabelas.todas().tabela_talentos().talentos()) {
     if (talento.has_bonus_ca()) {
-      if (PossuiTalento(talento.id(), proto)) {
+      if (PossuiTalento(talento.id(), proto) && PreencheCondicoesBonus(talento.bonus_ca().condicoes_bonus(), proto)) {
         CombinaBonus(talento.bonus_ca(), ca);
       } else {
         LimpaBonus(talento.bonus_ca(), ca);
