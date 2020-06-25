@@ -2725,6 +2725,18 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   } else {
     gerador.checkbox_nevoa->setCheckState(Qt::Unchecked);
   }
+  ent::Cor cor_nevoa_proto(tab_proto.nevoa().cor());
+  gerador.botao_cor_nevoa->setStyleSheet(CorParaEstilo(cor_nevoa_proto));
+  lambda_connect(gerador.botao_cor_nevoa, SIGNAL(clicked()), [this, dialogo, &gerador, &cor_nevoa_proto] {
+    QColor cor =
+        QColorDialog::getColor(ProtoParaCor(cor_nevoa_proto), dialogo, QObject::tr("Cor da névoa"));
+    if (!cor.isValid()) {
+      return;
+    }
+    gerador.checkbox_cor_nevoa->setCheckState(Qt::Checked);
+    gerador.botao_cor_nevoa->setStyleSheet(CorParaEstilo(cor));
+    cor_nevoa_proto = CorParaProto(cor);
+  });
 
   // Textura do tabuleiro.
   PreencheComboTextura(tab_proto.info_textura_piso().id().c_str(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaTabuleiro, gerador.combo_fundo);
@@ -2753,6 +2765,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
 
   // Ladrilho de textura.
   gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
+  gerador.spin_escala_piso_x->setValue(tab_proto.info_textura_piso().escala_x());
+  gerador.spin_escala_piso_y->setValue(tab_proto.info_textura_piso().escala_y());
   // grade.
   gerador.checkbox_grade->setCheckState(tab_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
   // Mestre apenas.
@@ -2803,7 +2817,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
-                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, proto_retornado] {
+                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, &cor_nevoa_proto, proto_retornado] {
     // Descricao.
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
     // Nevoa.
@@ -2827,6 +2841,11 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
         }
         proto_retornado->mutable_nevoa()->set_minimo(d_min);
         proto_retornado->mutable_nevoa()->set_maximo(d_max);
+        if (gerador.checkbox_cor_nevoa->checkState() == Qt::Checked) {
+          proto_retornado->mutable_nevoa()->mutable_cor()->Swap(&cor_nevoa_proto);
+        } else {
+          proto_retornado->mutable_nevoa()->clear_cor();
+        }
       } else {
         proto_retornado->clear_nevoa();
       }
@@ -2844,6 +2863,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
         proto_retornado->clear_info_textura_piso();
       } else {
         PreencheTexturaProtoRetornado(tab_proto.info_textura_piso(), gerador.combo_fundo, proto_retornado->mutable_info_textura_piso());
+        // Escala.
+        proto_retornado->mutable_info_textura_piso()->set_escala_x(gerador.spin_escala_piso_x->value());
+        proto_retornado->mutable_info_textura_piso()->set_escala_y(gerador.spin_escala_piso_y->value());
       }
       // Ladrilho.
       if (gerador.combo_fundo->currentIndex() != 0) {

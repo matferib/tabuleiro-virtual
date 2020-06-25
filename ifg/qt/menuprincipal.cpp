@@ -382,7 +382,7 @@ void MenuPrincipal::TrataAcaoModelo(QAction* acao) {
       LOG(INFO) << "quantidade a ser gerada " << modelos_com_pesos.quantidade;
     }
     for (const auto& m : it->second.modelos()) {
-      modelos_com_pesos.ids_com_peso.emplace_back(m.id(), m.has_peso() ? m.peso() : 1);
+      modelos_com_pesos.ids_com_peso.emplace_back(m.id(), m.has_peso() ? m.peso() : 1, m.has_quantidade() ? m.quantidade() : "1");
     }
   }
   tabuleiro_->SelecionaModelosEntidades(modelos_com_pesos);
