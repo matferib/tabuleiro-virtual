@@ -32,8 +32,11 @@ sub_menu {
 }
 sub_menu {
   id: 'Animais'
+  modelo { id: 'Águia' }
+  modelo { id: 'Arminho Atroz' }
   modelo { id: 'Cachorro' }
   modelo { id: 'Cachorro Celestial' }
+  modelo { id: 'Carcaju Atroz' }
   modelo { id: 'Coruja' }
   sub_menu {
     id: 'Cobras'
@@ -44,7 +47,6 @@ sub_menu {
       modelo { id: 'Cobra, Víbora Média' texto: 'Média' }
     }
   }
-  modelo { id: 'Águia' }
   sub_menu {
     id: 'Dinossauros'
     modelo { id: 'Megaraptor' }

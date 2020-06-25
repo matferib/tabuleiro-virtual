@@ -6563,6 +6563,10 @@ tabela_feiticos {
           id_modelo_entidade: 'Lobo Atroz IANIII'
         }
         parametros {
+          texto: 'Arminho Atroz'
+          id_modelo_entidade: 'Arminho Atroz IANIII'
+        }
+        parametros {
           texto: 'Leão'
           id_modelo_entidade: 'Leão IANIII'
         }
@@ -10530,6 +10534,10 @@ tabela_feiticos {
         parametros {
           texto: 'Cão Infernal'
           id_modelo_entidade: 'Cão Infernal ICIII'
+        }
+        parametros {
+          texto: 'Arminho Atroz Abissal'
+          id_modelo_entidade: 'Arminho Atroz Abissal ICIII'
         }
         parametros {
           texto: 'Urso Negro Celestial'
