@@ -821,7 +821,7 @@ std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::stri
   int res = 0;
   for (const auto& mds : vetor_mds) {
     //mds.Imprime();
-    for (int i = 0; i < std::abs<int>(mds.mult); ++i) {
+    for (int i = 0; i < std::abs(mds.mult); ++i) {
       int valor_dado = RolaDado(mds.dado) * ((mds.mult < 0) ? -1 : 1);
       dados.push_back(std::make_pair(mds.dado, valor_dado));
       res += valor_dado;

@@ -1399,8 +1399,6 @@ modelo {
 modelo {
   id: 'Cão Infernal'
   entidade {
-    modelo_3d { id: 'barghest' }
-    # modelo_3d { id: 'hellhound' }
     tendencia { simples: TD_LEAL_MAU }
     tipo_dnd: TIPO_EXTRA_PLANAR
     sub_tipo_dnd: SUBTIPO_MAL
