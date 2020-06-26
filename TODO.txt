@@ -1,3 +1,7 @@
+Se agarrado, considerar flat footed para outros atacantes.
+Botao de agarrar ta fazendo nada.
+Mac ta travando ao atacar com efeitos negativos (ver arminho).
+Textura de carcaju (wolverine) e arminho (weasel).
 Fazer carcaju e Arminho.
 Colocar preco na UI.
 Modelo sapo.
