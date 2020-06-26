@@ -533,6 +533,20 @@ modelo {
   }
 }
 modelo {
+  id: 'Arminho Atroz Abissal ICIII'
+  id_entidade_base: 'Arminho Atroz Abissal'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Arminho Atroz IANIII'
+  id_entidade_base: 'Arminho Atroz'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
   id: 'Cão Infernal ICIII'
   id_entidade_base: 'Cão Infernal'
   parametros {
@@ -4649,6 +4663,64 @@ modelo {
 }
 
 modelo {
+  id: 'Stirge'
+  entidade {
+    tipo_dnd: TIPO_BESTA_MAGICA
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '1d10' tamanho: TM_MIUDO
+    info_textura { id: 'stirge.png' }
+    info_classes {
+      id: 'besta_magica' nivel: 1
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    movimento {
+      terrestre_basico_q: 2
+      aereo_basico_q: 8
+    }
+    rotulo_especial: 'adesão ao atingir'
+    tipo_visao: VISAO_ESCURO_E_BAIXA_LUMINOSIDADE
+    mais_de_duas_pernas: true
+    dados_ataque {
+      grupo: 'picada'
+      rotulo: 'picada' id_arma: 'mordida' dano_basico_fixo: ''
+      tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
+      adesao: true
+    }
+    dados_ataque {
+      grupo: 'drenar_sangue'
+      rotulo: 'drenar_sangue_se_aderido'
+      tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        efeitos_adicionais {
+          efeito: EFEITO_PENALIDADE_CONSTITUICAO
+          descricao: 'dano de constituição volta 1 por dia (ou 2 para descanso completo).'
+          dado_complementos_str: '-1d4'
+        }
+      }
+    }
+    info_pericias { id: 'ouvir' pontos: 1 }
+    info_pericias { id: 'observar' pontos: 1 }
+    info_pericias { id: 'esconderse' pontos: 2 }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      outros { id: 'acuidade_arma' origem: 'bonus'}
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+  }
+}
+
+
+modelo {
   id: 'Arminho Atroz'  # dire weasel
   entidade {
     tipo_dnd: TIPO_ANIMAL
@@ -4672,19 +4744,14 @@ modelo {
       grupo: 'ataque'
       rotulo: 'mordida' id_arma: 'mordida_padrao'
       tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
-      agarrar_aprimorado: true
-      acao_fixa {
-        efeitos_adicionais {
-          efeito: EFEITO_OUTRO
-          descricao: 'adesao, considera o arminho surpreso mas pode drenar sangue'
-        }
-      }
+      adesao: true
     }
     dados_ataque {
-      grupo: 'adesao'
-      rotulo: 'drenar_sangue'
+      grupo: 'drenar_sangue'
+      rotulo: 'drenar_sangue_se_aderido'
       tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
       acao_fixa {
+        permite_ataque_vs_defesa: false
         efeitos_adicionais {
           efeito: EFEITO_PENALIDADE_CONSTITUICAO
           descricao: 'dano de constituição volta 1 por dia (ou 2 para descanso completo).'
@@ -4717,7 +4784,14 @@ modelo {
     }
   }
 }
-
+modelo {
+  id: 'Arminho Atroz Abissal'
+  id_entidade_base: 'Arminho Atroz'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
+    tendencia { simples: TD_LEAL_MAU }
+  }
+}
 
 modelo {
   id: 'Texugo Atroz'  # dire badger

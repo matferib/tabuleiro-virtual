@@ -2097,10 +2097,10 @@ float Tabuleiro::TrataAcaoIndividual(
       ConcatenaString(resultado_derrubar.texto, por_entidade->mutable_texto());
     }
     if (resultado.Sucesso() &&
-        da.agarrar_aprimorado() &&
-        entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho()) {
+        (da.adesao() ||
+         (da.agarrar_aprimorado() && entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho()))) {
       // agarrar
-      ResultadoAtaqueVsDefesa resultado_agarrar = AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
+      ResultadoAtaqueVsDefesa resultado_agarrar = da.adesao() ? ResultadoAtaqueVsDefesa{RA_SUCESSO, 1, "auto"} : AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
       if (resultado_agarrar.Sucesso()) {
         por_entidade->set_forca_consequencia(true);
         acao_proto->set_consequencia(TC_AGARRA_ALVO);
