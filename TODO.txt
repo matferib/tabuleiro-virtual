@@ -1,6 +1,6 @@
+Ordenar pergaminhos por nivel.
 Meio dano de armas cortantes e perfurantes de enxames.
 Modelo sapo.
-Ordenar pergaminhos por nivel.
 UI de armas e ataques ligados a elas: delegate de arma;
 
 Sessão:
