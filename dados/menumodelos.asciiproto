@@ -36,6 +36,7 @@ sub_menu {
   modelo { id: 'Arminho Atroz' }
   modelo { id: 'Cachorro' }
   modelo { id: 'Cachorro Celestial' }
+  modelo { id: 'Carcajú' }
   modelo { id: 'Carcajú Atroz' }
   modelo { id: 'Coruja' }
   sub_menu {
