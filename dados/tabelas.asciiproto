@@ -1930,7 +1930,7 @@ tabela_efeitos {
   efeitos {
     id: EFEITO_COMPETENCIA_PERICIA
     nome: 'competência em perícia'
-    formato_complementos: 'primeiro em ataque, segundo em dano'
+    formato_complementos: 'string nome da pericia, int o valor.'
   }
 
   efeitos {
@@ -2688,7 +2688,15 @@ tabela_aneis {
     custo_po: 200000
   }
 }
-
+tabela_varinhas {
+  varinhas {
+    id: 'missil_magico_1'
+    id_feitico: 'missil_magico'
+    nivel_conjurador: 1
+    nome: 'míssil mágico (1)'
+    custo_po: 750
+  }
+}
 tabela_itens_mundanos {
   itens {
     id: 'fogo_alquimico'
@@ -3163,6 +3171,54 @@ tabela_pergaminhos {
 }
 
 tabela_pocoes {
+  #pocoes {
+  #  # Em portugues é filtro; elixir of fire breath
+  #  id: 'elixir_cuspir_fogo'
+  #  nome: 'elixir de cuspir fogo (filtro de cuspir fogo)'
+  #  duracao_rodadas: 600
+  #  tipo_efeito: EFEITO_CUSPIR_FOGO
+  #  custo_po: 1100
+  #}
+  pocoes {
+    # Em portugues é filtro; elixir of swimming
+    id: 'elixir_natacao'
+    nome: 'elixir da natação (filtro da natação)'
+    duracao_rodadas: 600
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
+    complementos: 10
+    complementos_str: 'natacao'
+    custo_po: 250
+  }
+  pocoes {
+    # Em portugues é filtro; elixir of vision
+    id: 'elixir_visao'
+    nome: 'elixir da visão (filtro da visão)'
+    duracao_rodadas: 600
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
+    complementos: 10
+    complementos_str: 'procurar'
+    custo_po: 250
+  }
+  pocoes {
+    # Em portugues é filtro; elixir of sneaking
+    id: 'elixir_furtividade'
+    nome: 'elixir da furtividade (filtro da furtividade)'
+    duracao_rodadas: 600
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
+    complementos: 10
+    complementos_str: 'furtividade'
+    custo_po: 250
+  }
+  pocoes {
+    # Em portugues é filtro; elixir of hiding
+    id: 'elixir_ocultacao'
+    nome: 'elixir da ocultação (filtro da ocultação)'
+    duracao_rodadas: 600
+    tipo_efeito: EFEITO_COMPETENCIA_PERICIA
+    complementos: 10
+    complementos_str: 'esconderse'
+    custo_po: 250
+  }
   pocoes {
     id: 'arma_abencoada'
     nome: 'Arma Abençoada (shillelagh)'
@@ -13921,6 +13977,7 @@ tabela_feiticos {
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     dano { invariavel: '4d6' }
+    modelo_limite_vezes: MG_UM_MAIS_UM_CADA_4_APOS_TERCEIRO_MAXIMO_3
     info_classes {
       id: 'mago'
       nivel: 2

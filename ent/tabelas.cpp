@@ -262,6 +262,7 @@ void Tabelas::RecarregaMapas() {
   aneis_.clear();
   //municoes_.clear();
   itens_mundanos_.clear();
+  varinhas_.clear();
   mantos_.clear();
   luvas_.clear();
   bracadeiras_.clear();
@@ -459,6 +460,10 @@ void Tabelas::RecarregaMapas() {
 
   for (auto& item : *tabelas_.mutable_tabela_itens_mundanos()->mutable_itens()) {
     itens_mundanos_[item.id()] = &item;
+  }
+
+  for (auto& item : *tabelas_.mutable_tabela_varinhas()->mutable_varinhas()) {
+    varinhas_[item.id()] = &item;
   }
 
   //for (auto& municao : *tabelas_.mutable_tabela_municoes()->mutable_municoes()) {
@@ -671,6 +676,11 @@ const Modelo& Tabelas::ModeloEntidade(const std::string& id) const {
 const ItemMagicoProto& Tabelas::Pocao(const std::string& id) const {
   auto it = pocoes_.find(id);
   return it == pocoes_.end() ? ItemMagicoProto::default_instance() : *it->second;
+}
+
+const ItemMagicoProto& Tabelas::Varinha(const std::string& id) const {
+  auto it = varinhas_.find(id);
+  return it == varinhas_.end() ? ItemMagicoProto::default_instance() : *it->second;
 }
 
 const ItemMagicoProto& Tabelas::PergaminhoArcano(const std::string& id) const {

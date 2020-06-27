@@ -4291,6 +4291,10 @@ std::unique_ptr<ntf::Notificacao> NotificacaoAlterarFeitico(
 
 int ComputaLimiteVezes(ModeloGenerico modelo, int nivel_conjurador) {
   switch (modelo) {
+    case MG_UM_MAIS_UM_CADA_4_APOS_TERCEIRO_MAXIMO_3: {
+      return std::min(3, (1 + nivel_conjurador - 3) / 4);
+    }
+    break;
     case MG_UM_CADA_3_NIVEIS: {
       return nivel_conjurador / 3;
     }
@@ -4973,7 +4977,6 @@ int NumeroReflexos(const EntidadeProto& proto) {
 const ItemMagicoProto& ItemTabela(
     const Tabelas& tabelas, TipoItem tipo, const std::string& id) {
   switch (tipo) {
-    case TipoItem::TIPO_ITEM_MUNDANO: return tabelas.ItemMundano(id);
     case TipoItem::TIPO_ANEL: return tabelas.Anel(id);
     case TipoItem::TIPO_MANTO: return tabelas.Manto(id);
     case TipoItem::TIPO_LUVAS: return tabelas.Luvas(id);
@@ -4984,6 +4987,8 @@ const ItemMagicoProto& ItemTabela(
     case TipoItem::TIPO_CHAPEU: return tabelas.Chapeu(id);
     case TipoItem::TIPO_PERGAMINHO_ARCANO: return tabelas.PergaminhoArcano(id);
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return tabelas.PergaminhoDivino(id);
+    case TipoItem::TIPO_ITEM_MUNDANO: return tabelas.ItemMundano(id);
+    case TipoItem::TIPO_VARINHA: return tabelas.Varinha(id);
     default: ;
   }
   LOG(ERROR) << "tipo de item invalido: " << TipoItem_Name(tipo);
@@ -5045,6 +5050,7 @@ const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
     case TipoItem::TIPO_PERGAMINHO_ARCANO: return proto.tesouro().pergaminhos_arcanos();
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return proto.tesouro().pergaminhos_divinos();
     case TipoItem::TIPO_ITEM_MUNDANO: return proto.tesouro().itens_mundanos();
+    case TipoItem::TIPO_VARINHA: return proto.tesouro().varinhas();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
@@ -5077,6 +5083,7 @@ RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
     case TipoItem::TIPO_PERGAMINHO_ARCANO: return proto->mutable_tesouro()->mutable_pergaminhos_arcanos();
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return proto->mutable_tesouro()->mutable_pergaminhos_divinos();
     case TipoItem::TIPO_ITEM_MUNDANO: return proto->mutable_tesouro()->mutable_itens_mundanos();
+    case TipoItem::TIPO_VARINHA: return proto->mutable_tesouro()->mutable_varinhas();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
@@ -6116,6 +6123,7 @@ void MergeMensagensTesouro(const EntidadeProto::DadosTesouro& tesouro, const Tab
   MergeMensagemTesouro(TIPO_CHAPEU, tesouro.chapeus(), texto);
   MergeMensagemTesouro(TIPO_PERGAMINHO_ARCANO, tesouro.pergaminhos_arcanos(), texto);
   MergeMensagemTesouro(TIPO_PERGAMINHO_DIVINO, tesouro.pergaminhos_divinos(), texto);
+  MergeMensagemTesouro(TIPO_VARINHA, tesouro.varinhas(), texto);
   MergeMensagemTesouro(TIPO_ITEM_MUNDANO, tesouro.itens_mundanos(), texto);
   MergeMensagemArmaArmaduraOuEscudo(TT_ARMA, tesouro.armas(), texto);
   MergeMensagemArmaArmaduraOuEscudo(TT_ARMADURA, tesouro.armaduras(), texto);

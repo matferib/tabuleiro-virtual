@@ -240,6 +240,7 @@ message EntidadeProto {
     repeated ItemMagicoProto chapeus = 9;
     repeated ItemMagicoProto pergaminhos_arcanos  = 10;
     repeated ItemMagicoProto pergaminhos_divinos = 11;
+    repeated ItemMagicoProto varinhas = 12;
     repeated ArmaArmaduraOuEscudoPersonagem armas = 20;
     repeated ArmaArmaduraOuEscudoPersonagem armaduras = 21;
     repeated ArmaArmaduraOuEscudoPersonagem escudos = 22;

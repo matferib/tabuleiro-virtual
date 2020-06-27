@@ -16,6 +16,7 @@ enum ModeloGenerico {
   MG_UM_CADA_NIVEL_IMPAR_MAX_5 = 1;  // misseis magicos.
   MG_UM_POR_NIVEL = 2;  // velocidade
   MG_UM_CADA_3_NIVEIS = 3;  // aterrorizar
+  MG_UM_MAIS_UM_CADA_4_APOS_TERCEIRO_MAXIMO_3 = 4;  // raio ardente.
 }
 
 enum TipoMagia {
@@ -964,6 +965,7 @@ enum TipoItem {
   TIPO_PERGAMINHO_ARCANO = 8;
   TIPO_PERGAMINHO_DIVINO = 9;
   TIPO_ITEM_MUNDANO = 10;
+  TIPO_VARINHA = 11;
 }
 
 enum TipoComplementoItemMagico {

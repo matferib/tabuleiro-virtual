@@ -277,6 +277,10 @@ message TabelaPergaminhos {
   repeated ItemMagicoProto pergaminhos_divinos = 2;
 }
 
+message TabelaVarinhas {
+  repeated ItemMagicoProto varinhas = 1;
+}
+
 message TabelaTalentos {
   repeated TalentoProto talentos = 1;
 }
@@ -369,4 +373,5 @@ message TodasTabelas {
   optional TabelaDominios tabela_dominios = 60;
   optional TabelaMunicoes tabela_municoes = 62;
   optional TabelaItensMundanos tabela_itens_mundanos = 63;
+  optional TabelaVarinhas tabela_varinhas = 64;
 }
