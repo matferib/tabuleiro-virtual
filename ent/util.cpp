@@ -3117,11 +3117,11 @@ std::string StringCritico(const DadosAtaque& da) {
 std::string StringAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
   int modificador = ModificadorAtaque(da, proto, EntidadeProto());
   std::string texto_modificador;
-  if (modificador != 0) texto_modificador = google::protobuf::StringPrintf("%+d", modificador);
+  if (modificador != 0) texto_modificador = StringPrintf("%+d", modificador);
 
   std::string texto_furtivo;
   if (proto.dados_ataque_global().furtivo() && !proto.dados_ataque_global().dano_furtivo().empty()) {
-    texto_furtivo = google::protobuf::StringPrintf("+%s", proto.dados_ataque_global().dano_furtivo().c_str());
+    texto_furtivo = StringPrintf("+%s", proto.dados_ataque_global().dano_furtivo().c_str());
   }
 
   std::string critico = StringCritico(da);
@@ -5301,6 +5301,10 @@ bool DestrezaNaCAContraAtaque(
     const DadosAtaque* da, const EntidadeProto& proto_defesa, const EntidadeProto& proto_ataque) {
   if (!DestrezaNaCA(proto_defesa)) return false;
   if (da == nullptr) return true;
+  if (!proto_defesa.agarrado_a().empty() && c_none(proto_defesa.agarrado_a(), proto_ataque.id())) {
+    // Defensor agarrado e atacante não.
+    return false;
+  }
 
   const bool atacante_invisivel_para_defensor = PossuiEvento(EFEITO_CEGO, proto_defesa) ||
     (PossuiEventoNaoPossuiOutro(EFEITO_INVISIBILIDADE, EFEITO_POEIRA_OFUSCANTE, proto_ataque) && !PossuiEvento(EFEITO_VER_INVISIVEL, proto_defesa));
