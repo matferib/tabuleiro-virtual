@@ -1,6 +1,8 @@
+Meio dano de armas cortantes e perfurantes de enxames.
+Pericias derivadas (como fintar -> blefar vs sentir motivacao + BBA, rastrear -> sobrevivencia).
+Fintar.
 Se agarrado, considerar flat footed para outros atacantes.
 Botao de agarrar ta fazendo nada.
-Mac ta travando ao atacar com efeitos negativos (ver arminho).
 Textura de carcaju (wolverine) e arminho (weasel).
 Fazer carcaju e Arminho.
 Colocar preco na UI.
@@ -9,8 +11,6 @@ Ordenar pergaminhos por nivel.
 UI de armas e ataques ligados a elas: delegate de arma;
 
 Sessão:
-* fazer andalara.
-* Fazer os 4 acompanhantes.
 * Bolar a aventura;
 
 Fazer kobold.
