@@ -62,6 +62,8 @@ message OpcoesProto {
   optional bool ataque_vs_defesa_posicao_real = 17;
   // Se verdadeiro, ao apertar tab, o ataque será ativado automaticamente.
   optional bool tab_ativa_ataque = 21;
+  // Se verdadeiro, som sera desativado.
+  optional bool desativar_som = 22;
 }
 
 // Mensagem enviada para os clientes de um jogo.
