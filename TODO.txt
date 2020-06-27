@@ -1,9 +1,4 @@
 Meio dano de armas cortantes e perfurantes de enxames.
-Pericias derivadas (como fintar -> blefar vs sentir motivacao + BBA, rastrear -> sobrevivencia).
-Fintar.
-Se agarrado, considerar flat footed para outros atacantes.
-Botao de agarrar ta fazendo nada.
-Colocar preco na UI.
 Modelo sapo.
 Ordenar pergaminhos por nivel.
 UI de armas e ataques ligados a elas: delegate de arma;
@@ -141,7 +136,6 @@ Pontos raciais de elfo.
 Zerar botoes ao passar rodada.
 Reflexos some no inicio da acao (nao espera ela acontecer).
 Colocar outros aneis e mantos com efeitos (especialmente em pericias).
-Colocar arte da fuga no agarrar.
 Botao de remover feitico na UI de feiticos.
 Implementar modificadores de armadura e escudo se nao tiver o talento de uso deles.
 Implementar boleadeira (bolas).
