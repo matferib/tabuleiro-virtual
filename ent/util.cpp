@@ -37,6 +37,7 @@ namespace ent {
 namespace {
 using EfeitoAdicional = ent::AcaoProto::EfeitoAdicional;
 using google::protobuf::StringPrintf;
+using google::protobuf::StringAppendF;
 using google::protobuf::RepeatedPtrField;
 
 const std::map<std::string, std::string> g_mapa_utf8 = {
@@ -6614,6 +6615,36 @@ std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tab
 
 bool EhFeitico(const ArmaProto& arma) {
   return !arma.info_classes().empty();
+}
+
+std::string PrecoString(const Moedas& moedas) {
+  std::string preco;
+  if (moedas.po() > 0) {
+    StringAppendF(&preco, "%d PO, ", moedas.po());
+  }
+  if (moedas.pp() > 0) {
+    StringAppendF(&preco, "%d PP, ", moedas.pp());
+  }
+  if (moedas.pc() > 0) {
+    StringAppendF(&preco, "%d PC, ", moedas.pc());
+  }
+  if (moedas.pl() > 0) {
+    StringAppendF(&preco, "%d PP, ", moedas.pl());
+  }
+  if (moedas.pe() > 0) {
+    StringAppendF(&preco, "%d PE, ", moedas.pp());
+  }
+  if (preco.size() >= 2) {
+    preco = preco.substr(0, preco.size() - 2);
+  }
+  return preco;
+}
+
+std::string PrecoItem(const ItemMagicoProto& item_tabelado) {
+  if (item_tabelado.custo_po() > 0) {
+    return StringPrintf("%d PO", item_tabelado.custo_po());
+  }
+  return PrecoString(item_tabelado.custo());
 }
 
 }  // namespace ent

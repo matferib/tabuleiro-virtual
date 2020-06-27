@@ -1161,6 +1161,9 @@ bool EhFeitico(const ArmaProto& arma);
 // Proto esta indefeso (helpless).
 bool Indefeso(const EntidadeProto& proto);
 
+// Retorna o preco do item como string (exemplo '10 PO').
+std::string PrecoItem(const ItemMagicoProto& item_tabelado);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
