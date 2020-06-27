@@ -15,36 +15,34 @@ namespace som {
 namespace {
 
 std::unique_ptr<QMediaPlayer> g_media_player;
-std::unique_ptr<QSoundEffect> g_fx;
+std::unordered_map<std::string, std::unique_ptr<QSoundEffect>> g_fxs;
 const ent::OpcoesProto* g_opcoes = nullptr;
 
 }  // namespace
 
 void Inicia(const ent::OpcoesProto& opcoes) {
+  std::vector<std::string> sons = arq::ConteudoDiretorio(arq::TIPO_SOM);
+  for (const std::string& som : sons) {
+    auto fx = std::make_unique<QSoundEffect>();
+    QString qs = QFileInfo(QString::fromStdString(StringPrintf("%s/%s", arq::Diretorio(arq::TIPO_SOM).c_str(), som.c_str()))).absoluteFilePath();
+    fx->setSource(QUrl::fromLocalFile(qs));
+    fx->setLoopCount(1);
+    g_fxs[som] = std::move(fx);
+  }
   g_media_player = std::make_unique<QMediaPlayer>();
-  g_fx = std::make_unique<QSoundEffect>();
   g_opcoes = &opcoes;
 }
 
 void Finaliza() {
   g_media_player.reset();
-  g_fx.reset();
+  g_fxs.clear();
   g_opcoes = nullptr;
 }
 
 void Toca(const std::string& nome) {
   if (g_opcoes->desativar_som()) return;
-  QString qs = QFileInfo(QString::fromStdString(StringPrintf("%s/%s", arq::Diretorio(arq::TIPO_SOM).c_str(), nome.c_str()))).absoluteFilePath();
-  g_fx->setSource(QUrl::fromLocalFile(qs));
-  g_fx->setLoopCount(1);
-  //LOG(INFO) << "status: "  << fx.status();
-  g_fx->play();
-  //g_media_player->setMedia(QUrl::fromLocalFile(qs));
-  //g_media_player->setVolume(100);
-  //g_media_player->play();
-  //VLOG(1)
-  //    << "tentando tocar " << qs.toStdString() << " vol: " << g_media_player->volume() << ", error: " << static_cast<int>(g_media_player->error())
-  //    << ", availability: " << static_cast<int>(g_media_player->availability()) << ", media status: " << (int)g_media_player->mediaStatus();
+  if (auto it = g_fxs.find(nome); it == g_fxs.end()) return;
+  else it->second->play();
 }
 
 }  // namespace som
