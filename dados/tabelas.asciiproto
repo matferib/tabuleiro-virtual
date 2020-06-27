@@ -7002,29 +7002,6 @@ tabela_feiticos {
     escola: 'universal'
   }
   armas {
-    id: 'invocar_enxames'
-    nome_ingles: 'summon swarm'
-    link: 'https://www.d20srd.org/srd/spells/summonSwarm.htm'
-    nome: 'invocar enxames'
-    alcance_quadrados: 5
-    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
-
-    info_classes {
-      id: 'mago'
-      nivel: 2
-    }
-    info_classes {
-      id: 'bardo'
-      nivel: 2
-    }
-    info_classes {
-      id: 'druida'
-      nivel: 2
-    }
-    escola: 'conjuracao'
-    # duracao concentracao + 2 rodadas
-  }
-  armas {
     id: 'nevoa_mortal'
     nome_ingles: 'cloudkill'
     link: 'https://www.d20srd.org/srd/spells/cloudkill.htm'
@@ -10435,19 +10412,23 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
-          texto: 'Cachorro Celestial'
+          texto: 'Texugo Celestial CB'
+          id_modelo_entidade: 'Texugo Celestial ICI'
+        }
+        parametros {
+          texto: 'Cachorro Celestial LB'
           id_modelo_entidade: 'Cachorro Celestial ICI'
         }
         parametros {
-          texto: 'Coruja Celestial'
+          texto: 'Coruja Celestial LB'
           id_modelo_entidade: 'Coruja Celestial ICI'
         }
         parametros {
-          texto: 'Falcão Abissal'
+          texto: 'Falcão Abissal CM'
           id_modelo_entidade: 'Falcão Abissal'
         }
         parametros {
-          texto: 'Víbora Pequena Abissal'
+          texto: 'Víbora Pequena Abissal CM'
           id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
         }
       }
@@ -12238,7 +12219,7 @@ tabela_feiticos {
     nome_ingles: 'cat\'s grace'
     nome: 'agilidade do gato'
     info_classes {
-      id: 'clerigo'
+      id: 'bardo'
       nivel: 2
     }
     info_classes {
@@ -13019,6 +13000,45 @@ tabela_feiticos {
       }
     }
     escola: 'transmutacao'
+  }
+  armas {
+    id: 'invocar_enxames'
+    nome: 'Invocar Enxames'
+    nome_ingles: 'summon swarm'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Aranhas'
+          id_modelo_entidade: 'Enxame (aranhas)'
+        }
+        parametros {
+          texto: 'Ratos'
+          id_modelo_entidade: 'Enxame (ratos)'
+        }
+        parametros {
+          texto: 'Morcegos'
+          id_modelo_entidade: 'Enxame (morcegos)'
+        }
+      }
+    }
+    escola: 'conjuracao'
   }
   armas {
     id: 'praga_insetos'

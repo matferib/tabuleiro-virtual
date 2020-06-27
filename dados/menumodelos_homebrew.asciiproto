@@ -14,15 +14,35 @@ sub_menu {
     quantidade: '1'
     aleatorio: true
     # 90% de nao dar nada.
-    modelos { id: 'NADA' peso: 9 }
+    modelos { id: 'NADA' peso: 90 }
+    modelos {
+      id: 'Matilha de Lobos'
+      quantidade: '1d10+6'
+      peso: 2
+    }
+    modelos {
+      id: 'Urso Marrom'
+      quantidade: '1d2'
+      peso: 2
+    }
+    modelos {
+      id: 'Enxame (aranhas)'
+      quantidade: '1d3+1'
+      peso: 2
+    }
+    modelos {
+      id: 'Carcajú Atroz'
+      quantidade: '1d2'
+      peso: 2
+    }
     modelos {
       id: 'Lobo Atroz'
       quantidade: '1d4+4'
       peso: 1
     }
     modelos {
-      id: 'Urso Atroz'
-      quantidade: '1d2'
+      id: 'Texugo Atroz'
+      quantidade: '1d4+1'
       peso: 1
     }
   }
