@@ -1,4 +1,5 @@
-Ordenar pergaminhos por nivel.
+Elixir de cuspir fogo.
+Varinhas nos tesouros.
 Meio dano de armas cortantes e perfurantes de enxames.
 Modelo sapo.
 UI de armas e ataques ligados a elas: delegate de arma;
