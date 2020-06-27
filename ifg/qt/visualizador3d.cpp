@@ -1346,7 +1346,14 @@ void OrdenaItens(const ent::Tabelas& tabelas, Gerador& gerador, ent::TipoItem ti
     id_selecionado = itens->Get(indice_antes).id();
   }
   std::sort(itens->begin(), itens->end(), [&tabelas, tipo](const ent::ItemMagicoProto& lhs, const ent::ItemMagicoProto& rhs) {
-      return ent::ItemTabela(tabelas, tipo, lhs.id()).nome() < ent::ItemTabela(tabelas, tipo, rhs.id()).nome();
+      const auto& tlhs = ent::ItemTabela(tabelas, tipo, lhs.id());
+      const auto& trhs = ent::ItemTabela(tabelas, tipo, rhs.id());
+      if (tlhs.nivel_conjurador() > trhs.nivel_conjurador()) {
+        return true;
+      } else if (tlhs.nivel_conjurador() < trhs.nivel_conjurador()) {
+        return false;
+      }
+      return tlhs.nome() < trhs.nome();
   } );
   AtualizaUITesouro(tabelas, gerador, *proto_retornado);
   for (int i = 0; indice_antes != -1 && i < itens->size(); ++i) {
