@@ -3,8 +3,6 @@ Pericias derivadas (como fintar -> blefar vs sentir motivacao + BBA, rastrear ->
 Fintar.
 Se agarrado, considerar flat footed para outros atacantes.
 Botao de agarrar ta fazendo nada.
-Textura de carcaju (wolverine) e arminho (weasel).
-Fazer carcaju e Arminho.
 Colocar preco na UI.
 Modelo sapo.
 Ordenar pergaminhos por nivel.
