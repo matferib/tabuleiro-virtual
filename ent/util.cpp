@@ -6600,8 +6600,15 @@ std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tab
     return std::nullopt;
   }
   const auto& pericia_tabelada = tabelas.Pericia(pericia_personagem.id());
-  const bool treinado = pericia_personagem.pontos() > 0;
-  if (treinado || pericia_tabelada.sem_treinamento()) {
+  bool treinado = pericia_personagem.pontos() > 0;
+  bool sem_treinamento = pericia_tabelada.sem_treinamento();
+  if (!pericia_tabelada.derivada_de().empty()) {
+    const auto& pericia_personagem_origem = Pericia(pericia_tabelada.derivada_de(), proto);
+    treinado = pericia_personagem_origem.pontos() > 0;
+    const auto& pericia_tabelada_origem = tabelas.Pericia(pericia_tabelada.derivada_de());
+    sem_treinamento = pericia_tabelada_origem.sem_treinamento();
+  }
+  if (treinado || sem_treinamento) {
     const int bonus = BonusTotal(pericia_personagem.bonus());
     const int outros_bonus_int = BonusTotal(outros_bonus);
     const int dado = RolaDado(20);

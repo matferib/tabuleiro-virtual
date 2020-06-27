@@ -1722,7 +1722,8 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Graduacoes.
     auto& pericia_proto = mapa_pericias_proto[pt.id()];
-    int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto.pontos() : pericia_proto.pontos() / 2;
+    if (!pt.derivada_de().empty()) continue;
+    const int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto.pontos() : pericia_proto.pontos() / 2;
     AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto.mutable_bonus());
 
     // Sinergia.
@@ -1760,6 +1761,14 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
           DadoCorrenteParaCA(*proto).empunhadura() == EA_ARMA_ESCUDO ? -PenalidadeEscudo(tabelas, *proto) : 0, TB_SEM_NOME, "escudo", pericia_proto.mutable_bonus());
     }
     //LOG(INFO) << "pericia_proto: " << pericia_proto.ShortDebugString();
+  }
+  // Pericias derivadas.
+  for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
+    auto& pericia_proto = mapa_pericias_proto[pt.id()];
+    if (pt.derivada_de().empty()) continue;
+    const auto& pericia_origem = mapa_pericias_proto[pt.derivada_de()];
+    LimpaBonus(TB_BASE, "graduacao", pericia_proto.mutable_bonus());
+    AtribuiOuRemoveBonus(BonusTotal(pericia_origem.bonus()), TB_SEM_NOME, "origem", pericia_proto.mutable_bonus());
   }
 
   // Atribui de volt ao proto.

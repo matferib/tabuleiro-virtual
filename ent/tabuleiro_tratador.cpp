@@ -2432,6 +2432,8 @@ Bonus OutrosBonusPericia(
     const float d = DistanciaMinimaAcaoAlvoMetros(entidade_origem, entidade_destino->Pos());
     // Computa distancia.
     AtribuiBonus(-d * METROS_PARA_QUADRADOS / 2.0f, TB_SEM_NOME, "distancia", &bonus);
+  } else if (pericia_origem == "sentir_motivacao" && pericia_destino == "fintar") {
+    AtribuiBonus(entidade_origem.BonusBaseAtaque(), TB_SEM_NOME, "bba", &bonus);
   }
   return bonus;
 }
@@ -2474,13 +2476,17 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
       entidade_origem->SalvaUltimaPericia(pericia_origem);
     }
   }
-  if (pericia_destino.empty() || entidade_destino == nullptr || (entidade_origem != nullptr && entidade_origem->Id() == entidade_destino->Id())) {
+  if (entidade_destino == nullptr || (entidade_origem != nullptr && entidade_origem->Id() == entidade_destino->Id())) {
     return;
   }
-  TrataRolarPericiaNotificando(
-      pericia_destino, /*local_apenas=*/false, atraso_s,
-      OutrosBonusPericia(*entidade_destino, pericia_destino, entidade_origem, pericia_origem),
-      entidade_destino->Proto());
+  if (pericia_origem == "arte_da_fuga") {
+    TrataRolarAgarrarNotificando(atraso_s, OutrosBonusPericia(*entidade_destino, pericia_destino, entidade_origem, pericia_origem), *entidade_destino);
+  } else if (!pericia_destino.empty()) {
+    TrataRolarPericiaNotificando(
+        pericia_destino, /*local_apenas=*/false, atraso_s,
+        OutrosBonusPericia(*entidade_destino, pericia_destino, entidade_origem, pericia_origem),
+        entidade_destino->Proto());
+  }
 }
 
 void Tabuleiro::TrataBotaoEsquivaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
@@ -3756,6 +3762,19 @@ void Tabuleiro::TrataMudarClasseFeiticoAtiva() {
   e_antes->set_classe_feitico_ativa(e->Proto().classe_feitico_ativa());
   e_depois->set_classe_feitico_ativa(ProximaClasseFeiticoAtiva(e->Proto()));
   TrataNotificacao(n);
+}
+
+void Tabuleiro::TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros_bonus, const Entidade& entidade) {
+  const auto* da = entidade.DadoAgarrar();
+  if (da == nullptr) {
+    AdicionaAcaoTextoLogado(entidade.Id(), "alvo não tem agarrar", atraso_s, /*local_apenas=*/false);
+    return;
+  }
+  const int d20 = RolaDado(20);
+  const int outros_bonus_int = BonusTotal(outros_bonus);
+  const int total = d20 + da->bonus_ataque_final() + outros_bonus_int;
+  const std::string texto = StringPrintf("Agarrar: %d + %d%s = %d", d20, da->bonus_ataque_final(), (outros_bonus_int != 0 ? StringPrintf(" %+d") : std::string("")).c_str(), total);
+  AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s, /*local_apenas=*/false);
 }
 
 void Tabuleiro::TrataRolarPericiaNotificando(

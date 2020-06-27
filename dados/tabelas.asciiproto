@@ -5681,6 +5681,13 @@ tabela_pericias {
     id_resistido: 'sentir_motivacao'
   }
   pericias {
+    id: 'fintar'
+    nome: 'Fintar'
+    derivada_de: 'blefar'
+    id_resistido: 'sentir_motivacao'
+    resistido_usa_bba: true
+  }
+  pericias {
     id: 'cavalgar'
     nome: 'Cavalgar'
     # classes: [  'barbaro'  'druida'  'guerreiro'  'paladino'  'ranger'  'aristocrata' ]
@@ -5993,6 +6000,11 @@ tabela_pericias {
     sem_treinamento: true
     atributo: TA_SABEDORIA
     sinergias { id: 'conhecimento_natureza' }
+  }
+  pericias {
+    id: 'rastrear'
+    nome: 'Rastrear'
+    derivada_de: 'sobrevivencia'
   }
   pericias {
     id: 'usar_cordas'
