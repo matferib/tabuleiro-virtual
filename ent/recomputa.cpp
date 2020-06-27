@@ -1764,9 +1764,10 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   }
   // Pericias derivadas.
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
-    auto& pericia_proto = mapa_pericias_proto[pt.id()];
     if (pt.derivada_de().empty()) continue;
+    auto& pericia_proto = mapa_pericias_proto[pt.id()];
     const auto& pericia_origem = mapa_pericias_proto[pt.derivada_de()];
+    pericia_proto.set_pontos(0);
     LimpaBonus(TB_BASE, "graduacao", pericia_proto.mutable_bonus());
     AtribuiOuRemoveBonus(BonusTotal(pericia_origem.bonus()), TB_SEM_NOME, "origem", pericia_proto.mutable_bonus());
   }
