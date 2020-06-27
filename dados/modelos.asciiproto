@@ -512,6 +512,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Texugo Celestial ICI'
+  id_entidade_base: 'Texugo Celestial'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
   id: 'Centopéia Grande Abissal ICII'
   id_entidade_base: 'Centopéia Grande Abissal'
   parametros {
@@ -3286,14 +3293,65 @@ modelo {
 }
 
 modelo {
-  id: 'Enxame (centopéias)'
+  id: 'Enxame (aranhas)'
   entidade {
-    dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
-    modificador_iniciativa: 4
-    rotulo_especial: 'ini +4\ndano: 2d6 + veneno + nausea\nveneno: fort 13 1d4 des/1d4 des\nnausea: for 13 por 1 rodada'
-    dados_defesa { imune_critico: true }
+    tipo_dnd: TIPO_VERME
+    sub_tipo_dnd: SUBTIPO_ENXAME
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '2d8' modelo_3d { id: 'gelatinous_cube' } info_textura { id: 'spider_swarm.png' } cor { r: 1 g: 1 b: 1 a: 0.9 } faz_sombra: false
+    # na verdade eh considerado diminuto, entao tem que ajustar ataque a CA na mao.
+    tamanho: TM_GRANDE
+    info_classes { id: 'verme' nivel: 2 }
+    rotulo_especial: 'nausea em quem começar rodada na área (CD11)\nimune a armas\ntoma 50% mais de dano de área'
+    dados_ataque {
+      rotulo: 'enxame' tipo_ataque: 'Toque Automático' dano_basico_fixo: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO ignora_origem: true
+      veneno {
+        tipo: TV_FERIMENTO cd: 11
+        dano_inicial: '1d3' tipo_dano: TDV_FORCA dano_secundario: '1d3' tipo_dano_secundario: TDV_FORCA
+      }
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        cor { r: 0 g: 1 b: 0 }
+      }
+    }
+    dados_ataque {
+      rotulo: 'nausea' tipo_ataque: 'Toque Automático' dano_basico_fixo: ''
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO ignora_origem: true
+      dificuldade_salvacao: 11
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        efeitos_adicionais {
+          efeito: EFEITO_NAUSEA
+          rodadas: 1
+        }
+        cor { r: 1 g: 0.5 b: 0 }
+      }
+    }
+    dados_defesa {
+      imune_critico: true
+      ca { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'diminuto' valor: 5 } } }
+    }
+    movimento {
+      terrestre_basico_q: 4
+      escalando_basico_q: 4
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+    # Sem intelecto: nao tem pontos nem talentos.
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
   }
 }
+
+
 modelo {
   id: 'Enxame (morcegos)'
   entidade {
@@ -3325,12 +3383,74 @@ modelo {
 modelo {
   id: 'Enxame (ratos)'
   entidade {
-    dados_vida: '4d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_rat' }
-    modificador_iniciativa: 2
-    rotulo_especial: 'ini +2\ndano: 1d6 + doenca'
-    dados_defesa { imune_critico: true }
+    tipo_dnd: TIPO_ANIMAL
+    sub_tipo_dnd: SUBTIPO_ENXAME
+    tendencia { simples: TD_NEUTRO }
+    modelo_3d { id: 'swarm_rat' }
+    dados_vida: '4d8'
+    # na verdade eh considerado diminuto, entao tem que ajustar ataque a CA na mao.
+    tamanho: TM_GRANDE
+    info_classes { id: 'animal' nivel: 4 }
+    rotulo_especial: 'nausea em quem começar rodada na área (CD12)\nmeio dano armas cortantes e perfurantes\ntoma 50% mais de dano de área\nfaro'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    dados_ataque {
+      rotulo: 'enxame' tipo_ataque: 'Toque Automático' dano_basico_fixo: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO ignora_origem: true
+      doenca {
+        id: 'febre_esgoto'
+        tipo: TV_FERIMENTO cd: 12
+        incubacao_dias: "1d3"
+        dano: '1d3' tipo_dano: TDV_DESTREZA dano: '1d3' tipo_dano: TDV_CONSTITUICAO
+      }
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        cor { r: 0 g: 1 b: 0 }
+      }
+    }
+    dados_ataque {
+      rotulo: 'nausea' tipo_ataque: 'Toque Automático' dano_basico_fixo: ''
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO ignora_origem: true
+      dificuldade_salvacao: 12
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        efeitos_adicionais {
+          efeito: EFEITO_NAUSEA
+          rodadas: 1
+        }
+        cor { r: 1 g: 0.5 b: 0 }
+      }
+    }
+    dados_defesa {
+      imune_critico: true
+      ca { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'miuda' valor: 3 } } }
+    }
+    movimento {
+      terrestre_basico_q: 3
+      escalando_basico_q: 3
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'sorrateiro' }
+      outros { id: 'acuidade_arma' }
+    }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
   }
 }
+
+
 modelo {
   id: 'Esqueleto Base'
   entidade {
@@ -4814,7 +4934,74 @@ modelo {
     tendencia { simples: TD_LEAL_MAU }
   }
 }
-
+modelo {
+  id: 'Texugo'  # badger
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '1d8+2' tamanho: TM_PEQUENO
+    info_textura { id: 'badger.png' altura: 0.6 translacao_y: 0.4 }
+    info_classes {
+      id: 'animal' nivel: 1
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'sobrevivencia'
+    }
+    movimento {
+      terrestre_basico_q: 6
+      escavando_basico_q: 2
+    }
+    rotulo_especial: 'faro\nfuria se atingido'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    mais_de_duas_pernas: true
+    dados_ataque {
+      grupo: 'ataque'
+      rotulo: 'garra' id_arma: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d2' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      rotulo: 'garra' id_arma: 'garra'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d2' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque'
+      rotulo: 'mordida' id_arma: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d3' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 1 } }
+      }
+    }
+    info_pericias { id: 'ouvir' pontos: 2  }
+    info_pericias { id: 'observar' pontos: 2 }
+    info_pericias { id: 'arte_da_fuga' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } }  }
+    info_talentos {
+      gerais { id: 'agil' }
+      outros { id: 'rastrear' origem: 'bonus'}
+      outros { id: 'acuidade_arma' origem: 'bonus'  }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+  }
+}
+modelo {
+  id: 'Texugo Celestial'
+  id_entidade_base: 'Texugo'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
+    tendencia { simples: TD_CAOTICO_BOM }
+  }
+}
 modelo {
   id: 'Texugo Atroz'  # dire badger
   entidade {
