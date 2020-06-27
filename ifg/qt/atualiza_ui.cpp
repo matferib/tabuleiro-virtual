@@ -678,18 +678,7 @@ void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, co
   gerador.spin_pl->setValue(proto.tesouro().moedas().pl());
   gerador.spin_pe->setValue(proto.tesouro().moedas().pe());
 
-  // Pocoes.
-  {
-    const int indice = gerador.lista_pocoes->currentRow();
-    gerador.lista_pocoes->clear();
-    for (const auto& pocao : proto.tesouro().pocoes()) {
-      const auto& pp = tabelas.Pocao(pocao.id());
-      auto* item = new QListWidgetItem(QString::fromUtf8(pp.nome().c_str()), gerador.lista_pocoes);
-      item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    }
-    gerador.lista_pocoes->setCurrentRow(indice);
-  }
-
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_POCAO, gerador.lista_pocoes, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_ANEL, gerador.lista_aneis, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_LUVAS, gerador.lista_luvas, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_MANTO, gerador.lista_mantos, proto);

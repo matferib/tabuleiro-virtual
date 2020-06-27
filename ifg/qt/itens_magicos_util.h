@@ -187,8 +187,8 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
 inline std::string NomeParaLista(
     const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
   const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
-  std::string nome = item_tabela.nome();
-  if (nome.empty()) { nome = "---"; }
+  std::string nome = google::protobuf::StringPrintf("%s [%s]", item_tabela.nome().c_str(), ent::PrecoItem(item_tabela).c_str());
+  if (item_tabela.nome().empty()) { nome = "---"; }
   return tipo == ent::TipoItem::TIPO_PERGAMINHO_ARCANO || tipo == ent::TipoItem::TIPO_PERGAMINHO_DIVINO  || tipo == ent::TipoItem::TIPO_POCAO || tipo == ent::TipoItem::TIPO_ITEM_MUNDANO
       ? nome
       : google::protobuf::StringPrintf(

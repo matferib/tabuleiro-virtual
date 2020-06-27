@@ -36,7 +36,6 @@
 #include "ifg/qt/inimigo_predileto_util.h"
 #include "ifg/qt/itens_magicos_util.h"
 #include "ifg/qt/pericias_util.h"
-#include "ifg/qt/pocoes_util.h"
 #include "ifg/qt/talentos_util.h"
 #include "ifg/qt/ui/cenario.h"
 #include "ifg/qt/ui/entidade.h"
@@ -1455,39 +1454,6 @@ void PreencheConfiguraTesouro(
   lambda_connect(gerador.spin_pl, SIGNAL(valueChanged(int)), [tesouro_retornado, &gerador]() { tesouro_retornado->set_pl(gerador.spin_pl->value()); });
   gerador.spin_pe->setValue(proto.tesouro().moedas().pe());
   lambda_connect(gerador.spin_pe, SIGNAL(valueChanged(int)), [tesouro_retornado, &gerador]() { tesouro_retornado->set_pe(gerador.spin_pe->value()); });
-
-  // Pocoes: por algum motivo isso tava separado do resto. Comentei pra ver o que da.
-#if 0
-  if (0) {
-    std::unique_ptr<QAbstractItemDelegate> delete_old(gerador.lista_pocoes->itemDelegate());
-    auto* delegado = new PocaoDelegate(tabelas, gerador.lista_pocoes, proto_retornado);
-    gerador.lista_pocoes->setItemDelegate(delegado);
-    delegado->deleteLater();
-
-    lambda_connect(gerador.botao_ordenar_pocoes, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
-      OrdenaItens(tabelas, gerador, ent::TipoItem::TIPO_POCAO, gerador.lista_pocoes, proto_retornado);
-    });
-    lambda_connect(gerador.botao_duplicar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
-      DuplicaItem(tabelas, gerador, ent::TipoItem::TIPO_POCAO, gerador.lista_pocoes, proto_retornado);
-    });
-
-    lambda_connect(gerador.botao_adicionar_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
-      /*auto* pocao = */proto_retornado->mutable_tesouro()->add_pocoes();
-      // Para aparecer pocao vazia.
-      //pocao->set_id("forca_touro");
-      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
-      gerador.lista_pocoes->setCurrentRow(proto_retornado->tesouro().pocoes_size() - 1);
-    });
-    lambda_connect(gerador.botao_remover_pocao, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
-      const int indice = gerador.lista_pocoes->currentRow();
-      if (indice >= 0 && indice < proto_retornado->tesouro().pocoes_size()) {
-        proto_retornado->mutable_tesouro()->mutable_pocoes()->DeleteSubrange(indice, 1);
-      }
-      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
-      gerador.lista_pocoes->setCurrentRow(indice);
-    });
-  }
-#endif
 
   // Pocoes.
   ConfiguraListaPergaminhosMundanosOuPocoes(
