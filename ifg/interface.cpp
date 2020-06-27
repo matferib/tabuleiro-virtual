@@ -184,7 +184,7 @@ void InterfaceGrafica::TrataEscolherTipoTesouro(const ntf::Notificacao& notifica
   for (ent::TipoTesouro tipo : { ent::TT_ANEL, ent::TT_MANTO, ent::TT_LUVAS, ent::TT_BRACADEIRAS,
                               ent::TT_POCAO, ent::TT_AMULETO, ent::TT_BOTAS, ent::TT_CHAPEU,
                               ent::TT_PERGAMINHO_ARCANO, ent::TT_PERGAMINHO_DIVINO, ent::TT_ITEM_MUNDANO,
-                              ent::TT_ARMA, ent::TT_ARMADURA, ent::TT_ESCUDO }) {
+                              ent::TT_ARMA, ent::TT_ARMADURA, ent::TT_ESCUDO, ent::TT_VARINHA }) {
     if (ent::TipoItem_IsValid(tipo)) {
       const auto& itens = ent::ItensProto(static_cast<ent::TipoItem>(tipo), notificacao.entidade());
       if (itens.empty()) continue;

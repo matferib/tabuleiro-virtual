@@ -1470,6 +1470,14 @@ void PreencheConfiguraTesouro(
       gerador.botao_remover_pocao, gerador.botao_ordenar_pocoes,
       gerador.botao_doar_pocao,
       proto, proto_retornado, central);
+  // Varinhas.
+  ConfiguraListaPergaminhosMundanosOuPocoes(
+      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_VARINHA,
+      gerador.lista_varinhas, /*usar=*/nullptr,
+      gerador.botao_adicionar_varinha, gerador.botao_duplicar_varinha,
+      gerador.botao_remover_varinha, gerador.botao_ordenar_varinhas,
+      gerador.botao_doar_varinha,
+      proto, proto_retornado, central);
   // Pergaminhos.
   ConfiguraListaPergaminhosMundanosOuPocoes(
       dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_ARCANO,

@@ -688,6 +688,7 @@ void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, co
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_CHAPEU, gerador.lista_chapeus, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_ARCANO, gerador.lista_pergaminhos_arcanos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_DIVINO, gerador.lista_pergaminhos_divinos, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_VARINHA, gerador.lista_varinhas, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_ITEM_MUNDANO, gerador.lista_itens_mundanos, proto);
   AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMA, gerador.lista_armas, proto);
   AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMADURA, gerador.lista_armaduras, proto);

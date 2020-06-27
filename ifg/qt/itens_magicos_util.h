@@ -178,6 +178,7 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
     case ent::TipoItem::TIPO_CHAPEU: return tabelas.todas().tabela_chapeus().chapeus();
     case ent::TipoItem::TIPO_PERGAMINHO_ARCANO: return tabelas.todas().tabela_pergaminhos().pergaminhos_arcanos();
     case ent::TipoItem::TIPO_PERGAMINHO_DIVINO: return tabelas.todas().tabela_pergaminhos().pergaminhos_divinos();
+    case ent::TipoItem::TIPO_VARINHA: return tabelas.todas().tabela_varinhas().varinhas();
     default: ;
   }
   LOG(ERROR) << "Tipo invalido (" << (int)tipo << ") para ItensTabela, retornando aneis";
@@ -190,7 +191,7 @@ inline std::string NomeParaLista(
   const std::string nivel = item_tabela.has_nivel_conjurador() ? google::protobuf::StringPrintf(", nv conj: %d", item_tabela.nivel_conjurador()) : "";
   std::string nome = google::protobuf::StringPrintf("%s%s [%s]", item_tabela.nome().c_str(), nivel.c_str(), ent::PrecoItem(item_tabela).c_str());
   if (item_tabela.nome().empty()) { nome = "---"; }
-  return tipo == ent::TipoItem::TIPO_PERGAMINHO_ARCANO || tipo == ent::TipoItem::TIPO_PERGAMINHO_DIVINO  || tipo == ent::TipoItem::TIPO_POCAO || tipo == ent::TipoItem::TIPO_ITEM_MUNDANO
+  return tipo == ent::TipoItem::TIPO_PERGAMINHO_ARCANO || tipo == ent::TipoItem::TIPO_PERGAMINHO_DIVINO  || tipo == ent::TipoItem::TIPO_POCAO || tipo == ent::TipoItem::TIPO_ITEM_MUNDANO || tipo == ent::TipoItem::TIPO_VARINHA
       ? nome
       : google::protobuf::StringPrintf(
           "%s%s",
