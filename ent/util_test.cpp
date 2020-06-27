@@ -4762,7 +4762,22 @@ TEST(TesteModelo, TesteCarcajuAtroz) {
   EXPECT_EQ(ValorFinalPericia("ouvir", carcaju->Proto()), 7);
   EXPECT_EQ(ValorFinalPericia("observar", carcaju->Proto()), 7);
 }
-
+TEST(TesteModelo, TesteArminho) {
+  auto proto = g_tabelas.ModeloEntidade("Arminho").entidade();
+  auto arminho = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque", arminho->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 4);
+    EXPECT_EQ(da.dano(), "1d3-4");
+    EXPECT_EQ(arminho->CA(*arminho, Entidade::CA_NORMAL), 14) << arminho->Proto().dados_defesa().ca().DebugString();
+  }
+  EXPECT_EQ(ValorFinalPericia("equilibrio", arminho->Proto()), 12);
+  EXPECT_EQ(ValorFinalPericia("escalar", arminho->Proto()), 10);
+  EXPECT_EQ(ValorFinalPericia("arte_da_fuga", arminho->Proto()), 4);
+  EXPECT_EQ(ValorFinalPericia("esconderse", arminho->Proto()), 11);
+  EXPECT_EQ(ValorFinalPericia("furtividade", arminho->Proto()), 8);
+  EXPECT_EQ(ValorFinalPericia("observar", arminho->Proto()), 3);
+}
 
 TEST(TesteModelo, TesteArminhoAtroz) {
   auto proto = g_tabelas.ModeloEntidade("Arminho Atroz").entidade();
