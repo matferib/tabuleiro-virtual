@@ -2,10 +2,11 @@
 #define SOM_SOM_H
 
 #include <string>
+#include "ent/tabuleiro.pb.h"
 
 namespace som {
 
-void Inicia();
+void Inicia(const ent::OpcoesProto& opcoes);
 void Toca(const std::string& nome);
 void Finaliza();
 

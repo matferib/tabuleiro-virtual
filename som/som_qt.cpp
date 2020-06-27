@@ -16,20 +16,24 @@ namespace {
 
 std::unique_ptr<QMediaPlayer> g_media_player;
 std::unique_ptr<QSoundEffect> g_fx;
+const ent::OpcoesProto* g_opcoes = nullptr;
 
 }  // namespace
 
-void Inicia() {
+void Inicia(const ent::OpcoesProto& opcoes) {
   g_media_player = std::make_unique<QMediaPlayer>();
   g_fx = std::make_unique<QSoundEffect>();
+  g_opcoes = &opcoes;
 }
 
 void Finaliza() {
   g_media_player.reset();
   g_fx.reset();
+  g_opcoes = nullptr;
 }
 
 void Toca(const std::string& nome) {
+  if (g_opcoes->desativar_som()) return;
   QString qs = QFileInfo(QString::fromStdString(StringPrintf("%s/%s", arq::Diretorio(arq::TIPO_SOM).c_str(), nome.c_str()))).absoluteFilePath();
   g_fx->setSource(QUrl::fromLocalFile(qs));
   g_fx->setLoopCount(1);

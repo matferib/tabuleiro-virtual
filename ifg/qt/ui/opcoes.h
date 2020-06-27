@@ -34,6 +34,7 @@ public:
     QCheckBox *checkbox_mapeamento_de_sombras;
     QCheckBox *checkbox_ataque_vs_defesa_posicao_real;
     QCheckBox *checkbox_tab_ativa_ataque;
+    QCheckBox *checkbox_desativar_som;
     QDialogButtonBox *buttonBox;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
@@ -98,6 +99,11 @@ public:
 
         verticalLayout->addWidget(checkbox_tab_ativa_ataque);
 
+        checkbox_desativar_som = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_desativar_som->setObjectName(QStringLiteral("checkbox_desativar_som"));
+
+        verticalLayout->addWidget(checkbox_desativar_som);
+
         buttonBox = new QDialogButtonBox(ifg__qt__DialogoOpcoes);
         buttonBox->setObjectName(QStringLiteral("buttonBox"));
         buttonBox->setOrientation(Qt::Horizontal);
@@ -127,6 +133,7 @@ public:
         checkbox_mapeamento_de_sombras->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mapeamento de sombras", nullptr));
         checkbox_ataque_vs_defesa_posicao_real->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ataque vs Defesa posi\303\247\303\243o Real", nullptr));
         checkbox_tab_ativa_ataque->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Tab ativa ataque", nullptr));
+        checkbox_desativar_som->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desativar som", nullptr));
     } // retranslateUi
 
 };
