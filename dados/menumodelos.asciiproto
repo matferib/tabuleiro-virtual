@@ -128,6 +128,7 @@ sub_menu {
 }
 sub_menu {
   id: 'Enxames'
+  modelo { id: 'Enxame (aranhas)' }
   modelo { id: 'Enxame (centopéias)' }
   modelo { id: 'Enxame (gafanhotos)' }
   modelo { id: 'Enxame (morcegos)' }
