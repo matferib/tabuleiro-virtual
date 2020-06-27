@@ -4700,10 +4700,34 @@ TEST(TesteModelo, TesteStirge) {
     EXPECT_EQ(da.bonus_ataque_final(), 7);
     EXPECT_EQ(da.dano(), "");
     EXPECT_EQ(stirge->CA(*stirge, Entidade::CA_NORMAL), 16) << stirge->Proto().dados_defesa().ca().DebugString();
-    EXPECT_EQ(ValorFinalPericia("esconderse", stirge->Proto()), 14);
-    EXPECT_EQ(ValorFinalPericia("ouvir", stirge->Proto()), 4);
-    EXPECT_EQ(ValorFinalPericia("observar", stirge->Proto()), 4);
   }
+  {
+    const auto& da = DadosAtaquePorGrupo("agarrar", stirge->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 1);
+    EXPECT_EQ(da.dano(), "");
+  }
+  EXPECT_EQ(ValorFinalPericia("esconderse", stirge->Proto()), 14);
+  EXPECT_EQ(ValorFinalPericia("ouvir", stirge->Proto()), 4);
+  EXPECT_EQ(ValorFinalPericia("observar", stirge->Proto()), 4);
+}
+
+TEST(TesteModelo, TesteArminhoAtroz) {
+  auto proto = g_tabelas.ModeloEntidade("Arminho Atroz").entidade();
+  auto arminho = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque", arminho->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 6);
+    EXPECT_EQ(da.dano(), "1d6+3");
+    EXPECT_EQ(arminho->CA(*arminho, Entidade::CA_NORMAL), 16) << arminho->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Agarrar", arminho->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 4);
+  }
+  EXPECT_EQ(ValorFinalPericia("esconderse", arminho->Proto()), 8);
+  EXPECT_EQ(ValorFinalPericia("ouvir", arminho->Proto()), 3);
+  EXPECT_EQ(ValorFinalPericia("furtividade", arminho->Proto()), 8);
+  EXPECT_EQ(ValorFinalPericia("observar", arminho->Proto()), 5);
 }
 
 TEST(TesteModelo, TesteCaoInfernal) {

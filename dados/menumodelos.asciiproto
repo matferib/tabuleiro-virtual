@@ -36,7 +36,7 @@ sub_menu {
   modelo { id: 'Arminho Atroz' }
   modelo { id: 'Cachorro' }
   modelo { id: 'Cachorro Celestial' }
-  modelo { id: 'Carcaju Atroz' }
+  modelo { id: 'Carcajú Atroz' }
   modelo { id: 'Coruja' }
   sub_menu {
     id: 'Cobras'
@@ -85,6 +85,7 @@ sub_menu {
   modelo { id: 'Bulette' }
   modelo { id: 'Cão Teleportador'}
   modelo { id: 'Coruja Gigante'}
+  modelo { id: 'Stirge'}
 }
 sub_menu {
   id: 'Anões'

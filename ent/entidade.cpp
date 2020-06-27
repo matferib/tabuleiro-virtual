@@ -1980,9 +1980,10 @@ const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
     ultima_acao = proto_.dados_ataque().empty() ? "Ataque Corpo a Corpo" : proto_.dados_ataque(0).tipo_ataque();
     ultimo_grupo = proto_.dados_ataque().empty() ? "" : proto_.dados_ataque(0).grupo();
   }
+
   VLOG(3) << "ultima_acao: " << ultima_acao << ", ultimo_grupo: " << ultimo_grupo;
   for (const auto& da : proto_.dados_ataque()) {
-    if (da.tipo_ataque() == ultima_acao && da.grupo() == ultimo_grupo) {
+    if ((ultima_acao.empty() || da.tipo_ataque() == ultima_acao) && da.grupo() == ultimo_grupo) {
       VLOG(3) << "Encontrei ataque para " << da.tipo_ataque() << ", grupo: " << da.grupo();
       ataques_casados.push_back(&da);
       if (ignora_ataques_na_rodada) break;

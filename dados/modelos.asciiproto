@@ -4609,7 +4609,7 @@ modelo {
     tipo_dnd: TIPO_ANIMAL
     tendencia { simples: TD_NEUTRO }
     dados_vida: '5d8+23' tamanho: TM_GRANDE
-    info_textura { id: 'wolverine.png' altura: 0.6 translacao_y: 0.4 }
+    info_textura { id: 'wolverine.png' altura: 0.5 translacao_y: 0.15 }
     info_classes {
       id: 'animal_atroz' nivel: 5
       pericias_monstro: 'ouvir'
@@ -4668,7 +4668,7 @@ modelo {
     tipo_dnd: TIPO_BESTA_MAGICA
     tendencia { simples: TD_NEUTRO }
     dados_vida: '1d10' tamanho: TM_MIUDO
-    info_textura { id: 'stirge.png' }
+    info_textura { id: 'stirge.png' largura: 0.7 translacao_x: 0.15 altura: 0.6 translacao_y: 0.3 }
     info_classes {
       id: 'besta_magica' nivel: 1
       pericias_monstro: 'esconderse'
@@ -4679,14 +4679,22 @@ modelo {
       terrestre_basico_q: 2
       aereo_basico_q: 8
     }
+    voadora: true
     rotulo_especial: 'adesão ao atingir'
     tipo_visao: VISAO_ESCURO_E_BAIXA_LUMINOSIDADE
-    mais_de_duas_pernas: true
+    ultimo_grupo_acao: 'picada'
+    # Este ataque é necessário por causa do bonus racial.
     dados_ataque {
       grupo: 'picada'
       rotulo: 'picada' id_arma: 'mordida' dano_basico_fixo: ''
       tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
       adesao: true
+      acao_fixa {
+        efeitos_adicionais_conjurador {
+          efeito: EFEITO_ADERIDO
+          rodadas: 1
+        }
+      }
     }
     dados_ataque {
       grupo: 'drenar_sangue'
@@ -4694,12 +4702,20 @@ modelo {
       tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
       acao_fixa {
         permite_ataque_vs_defesa: false
+        requer_efeito_origem: EFEITO_ADERIDO
         efeitos_adicionais {
           efeito: EFEITO_PENALIDADE_CONSTITUICAO
           descricao: 'dano de constituição volta 1 por dia (ou 2 para descanso completo).'
           dado_complementos_str: '-1d4'
         }
       }
+    }
+    dados_ataque {
+      tipo_ataque: 'Agarrar'
+      alcance_q: 1
+      grupo: 'agarrar'
+      rotulo: 'agarrar' dano_basico_fixo: ''
+      bonus_ataque { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 12 } } }
     }
     info_pericias { id: 'ouvir' pontos: 1 }
     info_pericias { id: 'observar' pontos: 1 }
@@ -4709,12 +4725,12 @@ modelo {
       outros { id: 'acuidade_arma' origem: 'bonus'}
     }
     atributos {
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 3 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
     }
   }
 }
@@ -4726,7 +4742,8 @@ modelo {
     tipo_dnd: TIPO_ANIMAL
     tendencia { simples: TD_NEUTRO }
     dados_vida: '3d8' tamanho: TM_MEDIO
-    info_textura { id: 'weasel.png' altura: 0.6 translacao_y: 0.4 }
+    info_textura { id: 'weasel.png' altura: 0.4 translacao_y: 0.6 }
+    posicao_acao { x: 0.5 y: 0 z: 0.5 }
     info_classes {
       id: 'animal_atroz' nivel: 3
       pericias_monstro: 'esconderse'
@@ -4745,6 +4762,12 @@ modelo {
       rotulo: 'mordida' id_arma: 'mordida_padrao'
       tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
       adesao: true
+      acao_fixa {
+        efeitos_adicionais_conjurador {
+          efeito: EFEITO_ADERIDO
+          rodadas: 1
+        }
+      }
     }
     dados_ataque {
       grupo: 'drenar_sangue'
@@ -4765,10 +4788,9 @@ modelo {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'natural' valor: 2 } }
       }
     }
-    info_pericias { id: 'ouvir' pontos: 2 }
-    info_pericias { id: 'observar' pontos: 4 }
-    info_pericias { id: 'esconderse' pontos: 4 }
-    info_pericias { id: 'furtividade' pontos: 4 }
+    info_pericias { id: 'esconderse' pontos: 2 }
+    info_pericias { id: 'furtividade' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 2 }
     info_talentos {
       gerais { id: 'prontidao' }
       gerais { id: 'sorrateiro' }

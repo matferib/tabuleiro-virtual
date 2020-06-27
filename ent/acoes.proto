@@ -105,7 +105,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 103.
+// Proximo id: 104.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -293,6 +293,8 @@ message AcaoProto {
   repeated EfeitoAdicional efeitos_adicionais_conjurador = 68;
   // Em alguns casos, mesmo passando na salvacao ainda da efeito adicional.
   repeated EfeitoAdicional efeitos_adicionais_se_salvou = 60;
+  // Alguns ataques requerem algum efeito da origem.
+  optional TipoEfeito requer_efeito_origem = 103; 
   // Para entidades de criacao.
   optional string id_modelo_entidade = 63;
   optional string quantidade_entidades = 80;

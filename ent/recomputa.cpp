@@ -408,6 +408,14 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
   }
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
+    case EFEITO_ADERIDO: {
+      if (evento->processado()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.set_surpreso(proto->surpreso());
+      evento->set_estado_anterior(proto_salvo.SerializeAsString());
+      proto->set_surpreso(true);
+      break;
+    }
     case EFEITO_ALTERAR_FORMA: {
       if (evento->processado()) break;
       if (evento->complementos_str().empty()) break;
@@ -891,6 +899,13 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       proto->set_inconsciente(proto_salvo.inconsciente());
     }
     break;
+    case EFEITO_ADERIDO: {
+      if (!evento.has_estado_anterior()) break;
+      EntidadeProto proto_salvo;
+      proto_salvo.ParseFromString(evento.estado_anterior());
+      proto->set_surpreso(proto_salvo.surpreso());
+      break;
+    }
     case EFEITO_ALTERAR_FORMA: {
       // Isso da problema para desfazer. O proto salvo ja tera o ataque consumido.
       // Ao desfazer, o efeito restaurara o proto anterior e deixara o ataque consumido.
@@ -2959,6 +2974,8 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
     auto* da = proto->mutable_dados_ataque()->Add();
     da->set_tipo_ataque("Agarrar");
     da->set_rotulo("agarrar");
+    da->set_grupo("Agarrar");
+    da->set_alcance_q(1);
   }
   // Se nao tiver ataque atordoante, gera um.
   if (PossuiTalento("ataque_atordoante", *proto)) {
