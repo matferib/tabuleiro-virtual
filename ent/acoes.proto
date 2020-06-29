@@ -397,7 +397,7 @@ message DanoAdicionalPorTendencia {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 101.
+// Proximo id: 102.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -567,6 +567,8 @@ message DadosAtaque {
   optional bool ataque_desarmar = 96;
   // Indica que este ataque esta desarmado.
   optional bool desarmado = 97;
+  // Indica que ataque é de varinha (valor da varinha é o id a tabela).
+  optional string varinha = 101;
 }
 
 message ConsequenciaEvento {

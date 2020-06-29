@@ -2948,6 +2948,23 @@ DadosAtaque* DadosAtaquePorIdArmaCriando(const std::string& id_arma, EntidadePro
   return da;
 }
 
+DadosAtaque* DadosAtaqueVarinhaCriando(const ItemMagicoProto& varinha_tabelada, EntidadeProto* proto) {
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (!da.varinha().empty() && da.varinha() == varinha_tabelada.id()) {
+      return &da;
+    }
+  }
+  auto* da = proto->add_dados_ataque();
+  da->set_varinha(varinha_tabelada.id());
+  da->set_tipo_ataque("Varinha");
+  da->set_grupo(StringPrintf("Varinha %s", varinha_tabelada.nome().c_str()));
+  da->set_nivel_conjurador_pergaminho(varinha_tabelada.nivel_conjurador());
+  da->set_empunhadura(EA_ARMA_ESCUDO);
+  da->set_id_arma(varinha_tabelada.id_feitico());
+  da->set_mantem_com_limite_zerado(true);
+  return da;
+}
+
 const DadosAtaque& DadosAtaquePrimarioMonstroOuPadrao(const EntidadeProto& proto) {
   for (auto& da : proto.dados_ataque()) {
     if (da.empunhadura() == EA_MONSTRO_ATAQUE_PRIMARIO || da.empunhadura() == EA_2_MAOS) {
@@ -3060,6 +3077,16 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
       da->set_rotulo(id);
       da->set_id_arma(id);
       da->set_empunhadura(EA_ARMA_ESCUDO);
+    }
+  }
+  // So cria uma vez, mesmo que haja repetidas.
+  std::unordered_set<std::string> criadas;
+  for (const auto& vp : proto->tesouro().varinhas()) {
+    if (criadas.find(vp.id()) != criadas.end()) continue;
+    const auto& vt = tabelas.Varinha(vp.id());
+    auto* da = DadosAtaqueVarinhaCriando(vt, proto);
+    if (vp.has_cargas()) {
+      da->set_limite_vezes(vp.cargas());
     }
   }
 }

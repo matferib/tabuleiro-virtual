@@ -226,6 +226,11 @@ acao {
 }
 
 acao {
+  id: 'Varinha'
+  icone: 'icon_wand.png'
+  ignora_reducao_dano_barbaro: true
+}
+acao {
   id: 'Pergaminho Arcano'
   icone: 'icon_scroll.png'
   tipo_pergaminho: TM_ARCANA

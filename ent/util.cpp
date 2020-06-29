@@ -2227,6 +2227,20 @@ bool AtaqueDeItemMundano(const DadosAtaque& da) {
   return c_any<std::vector<std::string>>(ItemsQueGeramAtaques(), da.id_arma()) || c_any<std::vector<std::string>>(ItemsQueGeramAtaques(), da.grupo());
 }
 
+void PreencheCargasVarinha(bool decrementa, int limite_vezes, const ItemMagicoProto& varinha_tabelada, const Entidade& entidade, EntidadeProto* proto) {
+  for (const auto& vp : entidade.Proto().tesouro().varinhas()) {
+    if (vp.id() != varinha_tabelada.id()) continue;
+    auto* varinha = proto->mutable_tesouro()->mutable_varinhas()->Add();
+    *varinha = vp;
+    if (varinha->has_cargas()) {
+      varinha->set_cargas(vp.cargas() - (decrementa ? 1 : 0));
+    } else {
+      varinha->set_cargas(limite_vezes - (decrementa ? 1 : 0));
+    }
+    return;
+  }
+}
+
 void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& entidade, EntidadeProto* proto) {
   bool removeu = false;
   for (auto& item : entidade.Proto().tesouro().itens_mundanos()) {
@@ -2256,8 +2270,16 @@ void PreencheNotificacaoConsumoAtaque(
       da_depois->set_descarregada(true);
     }
     if (da_depois->has_limite_vezes()) {
-      da_depois->set_limite_vezes(std::max<int>(0, da_depois->limite_vezes() - 1));
-      da_depois->id_arma();
+      if (!da_depois->varinha().empty()) {
+        const auto& varinha_tabelada = Tabelas::Unica().Varinha(da_depois->varinha());
+        PreencheCargasVarinha(
+            /*decrementa=*/true, da_depois->limite_vezes(), varinha_tabelada, entidade, proto);
+        PreencheCargasVarinha(
+            /*decrementa=*/false, da_depois->limite_vezes(), varinha_tabelada, entidade, proto_antes);
+      } else {
+        da_depois->set_limite_vezes(std::max<int>(0, da_depois->limite_vezes() - 1));
+        da_depois->id_arma();
+      }
     }
     if (da_depois->has_municao()) {
       if (AtaqueDeItemMundano(*da_depois)) {

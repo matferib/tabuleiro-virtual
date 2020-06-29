@@ -188,8 +188,16 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
 inline std::string NomeParaLista(
     const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
   const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
-  const std::string nivel = item_tabela.has_nivel_conjurador() ? google::protobuf::StringPrintf(", nv conj: %d", item_tabela.nivel_conjurador()) : "";
-  std::string nome = google::protobuf::StringPrintf("%s%s [%s]", item_tabela.nome().c_str(), nivel.c_str(), ent::PrecoItem(item_tabela).c_str());
+  const std::string cargas = item_pc.has_cargas()
+      ? google::protobuf::StringPrintf(", com %d cargas", item_pc.cargas()) : "";
+  const std::string nivel = item_tabela.has_nivel_conjurador()
+      ? google::protobuf::StringPrintf(", nv conj: %d", item_tabela.nivel_conjurador()) : "";
+  std::string nome = google::protobuf::StringPrintf(
+      "%s%s%s [%s]",
+      item_tabela.nome().c_str(),
+      nivel.c_str(),
+      cargas.c_str(),
+      ent::PrecoItem(item_tabela).c_str());
   if (item_tabela.nome().empty()) { nome = "---"; }
   return tipo == ent::TipoItem::TIPO_PERGAMINHO_ARCANO || tipo == ent::TipoItem::TIPO_PERGAMINHO_DIVINO  || tipo == ent::TipoItem::TIPO_POCAO || tipo == ent::TipoItem::TIPO_ITEM_MUNDANO || tipo == ent::TipoItem::TIPO_VARINHA
       ? nome
