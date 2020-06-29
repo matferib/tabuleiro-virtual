@@ -6017,10 +6017,10 @@ TEST(TesteTesouro, TesteTransicao) {
     moedas->set_pc(300);
     auto* armadura = doador_proto.mutable_tesouro()->add_armaduras();
     armadura->set_id("cota_malha");
-    armadura->set_em_uso(true);
     auto* arma = doador_proto.mutable_tesouro()->add_armas();
     arma->set_id("espada_longa");
-    arma->set_em_uso(true);
+    auto* varinha = doador_proto.mutable_tesouro()->add_varinhas();
+    varinha->set_id("missil_magico_1");
   }
   std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, g_tabelas));
   ASSERT_FALSE(doador->Proto().evento().empty());
@@ -6035,6 +6035,8 @@ TEST(TesteTesouro, TesteTransicao) {
     moedas->set_pp(40);
     moedas->set_pe(400);
     moedas->set_pl(4000);
+    auto* varinhas = receptor_proto.mutable_tesouro()->add_varinhas();
+    varinhas->set_id("missil_magico_2");
   }
   std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, g_tabelas));
   ASSERT_FALSE(receptor->Proto().evento().empty());
@@ -6051,6 +6053,7 @@ TEST(TesteTesouro, TesteTransicao) {
     EXPECT_TRUE(doador->Proto().tesouro().aneis().empty());
     EXPECT_TRUE(doador->Proto().tesouro().armaduras().empty());
     EXPECT_TRUE(doador->Proto().tesouro().armas().empty());
+    EXPECT_TRUE(doador->Proto().tesouro().varinhas().empty());
     EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 0);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 0);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pc(), 0);
@@ -6064,6 +6067,7 @@ TEST(TesteTesouro, TesteTransicao) {
     EXPECT_FALSE(receptor->Proto().tesouro().aneis(1).em_uso());
     EXPECT_EQ(receptor->Proto().tesouro().armaduras().size(), 1);
     EXPECT_EQ(receptor->Proto().tesouro().armas().size(), 1);
+    EXPECT_EQ(receptor->Proto().tesouro().varinhas().size(), 2);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 7);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 70);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pc(), 300);
@@ -6078,6 +6082,7 @@ TEST(TesteTesouro, TesteTransicao) {
     EXPECT_TRUE(doador->Proto().tesouro().aneis(0).em_uso());
     EXPECT_FALSE(doador->Proto().tesouro().armaduras().empty());
     EXPECT_FALSE(doador->Proto().tesouro().armas().empty());
+    EXPECT_FALSE(doador->Proto().tesouro().varinhas().empty());
     EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 3);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 30);
     EXPECT_EQ(doador->Proto().tesouro().moedas().pc(), 300);
@@ -6090,6 +6095,7 @@ TEST(TesteTesouro, TesteTransicao) {
     EXPECT_TRUE(receptor->Proto().tesouro().aneis(0).em_uso());
     EXPECT_TRUE(receptor->Proto().tesouro().armaduras().empty());
     EXPECT_TRUE(receptor->Proto().tesouro().armas().empty());
+    EXPECT_EQ(receptor->Proto().tesouro().varinhas().size(), 1);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 4);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 40);
     EXPECT_EQ(receptor->Proto().tesouro().moedas().pc(), 0);

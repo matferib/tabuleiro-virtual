@@ -2220,7 +2220,7 @@ DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
 
 const std::vector<std::string>& ItemsQueGeramAtaques() {
   static const std::vector<std::string> v = {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" };
-  return v; 
+  return v;
 }
 
 bool AtaqueDeItemMundano(const DadosAtaque& da) {
@@ -2232,11 +2232,7 @@ void PreencheCargasVarinha(bool decrementa, int limite_vezes, const ItemMagicoPr
     if (vp.id() != varinha_tabelada.id()) continue;
     auto* varinha = proto->mutable_tesouro()->mutable_varinhas()->Add();
     *varinha = vp;
-    if (varinha->has_cargas()) {
-      varinha->set_cargas(vp.cargas() - (decrementa ? 1 : 0));
-    } else {
-      varinha->set_cargas(limite_vezes - (decrementa ? 1 : 0));
-    }
+    varinha->set_cargas(limite_vezes - (decrementa ? 1 : 0));
     return;
   }
 }
@@ -5146,7 +5142,7 @@ void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto) {
 std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto) {
   const auto& tesouro = proto.tesouro();
   std::vector<const RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
-    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus(), &tesouro.itens_mundanos(),
+    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus(), &tesouro.itens_mundanos(), &tesouro.varinhas(),
   };
   std::vector<const ItemMagicoProto*> itens;
   for (const auto* itens_grupo : itens_agrupados) {
@@ -5160,6 +5156,7 @@ std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
   std::vector<RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
     tesouro->mutable_aneis(), tesouro->mutable_mantos(), tesouro->mutable_luvas(), tesouro->mutable_bracadeiras(),
     tesouro->mutable_amuletos(), tesouro->mutable_botas(), tesouro->mutable_chapeus(), tesouro->mutable_itens_mundanos(),
+    tesouro->mutable_varinhas(),
   };
   std::vector<ItemMagicoProto*> itens;
   for (auto* itens_grupo : itens_agrupados) {
@@ -6001,6 +5998,7 @@ void AtribuiTesouroTodoOuCriaVazios(
   AtribuiTesouroOuCriaVazio(tesouro_receber.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
   AtribuiTesouroOuCriaVazio(tesouro_receber.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
   AtribuiTesouroOuCriaVazio(tesouro_receber.itens_mundanos(), tesouro_final->mutable_itens_mundanos());
+  AtribuiTesouroOuCriaVazio(tesouro_receber.varinhas(), tesouro_final->mutable_varinhas());
   AtribuiMoedasOuZeraSeVazio(tesouro_receber.moedas(), tesouro_final->mutable_moedas());
 }
 
@@ -6035,6 +6033,7 @@ void MergeTesouroTodo(const EntidadeProto::DadosTesouro& tesouro_receptor, const
   MergeTesouro(tesouro_receptor.pergaminhos_arcanos(), tesouro_receber.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
   MergeTesouro(tesouro_receptor.pergaminhos_divinos(), tesouro_receber.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
   MergeTesouro(tesouro_receptor.itens_mundanos(), tesouro_receber.itens_mundanos(), tesouro_final->mutable_itens_mundanos());
+  MergeTesouro(tesouro_receptor.varinhas(), tesouro_receber.varinhas(), tesouro_final->mutable_varinhas());
   MergeTesouro(tesouro_receptor.armas(), tesouro_receber.armas(), tesouro_final->mutable_armas());
   MergeTesouro(tesouro_receptor.armaduras(), tesouro_receber.armaduras(), tesouro_final->mutable_armaduras());
   MergeTesouro(tesouro_receptor.escudos(), tesouro_receber.escudos(), tesouro_final->mutable_escudos());
@@ -6104,6 +6103,7 @@ void RemoveTesourosDoados(const EntidadeProto::DadosTesouro& tesouro_doado, Enti
   RemoveTesouroDoado(tesouro_doado.armaduras(), tesouro_final->mutable_armaduras());
   RemoveTesouroDoado(tesouro_doado.escudos(), tesouro_final->mutable_escudos());
   RemoveTesouroDoado(tesouro_doado.municoes(), tesouro_final->mutable_municoes());
+  RemoveTesouroDoado(tesouro_doado.varinhas(), tesouro_final->mutable_varinhas());
   RemoveMoedasDoadas(tesouro_doado.moedas(), tesouro_final->mutable_moedas());
 }
 
@@ -6147,6 +6147,7 @@ void MergeMensagensTesouro(const EntidadeProto::DadosTesouro& tesouro, const Tab
   MergeMensagemTesouro(TIPO_PERGAMINHO_DIVINO, tesouro.pergaminhos_divinos(), texto);
   MergeMensagemTesouro(TIPO_VARINHA, tesouro.varinhas(), texto);
   MergeMensagemTesouro(TIPO_ITEM_MUNDANO, tesouro.itens_mundanos(), texto);
+  MergeMensagemTesouro(TIPO_VARINHA, tesouro.varinhas(), texto);
   MergeMensagemArmaArmaduraOuEscudo(TT_ARMA, tesouro.armas(), texto);
   MergeMensagemArmaArmaduraOuEscudo(TT_ARMADURA, tesouro.armaduras(), texto);
   MergeMensagemArmaArmaduraOuEscudo(TT_ESCUDO, tesouro.escudos(), texto);
@@ -6178,6 +6179,7 @@ void CriaTesouroTodoVazio(EntidadeProto::DadosTesouro* tesouro) {
   tesouro->add_escudos();
   tesouro->add_municoes();
   tesouro->add_itens_mundanos();
+  tesouro->add_varinhas();
   LimpaMoedas(tesouro->mutable_moedas());
 }
 
