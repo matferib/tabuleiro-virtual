@@ -364,6 +364,7 @@ void PreencheComboArma(
   const bool distancia = tipo_ataque == "Ataque a Distância";
   const bool feitico_de = tipo_ataque.find("Feitiço de ") == 0;
   const bool pergaminho = tipo_ataque.find("Pergaminho") == 0;
+  const bool varinha = tipo_ataque.find("Varinha") == 0;
   std::map<std::string, std::string> nome_id_map;
   if (cac || projetil_area || distancia) {
     for (const auto& arma_tesouro : proto.tesouro().armas()) {
@@ -393,7 +394,7 @@ void PreencheComboArma(
         nome_id_map[feitico.nome()] = feitico.id();
       }
     }
-  } else if (pergaminho) {
+  } else if (pergaminho || varinha) {
     for (const auto& feitico : tabelas.todas().tabela_feiticos().armas()) {
       nome_id_map[feitico.nome()] = feitico.id();
     }
