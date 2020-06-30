@@ -1389,6 +1389,22 @@ TEST(TestePergaminho, ValoresTabelados) {
   }
 }
 
+TEST(TesteElixir, PodeUsarCuspirFogo) {
+  EntidadeProto proto;
+  auto* evento = proto.add_evento();
+  evento->set_id_efeito(EFEITO_ELIXIR_CUSPIR_FOGO);
+  evento->set_rodadas(199);
+  auto* ic = proto.add_info_classes();
+  ic->set_id("clerigo");
+  ic->set_nivel(3);
+  auto clerigo = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("cuspir fogo", clerigo->Proto());
+    auto [pode, texto] = PodeLancarItemMagico(g_tabelas, clerigo->Proto(), da);
+    EXPECT_TRUE(pode) << texto;
+  }
+}
+
 TEST(TesteVarinha, PodeUsar) {
   EntidadeProto proto;
   AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);

@@ -5662,6 +5662,9 @@ std::pair<bool, std::string> PodeLancarItemMagico(const Tabelas& tabelas, const 
       return std::make_pair(false, StringPrintf("incapaz de lançar magias %s", tipo_magia == TM_DIVINA ? "divina" : "arcana"));
     }
   }
+  // Caso nao precise de estar na lista, o resto nao faz sentido.
+  if (da.nao_precisa_ter_na_lista()) return std::make_pair(true, "");
+
   // Esta na lista de feiticos.
   const auto& ic = ClasseParaLancarPergaminho(tabelas, tipo_magia, da.id_arma(), proto);
   if (!ic.has_nivel_conjurador()) {

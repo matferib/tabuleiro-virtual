@@ -1334,6 +1334,37 @@ tabela_efeitos {
     }
   }
   efeitos {
+    id: EFEITO_ELIXIR_CUSPIR_FOGO
+    nome: 'cuspir fogo'
+    consequencia {
+      dados_ataque {
+        grupo: 'cuspir fogo'
+        rotulo: 'elixir'
+        tipo_ataque: 'Raio'
+        dano_basico_fixo: '4d6'
+        alcance_q: 5
+        limite_vezes: 3
+        nivel_conjurador_pergaminho: 11
+        nao_precisa_ter_na_lista: true
+        consome_apos_n_usos: 1 # Pra passar o ataque.
+        acao_fixa {
+          permite_ataque_vs_defesa: false
+          ignora_resistencia_magia: false
+          permite_salvacao: true
+          elemento: DESC_FOGO
+          info_textura { id: 'fire.png' }
+          ignora_luz: true
+          consequencia: TC_INFLAMA_ALVO
+          tipo_salvacao: TS_REFLEXO
+          resultado_ao_salvar: RS_MEIO
+          dificuldade_salvacao_base: 13
+        }
+        # limite vezes: 1 por nivel max 10 computado no codigo.
+      }
+    }
+  }
+
+  efeitos {
     id: EFEITO_ARMA_ABENCOADA
     nome: 'arma abençoada (shillelagh)'
     # descricao: transforma o porrete ou bordão em +1 e da dano como duas categorias maior. Tenta bordao primeiro;
@@ -3186,18 +3217,18 @@ tabela_pergaminhos {
 }
 
 tabela_pocoes {
-  #pocoes {
-  #  # Em portugues é filtro; elixir of fire breath
-  #  id: 'elixir_cuspir_fogo'
-  #  nome: 'elixir de cuspir fogo (filtro de cuspir fogo)'
-  #  duracao_rodadas: 600
-  #  tipo_efeito: EFEITO_CUSPIR_FOGO
-  #  custo_po: 1100
-  #}
+  pocoes {
+    # Em portugues é filtro; elixir of fire breath
+    id: 'elixir_cuspir_fogo'
+    nome: 'Elixir de Cuspir Fogo (filtro de cuspir fogo)'
+    duracao_rodadas: 600
+    tipo_efeito: EFEITO_ELIXIR_CUSPIR_FOGO
+    custo_po: 1100
+  }
   pocoes {
     # Em portugues é filtro; elixir of swimming
     id: 'elixir_natacao'
-    nome: 'elixir da natação (filtro da natação)'
+    nome: 'Elixir da Natação (filtro da natação)'
     duracao_rodadas: 600
     tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 10
@@ -3207,7 +3238,7 @@ tabela_pocoes {
   pocoes {
     # Em portugues é filtro; elixir of vision
     id: 'elixir_visao'
-    nome: 'elixir da visão (filtro da visão)'
+    nome: 'Elixir da Visão (filtro da visão)'
     duracao_rodadas: 600
     tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 10
@@ -3217,7 +3248,7 @@ tabela_pocoes {
   pocoes {
     # Em portugues é filtro; elixir of sneaking
     id: 'elixir_furtividade'
-    nome: 'elixir da furtividade (filtro da furtividade)'
+    nome: 'Elixir da Furtividade (filtro da furtividade)'
     duracao_rodadas: 600
     tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 10
@@ -3227,7 +3258,7 @@ tabela_pocoes {
   pocoes {
     # Em portugues é filtro; elixir of hiding
     id: 'elixir_ocultacao'
-    nome: 'elixir da ocultação (filtro da ocultação)'
+    nome: 'Elixir da Ocultação (filtro da ocultação)'
     duracao_rodadas: 600
     tipo_efeito: EFEITO_COMPETENCIA_PERICIA
     complementos: 10
