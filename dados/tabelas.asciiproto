@@ -2696,6 +2696,21 @@ tabela_varinhas {
     nome: 'míssil mágico (1)'
     custo_po: 750
   }
+  varinhas {
+    id: 'missil_magico_2'
+    id_feitico: 'missil_magico'
+    nivel_conjurador: 3
+    nome: 'mísseis mágicos (2)'
+    usos_por_carga: 2
+    custo_po: 750
+  }
+  varinhas {
+    id: 'curar_ferimentos_leves'
+    id_feitico: 'curar_ferimentos_leves'
+    nivel_conjurador: 1
+    nome: 'curar ferimentos leves'
+    custo_po: 750
+  }
 }
 tabela_itens_mundanos {
   itens {
