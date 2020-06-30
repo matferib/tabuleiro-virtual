@@ -1389,6 +1389,41 @@ TEST(TestePergaminho, ValoresTabelados) {
   }
 }
 
+TEST(TesteVarinha, PodeUsar) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
+  proto.mutable_tesouro()->add_varinhas()->set_id("curar_ferimentos_leves");
+  proto.mutable_tesouro()->add_varinhas()->set_id("missil_magico_1");
+  auto* ic = proto.add_info_classes();
+  ic->set_id("clerigo");
+  ic->set_nivel(3);
+  auto druida = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("Varinha curar ferimentos leves", druida->Proto());
+    auto [pode, texto] = PodeLancarItemMagico(g_tabelas, druida->Proto(), da);
+    EXPECT_TRUE(pode) << texto;
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Varinha míssil mágico (1)", druida->Proto());
+    auto [pode, texto] = PodeLancarItemMagico(g_tabelas, druida->Proto(), da);
+    EXPECT_FALSE(pode) << texto;
+  }
+}
+
+TEST(TesteVarinha, PodeUsarIndependenteNivelOuAtributo) {
+  EntidadeProto proto;
+  proto.mutable_tesouro()->add_varinhas()->set_id("missil_magico_2");
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(1);
+  auto mago = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("Varinha mísseis mágicos (2)", mago->Proto());
+    auto [pode, texto] = PodeLancarItemMagico(g_tabelas, mago->Proto(), da);
+    EXPECT_TRUE(pode) << texto;
+  }
+}
+
 TEST(TestePergaminho, PodeLancar) {
   EntidadeProto proto;
   AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);
@@ -1426,13 +1461,13 @@ TEST(TestePergaminho, PodeLancar) {
   }
   RecomputaDependencias(g_tabelas, &proto);
   // Tipo errado.
-  EXPECT_FALSE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0)).first);
   // Fora da lista.
-  EXPECT_FALSE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(1)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(1)).first);
   // Atributo invalido.
-  EXPECT_FALSE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(2)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(2)).first);
 
-  EXPECT_TRUE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(3)).first);
+  EXPECT_TRUE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(3)).first);
 }
 
 TEST(TestePergaminho, PodeLancarRangerCurarFerimentosLeves) {
@@ -1451,7 +1486,7 @@ TEST(TestePergaminho, PodeLancarRangerCurarFerimentosLeves) {
   }
   RecomputaDependencias(g_tabelas, &proto);
   // Tipo errado.
-  auto [pode_lancar, texto] = PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0));
+  auto [pode_lancar, texto] = PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0));
   EXPECT_FALSE(pode_lancar) << texto;
 }
 
@@ -1475,7 +1510,7 @@ TEST(TestePergaminho, PodeLancarRangerClerigoCurarFerimentosLeves) {
   }
   RecomputaDependencias(g_tabelas, &proto);
   // Tipo errado.
-  auto [pode_lancar, texto] = PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0));
+  auto [pode_lancar, texto] = PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0));
   EXPECT_TRUE(pode_lancar) << texto;
 }
 
@@ -1499,7 +1534,7 @@ TEST(TestePergaminho, PodeLancarMagoClerigoCurarFerimentosLeves) {
   }
   RecomputaDependencias(g_tabelas, &proto);
   // Tipo errado.
-  auto [pode_lancar, texto] = PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0));
+  auto [pode_lancar, texto] = PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0));
   EXPECT_TRUE(pode_lancar) << texto;
 }
 
@@ -1526,8 +1561,8 @@ TEST(TestePergaminho, PodeLancarDominio) {
     }
   }
   RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_TRUE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0)).first);
-  EXPECT_FALSE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(1)).first);
+  EXPECT_TRUE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(1)).first);
 }
 
 TEST(TestePergaminho, PodeLancarEscolaProibida) {
@@ -1560,9 +1595,9 @@ TEST(TestePergaminho, PodeLancarEscolaProibida) {
     }
   }
   RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_TRUE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0)).first);
-  EXPECT_FALSE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(1)).first);
-  EXPECT_FALSE(PodeLancarPergaminho(g_tabelas, proto, proto.dados_ataque(2)).first);
+  EXPECT_TRUE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(1)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(2)).first);
 }
 
 TEST(TestePergaminho, TesteLancarPergaminhoSemRisco) {
@@ -2011,7 +2046,7 @@ TEST(TesteVezes, TesteRefrescamento) {
   ASSERT_EQ(e->Proto().dados_ataque_size(), 1);
   auto grupo = NovoGrupoNotificacoes();
   auto grupo_desfazer = NovoGrupoNotificacoes();
-  PreencheNotificacaoAtaqueAoPassarRodada(e->Proto(), grupo.get(), grupo_desfazer.get());
+  PreencheNotificacaoAtaqueAoPassarRodada(*e, grupo.get(), grupo_desfazer.get());
   {
     e->AtualizaParcial(NotificacaoFilhaOuPadrao(*grupo).entidade());
     EXPECT_EQ(DadosAtaquePorGrupo("espada_longa", e->Proto()).limite_vezes(), 3) << e->Proto().dados_ataque(0).DebugString();
@@ -2040,7 +2075,7 @@ TEST(TesteVezes, TesteRefrescamento2) {
 
   auto grupo = NovoGrupoNotificacoes();
   auto grupo_desfazer = NovoGrupoNotificacoes();
-  PreencheNotificacaoAtaqueAoPassarRodada(e->Proto(), grupo.get(), grupo_desfazer.get());
+  PreencheNotificacaoAtaqueAoPassarRodada(*e, grupo.get(), grupo_desfazer.get());
 
   {
     e->AtualizaParcial(NotificacaoFilhaOuPadrao(*grupo).entidade());

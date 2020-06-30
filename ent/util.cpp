@@ -1928,7 +1928,20 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
   }
 }
 
-void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+namespace {
+void PreencheCargasVarinha(bool decrementa, int limite_vezes, const ItemMagicoProto& varinha_tabelada, const Entidade& entidade, EntidadeProto* proto) {
+  bool atualizou = false;
+  for (const auto& vp : entidade.Proto().tesouro().varinhas()) {
+    auto* varinha = proto->mutable_tesouro()->mutable_varinhas()->Add();
+    *varinha = vp;
+    if (atualizou || vp.id() != varinha_tabelada.id()) continue;
+    varinha->set_cargas(limite_vezes - (decrementa ? 1 : 0));
+  }
+}
+}  // namespace
+
+void PreencheNotificacaoAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  const auto& proto = entidade.Proto();
   ntf::Notificacao* np = nullptr;
   bool reusando = false;
   for (auto& n : *grupo->mutable_notificacao()) {
@@ -1950,19 +1963,25 @@ void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::No
     *e_depois->mutable_dados_ataque() = proto.dados_ataque();
   }
   for (auto& da : *e_depois->mutable_dados_ataque()) {
-    if (da.has_taxa_refrescamento() && da.usado_rodada() &&
-        (!da.has_limite_vezes() || da.limite_vezes() == 0)) {
+    if (da.usos() > 0 && !da.varinha().empty()) {
+      const auto& varinha_tabelada = Tabelas::Unica().Varinha(da.varinha());
+      da.set_usos(0);
+      PreencheCargasVarinha(
+          /*decrementa=*/true, da.limite_vezes(), varinha_tabelada, entidade, e_depois);
+      PreencheCargasVarinha(
+          /*decrementa=*/false, da.limite_vezes(), varinha_tabelada, entidade, e_antes);
+    } else if (da.has_taxa_refrescamento() && da.usado_rodada() &&
+               (!da.has_limite_vezes() || da.limite_vezes() == 0)) {
       // Trata o caso de ataques consumidos so ao fim da rodada.
       int valor = 0;
-      auto* da_depois = EncontraAtaque(da, e_depois);
       try {
-        valor = RolaValor(da_depois->taxa_refrescamento());
+        valor = RolaValor(da.taxa_refrescamento());
       } catch (const std::exception& e) {
-        LOG(ERROR) << "valor mal formado: " << da_depois->taxa_refrescamento() << ", excecao: " << e.what();
+        LOG(ERROR) << "valor mal formado: " << da.taxa_refrescamento() << ", excecao: " << e.what();
         valor = 0;
       }
-      da_depois->set_disponivel_em(valor);
-      da_depois->clear_usado_rodada();
+      da.set_disponivel_em(valor);
+      da.clear_usado_rodada();
     }
     // Decrementa numero de rodadas que faltam para disponibilizar ataque.
     if (da.disponivel_em() > 0) {
@@ -2227,16 +2246,6 @@ bool AtaqueDeItemMundano(const DadosAtaque& da) {
   return c_any<std::vector<std::string>>(ItemsQueGeramAtaques(), da.id_arma()) || c_any<std::vector<std::string>>(ItemsQueGeramAtaques(), da.grupo());
 }
 
-void PreencheCargasVarinha(bool decrementa, int limite_vezes, const ItemMagicoProto& varinha_tabelada, const Entidade& entidade, EntidadeProto* proto) {
-  for (const auto& vp : entidade.Proto().tesouro().varinhas()) {
-    if (vp.id() != varinha_tabelada.id()) continue;
-    auto* varinha = proto->mutable_tesouro()->mutable_varinhas()->Add();
-    *varinha = vp;
-    varinha->set_cargas(limite_vezes - (decrementa ? 1 : 0));
-    return;
-  }
-}
-
 void PreencheConsumoItemMundano(const std::string& id_item, const Entidade& entidade, EntidadeProto* proto) {
   bool removeu = false;
   for (auto& item : entidade.Proto().tesouro().itens_mundanos()) {
@@ -2266,15 +2275,21 @@ void PreencheNotificacaoConsumoAtaque(
       da_depois->set_descarregada(true);
     }
     if (da_depois->has_limite_vezes()) {
-      if (!da_depois->varinha().empty()) {
-        const auto& varinha_tabelada = Tabelas::Unica().Varinha(da_depois->varinha());
-        PreencheCargasVarinha(
-            /*decrementa=*/true, da_depois->limite_vezes(), varinha_tabelada, entidade, proto);
-        PreencheCargasVarinha(
-            /*decrementa=*/false, da_depois->limite_vezes(), varinha_tabelada, entidade, proto_antes);
+      if (da_depois->has_consome_apos_n_usos() && (da_antes->usos() + 1) < da_antes->consome_apos_n_usos()) {
+        da_depois->set_usos(da_antes->usos() + 1);
       } else {
-        da_depois->set_limite_vezes(std::max<int>(0, da_depois->limite_vezes() - 1));
-        da_depois->id_arma();
+        if (da_depois->has_consome_apos_n_usos()) {
+          da_depois->set_usos(0);
+        }
+        if (!da_depois->varinha().empty()) {
+          const auto& varinha_tabelada = Tabelas::Unica().Varinha(da_depois->varinha());
+          PreencheCargasVarinha(
+              /*decrementa=*/true, da_depois->limite_vezes(), varinha_tabelada, entidade, proto);
+          PreencheCargasVarinha(
+              /*decrementa=*/false, da_depois->limite_vezes(), varinha_tabelada, entidade, proto_antes);
+        } else {
+          da_depois->set_limite_vezes(std::max<int>(0, da_depois->limite_vezes() - 1));
+        }
       }
     }
     if (da_depois->has_municao()) {
@@ -5567,7 +5582,7 @@ const InfoClasse& ClasseParaLancarPergaminho(
   std::vector<const InfoClasse*> candidatos;
   for (const auto& ic : proto.info_classes()) {
     const auto& classe_tabelada = tabelas.Classe(ic.id());
-    if (classe_tabelada.tipo_magia() != tipo_magia) continue;
+    if (tipo_magia != TM_NENHUMA && classe_tabelada.tipo_magia() != tipo_magia) continue;
     std::vector<std::string> dominios = DominiosClasse(ic.id(), proto);
     bool de_dominio = false;
     for (const auto& dominio : dominios) {
@@ -5589,11 +5604,11 @@ const InfoClasse& ClasseParaLancarPergaminho(
     if (ic->id() == proto.classe_feitico_ativa()) return *ic;
     int nivel_conjurador = NivelConjurador(ic->id(), proto);
     if (nivel_conjurador > maior_nivel) {
-      maior_nivel = nivel_conjurador; 
+      maior_nivel = nivel_conjurador;
       melhor_candidato = ic;
-    } 
+    }
   }
-  return melhor_candidato == nullptr ? InfoClasse::default_instance() : *melhor_candidato; 
+  return melhor_candidato == nullptr ? InfoClasse::default_instance() : *melhor_candidato;
 }
 
 int NivelConjuradorParaLancarPergaminho(const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto) {
@@ -5631,19 +5646,21 @@ ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const Entidade
       StringPrintf("FIASCO! Teste conjuração: %d < %d, teste sabedoria: %d < 5", d20 + nc, dc, d20_sab + modificador_sabedoria));
 }
 
-std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da) {
+std::pair<bool, std::string> PodeLancarItemMagico(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da) {
   // Tipo correto.
   const auto& feitico = tabelas.Feitico(da.id_arma());
   TipoMagia tipo_magia = da.tipo_pergaminho();
-  bool tipo_correto = false;
-  for (const auto& classe_proto : proto.info_classes()) {
-    if (tabelas.Classe(classe_proto.id()).tipo_magia() == tipo_magia) {
-      tipo_correto = true;
-      break;
+  if (tipo_magia != TM_NENHUMA) {
+    bool tipo_correto = tipo_magia == TM_NENHUMA;  // se nao tiver tipo, nao tem essa restricao.
+    for (const auto& classe_proto : proto.info_classes()) {
+      if (tabelas.Classe(classe_proto.id()).tipo_magia() == tipo_magia) {
+        tipo_correto = true;
+        break;
+      }
     }
-  }
-  if (!tipo_correto) {
-    return std::make_pair(false, StringPrintf("incapaz de lançar magias %s", tipo_magia == TM_DIVINA ? "divina" : "arcana"));
+    if (!tipo_correto) {
+      return std::make_pair(false, StringPrintf("incapaz de lançar magias %s", tipo_magia == TM_DIVINA ? "divina" : "arcana"));
+    }
   }
   // Esta na lista de feiticos.
   const auto& ic = ClasseParaLancarPergaminho(tabelas, tipo_magia, da.id_arma(), proto);
@@ -5658,22 +5675,23 @@ std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const 
     }
   }
   // Atributo minimo de conjuracao.
-  if (da.has_modificador_atributo_pergaminho() &&
-      ModificadorAtributoConjuracao(ic.id(), proto) < da.modificador_atributo_pergaminho()) {
-    return std::make_pair(
-        false,
-        StringPrintf(
+  if (da.varinha().empty()) {
+    if (da.has_modificador_atributo_pergaminho() &&
+        ModificadorAtributoConjuracao(ic.id(), proto) < da.modificador_atributo_pergaminho()) {
+      return std::make_pair(
+          false,
+          StringPrintf(
             "modificador atributo de conjuração do personagem abaixo do minimo: %d < %d",
             ModificadorAtributoConjuracao(ic.id(), proto),
             da.modificador_atributo_pergaminho()));
-  }
-  if (const Bonus& bonus = BonusAtributo(ic.atributo_conjuracao(), proto); BonusTotal(bonus) < 10 + NivelFeiticoParaClasse(ic.id(), feitico)) {
-    return std::make_pair(
-        false,
-        StringPrintf(
+    }
+    if (const Bonus& bonus = BonusAtributo(ic.atributo_conjuracao(), proto); BonusTotal(bonus) < 10 + NivelFeiticoParaClasse(ic.id(), feitico)) {
+      return std::make_pair(
+          false,
+          StringPrintf(
             "atributo de conjuração abaixo do mínimo: %d < %d",
             BonusTotal(bonus), 10 + NivelFeiticoParaClasse(ic.id(), feitico)));
-
+    }
   }
   return std::make_pair(true, "");
 }

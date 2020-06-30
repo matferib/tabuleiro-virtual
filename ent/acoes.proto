@@ -397,7 +397,7 @@ message DanoAdicionalPorTendencia {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 102.
+// Proximo id: 104.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -496,6 +496,10 @@ message DadosAtaque {
   // Se presente, ataque desaparecerá após ser usado esse número de vezes.
   // É diferente de munição, que permanece após zerar.
   optional int32 limite_vezes = 43;
+  // Se > 0, o consumo de limite de vezes so ocorrera apos esse numero de usos.
+  optional int32 consome_apos_n_usos = 102;
+  optional int32 usos = 103;
+
   // Alguns ataques são limitados, mas não devem ser zerados. Na prática, funciona como munição
   // para ataques por dia. Exemplo, inspirar coragem.
   optional bool mantem_com_limite_zerado = 73;

@@ -2613,22 +2613,25 @@ void RecomputaDependenciasDestrezaLegado(const Tabelas& tabelas, EntidadeProto* 
 
 int NivelFeiticoPergaminho(const Tabelas& tabelas, TipoMagia tipo_pergaminho, const ArmaProto& feitico) {
   std::vector<std::string> classes;
-  if (tipo_pergaminho == TM_DIVINA) {
+  if (tipo_pergaminho == TM_DIVINA || tipo_pergaminho == TM_NENHUMA) {
     // divino: tenta clerigo, druida, paladino, ranger
     classes.push_back("clerigo");
     classes.push_back("druida");
     classes.push_back("paladino");
     classes.push_back("ranger");
-  } else if (tipo_pergaminho == TM_ARCANA) {
+    classes.push_back("adepto");
+  }
+  if (tipo_pergaminho == TM_ARCANA || tipo_pergaminho == TM_NENHUMA) {
     // arcano: tenta mago, bardo.
     classes.push_back("mago");
+    classes.push_back("feiticeiro");
     classes.push_back("bardo");
   }
   for (const auto& classe : classes) {
     int nivel = NivelFeitico(tabelas, classe, feitico);
     if (nivel >= 0) return nivel;
   }
-  LOG(ERROR) << "Não achei nivel certo para pergaminho tipo: " << tipo_pergaminho;
+  LOG(ERROR) << "Não achei nivel certo para pergaminho tipo: " << TipoMagia_Name(tipo_pergaminho);
   return 0;
 }
 
@@ -2700,7 +2703,7 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
       if (da->has_nivel_conjurador_pergaminho()) {
         base += NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), feitico);
       } else if (PossuiTalento("elevar_magia", proto) && da->has_nivel_slot()) {
-        base += da->nivel_slot(); 
+        base += da->nivel_slot();
       } else {
         base += da->acao().dificuldade_salvacao_por_nivel()
           ? NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico) + mod_especializacao
@@ -2790,9 +2793,7 @@ void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, con
       da->mutable_acao()->set_tipo(ACAO_PROJETIL_AREA);
     } else if (PossuiCategoria(CAT_DISTANCIA, arma) && !PossuiCategoria(CAT_CAC, arma)) {
       da->mutable_acao()->set_tipo(ACAO_PROJETIL);
-    } else if (!PossuiCategoria(CAT_DISTANCIA, arma) && PossuiCategoria(CAT_CAC, arma)) {
-      da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
-    } else if (!PossuiCategoria(CAT_DISTANCIA, arma) && !PossuiCategoria(CAT_CAC, arma)) {
+    } else if (!PossuiCategoria(CAT_DISTANCIA, arma)) {
       da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
     } else {
       ; // Aqui ha um conflito: deixa aberto.
@@ -2962,6 +2963,9 @@ DadosAtaque* DadosAtaqueVarinhaCriando(const ItemMagicoProto& varinha_tabelada, 
   da->set_empunhadura(EA_ARMA_ESCUDO);
   da->set_id_arma(varinha_tabelada.id_feitico());
   da->set_mantem_com_limite_zerado(true);
+  if (varinha_tabelada.has_usos_por_carga()) {
+    da->set_consome_apos_n_usos(varinha_tabelada.usos_por_carga());
+  }
   return da;
 }
 
@@ -2983,6 +2987,51 @@ DadosAtaque* DadosAtaquePorGrupoCriando(const std::string& grupo, EntidadeProto*
   auto* da = proto->add_dados_ataque();
   da->set_grupo(grupo);
   return da;
+}
+
+void RecomputaItensMundanos(const Tabelas& tabelas, EntidadeProto* proto) {
+  std::unordered_map<std::string, int> mapa_tipo_quantidade;
+  for (const auto& im : proto->tesouro().itens_mundanos()) {
+    ++mapa_tipo_quantidade[im.id()];
+  }
+  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
+    return AtaqueDeItemMundano(da);
+  }, proto->mutable_dados_ataque());
+  for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }) {
+    if (mapa_tipo_quantidade[id] > 0) {
+      auto* da = DadosAtaquePorIdArmaCriando(id, proto);
+      da->set_municao(mapa_tipo_quantidade[id]);
+      da->set_grupo(id);
+      da->set_rotulo(id);
+      da->set_id_arma(id);
+      da->set_empunhadura(EA_ARMA_ESCUDO);
+    }
+  }
+}
+
+void RecomputaVarinhas(const Tabelas& tabelas, EntidadeProto* proto) {
+  // Marca todas para remocao, e tira as que realmente existirem no tesouro.
+  std::unordered_set<const DadosAtaque*> ataques_varinhas_remover;
+  for (const auto& da : proto->dados_ataque()) {
+    if (!da.varinha().empty()) {
+      ataques_varinhas_remover.insert(&da);
+    }
+  }
+  // Se houver mais de um tipo de varinha do mesmo tipo, cria ataque apenas para uma.
+  std::unordered_set<std::string> criadas;
+  for (const auto& vp : proto->tesouro().varinhas()) {
+    if (criadas.find(vp.id()) != criadas.end()) continue;
+    criadas.insert(vp.id());
+    const auto& vt = tabelas.Varinha(vp.id());
+    auto* da = DadosAtaqueVarinhaCriando(vt, proto);
+    ataques_varinhas_remover.erase(da);
+    if (vp.has_cargas()) {
+      da->set_limite_vezes(vp.cargas());
+    }
+  }
+  RemoveSe<DadosAtaque>([&ataques_varinhas_remover](const DadosAtaque& da) {
+    return c_any(ataques_varinhas_remover, &da);
+  }, proto->mutable_dados_ataque());
 }
 
 // Cria e remove os dados de ataque que tem que ser criados/removidos.
@@ -3061,34 +3110,8 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
     }
   }
 
-  // Itens mundanos que geram ataques.
-  std::unordered_map<std::string, int> mapa_tipo_quantidade;
-  for (const auto& im : proto->tesouro().itens_mundanos()) {
-    ++mapa_tipo_quantidade[im.id()];
-  }
-  RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
-    return AtaqueDeItemMundano(da);
-  }, proto->mutable_dados_ataque());
-  for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }) {
-    if (mapa_tipo_quantidade[id] > 0) {
-      auto* da = DadosAtaquePorIdArmaCriando(id, proto);
-      da->set_municao(mapa_tipo_quantidade[id]);
-      da->set_grupo(id);
-      da->set_rotulo(id);
-      da->set_id_arma(id);
-      da->set_empunhadura(EA_ARMA_ESCUDO);
-    }
-  }
-  // So cria uma vez, mesmo que haja repetidas.
-  std::unordered_set<std::string> criadas;
-  for (const auto& vp : proto->tesouro().varinhas()) {
-    if (criadas.find(vp.id()) != criadas.end()) continue;
-    const auto& vt = tabelas.Varinha(vp.id());
-    auto* da = DadosAtaqueVarinhaCriando(vt, proto);
-    if (vp.has_cargas()) {
-      da->set_limite_vezes(vp.cargas());
-    }
-  }
+  RecomputaItensMundanos(tabelas, proto);
+  RecomputaVarinhas(tabelas, proto);
 }
 
 // Objetivo é recomputar alcance_m e alcance_minimo_m.

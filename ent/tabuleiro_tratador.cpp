@@ -1616,9 +1616,8 @@ float Tabuleiro::TrataAcaoCriacao(
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (int i = 0; i < quantidade; ++i) {
-    ntf::Notificacao* filha;
-    ent::EntidadeProto* e_antes, *modelo_entidade;
-    std::tie(filha, e_antes, modelo_entidade) = NovaNotificacaoFilha(ntf::TN_ADICIONAR_ENTIDADE, EntidadeProto::default_instance(), &grupo_notificacoes);
+    auto [filha, e_antes, modelo_entidade] =
+        NovaNotificacaoFilha(ntf::TN_ADICIONAR_ENTIDADE, EntidadeProto::default_instance(), &grupo_notificacoes);
     // A entidade nao tem id ainda.
     e_antes->clear_id();
     modelo_entidade->clear_id();
@@ -1650,23 +1649,34 @@ float Tabuleiro::TrataAcaoCriacao(
 }
 
 namespace {
+
+bool IncrementaProximoAtaque(const DadosAtaque& da) {
+  if (!da.incrementa_proximo_ataque()) return false;
+  if (!da.has_limite_vezes()) return true;
+
+  // Ataque tem limite de vezes. Ver como é decrementado.
+  if (da.has_consome_apos_n_usos()) {
+    return da.usos() + 1 >= da.consome_apos_n_usos();
+  }
+  // Apenas limite de vezes.
+  if (da.limite_vezes() > 1) {
+    return false;
+  }
+  return true;
+}
+
 // Passa para proximo ataque, atualiza em corpo a corpo etc.
 void AtualizaAtaquesAposAtaqueIndividual(
     const DadosAtaque& da, Entidade* entidade_origem, Entidade* entidade_destino, ntf::Notificacao* grupo_desfazer) {
   if (entidade_origem == nullptr) return;
-
-  ntf::Notificacao* filha;
-  EntidadeProto *e_antes, *e_depois;
-  std::tie(filha, e_antes, e_depois) =
+  auto [filha, e_antes, e_depois] =
       NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_origem->Proto(), grupo_desfazer);
   e_antes->set_em_corpo_a_corpo(entidade_origem->Proto().em_corpo_a_corpo());
   if (da.acao().tipo() == ACAO_CORPO_A_CORPO) {
     e_depois->set_em_corpo_a_corpo(true);
     // Alvo vai pro CAC tb.
     if (entidade_destino != nullptr) {
-      ntf::Notificacao* filha;
-      EntidadeProto *e_antes, *e_depois;
-      std::tie(filha, e_antes, e_depois) =
+      auto [filha, e_antes, e_depois] =
           NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino->Proto(), grupo_desfazer);
       e_antes->set_em_corpo_a_corpo(entidade_destino->Proto().em_corpo_a_corpo());
       e_depois->set_em_corpo_a_corpo(true);
@@ -1677,7 +1687,7 @@ void AtualizaAtaquesAposAtaqueIndividual(
   }
   entidade_origem->AtualizaParcial(*e_depois);
 
-  if ((!da.has_limite_vezes() || da.limite_vezes() == 1) && da.incrementa_proximo_ataque()) {
+  if (IncrementaProximoAtaque(da)) {
     // O refazer vai falhar, mas fodas.
     e_antes->set_reiniciar_ataque(true);
     e_depois->set_reiniciar_ataque(false);
@@ -2269,12 +2279,10 @@ float Tabuleiro::TrataPreAcaoComum(
       acao_proto->set_bem_sucedida(false);
       return atraso_s;
   }
-  // Pergaminhos...
+  // Pergaminhos, varinhas...
   if (da.has_nivel_conjurador_pergaminho()) {
     // Testa a classe.
-    bool pode_lancar;
-    std::string texto;
-    std::tie(pode_lancar, texto) = PodeLancarPergaminho(tabelas_, entidade_origem.Proto(), da);
+    auto [pode_lancar, texto] = PodeLancarItemMagico(tabelas_, entidade_origem.Proto(), da);
     if (!pode_lancar) {
       AdicionaAcaoTextoLogado(entidade_origem.Id(), texto, atraso_s);
       acao_proto->set_bem_sucedida(false);

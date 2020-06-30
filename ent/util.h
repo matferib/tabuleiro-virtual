@@ -365,8 +365,8 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidad
 // Rola o teste de agarrar, ja considerando que tudo antes (ataque de toque), funcionou.
 ResultadoAtaqueVsDefesa AtaqueVsDefesaAgarrar(const Entidade& ea, const Entidade& ed);
 
-// Retorna true se o personagem puder lancar o tipo de pergaminho do ataque.
-std::pair<bool, std::string> PodeLancarPergaminho(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da);
+// Retorna true se o personagem puder lancar a magia atraves de ataque de item magico.
+std::pair<bool, std::string> PodeLancarItemMagico(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da);
 
 // Resultado de um teste de lancar pergaminho. Se nao ok, pode ter fiasco.
 struct ResultadoPergaminho {
@@ -528,7 +528,7 @@ ntf::Notificacao PreencheNotificacaoAtacandoPoderosamente(bool ativar, const Ent
 ntf::Notificacao PreencheNotificacaoExpiracaoEventoPosSalvacao(const Entidade& entidade);
 
 // Adiciona ao grupo uma notificacao de atualizacao dos ataques da entidade.
-void PreencheNotificacaoAtaqueAoPassarRodada(const EntidadeProto& proto, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
+void PreencheNotificacaoAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer);
 
 // Retorna uma string com o resumo do bonus.
 std::string BonusParaString(const Bonus& bonus);

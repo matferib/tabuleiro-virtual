@@ -1039,6 +1039,7 @@ message ItemMagicoProto {
   optional int32 max_cargas = 15;
   // Cargas correntes do item.
   optional int32 cargas = 16;
+  optional int32 usos_por_carga = 27;
   // Tipo de complemento requerido pelo item magico. Usado pela UI.
   optional TipoComplementoItemMagico tipo_complemento = 18;
   // Para itens com nivel e modificador.

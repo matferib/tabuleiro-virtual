@@ -2805,7 +2805,7 @@ void Tabuleiro::ProximaIniciativaModoMestre() {
     // Zera os ataques da entidade antes, caso haja ataque de oportunidade.
     const auto* entidade_iniciativa_antes = BuscaEntidade(IdIniciativaCorrente());
     if (entidade_iniciativa_antes != nullptr) {
-      PreencheNotificacaoAtaqueAoPassarRodada(entidade_iniciativa_antes->Proto(), grupo.get(), grupo_desfazer.get());
+      PreencheNotificacaoAtaqueAoPassarRodada(*entidade_iniciativa_antes, grupo.get(), grupo_desfazer.get());
       ReiniciaAtaqueAoPassarRodada(*entidade_iniciativa_antes, grupo.get(), grupo_desfazer.get());
     }
     // Atualiza a lista de iniciativa.
@@ -7648,7 +7648,7 @@ void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao*
       AtualizaEsquivaAoPassarRodada(entidade, grupo, grupo_desfazer);
       AtualizaMovimentoAoPassarRodada(entidade, grupo, grupo_desfazer);
       AtualizaCuraAceleradaAoPassarRodada(entidade, grupo, grupo_desfazer);
-      PreencheNotificacaoAtaqueAoPassarRodada(entidade.Proto(), grupo, grupo_desfazer);
+      PreencheNotificacaoAtaqueAoPassarRodada(entidade, grupo, grupo_desfazer);
       ReiniciaAtaqueAoPassarRodada(entidade, grupo, grupo_desfazer);
     }
   }
@@ -8108,7 +8108,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
 
 void Tabuleiro::UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tipo_pergaminho, int indice_pergaminho) {
   Entidade* entidade = BuscaEntidade(id_entidade);
-  if (entidade == nullptr || indice_pergaminho < 0 || (tipo_pergaminho != TM_ARCANA && tipo_pergaminho != TM_DIVINA)) return;
+  if (entidade == nullptr || indice_pergaminho < 0 || tipo_pergaminho == TM_NENHUMA) return;
 
   const bool arcano = tipo_pergaminho == TM_ARCANA;
   const auto& pergaminhos = arcano ? entidade->Proto().tesouro().pergaminhos_arcanos() : entidade->Proto().tesouro().pergaminhos_divinos();
@@ -8126,7 +8126,7 @@ void Tabuleiro::UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tip
   da_teste.set_modificador_atributo_pergaminho(pergaminho.modificador_atributo());
   da_teste.set_tipo_pergaminho(arcano ? TM_ARCANA : TM_DIVINA);
 
-  auto par_pode_lancar_razao = PodeLancarPergaminho(tabelas_, entidade->Proto(), da_teste);
+  auto par_pode_lancar_razao = PodeLancarItemMagico(tabelas_, entidade->Proto(), da_teste);
   if (!par_pode_lancar_razao.first) {
     AdicionaAcaoTextoLogado(entidade->Id(), par_pode_lancar_razao.second);
     return;
