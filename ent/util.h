@@ -73,6 +73,11 @@ bool c_any_of(const C& c, const F& f) {
 }
 
 template <class C, class F>
+int c_count_if(const C& c, const F& f) {
+  return std::count_if(c.begin(), c.end(), f);
+}
+
+template <class C, class F>
 bool c_all_of(const C& c, const F& f) {
   return std::all_of(c.begin(), c.end(), f);
 }

@@ -1326,7 +1326,7 @@ void ConfiguraSlotsRestritos(bool ha_restricao, RepeatedPtrField<EntidadeProto::
     return;
   }
   if (para_lancar->empty()) return;
-  int num_restritos = std::count_if(para_lancar->begin(), para_lancar->end(), [](const EntidadeProto::InfoLancar& il) {
+  int num_restritos = c_count_if(*para_lancar, [](const EntidadeProto::InfoLancar& il) {
     return il.restrito();
   });
   if (num_restritos == 1) {
@@ -1993,6 +1993,14 @@ void RecomputaDependenciasPontosVidaTemporarios(EntidadeProto* proto) {
 }
 
 void RecomputaDependenciasPontosVida(EntidadeProto* proto) {
+  // Por enquanto, so pra registro.
+  auto* bpv = proto->mutable_bonus_dados_vida();
+  int num_vitalidade = 0;
+  for (const auto& talentos_por_tipo : {proto->info_talentos().gerais(), proto->info_talentos().outros(), proto->info_talentos().automaticos() }) {
+    num_vitalidade += c_count_if(talentos_por_tipo, [](const TalentoProto& talento) { return talento.id() == "vitalidade"; });
+  }
+  AtribuiOuRemoveBonus(num_vitalidade * 3, TB_SEM_NOME, "vitalidade", bpv);
+
   const int max_pontos_vida = proto->max_pontos_vida() - proto->niveis_negativos() * 5;
   if (proto->pontos_vida() > max_pontos_vida) {
     proto->set_pontos_vida(max_pontos_vida);

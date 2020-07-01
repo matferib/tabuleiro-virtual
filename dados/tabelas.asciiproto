@@ -4513,6 +4513,7 @@ tabela_talentos {
     # bonus_pv: 3
     # cumulativo: true
     descricao: '+3 pontos de vida.'
+    bonus_pontos_vida { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'vitalidade' valor: 3 } } }
   }
   talentos {
     id: 'vontade_ferro'

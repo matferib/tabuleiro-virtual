@@ -923,6 +923,9 @@ message TalentoProto {
 
   optional Bonus bonus_ca = 10;
 
+  // Talento da bonus de pontos de vida.
+  optional Bonus bonus_pontos_vida = 21;
+
   // Indica talento regional (FR).
   optional bool regional = 11;
 

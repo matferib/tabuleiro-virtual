@@ -1698,6 +1698,15 @@ TEST(TestePergaminho, TesteLancarPergaminhoFalhaComFiasco) {
   EXPECT_TRUE(res.fiasco) << res.texto;
 }
 
+TEST(TesteTalentoPericias, TesteVitalidade) {
+  auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  proto_orc.mutable_info_talentos()->add_outros()->set_id("vitalidade");
+  proto_orc.mutable_info_talentos()->add_outros()->set_id("vitalidade");
+  auto orc = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 6);
+}
+
+
 TEST(TesteTalentoPericias, TesteTalentoMenteSobreMateriaCA) {
   auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
   auto* talento = proto_orc.mutable_info_talentos()->add_outros();
