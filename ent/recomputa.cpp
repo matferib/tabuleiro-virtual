@@ -2000,6 +2000,7 @@ void RecomputaDependenciasPontosVida(EntidadeProto* proto) {
     num_vitalidade += c_count_if(talentos_por_tipo, [](const TalentoProto& talento) { return talento.id() == "vitalidade"; });
   }
   AtribuiOuRemoveBonus(num_vitalidade * 3, TB_SEM_NOME, "vitalidade", bpv);
+  AtribuiOuRemoveBonus(ModificadorAtributo(TA_CONSTITUICAO, *proto) * NivelPersonagem(*proto), TB_ATRIBUTO, "constituição", bpv);
 
   const int max_pontos_vida = proto->max_pontos_vida() - proto->niveis_negativos() * 5;
   if (proto->pontos_vida() > max_pontos_vida) {
