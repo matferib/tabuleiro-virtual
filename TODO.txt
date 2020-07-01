@@ -1,5 +1,3 @@
-Terminar varinhas: conferir cargas, acao do tipo certo.
-Elixir de cuspir fogo.
 Meio dano de armas cortantes e perfurantes de enxames.
 Modelo sapo.
 UI de armas e ataques ligados a elas: delegate de arma;
