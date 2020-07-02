@@ -1616,8 +1616,8 @@ float Tabuleiro::TrataAcaoCriacao(
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (int i = 0; i < quantidade; ++i) {
-    auto [filha, e_antes, modelo_entidade] =
-        NovaNotificacaoFilha(ntf::TN_ADICIONAR_ENTIDADE, EntidadeProto::default_instance(), &grupo_notificacoes);
+    auto [e_antes, modelo_entidade] =
+        PreencheNotificacaoEntidadeProto(ntf::TN_ADICIONAR_ENTIDADE, EntidadeProto::default_instance(), grupo_notificacoes.add_notificacao());
     // A entidade nao tem id ainda.
     e_antes->clear_id();
     modelo_entidade->clear_id();
@@ -1669,15 +1669,16 @@ bool IncrementaProximoAtaque(const DadosAtaque& da) {
 void AtualizaAtaquesAposAtaqueIndividual(
     const DadosAtaque& da, Entidade* entidade_origem, Entidade* entidade_destino, ntf::Notificacao* grupo_desfazer) {
   if (entidade_origem == nullptr) return;
-  auto [filha, e_antes, e_depois] =
-      NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_origem->Proto(), grupo_desfazer);
+  auto [e_antes, e_depois] =
+      PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_origem, grupo_desfazer->add_notificacao());
   e_antes->set_em_corpo_a_corpo(entidade_origem->Proto().em_corpo_a_corpo());
   if (da.acao().tipo() == ACAO_CORPO_A_CORPO) {
     e_depois->set_em_corpo_a_corpo(true);
     // Alvo vai pro CAC tb.
     if (entidade_destino != nullptr) {
-      auto [filha, e_antes, e_depois] =
-          NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino->Proto(), grupo_desfazer);
+      auto [e_antes, e_depois] =
+          PreencheNotificacaoEntidadeProto(
+              ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino->Proto(), grupo_desfazer->add_notificacao());
       e_antes->set_em_corpo_a_corpo(entidade_destino->Proto().em_corpo_a_corpo());
       e_depois->set_em_corpo_a_corpo(true);
       entidade_destino->AtualizaParcial(*e_depois);
@@ -2022,7 +2023,7 @@ float Tabuleiro::TrataAcaoIndividual(
         if (evento != nullptr && evento->id_efeito() == EFEITO_PELE_ROCHOSA && !evento->complementos().empty()) {
           std::unique_ptr<ntf::Notificacao> nefeito(new ntf::Notificacao);
           auto [proto_antes, proto_depois] =
-              ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_destino, nefeito.get());
+              PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_destino, nefeito.get());
           *proto_antes->add_evento() = *evento;
           auto* evento_depois = proto_depois->add_evento();
           *evento_depois = *evento;

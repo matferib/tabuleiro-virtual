@@ -167,6 +167,27 @@ TEST(TesteItemMagico, TesteItemMagicoPoeTira) {
   EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
 }
 
+TEST(TesteArmas, TestePistola) {
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(1);
+    ic->set_id("guerreiro");
+  }
+  {
+    std::unique_ptr<Entidade> entidade (NovaEntidadeParaTestes(proto, g_tabelas));
+    EXPECT_FALSE(TalentoComArma(g_tabelas.Arma("pistola"), entidade->Proto()));
+    EXPECT_FALSE(TalentoComArma(g_tabelas.Arma("mosquete"), entidade->Proto()));
+  }
+  {
+    proto.mutable_info_talentos()->add_outros()->set_id("usar_arma_exotica_fogo");
+    std::unique_ptr<Entidade> entidade (NovaEntidadeParaTestes(proto, g_tabelas));
+    EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("pistola"), entidade->Proto()));
+    EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("mosquete"), entidade->Proto()));
+  }
+}
+
+
 TEST(TesteArmas, TesteChicote) {
   auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
   modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("tiro_longo");

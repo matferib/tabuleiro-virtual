@@ -57,6 +57,7 @@ enum CategoriaPericia {
   CATPER_SIMPLES = 0;
   CATPER_COMUM   = 1;
   CATPER_EXOTICA = 2;
+  CATPER_EXOTICA_ARMA_FOGO = 3;
 }
 
 // Atencao: os valores aqui sao usados em mapas do dado de ataque global. Nao mudar.

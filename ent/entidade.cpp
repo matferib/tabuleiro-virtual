@@ -2218,7 +2218,7 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   // Vbos de armas.
   std::vector<std::string> dados_vbo = {
     "kama", "quarterstaff", "sword", "short_sword", "bow", "club", "shield", "hammer", "flail",
-    "crossbow", "axe", "shield", "mace", "morning_star", "spear", "two_bladed_sword"
+    "crossbow", "axe", "shield", "mace", "morning_star", "spear", "two_bladed_sword", "pistol"
   };
   for (const auto& id : dados_vbo) {
     std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));

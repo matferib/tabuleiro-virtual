@@ -3010,7 +3010,7 @@ void RecomputaItensMundanos(const Tabelas& tabelas, EntidadeProto* proto) {
   RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
     return AtaqueDeItemMundano(da);
   }, proto->mutable_dados_ataque());
-  for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }) {
+  for (const auto& id : ItemsQueGeramAtaques()) {
     if (mapa_tipo_quantidade[id] > 0) {
       auto* da = DadosAtaquePorIdArmaCriando(id, proto);
       da->set_municao(mapa_tipo_quantidade[id]);

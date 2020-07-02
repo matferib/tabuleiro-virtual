@@ -2243,7 +2243,8 @@ DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
 }
 
 const std::vector<std::string>& ItemsQueGeramAtaques() {
-  static const std::vector<std::string> v = {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" };
+  static const std::vector<std::string> v = {
+    "fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono", "bomba" };
   return v;
 }
 
@@ -5412,6 +5413,8 @@ bool TalentoComArma(const ArmaProto& arma_tabelada, const EntidadeProto& proto) 
       return PossuiTalento("usar_armas_comuns", proto) || PossuiTalento("usar_arma_comum", id, proto);
     } else if (categoria == CATPER_EXOTICA) {
       return PossuiTalento("usar_arma_exotica", id, proto);
+    } else if (categoria == CATPER_EXOTICA_ARMA_FOGO) {
+      return PossuiTalento("usar_arma_exotica_fogo", proto);
     }
   }
   return true;
