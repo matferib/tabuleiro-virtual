@@ -2648,7 +2648,12 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   {
     // O que for tabelado comum do tipo do ataque.
     const auto& acao_tabelada = tabelas.Acao(da->tipo_ataque());
+    // Vamos salvar o icone antes de sobrescreve-lo pelo icone padrao.
+    std::string icone = da->acao().icone();
     da->mutable_acao()->MergeFrom(acao_tabelada);
+    if (!icone.empty()) {
+      da->mutable_acao()->set_icone(icone);
+    }
   }
 
   // O que for especifico deste ataque.
