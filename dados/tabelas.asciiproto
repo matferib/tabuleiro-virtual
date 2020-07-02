@@ -104,6 +104,13 @@ tabela_armas {
     tipo_dano: TD_PERFURANTE
   }
   armas {
+    id: 'chifrada_padrao'
+    categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
+    tipo_dano: TD_PERFURANTE
+    dano { medio: '1d6' }
+  }
+  armas {
     id: 'agua_benta'
     nome: 'água benta'
     categoria: CAT_PROJETIL_AREA

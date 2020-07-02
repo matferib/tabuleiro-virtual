@@ -240,6 +240,42 @@ modelo {
   }
 }
 modelo {
+  id: 'Bisão'
+  entidade {
+    tipo_dnd: TIPO_ANIMAL
+    tamanho: TM_GRANDE
+    tendencia { simples: TD_CAOTICO_BOM }
+    info_classes {
+      id: 'animal' nivel: 5
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    dados_vida: '5d8+15'
+     atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 22 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'chifrada' rotulo: 'chifrada' id_arma: 'chifrada_padrao' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'tolerancia' }
+    }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'observar' pontos: 3 }
+  }
+}
+modelo {
   id: 'Gorila'
   entidade {
     tipo_dnd: TIPO_ANIMAL

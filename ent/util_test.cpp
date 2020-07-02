@@ -4752,6 +4752,20 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteModelo, TesteBisao) {
+  auto proto = g_tabelas.ModeloEntidade("Bisão").entidade();
+  auto bisao = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("chifrada", bisao->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 8);
+    EXPECT_EQ(da.dano(), "1d8+9");
+    EXPECT_EQ(bisao->CA(*bisao, Entidade::CA_NORMAL), 13) << bisao->Proto().dados_defesa().ca().DebugString();
+  }
+  EXPECT_EQ(ValorFinalPericia("ouvir", bisao->Proto()), 7);
+  EXPECT_EQ(ValorFinalPericia("observar", bisao->Proto()), 5);
+}
+
+
 TEST(TesteModelo, TesteStirge) {
   auto proto = g_tabelas.ModeloEntidade("Stirge").entidade();
   auto stirge = NovaEntidadeParaTestes(proto, g_tabelas);
