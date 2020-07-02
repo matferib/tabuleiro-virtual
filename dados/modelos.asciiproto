@@ -242,9 +242,13 @@ modelo {
 modelo {
   id: 'Bisão'
   entidade {
+    rotulo: 'bisão'
+    rotulo_especial: 'a cada 5, age como manada, dando 1d12 de dano para cada 5 do grupo (grandes ou menores)'
     tipo_dnd: TIPO_ANIMAL
     tamanho: TM_GRANDE
-    tendencia { simples: TD_CAOTICO_BOM }
+    tendencia { simples: TD_NEUTRO }
+    modelo_3d { id: 'bison' }
+    info_textura { id: 'tile_leather.png' }
     info_classes {
       id: 'animal' nivel: 5
       pericias_monstro: 'ouvir'
@@ -258,6 +262,9 @@ modelo {
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    movimento {
+      terrestre_basico_q: 8
     }
     dados_defesa {
       ca {

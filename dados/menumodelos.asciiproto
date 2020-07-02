@@ -33,6 +33,14 @@ sub_menu {
 sub_menu {
   id: 'Animais'
   modelo { id: 'Águia' }
+  modelo { id: 'Bisão' }
+  modelo {
+    id: 'bisao_manada'
+    texto: 'Bisão (Manada)'
+    modelos {
+      id: 'Bisão' quantidade: '6d5'
+    }
+  }
   modelo { id: 'Arminho Atroz' }
   modelo { id: 'Cachorro' }
   modelo { id: 'Cachorro Celestial' }
