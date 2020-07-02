@@ -1211,6 +1211,18 @@ float Tabuleiro::TrataAcaoProjetilArea(
     }
   }
 
+  int delta_pv_original = 0;
+  if (da.acao().respingo_causa_mesmo_dano()) {
+    // Busca o dano da acao causada, caso contrario, rola o valor de novo.
+    if (acertou_direto && acao_proto->por_entidade().size() == 1) {
+      delta_pv_original = acao_proto->por_entidade(0).delta();
+    } else {
+      delta_pv_original = -RolaValor(da.dano());
+    }
+  } else {
+    delta_pv_original = (da.dano().empty() ? 0 : -1);
+  }
+
   auto afetados = EntidadesAfetadasPorAcao(*acao_proto);
   for (auto [id, nao_usado] : afetados) {
     const Entidade* entidade_destino = BuscaEntidade(id);
@@ -1246,7 +1258,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     acao_proto->set_afeta_pontos_vida(true);
     por_entidade->set_id(id);
 
-    int delta_pv = da.dano().empty() ? 0 : -1;
+    int delta_pv = delta_pv_original;
 
     std::string texto_afeta;
     if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino, &texto_afeta)) {
@@ -1271,22 +1283,23 @@ float Tabuleiro::TrataAcaoProjetilArea(
         delta_pv += delta;
       }
     }
-    if (acao_proto->respingo_causa_efeitos_adicionais()) {
-      bool salvou = false;
-      if (acao_proto->permite_salvacao()) {
-        // pega o dano da acao.
-        auto [delta_pv_pos_salvacao, entidade_salvou, texto_salvacao] =
-            AtaqueVsSalvacao(delta_pv, da, *entidade_origem, *entidade_destino);
-        std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
-        if (n->has_tipo()) {
-          *grupo_desfazer->add_notificacao() = *n;
-          central_->AdicionaNotificacao(n.release());
-        }
-        ConcatenaString(texto_salvacao, por_entidade->mutable_texto());
-        AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
-        delta_pv = delta_pv_pos_salvacao;
-        salvou = entidade_salvou;
+    bool salvou = false;
+    if (acao_proto->permite_salvacao()) {
+      // pega o dano da acao.
+      auto [delta_pv_pos_salvacao, entidade_salvou, texto_salvacao] =
+          AtaqueVsSalvacao(delta_pv, da, *entidade_origem, *entidade_destino);
+      std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
+      if (n->has_tipo()) {
+        *grupo_desfazer->add_notificacao() = *n;
+        central_->AdicionaNotificacao(n.release());
       }
+      ConcatenaString(texto_salvacao, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
+      delta_pv = delta_pv_pos_salvacao;
+      salvou = entidade_salvou;
+    }
+
+    if (acao_proto->respingo_causa_efeitos_adicionais()) {
       // Imunidade ao tipo de ataque.
       ResultadoImunidadeOuResistencia resultado_elemento =
           ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());

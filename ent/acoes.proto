@@ -105,7 +105,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 104.
+// Proximo id: 105.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -149,6 +149,8 @@ message AcaoProto {
   optional bool efeito_projetil_area = 42;
   // Se verdadeiro, a acao causara efeitos adicionais no splash da area tb.
   optional bool respingo_causa_efeitos_adicionais = 99;
+  // Se verdadeiro, respingo causara mesmo dano do ataque.
+  optional bool respingo_causa_mesmo_dano = 104;
   optional bool permite_salvacao = 23;
   optional bool dano_ignora_salvacao_deprecated = 62;
   optional ResultadoSalvacao resultado_ao_salvar = 32;

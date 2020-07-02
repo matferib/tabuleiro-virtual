@@ -957,11 +957,13 @@ TEST(TesteArmas, TesteProjetilAreaCompatibilidade) {
 
 TEST(TesteArmas, TesteProjetilArea) {
   EntidadeProto proto_ataque;
+  AtribuiBaseAtributo(18, TA_FORCA, &proto_ataque);
   {
     proto_ataque.set_tamanho(TM_GRANDE);
     proto_ataque.set_gerar_agarrar(false);
     proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("fogo_alquimico");
     proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("fogo_alquimico");
+    proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("bomba");
   }
   auto e = NovaEntidadeParaTestes(proto_ataque, g_tabelas);
   // Dois fogos.
@@ -976,7 +978,21 @@ TEST(TesteArmas, TesteProjetilArea) {
     const AcaoProto& acao = da.acao();
     EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
   }
-  // Consome 1.
+  // Bomba.
+  {
+    const auto& da = DadosAtaquePorGrupo("bomba", e->Proto());
+    EXPECT_TRUE(da.ataque_toque());
+    EXPECT_TRUE(da.ataque_distancia());
+    EXPECT_TRUE(da.has_acao());
+    EXPECT_EQ(da.dano(), "2d6");
+    EXPECT_EQ(da.municao(), 1U);
+    EXPECT_EQ(da.dificuldade_salvacao(), 15);
+    const AcaoProto& acao = da.acao();
+    EXPECT_TRUE(acao.respingo_causa_mesmo_dano());
+    EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
+  }
+
+  // Consome 1 fogo.
   {
     ntf::Notificacao n;
     PreencheNotificacaoConsumoAtaque(*e, e->DadoCorrenteNaoNull(), &n, nullptr);
@@ -990,7 +1006,7 @@ TEST(TesteArmas, TesteProjetilArea) {
     ntf::Notificacao n;
     PreencheNotificacaoConsumoAtaque(*e, e->DadoCorrenteNaoNull(), &n, nullptr);
     e->AtualizaParcial(n.entidade());
-    ASSERT_TRUE(e->Proto().dados_ataque().empty());
+    ASSERT_EQ(e->Proto().dados_ataque().size(), 1);  // sobra a bomba.
   }
 }
 
