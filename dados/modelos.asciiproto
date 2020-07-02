@@ -7664,16 +7664,16 @@ modelo {
       pocoes { id: 'curar_ferimentos_moderados' }
       armas { id: 'Lança Montada +1' id_tabela: 'lanca_montada' bonus_magico: 1 }
       armas { id: 'Espada Longa OP' id_tabela: 'espada_longa' obra_prima: true }
-      escudos { id: 'Escudo Pesado Aço' id_tabela: 'pesado_aco' }
       armaduras { id: 'Armadura de Batalha' id_tabela: 'armadura_batalha' }
     }
-    dados_ataque { rotulo: 'lanca montada' id_arma_tesouro: 'Lança Montada +1' empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { rotulo: 'espada longa' id_arma_tesouro: 'Espada Longa OP' empunhadura: EA_ARMA_ESCUDO }
+    # Ao montar com lanca, pode usar apenas uma mão. Se usar 2, tem que fazer teste de cavalgar.
+    dados_ataque { rotulo: 'lanca montada' id_arma_tesouro: 'Lança Montada +1' empunhadura: EA_ARMA_APENAS }
+    dados_ataque { rotulo: 'espada longa' id_arma_tesouro: 'Espada Longa OP' empunhadura: EA_2_MAOS }
     dados_defesa { id_armadura: 'armadura_batalha' id_escudo: 'pesado_aco' }
     info_talentos {
-      gerais { id: 'reflexos_em_combate' }
-      gerais { id: 'ataque_poderoso' }
-      outros { id: 'trespassar' origem: 'humano' }
+      gerais { id: 'investidade_montada' }
+      gerais { id: 'investida_implacavel' }
+      outros { id: 'ataque_poderoso' origem: 'humano' }
       outros { id: 'combate_montado' origem: 'guerreiro' }
       outros { id: 'foco_em_arma' complemento: 'lanca_montada' origem: 'guerreiro' }
       outros { id: 'especializacao_arma' complemento: 'lanca_montada' origem: 'guerreiro' }
