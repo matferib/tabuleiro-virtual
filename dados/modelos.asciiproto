@@ -7632,6 +7632,12 @@ modelo {
       outros { id: 'especializacao_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
       outros { id: 'trespassar_aprimorado' origem: 'guerreiro' }
     }
+    info_pericias { id: 'adestrar_animais' pontos: 2 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
+    info_pericias { id: 'natacao' pontos: 2 }
+    info_pericias { id: 'saltar' pontos: 2 }
+    info_pericias { id: 'intimidacao' pontos: 8 }
+    info_pericias { id: 'natacao' pontos: 8 }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
@@ -7643,6 +7649,51 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Humano Guerreiro 5 Montado'
+  entidade {
+    # Elite.
+    rotulo: 'guerreiro 5 montado'
+    dados_vida: '4d10+10+10'
+    raca: 'humano'
+    info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 5 }
+    tesouro {
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      armas { id: 'Lança Montada +1' id_tabela: 'lanca_montada' bonus_magico: 1 }
+      armas { id: 'Espada Longa OP' id_tabela: 'espada_longa' obra_prima: true }
+      escudos { id: 'Escudo Pesado Aço' id_tabela: 'pesado_aco' }
+      armaduras { id: 'Armadura de Batalha' id_tabela: 'armadura_batalha' }
+    }
+    dados_ataque { rotulo: 'lanca montada' id_arma_tesouro: 'Lança Montada +1' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { rotulo: 'espada longa' id_arma_tesouro: 'Espada Longa OP' empunhadura: EA_ARMA_ESCUDO }
+    dados_defesa { id_armadura: 'armadura_batalha' id_escudo: 'pesado_aco' }
+    info_talentos {
+      gerais { id: 'reflexos_em_combate' }
+      gerais { id: 'ataque_poderoso' }
+      outros { id: 'trespassar' origem: 'humano' }
+      outros { id: 'combate_montado' origem: 'guerreiro' }
+      outros { id: 'foco_em_arma' complemento: 'lanca_montada' origem: 'guerreiro' }
+      outros { id: 'especializacao_arma' complemento: 'lanca_montada' origem: 'guerreiro' }
+    }
+    info_pericias { id: 'cavalgar' pontos: 8 bonus { bonus_individual { tipo: TB_CIRCUNSTANCIA por_origem { origem: 'sela militar' valor: 2 } } } }
+    info_pericias { id: 'adestrar_animais' pontos: 8 }
+    info_pericias { id: 'saltar' pontos: 4 }
+    info_pericias { id: 'intimidacao' pontos: 4 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
 modelo {
   id: 'Humano Guerreiro 7'
   entidade {

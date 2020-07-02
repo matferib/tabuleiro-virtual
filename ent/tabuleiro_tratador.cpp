@@ -2161,6 +2161,8 @@ float Tabuleiro::TrataAcaoIndividual(
 
     delta_pv = DesviaObjetoSeAplicavel(
         tabelas_, delta_pv, *entidade_destino, da, this, por_entidade, grupo_desfazer);
+    delta_pv = DesviaMontariaSeAplicavel(
+        tabelas_, delta_pv, resultado.valor_final_com_modificadores, *entidade_destino, da, this, por_entidade, grupo_desfazer);
 
     // Compartilhamento de dano.
     delta_pv = CompartilhaDanoSeAplicavel(

@@ -1666,6 +1666,11 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   std::tie(resultado.vezes, texto_critico) =
       AplicaCriticoSeDentroMargem(
           d20, bonus_ataque, modificador_incrementos, modificadores_ataque, modificadores_defesa, da, ea, ed);
+  resultado.valor_final_com_modificadores = total;
+
+  if (da.id_arma() == "lanca_montada" && ea.PossuiEfeito(EFEITO_INVESTIDA) && ea.Proto().has_montado_em()) {
+    ++resultado.vezes;
+  }
 
   if (ap.permite_ataque_vs_defesa()) {
     resultado.texto =
@@ -5775,6 +5780,33 @@ int DesviaObjetoSeAplicavel(
   return 0;
 }
 
+int DesviaMontariaSeAplicavel(
+    const Tabelas& tabelas, int delta_pontos_vida, int total_ataque, const Entidade& alvo, const DadosAtaque& da,
+    Tabuleiro* tabuleiro, AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer) {
+  if (delta_pontos_vida >= 0 || !da.acao().permite_ataque_vs_defesa() || alvo.Proto().entidades_montadas().size() != 1) return delta_pontos_vida;
+  const auto* montador = tabuleiro->BuscaEntidade(alvo.Proto().entidades_montadas(0));
+  if (montador == nullptr) {
+    LOG(INFO) << "montador de " << RotuloEntidade(alvo) << " é null";
+    return delta_pontos_vida;
+  }
+  const auto* talento = Talento("combate_montado", montador->Proto());
+  if (talento == nullptr || talento->usado_na_rodada()) return delta_pontos_vida;
+  auto pericia_cavalgar_opt = RolaPericia(tabelas, "cavalgar", Bonus::default_instance(), montador->Proto());
+  if (!pericia_cavalgar_opt.has_value()) return delta_pontos_vida;
+  auto [rolou, pericia_cavalgar, texto] = *pericia_cavalgar_opt;
+  VLOG(1) << "compilador feliz: rolou pericia: " << rolou << ", " << texto;
+  if (pericia_cavalgar <= total_ataque) {
+    ConcatenaString(StringPrintf("cavalgar %d <= %d ataque", pericia_cavalgar, total_ataque), por_entidade->mutable_texto());
+    return delta_pontos_vida;
+  }
+  ConcatenaString(
+      StringPrintf("ataque na montaria desviado: cavalgar %d > %d ataque", pericia_cavalgar, total_ataque), por_entidade->mutable_texto());
+  ntf::Notificacao n;
+  PreencheNotificacaoMontariaDesviada(true, *montador, &n, grupo_desfazer->add_notificacao());
+  tabuleiro->TrataNotificacao(n);
+  return 0;
+}
+
 std::pair<int, std::string> RenovaSeTiverDominioRenovacao(
     const EntidadeProto& proto, int delta_pv, tipo_dano_e tipo_dano, ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer) {
   if (delta_pv >= 0) {
@@ -5881,6 +5913,28 @@ void PreencheNotificacaoObjetoDesviado(bool valor, const Entidade& entidade, ntf
   {
     auto* talento = e_depois->mutable_info_talentos()->add_outros();
     talento->set_id("desviar_objetos");
+    talento->set_usado_na_rodada(valor);
+  }
+  if (nd != nullptr) {
+    *nd = *n;
+  }
+}
+
+void PreencheNotificacaoMontariaDesviada(bool valor, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* nd) {
+  auto [e_antes, e_depois] = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+  auto* talento_proto = Talento("combate_montado", entidade.Proto());
+  if (talento_proto == nullptr) {
+    LOG(ERROR) << "PreencheNotificacaoMontariaDesviada para entidade sem 'combate_montado'";
+    return;
+  }
+  {
+    auto* talento = e_antes->mutable_info_talentos()->add_outros();
+    talento->set_id("combate_montado");
+    talento->set_usado_na_rodada(talento_proto->usado_na_rodada());
+  }
+  {
+    auto* talento = e_depois->mutable_info_talentos()->add_outros();
+    talento->set_id("combate_montado");
     talento->set_usado_na_rodada(valor);
   }
   if (nd != nullptr) {

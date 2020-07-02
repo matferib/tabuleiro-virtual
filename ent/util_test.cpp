@@ -7,6 +7,7 @@
 #include "ent/entidade.h"
 #include "ent/recomputa.h"
 #include "ent/tabelas.h"
+#include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "log/log.h"
 #include "ntf/notificacao.h"
@@ -20,6 +21,16 @@ Tabelas g_tabelas(nullptr);
 class CentralColetora : public ntf::CentralNotificacoes {
  public:
   std::vector<std::unique_ptr<ntf::Notificacao>>& Notificacoes() { return notificacoes_; }
+};
+CentralColetora g_central;
+
+class TabuleiroTeste : public Tabuleiro {
+ public:
+  TabuleiroTeste(const std::vector<Entidade*>& entidades) : Tabuleiro(OpcoesProto::default_instance(), g_tabelas, nullptr, nullptr, &g_central) {
+    for (auto* entidade : entidades) {
+      entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
+    }
+  }
 };
 
 const DadosAtaque& DadosAtaquePorGrupo(const std::string& grupo, const EntidadeProto& proto, int n = 0) {
@@ -1706,6 +1717,32 @@ TEST(TesteTalentoPericias, TesteVitalidade) {
   EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 6);
 }
 
+TEST(TesteTalentoPericias, TesteCombateMontado) {
+  auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  proto_orc.set_id(1);
+  proto_orc.mutable_info_talentos()->add_outros()->set_id("combate_montado");
+  proto_orc.set_montado_em(2);
+  auto montador = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  proto_orc.set_id(2);
+  proto_orc.clear_montado_em();
+  proto_orc.add_entidades_montadas(1);
+  auto montaria = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  ntf::Notificacao grupo_desfazer;
+  TabuleiroTeste tabuleiro({montador, montaria});
+  AcaoProto acao;
+  g_dados_teste.push(10);
+  EXPECT_EQ(
+      -10, DesviaMontariaSeAplicavel(
+        g_tabelas, -10, /*total_ataque=*/12, *montaria,
+        DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.add_por_entidade(), &grupo_desfazer))
+    << acao.por_entidade(0).DebugString();
+  g_dados_teste.push(11);
+  EXPECT_EQ(
+      0, DesviaMontariaSeAplicavel(
+        g_tabelas, -10, /*total_ataque=*/12, *montaria,
+        DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.add_por_entidade(), &grupo_desfazer))
+    << acao.por_entidade(1).DebugString();
+}
 
 TEST(TesteTalentoPericias, TesteTalentoMenteSobreMateriaCA) {
   auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();

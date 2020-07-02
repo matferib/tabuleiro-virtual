@@ -866,10 +866,12 @@ tabela_armas {
     preco: '10 PO'
     dano { medio: '1d8' }
     categoria: CAT_CAC
-    categoria: CAT_DUAS_MAOS
+    # Quando montado, pode usar com uma mão, complexo de modelar.
+    #categoria: CAT_DUAS_MAOS
     multiplicador_critico: 3
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
+    info_modelo_3d { id: 'sword' escala { x: 2 y: 2 z: 2} }
     categoria_pericia: CATPER_COMUM
     alcance_quadrados: 2
     haste: true
