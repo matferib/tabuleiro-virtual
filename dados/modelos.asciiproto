@@ -1093,6 +1093,7 @@ modelo {
   entidade {
     tipo_dnd: TIPO_ANIMAL
     dados_vida: '1' tamanho: TM_DIMINUTO cor { r: 0.0 g: 1.0 b: 0.0 }
+    info_textura { id: 'toad.png' }
     info_classes { id: 'animal' nivel: 1 }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }

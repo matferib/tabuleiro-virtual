@@ -140,13 +140,13 @@ tabela_armas {
     id: 'bomba'
     nome: 'bomba'
     dano { invariavel: '2d6' }
-    categoria: CAT_ARREMESSO
     categoria: CAT_DISTANCIA
+    categoria: CAT_PROJETIL_AREA
     preco: '150 PO'
     alcance_quadrados: 2
     tipo_dano: TD_OUTRO
     acao {
-      tipo: ACAO_DISPERSAO
+      #tipo: ACAO_DISPERSAO
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       raio_quadrados: 1
       geometria: ACAO_GEO_ESFERA
@@ -162,6 +162,7 @@ tabela_armas {
       tipo_salvacao: TS_REFLEXO
       ignora_reducao_dano_barbaro: true
       elemento: DESC_FOGO
+      respingo_causa_mesmo_dano: true
       som_sucesso: 'fireball.wav'
       som_fracasso: 'fireball.wav'
     }
