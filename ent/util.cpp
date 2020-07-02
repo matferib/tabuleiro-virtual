@@ -1668,8 +1668,13 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
           d20, bonus_ataque, modificador_incrementos, modificadores_ataque, modificadores_defesa, da, ea, ed);
   resultado.valor_final_com_modificadores = total;
 
-  if (da.id_arma() == "lanca_montada" && ea.PossuiEfeito(EFEITO_INVESTIDA) && ea.Proto().has_montado_em()) {
-    ++resultado.vezes;
+  if (ea.PossuiEfeito(EFEITO_INVESTIDA)) {
+    if (da.id_arma() == "lanca_montada" && ea.Proto().has_montado_em()) {
+      ++resultado.vezes;
+    }
+    if (ea.PossuiTalento("investida_implacavel")) {
+      ++resultado.vezes;
+    }
   }
 
   if (ap.permite_ataque_vs_defesa()) {

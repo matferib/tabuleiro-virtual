@@ -1387,7 +1387,7 @@ void Tabuleiro::PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bi
 void Tabuleiro::AlternaInvestida() {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+  for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) continue;
     const auto& proto = entidade_selecionada->Proto();
