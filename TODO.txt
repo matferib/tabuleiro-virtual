@@ -1,5 +1,5 @@
+Remover duplicacoes das funcoes Montadas (podem retornar um id mais de uma vez).
 Meio dano de armas cortantes e perfurantes de enxames.
-Modelo sapo.
 UI de armas e ataques ligados a elas: delegate de arma;
 
 Sessão:

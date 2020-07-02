@@ -658,6 +658,7 @@ modelo {
   }
 }
 modelo {
+  # Detalhes de combate aereo montado em veserabs: anauroch, pg 118.
   id: 'Vulto Guerreiro 5 Montado'
   id_entidade_base: 'Humano Guerreiro 5 Montado'
   id_entidade_base: 'Vulto Base'
@@ -1240,6 +1241,7 @@ modelo {
 }
 
 modelo {
+  # Detalhes de combate aereo montado em veserabs: anauroch, pg 118.
   id: 'Veserab'
   entidade {
     dados_vida: '5d10+15' tamanho: TM_GRANDE voadora: true modelo_3d { id: 'veserab' }
