@@ -1,3 +1,5 @@
+Escorpiao: pode usar destreza no teste de agarrar.
+Colocar um shambling mound e um chuul na aventura.
 Remover duplicacoes das funcoes Montadas (podem retornar um id mais de uma vez).
 Meio dano de armas cortantes e perfurantes de enxames.
 UI de armas e ataques ligados a elas: delegate de arma;
