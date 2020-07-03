@@ -548,6 +548,20 @@ modelo {
   }
 }
 modelo {
+  id: 'Vaga-lume Gigante Celestial ICI'
+  id_entidade_base: 'Vaga-lume Gigante Celestial'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Centopéia Média Abissal ICI'
+  id_entidade_base: 'Centopéia Média Abissal'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
   id: 'Cobra, Víbora Pequena Abissal ICI'
   id_entidade_base: 'Cobra, Víbora Pequena Abissal'
   parametros {
@@ -1305,10 +1319,44 @@ modelo {
   }
 }
 modelo {
-  id: 'Besouro do Fogo'
+  id: 'Vaga-lume Gigante' #'Besouro do Fogo'
   entidade {
+    tendencia { simples: TD_NEUTRO }
+    tipo_dnd: TIPO_VERME
+    info_classes { id: 'verme' nivel: 1 }
+    achatado: true
     dados_vida: '1d8' tamanho: TM_PEQUENO info_textura { id: 'firebeetle.png' } cor { r: 1 g: 0.1 b: 0.1 }
-    rotulo_especial: 'ini 0\nca 16/11/16 mordida +1 dano 2d5' luz { raio_m: 3 cor { r: 1 } }
+    luz { raio_m: 3 cor { r: 1 g: 0 b: 0 } }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18
+    dados_ataque {
+      grupo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida'
+      id_arma: 'mordida' dano_basico: '2d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
+      }
+    }
+    movimento {
+      terrestre_basico_q: 6
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+    }
+  }
+}
+modelo {
+  id: 'Vaga-lume Gigante Celestial' #'Besouro do Fogo Celestial'
+  id_entidade_base: 'Vaga-lume Gigante'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
+    tendencia { simples: TD_NEUTRO_BOM }
   }
 }
 modelo {
@@ -1627,6 +1675,7 @@ modelo {
   # Medium.
   id: 'Centopéia Média'
   entidade {
+    tendencia { simples: TD_NEUTRO }
     dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'centipede' }
     tipo_dnd: TIPO_VERME
     info_classes { id: 'verme' nivel: 1 }
@@ -1667,6 +1716,14 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
     }
+  }
+}
+modelo {
+  id: 'Centopéia Média Abissal'
+  id_entidade_base: 'Centopéa Média'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL  }
+    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 modelo {
@@ -3290,6 +3347,55 @@ modelo {
     dados_vida: '1d8' cor { r: 0.1 g: 0.6 b: 0.3 } info_textura { id: 'elf.png' }
     modificador_iniciativa: 1
     rotulo_especial: 'ini: +1\nat: espada +2 dano: 1d8+1\nat: +3 arco dano: 1d8\nca: 15'
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Médio'
+  entidade {
+    rotulo: 'escorpião médio'
+    tipo_dnd: TIPO_VERME
+    info_classes { id: 'verme' nivel: 2 }
+    dados_vida: '2d8+4' tamanho: TM_MEDIO cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'ferrão' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'ferroada_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      veneno {
+        tipo: TV_FERIMENTO # CD tem que dar 13
+        dano_inicial: '1d3' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d3' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Grande'
+  entidade {
+    dados_vida: '5d8+10' tamanho: TM_GRANDE cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    rotulo_especial: 'ini: 0\nat: +1/+6/+6\n1d6+2(+ven)/1d6+4/1d6+4'
   }
 }
 modelo {

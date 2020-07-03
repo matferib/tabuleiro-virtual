@@ -10544,6 +10544,14 @@ tabela_feiticos {
           id_modelo_entidade: 'Cachorro Celestial ICI'
         }
         parametros {
+          texto: 'Centopéia Média Abissal (NM)'
+          id_modelo_entidade: 'Centopéia Média Abissal ICI'
+        }
+        parametros {
+          texto: 'Vaga-lume Gigante Celestial NB'
+          id_modelo_entidade: 'Vaga-lume Gigante Celestial ICI'
+        }
+        parametros {
           texto: 'Coruja Celestial LB'
           id_modelo_entidade: 'Coruja Celestial ICI'
         }

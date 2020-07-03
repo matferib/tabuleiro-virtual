@@ -380,12 +380,13 @@ sub_menu {
   id: 'Vermes'
   modelo { id: 'Abelha Gigante' }
   modelo { id: 'Aranha Gigante Enorme' }
-  modelo { id: 'Besouro do Fogo' }
+  modelo { id: 'Vaga-lume Gigante' }  # Besouro do fogo.
   modelo { id: 'Centopéia Média' }
   modelo { id: 'Centopéia Grande' }
   modelo { id: 'Centopéia Enorme' }
   modelo { id: 'Centopéia Enorme Abissal' }
   modelo { id: 'Centopéia Imensa' }
+  modelo { id: 'Escorpião Monstruoso Médio' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }
 }

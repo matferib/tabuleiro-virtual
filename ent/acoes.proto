@@ -399,7 +399,7 @@ message DanoAdicionalPorTendencia {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 105.
+// Proximo id: 106.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   optional string rotulo = 9;
@@ -561,6 +561,8 @@ message DadosAtaque {
   optional bool ignora_origem = 78;
   // Caso verdadeiro, a criatura podera agarrar automaticamente com este ataque (desde que alvo seja menor e o teste de agarrar seja bem sucedido).
   optional bool agarrar_aprimorado = 85;
+  // Se o agarrar aprimorado funcionar, da o dano de constrição como esmagamento.
+  optional bool constricao = 105;
   // Caso verdadeiro, a criatura agarrará sem teste após um ataque bem sucedido.
   optional bool adesao = 100;
   // Se verdadeiro, ataque é oriundo de feitiço.
