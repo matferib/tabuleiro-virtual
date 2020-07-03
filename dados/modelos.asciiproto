@@ -548,6 +548,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Escorpião Monstruoso Pequeno Abissal ICI'
+  id_entidade_base: 'Escorpião Monstruoso Pequeno'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
   id: 'Vaga-lume Gigante Celestial ICI'
   id_entidade_base: 'Vaga-lume Gigante Celestial'
   parametros {
@@ -3350,6 +3357,63 @@ modelo {
   }
 }
 modelo {
+  id: 'Escorpião Monstruoso Pequeno'
+  entidade {
+    rotulo: 'escorpião pequeno'
+    tipo_dnd: TIPO_VERME
+    tamanho: TM_PEQUENO
+    info_classes { id: 'verme' nivel: 1 }
+    dados_vida: '1d8+2' cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'ferrão' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'ferroada_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      veneno {
+        tipo: TV_FERIMENTO # CD tem que dar 12
+        dano_inicial: '1d2' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d2' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    movimento {
+      terrestre_basico_q: 6
+    }
+    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_talentos {
+      outros { id: 'acuidade_arma' origem: 'bonus' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Pequeno Abissal'
+  id_entidade_base: 'Escorpião Monstruoso Pequeno'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
+    tendencia { simples: TD_NEUTRO_MAU }
+  }
+}
+modelo {
   id: 'Escorpião Monstruoso Médio'
   entidade {
     rotulo: 'escorpião médio'
@@ -3379,6 +3443,9 @@ modelo {
         dano_inicial: '1d3' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d3' tipo_dano_secundario: TDV_CONSTITUICAO
       }
     }
+    movimento {
+      terrestre_basico_q: 8
+    }
     info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
@@ -3389,6 +3456,13 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
     }
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Médio Abissal'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
+    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 modelo {
@@ -7777,7 +7851,7 @@ modelo {
     dados_ataque { rotulo: 'espada longa' id_arma_tesouro: 'Espada Longa OP' empunhadura: EA_2_MAOS }
     dados_defesa { id_armadura: 'armadura_batalha' id_escudo: 'pesado_aco' }
     info_talentos {
-      gerais { id: 'investidade_montada' }
+      gerais { id: 'investida_montada' }
       gerais { id: 'investida_implacavel' }
       outros { id: 'ataque_poderoso' origem: 'humano' }
       outros { id: 'combate_montado' origem: 'guerreiro' }
