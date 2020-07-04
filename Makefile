@@ -3,7 +3,7 @@ all_sem_testes:
 	scons -j 2
 
 all:
-	scons -j 1 testes=1 tabvirt teste_ent_util teste_ent_acoes
+	scons -j 2 testes=1 tabvirt teste_ent_util teste_ent_acoes
 
 release:
 	scons -j 1 debug=0
