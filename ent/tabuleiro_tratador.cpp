@@ -2136,15 +2136,15 @@ float Tabuleiro::TrataAcaoIndividual(
             delta_pv -= dano_constricao;
             ConcatenaString(texto_constricao, por_entidade->mutable_texto());
           } else {
-            por_entidade->set_forca_consequencia(true);
-            acao_proto->set_consequencia(TC_AGARRA_ALVO);
-            // Apenas para desfazer.
-            auto* no = grupo_desfazer->add_notificacao();
-            PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade_origem, no, no);
-            auto* nd = grupo_desfazer->add_notificacao();
-            PreencheNotificacaoAgarrar(entidade_origem->Id(), *entidade_destino, nd, nd);
             ConcatenaString(resultado_agarrar.texto, por_entidade->mutable_texto());
           }
+          por_entidade->set_forca_consequencia(true);
+          acao_proto->set_consequencia(TC_AGARRA_ALVO);
+          // Apenas para desfazer.
+          auto* no = grupo_desfazer->add_notificacao();
+          PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade_origem, no, no);
+          auto* nd = grupo_desfazer->add_notificacao();
+          PreencheNotificacaoAgarrar(entidade_origem->Id(), *entidade_destino, nd, nd);
         } else {
           ConcatenaString(resultado_agarrar.texto, por_entidade->mutable_texto());
         }
