@@ -562,7 +562,8 @@ message DadosAtaque {
   // Caso verdadeiro, a criatura podera agarrar automaticamente com este ataque (desde que alvo seja menor e o teste de agarrar seja bem sucedido).
   optional bool agarrar_aprimorado = 85;
   optional bool agarrar_aprimorado_se_acertou_anterior = 106;
-  optional bool acertou_anterior = 108;
+  // Se verdadeiro, este ataque acertou na rodada.
+  optional bool acertou_ataque = 108;
   // Se o agarrar aprimorado funcionar, da o dano de constrição como esmagamento.
   optional bool constricao = 105;
   optional string dano_constricao = 107;
