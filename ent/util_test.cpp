@@ -4839,6 +4839,41 @@ TEST(TesteModelo, TesteBisao) {
   EXPECT_EQ(ValorFinalPericia("observar", bisao->Proto()), 5);
 }
 
+TEST(TesteModelo, TesteEscorpiao) {
+  auto proto = g_tabelas.ModeloEntidade("Escorpião Monstruoso Médio").entidade();
+  auto escorpiao = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_EQ(escorpiao->CA(*escorpiao, Entidade::CA_NORMAL), 14) << escorpiao->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.dano_constricao(), "1d4+1");
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_EQ(escorpiao->CA(*escorpiao, Entidade::CA_NORMAL), 14) << escorpiao->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.dano_constricao(), "1d4+1");
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto(), 2);
+    EXPECT_EQ(da.bonus_ataque_final(), -3);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_EQ(escorpiao->CA(*escorpiao, Entidade::CA_NORMAL), 14) << escorpiao->Proto().dados_defesa().ca().DebugString();
+    EXPECT_TRUE(da.dano_constricao().empty());
+    EXPECT_EQ(da.veneno().cd(), 13);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Agarrar", escorpiao->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d4+1");
+  }
+  EXPECT_EQ(ValorFinalPericia("escalar", escorpiao->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("esconderse", escorpiao->Proto()), 4);
+  EXPECT_EQ(ValorFinalPericia("observar", escorpiao->Proto()), 4);
+}
+
 TEST(TesteModelo, TesteArbustoErrante) {
   auto proto = g_tabelas.ModeloEntidade("Arbusto Errante").entidade();
   auto arbusto = NovaEntidadeParaTestes(proto, g_tabelas);
@@ -4855,6 +4890,13 @@ TEST(TesteModelo, TesteArbustoErrante) {
     EXPECT_EQ(da.dano(), "2d6+5");
     EXPECT_EQ(arbusto->CA(*arbusto, Entidade::CA_NORMAL), 20) << arbusto->Proto().dados_defesa().ca().DebugString();
     EXPECT_EQ(da.dano_constricao(), "2d6+7");
+  }
+  {
+    EntidadeProto pt;
+    *pt.mutable_dados_ataque() = arbusto->Proto().dados_ataque();
+    const auto& da = DadosAtaquePorGrupo("Agarrar", arbusto->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 15) << da.DebugString();
+    EXPECT_EQ(da.dano(), "2d6+7") << da.DebugString();
   }
 
   EXPECT_EQ(ValorFinalPericia("esconderse", arbusto->Proto()), 3);

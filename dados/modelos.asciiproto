@@ -3387,6 +3387,11 @@ modelo {
         dano_inicial: '1d2' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d2' tipo_dano_secundario: TDV_CONSTITUICAO
       }
     }
+    dados_ataque {
+      grupo: 'Agarrar' rotulo: 'Agarrar com Garras' tipo_ataque: 'Agarrar' dano_basico: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+
     movimento {
       terrestre_basico_q: 6
     }
@@ -3442,6 +3447,10 @@ modelo {
         tipo: TV_FERIMENTO # CD tem que dar 13
         dano_inicial: '1d3' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d3' tipo_dano_secundario: TDV_CONSTITUICAO
       }
+    }
+    dados_ataque {
+      grupo: 'Agarrar' rotulo: 'Agarrar com Garras' tipo_ataque: 'Agarrar' id_arma: 'garras' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_2_MAOS
     }
     movimento {
       terrestre_basico_q: 8
@@ -9810,6 +9819,11 @@ modelo {
     dados_ataque {
       alcance_q: 2 grupo: 'total_com_constricao' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'pancada_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
       agarrar_aprimorado_se_acertou_anterior: true constricao: true
+    }
+    gerar_agarrar: false
+    dados_ataque {
+      grupo: 'Agarrar' rotulo: 'Agarrar com Tentáculos' tipo_ataque: 'Agarrar' id_arma: 'tentaculos' dano_basico_medio_natural: '1d8'
+      empunhadura: EA_2_MAOS
     }
     info_talentos {
       gerais { id: 'vontade_ferro' }
