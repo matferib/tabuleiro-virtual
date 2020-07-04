@@ -5,7 +5,7 @@ export QT_DEBUG_PLUGINS=1
 
 if [ "$1" == "debug" ]; then
 #ddd -tui ./tabvirt
-lldb ./tabvirt
+lldb ./tabvirt -- $@
 else
 ./tabvirt --logtostderr $@
 fi
