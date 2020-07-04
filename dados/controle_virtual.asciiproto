@@ -1735,7 +1735,7 @@ pagina {
     textura: "icon_hemisphere.png"
     id: CONTROLE_DESENHO_HEMISFERIO
     forma: FORMA_RETANGULO
-    dica: "Desenho livre."
+    dica: "Desenha Hemisfério."
   }
   dados_botoes {
     tamanho: 1
@@ -1746,7 +1746,7 @@ pagina {
     textura: "icon_sphere.png"
     id: CONTROLE_DESENHO_ESFERA
     forma: FORMA_RETANGULO
-    dica: "Desagrupa esfera."
+    dica: "Desenha esfera."
   }
   dados_botoes {
     tamanho: 1

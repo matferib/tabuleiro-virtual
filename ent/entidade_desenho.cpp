@@ -240,6 +240,7 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) {
   if (dac->has_id_arma()) {
     const auto& arma_tabelada = tabelas_.Arma(dac->id_arma());
     const auto* modelo = vd_.m3d->Modelo(arma_tabelada.info_modelo_3d().id());
+    const auto& escala = arma_tabelada.info_modelo_3d().escala();
     VLOG(3) << "tentando desenhar " << dac->id_arma() << " usando modelo " << arma_tabelada.info_modelo_3d().id();
     if (modelo != nullptr) {
       VLOG(3) << "desenhando " << dac->id_arma();
@@ -248,6 +249,7 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) {
       pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
       MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
       gl::Translada(posicao.x(), posicao.y(), posicao.z());
+      gl::Escala(escala.x(), escala.y(), escala.z());
       gl::MultiplicaMatriz(vd_.matriz_acao_principal.get());
       modelo->vbos_gravados.Desenha();
     }
@@ -259,6 +261,7 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) {
     // Busca a segunda arma.
     const auto& arma_tabelada = tabelas_.Arma(das->id_arma());
     const auto* modelo = vd_.m3d->Modelo(arma_tabelada.info_modelo_3d().id());
+    const auto& escala = arma_tabelada.info_modelo_3d().escala();
     VLOG(3) << "tentando desenhar " << das->id_arma() << " usando modelo " << arma_tabelada.info_modelo_3d().id();
     if (modelo != nullptr) {
       VLOG(3) << "desenhando " << das->id_arma();
@@ -267,6 +270,8 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) {
       pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
       MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
       gl::Translada(posicao.x(), posicao.y(), posicao.z());
+      gl::Escala(escala.x(), escala.y(), escala.z());
+      gl::MultiplicaMatriz(vd_.matriz_acao_principal.get());
       gl::MultiplicaMatriz(vd_.matriz_acao_secundaria.get());
       modelo->vbos_gravados.Desenha();
     }

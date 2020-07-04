@@ -1387,7 +1387,7 @@ void Tabuleiro::PreencheAtualizacaoBitsEntidade(const Entidade& entidade, int bi
 void Tabuleiro::AlternaInvestida() {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+  for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) continue;
     const auto& proto = entidade_selecionada->Proto();
@@ -5092,11 +5092,11 @@ void Tabuleiro::CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y,
   }
 }
 
-// TODO mudar para unique_ptr
 std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
   auto notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   auto* tabuleiro = notificacao->mutable_tabuleiro();
   tabuleiro->set_id_cenario(proto_corrente_->id_cenario());
+  tabuleiro->set_descricao_cenario(proto_corrente_->descricao_cenario());
   tabuleiro->set_id_cliente(id_cliente_);
   if (proto_corrente_->has_herdar_piso_de()) {
     tabuleiro->set_herdar_piso_de(proto_corrente_->herdar_piso_de());

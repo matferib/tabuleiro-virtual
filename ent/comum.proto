@@ -897,7 +897,7 @@ message TalentoProto {
   optional string id = 1;
   // Nome do talento.
   optional string nome = 2;
-  optional string nome_ingles = 16; 
+  optional string nome_ingles = 16;
   optional string link = 17;
 
   optional TipoComplementoTalento tipo_complemento = 3;

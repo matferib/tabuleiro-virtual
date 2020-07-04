@@ -939,7 +939,7 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
+
   ultimo_x_ = x;
   ultimo_y_ = y;
 
@@ -1211,6 +1211,18 @@ float Tabuleiro::TrataAcaoProjetilArea(
     }
   }
 
+  int delta_pv_original = 0;
+  if (da.acao().respingo_causa_mesmo_dano()) {
+    // Busca o dano da acao causada, caso contrario, rola o valor de novo.
+    if (acertou_direto && acao_proto->por_entidade().size() == 1) {
+      delta_pv_original = acao_proto->por_entidade(0).delta();
+    } else {
+      delta_pv_original = -RolaValor(da.dano());
+    }
+  } else {
+    delta_pv_original = (da.dano().empty() ? 0 : -1);
+  }
+
   auto afetados = EntidadesAfetadasPorAcao(*acao_proto);
   for (auto [id, nao_usado] : afetados) {
     const Entidade* entidade_destino = BuscaEntidade(id);
@@ -1246,7 +1258,7 @@ float Tabuleiro::TrataAcaoProjetilArea(
     acao_proto->set_afeta_pontos_vida(true);
     por_entidade->set_id(id);
 
-    int delta_pv = da.dano().empty() ? 0 : -1;
+    int delta_pv = delta_pv_original;
 
     std::string texto_afeta;
     if (!AcaoAfetaAlvo(*acao_proto, *entidade_destino, &texto_afeta)) {
@@ -1271,22 +1283,23 @@ float Tabuleiro::TrataAcaoProjetilArea(
         delta_pv += delta;
       }
     }
-    if (acao_proto->respingo_causa_efeitos_adicionais()) {
-      bool salvou = false;
-      if (acao_proto->permite_salvacao()) {
-        // pega o dano da acao.
-        auto [delta_pv_pos_salvacao, entidade_salvou, texto_salvacao] =
-            AtaqueVsSalvacao(delta_pv, da, *entidade_origem, *entidade_destino);
-        std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
-        if (n->has_tipo()) {
-          *grupo_desfazer->add_notificacao() = *n;
-          central_->AdicionaNotificacao(n.release());
-        }
-        ConcatenaString(texto_salvacao, por_entidade->mutable_texto());
-        AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
-        delta_pv = delta_pv_pos_salvacao;
-        salvou = entidade_salvou;
+    bool salvou = false;
+    if (acao_proto->permite_salvacao()) {
+      // pega o dano da acao.
+      auto [delta_pv_pos_salvacao, entidade_salvou, texto_salvacao] =
+          AtaqueVsSalvacao(delta_pv, da, *entidade_origem, *entidade_destino);
+      std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao(PreencheNotificacaoExpiracaoEventoPosSalvacao(*entidade_destino)));
+      if (n->has_tipo()) {
+        *grupo_desfazer->add_notificacao() = *n;
+        central_->AdicionaNotificacao(n.release());
       }
+      ConcatenaString(texto_salvacao, por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
+      delta_pv = delta_pv_pos_salvacao;
+      salvou = entidade_salvou;
+    }
+
+    if (acao_proto->respingo_causa_efeitos_adicionais()) {
       // Imunidade ao tipo de ataque.
       ResultadoImunidadeOuResistencia resultado_elemento =
           ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
@@ -1616,8 +1629,8 @@ float Tabuleiro::TrataAcaoCriacao(
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (int i = 0; i < quantidade; ++i) {
-    auto [filha, e_antes, modelo_entidade] =
-        NovaNotificacaoFilha(ntf::TN_ADICIONAR_ENTIDADE, EntidadeProto::default_instance(), &grupo_notificacoes);
+    auto [e_antes, modelo_entidade] =
+        PreencheNotificacaoEntidadeProto(ntf::TN_ADICIONAR_ENTIDADE, EntidadeProto::default_instance(), grupo_notificacoes.add_notificacao());
     // A entidade nao tem id ainda.
     e_antes->clear_id();
     modelo_entidade->clear_id();
@@ -1669,15 +1682,16 @@ bool IncrementaProximoAtaque(const DadosAtaque& da) {
 void AtualizaAtaquesAposAtaqueIndividual(
     const DadosAtaque& da, Entidade* entidade_origem, Entidade* entidade_destino, ntf::Notificacao* grupo_desfazer) {
   if (entidade_origem == nullptr) return;
-  auto [filha, e_antes, e_depois] =
-      NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_origem->Proto(), grupo_desfazer);
+  auto [e_antes, e_depois] =
+      PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_origem, grupo_desfazer->add_notificacao());
   e_antes->set_em_corpo_a_corpo(entidade_origem->Proto().em_corpo_a_corpo());
   if (da.acao().tipo() == ACAO_CORPO_A_CORPO) {
     e_depois->set_em_corpo_a_corpo(true);
     // Alvo vai pro CAC tb.
     if (entidade_destino != nullptr) {
-      auto [filha, e_antes, e_depois] =
-          NovaNotificacaoFilha(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino->Proto(), grupo_desfazer);
+      auto [e_antes, e_depois] =
+          PreencheNotificacaoEntidadeProto(
+              ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_destino->Proto(), grupo_desfazer->add_notificacao());
       e_antes->set_em_corpo_a_corpo(entidade_destino->Proto().em_corpo_a_corpo());
       e_depois->set_em_corpo_a_corpo(true);
       entidade_destino->AtualizaParcial(*e_depois);
@@ -2022,7 +2036,7 @@ float Tabuleiro::TrataAcaoIndividual(
         if (evento != nullptr && evento->id_efeito() == EFEITO_PELE_ROCHOSA && !evento->complementos().empty()) {
           std::unique_ptr<ntf::Notificacao> nefeito(new ntf::Notificacao);
           auto [proto_antes, proto_depois] =
-              ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_destino, nefeito.get());
+              PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade_destino, nefeito.get());
           *proto_antes->add_evento() = *evento;
           auto* evento_depois = proto_depois->add_evento();
           *evento_depois = *evento;
@@ -2106,21 +2120,35 @@ float Tabuleiro::TrataAcaoIndividual(
       }
       ConcatenaString(resultado_derrubar.texto, por_entidade->mutable_texto());
     }
-    if (resultado.Sucesso() &&
-        (da.adesao() ||
-         (da.agarrar_aprimorado() && entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho()))) {
-      // agarrar
-      ResultadoAtaqueVsDefesa resultado_agarrar = da.adesao() ? ResultadoAtaqueVsDefesa{RA_SUCESSO, 1, "auto"} : AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
-      if (resultado_agarrar.Sucesso()) {
-        por_entidade->set_forca_consequencia(true);
-        acao_proto->set_consequencia(TC_AGARRA_ALVO);
-        // Apenas para desfazer.
-        auto* no = grupo_desfazer->add_notificacao();
-        PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade_origem, no, no);
-        auto* nd = grupo_desfazer->add_notificacao();
-        PreencheNotificacaoAgarrar(entidade_origem->Id(), *entidade_destino, nd, nd);
+    if (resultado.Sucesso()) {
+      entidade_origem->MarcaAtaqueCorrenteComoAcertado();
+      const bool agarrar_aprimorado = da.agarrar_aprimorado() || (da.agarrar_aprimorado_se_acertou_anterior() && entidade_origem->AcertouAtaqueAnterior());
+      if (da.adesao() ||
+          (agarrar_aprimorado && entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho())) {
+        // agarrar
+        ResultadoAtaqueVsDefesa resultado_agarrar = da.adesao() ? ResultadoAtaqueVsDefesa{RA_SUCESSO, 1, "auto"} : AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
+        if (resultado_agarrar.Sucesso()) {
+          if (agarrar_aprimorado && da.constricao()) {
+            int dano_constricao = RolaValor(da.dano_constricao().empty() ? da.dano() : da.dano_constricao());
+            std::string texto_constricao =
+                StringPrintf("%s, constrição: %d", resultado_agarrar.texto.c_str(), dano_constricao);
+            AdicionaLogEvento(entidade_destino->Id(), texto_constricao);
+            delta_pv -= dano_constricao;
+            ConcatenaString(texto_constricao, por_entidade->mutable_texto());
+          } else {
+            ConcatenaString(resultado_agarrar.texto, por_entidade->mutable_texto());
+          }
+          por_entidade->set_forca_consequencia(true);
+          acao_proto->set_consequencia(TC_AGARRA_ALVO);
+          // Apenas para desfazer.
+          auto* no = grupo_desfazer->add_notificacao();
+          PreencheNotificacaoAgarrar(entidade_destino->Id(), *entidade_origem, no, no);
+          auto* nd = grupo_desfazer->add_notificacao();
+          PreencheNotificacaoAgarrar(entidade_origem->Id(), *entidade_destino, nd, nd);
+        } else {
+          ConcatenaString(resultado_agarrar.texto, por_entidade->mutable_texto());
+        }
       }
-      ConcatenaString(resultado_agarrar.texto, por_entidade->mutable_texto());
     }
 
     // Resistencias e imunidades.
@@ -2161,6 +2189,8 @@ float Tabuleiro::TrataAcaoIndividual(
 
     delta_pv = DesviaObjetoSeAplicavel(
         tabelas_, delta_pv, *entidade_destino, da, this, por_entidade, grupo_desfazer);
+    delta_pv = DesviaMontariaSeAplicavel(
+        tabelas_, delta_pv, resultado.valor_final_com_modificadores, *entidade_destino, da, this, por_entidade, grupo_desfazer);
 
     // Compartilhamento de dano.
     delta_pv = CompartilhaDanoSeAplicavel(
@@ -2648,6 +2678,8 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
     LOG(INFO) << "Entidade " << id << " nao é composta";
     return;
   }
+  LOG(INFO) << "desabilitado por crash!!!!";
+  return;
   parametros_desenho_.set_desenha_objeto_desmembrado(id);
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
@@ -2667,15 +2699,19 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
     *notificacao->mutable_entidade_antes() = proto_antes;
   }
   {
-    // Se mudar a ordem aqui, mudar embaixo depois do Trata tb.
+    // Se mudar a ordem aqui, mudar ali embaixo tb onde o id é setado..
     auto* notificacao = grupo_notificacoes.add_notificacao();
     notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     notificacao->mutable_entidade()->Swap(&sub_forma);
   }
   TrataNotificacao(grupo_notificacoes);
   if (ids_adicionados_.size() == 1) {
+    // Aqui deve ser mudado se mudar a ordem das mensagens.
+    VLOG(1) << "ids_adicionados_: " << ids_adicionados_[0];
     grupo_notificacoes.mutable_notificacao(1)->mutable_entidade()->set_id(ids_adicionados_[0]);
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  } else {
+    LOG(WARNING) << "ids_adicionados_ zoado, desfazer vai quebrar";
   }
 }
 

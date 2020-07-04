@@ -85,6 +85,13 @@ tabela_armas {
     tipo_dano: TD_CONCUSSAO
   }
   armas {
+    id: 'pancada_padrao'
+    dano { medio: '1d8' }
+    categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
     id: 'ferroada'
     categoria: CAT_ARMA_NATURAL
     categoria: CAT_CAC
@@ -102,6 +109,13 @@ tabela_armas {
     categoria: CAT_ARMA_NATURAL
     categoria: CAT_CAC
     tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'chifrada_padrao'
+    categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
+    tipo_dano: TD_PERFURANTE
+    dano { medio: '1d6' }
   }
   armas {
     id: 'agua_benta'
@@ -859,10 +873,12 @@ tabela_armas {
     preco: '10 PO'
     dano { medio: '1d8' }
     categoria: CAT_CAC
-    categoria: CAT_DUAS_MAOS
+    # Quando montado, pode usar com uma mão, complexo de modelar.
+    #categoria: CAT_DUAS_MAOS
     multiplicador_critico: 3
     peso { medio: '10kg' }
     tipo_dano: TD_PERFURANTE
+    info_modelo_3d { id: 'sword' escala { x: 2 y: 2 z: 2} }
     categoria_pericia: CATPER_COMUM
     alcance_quadrados: 2
     haste: true
@@ -5929,6 +5945,11 @@ tabela_pericias {
     id_resistido: 'observar'
   }
   pericias {
+    id: 'esconderse_pantano'
+    nome: 'Esconder-se (Pântano)'
+    derivada_de: 'esconderse'
+  }
+  pericias {
     id: 'falar_idioma'
     nome: 'Falar Idioma'
     # classes: [ 'bardo'  'aristocrata' ]
@@ -10527,23 +10548,35 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
-          texto: 'Texugo Celestial CB'
+          texto: 'Texugo Celestial (CB)'
           id_modelo_entidade: 'Texugo Celestial ICI'
         }
         parametros {
-          texto: 'Cachorro Celestial LB'
+          texto: 'Cachorro Celestial (LB)'
           id_modelo_entidade: 'Cachorro Celestial ICI'
         }
         parametros {
-          texto: 'Coruja Celestial LB'
+          texto: 'Centopéia Média Abissal (NM)'
+          id_modelo_entidade: 'Centopéia Média Abissal ICI'
+        }
+        parametros {
+          texto: 'Vaga-lume Gigante Celestial (NB)'
+          id_modelo_entidade: 'Vaga-lume Gigante Celestial ICI'
+        }
+        parametros {
+          texto: 'Escorpião Monstruoso Pequeno Abissal (NM)'
+          id_modelo_entidade: 'Escorpião Monstruoso Pequeno Abissal ICI'
+        }
+        parametros {
+          texto: 'Coruja Celestial (LB)'
           id_modelo_entidade: 'Coruja Celestial ICI'
         }
         parametros {
-          texto: 'Falcão Abissal CM'
+          texto: 'Falcão Abissal (CM)'
           id_modelo_entidade: 'Falcão Abissal'
         }
         parametros {
-          texto: 'Víbora Pequena Abissal CM'
+          texto: 'Víbora Pequena Abissal (CM)'
           id_modelo_entidade: 'Cobra, Víbora Pequena Abissal ICI'
         }
       }

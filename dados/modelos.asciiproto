@@ -240,6 +240,49 @@ modelo {
   }
 }
 modelo {
+  id: 'Bisão'
+  entidade {
+    rotulo: 'bisão'
+    rotulo_especial: 'a cada 5, age como manada, dando 1d12 de dano para cada 5 do grupo (grandes ou menores)'
+    tipo_dnd: TIPO_ANIMAL
+    tamanho: TM_GRANDE
+    tendencia { simples: TD_NEUTRO }
+    modelo_3d { id: 'bison' }
+    info_textura { id: 'tile_leather.png' }
+    info_classes {
+      id: 'animal' nivel: 5
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    dados_vida: '5d8+15'
+     atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 22 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 4 } } }
+    }
+    movimento {
+      terrestre_basico_q: 8
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'chifrada' rotulo: 'chifrada' id_arma: 'chifrada_padrao' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'tolerancia' }
+    }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'observar' pontos: 3 }
+  }
+}
+modelo {
   id: 'Gorila'
   entidade {
     tipo_dnd: TIPO_ANIMAL
@@ -500,6 +543,27 @@ modelo {
 modelo {
   id: 'Cobra, Víbora Pequena IANI'
   id_entidade_base: 'Cobra, Víbora Pequena'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Pequeno Abissal ICI'
+  id_entidade_base: 'Escorpião Monstruoso Pequeno'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Vaga-lume Gigante Celestial ICI'
+  id_entidade_base: 'Vaga-lume Gigante Celestial'
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Centopéia Média Abissal ICI'
+  id_entidade_base: 'Centopéia Média Abissal'
   parametros {
     tipo_duracao: TD_RODADAS_NIVEL
   }
@@ -1050,6 +1114,7 @@ modelo {
   entidade {
     tipo_dnd: TIPO_ANIMAL
     dados_vida: '1' tamanho: TM_DIMINUTO cor { r: 0.0 g: 1.0 b: 0.0 }
+    info_textura { id: 'toad.png' }
     info_classes { id: 'animal' nivel: 1 }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
@@ -1261,10 +1326,44 @@ modelo {
   }
 }
 modelo {
-  id: 'Besouro do Fogo'
+  id: 'Vaga-lume Gigante' #'Besouro do Fogo'
   entidade {
+    tendencia { simples: TD_NEUTRO }
+    tipo_dnd: TIPO_VERME
+    info_classes { id: 'verme' nivel: 1 }
+    achatado: true
     dados_vida: '1d8' tamanho: TM_PEQUENO info_textura { id: 'firebeetle.png' } cor { r: 1 g: 0.1 b: 0.1 }
-    rotulo_especial: 'ini 0\nca 16/11/16 mordida +1 dano 2d5' luz { raio_m: 3 cor { r: 1 } }
+    luz { raio_m: 3 cor { r: 1 g: 0 b: 0 } }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18
+    dados_ataque {
+      grupo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida'
+      id_arma: 'mordida' dano_basico: '2d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
+      }
+    }
+    movimento {
+      terrestre_basico_q: 6
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+    }
+  }
+}
+modelo {
+  id: 'Vaga-lume Gigante Celestial' #'Besouro do Fogo Celestial'
+  id_entidade_base: 'Vaga-lume Gigante'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_CELESTIAL }
+    tendencia { simples: TD_NEUTRO_BOM }
   }
 }
 modelo {
@@ -1583,6 +1682,7 @@ modelo {
   # Medium.
   id: 'Centopéia Média'
   entidade {
+    tendencia { simples: TD_NEUTRO }
     dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'centipede' }
     tipo_dnd: TIPO_VERME
     info_classes { id: 'verme' nivel: 1 }
@@ -1623,6 +1723,14 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
     }
+  }
+}
+modelo {
+  id: 'Centopéia Média Abissal'
+  id_entidade_base: 'Centopéia Média'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL  }
+    tendencia { simples: TD_NEUTRO_MAU }
   }
 }
 modelo {
@@ -3246,6 +3354,131 @@ modelo {
     dados_vida: '1d8' cor { r: 0.1 g: 0.6 b: 0.3 } info_textura { id: 'elf.png' }
     modificador_iniciativa: 1
     rotulo_especial: 'ini: +1\nat: espada +2 dano: 1d8+1\nat: +3 arco dano: 1d8\nca: 15'
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Pequeno'
+  entidade {
+    rotulo: 'escorpião pequeno'
+    tipo_dnd: TIPO_VERME
+    tamanho: TM_PEQUENO
+    info_classes { id: 'verme' nivel: 1 }
+    dados_vida: '1d8+2' cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'ferrão' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'ferroada_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      veneno {
+        tipo: TV_FERIMENTO # CD tem que dar 12
+        dano_inicial: '1d2' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d2' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    dados_ataque {
+      grupo: 'Agarrar' rotulo: 'Agarrar com Garras' tipo_ataque: 'Agarrar' dano_basico: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+
+    movimento {
+      terrestre_basico_q: 6
+    }
+    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_talentos {
+      outros { id: 'acuidade_arma' origem: 'bonus' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Pequeno Abissal'
+  id_entidade_base: 'Escorpião Monstruoso Pequeno'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
+    tendencia { simples: TD_NEUTRO_MAU }
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Médio'
+  entidade {
+    rotulo: 'escorpião médio'
+    tipo_dnd: TIPO_VERME
+    info_classes { id: 'verme' nivel: 2 }
+    dados_vida: '2d8+4' tamanho: TM_MEDIO cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'ferrão' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'ferroada_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      veneno {
+        tipo: TV_FERIMENTO # CD tem que dar 13
+        dano_inicial: '1d3' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d3' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    dados_ataque {
+      grupo: 'Agarrar' rotulo: 'Agarrar com Garras' tipo_ataque: 'Agarrar' id_arma: 'garras' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_2_MAOS
+    }
+    movimento {
+      terrestre_basico_q: 8
+    }
+    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Médio Abissal'
+  entidade {
+    modelos { id_efeito: EFEITO_MODELO_ABISSAL }
+    tendencia { simples: TD_NEUTRO_MAU }
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Grande'
+  entidade {
+    dados_vida: '5d8+10' tamanho: TM_GRANDE cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    rotulo_especial: 'ini: 0\nat: +1/+6/+6\n1d6+2(+ven)/1d6+4/1d6+4'
   }
 }
 modelo {
@@ -7589,6 +7822,12 @@ modelo {
       outros { id: 'especializacao_arma' complemento: 'espada_bastarda' origem: 'guerreiro' }
       outros { id: 'trespassar_aprimorado' origem: 'guerreiro' }
     }
+    info_pericias { id: 'adestrar_animais' pontos: 2 }
+    info_pericias { id: 'cavalgar' pontos: 2 }
+    info_pericias { id: 'natacao' pontos: 2 }
+    info_pericias { id: 'saltar' pontos: 2 }
+    info_pericias { id: 'intimidacao' pontos: 8 }
+    info_pericias { id: 'natacao' pontos: 8 }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
@@ -7600,6 +7839,51 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Humano Guerreiro 5 Montado'
+  entidade {
+    # Elite.
+    rotulo: 'guerreiro 5 montado'
+    dados_vida: '4d10+10+10'
+    raca: 'humano'
+    info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 5 }
+    tesouro {
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      armas { id: 'Lança Montada +1' id_tabela: 'lanca_montada' bonus_magico: 1 }
+      armas { id: 'Espada Longa OP' id_tabela: 'espada_longa' obra_prima: true }
+      armaduras { id: 'Armadura de Batalha' id_tabela: 'armadura_batalha' }
+    }
+    # Ao montar com lanca, pode usar apenas uma mão. Se usar 2, tem que fazer teste de cavalgar.
+    dados_ataque { rotulo: 'lanca montada' id_arma_tesouro: 'Lança Montada +1' empunhadura: EA_ARMA_APENAS }
+    dados_ataque { rotulo: 'espada longa' id_arma_tesouro: 'Espada Longa OP' empunhadura: EA_2_MAOS }
+    dados_defesa { id_armadura: 'armadura_batalha' id_escudo: 'pesado_aco' }
+    info_talentos {
+      gerais { id: 'investida_montada' }
+      gerais { id: 'investida_implacavel' }
+      outros { id: 'ataque_poderoso' origem: 'humano' }
+      outros { id: 'combate_montado' origem: 'guerreiro' }
+      outros { id: 'foco_em_arma' complemento: 'lanca_montada' origem: 'guerreiro' }
+      outros { id: 'especializacao_arma' complemento: 'lanca_montada' origem: 'guerreiro' }
+    }
+    info_pericias { id: 'cavalgar' pontos: 8 bonus { bonus_individual { tipo: TB_CIRCUNSTANCIA por_origem { origem: 'sela militar' valor: 2 } } } }
+    info_pericias { id: 'adestrar_animais' pontos: 8 }
+    info_pericias { id: 'saltar' pontos: 4 }
+    info_pericias { id: 'intimidacao' pontos: 4 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
 modelo {
   id: 'Humano Guerreiro 7'
   entidade {
@@ -9509,9 +9793,59 @@ modelo {
 modelo {
   id: 'Arbusto Errante'
   entidade {
-    dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'shambling_mound.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
-    rotulo_especial: 'ini: +0\nat:+11 2d6+5\nag:+15 (2d6+7)\nca: 20'
-    dados_defesa { imune_critico: true }
+    rotulo: 'arbusto errante'
+    rotulo_especial: 'ataques de eletricidade fazem ele ganhar 1d4 pontos de constituição. +8 esconder em pantanos e charcos (além dos +4)'
+    tipo_dnd: TIPO_PLANTA
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '8d8+24' tamanho: TM_GRANDE
+    modelo_3d { id: 'shambling_mound' }
+    info_textura { id: 'terrain_foliage_coarse.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
+    info_classes {
+      id: 'planta' nivel: 8
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'esconderse'
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 11 } }
+      }
+      # Na verdade ganha 1d4 pontos e constituição.
+      imunidades: DESC_ELETRICIDADE
+    }
+    dados_ataque {
+      alcance_q: 2 grupo: 'total_com_constricao' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'pancada_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      alcance_q: 2 grupo: 'total_com_constricao' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'pancada_padrao' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado_se_acertou_anterior: true constricao: true
+    }
+    gerar_agarrar: false
+    dados_ataque {
+      grupo: 'Agarrar' rotulo: 'Agarrar com Tentáculos' tipo_ataque: 'Agarrar' id_arma: 'tentaculos' dano_basico_medio_natural: '1d8'
+      empunhadura: EA_2_MAOS
+    }
+    info_talentos {
+      gerais { id: 'vontade_ferro' }
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'foco_em_arma' complemento: 'pancada_padrao' }
+    }
+    info_pericias { id: 'esconderse' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse_pantano' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'ouvir' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    movimento {
+      terrestre_basico_q: 4
+      aquatico_basico_q: 4
+    }
   }
 }
 modelo {

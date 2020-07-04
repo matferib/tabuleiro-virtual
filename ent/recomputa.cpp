@@ -76,6 +76,16 @@ std::string CalculaDanoParaAtaque(const DadosAtaque& da, const EntidadeProto& pr
   return da.dano_basico().c_str() + (mod_final != 0 ? StringPrintf("%+d", mod_final) : "");
 }
 
+std::string CalculaDanoConstricaoParaAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
+  if (!da.constricao()) return "";
+  // Acoes sem dano nao podem causar dano nem com modificadores adicionais.
+  std::string dano_basico_constricao = da.dano_basico_constricao().empty() ? da.dano_basico() : da.dano_basico_constricao();
+  if (dano_basico_constricao.empty()) return "";
+  int mod_forca = ModificadorAtributo(TA_FORCA, proto);
+  const int mod_final = da.agarrar_aprimorado_se_acertou_anterior() ? mod_forca * 1.5f : mod_forca;
+  return dano_basico_constricao.c_str() + (mod_final != 0 ? StringPrintf("%+d", mod_final) : "");
+}
+
 std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho& dano) {
   if (dano.has_invariavel()) {
     return dano.invariavel();
@@ -2649,7 +2659,12 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   {
     // O que for tabelado comum do tipo do ataque.
     const auto& acao_tabelada = tabelas.Acao(da->tipo_ataque());
+    // Vamos salvar o icone antes de sobrescreve-lo pelo icone padrao.
+    std::string icone = da->acao().icone();
     da->mutable_acao()->MergeFrom(acao_tabelada);
+    if (!icone.empty()) {
+      da->mutable_acao()->set_icone(icone);
+    }
   }
 
   // O que for especifico deste ataque.
@@ -3006,7 +3021,7 @@ void RecomputaItensMundanos(const Tabelas& tabelas, EntidadeProto* proto) {
   RemoveSe<DadosAtaque>([](const DadosAtaque& da) {
     return AtaqueDeItemMundano(da);
   }, proto->mutable_dados_ataque());
-  for (const auto& id : {"fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono" }) {
+  for (const auto& id : ItemsQueGeramAtaques()) {
     if (mapa_tipo_quantidade[id] > 0) {
       auto* da = DadosAtaquePorIdArmaCriando(id, proto);
       da->set_municao(mapa_tipo_quantidade[id]);
@@ -3446,6 +3461,8 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->ataque_derrubar()) da->clear_dano();
   else if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
+
+  if (da->constricao()) da->set_dano_constricao(CalculaDanoConstricaoParaAtaque(*da, proto));
 
   if (da->grupo().empty()) da->set_grupo(StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 

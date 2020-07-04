@@ -137,6 +137,37 @@ tabela_classes {
 }
 tabela_armas {
   armas {
+    id: 'bomba'
+    nome: 'bomba'
+    dano { invariavel: '2d6' }
+    categoria: CAT_DISTANCIA
+    categoria: CAT_PROJETIL_AREA
+    preco: '150 PO'
+    alcance_quadrados: 2
+    tipo_dano: TD_OUTRO
+    acao {
+      #tipo: ACAO_DISPERSAO
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
+      raio_quadrados: 1
+      geometria: ACAO_GEO_ESFERA
+      efeito_area: true
+      permite_salvacao: true
+      icone: 'icon_fireball.png'
+      info_textura { id: 'fire.png' }
+      duracao_s: 0.350
+      ignora_luz: true
+      consequencia: TC_INFLAMA_ALVO
+      dificuldade_salvacao_base: 15
+      resultado_ao_salvar: RS_MEIO
+      tipo_salvacao: TS_REFLEXO
+      ignora_reducao_dano_barbaro: true
+      elemento: DESC_FOGO
+      respingo_causa_mesmo_dano: true
+      som_sucesso: 'fireball.wav'
+      som_fracasso: 'fireball.wav'
+    }
+  }
+  armas {
     id: 'gas_alquimico_sono'
     nome: 'gás alquímico do sono'
     dano { invariavel: '' }
@@ -167,7 +198,7 @@ tabela_armas {
     multiplicador_critico: 3
     alcance_quadrados: 30
     tipo_dano: TD_PERFURANTE
-    categoria_pericia: CATPER_EXOTICA
+    categoria_pericia: CATPER_EXOTICA_ARMA_FOGO
     carregamento {
       requer_carregamento: true
       tipo_carregamento: TC_PADRAO
@@ -198,7 +229,7 @@ tabela_armas {
     multiplicador_critico: 3
     alcance_quadrados: 10
     tipo_dano: TD_PERFURANTE
-    categoria_pericia: CATPER_EXOTICA
+    categoria_pericia: CATPER_EXOTICA_ARMA_FOGO
     carregamento {
       requer_carregamento: true
       tipo_carregamento: TC_PADRAO
@@ -209,6 +240,7 @@ tabela_armas {
       icone: 'icon_pistol.png'
       ignora_luz: true  # desenhado claro
       consequencia_origem: TC_ILUMINA_ALVO
+      som_inicial: 'pistol.wav'
       velocidade {
         inicial_m_s: 100
       }
@@ -221,6 +253,14 @@ tabela_armas {
   }
 }
 tabela_talentos {
+  talentos {
+    id: 'usar_arma_exotica_fogo'
+    nome: 'Usar arma exótica (armas de fogo)'
+    nome_ingles: 'exotic weapon proficiency (firearms)'
+    pre_requisitos { bba: 1 }
+    guerreiro: true
+    descricao: 'Não sofre penalidade nos ataques com uma armas de fogo.'
+  }
   talentos {
     id: 'mente_sobre_materia'
     nome: 'Mente sobre Matéria'
@@ -613,4 +653,11 @@ tabela_itens_mundanos {
     nome: 'gás alquímico do sono'
     custo { po: 30 }
   }
+  itens {
+    # Livro do mestre, 145. Renascentista.
+    id: 'bomba'
+    nome: 'bomba'
+    custo { po: 150 }
+  }
+
 }

@@ -7,6 +7,7 @@
 #include "ent/entidade.h"
 #include "ent/recomputa.h"
 #include "ent/tabelas.h"
+#include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "log/log.h"
 #include "ntf/notificacao.h"
@@ -20,6 +21,16 @@ Tabelas g_tabelas(nullptr);
 class CentralColetora : public ntf::CentralNotificacoes {
  public:
   std::vector<std::unique_ptr<ntf::Notificacao>>& Notificacoes() { return notificacoes_; }
+};
+CentralColetora g_central;
+
+class TabuleiroTeste : public Tabuleiro {
+ public:
+  TabuleiroTeste(const std::vector<Entidade*>& entidades) : Tabuleiro(OpcoesProto::default_instance(), g_tabelas, nullptr, nullptr, &g_central) {
+    for (auto* entidade : entidades) {
+      entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
+    }
+  }
 };
 
 const DadosAtaque& DadosAtaquePorGrupo(const std::string& grupo, const EntidadeProto& proto, int n = 0) {
@@ -155,6 +166,27 @@ TEST(TesteItemMagico, TesteItemMagicoPoeTira) {
   RecomputaDependencias(g_tabelas, &proto);
   EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
 }
+
+TEST(TesteArmas, TestePistola) {
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(1);
+    ic->set_id("guerreiro");
+  }
+  {
+    std::unique_ptr<Entidade> entidade (NovaEntidadeParaTestes(proto, g_tabelas));
+    EXPECT_FALSE(TalentoComArma(g_tabelas.Arma("pistola"), entidade->Proto()));
+    EXPECT_FALSE(TalentoComArma(g_tabelas.Arma("mosquete"), entidade->Proto()));
+  }
+  {
+    proto.mutable_info_talentos()->add_outros()->set_id("usar_arma_exotica_fogo");
+    std::unique_ptr<Entidade> entidade (NovaEntidadeParaTestes(proto, g_tabelas));
+    EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("pistola"), entidade->Proto()));
+    EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("mosquete"), entidade->Proto()));
+  }
+}
+
 
 TEST(TesteArmas, TesteChicote) {
   auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
@@ -925,11 +957,13 @@ TEST(TesteArmas, TesteProjetilAreaCompatibilidade) {
 
 TEST(TesteArmas, TesteProjetilArea) {
   EntidadeProto proto_ataque;
+  AtribuiBaseAtributo(18, TA_FORCA, &proto_ataque);
   {
     proto_ataque.set_tamanho(TM_GRANDE);
     proto_ataque.set_gerar_agarrar(false);
     proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("fogo_alquimico");
     proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("fogo_alquimico");
+    proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("bomba");
   }
   auto e = NovaEntidadeParaTestes(proto_ataque, g_tabelas);
   // Dois fogos.
@@ -944,7 +978,21 @@ TEST(TesteArmas, TesteProjetilArea) {
     const AcaoProto& acao = da.acao();
     EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
   }
-  // Consome 1.
+  // Bomba.
+  {
+    const auto& da = DadosAtaquePorGrupo("bomba", e->Proto());
+    EXPECT_TRUE(da.ataque_toque());
+    EXPECT_TRUE(da.ataque_distancia());
+    EXPECT_TRUE(da.has_acao());
+    EXPECT_EQ(da.dano(), "2d6");
+    EXPECT_EQ(da.municao(), 1U);
+    EXPECT_EQ(da.dificuldade_salvacao(), 15);
+    const AcaoProto& acao = da.acao();
+    EXPECT_TRUE(acao.respingo_causa_mesmo_dano());
+    EXPECT_EQ(acao.tipo(), ACAO_PROJETIL_AREA);
+  }
+
+  // Consome 1 fogo.
   {
     ntf::Notificacao n;
     PreencheNotificacaoConsumoAtaque(*e, e->DadoCorrenteNaoNull(), &n, nullptr);
@@ -958,7 +1006,7 @@ TEST(TesteArmas, TesteProjetilArea) {
     ntf::Notificacao n;
     PreencheNotificacaoConsumoAtaque(*e, e->DadoCorrenteNaoNull(), &n, nullptr);
     e->AtualizaParcial(n.entidade());
-    ASSERT_TRUE(e->Proto().dados_ataque().empty());
+    ASSERT_EQ(e->Proto().dados_ataque().size(), 1);  // sobra a bomba.
   }
 }
 
@@ -1707,6 +1755,32 @@ TEST(TesteTalentoPericias, TesteVitalidade) {
   EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 13) << orc->Proto().bonus_dados_vida().DebugString();
 }
 
+TEST(TesteTalentoPericias, TesteCombateMontado) {
+  auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  proto_orc.set_id(1);
+  proto_orc.mutable_info_talentos()->add_outros()->set_id("combate_montado");
+  proto_orc.set_montado_em(2);
+  auto montador = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  proto_orc.set_id(2);
+  proto_orc.clear_montado_em();
+  proto_orc.add_entidades_montadas(1);
+  auto montaria = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  ntf::Notificacao grupo_desfazer;
+  TabuleiroTeste tabuleiro({montador, montaria});
+  AcaoProto acao;
+  g_dados_teste.push(10);
+  EXPECT_EQ(
+      -10, DesviaMontariaSeAplicavel(
+        g_tabelas, -10, /*total_ataque=*/12, *montaria,
+        DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.add_por_entidade(), &grupo_desfazer))
+    << acao.por_entidade(0).DebugString();
+  g_dados_teste.push(11);
+  EXPECT_EQ(
+      0, DesviaMontariaSeAplicavel(
+        g_tabelas, -10, /*total_ataque=*/12, *montaria,
+        DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.add_por_entidade(), &grupo_desfazer))
+    << acao.por_entidade(1).DebugString();
+}
 
 TEST(TesteTalentoPericias, TesteTalentoMenteSobreMateriaCA) {
   auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
@@ -4751,6 +4825,86 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->DanoNaoLetal(), 0);
   EXPECT_EQ(e->PontosVida(), 15);
   EXPECT_EQ(e->MaximoPontosVida(), 15);
+}
+
+TEST(TesteModelo, TesteBisao) {
+  auto proto = g_tabelas.ModeloEntidade("Bisão").entidade();
+  auto bisao = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("chifrada", bisao->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 8);
+    EXPECT_EQ(da.dano(), "1d8+9");
+    EXPECT_EQ(bisao->CA(*bisao, Entidade::CA_NORMAL), 13) << bisao->Proto().dados_defesa().ca().DebugString();
+  }
+  EXPECT_EQ(ValorFinalPericia("ouvir", bisao->Proto()), 7);
+  EXPECT_EQ(ValorFinalPericia("observar", bisao->Proto()), 5);
+}
+
+TEST(TesteModelo, TesteEscorpiao) {
+  auto proto = g_tabelas.ModeloEntidade("Escorpião Monstruoso Médio").entidade();
+  auto escorpiao = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_EQ(escorpiao->CA(*escorpiao, Entidade::CA_NORMAL), 14) << escorpiao->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.dano_constricao(), "1d4+1");
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_EQ(escorpiao->CA(*escorpiao, Entidade::CA_NORMAL), 14) << escorpiao->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.dano_constricao(), "1d4+1");
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto(), 2);
+    EXPECT_EQ(da.bonus_ataque_final(), -3);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_EQ(escorpiao->CA(*escorpiao, Entidade::CA_NORMAL), 14) << escorpiao->Proto().dados_defesa().ca().DebugString();
+    EXPECT_TRUE(da.dano_constricao().empty());
+    EXPECT_EQ(da.veneno().cd(), 13);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Agarrar", escorpiao->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d4+1");
+  }
+  EXPECT_EQ(ValorFinalPericia("escalar", escorpiao->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("esconderse", escorpiao->Proto()), 4);
+  EXPECT_EQ(ValorFinalPericia("observar", escorpiao->Proto()), 4);
+}
+
+TEST(TesteModelo, TesteArbustoErrante) {
+  auto proto = g_tabelas.ModeloEntidade("Arbusto Errante").entidade();
+  auto arbusto = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("total_com_constricao", arbusto->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 11);
+    EXPECT_EQ(da.dano(), "2d6+5");
+    EXPECT_EQ(arbusto->CA(*arbusto, Entidade::CA_NORMAL), 20) << arbusto->Proto().dados_defesa().ca().DebugString();
+    EXPECT_TRUE(da.dano_constricao().empty());
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("total_com_constricao", arbusto->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 11);
+    EXPECT_EQ(da.dano(), "2d6+5");
+    EXPECT_EQ(arbusto->CA(*arbusto, Entidade::CA_NORMAL), 20) << arbusto->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.dano_constricao(), "2d6+7");
+  }
+  {
+    EntidadeProto pt;
+    *pt.mutable_dados_ataque() = arbusto->Proto().dados_ataque();
+    const auto& da = DadosAtaquePorGrupo("Agarrar", arbusto->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 15) << da.DebugString();
+    EXPECT_EQ(da.dano(), "2d6+7") << da.DebugString();
+  }
+
+  EXPECT_EQ(ValorFinalPericia("esconderse", arbusto->Proto()), 3);
+  EXPECT_EQ(ValorFinalPericia("esconderse_pantano", arbusto->Proto()), 11);
+  EXPECT_EQ(ValorFinalPericia("ouvir", arbusto->Proto()), 8);
+  EXPECT_EQ(ValorFinalPericia("furtividade", arbusto->Proto()), 8);
+  EXPECT_TRUE(EntidadeImuneElemento(arbusto->Proto(), DESC_ELETRICIDADE));
 }
 
 TEST(TesteModelo, TesteStirge) {

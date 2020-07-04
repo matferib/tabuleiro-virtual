@@ -352,6 +352,7 @@ struct ResultadoAtaqueVsDefesa {
   resultado_ataque_e resultado = RA_SEM_ACAO;
   int vezes = 0;  // para sucesso critico.
   std::string texto;
+  int valor_final_com_modificadores = 0;
 
   bool Sucesso() const { return resultado == RA_SUCESSO; }
 };
@@ -520,6 +521,8 @@ void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, Entid
 
 // Notificacao que a entidade desviou ou resetou o valor de desviar objetos.
 void PreencheNotificacaoObjetoDesviado(bool valor, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* nd);
+// Notificacao que a entidade desviou a montaria do ataque.
+void PreencheNotificacaoMontariaDesviada(bool valor, const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* nd);
 
 // Preenche a notificacao para entidade entrar em defesa total (aumenta CA, nao pode atacar).
 ntf::Notificacao PreencheNotificacaoDefesaTotal(bool ativar, const EntidadeProto& proto);
@@ -1085,6 +1088,10 @@ std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const 
 // Se alvo possuir desviar objetos e puder usar, anula o ataque.
 int DesviaObjetoSeAplicavel(
     const Tabelas& tabelas, int delta_pontos_vida, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
+    AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer);
+// Se alvo for montaria e montador tiver combate montado, pode tentar desviar a montaria.
+int DesviaMontariaSeAplicavel(
+    const Tabelas& tabelas, int delta_pontos_vida, int total_ataque, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
     AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer);
 
 bool EscolaBoaTramaDasSombras(const ArmaProto& feitico);

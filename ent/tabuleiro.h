@@ -70,10 +70,10 @@ typedef std::unordered_map<unsigned int, std::string> MapaClientes;
 */
 class Tabuleiro : public ntf::Receptor {
  public:
-  explicit Tabuleiro(const OpcoesProto& opcoes,
-                     const Tabelas& tabelas,
-                     tex::Texturas* texturas, const m3d::Modelos3d* m3d,
-                     ntf::CentralNotificacoes* central);
+  Tabuleiro(const OpcoesProto& opcoes,
+            const Tabelas& tabelas,
+            tex::Texturas* texturas, const m3d::Modelos3d* m3d,
+            ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
   virtual ~Tabuleiro();
@@ -1217,6 +1217,10 @@ class Tabuleiro : public ntf::Receptor {
 
   void RequerAtualizacaoLuzesPontuais();
 
+ protected:
+  /** mapa geral de entidades, por id. */
+  MapaEntidades entidades_;
+
  private:
   const Tabelas& tabelas_;
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
@@ -1229,9 +1233,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Cada cliente possui um identificador diferente. */
   int id_cliente_;
-
-  /** mapa geral de entidades, por id. */
-  MapaEntidades entidades_;
 
   /** Acoes de jogadores no tabuleiro. */
   std::vector<std::unique_ptr<Acao>> acoes_;

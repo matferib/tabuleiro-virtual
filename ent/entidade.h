@@ -275,6 +275,8 @@ class Entidade {
   bool Caotica() const;
   bool Ordeira() const;
 
+  void MarcaAtaqueCorrenteComoAcertado();
+  bool AcertouAtaqueAnterior() const;
   // Retorna nullptr caso nao haja.
   const DadosAtaque* DadoCorrente(bool ignora_ataques_na_rodada = false) const;
   const DadosAtaque& DadoCorrenteNaoNull(bool ignora_ataques_na_rodada = false) const {
@@ -556,6 +558,9 @@ class Entidade {
   void RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const;
   /** Recria os VBOs da emissao. */
   void RecriaVboEmissoes(const std::function<const gl::VboNaoGravado()> gera_vbo_f, DadosEmissao* dados_emissao) const;
+
+  /** Retorna o dado corrente da entidade, ou null caso não haja. */
+  DadosAtaque* DadoCorrenteMutavelOuNull(bool ignora_ataques_na_rodada = false);
 
   // Correcao de VBO: corrige o VBO da entidade raiz. As transformadas do objeto raiz devem ser desfeitas
   // apos a extracao, pois elas serao reaplicadas durante o desenho da entidade.

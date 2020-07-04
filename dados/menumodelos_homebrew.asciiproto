@@ -16,7 +16,7 @@ sub_menu {
     # 90% de nao dar nada.
     modelos { id: 'NADA' peso: 90 }
     modelos {
-      id: 'Matilha de Lobos'
+      id: 'Lobo'
       quantidade: '1d10+6'
       peso: 2
     }

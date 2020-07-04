@@ -1,5 +1,13 @@
+Crash ao inicializar tabuleiro com objeto composto.
+Crash ao desmontar uma entidade de composta.
+Modelo 3d ou textura de arbusto errante.
+Mestre poder ler log dos jogadores.
+Botoes de bonus de pericia.
+Interface para adicionar dados: a+d+d?
+
+Escorpiao: pode usar destreza no teste de agarrar.
+Remover duplicacoes das funcoes Montadas (podem retornar um id mais de uma vez).
 Meio dano de armas cortantes e perfurantes de enxames.
-Modelo sapo.
 UI de armas e ataques ligados a elas: delegate de arma;
 
 Sessão:
