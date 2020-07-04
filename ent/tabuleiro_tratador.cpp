@@ -2122,13 +2122,13 @@ float Tabuleiro::TrataAcaoIndividual(
     }
     if (resultado.Sucesso()) {
       entidade_origem->MarcaAtaqueCorrenteComoAcertado();
+      const bool agarrar_aprimorado = da.agarrar_aprimorado() || (da.agarrar_aprimorado_se_acertou_anterior() && entidade_origem->AcertouAtaqueAnterior());
       if (da.adesao() ||
-          ((da.agarrar_aprimorado() || (da.agarrar_aprimorado_se_acertou_anterior() && entidade_origem->AcertouAtaqueAnterior())) &&
-           entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho())) {
+          (agarrar_aprimorado && entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho())) {
         // agarrar
         ResultadoAtaqueVsDefesa resultado_agarrar = da.adesao() ? ResultadoAtaqueVsDefesa{RA_SUCESSO, 1, "auto"} : AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
         if (resultado_agarrar.Sucesso()) {
-          if (da.agarrar_aprimorado() && da.constricao()) {
+          if (agarrar_aprimorado && da.constricao()) {
             int dano_constricao = RolaValor(da.dano());
             std::string texto_constricao =
                 StringPrintf("%s, constrição: %d", resultado_agarrar.texto.c_str(), dano_constricao);
