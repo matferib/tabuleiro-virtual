@@ -1727,7 +1727,7 @@ modelo {
 }
 modelo {
   id: 'Centopéia Média Abissal'
-  id_entidade_base: 'Centopéa Média'
+  id_entidade_base: 'Centopéia Média'
   entidade {
     modelos { id_efeito: EFEITO_MODELO_ABISSAL  }
     tendencia { simples: TD_NEUTRO_MAU }
