@@ -4839,6 +4839,21 @@ TEST(TesteModelo, TesteBisao) {
   EXPECT_EQ(ValorFinalPericia("observar", bisao->Proto()), 5);
 }
 
+TEST(TesteModelo, TesteArbustoErrante) {
+  auto proto = g_tabelas.ModeloEntidade("Arbusto Errante").entidade();
+  auto arbusto = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("total_com_constricao", arbusto->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 11);
+    EXPECT_EQ(da.dano(), "2d6+5");
+    EXPECT_EQ(arbusto->CA(*arbusto, Entidade::CA_NORMAL), 20) << arbusto->Proto().dados_defesa().ca().DebugString();
+  }
+  EXPECT_EQ(ValorFinalPericia("esconderse", arbusto->Proto()), 3);
+  EXPECT_EQ(ValorFinalPericia("esconderse_pantano", arbusto->Proto()), 11);
+  EXPECT_EQ(ValorFinalPericia("ouvir", arbusto->Proto()), 8);
+  EXPECT_EQ(ValorFinalPericia("furtividade", arbusto->Proto()), 8);
+  EXPECT_TRUE(EntidadeImuneElemento(arbusto->Proto(), DESC_ELETRICIDADE));
+}
 
 TEST(TesteModelo, TesteStirge) {
   auto proto = g_tabelas.ModeloEntidade("Stirge").entidade();

@@ -85,6 +85,13 @@ tabela_armas {
     tipo_dano: TD_CONCUSSAO
   }
   armas {
+    id: 'pancada_padrao'
+    dano { medio: '1d8' }
+    categoria: CAT_ARMA_NATURAL
+    categoria: CAT_CAC
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
     id: 'ferroada'
     categoria: CAT_ARMA_NATURAL
     categoria: CAT_CAC
@@ -5936,6 +5943,11 @@ tabela_pericias {
     atributo: TA_DESTREZA
     penalidade_armadura: true
     id_resistido: 'observar'
+  }
+  pericias {
+    id: 'esconderse_pantano'
+    nome: 'Esconder-se (Pântano)'
+    derivada_de: 'esconderse'
   }
   pericias {
     id: 'falar_idioma'

@@ -9784,9 +9784,54 @@ modelo {
 modelo {
   id: 'Arbusto Errante'
   entidade {
-    dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'shambling_mound.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
-    rotulo_especial: 'ini: +0\nat:+11 2d6+5\nag:+15 (2d6+7)\nca: 20'
-    dados_defesa { imune_critico: true }
+    rotulo: 'arbusto errante'
+    rotulo_especial: 'ataques de eletricidade fazem ele ganhar 1d4 pontos de constituição. +8 esconder em pantanos e charcos (além dos +4)'
+    tipo_dnd: TIPO_PLANTA
+    tendencia { simples: TD_NEUTRO }
+    dados_vida: '8d8+24' tamanho: TM_GRANDE
+    modelo_3d { id: 'shambling_mound' }
+    info_textura { id: 'terrain_foliage_coarse.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
+    info_classes {
+      id: 'planta' nivel: 8
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'esconderse'
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 11 } }
+      }
+      # Na verdade ganha 1d4 pontos e constituição.
+      imunidades: DESC_ELETRICIDADE
+    }
+    dados_ataque {
+      alcance_q: 2 grupo: 'total_com_constricao' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'pancada_padrao'
+    }
+    dados_ataque {
+      alcance_q: 2 grupo: 'total_com_constricao' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'pancada_padrao'
+      agarrar_aprimorado_se_acertou_anterior: true constricao: true
+    }
+    info_talentos {
+      gerais { id: 'vontade_ferro' }
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'foco_em_arma' complemento: 'pancada_padrao' }
+    }
+    info_pericias { id: 'esconderse' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse_pantano' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'ouvir' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    movimento {
+      terrestre_basico_q: 4
+      aquatico_basico_q: 4
+    }
   }
 }
 modelo {
