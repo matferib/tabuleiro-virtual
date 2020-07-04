@@ -4847,7 +4847,16 @@ TEST(TesteModelo, TesteArbustoErrante) {
     EXPECT_EQ(da.bonus_ataque_final(), 11);
     EXPECT_EQ(da.dano(), "2d6+5");
     EXPECT_EQ(arbusto->CA(*arbusto, Entidade::CA_NORMAL), 20) << arbusto->Proto().dados_defesa().ca().DebugString();
+    EXPECT_TRUE(da.dano_constricao().empty());
   }
+  {
+    const auto& da = DadosAtaquePorGrupo("total_com_constricao", arbusto->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 11);
+    EXPECT_EQ(da.dano(), "2d6+5");
+    EXPECT_EQ(arbusto->CA(*arbusto, Entidade::CA_NORMAL), 20) << arbusto->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.dano_constricao(), "2d6+7");
+  }
+
   EXPECT_EQ(ValorFinalPericia("esconderse", arbusto->Proto()), 3);
   EXPECT_EQ(ValorFinalPericia("esconderse_pantano", arbusto->Proto()), 11);
   EXPECT_EQ(ValorFinalPericia("ouvir", arbusto->Proto()), 8);

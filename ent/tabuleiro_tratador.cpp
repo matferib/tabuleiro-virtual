@@ -2129,7 +2129,7 @@ float Tabuleiro::TrataAcaoIndividual(
         ResultadoAtaqueVsDefesa resultado_agarrar = da.adesao() ? ResultadoAtaqueVsDefesa{RA_SUCESSO, 1, "auto"} : AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
         if (resultado_agarrar.Sucesso()) {
           if (agarrar_aprimorado && da.constricao()) {
-            int dano_constricao = RolaValor(da.dano());
+            int dano_constricao = RolaValor(da.dano_constricao().empty() ? da.dano() : da.dano_constricao());
             std::string texto_constricao =
                 StringPrintf("%s, constrição: %d", resultado_agarrar.texto.c_str(), dano_constricao);
             AdicionaLogEvento(entidade_destino->Id(), texto_constricao);

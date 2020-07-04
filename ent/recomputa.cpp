@@ -76,6 +76,16 @@ std::string CalculaDanoParaAtaque(const DadosAtaque& da, const EntidadeProto& pr
   return da.dano_basico().c_str() + (mod_final != 0 ? StringPrintf("%+d", mod_final) : "");
 }
 
+std::string CalculaDanoConstricaoParaAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
+  if (!da.constricao()) return "";
+  // Acoes sem dano nao podem causar dano nem com modificadores adicionais.
+  std::string dano_basico_constricao = da.dano_basico_constricao().empty() ? da.dano_basico() : da.dano_basico_constricao();
+  if (dano_basico_constricao.empty()) return "";
+  int mod_forca = ModificadorAtributo(TA_FORCA, proto);
+  const int mod_final = da.agarrar_aprimorado_se_acertou_anterior() ? mod_forca * 1.5f : mod_forca;
+  return dano_basico_constricao.c_str() + (mod_final != 0 ? StringPrintf("%+d", mod_final) : "");
+}
+
 std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho& dano) {
   if (dano.has_invariavel()) {
     return dano.invariavel();
@@ -3450,6 +3460,8 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
   if (da->ataque_derrubar()) da->clear_dano();
   else if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
+
+  if (da->constricao()) da->set_dano_constricao(CalculaDanoConstricaoParaAtaque(*da, proto));
 
   if (da->grupo().empty()) da->set_grupo(StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
