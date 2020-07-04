@@ -939,7 +939,7 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
+
   ultimo_x_ = x;
   ultimo_y_ = y;
 
@@ -2678,6 +2678,8 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
     LOG(INFO) << "Entidade " << id << " nao é composta";
     return;
   }
+  LOG(INFO) << "desabilitado por crash!!!!";
+  return;
   parametros_desenho_.set_desenha_objeto_desmembrado(id);
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
@@ -2697,15 +2699,19 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
     *notificacao->mutable_entidade_antes() = proto_antes;
   }
   {
-    // Se mudar a ordem aqui, mudar embaixo depois do Trata tb.
+    // Se mudar a ordem aqui, mudar ali embaixo tb onde o id é setado..
     auto* notificacao = grupo_notificacoes.add_notificacao();
     notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     notificacao->mutable_entidade()->Swap(&sub_forma);
   }
   TrataNotificacao(grupo_notificacoes);
   if (ids_adicionados_.size() == 1) {
+    // Aqui deve ser mudado se mudar a ordem das mensagens.
+    VLOG(1) << "ids_adicionados_: " << ids_adicionados_[0];
     grupo_notificacoes.mutable_notificacao(1)->mutable_entidade()->set_id(ids_adicionados_[0]);
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  } else {
+    LOG(WARNING) << "ids_adicionados_ zoado, desfazer vai quebrar";
   }
 }
 
