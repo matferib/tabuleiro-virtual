@@ -142,6 +142,15 @@ void Socket::Conecta(const std::string& endereco, const std::string& porta) {
   boost::asio::ip::tcp::resolver resolver(*sincronizador_->interno_->servico_io);
   auto endereco_resolvido = resolver.resolve({endereco, porta});
   boost::asio::connect(*interno_->socket, endereco_resolvido);
+  // http://tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/#preventingdisconnection.
+  boost::asio::socket_base::keep_alive option(true);
+  interno_->socket->set_option(option);
+
+  {
+    boost::asio::socket_base::keep_alive option;
+    interno_->socket->get_option(option);
+    LOG(INFO) << "keep alive: " << option.value();
+  }
 }
 
 void Socket::Fecha() {
