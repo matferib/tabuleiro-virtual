@@ -656,6 +656,10 @@ void SocketUdp::Recebe(
 struct Socket::Interno {
   explicit Interno(boost::asio::ip::tcp::socket* socket) : socket(socket) {}
 
+  std::string IpString() const {
+    return socket == nullptr ? "null" : socket->remote_endpoint().address().to_string();
+  }
+
   std::unique_ptr<boost::asio::ip::tcp::socket> socket;
 };
 
@@ -730,6 +734,10 @@ void Socket::Recebe(std::string* dados, CallbackRecepcao callback_recepcao_clien
     VLOG(1) << "TCP Recebidos " << bytes_recebidos << ", buffer: " << dados->size() << ", erro? " << ec.message();
     callback_recepcao_cliente(ConverteErro(ec), bytes_recebidos);
   });
+}
+
+std::string Socket::IpString() const {
+  return interno_->IpString();
 }
 
 //----------

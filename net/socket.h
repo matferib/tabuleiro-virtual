@@ -134,6 +134,9 @@ class Socket {
   typedef std::function<void(const Erro& ec, std::size_t bytes_recebidos)> CallbackRecepcao;
   void Recebe(std::string* dados, CallbackRecepcao callback_recepcao_cliente);
 
+  // Retorna o IP do socket como string.
+  std::string IpString() const;
+
  private:
   friend class Aceitador;
   friend class Sincronizador;

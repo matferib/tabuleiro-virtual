@@ -297,12 +297,11 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       std::string erro_str;
       if (erro.ConexaoFechada()) {
         erro_str = StringPrintf("Conexão fechada por cliente '%s'.", cliente->id.c_str());
-        LOG(INFO) << erro_str << ", msg: " << erro.mensagem().c_str();
       } else {
         erro_str = StringPrintf("Erro recebendo mensagem de cliente: '%s'. Erro: %s. Esperava: %d, recebi: %d",
             cliente->id.c_str(), erro.mensagem().c_str(), (int)cliente->buffer_recepcao.size(), (int)bytes_recebidos);
-        LOG(INFO) << erro_str;
       }
+      LOG(ERROR) << erro_str << ", msg: " << erro.mensagem().c_str();
       n->set_erro(erro_str);
       central_->AdicionaNotificacao(n.release());
       DesconectaCliente(cliente);
@@ -337,7 +336,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
         central_->AdicionaNotificacao(erro.release());
         return;
       }
-      LOG(INFO) << "Recebi TN_RESPOSTA_CONEXAO de cliente: " << notificacao->id_rede();
+      LOG(INFO) << "Recebi TN_RESPOSTA_CONEXAO de cliente: " << notificacao->id_rede() << ", IP: " << cliente->socket->IpString();
       cliente->id = notificacao->id_rede();
       auto resposta = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
       resposta->set_clientes_pendentes(true);
@@ -367,9 +366,9 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
     if (erro || (bytes_recebidos < 4)) {
       std::string erro_str(std::string("Erro recebendo tamanho de dados do cliente '") + cliente->id + "': ");
       if (erro.ConexaoFechada()) {
-        erro_str += std::string("Conexao fechada.");
+        erro_str += StringPrintf("conexao fechada, msg: %s.", erro.mensagem().c_str());
       } else {
-        erro_str += std::string("msg menor que 4. msg: ") + erro.mensagem();
+        erro_str += StringPrintf("msg menor que 4. msg: %s.", erro.mensagem().c_str());
       }
       LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
       auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
