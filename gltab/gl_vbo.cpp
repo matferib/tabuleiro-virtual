@@ -653,16 +653,20 @@ std::string VboNaoGravado::ParaString(bool completo) const {
 //-----------
 // VboGravado
 //-----------
-#define USAR_BUFFER_SUB_DATA 1
-
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("antes tudo gravar");
   V_ERRO("depois desgravar");
   nome_ = vbo_nao_gravado.nome();
   // Gera o buffer se ja nao for gravado.
-  bool usar_buffer_sub_data = USAR_BUFFER_SUB_DATA;
+  bool usar_buffer_sub_data = true;
   if (!gravado_) {
+    nome_coordenadas_ = 0;
     gl::GeraBuffers(1, &nome_coordenadas_);
+    V_ERRO("ao gerar buffer coordenadas");
+    if (nome_coordenadas_ == 0) {
+      LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenBuffers gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
+      return;
+    }
     usar_buffer_sub_data = false;
   }
   V_ERRO("ao gerar buffer coordenadas");
@@ -684,12 +688,10 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   tem_cores_ = (deslocamento_cores_ != static_cast<unsigned int>(-1));
   tem_texturas_ = (deslocamento_texturas_ != static_cast<unsigned int>(-1));
   if (usar_buffer_sub_data) {
-#if USAR_BUFFER_SUB_DATA
     gl::BufferizaSubDados(
         GL_ARRAY_BUFFER, 0,
         sizeof(GL_FLOAT) * buffer_unico_.size(),
         buffer_unico_.data());
-#endif
   } else {
     gl::BufferizaDados(
         GL_ARRAY_BUFFER,
