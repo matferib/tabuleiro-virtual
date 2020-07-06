@@ -401,6 +401,19 @@ void Visualizador3d::paintGL() {
   tabuleiro_->Desenha();
 }
 
+void Visualizador3d::PegaContexto() {
+  if (contexto_cref++ == 0) {
+    makeCurrent();
+  }
+}
+
+void Visualizador3d::LiberaContexto() {
+  if (--contexto_cref == 0) {
+    doneCurrent();
+  }
+}
+
+
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
@@ -438,46 +451,46 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     case ntf::TN_CARREGAR_TEXTURA: {
-      makeCurrent();
+      PegaContexto();
       texturas_->CarregaTexturas(notificacao);
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_DESCARREGAR_TEXTURA: {
-      makeCurrent();
+      PegaContexto();
       texturas_->DescarregaTexturas(notificacao);
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_CARREGAR_MODELO_3D: {
-      makeCurrent();
+      PegaContexto();
       m3d_->CarregaModelo3d(notificacao.entidade().modelo_3d().id());
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_DESCARREGAR_MODELO_3D: {
-      makeCurrent();
+      PegaContexto();
       m3d_->DescarregaModelo3d(notificacao.entidade().modelo_3d().id());
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_REINICIAR_GRAFICO: {
-      makeCurrent();
+      PegaContexto();
       tabuleiro_->ResetGrafico();
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_TEMPORIZADOR_MOUSE: {
-      makeCurrent();
+      PegaContexto();
       tabuleiro_->TrataMouseParadoEm(notificacao.pos().x(), notificacao.pos().y());
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_INICIADO: {
       // chama o resize pra iniciar a geometria e desenha a janela
-      makeCurrent();
+      PegaContexto();
       resizeGL(width(), height());
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
@@ -492,9 +505,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);
       n->mutable_entidade()->Swap(entidade_proto.get());
-      makeCurrent();
+      PegaContexto();
       tabuleiro_->TrataNotificacao(*n);
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO: {
@@ -510,9 +523,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
       n->mutable_tabuleiro()->Swap(tabuleiro);
-      makeCurrent();
+      PegaContexto();
       tabuleiro_->TrataNotificacao(*n);
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_OPCOES: {
@@ -528,16 +541,16 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
       n->mutable_opcoes()->Swap(opcoes.get());
-      makeCurrent();
+      PegaContexto();
       tabuleiro_->TrataNotificacao(*n);
-      doneCurrent();
+      LiberaContexto();
       break;
     }
     case ntf::TN_TEMPORIZADOR:
       if (gl_iniciado_) {
-        makeCurrent();
+        PegaContexto();
         tabuleiro_->AtualizaPorTemporizacao();
-        doneCurrent();
+        LiberaContexto();
         update();
       }
       //glDraw();
@@ -549,41 +562,41 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
-  makeCurrent();
+  PegaContexto();
   teclado_mouse_->TrataTeclaPressionada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
   event->accept();
-  doneCurrent();
+  LiberaContexto();
 }
 
 void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
-  makeCurrent();
+  PegaContexto();
   teclado_mouse_->TrataTeclaLiberada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
   event->accept();
-  doneCurrent();
+  LiberaContexto();
 }
 
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  makeCurrent();
+  PegaContexto();
   teclado_mouse_->TrataBotaoMousePressionado(
        BotaoMouseQtParaTratadorTecladoMouse(event->button()),
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
        event->x() * scale_,
        (height() - event->y()) * scale_);
   event->accept();
-  doneCurrent();
+  LiberaContexto();
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
-  makeCurrent();
+  PegaContexto();
   teclado_mouse_->TrataBotaoMouseLiberado();
   event->accept();
-  doneCurrent();
+  LiberaContexto();
 }
 
 void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
@@ -595,17 +608,17 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
     delete event2;
     return;
   }
-  makeCurrent();
+  PegaContexto();
   teclado_mouse_->TrataDuploCliqueMouse(
       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
       event->x() * scale_, (height() - event->y()) * scale_);
   event->accept();
-  doneCurrent();
+  LiberaContexto();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  makeCurrent();
+  PegaContexto();
   int x = event->globalX();
   int y = event->globalY();
   if (teclado_mouse_->TrataMovimentoMouse(event->x() * scale_, (height() - event->y()) * scale_)) {
@@ -614,15 +627,15 @@ void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
     x_antes_ = x;
     y_antes_ = y;
   }
-  doneCurrent();
+  LiberaContexto();
   event->accept();
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
-  makeCurrent();
+  PegaContexto();
   teclado_mouse_->TrataRodela(event->delta());
   event->accept();
-  doneCurrent();
+  LiberaContexto();
 }
 
 namespace {

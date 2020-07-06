@@ -258,6 +258,7 @@ void Tabuleiro::DadosFramebuffer::Apaga() {
 }
 
 void Tabuleiro::ResetGrafico() {
+  LOG(INFO) << "Tabuleiro::ResetGrafico";
   IniciaGL(true);
   RegeraVboTabuleiro();
   // TODO reenviar as texturas?

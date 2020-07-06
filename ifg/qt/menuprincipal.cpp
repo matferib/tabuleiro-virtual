@@ -395,8 +395,8 @@ void MenuPrincipal::TrataAcaoAcoes(QAction* acao) {
 namespace {
 
 struct MakeCurrentScope {
-  MakeCurrentScope(Visualizador3d* v3d) : v3d(v3d) { v3d->makeCurrent(); }
-  ~MakeCurrentScope() { v3d->doneCurrent(); }
+  MakeCurrentScope(Visualizador3d* v3d) : v3d(v3d) { v3d->PegaContexto(); }
+  ~MakeCurrentScope() { v3d->LiberaContexto(); }
 
   Visualizador3d* v3d;
 };
@@ -604,7 +604,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 4.14.0\n"
+        tr("Tabuleiro virtual versão 4.14.1\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"

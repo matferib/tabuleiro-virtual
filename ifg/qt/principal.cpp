@@ -131,9 +131,9 @@ void Principal::Temporizador() {
   auto* notificacao = new ntf::Notificacao;
   notificacao->set_tipo(ntf::TN_TEMPORIZADOR);
   central_->AdicionaNotificacao(notificacao);
-  v3d_->makeCurrent();
+  v3d_->PegaContexto();
   central_->Notifica();
-  v3d_->doneCurrent();
+  v3d_->LiberaContexto();
 }
 
 bool Principal::TrataNotificacao(const ntf::Notificacao& notificacao) {

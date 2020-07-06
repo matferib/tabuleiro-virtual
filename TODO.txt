@@ -1,4 +1,3 @@
-Crash ao inicializar tabuleiro com objeto composto.
 Crash ao desmontar uma entidade de composta.
 Modelo 3d ou textura de arbusto errante.
 Mestre poder ler log dos jogadores.

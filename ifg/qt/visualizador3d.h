@@ -50,6 +50,10 @@ class Visualizador3d :
   /** destroi as entidades do tabuleiro e libera os recursos. */
   virtual ~Visualizador3d();
 
+  // As seguines funcoes chamam makeCurrent and doneCurrent, com contador de referencia.
+  void PegaContexto();
+  void LiberaContexto();
+
   // Interface QOpenGLWidget.
   /** inicializacao dos parametros GL. */
   virtual void initializeGL() override;
@@ -80,6 +84,10 @@ class Visualizador3d :
       const ntf::Notificacao& notificacao, bool forma_em_uso = true, QWidget* pai = nullptr);
 
  private:
+  // Esconder isso pra fazer apenas atraves de PegaContexto e LiberaContexto.
+  using QOpenGLWidget::makeCurrent;
+  using QOpenGLWidget::doneCurrent;
+
   // Dialogos.
   // TODO fazer todos unique ou do tipo mesmo sem ser pointer.
   std::unique_ptr<ent::EntidadeProto> AbreDialogoEntidade(const ntf::Notificacao& notificacao);
@@ -101,6 +109,7 @@ class Visualizador3d :
   int y_antes_ = 0;
   float scale_ = 1.0f;
   bool gl_iniciado_ = false;
+  int contexto_cref = 0;
 };
 
 }  // namespace qt
