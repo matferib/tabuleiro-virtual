@@ -395,8 +395,8 @@ void MenuPrincipal::TrataAcaoAcoes(QAction* acao) {
 namespace {
 
 struct MakeCurrentScope {
-  MakeCurrentScope(Visualizador3d* v3d) : v3d(v3d) { v3d->makeCurrent(); }
-  ~MakeCurrentScope() { v3d->doneCurrent(); }
+  MakeCurrentScope(Visualizador3d* v3d) : v3d(v3d) { v3d->PegaContexto(); }
+  ~MakeCurrentScope() { v3d->LiberaContexto(); }
 
   Visualizador3d* v3d;
 };
