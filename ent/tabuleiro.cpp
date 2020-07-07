@@ -66,6 +66,7 @@
 #define APENAS_MESTRE_CRIA_FORMAS 0
 
 using google::protobuf::RepeatedField;
+using google::protobuf::StringAppendF;
 
 namespace ent {
 
@@ -317,6 +318,7 @@ void Tabuleiro::EstadoInicial() {
 
   // LogEventos.
   log_eventos_.clear();
+  log_eventos_clientes_.clear();
   pagina_log_eventos_ = 0;
   pagina_horizontal_log_eventos_ = 0;
 
@@ -1967,6 +1969,23 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_REQUISITAR_LOG_EVENTOS: {
+      // Cliente recebendo recebendo requisicao de log.
+      std::string log_str;
+      for (const auto& linha : log_eventos_) {
+        StringAppendF(&log_str, "%s\n", linha.c_str());
+      }
+      auto n = ntf::NovaNotificacao(ntf::TN_ENVIAR_LOG_EVENTOS);
+      n->set_servidor_apenas(true);
+      n->set_str_generica(log_str);
+      central_->AdicionaNotificacaoRemota(std::move(n));
+      break;
+    }
+    case ntf::TN_ENVIAR_LOG_EVENTOS: {
+      // Servidor recebendo recebendo resposta da requisicao.
+      log_eventos_clientes_[notificacao.id_rede()] = notificacao.str_generica();
+      break;
+    }
     case ntf::TN_ALTERAR_TODOS_FEITICOS_NOTIFICANDO: {
       auto* e = BuscaEntidade(notificacao.entidade().id());
       if (e == nullptr) {

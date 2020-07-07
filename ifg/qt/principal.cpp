@@ -11,9 +11,12 @@
 #include <QDockWidget>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QLabel>
 #include <QLayout>
 #include <QLibraryInfo>
 #include <QLocale>
+#include <QPushButton>
+#include <QSpacerItem>
 #include <QTextCodec>
 #include <QTextEdit>
 #include <QTimer>
@@ -26,6 +29,7 @@
 #include "ifg/qt/visualizador3d.h"
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"
+#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
@@ -82,23 +86,98 @@ Principal::~Principal() {
 
 void Principal::LogAlternado() {
   tabuleiro_->AlternaMostraLogEventos();
+  LOG(INFO)<< "aqui";
 }
 
 namespace {
-void LeLogSeMudou(const std::list<std::string>& log, QDockWidget* dock) {
-  static unsigned int ultimo_tam = 0;
-  if (ultimo_tam == log.size()) return;
-  ultimo_tam = log.size();
-  auto* edit = qobject_cast<QTextEdit*>(dock->widget());
-  if (edit == nullptr) {
-    LOG_EVERY_N(ERROR, 30) << "edit é nullptr!!";
-    return;
-  }
-  edit->clear();
+using google::protobuf::StringAppendF;
+std::string MontaStringLog(const std::list<std::string>& log) {
+  std::string str;
   for (const auto& linha : log) {
-    edit->insertPlainText(QString::fromUtf8(linha.c_str()).append("\n"));
+    StringAppendF(&str, "%s\n", linha.c_str());
   }
+  return str;
 }
+
+class MeuDock : public QDockWidget {
+ public:
+  MeuDock(Principal* principal, ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro) : QDockWidget("", principal) {
+    central_ = central;
+    tabuleiro_ = tabuleiro;
+    edit_ = new QTextEdit();
+    edit_->setReadOnly(true);
+    setAllowedAreas(Qt::BottomDockWidgetArea);
+    setFeatures(QDockWidget::DockWidgetClosable);
+    setWidget(edit_);
+    setVisible(tabuleiro->Opcoes().mostra_log_eventos());
+    QWidget* title_bar = new QWidget();
+    QHBoxLayout *layout = new QHBoxLayout;
+    rotulo_ = new QLabel("Log própio");
+    botao_proprio_ = new QPushButton("Próprio");
+    lambda_connect(botao_proprio_, SIGNAL(pressed()), [this] () { BotaoProprio(); });
+    botao_requisitar_clientes_ = new QPushButton("Requisitar clientes");
+    lambda_connect(botao_requisitar_clientes_, SIGNAL(pressed()), [this] () { BotaoRequisitarClientes(); });
+    botao_alternar_cliente_ = new QPushButton("Alternar clientes");
+    lambda_connect(botao_alternar_cliente_, SIGNAL(pressed()), [this] () { BotaoAlternarCliente(); });
+    botao_fechar_ = new QPushButton("Fechar");
+    lambda_connect(botao_fechar_, SIGNAL(pressed()), [this] () { BotaoFechar(); });
+    layout->addWidget(rotulo_);
+    layout->addWidget(botao_proprio_);
+    layout->addWidget(botao_requisitar_clientes_);
+    layout->addWidget(botao_alternar_cliente_);
+    layout->addStretch();
+    layout->addWidget(botao_fechar_);
+    title_bar->setLayout(layout);
+    setTitleBarWidget(title_bar);
+
+    lambda_connect(this, SIGNAL(visibilityChanged(bool)), [this, tabuleiro]() {
+      if (isVisible()) {
+        BotaoProprio();
+      } else {
+      }
+    });
+  }
+
+ private:
+  void BotaoProprio() {
+    rotulo_->setText("Log próprio");
+    edit_->clear();
+    edit_->insertPlainText(MontaStringLog(tabuleiro_->LogEventos()).c_str());
+  }
+
+  void BotaoRequisitarClientes() {
+    auto n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_LOG_EVENTOS);
+    central_->AdicionaNotificacaoRemota(std::move(n));
+  }
+
+  void BotaoAlternarCliente() {
+    const auto& log_por_cliente = tabuleiro_->LogEventosClientes();
+    if (log_por_cliente.empty()) return;
+    auto it = log_por_cliente.find(cliente_corrente_);
+    if (++it == log_por_cliente.end()) it = log_por_cliente.begin();
+    cliente_corrente_ = it->first;
+    rotulo_->setText(QString("Log de ").append(cliente_corrente_.c_str()));
+    edit_->clear();
+    edit_->insertPlainText(it->second.c_str());
+  }
+
+  void BotaoFechar() {
+    hide();
+    tabuleiro_->AlternaMostraLogEventos();
+  }
+
+ private:
+  QLabel* rotulo_;
+  QTextEdit* edit_;
+  QPushButton* botao_proprio_;
+  QPushButton* botao_requisitar_clientes_;
+  QPushButton* botao_alternar_cliente_;
+  QPushButton* botao_fechar_;
+  ntf::CentralNotificacoes* central_;
+  ent::Tabuleiro* tabuleiro_;
+  std::string cliente_corrente_;
+};
+
 }  // namespace
 
 void Principal::Executa() {
@@ -108,26 +187,12 @@ void Principal::Executa() {
   setGeometry(QRect(100, 100, 1024, 768));
 
   setMenuBar(menu_principal_);
+  connect(menu_principal_, SIGNAL(LogAlternado()), this, SLOT(LogAlternado()));
+
   setCentralWidget(v3d_);
 
-  QTextEdit* text = new QTextEdit();
-  text->setReadOnly(true);
-  dock_log_ = new QDockWidget(tr("Log"), this);
-  dock_log_->setAllowedAreas(Qt::BottomDockWidgetArea);
-  dock_log_->setFeatures(QDockWidget::DockWidgetClosable);
-  dock_log_->setWidget(text);
-  dock_log_->setVisible(tabuleiro_->Opcoes().mostra_log_eventos());
+  dock_log_ = new MeuDock(this, central_, tabuleiro_);
   addDockWidget(Qt::BottomDockWidgetArea, dock_log_);
-  connect(menu_principal_, SIGNAL(LogAlternado()), this, SLOT(LogAlternado()));
-  lambda_connect(dock_log_, SIGNAL(visibilityChanged(bool)), [this]() {
-    // Isso aqui é pra tratar o click do close do dock, que nao gera nenhum evento.
-    // Qq mudanca no proto podera fechar o dock, mas o proto vai estar alterado.
-    // Este caso pega o que o dock fechou mas o proto ta mostrando ainda, entao alterna
-    // para sincronizar.
-    if (!dock_log_->isVisible() && tabuleiro_->Opcoes().mostra_log_eventos()) {
-      tabuleiro_->AlternaMostraLogEventos();
-    }
-  });
 
   LOG(INFO) << "Resolucao timer: " << INTERVALO_NOTIFICACAO_MS;
   LOG(INFO) << "FPS: " << ATUALIZACOES_POR_SEGUNDO;
@@ -167,16 +232,9 @@ void Principal::Temporizador() {
   //timer.start();
 
   if (tabuleiro_->Opcoes().mostra_log_eventos() && !dock_log_->isVisible()) {
-    LeLogSeMudou(tabuleiro_->LogEventos(), dock_log_);
     dock_log_->show();
   } else if (!tabuleiro_->Opcoes().mostra_log_eventos() && dock_log_->isVisible()) {
     dock_log_->hide();
-  } else if (dock_log_->isVisible()) {
-    static int ciclos = 0;
-    if (++ciclos >= 15) {
-      ciclos = 0;
-      LeLogSeMudou(tabuleiro_->LogEventos(), dock_log_);
-    }
   }
 
   // Realiza a notificação de todos.

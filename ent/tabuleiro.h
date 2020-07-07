@@ -468,7 +468,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Formata a entidade e concatena com texto antes de mandar pro log de eventos. */
   void AdicionaLogEvento(unsigned int id, const std::string& texto);
   /** Retorna o log de eventos. */
-  const std::list<std::string> LogEventos() const { return log_eventos_; }
+  const std::list<std::string>& LogEventos() const { return log_eventos_; }
+  /** Incrementa para o proximo cliente e retorna tudo como log. */
+  const std::unordered_map<std::string, std::string>& LogEventosClientes() const { return log_eventos_clientes_; } 
 
   /** Desfaz a ultima acao local. */
   void TrataComandoDesfazer();
@@ -1338,6 +1340,7 @@ class Tabuleiro : public ntf::Receptor {
   std::map<unsigned int, Olho> camera_por_id_;  // A camera de cada identificador.
 
   std::list<std::string> log_eventos_;
+  std::unordered_map<std::string, std::string> log_eventos_clientes_;
   int pagina_log_eventos_;
   int pagina_horizontal_log_eventos_;
 
