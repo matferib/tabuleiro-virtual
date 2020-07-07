@@ -1,3 +1,6 @@
+Pedra do trovao: deu 1 de dano em alguma situação.
+Itens mundanos ta com pau. Personagem do FC (Launce) não consegue usar fogo alquimico.
+
 Crash ao desmontar uma entidade de composta.
 Modelo 3d ou textura de arbusto errante.
 Mestre poder ler log dos jogadores.
