@@ -66,8 +66,10 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
       tabelas_.MergeFrom(tabelas);
     } catch (const arq::ParseProtoException& e) {
       LOG(WARNING) << "Erro lendo tabela: " << arquivo << ": " << e.what();
-      central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-          StringPrintf("Erro lendo tabela: %s: %s", arquivo, e.what())));
+      if (central_ != nullptr) {
+        central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+            StringPrintf("Erro lendo tabela: %s: %s", arquivo, e.what())));
+      }
     } catch (const std::exception& e) {
       LOG(ERROR) << "Erro lendo tabela: " << arquivo << ": " << e.what();
       if (central_ != nullptr) {
@@ -105,8 +107,10 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
       tabela_modelos_entidades_.MergeFrom(modelos_arquivo);
     } catch (const arq::ParseProtoException& e) {
       LOG(WARNING) << "Erro lendo modelo: " << arquivo << ": " << e.what();
-      central->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-          StringPrintf("Erro lendo modelo: %s: %s", arquivo, e.what())));
+      if (central_ != nullptr) {
+        central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(
+            StringPrintf("Erro lendo modelo: %s: %s", arquivo, e.what())));
+      }
     } catch (const std::exception& e) {
       LOG(ERROR) << "Erro lendo modelo: " << arquivo << ": " << e.what();
       if (central_ != nullptr) {
@@ -766,6 +770,7 @@ const PericiaProto& Tabelas::Pericia(const std::string& id) const {
 bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D: {
+      if (central_ == nullptr) return false;
       // Cliente enviando requisicao de tabelas.
       // É possivel?
       if (!notificacao.local()) return false;
@@ -776,6 +781,7 @@ bool Tabelas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_REQUISITAR_TABELAS: {
+      if (central_ == nullptr) return false;
       // Servidor recebendo requisicao de tabelas.
       // É possivel?
       if (notificacao.local()) return false;

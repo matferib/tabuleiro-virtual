@@ -66,14 +66,13 @@ void Entidade::DesenhaObjetoCompostoProto(
     // Usado em picking para decomposicao de objetos.
     pd->clear_desenha_objeto_desmembrado();
     pd->set_regera_vbo(true);
-    Tabelas t(nullptr);
 
     // Transformacoes do objeto pai.
     Matrix4 m_pai = MatrizDecomposicaoPai(proto);
     for (int i = 0; i < proto.sub_forma_size(); ++i) {
       auto sub_forma = proto.sub_forma(i);
       DecompoeFilho(m_pai, &sub_forma);
-      std::unique_ptr<Entidade> s(NovaEntidade(sub_forma, t, /*tabuleiro=*/nullptr, vd.texturas, vd.m3d, nullptr, pd));
+      std::unique_ptr<Entidade> s(NovaEntidade(sub_forma, Tabelas::Unica(), /*tabuleiro=*/nullptr, vd.texturas, vd.m3d, nullptr, pd));
       s->Atualiza(0);
       gl::CarregaNome(i);
       s->DesenhaObjeto(pd);

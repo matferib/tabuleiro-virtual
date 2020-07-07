@@ -2678,8 +2678,6 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
     LOG(INFO) << "Entidade " << id << " nao é composta";
     return;
   }
-  LOG(INFO) << "desabilitado por crash!!!!";
-  return;
   parametros_desenho_.set_desenha_objeto_desmembrado(id);
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
