@@ -51,6 +51,7 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
     MI_REFAZER,
     MI_OPCOES,
     MI_PROPRIEDADES,
+    MI_ALTERNAR_LOG,
     MI_REINICIAR,
     MI_SALVAR,
     MI_SALVAR_COMO,
@@ -88,6 +89,9 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   };
   /** os modos (estados) do menu aceita. */
   enum modomenu_e { MM_COMECO, MM_MESTRE, MM_JOGADOR };
+
+ signals:
+  void LogAlternado();
 
  private slots:
   /** slot para tratar a acao QT de um item de menu localmente. */

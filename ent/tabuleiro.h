@@ -467,6 +467,8 @@ class Tabuleiro : public ntf::Receptor {
   void AdicionaLogEvento(const std::string& evento);
   /** Formata a entidade e concatena com texto antes de mandar pro log de eventos. */
   void AdicionaLogEvento(unsigned int id, const std::string& texto);
+  /** Retorna o log de eventos. */
+  const std::list<std::string> LogEventos() const { return log_eventos_; }
 
   /** Desfaz a ultima acao local. */
   void TrataComandoDesfazer();

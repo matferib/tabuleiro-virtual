@@ -3487,9 +3487,11 @@ void Tabuleiro::DesenhaCena(bool debug) {
     DesenhaTempos();
   }
 
+#if !USAR_QT
   if (parametros_desenho_.desenha_log_eventos()) {
     DesenhaLogEventos();
   }
+#endif
 #if DEBUG
   //glFlush();
 #endif

@@ -61,7 +61,8 @@ const char* g_menuitem_strs[] = {
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Desfazer (Ctrl + Z)"),
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Refazer (Ctrl + Y)"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Opções"),
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Alternar log"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Reiniciar"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Salvar (Ctrl + S)"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "S&alvar Como"),
@@ -575,6 +576,8 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
     notificacao = ntf::NovaNotificacao(ntf::TN_SALVAR_CAMERA);
   } else if (acao == acoes_[ME_TABULEIRO][MI_PROPRIEDADES]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
+  } else if (acao == acoes_[ME_TABULEIRO][MI_ALTERNAR_LOG]) {
+    emit LogAlternado();
   } else if (acao == acoes_[ME_TABULEIRO][MI_OPCOES]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
   }

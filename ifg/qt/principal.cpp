@@ -8,24 +8,27 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDesktopWidget>
+#include <QDockWidget>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QLayout>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QTextCodec>
+#include <QTextEdit>
 #include <QTimer>
 #include <QTranslator>
 
 #include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"
+#include "ifg/qt/util.h"
 #include "ifg/qt/visualizador3d.h"
 #include "ent/constantes.h"
+#include "ent/tabuleiro.h"
 #include "log/log.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
-#include "ent/tabuleiro.h"
 
 using namespace ifg::qt;
 using namespace std;
@@ -63,7 +66,7 @@ Principal::Principal(const ent::Tabelas& tabelas,
                      ifg::TratadorTecladoMouse* teclado_mouse,
                      ntf::CentralNotificacoes* central,
                      QCoreApplication* q_app)
-    : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
+    : QMainWindow(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
       tabuleiro_(tabuleiro),
       v3d_(new Visualizador3d(tabelas, m3d, texturas, teclado_mouse, central, tabuleiro, this)),
       menu_principal_(new MenuPrincipal(tabelas, tabuleiro, v3d_, central, this)) {
@@ -77,18 +80,54 @@ Principal::~Principal() {
   v3d_ = nullptr;
 }
 
+void Principal::LogAlternado() {
+  tabuleiro_->AlternaMostraLogEventos();
+}
+
+namespace {
+void LeLogSeMudou(const std::list<std::string>& log, QDockWidget* dock) {
+  static unsigned int ultimo_tam = 0;
+  if (ultimo_tam == log.size()) return;
+  ultimo_tam = log.size();
+  auto* edit = qobject_cast<QTextEdit*>(dock->widget());
+  if (edit == nullptr) {
+    LOG_EVERY_N(ERROR, 30) << "edit é nullptr!!";
+    return;
+  }
+  edit->clear();
+  for (const auto& linha : log) {
+    edit->insertPlainText(QString::fromUtf8(linha.c_str()).append("\n"));
+  }
+}
+}  // namespace
+
 void Principal::Executa() {
   // maximiza janela
   //QDesktopWidget* qdw = QApplication::desktop();
   //setGeometry(qdw->screenGeometry());
   setGeometry(QRect(100, 100, 1024, 768));
 
-  // layout grid com o menu, barra de ferramentas e o tabuleiro
-  QLayout* ql = new QGridLayout;
-  setLayout(ql);
+  setMenuBar(menu_principal_);
+  setCentralWidget(v3d_);
 
-  ql->setMenuBar(menu_principal_);
-  ql->addWidget(v3d_);
+  QTextEdit* text = new QTextEdit();
+  text->setReadOnly(true);
+  dock_log_ = new QDockWidget(tr("Log"), this);
+  dock_log_->setAllowedAreas(Qt::BottomDockWidgetArea);
+  dock_log_->setFeatures(QDockWidget::DockWidgetClosable);
+  dock_log_->setWidget(text);
+  dock_log_->setVisible(tabuleiro_->Opcoes().mostra_log_eventos());
+  addDockWidget(Qt::BottomDockWidgetArea, dock_log_);
+  connect(menu_principal_, SIGNAL(LogAlternado()), this, SLOT(LogAlternado()));
+  lambda_connect(dock_log_, SIGNAL(visibilityChanged(bool)), [this]() {
+    // Isso aqui é pra tratar o click do close do dock, que nao gera nenhum evento.
+    // Qq mudanca no proto podera fechar o dock, mas o proto vai estar alterado.
+    // Este caso pega o que o dock fechou mas o proto ta mostrando ainda, entao alterna
+    // para sincronizar.
+    if (!dock_log_->isVisible() && tabuleiro_->Opcoes().mostra_log_eventos()) {
+      tabuleiro_->AlternaMostraLogEventos();
+    }
+  });
 
   LOG(INFO) << "Resolucao timer: " << INTERVALO_NOTIFICACAO_MS;
   LOG(INFO) << "FPS: " << ATUALIZACOES_POR_SEGUNDO;
@@ -126,6 +165,19 @@ void Principal::Temporizador() {
   //auto passou_ms = timer.elapsed().wall / 1000000ULL;
   //LOG(ERROR) << "tempo_ms: " << (int)passou_ms;
   //timer.start();
+
+  if (tabuleiro_->Opcoes().mostra_log_eventos() && !dock_log_->isVisible()) {
+    LeLogSeMudou(tabuleiro_->LogEventos(), dock_log_);
+    dock_log_->show();
+  } else if (!tabuleiro_->Opcoes().mostra_log_eventos() && dock_log_->isVisible()) {
+    dock_log_->hide();
+  } else if (dock_log_->isVisible()) {
+    static int ciclos = 0;
+    if (++ciclos >= 15) {
+      ciclos = 0;
+      LeLogSeMudou(tabuleiro_->LogEventos(), dock_log_);
+    }
+  }
 
   // Realiza a notificação de todos.
   auto* notificacao = new ntf::Notificacao;

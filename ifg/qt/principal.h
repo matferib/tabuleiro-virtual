@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QCursor>
 #include <QWidget>
+#include <QMainWindow>
 #include "ntf/notificacao.h"
 
 /** @file ifg/qt/principal.h declaracao da interface grafica principal baseada em QT. */
@@ -33,7 +34,7 @@ class MenuPrincipal;
 class Visualizador3d;
 
 /** Interface grafica principal. Responsável por manipular a centra de eventos. */
-class Principal : public QWidget, ntf::Receptor {
+class Principal : public QMainWindow, ntf::Receptor {
    Q_OBJECT
  public:
   /** Realiza a inicializacao de algumas bibliotecas necessarias para o qt e opengl antes de
@@ -63,23 +64,27 @@ class Principal : public QWidget, ntf::Receptor {
  private slots:
   /** Trata o evento de temporização. */
   void Temporizador();
+  /** Indica que a visibilidade do dock de log foi alternada. */
+  void LogAlternado();
 
  private:
   Principal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, m3d::Modelos3d* m3d, tex::Texturas* texturas,
             ifg::TratadorTecladoMouse* teclado_mouse, ntf::CentralNotificacoes* central, QCoreApplication* q_app);
 
   /** central de notificacoes da interface. */
-  ntf::CentralNotificacoes* central_;
+  ntf::CentralNotificacoes* central_ = nullptr;
   /** a aplicacao QT. Nao eh dono. */
-  QCoreApplication* q_app_;
+  QCoreApplication* q_app_ = nullptr;
   /** Temporizador. */
-  QTimer* q_timer_;
+  QTimer* q_timer_ = nullptr;
   /** O mundo virtual. */
-  ent::Tabuleiro* tabuleiro_;
+  ent::Tabuleiro* tabuleiro_ = nullptr;
   /** visualizador 3d da aplicacao. */
-  Visualizador3d* v3d_;
+  Visualizador3d* v3d_ = nullptr;
   /** barra de menu principal. */
-  MenuPrincipal* menu_principal_;
+  MenuPrincipal* menu_principal_ = nullptr;
+  /** Dock com o log. */
+  QDockWidget* dock_log_ = nullptr;
 };
 
 } // namespace qt
