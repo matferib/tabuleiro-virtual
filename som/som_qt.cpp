@@ -1,6 +1,5 @@
 #include <QFileInfo>
 #include <QSoundEffect>
-#include <QtMultimedia/QMediaPlayer>
 #include <QThread>
 #include <list>
 #include <memory>
@@ -14,7 +13,6 @@ using google::protobuf::StringPrintf;
 namespace som {
 namespace {
 
-std::unique_ptr<QMediaPlayer> g_media_player;
 std::unordered_map<std::string, std::unique_ptr<QSoundEffect>> g_fxs;
 const ent::OpcoesProto* g_opcoes = nullptr;
 
@@ -29,12 +27,10 @@ void Inicia(const ent::OpcoesProto& opcoes) {
     fx->setLoopCount(1);
     g_fxs[som] = std::move(fx);
   }
-  g_media_player = std::make_unique<QMediaPlayer>();
   g_opcoes = &opcoes;
 }
 
 void Finaliza() {
-  g_media_player.reset();
   g_fxs.clear();
   g_opcoes = nullptr;
 }
