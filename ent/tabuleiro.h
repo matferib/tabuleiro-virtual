@@ -1222,6 +1222,9 @@ class Tabuleiro : public ntf::Receptor {
   MapaEntidades entidades_;
 
  private:
+  void ParaTimersPorEntidade();
+  void DisparaTimerEntidadeCorrente();
+
   const Tabelas& tabelas_;
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   mutable ParametrosDesenho parametros_desenho_;
@@ -1383,6 +1386,8 @@ class Tabuleiro : public ntf::Receptor {
   boost::timer::cpu_timer timer_uma_renderizacao_controle_virtual_;
   /** computa o tempo para renderizar os mapas de luz e oclusao. */
   boost::timer::cpu_timer timer_renderizacao_mapas_;
+  /** computa o tempo gasto em cada entidade com iniciativa ligada. */
+  std::unordered_map<std::string, boost::timer::cpu_timer> timer_por_entidade_;
 
   // Listas que armazenam os ultimos tempos computados pelos timers.
   std::list<uint64_t> tempos_entre_cenas_;    // timer_entre_cenas_

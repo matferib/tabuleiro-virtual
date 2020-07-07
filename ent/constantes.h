@@ -143,6 +143,8 @@ constexpr int MINUTOS_PARA_RODADAS = 10;
 constexpr int HORAS_PARA_RODADAS = 60 * MINUTOS_PARA_RODADAS;
 constexpr float QUADRADOS_PARA_METROS = 1.5f;
 constexpr float METROS_PARA_QUADRADOS = 1.0f / 1.5f;
+constexpr int DIV_NANO_PARA_MS = 1000000ULL;
+constexpr int DIV_NANO_PARA_SEGUNDOS = 1000000000ULL;
 
 constexpr int MINUTOS_EM_RODADAS = 10;
 constexpr int HORAS_EM_RODADAS = 60 * MINUTOS_EM_RODADAS;
