@@ -1,4 +1,4 @@
-Crash ao desmontar uma entidade de composta.
+Fazer um timer por personagem.
 Modelo 3d ou textura de arbusto errante.
 Mestre poder ler log dos jogadores.
 Botoes de bonus de pericia.
