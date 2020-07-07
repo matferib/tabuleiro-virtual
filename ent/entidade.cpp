@@ -788,7 +788,9 @@ void Entidade::Atualiza(int intervalo_ms) {
     AtualizaEscopo(Entidade* e) : e(e) {}
     ~AtualizaEscopo() {
       e->AtualizaMatrizes();
-      if (atualizar) e->AtualizaVbo(e->parametros_desenho_);
+      if (atualizar) {
+        e->AtualizaVbo(e->parametros_desenho_);
+      }
     }
     Entidade* e;
     bool atualizar = false;

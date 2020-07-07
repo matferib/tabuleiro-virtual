@@ -1751,7 +1751,8 @@ TEST(TesteTalentoPericias, TesteVitalidade) {
   proto_orc.mutable_info_talentos()->add_outros()->set_id("vitalidade");
   proto_orc.mutable_info_talentos()->add_outros()->set_id("vitalidade");
   auto orc = NovaEntidadeParaTestes(proto_orc, g_tabelas);
-  EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 6);
+  // 6 vitalidade, 7 constituicao.
+  EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 13) << orc->Proto().bonus_dados_vida().DebugString();
 }
 
 TEST(TesteTalentoPericias, TesteCombateMontado) {

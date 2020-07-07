@@ -141,7 +141,7 @@ void SalvaConfiguracoes(const OpcoesProto& proto) {
 // Usado pelas funcoes de timer para enfileiras os tempos.
 void EnfileiraTempo(const boost::timer::cpu_timer& timer, std::list<uint64_t>* tempos) {
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
-  auto passou_ms = timer.elapsed().wall / 1000000ULL;
+  auto passou_ms = timer.elapsed().wall / DIV_NANO_PARA_MS;
   if (tempos->size() == kMaximoTamTemposRenderizacao) {
     tempos->pop_back();
   }
@@ -233,6 +233,11 @@ Tabuleiro::Tabuleiro(
 Tabuleiro::~Tabuleiro() {
   LiberaTextura();
   LiberaControleVirtual();
+  LOG(INFO) << "timers por entidade";
+  for (auto& [rotulo, timer] : timer_por_entidade_) {
+    timer.stop();
+    LOG(INFO) << rotulo << ": " << (timer.elapsed().wall / DIV_NANO_PARA_SEGUNDOS) << " s.";
+  }
 }
 
 void Tabuleiro::LiberaTextura() {
@@ -2483,6 +2488,29 @@ void Tabuleiro::RefrescaTerrenoParaClientes() {
   central_->AdicionaNotificacaoRemota(SerializaRelevoCenario());
 }
 
+void Tabuleiro::ParaTimersPorEntidade() {
+  if (!EmModoMestre()) return;
+  for (auto& [rotulo, timer] : timer_por_entidade_) {
+    if (!timer.is_stopped()) {
+      LOG(INFO) << "Parando timer de " << rotulo;
+      timer.stop();
+    }
+  }
+}
+
+void Tabuleiro::DisparaTimerEntidadeCorrente() {
+  if (!EmModoMestre()) return;
+  ParaTimersPorEntidade();
+  if (const auto& entidade = BuscaEntidade(IdIniciativaCorrente()); entidade != nullptr && entidade->SelecionavelParaJogador()) {
+    std::string rotulo = RotuloEntidade(BuscaEntidade(IdIniciativaCorrente()));
+    LOG(INFO) << "continuando timer de " << rotulo;
+    timer_por_entidade_[rotulo].resume();
+  } else {
+    LOG(INFO) << "continuando timer de __MESTRE__";
+    timer_por_entidade_["__MESTRE__"].resume();
+  }
+}
+
 // ApagaIniciativas.
 void Tabuleiro::LimpaIniciativasNotificando() {
   std::vector<const Entidade*> entidades;
@@ -2657,6 +2685,11 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
   }
   TrataNotificacao(n);
   AdicionaNotificacaoListaEventos(n);
+  if (indice_iniciativa_ == -1) {
+    ParaTimersPorEntidade();
+  } else {
+    DisparaTimerEntidadeCorrente();
+  }
 }
 
 void Tabuleiro::AtualizaPorTemporizacao() {
@@ -2664,7 +2697,7 @@ void Tabuleiro::AtualizaPorTemporizacao() {
   glFinish();
 #endif
   // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
-  auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
+  auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / DIV_NANO_PARA_MS;
   timer_entre_atualizacoes_.start();
   timer_uma_atualizacao_.start();
   if (regerar_vbos_entidades_) {
@@ -2718,7 +2751,7 @@ void Tabuleiro::AtualizaPorTemporizacao() {
     regerar_vbos_entidades_ = false;
   }
 
-  //auto at_passou = timer_temp.elapsed().wall / 1000000ULL;
+  //auto at_passou = timer_temp.elapsed().wall / DIV_NANO_PARA_MS;
   //LOG(INFO) << "Passou " << (int)at_passou << " atualizando";
 }
 
@@ -2837,6 +2870,7 @@ void Tabuleiro::ProximaIniciativaModoMestre() {
   TrataNotificacao(*grupo);
   *n_desfazer = *n;
   AdicionaNotificacaoListaEventos(*grupo_desfazer);
+  DisparaTimerEntidadeCorrente();
 }
 
 void Tabuleiro::ProximaIniciativa() {

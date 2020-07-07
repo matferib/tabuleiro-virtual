@@ -1641,7 +1641,7 @@ void Tabuleiro::DesenhaControleVirtual() {
         gl::MudaCor(1.0f, 0.0f, 0.0f, 0.2f);
       }
       DesenhaBotaoControleVirtual(*db, viewport, padding, largura_botao, altura_botao, entidade);
-      //LOG(INFO) << "timer: " << ((int)(timer_uma_renderizacao_completa_.elapsed().wall / 1000000ULL)) << ", botao: " << db->dica();
+      //LOG(INFO) << "timer: " << ((int)(timer_uma_renderizacao_completa_.elapsed().wall / DIV_NANO_PARA_SEGUNDOS)) << ", botao: " << db->dica();
     }
 
     // Rotulos dos botoes.

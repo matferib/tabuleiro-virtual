@@ -1,14 +1,11 @@
 Pedra do trovao: deu 1 de dano em alguma situação.
 Itens mundanos ta com pau. Personagem do FC (Launce) não consegue usar fogo alquimico.
 
-Crash ao desmontar uma entidade de composta.
-Modelo 3d ou textura de arbusto errante.
 Mestre poder ler log dos jogadores.
 Botoes de bonus de pericia.
 Interface para adicionar dados: a+d+d?
 
 Escorpiao: pode usar destreza no teste de agarrar.
-Colocar um shambling mound e um chuul na aventura.
 Remover duplicacoes das funcoes Montadas (podem retornar um id mais de uma vez).
 Meio dano de armas cortantes e perfurantes de enxames.
 UI de armas e ataques ligados a elas: delegate de arma;
