@@ -279,6 +279,7 @@ void Tabelas::RecarregaMapas() {
   acoes_.clear();
   racas_.clear();
   dominios_.clear();
+  venenos_.clear();
   modelos_entidades_.clear();
 
   for (auto& dominio : *tabelas_.mutable_tabela_dominios()->mutable_dominios()) {
@@ -286,6 +287,10 @@ void Tabelas::RecarregaMapas() {
       da.set_dominio(dominio.id());
     }
     dominios_[dominio.id()] = &dominio;
+  }
+
+  for (auto& veneno : *tabelas_.mutable_tabela_venenos()->mutable_venenos()) {
+    venenos_[veneno.id()] = &veneno;
   }
 
   for (auto& raca : *tabelas_.mutable_tabela_racas()->mutable_racas()) {
@@ -760,6 +765,11 @@ const RacaProto& Tabelas::Raca(const std::string& id) const {
 const DominioProto& Tabelas::Dominio(const std::string& id) const {
   auto it = dominios_.find(id);
   return it == dominios_.end() ? DominioProto::default_instance() : *it->second;
+}
+
+const VenenoProto& Tabelas::Veneno(const std::string& id) const {
+  auto it = venenos_.find(id);
+  return it == venenos_.end() ? VenenoProto::default_instance() : *it->second;
 }
 
 const PericiaProto& Tabelas::Pericia(const std::string& id) const {

@@ -70,6 +70,7 @@ class Tabelas : public ntf::Receptor {
   const RacaProto& Raca(const std::string& id) const;
   const DominioProto& Dominio(const std::string& id) const;
   const Modelo& ModeloEntidade(const std::string& modelo) const;
+  const VenenoProto& Veneno(const std::string& id) const;
 
  private:
   // Dados os protos tabelas_ e tabela_acoes_, preenche os demais mapas.
@@ -109,7 +110,7 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const AcaoProto*> acoes_;
   std::unordered_map<std::string, const DominioProto*> dominios_;
   std::unordered_map<std::string, const Modelo*> modelos_entidades_;
-  std::unordered_map<std::string, const VenenoProto&> venenos_; 
+  std::unordered_map<std::string, const VenenoProto*> venenos_;
 
   ntf::CentralNotificacoes* central_;
 };
