@@ -109,6 +109,7 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const AcaoProto*> acoes_;
   std::unordered_map<std::string, const DominioProto*> dominios_;
   std::unordered_map<std::string, const Modelo*> modelos_entidades_;
+  std::unordered_map<std::string, const VenenoProto&> venenos_; 
 
   ntf::CentralNotificacoes* central_;
 };

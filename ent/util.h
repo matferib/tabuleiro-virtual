@@ -1001,6 +1001,7 @@ google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(Tipo
 // Retorna todos os itens do proto, exceto pocoes.
 std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto);
 std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto);
+std::vector<const ItemMagicoProto*> TodosItens(const EntidadeProto& proto);
 // Remove o item de proto.
 void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto);
 
@@ -1176,6 +1177,14 @@ bool Indefeso(const EntidadeProto& proto);
 
 // Retorna o preco do item como string (exemplo '10 PO').
 std::string PrecoItem(const ItemMagicoProto& item_tabelado);
+int PrecoItemPo(const ItemMagicoProto& item_tabelado);
+int PrecoArmaPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_personagem);
+int PrecoArmaduraOuEscudoPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& aoe_personagem);
+int PrecoArmaTabeladaPo(const ArmaProto& arma_tabelada);
+int PrecoArmaduraOuEscudoTabeladaPo(const ArmaProto& arma_tabelada);
+
+// Converte de '10PO' para moedas.po = 10.
+Moedas ConvertePreco(const std::string& preco);
 
 }  // namespace ent
 

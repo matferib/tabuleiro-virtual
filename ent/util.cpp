@@ -2914,13 +2914,13 @@ std::string ConverteDanoBasicoMedioParaTamanho(const std::string& dano_basico_me
   // Chaveado por dano medio.
   const static std::unordered_map<std::string, std::unordered_map<int, std::string>> mapa_danos {
     { "1d2", {
-      { TM_PEQUENO, "1" }, { TM_GRANDE, "1d3" }, { TM_ENORME, "1d4" }, { TM_IMENSO, "1d6" }, { TM_COLOSSAL, "1d8" }
+      { TM_MINUSCULO, "" }, { TM_DIMINUTO, "" }, { TM_MIUDO, ""}, { TM_PEQUENO, "1" }, { TM_GRANDE, "1d3" }, { TM_ENORME, "1d4" }, { TM_IMENSO, "1d6" }, { TM_COLOSSAL, "1d8" }
     } },
     { "1d3", {
-      { TM_MIUDO, "1" }, { TM_PEQUENO, "1d2" }, { TM_GRANDE, "1d4" }, { TM_ENORME, "1d6" }, { TM_IMENSO, "1d8" }, { TM_COLOSSAL, "2d6" }
+      { TM_MINUSCULO, "" }, { TM_DIMINUTO, "" }, { TM_MIUDO, "1" }, { TM_PEQUENO, "1d2" }, { TM_GRANDE, "1d4" }, { TM_ENORME, "1d6" }, { TM_IMENSO, "1d8" }, { TM_COLOSSAL, "2d6" }
     } },
     { "1d4", {
-      { TM_DIMINUTO, "1" }, { TM_MIUDO, "1d2" }, { TM_PEQUENO, "1d3" }, { TM_GRANDE, "1d6" }, { TM_ENORME, "1d8" }, { TM_IMENSO, "2d6" },
+      { TM_MINUSCULO, "" }, { TM_DIMINUTO, "1" }, { TM_MIUDO, "1d2" }, { TM_PEQUENO, "1d3" }, { TM_GRANDE, "1d6" }, { TM_ENORME, "1d8" }, { TM_IMENSO, "2d6" },
       { TM_COLOSSAL, "3d6" }
     } },
     { "1d6", {
@@ -5177,6 +5177,13 @@ std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& 
   return itens;
 }
 
+std::vector<const ItemMagicoProto*> TodosItens(const EntidadeProto& proto) {
+  std::vector<const ItemMagicoProto*> itens = TodosItensExcetoPocoes(proto);
+  const auto& tesouro = proto.tesouro();
+  std::copy(tesouro.pocoes().pointer_begin(), tesouro.pocoes().pointer_end(), std::back_inserter(itens));
+  return itens;
+}
+
 std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
   auto* tesouro = proto->mutable_tesouro();
   std::vector<RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
@@ -6762,11 +6769,68 @@ std::string PrecoString(const Moedas& moedas) {
   return preco;
 }
 
+int PrecoItemPo(const ItemMagicoProto& item_tabelado) {
+  if (item_tabelado.custo_po() > 0) {
+    return item_tabelado.custo_po();
+  }
+  return item_tabelado.custo().po();
+}
+
 std::string PrecoItem(const ItemMagicoProto& item_tabelado) {
   if (item_tabelado.custo_po() > 0) {
     return StringPrintf("%d PO", item_tabelado.custo_po());
   }
   return PrecoString(item_tabelado.custo());
+}
+
+Moedas ConvertePreco(const std::string& preco_const) {
+  Moedas moedas;
+  std::string preco = preco_const;
+  std::transform(preco.begin(), preco.end(), preco.begin(), [](unsigned char c){ return std::tolower(c); });
+  char tipo = 'o';
+  auto posp = preco.find('p');
+  if (posp + 1 < preco.size()) tipo = preco[posp + 1];
+  int valor = atoi(preco.c_str());
+  switch (tipo) {
+    case 'c': moedas.set_pc(valor); break; 
+    case 'p': moedas.set_pp(valor); break; 
+    case 'e': moedas.set_pe(valor); break; 
+    case 'l': moedas.set_pl(valor); break; 
+    case 'o':
+    default:
+      moedas.set_po(valor);
+      break; 
+  }
+  return moedas;
+}
+
+int PrecoArmaPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_personagem) {
+  const auto& arma_tabelada = Tabelas::Unica().Arma(arma_personagem.id_tabela());
+  int valor = ConvertePreco(arma_tabelada.preco()).po();
+  if (arma_personagem.obra_prima()) {
+    valor += 300;
+    if (PossuiCategoria(CAT_ARMA_DUPLA, arma_tabelada)) valor += 300;
+  }
+  valor += 2 * pow(arma_personagem.bonus_magico(), 2);
+  valor += 2 * pow(arma_personagem.bonus_magico_secundario(), 2);
+  return valor;
+}
+
+int PrecoArmaduraOuEscudoPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& aoe_personagem) {
+  const ArmaduraOuEscudoProto* aoe_tabela = nullptr;
+  {
+    aoe_tabela = &Tabelas::Unica().Armadura(aoe_personagem.id_tabela());
+    if (aoe_tabela->id().empty()) {
+      aoe_tabela = &Tabelas::Unica().Escudo(aoe_personagem.id_tabela());
+    } 
+  }
+
+  int valor = aoe_tabela->preco().po();
+  if (aoe_personagem.obra_prima()) {
+    valor += 150;
+  }
+  valor += pow(aoe_personagem.bonus_magico(), 2);
+  return valor;
 }
 
 }  // namespace ent

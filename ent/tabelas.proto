@@ -6,10 +6,6 @@ import "ent/acoes.proto";
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
-message Preco {
-  optional int32 po = 1;
-}
-
 enum TipoArmadura {
   TA_LEVE = 0;
   TA_MEDIO = 1;
@@ -39,7 +35,7 @@ message RacaProto {
 
 message ArmaduraOuEscudoProto {
   optional string nome = 1;
-  optional Preco preco = 2;
+  optional Moedas preco = 2;
   optional int32 bonus = 3;
   optional int32 max_bonus_destreza = 4 [default = 100];
   optional TipoArmadura tipo = 5;

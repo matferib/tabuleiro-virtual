@@ -257,9 +257,9 @@ Tabuleiro::DadosFramebuffer::~DadosFramebuffer() {
 }
 
 void Tabuleiro::DadosFramebuffer::Apaga() {
-  gl::ApagaFramebuffers(1, &framebuffer);
-  gl::ApagaTexturas(1, &textura);
-  gl::ApagaRenderbuffers(1, &renderbuffer);
+  if (framebuffer > 0) gl::ApagaFramebuffers(1, &framebuffer);
+  if (textura > 0) gl::ApagaTexturas(1, &textura);
+  if (renderbuffer > 0) gl::ApagaRenderbuffers(1, &renderbuffer);
 }
 
 void Tabuleiro::ResetGrafico() {

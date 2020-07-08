@@ -61,7 +61,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 151.
+// Proximo id: 153.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -232,6 +232,8 @@ enum TipoEfeito {
   EFEITO_RISO_HISTERICO = 149;
   EFEITO_ADERIDO = 150;
   EFEITO_ELIXIR_CUSPIR_FOGO = 151;
+  // Envenena uma arma.
+  EFEITO_ARMA_ENVENENADA = 152;
 }
 
 enum TipoEfeitoModelo {
@@ -576,7 +578,7 @@ message DadosAtaqueGlobal {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 38.
+// Proximo id: 40.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -599,7 +601,9 @@ message DadosDefesa {
   // TODO outras salvacoes.
   // Nao eh bom colocar as coisas de CA aqui fora porque nas formas alternativas eh feito merge do bonus.
   optional string id_armadura = 8;
+  optional string id_armadura_tesouro = 38;
   optional string id_escudo = 9;
+  optional string id_escudo_tesouro = 39;
   optional bool armadura_obra_prima = 10;
   optional bool escudo_obra_prima = 11;
   optional int32 bonus_magico_armadura = 12;
@@ -1050,6 +1054,7 @@ message ItemMagicoProto {
   optional int32 nivel_conjurador = 21;
   optional int32 modificador_atributo = 22;
   optional NivelUso nivel_uso = 25;
+  optional VenenoProto veneno = 28;
 }
 
 // Alguns estados são mantidos nesta variável.

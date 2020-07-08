@@ -575,7 +575,7 @@ void Tabelas::RecarregaMapas() {
         if (it != modelos_entidades_.end() && !it->second->id_entidade_base().empty()) {
           fim = false;
           processar = false;
-          LOG(INFO) << "Postergando " << m.id() << " por causa de " << id_entidade_base;
+          VLOG(1) << "Postergando " << m.id() << " por causa de " << id_entidade_base;
           break;
         }
       }

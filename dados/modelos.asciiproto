@@ -7983,14 +7983,13 @@ modelo {
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     raca: 'humano'
     rotulo_especial: 'Humano Ladino 5'
-    modificador_iniciativa: 7
-    dados_ataque { rotulo: 'sabre op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { rotulo: 'adaga op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'adaga' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { rotulo: 'arco curto op' tipo_ataque: 'Ataque a Distância' id_arma: 'arco_curto' obra_prima: true empunhadura: EA_ARMA_APENAS municao: 20 }
+    dados_ataque { grupo: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'sabre OP' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { grupo: 'adaga' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'adaga' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { grupo: 'arco' tipo_ataque: 'Ataque a Distância' id_arma_tesouro: 'arco curto OP' empunhadura: EA_ARMA_APENAS municao: 20 }
     dados_ataque_global { dano_furtivo: '3d6' }
     dados_defesa {
-      id_armadura: 'couro' armadura_obra_prima: true
-      id_escudo: 'broquel' escudo_obra_prima: true
+      id_armadura_tesouro: 'couro batido OP'
+      id_escudo_tesouro: 'broquel OP'
     }
     info_talentos {
       gerais { id: 'iniciativa_aprimorada' }
@@ -7999,32 +7998,34 @@ modelo {
     }
     tesouro {
       amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
-      mantos { id: 'manto_resistencia_1' em_uso: true }
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'veneno_escorpiao_grande' }
       pocoes { id: 'neutralizar_venenos' }
-      pocoes { id: 'neutralizar_venenos' }
-      tesouro: 'ferramenta de ladino OP'
-      moedas { po: 10 }
+      armas { id: 'sabre OP' id_tabela: 'sabre' obra_prima: true }
+      armas { id: 'adaga' id_tabela: 'adaga' }
+      armas { id: 'arco curto OP' id_tabela: 'arco_curto' obra_prima: true }
+      armaduras { id: 'couro batido OP' id_tabela: 'couro_batido' obra_prima: true }
+      escudos { id: 'broquel OP' id_tabela: 'broquel' obra_prima: true }
+      itens_mundanos { id: 'ferramentas_ladino_op' }
+      moedas { po: 123 }
+      valor_esperado_po: 4165 # 3000 + armadura e escudo OP + adaga OP + arco curto OP + ferramenta
     }
 
-    # Humano tem mais pontos.
-    info_pericias { id: 'arte_da_fuga' pontos: 7 }
-    info_pericias { id: 'equilibrio' pontos: 5 }
+    # Ladino 8, humano 1, int 2 total 11 pericias pericias maximizadas.
+    info_pericias { id: 'arte_da_fuga' pontos: 8 }
+    info_pericias { id: 'acrobacias' pontos: 8 }
     info_pericias { id: 'esconderse' pontos: 8 }
-    info_pericias { id: 'blefar' pontos: 7 }
-    info_pericias { id: 'saltar' pontos: 5 }
+    info_pericias { id: 'blefar' pontos: 8 }
     info_pericias { id: 'ouvir' pontos: 8 }
     info_pericias { id: 'furtividade' pontos: 8 }
+    info_pericias { id: 'procurar' pontos: 7 }
+    info_pericias { id: 'observar' pontos: 7 }
+    info_pericias { id: 'operar_mecanismo' pontos: 8 }
+    info_pericias { id: 'equilibrio' pontos: 5 }
     info_pericias { id: 'abrir_fechaduras' pontos: 8 }
-    info_pericias { id: 'cavalgar' pontos: 8 }
-    info_pericias { id: 'procurar' pontos: 8 }
-    info_pericias { id: 'observar' pontos: 8 }
-    info_pericias { id: 'usar_instrumento_magico' pontos: 8 }
+
+    info_pericias { id: 'saltar' pontos: 5 }
 
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
@@ -8043,14 +8044,19 @@ modelo {
 modelo {
   id: 'Humano Ladino 7'
   entidade {
+    rotulo: 'ladino 7'
     info_classes { id: 'ladino' nivel: 7 }
     dados_vida: '7d6+7' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue7.png' translacao_x: 0.25 largura: 0.5 }
-    rotulo_especial: 'Humano Ladino 7'
     modificador_iniciativa: 7
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d4+1' ca_normal: 18 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 9 dano: '1d6+1' ca_normal: 17 }
     dados_ataque_global { dano_furtivo: '4d6' }
+    dados_ataque { rotulo: 'sabre op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { rotulo: 'adaga op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'adaga' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { rotulo: 'arco curto op' tipo_ataque: 'Ataque a Distância' id_arma: 'arco_curto' obra_prima: true empunhadura: EA_ARMA_APENAS municao: 20 }
+    dados_defesa {
+      id_armadura: 'couro' bonus_magico_armadura: 1
+      id_escudo: 'broquel' bonus_magico_escudo: 1
+    }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
@@ -8062,6 +8068,34 @@ modelo {
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    info_pericias { id: 'arte_da_fuga' pontos: 8 }
+    info_pericias { id: 'equilibrio' pontos: 5 }
+    info_pericias { id: 'esconderse' pontos: 9 }
+    info_pericias { id: 'blefar' pontos: 8 }
+    info_pericias { id: 'saltar' pontos: 6 }
+    info_pericias { id: 'ouvir' pontos: 9 }
+    info_pericias { id: 'furtividade' pontos: 9 }
+    info_pericias { id: 'abrir_fechaduras' pontos: 9 }
+    info_pericias { id: 'cavalgar' pontos: 8 }
+    info_pericias { id: 'procurar' pontos: 8 }
+    info_pericias { id: 'observar' pontos: 9 }
+    info_pericias { id: 'usar_instrumento_magico' pontos: 8 }
+    info_talentos {
+      gerais { id: 'sorrateiro' }
+      gerais { id: 'usar_escudo' }
+      gerais { id: 'acuidade_arma' }
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+    tesouro {
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'neutralizar_venenos' }
+      pocoes { id: 'neutralizar_venenos' }
+      tesouro: 'ferramenta de ladino OP'
+      moedas { po: 1160 }
     }
   }
 }

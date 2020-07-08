@@ -418,6 +418,9 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
   }
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
+    case EFEITO_ARMA_ENVENENADA: {
+      break;
+    }
     case EFEITO_ADERIDO: {
       if (evento->processado()) break;
       EntidadeProto proto_salvo;
@@ -1726,9 +1729,12 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     }
   }
 
-  // Iteracao.
   const bool heroismo = PossuiEvento(EFEITO_HEROISMO, *proto);
-
+  const auto& itens_mundanos = ItensProto(TIPO_ITEM_MUNDANO, *proto);
+  const int bonus_ferramenta =
+      c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_ladino_op";})
+      ? 2
+      : c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_ladino";}) ? 0 : -2;
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Graduacoes.
     auto& pericia_proto = mapa_pericias_proto[pt.id()];
@@ -1764,6 +1770,11 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
 
     // Heroismo
     AtribuiOuRemoveBonus(heroismo ? 2 : 0, TB_MORAL, "heroismo", pericia_proto.mutable_bonus());
+
+    // Bonus de ferramenta de ladino.
+    if (c_any(std::vector<std::string>{"abrir_fechaduras", "operar_mecanismo"}, pericia_proto.id())) {
+      AtribuiOuRemoveBonus(bonus_ferramenta, TB_CIRCUNSTANCIA, "ferramenta", pericia_proto.mutable_bonus());
+    }
 
     if (pt.penalidade_armadura()) {
       AtribuiOuRemoveBonus(-PenalidadeArmadura(tabelas, *proto), TB_SEM_NOME, "armadura", pericia_proto.mutable_bonus());
@@ -2011,6 +2022,7 @@ void RecomputaDependenciasPontosVida(EntidadeProto* proto) {
   }
   AtribuiOuRemoveBonus(num_vitalidade * 3, TB_SEM_NOME, "vitalidade", bpv);
   AtribuiOuRemoveBonus(ModificadorAtributo(TA_CONSTITUICAO, *proto) * NivelPersonagem(*proto), TB_ATRIBUTO, "constituição", bpv);
+  //LOG(INFO) << "num_vitalidade: " << num_vitalidade << ", mod: " << ModificadorAtributo(TA_CONSTITUICAO, *proto) << ", nivel: " << NivelPersonagem(*proto);
 
   const int max_pontos_vida = proto->max_pontos_vida() - proto->niveis_negativos() * 5;
   if (proto->pontos_vida() > max_pontos_vida) {
@@ -2772,19 +2784,33 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   }
 }
 
-const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& BuscaArmaTesouro(const std::string& id_arma_tesouro, const EntidadeProto& proto) {
-  for (const auto& arma_tesouro : proto.tesouro().armas()) {
-    if (arma_tesouro.id() == id_arma_tesouro) {
-      return arma_tesouro;
+const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& BuscaArmaArmduraOuEscudoTesouro(
+    const std::string& id, const RepeatedPtrField<EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& aaoes) {
+  for (const auto& aaoe : aaoes) {
+    if (aaoe.id() == id) {
+      return aaoe;
     }
   }
   return EntidadeProto::ArmaArmaduraOuEscudoPersonagem::default_instance();
+}
+
+const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& BuscaArmaTesouro(const std::string& id_arma_tesouro, const EntidadeProto& proto) {
+  return BuscaArmaArmduraOuEscudoTesouro(id_arma_tesouro, proto.tesouro().armas());
+}
+
+const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& BuscaArmaduraTesouro(const std::string& id_armadura_tesouro, const EntidadeProto& proto) {
+  return BuscaArmaArmduraOuEscudoTesouro(id_armadura_tesouro, proto.tesouro().armaduras());
+}
+
+const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& BuscaEscudoTesouro(const std::string& id_escudo_tesouro, const EntidadeProto& proto) {
+  return BuscaArmaArmduraOuEscudoTesouro(id_escudo_tesouro, proto.tesouro().escudos());
 }
 
 void ArmaTesouroParaDadosAtaque(const Tabelas& tabelas, const EntidadeProto& proto, DadosAtaque* da) {
   if (!da->has_id_arma_tesouro()) return;
 
   const auto& arma_tesouro = BuscaArmaTesouro(da->id_arma_tesouro(), proto);
+  da->set_rotulo(arma_tesouro.id());
   da->set_id_arma(arma_tesouro.id_tabela());
   // Arma dupla se for magica de um lado é no mínimo obra prima do outro.
   da->set_obra_prima(arma_tesouro.obra_prima() || arma_tesouro.bonus_magico() > 0);
@@ -3538,11 +3564,27 @@ void RecomputaComplementosModelos(const Tabelas& tabelas, EntidadeProto* proto) 
   }
 }
 
+void PreencheCamposVindosDeTesouro(const Tabelas& tabelas, EntidadeProto* proto) {
+  if (!proto->dados_defesa().id_armadura_tesouro().empty()) {
+    const auto& armadura_tesouro = BuscaArmaduraTesouro(proto->dados_defesa().id_armadura_tesouro(), *proto);
+    proto->mutable_dados_defesa()->set_id_armadura(armadura_tesouro.id_tabela());
+    proto->mutable_dados_defesa()->set_armadura_obra_prima(armadura_tesouro.obra_prima());
+    proto->mutable_dados_defesa()->set_bonus_magico_armadura(armadura_tesouro.bonus_magico());
+  }
+  if (!proto->dados_defesa().id_escudo_tesouro().empty()) {
+    const auto& escudo_tesouro = BuscaEscudoTesouro(proto->dados_defesa().id_escudo_tesouro(), *proto);
+    proto->mutable_dados_defesa()->set_id_escudo(escudo_tesouro.id_tabela());
+    proto->mutable_dados_defesa()->set_escudo_obra_prima(escudo_tesouro.obra_prima());
+    proto->mutable_dados_defesa()->set_bonus_magico_escudo(escudo_tesouro.bonus_magico());
+  }
+}
+
 }  // namespace
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   ResetComputados(proto);
+  PreencheCamposVindosDeTesouro(tabelas, proto);
   RecomputaComplementosModelos(tabelas, proto);
   RecomputaCriaRemoveDadosAtaque(tabelas, proto);
   RecomputaDependenciasRaciais(tabelas, proto);
