@@ -1026,8 +1026,12 @@ void Tabuleiro::AdicionaUmaEntidadeNotificando(
       throw std::logic_error("Id da entidade já está sendo usado.");
     }
   }
-  auto* entidade = NovaEntidade(entidade_modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
-  entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
+  Entidade* entidade_ptr = nullptr;
+  {
+    auto entidade = NovaEntidade(entidade_modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
+    entidade_ptr = entidade.get();
+    entidades_.insert(std::make_pair(entidade->Id(), std::move(entidade)));
+  }
   // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
   if (!Desfazendo()) {
     // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
@@ -1044,7 +1048,7 @@ void Tabuleiro::AdicionaUmaEntidadeNotificando(
       }
     }
 #endif
-    AdicionaEntidadesSelecionadas({ entidade->Id() });
+    AdicionaEntidadesSelecionadas({ entidade_ptr->Id() });
   }
   if (!Desfazendo()) {
     // Para desfazer.
@@ -1053,7 +1057,7 @@ void Tabuleiro::AdicionaUmaEntidadeNotificando(
   }
   // Envia a entidade para os outros.
   auto n = ntf::NovaNotificacao(notificacao.tipo());
-  *n->mutable_entidade() = entidade->Proto();
+  *n->mutable_entidade() = entidade_ptr->Proto();
   central_->AdicionaNotificacaoRemota(n.release());
 }
 
@@ -1182,8 +1186,8 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
       }
     } else {
       // Mensagem veio de fora.
-      auto* entidade = NovaEntidade(notificacao.entidade(), tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
-      entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
+      auto entidade = NovaEntidade(notificacao.entidade(), tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
+      entidades_.insert(std::make_pair(entidade->Id(), std::move(entidade)));
     }
   } catch (const std::logic_error& erro) {
     auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
@@ -5416,10 +5420,9 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       // senao pode dar conflito com as que ficaram.
       ep.set_id(GeraIdEntidade(id_cliente_));
     }
-    auto* e = NovaEntidade(ep, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
-    if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
+    auto entidade = NovaEntidade(ep, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
+    if (!entidades_.insert(std::make_pair(entidade->Id(), std::move(entidade))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
-      delete e;
     }
     ++i;
   }

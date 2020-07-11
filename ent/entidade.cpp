@@ -27,15 +27,21 @@ using google::protobuf::RepeatedPtrField;
 using google::protobuf::StringPrintf;
 }  // namespace
 
+const Entidade& EntidadeFalsa() {
+  static auto entidade_falsa = NovaEntidadeFalsa(Tabelas::Unica());
+  return *entidade_falsa;
+}
+
 // Factory.
-Entidade* NovaEntidade(
+std::unique_ptr<Entidade> NovaEntidade(
     const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
     ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
   switch (proto.tipo()) {
     case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
-      auto* entidade = new Entidade(tabelas, tabuleiro, texturas, m3d, central, pd);
+      // Nao da pra usar make_unique aqui pq o construtor é privado.
+      auto entidade = std::unique_ptr<Entidade>(new Entidade(tabelas, tabuleiro, texturas, m3d, central, pd));
       entidade->Inicializa(proto);
       return entidade;
     }
