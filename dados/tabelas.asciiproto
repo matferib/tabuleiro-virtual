@@ -1280,6 +1280,12 @@ tabela_armas {
 }
 tabela_efeitos {
   efeitos {
+    id: EFEITO_ARMA_ENVENENADA
+    nome: 'arma envenenada'
+    # descricao: envenena uma arma para o proximo ataque. 
+    # Primeiro complemento: id do veneno. Segundo: rotulo da arma.
+  }
+  efeitos {
     id: EFEITO_APRISIONADO_ELEMENTAL
     nome: 'aprisionado ao elemental'
     consequencia {
@@ -3247,9 +3253,10 @@ tabela_pocoes {
   pocoes {
     id: 'veneno_escorpiao_grande'
     nome: 'Veneno de Escorpião Grande'
-    tipo_efeito: EFEITO_VENENO
-    veneno { id: 'escorpiao_grande' }
+    tipo_efeito: EFEITO_ARMA_ENVENENADA
+    complementos_str: 'escorpiao_grande'
     #tipo_complemento: TCIM_ARMA 
+    duracao_rodadas: 0
     custo_po: 200
   }
   pocoes {
