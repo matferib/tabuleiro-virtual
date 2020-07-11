@@ -1,3 +1,13 @@
+Terminar armadura e escudo vinda de tesouro.
+- material.
+- permitir mudar.
+
+Veneno:
+- Efeito do veneno ao tirar 1 e 5% de chance de se envenenar ao aplicar.
+- Outros tipos de veneno que nao afetam atributos.
+- Duracao do efeito do veneno esta errada: nao eh um dia. Tem que modelar direito.
+
+UI para escudo e armaduras vindas do tesouro.
 Pedra do trovao: deu 1 de dano em alguma situação.
 Itens mundanos ta com pau. Personagem do FC (Launce) não consegue usar fogo alquimico.
 
@@ -157,11 +167,6 @@ Problema na iluminacao:
 Luz pontual esta estranha em objetos compostos (Ver sofa do ape, por exemplo).
 
 Feiticos: ao criar bola de fogo, relampago etc, o dano esta vindo vazio. E o descritor nao esta sendo aplicado. Ver RecomputaDependenciasArma em util.cpp.
-
-Veneno:
-- Aplicar bonus de salvacao contra veneno na funcao SalvacaoVeneno de entidade.
-- Outros tipos de veneno que nao afetam atributos.
-- Duracao do efeito do veneno esta errada: nao eh um dia. Tem que modelar direito.
 
 Botao para passar horas.
 
