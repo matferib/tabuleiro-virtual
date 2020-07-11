@@ -419,6 +419,18 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
     case EFEITO_ARMA_ENVENENADA: {
+      const auto& veneno = evento->complementos_str().size() >= 1 ? tabelas.Veneno(evento->complementos_str(0)) : VenenoProto::default_instance();
+      auto rotulo = evento->complementos_str().size() >= 2 ? evento->complementos_str(1) : entidade->DadoCorrenteNaoNull().rotulo();
+      for (auto& da : *proto->mutable_dados_ataque()) {
+        if (da.rotulo() == rotulo && (!da.veneno().has_id_unico_efeito() || da.veneno().id_unico_efeito() != evento->id_unico())) {
+          auto* veneno_da = da.mutable_veneno();
+          *veneno_da = veneno;
+          veneno_da->set_id_unico_efeito(evento->id_unico());
+        } else if (da.rotulo() != rotulo && (da.veneno().has_id_unico_efeito() && da.veneno().id_unico_efeito() == evento->id_unico())) {
+          // Provavelmente o rotulo mudou.
+          da.clear_veneno();
+        }
+      }
       break;
     }
     case EFEITO_ADERIDO: {
@@ -891,6 +903,14 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
   AplicaEfeitoComum(consequencia, proto);
   AplicaFimEfeitosProcessados(evento, consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_ARMA_ENVENENADA: {
+      for (auto& da : *proto->mutable_dados_ataque()) {
+        if (da.veneno().has_id_unico_efeito() && da.veneno().id_unico_efeito() == evento.id_unico()) {
+          da.clear_veneno();
+        }
+      }
+      break;
+    }
     case EFEITO_IMUNIDADE_FEITICO: {
       if (!evento.has_id_unico()) break;
       int indice = -1;

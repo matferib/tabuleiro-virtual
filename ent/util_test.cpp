@@ -3477,6 +3477,28 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
   }
 }
 
+TEST(TesteEfeitos, TesteArmaEnvenenada) {
+  auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_ARMA_ENVENENADA);
+    evento->add_complementos_str("escorpiao_grande");
+    evento->add_complementos_str("espada_de_duas_laminas_mao_boa");
+    evento->set_rodadas(1);
+    evento->set_id_unico(666);
+  }
+  auto ranger = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto());
+    EXPECT_EQ(da.veneno().id_unico_efeito(), 666);
+    EXPECT_EQ(da.veneno().cd(), 18) << da.DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 1);
+    EXPECT_FALSE(da.has_veneno());
+  }
+}
+
 TEST(TesteEfeitos, TesteAbencoarArma) {
   auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
   {
