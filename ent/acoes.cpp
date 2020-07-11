@@ -389,7 +389,7 @@ class AcaoDeltaPontosVida : public Acao {
     }
   }
 
-  constexpr static int DURACAO_UMA_LINHA_MS = 2000;
+  constexpr static int DURACAO_UMA_LINHA_MS = 1500;
   constexpr static float VELOCIDADE_ROLAGEM_M_POR_MS = 0.0002f;
 
   int delta_acao_ = 0;
