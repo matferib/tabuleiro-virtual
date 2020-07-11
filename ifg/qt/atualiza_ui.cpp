@@ -545,9 +545,10 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
 void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   const auto& dd = proto.dados_defesa();
   // combo armadura.
-  for (int i = 0; dd.has_id_armadura() && i < gerador.combo_armadura->count(); ++i) {
+  for (int i = 0; i < gerador.combo_armadura->count(); ++i) {
     QVariant dados_armadura = gerador.combo_armadura->itemData(i);
-    if (dados_armadura.toString().toStdString() == dd.id_armadura()) {
+    if ((dd.id_armadura_tesouro().empty() && dados_armadura.toString().toStdString() == dd.id_armadura()) ||
+        dados_armadura.toString().toStdString() == StringPrintf("equipamento:%s", dd.id_armadura_tesouro().c_str())) {
       gerador.combo_armadura->setCurrentIndex(i);
       break;
     }
@@ -556,7 +557,8 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   // combo escudo.
   for (int i = 0; dd.has_id_escudo() && i < gerador.combo_escudo->count(); ++i) {
     QVariant dados_escudo = gerador.combo_escudo->itemData(i);
-    if (dados_escudo.toString().toStdString() == dd.id_escudo()) {
+    if ((dd.id_escudo_tesouro().empty() && dados_escudo.toString().toStdString() == dd.id_escudo()) ||
+        dados_escudo.toString().toStdString() == StringPrintf("equipamento:%s", dd.id_escudo_tesouro().c_str())) {
       gerador.combo_escudo->setCurrentIndex(i);
       break;
     }
