@@ -185,6 +185,11 @@ void DesenhaStencil3d(float tam_x, float tam_y, const Cor& cor);
 void DesenhaStencil3d(float tam_x, float tam_y, const float* cor = nullptr);
 void DesenhaStencil3d(float xi, float yi, float xs, float ys, const float* cor = nullptr);
 
+// Funcoes de controle de dado, para forcar valores.
+// Isso influenciara diretamente o valor de RolaDado, que retornara o primeiro valor da fila e o descartará.
+void AcumulaDado(int valor);
+void LimpaDadosAcumulados();
+
 /** Gera um aleatorio de 1 a nfaces. */
 int RolaDado(unsigned int nfaces);
 /** Gera um aleatorio entre [0.0 e 1.0]. Os valores tem precisao de duas casas. */
@@ -339,7 +344,7 @@ int ModificadorDano(const DadosAtaque& da, const EntidadeProto& ea, const Entida
 enum resultado_ataque_e {
   RA_SEM_ACAO = 0,            // acao nao realizada por algum problema com ataque.
   RA_SUCESSO = 1,             // sucesso normal, ver vezes para saber se eh critico.
-  RA_FALHA_CRITICA = 3,       // falha critica.
+  RA_FALHA_CRITICA = 3,       // falha critica: tirou 1 e confirmou a falha.
   RA_FALHA_REFLEXO = 4,       // falhou porque acertou reflexo.
   RA_FALHA_NORMAL = 5,        // falha normal.
   RA_FALHA_TOQUE_AGARRAR = 6, // falha normal.
@@ -347,6 +352,7 @@ enum resultado_ataque_e {
   RA_FALHA_IMUNE = 8,         // falha por imunidade ao tipo de ataque.
   RA_FALHA_REDUCAO = 9,       // falha por reducao de dano (reduzido a zero).
   RA_FALHA_CONTRA_ATAQUE= 10, // para ataques de desarmar e derrubar, no qual o oponente pode contraatacar.
+  RA_FALHA_AUTOMATICA = 11,   // tirou 1, mas nao confirmou a falha.
 };
 struct ResultadoAtaqueVsDefesa {
   resultado_ataque_e resultado = RA_SEM_ACAO;

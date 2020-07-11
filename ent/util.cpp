@@ -644,12 +644,21 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
 
 } // namespace
 
-// Apenas para testes.
+// Apenas para testes e dados forçados.
 std::queue<int> g_dados_teste;
 // Primeira dimensao: numero de faces do dado.
 // Segunda: numero rolado.
 // Terceira: quantidade.
 std::unordered_map<int, std::map<int, int>> g_dados_rolados;
+
+void AcumulaDado(int valor) {
+  VLOG(1) << "acumulando: " << valor;
+  g_dados_teste.push(valor);
+}
+
+void LimpaDadosAcumulados() {
+  while (!g_dados_teste.empty()) g_dados_teste.pop();
+}
 
 // Rola um dado de nfaces.
 int RolaDado(unsigned int nfaces) {
@@ -658,6 +667,7 @@ int RolaDado(unsigned int nfaces) {
   if (!g_dados_teste.empty()) {
     int valor = g_dados_teste.front();
     g_dados_teste.pop();
+    VLOG(1) << "retornando valor forcado: " << valor;
     return valor;
   }
   std::uniform_int_distribution<int> distribution(1, nfaces);
@@ -1411,58 +1421,58 @@ std::tuple<int, std::string> AplicaCriticoSeDentroMargem(
   return std::make_tuple(ea.MultiplicadorCritico(), texto_critico);
 }
 
-// Retorna -1 para falha critica, 0, para falha e total para sucesso.
-std::tuple<int, std::string, bool> ComputaAcertoOuErro(
+// Retorna o resultado e quanto tirou no dado.
+std::tuple<resultado_ataque_e, int, std::string, bool> ComputaAcertoOuErro(
     int d20_ataque, int ataque_origem, int modificador_incrementos, int outros_modificadores, int d20_defesa, int modificadores_defesa, TipoAtaque tipo_ataque,
     const EntidadeProto& pea, const EntidadeProto& ped, bool confirmacao = false) {
   assert(modificador_incrementos <= 0);
+  if (tipo_ataque == TipoAtaque::AGARRAR && PossuiEvento(EFEITO_MOVIMENTACAO_LIVRE, ped)) {
+    return std::make_tuple(RA_FALHA_NORMAL, 0, "Defensor com movimentação livre", false);
+  }
+
   int valor_defesa = d20_defesa + modificadores_defesa;
   int total = d20_ataque + ataque_origem + modificador_incrementos + outros_modificadores;
   if (d20_ataque == 1) {
     if (confirmacao) {
-      return std::make_tuple(0, "outro 1", false);
+      return std::make_tuple(RA_FALHA_AUTOMATICA, 1, "outro 1", false);
     } else {
       VLOG(1) << "Possivel falha critica";
       // Confirma a falha.
-      auto [totalc, textoc, acertouc] =
+      auto [resultadoc, totalc, textoc, acertouc] =
         ComputaAcertoOuErro(RolaDado(20), ataque_origem, modificador_incrementos, outros_modificadores, d20_defesa, modificadores_defesa, tipo_ataque, pea, ped,
             /*confirmacao=*/true);
-      VLOG(1) << "Confirmacao de falha critica: total: " << totalc << ", texto: " << textoc << ", acertou: " << acertouc;
+      VLOG(1) << "Confirmacao de falha critica: resultado: " << resultadoc << ", total: " << totalc << ", texto: " << textoc << ", acertou: " << acertouc;
       if (acertouc) {
-        return std::make_tuple(0, StringPrintf("falha critica nao confirmada: %s", textoc.c_str()), false);
+        return std::make_tuple(RA_FALHA_AUTOMATICA, 1, StringPrintf("falha critica nao confirmada: %s", textoc.c_str()), false);
       } else {
-        return std::make_tuple(-1, StringPrintf("falha critica confirmada: %s", textoc.c_str()), false);
+        return std::make_tuple(RA_FALHA_CRITICA, 1, StringPrintf("falha critica confirmada: %s", textoc.c_str()), false);
       }
     }
-  }
-
-  if (tipo_ataque == TipoAtaque::AGARRAR && PossuiEvento(EFEITO_MOVIMENTACAO_LIVRE, ped)) {
-    return std::make_tuple(0, "Defensor com movimentação livre", false);
   }
 
   if ((d20_ataque != 20 || (tipo_ataque == TipoAtaque::AGARRAR || tipo_ataque == TipoAtaque::DESARMAR)) && total < valor_defesa) {
     std::string texto = StringPrintf(
         "falhou: %d%+d%s%s= %d < %d", d20_ataque, ataque_origem,
         TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, valor_defesa);
-    return std::make_tuple(0, texto, false);
+    return std::make_tuple(RA_FALHA_NORMAL, total, texto, false);
   } else if (tipo_ataque == TipoAtaque::AGARRAR && total == valor_defesa) {
     // Maior modificador ganha.
     if (pea.bba().agarrar() < ped.bba().agarrar()) {
-      // TODO em case de empate, deveria rolar de novo. Mas vou considerar vantagem do ataque.
-      return std::make_tuple(0, StringPrintf("falhou: mod defesa %d > %d ataque", ped.bba().agarrar(), pea.bba().agarrar()).c_str(), false);
+      // TODO em case de empate, deveria rolar de novo. Mas vou considerar vantagem da defesa.
+      return std::make_tuple(RA_FALHA_NORMAL, total, StringPrintf("falhou: mod defesa %d > %d ataque", ped.bba().agarrar(), pea.bba().agarrar()).c_str(), false);
     }
   } else if (tipo_ataque == TipoAtaque::DESARMAR) {
     if (total == valor_defesa) {
       // Maior modificador ganha.
       if (modificadores_defesa >= ataque_origem) {
-        return std::make_tuple(0, StringPrintf("falhou: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), false);
+        return std::make_tuple(RA_FALHA_NORMAL, total, StringPrintf("falhou: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), false);
       }
     } else {
       // Acertou agarrar.
-      return std::make_tuple(total, StringPrintf("sucesso: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), true);
+      return std::make_tuple(RA_SUCESSO, total, StringPrintf("sucesso: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), true);
     }
   }
-  return std::make_tuple(total, StringPrintf(
+  return std::make_tuple(RA_SUCESSO, total, StringPrintf(
         "sucesso: %d%+d%s%s= %d >= %d", d20_ataque, ataque_origem,
         TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, valor_defesa), true);
 }
@@ -1479,7 +1489,7 @@ std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, co
   std::string texto_erro;
   bool acertou;
   // O tipo desse ataque é normal, não é agarrar.
-  std::tie(std::ignore, texto_erro, acertou) =
+  std::tie(std::ignore, std::ignore, texto_erro, acertou) =
       ComputaAcertoOuErro(d20_toque, ataque_toque, 0, outros_modificadores, /*d20_defesa=*/0, ca_destino_toque, TipoAtaque::CORPO_A_CORPO, ea.Proto(), ed.Proto());
   if (!acertou) {
     std::string texto_falha_toque = google::protobuf::StringPrintf("Ataque de toque falhou: %s", texto_erro.c_str());
@@ -1504,7 +1514,7 @@ std::tuple<std::string, resultado_ataque_reflexos> AtaqueToqueReflexos(
   const int ataque = ea.BonusAtaque();
   std::string texto_erro;
   bool acertou;
-  std::tie(std::ignore, texto_erro, acertou) =
+  std::tie(std::ignore, std::ignore, texto_erro, acertou) =
       ComputaAcertoOuErro(d20, ataque, 0, outros_modificadores, /*d20_defesa=*/0, ca_reflexo, DaParaTipoAtaque(da), ea.Proto(), ed.Proto());
   return std::make_tuple(
     acertou ? "acertou reflexo" : "errou reflexo",
@@ -1619,21 +1629,22 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   if (ap.permite_ataque_vs_defesa()) {
     d20 = RolaDado(20);
     bool acertou;
-    std::tie(total, resultado.texto, acertou) =
+    resultado_ataque_e resultado_ataque;
+    std::tie(resultado_ataque, total, resultado.texto, acertou) =
         ComputaAcertoOuErro(
             d20, bonus_ataque, modificador_incrementos, modificadores_ataque, d20_defesa, modificadores_defesa, DaParaTipoAtaque(da),
             ea.Proto(), ed.Proto());
     if (!acertou) {
-      resultado.resultado = total == -1 ? RA_FALHA_CRITICA : RA_FALHA_NORMAL;
+      resultado.resultado = resultado_ataque;
       if (da.ataque_desarmar() && !ea.PossuiTalento("desarme_aprimorado")) {
         // Manter a ordem de defesa primeiro por causa dos testes.
         int d20_contra_defesa = RolaDado(20);
         int d20_contra = RolaDado(20);
         // Modificadores da defesa ja inclui o bonus, por isso passamos 0.
-        auto [total_contra, texto_contra, acertou_contra] = ComputaAcertoOuErro(
+        auto [resultado_contra_ataque, total_contra, texto_contra, acertou_contra] = ComputaAcertoOuErro(
             d20_contra, /*bonus_ataque=*/modificadores_defesa, 0, 0, d20_contra_defesa, bonus_ataque + modificadores_ataque, TipoAtaque::DESARMAR,
             ed.Proto(), ea.Proto());
-        VLOG(1) << "compilador feliz: " << total_contra;
+        VLOG(1) << "compilador feliz: " << total_contra << " e resultado " << resultado_contra_ataque;
         if (acertou_contra) {
           resultado.resultado = RA_FALHA_CONTRA_ATAQUE;
         }
