@@ -3,7 +3,8 @@ Terminar armadura e escudo vinda de tesouro.
 - permitir mudar.
 
 Veneno:
-- Efeito do veneno ao tirar 1 e 5% de chance de se envenenar ao aplicar.
+- Efeito do veneno ao tirar 1: Reflexo 15 ou se envenena;
+- 5% de chance de se envenenar ao aplicar.
 - Outros tipos de veneno que nao afetam atributos.
 - Duracao do efeito do veneno esta errada: nao eh um dia. Tem que modelar direito.
 
