@@ -792,12 +792,27 @@ void PreencheConfiguraComboArmaduraEscudo(
   for (const auto& armadura : tabelas.todas().tabela_armaduras().armaduras()) {
     combo_armadura->addItem((armadura.nome().c_str()), QVariant(armadura.id().c_str()));
   }
+  for (const auto& armadura_tesouro : proto_retornado->tesouro().armaduras()) {
+    combo_armadura->addItem(
+        StringPrintf(" do equipamento: %s", armadura_tesouro.id().c_str()).c_str(),
+        QVariant(StringPrintf("equipamento:%s", armadura_tesouro.id().c_str()).c_str()));
+  }
   for (const auto& escudo : tabelas.todas().tabela_escudos().escudos()) {
     combo_escudo->addItem((escudo.nome().c_str()), QVariant(escudo.id().c_str()));
   }
+  for (const auto& escudo_tesouro : proto_retornado->tesouro().escudos()) {
+    combo_escudo->addItem(
+        StringPrintf(" do equipamento: %s", escudo_tesouro.id().c_str()).c_str(),
+        QVariant(StringPrintf("equipamento:%s", escudo_tesouro.id().c_str()).c_str()));
+  }
   lambda_connect(combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_armadura] () {
-    QVariant id = combo_armadura->itemData(combo_armadura->currentIndex());
-    proto_retornado->mutable_dados_defesa()->set_id_armadura(id.toString().toStdString());
+    QVariant idvar = combo_armadura->itemData(combo_armadura->currentIndex());
+    std::string id = idvar.toString().toStdString();
+    if (id.find("equipamento:") == 0) {
+      proto_retornado->mutable_dados_defesa()->set_id_armadura(id.substr(strlen("equipamento:")));
+    } else {
+      proto_retornado->mutable_dados_defesa()->set_id_armadura(id);
+    }
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
     AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
@@ -813,8 +828,13 @@ void PreencheConfiguraComboArmaduraEscudo(
   });
 
   lambda_connect(combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_escudo] () {
-    QVariant id = combo_escudo->itemData(combo_escudo->currentIndex());
-    proto_retornado->mutable_dados_defesa()->set_id_escudo(id.toString().toStdString());
+    QVariant idvar = combo_escudo->itemData(combo_escudo->currentIndex());
+    std::string id = idvar.toString().toStdString();
+    if (id.find("equipamento:") == 0) {
+      proto_retornado->mutable_dados_defesa()->set_id_escudo(id.substr(strlen("equipamento:")));
+    } else {
+      proto_retornado->mutable_dados_defesa()->set_id_escudo(id);
+    }
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
     AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);

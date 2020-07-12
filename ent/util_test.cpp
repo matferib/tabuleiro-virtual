@@ -16,13 +16,13 @@ namespace ent {
 
 extern std::queue<int> g_dados_teste;
 namespace {
-Tabelas g_tabelas(nullptr);
 
 class CentralColetora : public ntf::CentralNotificacoes {
  public:
   std::vector<std::unique_ptr<ntf::Notificacao>>& Notificacoes() { return notificacoes_; }
 };
 CentralColetora g_central;
+Tabelas g_tabelas(&g_central);
 
 class TabuleiroTeste : public Tabuleiro {
  public:
@@ -1245,8 +1245,8 @@ TEST(TesteCA, TesteDestrezaCALadinoEsquivaSobrenatural) {
   EntidadeProto proto = modelo_ladino.entidade();
   RecomputaDependencias(g_tabelas, &proto);
   EXPECT_TRUE(DestrezaNaCA(proto));
-  EXPECT_EQ(CATotal(proto, /*escudo=*/true, Bonus()), 17);
-  EXPECT_EQ(CASurpreso(proto, /*escudo=*/true, Bonus()), 17);
+  EXPECT_EQ(CATotal(proto, /*escudo=*/true, Bonus()), 18);
+  EXPECT_EQ(CASurpreso(proto, /*escudo=*/true, Bonus()), 18);
 
   proto.set_surpreso(true);
   RecomputaDependencias(g_tabelas, &proto);
@@ -1752,7 +1752,7 @@ TEST(TesteTalentoPericias, TesteVitalidade) {
   proto_orc.mutable_info_talentos()->add_outros()->set_id("vitalidade");
   auto orc = NovaEntidadeParaTestes(proto_orc, g_tabelas);
   // 6 vitalidade, 7 constituicao.
-  EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 13) << orc->Proto().bonus_dados_vida().DebugString();
+  EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 13) << orc->Proto().bonus_dados_vida().DebugString() << " " << orc->NivelPersonagem();
 }
 
 TEST(TesteTalentoPericias, TesteCombateMontado) {
@@ -1769,16 +1769,18 @@ TEST(TesteTalentoPericias, TesteCombateMontado) {
   TabuleiroTeste tabuleiro({montador, montaria});
   AcaoProto acao;
   g_dados_teste.push(10);
+  acao.add_por_entidade();
   EXPECT_EQ(
       -10, DesviaMontariaSeAplicavel(
         g_tabelas, -10, /*total_ataque=*/12, *montaria,
-        DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.add_por_entidade(), &grupo_desfazer))
+        DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.mutable_por_entidade(0), &grupo_desfazer))
     << acao.por_entidade(0).DebugString();
   g_dados_teste.push(11);
+  acao.add_por_entidade();
   EXPECT_EQ(
       0, DesviaMontariaSeAplicavel(
         g_tabelas, -10, /*total_ataque=*/12, *montaria,
-        DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.add_por_entidade(), &grupo_desfazer))
+        DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.mutable_por_entidade(1), &grupo_desfazer))
     << acao.por_entidade(1).DebugString();
 }
 
@@ -3475,6 +3477,28 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
   }
 }
 
+TEST(TesteEfeitos, TesteArmaEnvenenada) {
+  auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_ARMA_ENVENENADA);
+    evento->add_complementos_str("escorpiao_grande");
+    evento->add_complementos_str("espada_de_duas_laminas_mao_boa");
+    evento->set_rodadas(1);
+    evento->set_id_unico(666);
+  }
+  auto ranger = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto());
+    EXPECT_EQ(da.veneno().id_unico_efeito(), 666);
+    EXPECT_EQ(da.veneno().cd(), 18) << da.DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto(), 1);
+    EXPECT_FALSE(da.has_veneno());
+  }
+}
+
 TEST(TesteEfeitos, TesteAbencoarArma) {
   auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
   {
@@ -4825,6 +4849,43 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->DanoNaoLetal(), 0);
   EXPECT_EQ(e->PontosVida(), 15);
   EXPECT_EQ(e->MaximoPontosVida(), 15);
+}
+
+TEST(TesteModelo, TesteLadino5) {
+  auto proto = g_tabelas.ModeloEntidade("Humano Ladino 5").entidade();
+  auto ladino = NovaEntidadeParaTestes(proto, g_tabelas);
+  EXPECT_EQ(ladino->CA(*ladino, Entidade::CA_NORMAL), 13+3+1+1) << ladino->Proto().dados_defesa().ca().DebugString();
+  {
+    const auto& da = DadosAtaquePorGrupo("sabre", ladino->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3+1+1);
+    EXPECT_EQ(da.dano(), "1d6+1");
+    EXPECT_EQ(da.ca_normal(), 13+3+1+1) << ladino->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("adaga", ladino->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3+1);
+    EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_EQ(da.ca_normal(), 13+3+1+1) << ladino->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("arco", ladino->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3+3+1);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.ca_normal(), 13+3+1) << ladino->Proto().dados_defesa().ca().DebugString();
+  }
+  EXPECT_EQ(ladino->Proto().dados_ataque_global().dano_furtivo(), "3d6");
+
+  EXPECT_EQ(ValorFinalPericia("arte_da_fuga", ladino->Proto()), 11);
+  EXPECT_EQ(ValorFinalPericia("equilibrio", ladino->Proto()), 10);
+  EXPECT_EQ(ValorFinalPericia("esconderse", ladino->Proto()), 11);
+  EXPECT_EQ(ValorFinalPericia("blefar", ladino->Proto()), 7);
+  EXPECT_EQ(ValorFinalPericia("saltar", ladino->Proto()), 8);
+  EXPECT_EQ(ValorFinalPericia("furtividade", ladino->Proto()), 11);
+  EXPECT_EQ(ValorFinalPericia("abrir_fechaduras", ladino->Proto()), 13);
+  EXPECT_EQ(ValorFinalPericia("procurar", ladino->Proto()), 9);
+  EXPECT_EQ(ValorFinalPericia("ouvir", ladino->Proto()), 8);
+  EXPECT_EQ(ValorFinalPericia("observar", ladino->Proto()), 7);
+  EXPECT_EQ(ValorFinalPericia("operar_mecanismo", ladino->Proto()), 12);
 }
 
 TEST(TesteModelo, TesteBisao) {
@@ -6217,6 +6278,32 @@ TEST(TesteDependencias, TesteGracaDivina) {
     EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
     EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
     EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_vontade()));
+  }
+}
+
+TEST(TesteTesouro, TesteTesouroEsperado) {
+  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+    std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(modelo.entidade(), g_tabelas));
+    const auto& tesouro = e->Proto().tesouro();
+    if (!tesouro.has_valor_esperado_po()) continue;
+    int soma = 0;
+    const auto& todos = TodosItens(e->Proto());
+    for (const auto& item : todos) {
+      soma += PrecoItemPo(ItemTabela(g_tabelas, *item));
+    }
+    for (const auto& arma : tesouro.armas()) {
+      soma += PrecoArmaPo(arma);
+    }
+    for (const auto& aoes : {tesouro.armaduras(), tesouro.escudos()}) {
+      for (const auto& aoe : aoes) {
+        soma += PrecoArmaduraOuEscudoPo(aoe);
+      }
+    }
+    soma += tesouro.moedas().po();
+    EXPECT_LE(soma, tesouro.valor_esperado_po()) << "modelo extrapolou tesouro: " << modelo.id();
+    if (soma <= tesouro.valor_esperado_po()) {
+      LOG(INFO) << "valor de tesouro de " << modelo.id() << ": " << soma << " PO está dentro do esperado: " << tesouro.valor_esperado_po();
+    }
   }
 }
 

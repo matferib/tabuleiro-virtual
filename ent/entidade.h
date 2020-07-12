@@ -36,16 +36,18 @@ class Texturas {
 };
 
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
-Entidade* NovaEntidade(
+std::unique_ptr<Entidade> NovaEntidade(
     const EntidadeProto& proto,
     const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
     ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
-inline Entidade* NovaEntidadeParaTestes(const EntidadeProto& proto, const Tabelas& tabelas) {
+inline std::unique_ptr<Entidade> NovaEntidadeParaTestes(const EntidadeProto& proto, const Tabelas& tabelas) {
   return NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr);
 }
-inline Entidade* NovaEntidadeFalsa(const Tabelas& tabelas) {
+inline std::unique_ptr<Entidade> NovaEntidadeFalsa(const Tabelas& tabelas) {
   return NovaEntidadeParaTestes(EntidadeProto::default_instance(), tabelas);
 }
+/** Retorna uma entidade falsa, vazia para diversos fins que usam entidades para computar modificadores. */
+const Entidade& EntidadeFalsa();
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -433,7 +435,7 @@ class Entidade {
   static constexpr int AtaqueCaInvalido = -100;
 
  protected:
-  friend Entidade* NovaEntidade(
+  friend std::unique_ptr<Entidade> NovaEntidade(
       const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas*, const m3d::Modelos3d*,
       ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
   Entidade(

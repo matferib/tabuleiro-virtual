@@ -1280,6 +1280,12 @@ tabela_armas {
 }
 tabela_efeitos {
   efeitos {
+    id: EFEITO_ARMA_ENVENENADA
+    nome: 'arma envenenada'
+    # descricao: envenena uma arma para o proximo ataque. 
+    # Primeiro complemento: id do veneno. Segundo: rotulo da arma.
+  }
+  efeitos {
     id: EFEITO_APRISIONADO_ELEMENTAL
     nome: 'aprisionado ao elemental'
     consequencia {
@@ -2805,6 +2811,17 @@ tabela_itens_mundanos {
     nome: 'corda de seda (15m, 10q)'
     custo { po: 10 }
   }
+  itens {
+    id: 'ferramentas_ladino'
+    nome: 'ferramentas ladino'
+    custo { po: 30 }
+  }
+  itens {
+    id: 'ferramentas_ladino_op'
+    nome: 'ferramentas ladino obra-prima'
+    custo { po: 100 }
+  }
+
 }
 
 tabela_botas {
@@ -3233,6 +3250,15 @@ tabela_pergaminhos {
 }
 
 tabela_pocoes {
+  pocoes {
+    id: 'veneno_escorpiao_grande'
+    nome: 'Veneno de Escorpião Grande'
+    tipo_efeito: EFEITO_ARMA_ENVENENADA
+    complementos_str: 'escorpiao_grande'
+    #tipo_complemento: TCIM_ARMA 
+    duracao_rodadas: 0
+    custo_po: 200
+  }
   pocoes {
     # Em portugues é filtro; elixir of fire breath
     id: 'elixir_cuspir_fogo'
@@ -15266,9 +15292,22 @@ tabela_efeitos_modelos {
 
 }  # tabela efeito de modelos.
 
-
-#tabela_venenos {
-#  venenos {
-#    id: 'nitharit' nome: 'Nitharit' tipo: TV_CONTATO dano_secondario: '3d6' tipo_dano_secondario: TDV_CONSTITUICAO preco_po: 650
-#  }
-#}
+tabela_venenos {
+  venenos {
+    id: 'nitharit' nome: 'Nitharit'
+    tipo: TV_CONTATO
+    # Nao tem primario.
+    dano_secundario: '3d6'
+    tipo_dano_secundario: TDV_CONSTITUICAO
+    cd: 13 nao_usar_cd_dinamico: true
+    preco_po: 650
+  }
+  venenos {
+    id: 'escorpiao_grande' nome: 'Escorpião Grande'
+    tipo: TV_FERIMENTO
+    tipo_dano: TDV_FORCA dano_inicial: '1d6'
+    tipo_dano_secundario: TDV_FORCA dano_secundario: '1d6'
+    cd: 18 nao_usar_cd_dinamico: true
+    preco_po: 200
+  }
+}

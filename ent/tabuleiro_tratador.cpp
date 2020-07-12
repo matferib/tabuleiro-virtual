@@ -1865,6 +1865,21 @@ float Tabuleiro::TrataAcaoIndividual(
       acao_proto->set_bem_sucedida(true);
     }
 
+    // Falha critica com veneno, 5% de chance de se envenenar.
+    if (resultado.resultado == RA_FALHA_CRITICA && da.veneno().has_id_unico_efeito()) {
+      int valor = entidade_origem->Salvacao(EntidadeFalsa(), TS_REFLEXO);
+      if (valor < 15) {
+        AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("auto-envenenamento não salvou: %d >= 15", valor), atraso_s);
+        std::string veneno_str = TrataVeneno(da, DadosIniciativaEntidade(*entidade_origem), entidade_origem, &ids_unicos_entidade_origem, grupo_desfazer, central_);
+        ConcatenaString(veneno_str, por_entidade->mutable_texto());
+        AdicionaLogEvento(entidade_destino->Id(), veneno_str);
+        atraso_s += 2.0f;
+      } else {
+        AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("auto-envenenamento salvou: %d >= 15", valor), atraso_s);
+        atraso_s += 0.5f;
+      }
+    }
+
     if (resultado.resultado == RA_FALHA_CRITICA || resultado.resultado == RA_SEM_ACAO) {
       if (resultado.resultado == RA_FALHA_CRITICA) {
         std::unique_ptr<ntf::Notificacao> n_extra(new ntf::Notificacao);
@@ -2411,10 +2426,9 @@ float Tabuleiro::TrataAcaoUmaEntidade(
     Entidade* entidade_origem, const Posicao& pos_entidade_destino, const Posicao& pos_tabuleiro,
     unsigned int id_entidade_destino, float atraso_s, const AcaoProto* acao_preenchida) {
 
-  std::unique_ptr<Entidade> e_falsa(NovaEntidadeFalsa(tabelas_));
-  const Entidade& entidade_origem_nao_null = entidade_origem == nullptr ? *e_falsa.get() : *entidade_origem;
+  const Entidade& entidade_origem_nao_null = entidade_origem == nullptr ? EntidadeFalsa() : *entidade_origem;
   const Entidade* entidade_destino = BuscaEntidade(id_entidade_destino);
-  const Entidade& entidade_destino_nao_null = entidade_destino == nullptr ? *e_falsa.get() : *entidade_destino;
+  const Entidade& entidade_destino_nao_null = entidade_destino == nullptr ? EntidadeFalsa() : *entidade_destino;
 
   AcaoProto acao_proto = acao_preenchida == nullptr ? entidade_origem_nao_null.Acao() : *acao_preenchida;
   std::unique_ptr<ntf::Notificacao> notificacao_preenchimento_acao = TalvezPreenchaAcaoNaoPreenchida(

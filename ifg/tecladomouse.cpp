@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "ifg/tecladomouse.h"
 #include "ent/acoes.h"
 #include "ent/constantes.h"
@@ -88,9 +89,6 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
       } else if (teclas_[1] == Tecla_Backspace) {
         tabuleiro_->LimpaUltimoListaPontosVida();
       } else if (teclas_[1] == Tecla_D || teclas_[1] == Tecla_C) {
-        if (teclas_.size() < 2) {
-          break;
-        }
         std::vector<std::pair<int, std::string>> lista_dano = CalculaDano(teclas_.begin() + 2, teclas_.end());
         if (teclas_[1] == Tecla_D) {
           // Inverte o dano.
@@ -99,6 +97,27 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
           }
         }
         tabuleiro_->AcumulaPontosVida(lista_dano);
+      } else if (teclas_[1] == Tecla_R) {
+        for (int i = 2; i < teclas_.size(); ++i) {
+          if (teclas_[i] == Tecla_Delete || teclas_[i] == Tecla_Backspace) {
+            ent::LimpaDadosAcumulados();
+            return;
+          }
+        }
+        std::vector<std::pair<int, std::string>> lista_dano = CalculaDano(teclas_.begin() + 2, teclas_.end());
+        if (lista_dano.empty()) {
+          LOG(INFO) << "d20 forcado sem lista de dano: ";
+          break;
+        }
+        for (auto [mais_menos, texto] : lista_dano) {
+          int valor = atoi(texto.c_str());
+          if (valor >= 1 && valor <= 100) {
+            VLOG(1) << "Lido: " << texto << ", mais_menos: " << mais_menos;
+            ent::AcumulaDado(valor);
+          } else {
+            LOG(INFO) << "d20 forcado invalido: " << texto << ", mais_menos: " << mais_menos;
+          }
+        }
       }
     }
     break;
