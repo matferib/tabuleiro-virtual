@@ -1,3 +1,10 @@
+Tentativa de correção da tela preta: problema parece ser que ao abrir janela de objetos, perde-se o contexto opengl. Ai, as chamadas
+com contador de referencia nao vao pegar de novo achando que ja tinha contexto e boom!
+Efeito de pocao nao aparece.
+Heroismo sem alcance.
+Aiden travado em agarrar.
+Tela preta quando cliente abre menu de personagem.
+
 Terminar armadura e escudo vinda de tesouro.
 - material.
 - permitir mudar.

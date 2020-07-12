@@ -405,7 +405,7 @@ struct MakeCurrentScope {
 }  // namespace
 
 void MenuPrincipal::TrataAcaoItem(QAction* acao) {
-  MakeCurrentScope pegaEscopo(v3d_);
+  //MakeCurrentScope pegaEscopo(v3d_);
   //cout << (const char*)acao->text().toAscii() << endl;
   std::unique_ptr<ntf::Notificacao> notificacao;
   // Jogo.

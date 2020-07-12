@@ -403,13 +403,22 @@ void Visualizador3d::paintGL() {
 
 void Visualizador3d::PegaContexto() {
   if (contexto_cref++ == 0) {
+    //LOG(INFO) << "pegando";
     makeCurrent();
+  } else {
+    //LOG(INFO) << "incrementando apenas";
   }
 }
 
 void Visualizador3d::LiberaContexto() {
   if (--contexto_cref == 0) {
+    //LOG(INFO) << "liberando contexto";
     doneCurrent();
+  } else {
+    //LOG(INFO) << "decrementando apenas";
+  }
+  if (contexto_cref < 0) {
+    LOG(ERROR) << "AQUI!!!";
   }
 }
 
