@@ -1,4 +1,4 @@
-Setas: mover camera quando nao houver entidade selecionada.
+Setas: girar camera ou levantar abaixar..
 Efeito de pocao nao aparece em outros cenarios.
 
 Terminar armadura e escudo vinda de tesouro.
