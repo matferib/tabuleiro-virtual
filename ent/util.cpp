@@ -3467,12 +3467,16 @@ bool PossuiHabilidadeEspecial(const std::string& chave, const EntidadeProto& pro
 }
 
 int ValorFinalPericia(const std::string& id, const EntidadeProto& proto) {
+  return BonusTotal(BonusPericia(id, proto));
+}
+
+const Bonus& BonusPericia(const std::string& id, const EntidadeProto& proto) {
   for (const auto& info_pericia : proto.info_pericias()) {
     if (info_pericia.id() == id) {
-      return BonusTotal(info_pericia.bonus());
+      return info_pericia.bonus();
     }
   }
-  return 0;
+  return Bonus::default_instance();
 }
 
 bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, const EntidadeProto& proto) {

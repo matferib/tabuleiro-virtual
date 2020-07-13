@@ -1016,7 +1016,7 @@ TEST(TesteCA, TesteLutaDefensiva) {
     EntidadeProto proto;
     auto* da = proto.add_dados_ataque();
     da->set_id_arma("fogo_alquimico");
-    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    e = NovaEntidadeParaTestes(proto, g_tabelas);
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1047,7 +1047,7 @@ TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombate) {
     auto* t = proto.mutable_info_talentos()->add_outros();
     t->set_id("especializacao_em_combate");
     t->set_complemento("4");
-    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    e = NovaEntidadeParaTestes(proto, g_tabelas);
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1077,7 +1077,7 @@ TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombateSemComplementos) {
     da->set_id_arma("fogo_alquimico");
     auto* t = proto.mutable_info_talentos()->add_outros();
     t->set_id("especializacao_em_combate");
-    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    e = NovaEntidadeParaTestes(proto, g_tabelas);
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1108,7 +1108,7 @@ TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombateComplementoMaiorQueBba) {
     auto* t = proto.mutable_info_talentos()->add_outros();
     t->set_id("especializacao_em_combate");
     t->set_complemento("4");
-    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    e = NovaEntidadeParaTestes(proto, g_tabelas);
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1139,7 +1139,7 @@ TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombateComplementoMaiorQue5) {
     auto* t = proto.mutable_info_talentos()->add_outros();
     t->set_id("especializacao_em_combate");
     t->set_complemento("6");
-    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    e = NovaEntidadeParaTestes(proto, g_tabelas);
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1169,7 +1169,7 @@ TEST(TesteCA, TesteLutaDefensivaComAcrobacias) {
     auto* ip = proto.add_info_pericias();
     ip->set_id("acrobacias");
     ip->set_pontos(5);
-    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    e = NovaEntidadeParaTestes(proto, g_tabelas);
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1191,7 +1191,7 @@ TEST(TesteCA, TesteDefesaTotal) {
   std::unique_ptr<Entidade> e;
   {
     EntidadeProto proto;
-    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    e = NovaEntidadeParaTestes(proto, g_tabelas);
   }
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
   auto n = PreencheNotificacaoDefesaTotal(true, e->Proto());
@@ -1211,7 +1211,7 @@ TEST(TesteCA, TesteDefesaTotalComAcrobacia) {
     auto* ip = proto.add_info_pericias();
     ip->set_id("acrobacias");
     ip->set_pontos(5);
-    e.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    e = NovaEntidadeParaTestes(proto, g_tabelas);
   }
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
   auto n = PreencheNotificacaoDefesaTotal(true, e->Proto());
@@ -1760,11 +1760,11 @@ TEST(TesteTalentoPericias, TesteCombateMontado) {
   proto_orc.set_id(1);
   proto_orc.mutable_info_talentos()->add_outros()->set_id("combate_montado");
   proto_orc.set_montado_em(2);
-  auto montador = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  auto* montador = NovaEntidadeParaTestes(proto_orc, g_tabelas).release();
   proto_orc.set_id(2);
   proto_orc.clear_montado_em();
   proto_orc.add_entidades_montadas(1);
-  auto montaria = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  auto* montaria = NovaEntidadeParaTestes(proto_orc, g_tabelas).release();
   ntf::Notificacao grupo_desfazer;
   TabuleiroTeste tabuleiro({montador, montaria});
   AcaoProto acao;
@@ -2661,8 +2661,8 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_GE(proto.tendencia().eixo_bem_mal(), 0.6f);
 
   proto.set_ultimo_grupo_acao("espada_longa_2_maos");
-  auto* ea = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto* ed = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto ed = NovaEntidadeParaTestes(proto, g_tabelas);
   // 16 normal +2 contra o bem.
   EXPECT_EQ(18, ed->CA(*ea, Entidade::CA_NORMAL));
   // 6 normal + 2 contra o bem.
@@ -3915,7 +3915,7 @@ TEST(TesteFeiticos, TesteBencao) {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Clérigo");
     da->set_id_arma("bencao");
-    referencia.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    referencia = NovaEntidadeParaTestes(proto, g_tabelas);
   }
   CentralColetora central;
   ntf::Notificacao grupo_desfazer;
@@ -3947,7 +3947,7 @@ TEST(TesteFeiticos, TesteMaldicaoMenor) {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Clérigo");
     da->set_id_arma("maldicao_menor");
-    referencia.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    referencia = NovaEntidadeParaTestes(proto, g_tabelas);
   }
   CentralColetora central;
   ntf::Notificacao grupo_desfazer;
@@ -3988,7 +3988,7 @@ TEST(TesteFeiticos, TesteOracao) {
     da->set_id_arma("espada_curta");
 
     proto.mutable_tesouro()->add_itens_mundanos()->set_id("pedra_trovao");
-    referencia.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    referencia = NovaEntidadeParaTestes(proto, g_tabelas);
   }
   CentralColetora central;
   ntf::Notificacao grupo_desfazer;
@@ -4849,6 +4849,31 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->DanoNaoLetal(), 0);
   EXPECT_EQ(e->PontosVida(), 15);
   EXPECT_EQ(e->MaximoPontosVida(), 15);
+}
+
+TEST(TesteModelo, TesteKobold) {
+  auto proto = g_tabelas.ModeloEntidade("Kobold").entidade();
+  auto kobold = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("lanca", kobold->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 1);
+    EXPECT_EQ(da.dano(), "1d6-1");
+    EXPECT_EQ(da.ca_normal(), 15) << kobold->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("funda", kobold->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3);
+    EXPECT_EQ(da.dano(), "1d3-1");
+    EXPECT_EQ(da.ca_normal(), 15) << kobold->Proto().dados_defesa().ca().DebugString();
+  }
+
+  EXPECT_EQ(ValorFinalPericia("oficios_armadilharia", kobold->Proto()), 2);
+  EXPECT_EQ(ValorFinalPericia("esconderse", kobold->Proto()), 6);
+  EXPECT_EQ(ValorFinalPericia("ouvir", kobold->Proto()), 2);
+  EXPECT_EQ(ValorFinalPericia("furtividade", kobold->Proto()), 2);
+  EXPECT_EQ(ValorFinalPericia("profissao", kobold->Proto()), 2) << BonusPericia("profissao", kobold->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("procurar", kobold->Proto()), 2);
+  EXPECT_EQ(ValorFinalPericia("observar", kobold->Proto()), 2);
 }
 
 TEST(TesteModelo, TesteLadino5) {
@@ -6767,7 +6792,7 @@ TEST(TesteRacas, TesteElfo) {
       da->set_modificador_atributo_pergaminho(2);
       da->set_id_arma("enfeiticar_pessoa");
     }
-    ea.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    ea = NovaEntidadeParaTestes(proto, g_tabelas);
     ASSERT_GE(ea->Proto().dados_ataque_size(), 3);
   }
   EXPECT_EQ(elfo->Salvacao(*ea, TS_FORTITUDE), 1);
@@ -6857,7 +6882,7 @@ TEST(TesteRacas, TesteMeioElfo) {
       da->set_modificador_atributo_pergaminho(2);
       da->set_id_arma("enfeiticar_pessoa");
     }
-    ea.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    ea = NovaEntidadeParaTestes(proto, g_tabelas);
     ASSERT_GE(ea->Proto().dados_ataque_size(), 3);
   }
   EXPECT_EQ(ed->Salvacao(*ea, TS_FORTITUDE), 2);
@@ -6903,7 +6928,7 @@ TEST(TesteRacas, TesteAnao) {
     ic->set_id("guerreiro");
     auto* da = proto.mutable_dados_ataque()->Add();
     da->set_id_arma("machado_de_batalha");
-    anao.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    anao = NovaEntidadeParaTestes(proto, g_tabelas);
   }
 
   std::unique_ptr<Entidade> gigante;
@@ -6935,7 +6960,7 @@ TEST(TesteRacas, TesteAnao) {
       da->set_id_arma("maos_flamejantes");
     }
 
-    gigante.reset(NovaEntidadeParaTestes(proto, g_tabelas));
+    gigante = NovaEntidadeParaTestes(proto, g_tabelas);
     ASSERT_GE(gigante->Proto().dados_ataque_size(), 3);
   }
 

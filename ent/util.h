@@ -854,6 +854,7 @@ InfoPericia* PericiaOuNullptr(const std::string& id, EntidadeProto* proto);
 const InfoPericia& Pericia(const std::string& id, const EntidadeProto& proto);
 // Retorna o valor final da pericia para o personagem.
 int ValorFinalPericia(const std::string& id, const EntidadeProto& proto);
+const Bonus& BonusPericia(const std::string& id, const EntidadeProto& proto);
 
 // Retorna se o proto esta agarrado ao id.
 bool AgarradoA(unsigned int id, const EntidadeProto& proto);

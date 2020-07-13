@@ -192,6 +192,7 @@ TEST(TesteAcoes, TesteEntidadesAfetadasPorAcao) {
   acao.set_raio_quadrados(1);
   acao.set_total_dv(3);
   acao.set_mais_fracos_primeiro(false);
+  std::vector<std::unique_ptr<Entidade>> entidades_owned;
   std::vector<const Entidade*> entidades;
   int id = 1;
   for (int nivel : { 1, 2, 1, 1}) {
@@ -200,15 +201,13 @@ TEST(TesteAcoes, TesteEntidadesAfetadasPorAcao) {
     auto* ic = proto.add_info_classes();
     ic->set_id("guerreiro");
     ic->set_nivel(nivel);
-    entidades.push_back(NovaEntidadeParaTestes(proto, g_tabelas));
+    auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+    entidades.push_back(e.get());
+    entidades_owned.emplace_back(std::move(e));
   }
 
   const std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao, nullptr, entidades);
   EXPECT_THAT(ids_afetados, testing::ElementsAre(1, 2));
-
-  for (const auto* entidade : entidades) {
-    delete entidade;
-  }
 }
 
 TEST(TesteAcoes, TesteEntidadesAfetadasPorAcaoMaisFracosPrimeiro) {
@@ -218,6 +217,7 @@ TEST(TesteAcoes, TesteEntidadesAfetadasPorAcaoMaisFracosPrimeiro) {
   acao.set_raio_quadrados(1);
   acao.set_total_dv(3);
   acao.set_mais_fracos_primeiro(true);
+  std::vector<std::unique_ptr<Entidade>> entidades_owned;
   std::vector<const Entidade*> entidades;
   int id = 1;
   for (int nivel : { 1, 2, 1, 1}) {
@@ -226,15 +226,13 @@ TEST(TesteAcoes, TesteEntidadesAfetadasPorAcaoMaisFracosPrimeiro) {
     auto* ic = proto.add_info_classes();
     ic->set_id("guerreiro");
     ic->set_nivel(nivel);
-    entidades.push_back(NovaEntidadeParaTestes(proto, g_tabelas));
+    auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+    entidades.push_back(e.get());
+    entidades_owned.emplace_back(std::move(e));
   }
 
   const std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao, nullptr, entidades);
   EXPECT_THAT(ids_afetados, testing::ElementsAre(1, 3, 4));
-
-  for (const auto* entidade : entidades) {
-    delete entidade;
-  }
 }
 
 TEST(TesteAcoes, TesteMaximoAfetados) {
@@ -243,19 +241,18 @@ TEST(TesteAcoes, TesteMaximoAfetados) {
   acao.set_geometria(ACAO_GEO_ESFERA);
   acao.set_raio_quadrados(1);
   acao.set_maximo_criaturas_afetadas(2);
+  std::vector<std::unique_ptr<Entidade>> entidades_owned;
   std::vector<const Entidade*> entidades;
   for (int id = 0; id < 3; ++id) {
     EntidadeProto proto;
     proto.set_id(id);
-    entidades.push_back(NovaEntidadeParaTestes(proto, g_tabelas));
+    auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+    entidades.push_back(e.get());
+    entidades_owned.emplace_back(std::move(e));
   }
 
   const std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao, nullptr, entidades);
   EXPECT_THAT(ids_afetados, testing::ElementsAre(0, 1));
-
-  for (const auto* entidade : entidades) {
-    delete entidade;
-  }
 }
 
 TEST(TesteAcoes, TesteEfeitoAfetaApenas) {
