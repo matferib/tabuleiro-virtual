@@ -98,7 +98,7 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
         }
         tabuleiro_->AcumulaPontosVida(lista_dano);
       } else if (teclas_[1] == Tecla_R) {
-        for (int i = 2; i < teclas_.size(); ++i) {
+        for (unsigned int i = 2; i < teclas_.size(); ++i) {
           if (teclas_[i] == Tecla_Delete || teclas_[i] == Tecla_Backspace) {
             ent::LimpaDadosAcumulados();
             return;
