@@ -8695,7 +8695,7 @@ tabela_feiticos {
 
   armas {
     id: 'imunidade_magia'
-    nome_ingles: 'spell immunity '
+    nome_ingles: 'spell immunity'
     nome: 'imunidade à magia'
     info_classes {
       id: 'clerigo'
@@ -8712,7 +8712,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       permite_salvacao: false
       ignora_resistencia_magia: true
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.9 }
@@ -13850,9 +13850,8 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
       efeitos_adicionais {
         efeito: EFEITO_HEROISMO
         rodadas: 100  # por nivel
