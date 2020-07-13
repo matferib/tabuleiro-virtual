@@ -3214,7 +3214,7 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
+
   float x3d, y3d, z3d;
   if (camera_ != CAMERA_PRIMEIRA_PESSOA) {
     parametros_desenho_.set_offset_terreno(olho_.alvo().z());
@@ -3389,6 +3389,10 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
 }
 
 void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
+  if (IdsEntidadesSelecionadasOuPrimeiraPessoa().empty()) {
+    TrataMovimentoCamera(frente_atras, valor);
+    return;
+  }
   Posicao vetor_visao;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_visao);
   // angulo da camera em relacao ao eixo X.
@@ -3564,6 +3568,26 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     AtualizaOlho(0, true  /*forcar*/);
   }
   RequerAtualizacaoLuzesPontuais();
+}
+
+void Tabuleiro::TrataMovimentoCamera(bool frente_atras, float valor) {
+  Posicao vetor_visao;
+  ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_visao);
+  // angulo da camera em relacao ao eixo X.
+  Vector2 vetor_movimento;
+  if (frente_atras) {
+    vetor_movimento = Vector2(vetor_visao.x(), vetor_visao.y());
+  } else {
+    RodaVetor2d(-90.0f, &vetor_visao);
+    vetor_movimento = Vector2(vetor_visao.x(), vetor_visao.y());
+  }
+  vetor_movimento = vetor_movimento.normalize() * TAMANHO_LADO_QUADRADO;
+  if (valor < 0.0f) {
+    vetor_movimento *= -1;
+  }
+  auto* p = olho_.mutable_destino();
+  p->set_x(olho_.alvo().x() + vetor_movimento.x);
+  p->set_y(olho_.alvo().y() + vetor_movimento.y);
 }
 
 void Tabuleiro::TrataTranslacaoZ(float delta) {

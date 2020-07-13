@@ -444,6 +444,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor);
 
+  /** Move a camera na direcao passada. o valor deve sera multiplicado pelo tamanho do quadrado. */
+  void TrataMovimentoCamera(bool frente_atras, float valor);
+
   /** Trata a espiada: movimento de pescoco lateral. */
   void TrataEspiada(int espiada);
 
