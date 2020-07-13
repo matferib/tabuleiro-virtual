@@ -150,12 +150,10 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       arq::EscreveArquivo(arq::TIPO_MODELOS_3D_BAIXADOS, info.id(), info.bits_crus());
     }
     return true;
-#if !USAR_QT
   } else if (notificacao.tipo() == ntf::TN_CARREGAR_MODELO_3D) {
     CarregaModelo3d(notificacao.entidade().modelo_3d().id());
   } else if (notificacao.tipo() == ntf::TN_DESCARREGAR_MODELO_3D) {
     DescarregaModelo3d(notificacao.entidade().modelo_3d().id());
-#endif
   }
   return false;
 }

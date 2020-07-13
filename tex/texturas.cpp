@@ -376,7 +376,6 @@ void Texturas::DescarregaTexturas(const ntf::Notificacao& notificacao) {
 // Interface de ent::Texturas.
 bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
-#if !USAR_QT
     case ntf::TN_CARREGAR_TEXTURA: {
       CarregaTexturas(notificacao);
       return true;
@@ -385,7 +384,6 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       DescarregaTexturas(notificacao);
       return true;
     }
-#endif
     case ntf::TN_ENVIAR_IDS_TABELAS_TEXTURAS_E_MODELOS_3D: {
       // Primeira notificacao eh local;
       if (!notificacao.local()) {

@@ -108,8 +108,8 @@ class Visualizador3d :
   int x_antes_ = 0;
   int y_antes_ = 0;
   float scale_ = 1.0f;
-  bool gl_iniciado_ = false;
-  int contexto_cref = 0;
+  int contexto_cref_ = 0;
+  //void* contexto_ = nullptr;
 };
 
 }  // namespace qt

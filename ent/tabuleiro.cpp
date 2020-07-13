@@ -2177,13 +2177,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       RemoveEntidadeNotificando(notificacao);
       return true;
     }
-#if !USAR_QT
     // No QT, tem que ser chamado com contexto.
     case ntf::TN_TEMPORIZADOR: {
       AtualizaPorTemporizacao();
       return true;
     }
-#endif
     case ntf::TN_REINICIAR_TABULEIRO: {
       EstadoInicial();
       // Repassa aos clientes.
@@ -2193,12 +2191,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REINICIAR_GRAFICO));
       return true;
     }
-#if !USAR_QT
     case ntf::TN_REINICIAR_GRAFICO: {
       ResetGrafico();
       return true;
     }
-#endif
     case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO: {
       if (TemNome()) {
         auto n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);

@@ -11,6 +11,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QOpenGLContext>
 #include <QScreen>
 #include <QStandardItem>
 #include <QStandardItemModel>
@@ -380,7 +381,6 @@ void Visualizador3d::initializeGL() {
       gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), scale_);
     }
     tabuleiro_->IniciaGL();
-    gl_iniciado_ = true;
     LOG(INFO) << "GL iniciado";
   } catch (const std::logic_error& erro) {
     // Este log de erro eh pro caso da aplicacao morrer e nao conseguir mostrar a mensagem.
@@ -402,23 +402,33 @@ void Visualizador3d::paintGL() {
 }
 
 void Visualizador3d::PegaContexto() {
-  if (contexto_cref++ == 0) {
-    //LOG(INFO) << "pegando";
-    makeCurrent();
-  } else {
-    //LOG(INFO) << "incrementando apenas";
-  }
+  // Nota sobre assimetria de PegaContexto e LiberaContexto:
+  // A funcao nao empilha nada, apenas seta qual o FB o OpenGL vai usar.
+  // Portanto, chamar 10 vezes nao ocasiona problema.
+  // Entao porque precisa do contador de referencia?
+  // Porque no inicio do temporizador a gente pega o contexto grafico (Principal::Temporizador) e chama as notificacoes.
+  // O mesmo ocorre nos tratamento de eventos neste arquivo.
+  // Isso permite que todas as funcoes de temporizacao e eventos rodem com o contexto correto.
+  // No entanto, ao abrir novas janelas dentro desta thread, elas roubam o contexto (versão, objeto, opcoes etc).
+  // Apos o fechamento, precisamos do contexto de novo para coisas graficas, como atualizar luzes por exemplo.
+  // Ai chamamos PegaContexto de novo dentro de uma chamada ja de PegaContexto.
+  // Ocorre que, ao sair desse escopo, o LiberaContexto ira liberar o contexto se nao houver contador de referencia.
+  // Então, a chamada pai ficara sem contexto para continuar.
+  // O certo mesmo seria pegar todas as aberturas de janela, liberar o contexto e pegar de novo. Mas isso é fragil e dificil de manter.
+  // Esta solução assimétrica resolve o problema. Vai haver mais de um makeCurrent por doneCurrent, mas isso nao vaza memoria.
+  makeCurrent();
+  ++contexto_cref_;
+  //contexto_ = QOpenGLContext::currentContext();
 }
 
 void Visualizador3d::LiberaContexto() {
-  if (--contexto_cref == 0) {
+  if (--contexto_cref_ == 0) {
     //LOG(INFO) << "liberando contexto";
     doneCurrent();
-  } else {
-    //LOG(INFO) << "decrementando apenas";
+    //contexto_ = nullptr;
   }
-  if (contexto_cref < 0) {
-    LOG(ERROR) << "AQUI!!!";
+  if (contexto_cref_ < 0) {
+    LOG(ERROR) << "Contador de contexto negativo";
   }
 }
 
@@ -459,47 +469,13 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
           setCursor(QCursor(Qt::ArrowCursor));
       }
       return true;
-    case ntf::TN_CARREGAR_TEXTURA: {
-      PegaContexto();
-      texturas_->CarregaTexturas(notificacao);
-      LiberaContexto();
-      break;
-    }
-    case ntf::TN_DESCARREGAR_TEXTURA: {
-      PegaContexto();
-      texturas_->DescarregaTexturas(notificacao);
-      LiberaContexto();
-      break;
-    }
-    case ntf::TN_CARREGAR_MODELO_3D: {
-      PegaContexto();
-      m3d_->CarregaModelo3d(notificacao.entidade().modelo_3d().id());
-      LiberaContexto();
-      break;
-    }
-    case ntf::TN_DESCARREGAR_MODELO_3D: {
-      PegaContexto();
-      m3d_->DescarregaModelo3d(notificacao.entidade().modelo_3d().id());
-      LiberaContexto();
-      break;
-    }
-    case ntf::TN_REINICIAR_GRAFICO: {
-      PegaContexto();
-      tabuleiro_->ResetGrafico();
-      LiberaContexto();
-      break;
-    }
     case ntf::TN_TEMPORIZADOR_MOUSE: {
-      PegaContexto();
       tabuleiro_->TrataMouseParadoEm(notificacao.pos().x(), notificacao.pos().y());
-      LiberaContexto();
       break;
     }
     case ntf::TN_INICIADO: {
       // chama o resize pra iniciar a geometria e desenha a janela
-      PegaContexto();
       resizeGL(width(), height());
-      LiberaContexto();
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
@@ -514,6 +490,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);
       n->mutable_entidade()->Swap(entidade_proto.get());
+      // Como abriu outra janela, ela pode ter mexido no contexto.
       PegaContexto();
       tabuleiro_->TrataNotificacao(*n);
       LiberaContexto();
@@ -556,13 +533,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
     }
     case ntf::TN_TEMPORIZADOR:
-      if (gl_iniciado_) {
-        PegaContexto();
-        tabuleiro_->AtualizaPorTemporizacao();
-        LiberaContexto();
-        update();
-      }
-      //glDraw();
+      update();
       break;
     default: ;
   }
