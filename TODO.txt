@@ -1,6 +1,5 @@
 Setas: mover camera quando nao houver entidade selecionada.
 Efeito de pocao nao aparece em outros cenarios.
-Aiden travado em agarrar.
 Tela preta quando cliente abre menu de personagem.
 
 Terminar armadura e escudo vinda de tesouro.

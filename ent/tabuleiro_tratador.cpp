@@ -3611,7 +3611,11 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
     for (const auto& id_alvo : e->Proto().agarrado_a()) {
       VLOG(1) << "desgarrando " << e->Id() << " de " << id_alvo;
       auto* ealvo = BuscaEntidade(id_alvo);
-      if (ealvo == nullptr) continue;
+      if (ealvo == nullptr) {
+        VLOG(1) << "desgarrando " << " de " << id_alvo << ", nulo";
+        PreencheNotificacaoDesagarrar(id_alvo, *e, grupo->add_notificacao(), grupo_desfazer.add_notificacao());
+        continue;
+      }
       if (modo_dano_automatico_) {
         ResultadoAtaqueVsDefesa resultado;
         AcaoProto acao_proto;
