@@ -9330,6 +9330,57 @@ modelo {
   entidade { dados_vida: '4d8+19+4d12+16' tamanho: TM_GRANDE info_textura { id: 'ogre_barbarian.png'} cor { r: 0.7 g: 0.5 b: 0.25 } }
 }
 modelo {
+  id: 'Kobold'
+  entidade {
+    rotulo: 'kobold'
+    rotulo_especial: 'ficam ofuscados em luz brilhante (dazzled)'
+    tipo_dnd: TIPO_HUMANOIDE
+    sub_tipo_dnd: SUBTIPO_REPTILIANO
+    tamanho: TM_PEQUENO
+    dados_vida: '1d8' info_textura { id: 'kobold.png' largura: 0.6 translacao_x: 0.2 } cor { g: 1.0 }
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'lanca' id_arma_tesouro: 'lança' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'funda' id_arma_tesouro: 'funda' }
+    dados_defesa {
+      id_armadura_tesouro: 'couro'
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } } }
+    }
+    info_classes {
+      id: 'combatente' nivel: 1
+      pericias_monstro: 'profissao'
+      pericias_monstro: 'esconderse'
+    }
+    info_talentos { gerais { id: 'prontidao' } }
+
+    info_pericias { id: 'oficios_armadilharia' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } } }
+    info_pericias { id: 'profissao' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } } }
+    info_pericias { id: 'esconderse' pontos: 1 }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'furtividade' pontos: 2 }
+    info_pericias { id: 'procurar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } } }
+    info_pericias { id: 'observar' pontos: 2 }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    tesouro {
+      # Esse valor é so um chute. Segundo o DMG, smattering of coins.
+      moedas { po: 1 }
+      armas { id: 'lança' id_tabela: 'lanca' }
+      armas { id: 'funda' id_tabela: 'funda' }
+      armaduras { id: 'couro' id_tabela: 'couro' }
+    }
+    movimento {
+      terrestre_basico_q: 6
+    }
+    tendencia { simples: TD_LEAL_MAU }
+  }
+}
+modelo {
   id: 'Orc'
   entidade {
     rotulo: 'orc'

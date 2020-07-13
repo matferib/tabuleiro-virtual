@@ -348,6 +348,7 @@ sub_menu {
   modelo { id: 'Homem-Rato Ladino 3' }
   modelo { id: 'Homem-Rato Ladino 5' }
 }
+modelo { id: 'Kobold' }
 sub_menu {
   id: 'Ogros'
   modelo { id: 'Ogro' }
