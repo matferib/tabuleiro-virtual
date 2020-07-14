@@ -1656,11 +1656,15 @@ const Posicao Entidade::PosicaoAltura(float fator) const {
   //pos.set_x(ponto[0]);
   //pos.set_y(ponto[1]);
   //pos.set_z(ponto[2]);
-  return Vector4ParaPosicao(matriz * ponto);
+  auto pos = Vector4ParaPosicao(matriz * ponto);
+  pos.set_id_cenario(IdCenario());
+  return pos;
 }
 
 const Posicao Entidade::PosicaoAlturaSemTransformacoes(float fator) const {
-  return Vector4ParaPosicao(Vector4(0.0f, 0.0f, fator * ALTURA, 1.0f));
+  auto pos = Vector4ParaPosicao(Vector4(0.0f, 0.0f, fator * ALTURA, 1.0f));
+  pos.set_id_cenario(IdCenario());
+  return pos;
 }
 
 const Posicao Entidade::PosicaoAcao() const {
@@ -1705,7 +1709,6 @@ const Posicao Entidade::PosicaoAcaoSecundariaSemTransformacoes() const {
   pos.set_id_cenario(IdCenario());
   return pos;
 }
-
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
   return vd.altura_voo + (vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * ALTURA_VOO / 4.0f : 0.0f);

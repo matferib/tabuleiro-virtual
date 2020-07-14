@@ -212,7 +212,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       if ((modificadores & Modificador_Ctrl) != 0) {
         tabuleiro_->TrataTranslacaoZ(incremento);
       } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, incremento);
+        tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(true, incremento);
       }
       return;
     }
@@ -221,7 +221,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       if ((modificadores & Modificador_Ctrl) != 0) {
         tabuleiro_->TrataTranslacaoZ(incremento);
       } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, incremento);
+        tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(true, incremento);
       }
       return;
     }
@@ -231,7 +231,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         return;
       }
       float incremento = ((modificadores & Modificador_Shift) != 0) ? -0.1f : -1.0f;
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, incremento);
+      tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(false, incremento);
       return;
     }
     case Tecla_Direita: {
@@ -240,7 +240,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         return;
       }
       float incremento = ((modificadores & Modificador_Shift) != 0) ? 0.1f : 1.0f;
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, incremento);
+      tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(false, incremento);
       return;
     }
     case Tecla_F:
