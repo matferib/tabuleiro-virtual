@@ -442,10 +442,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Movimenta as entidades selecionadas em valor * quadrado. O movimento pode ser no eixo frente - atras ou no eixo lateral;
   * o valor deve sera multiplicado pelo tamanho do quadrado. A movimentacao sera referente a posicao da camera.
   */
-  void TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor);
-
-  /** Move a camera na direcao passada. o valor deve sera multiplicado pelo tamanho do quadrado. */
-  void TrataMovimentoCamera(bool frente_atras, float valor);
+  void TrataMovimentoEntidadesSelecionadasOuCamera(bool frente_atras, float valor);
 
   /** Trata a espiada: movimento de pescoco lateral. */
   void TrataEspiada(int espiada);
@@ -782,6 +779,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Similar a TrataBotaoAcaoPressionado, mas pos operacao de picking. */
   void TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade);
   void TrataAcaoSinalizacao(unsigned int id_entidade_destino, const Posicao& pos_tabuleiro);
+
+  /** Move a camera na direcao passada. o valor deve sera multiplicado pelo tamanho do quadrado. */
+  void TrataMovimentoCamera(bool frente_atras, float valor);
 
   /** Tudo que for comum as ações antes de sua execução deve ser tratado aqui. */
   float TrataPreAcaoComum(

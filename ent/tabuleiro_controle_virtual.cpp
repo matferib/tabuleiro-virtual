@@ -383,10 +383,10 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       AlternaAtaquePoderoso();
       break;
     case CONTROLE_CIMA:
-      TrataMovimentoEntidadesSelecionadas(true, 1.0f);
+      TrataMovimentoEntidadesSelecionadasOuCamera(true, 1.0f);
       break;
     case CONTROLE_BAIXO:
-      TrataMovimentoEntidadesSelecionadas(true, -1.0f);
+      TrataMovimentoEntidadesSelecionadasOuCamera(true, -1.0f);
       break;
     case CONTROLE_CIMA_VERTICAL:
       TrataTranslacaoZ(1.0f);
@@ -401,10 +401,10 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       TrataDeltaTerreno(-1.0f * TAMANHO_LADO_QUADRADO);
       break;
     case CONTROLE_ESQUERDA:
-      TrataMovimentoEntidadesSelecionadas(false, -1.0f);
+      TrataMovimentoEntidadesSelecionadasOuCamera(false, -1.0f);
       break;
     case CONTROLE_DIREITA:
-      TrataMovimentoEntidadesSelecionadas(false, 1.0f);
+      TrataMovimentoEntidadesSelecionadasOuCamera(false, 1.0f);
       break;
     case CONTROLE_ACAO_ANTERIOR:
       AcaoAnterior();

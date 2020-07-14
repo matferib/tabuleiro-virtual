@@ -3388,9 +3388,17 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   }
 }
 
-void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
+void Tabuleiro::TrataMovimentoEntidadesSelecionadasOuCamera(bool frente_atras, float valor) {
   if (IdsEntidadesSelecionadasOuPrimeiraPessoa().empty()) {
-    TrataMovimentoCamera(frente_atras, valor);
+    if (valor < 1.0f) {
+      if (frente_atras) {
+        TrataInclinacaoPorDelta(valor * 2 * M_PI);
+      } else {
+        TrataRotacaoPorDelta(valor * M_PI / 4);
+      }
+    } else {
+      TrataMovimentoCamera(frente_atras, valor);
+    }
     return;
   }
   Posicao vetor_visao;
