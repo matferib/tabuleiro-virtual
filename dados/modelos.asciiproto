@@ -8318,14 +8318,12 @@ modelo {
       outros { id: 'escrever_pergaminho' origem: 'mago' }
       outros { id: 'prontidao' origem: 'familiar' }
     }
+    # 4 pericias com 6.
     info_pericias { id: 'concentracao' pontos: 6 }
     info_pericias { id: 'conhecimento_arcano' pontos: 6 }
-    info_pericias { id: 'conhecimento_masmorras' pontos: 3 }
-    info_pericias { id: 'conhecimento_historia' pontos: 2 }
-    info_pericias { id: 'ouvir' pontos: 1 }
-    info_pericias { id: 'procurar' pontos: 3 }
-    info_pericias { id: 'observar' pontos: 1 }
-    info_pericias { id: 'identificar_magia' pontos: 6 }
+    info_pericias { id: 'blefar' pontos: 6 }
+    info_pericias { id: 'oficios_alquimia' pontos: 3 }
+    info_pericias { id: 'identificar_magia' pontos: 3 }
     tesouro {
       pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'curar_ferimentos_moderados' }
@@ -8422,7 +8420,10 @@ modelo {
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
       # Vai pra 15 com racial.
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } por_origem { origem: 'nivel' valor: 1 } } }
+      inteligencia {
+        bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } }
+        bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } }
+      }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
@@ -8431,13 +8432,11 @@ modelo {
       gerais { id: 'vitalidade' }
       outros { id: 'escrever_pergaminho' }
     }
+    # 5 Pericias com 7.
     info_pericias { id: 'concentracao' pontos: 7 }
     info_pericias { id: 'conhecimento_arcano' pontos: 7 }
-    info_pericias { id: 'conhecimento_masmorras' pontos: 7 }
-    info_pericias { id: 'conhecimento_historia' pontos: 7 }
-    info_pericias { id: 'ouvir' pontos: 1 }
-    info_pericias { id: 'procurar' pontos: 3 }
-    info_pericias { id: 'observar' pontos: 1 }
+    info_pericias { id: 'blefar' pontos: 7 }
+    info_pericias { id: 'oficios_alquimia' pontos: 7 }
     info_pericias { id: 'identificar_magia' pontos: 7 }
     tesouro {
       pocoes { id: 'curar_ferimentos_leves' }
