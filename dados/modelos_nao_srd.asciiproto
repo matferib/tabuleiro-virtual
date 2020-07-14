@@ -31,10 +31,6 @@ modelo {
 
     info_classes {
       id: 'extra_planar' nivel: 10
-      salvacoes_fortes: TS_FORTITUDE
-      salvacoes_fortes: TS_REFLEXO
-      salvacoes_fortes: TS_VONTADE
-      progressao_bba: PBBA_UM
       pericias_monstro: 'equilibrio'
       pericias_monstro: 'blefar'
       pericias_monstro: 'escalar'
@@ -206,17 +202,17 @@ modelo {
       gerais { id: 'tiro_rapido' }
       gerais { id: 'foco_em_arma' complemento: 'arco_longo_composto_5' }
     }
-    info_pericias { id: 'equilibrio' pontos: 13 }
-    info_pericias { id: 'blefar' pontos: 13 }
-    info_pericias { id: 'escalar' pontos: 13 }
-    info_pericias { id: 'concentracao' pontos: 13 }
-    info_pericias { id: 'esconderse' pontos: 13 }
-    info_pericias { id: 'saltar' pontos: 13 }
-    info_pericias { id: 'ouvir' pontos: 13 }
-    info_pericias { id: 'furtividade' pontos: 13 }
-    info_pericias { id: 'procurar' pontos: 13 }
-    info_pericias { id: 'sentir_motivacao' pontos: 13 }
-    info_pericias { id: 'observar' pontos: 13 }
+    info_pericias { id: 'equilibrio' pontos: 12 }
+    info_pericias { id: 'blefar' pontos: 12 }
+    info_pericias { id: 'escalar' pontos: 10 }
+    info_pericias { id: 'concentracao' pontos: 12 }
+    info_pericias { id: 'esconderse' pontos: 12 }
+    info_pericias { id: 'saltar' pontos: 12 }
+    info_pericias { id: 'ouvir' pontos: 12 }
+    info_pericias { id: 'furtividade' pontos: 12 }
+    info_pericias { id: 'procurar' pontos: 12 }
+    info_pericias { id: 'sentir_motivacao' pontos: 12 }
+    info_pericias { id: 'observar' pontos: 12 }
 
     tendencia { simples: TD_CAOTICO_MAU }
 
@@ -837,12 +833,15 @@ modelo {
       outros { id: 'tiro_rapido' origem: 'ranger' }
       outros { id: 'rastrear' origem: 'ranger' }
     }
-    # pontos: 28 = 16 guerreiro + 12 ranger, max 10.
+    # Humano +1
+    # pontos: 38 = guerreiro 4*(1*3) + 4*3, ranger: 2*7.
+    # Max: 10
+    info_pericias { id: 'acrobacias' pontos: 8 }
     info_pericias { id: 'concentracao' pontos: 1 }
     info_pericias { id: 'adestrar_animais' pontos: 5 }
     info_pericias { id: 'saltar' pontos: 2 }
     info_pericias { id: 'ouvir' pontos: 5 }
-    info_pericias { id: 'cavalgar' pontos: 8 }
+    info_pericias { id: 'cavalgar' pontos: 10 }
     info_pericias { id: 'observar' pontos:  5 }
     info_pericias { id: 'sobrevivencia' pontos: 1 }
     info_pericias { id: 'usar_cordas' pontos: 1 }
@@ -942,16 +941,19 @@ modelo {
       outros { id: 'tiro_rapido' origem: 'ranger' }
       outros { id: 'rastrear' origem: 'ranger' }
     }
-    info_pericias { id: 'escalar' pontos: 7 }
+    # Int: +1, humano +1.
+    # Total: 64; Guerreiro: 4*(1*4) + 4*4 = 32, ranger 2*8 = 16, feiticeiro 4*4=16
+    # Max: 14.
+    info_pericias { id: 'escalar' pontos: 5 }
     info_pericias { id: 'concentracao' pontos: 9 }
     info_pericias { id: 'adestrar_animais' pontos: 8 }
     info_pericias { id: 'saltar' pontos: 7 }
     info_pericias { id: 'conhecimento_arcano' pontos: 2 }
     info_pericias { id: 'ouvir' pontos: 7 }
     info_pericias { id: 'cavalgar' pontos: 10 }
-    info_pericias { id: 'identificar_magia' pontos: 7 }
-    info_pericias { id: 'observar' pontos: 7 }
-    info_pericias { id: 'sobrevivencia' pontos: 4 }
+    info_pericias { id: 'identificar_magia' pontos: 6 }
+    info_pericias { id: 'observar' pontos: 6 }
+    info_pericias { id: 'sobrevivencia' pontos: 3 }
     info_pericias { id: 'usar_cordas' pontos: 1 }
 
     atributos {
@@ -1378,8 +1380,8 @@ modelo {
       gerais { id: 'investida_aerea' }
       gerais { id: 'ataques_multiplos' }
     }
-    info_pericias { id: 'ouvir' pontos: 8 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'furtividade' pontos: 6 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'ouvir' pontos: 6 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 5 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
 
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }

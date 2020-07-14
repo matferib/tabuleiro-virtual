@@ -3943,8 +3943,7 @@ modelo {
     modelo_3d { id: 'arrowhawk' }
     rotulo_especial: ''
     info_classes {
-      id: 'extraplanar' nivel: 3 progressao_bba: PBBA_UM
-      salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE
+      id: 'extra_planar' nivel: 3
       pericias_monstro: 'arte_da_fuga'
       pericias_monstro: 'conhecimento_planos'
       pericias_monstro: 'furtividade'
@@ -6208,6 +6207,7 @@ modelo {
 modelo {
   id: 'Humano Clérigo Base'
   entidade {
+    raca: 'humano'
     info_talentos {
       outros{ id: 'foco_em_arma' complemento: 'maca_estrela' }
     }
@@ -6325,9 +6325,9 @@ modelo {
     info_talentos {
       gerais { id: 'preparar_pocao' }
     }
-    info_pericias { id: 'concentracao' pontos: 6 }
-    info_pericias { id: 'ouvir' pontos: 6 }
-    info_pericias { id: 'identificar_magia' pontos: 6 }
+    info_pericias { id: 'concentracao' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'identificar_magia' pontos: 5 }
     tesouro {
       # 75%.
       pocoes { id: 'curar_ferimentos_leves' } # 50
@@ -7046,11 +7046,11 @@ modelo {
     info_talentos {
       gerais { id: 'escrever_pergaminho' }
     }
-    info_pericias { id: 'adestrar_animais' pontos: 4 }
+    info_pericias { id: 'adestrar_animais' pontos: 3 }
     info_pericias { id: 'concentracao' pontos: 4 }
-    info_pericias { id: 'observar' pontos: 4 }
-    info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'conhecimento_natureza' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 3 }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 3 }
     info_pericias { id: 'sobrevivencia' pontos: 2 }
     info_pericias { id: 'identificar_magia' pontos: 1 }
     info_pericias { id: 'cura' pontos: 1 }
@@ -7531,15 +7531,12 @@ modelo {
       outros { id: 'prontidao' origem: 'familiar' }
       outros { id: 'magia_combate' origem: 'humano' }
     }
-    info_pericias { id: 'blefar' pontos: 8 }
+    info_pericias { id: 'blefar' pontos: 4 }
     info_pericias { id: 'concentracao' pontos: 8 }
-    info_pericias { id: 'oficios_armadilharia' pontos: 2 }
-    info_pericias { id: 'esconderse' pontos: 4 }
-    info_pericias { id: 'ouvir' pontos: 2 }
-    info_pericias { id: 'procurar' pontos: 8 }
-    info_pericias { id: 'profissao' pontos: 2 }
-    info_pericias { id: 'identificar_magia' pontos: 8 }
-    info_pericias { id: 'observar' pontos: 8 }
+    info_pericias { id: 'esconderse' pontos: 1 }
+    info_pericias { id: 'ouvir' pontos: 1 }
+    info_pericias { id: 'identificar_magia' pontos: 6 }
+    info_pericias { id: 'observar' pontos: 4 }
     tesouro {
       # Novamente, a tabela parece estar errada no DMG. Deveria ser 3000 PO pra dar 4300.
       # 0 nivel: 12.5 PO cada
@@ -9369,10 +9366,11 @@ modelo {
     }
     tesouro {
       # Esse valor é so um chute. Segundo o DMG, smattering of coins.
-      moedas { po: 1 }
+      moedas { po: 1 pp: 5 }
       armas { id: 'lança' id_tabela: 'lanca' }
       armas { id: 'funda' id_tabela: 'funda' }
       armaduras { id: 'couro' id_tabela: 'couro' }
+      valor_esperado_po: 75  # CR 1/4 (300/4).
     }
     movimento {
       terrestre_basico_q: 6
@@ -9955,8 +9953,8 @@ modelo {
       id: 'animal' nivel: 1
       pericias_monstro: 'ouvir'
       pericias_monstro: 'observar'
-      pericias_monstro: 'escalar'
-      pericias_monstro: 'natacao'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'furtividade'
     }
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d4' }
     dados_defesa {
@@ -9978,8 +9976,16 @@ modelo {
       outros { id: 'acuidade_arma' origem: 'bonus' }
     }
     # TODO conferir pericias.
-    info_pericias { id: 'natacao' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
-    info_pericias { id: 'escalar' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'ouvir' pontos: 1 }
+    info_pericias { id: 'observar' pontos: 1 }
+    info_pericias { id: 'furtividade' pontos: 1 }
+    info_pericias { id: 'esconderse' pontos: 1 }
+    movimento {
+      terrestre_basico_q: 8
+      escalando_basico_q: 4
+    }
   }
 }
 modelo {
@@ -10247,8 +10253,9 @@ modelo {
 modelo {
   id: 'Troll'
   entidade {
+    tipo_dnd: TIPO_GIGANTE
     info_classes {
-      id: 'gigante' nivel: 6 progressao_bba: PBBA_TRES_QUARTOS salvacoes_fortes: TS_FORTITUDE
+      id: 'gigante' nivel: 6
       pericias: 'ouvir' pericias: 'observar'
     }
     dados_vida: '6d8+36' tamanho: TM_GRANDE
@@ -10288,9 +10295,12 @@ modelo {
       gerais { id: 'vontade_ferro' }
       gerais { id: 'rastrear' }
     }
-    info_pericias { id: 'ouvir' pontos: 6 }
-    info_pericias { id: 'observar' pontos: 7 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 5 }
     tendencia { simples: TD_CAOTICO_MAU }
+    movimento {
+      terrestre_basico_q: 6
+    }
   }
 }
 modelo {
@@ -10331,11 +10341,7 @@ modelo {
     sub_tipo_dnd: SUBTIPO_MAL
     sub_tipo_dnd: SUBTIPO_CAOS
     info_classes {
-      id: 'extraplanar' nivel: 6
-      salvacoes_fortes: TS_FORTITUDE
-      salvacoes_fortes: TS_REFLEXO
-      salvacoes_fortes: TS_VONTADE
-      progressao_bba: PBBA_UM
+      id: 'extra_planar' nivel: 6
 
       pericias_monstro: 'escalar'
       pericias_monstro: 'esconderse'
@@ -10480,7 +10486,7 @@ modelo {
       gerais { id: 'tolerancia' }
       gerais { id: 'corrida' }
     }
-    info_pericias { id: 'escalar' pontos: 2 }
+    info_pericias { id: 'escalar' }
     info_pericias { id: 'ouvir' pontos: 3 }
     info_pericias { id: 'observar' pontos: 3 }
     info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
@@ -10534,9 +10540,8 @@ modelo {
       gerais { id: 'tolerancia' }
       gerais { id: 'corrida' }
     }
-    info_pericias { id: 'escalar' pontos: 2 }
     info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 3 }
     info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     dados_defesa {
       ca {
@@ -10580,9 +10585,8 @@ modelo {
       gerais { id: 'tolerancia' }
       gerais { id: 'corrida' }
     }
-    info_pericias { id: 'escalar' pontos: 2 }
-    info_pericias { id: 'ouvir' pontos: 5 }
-    info_pericias { id: 'observar' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
     info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     dados_defesa {
       ca {
@@ -10629,24 +10633,31 @@ modelo {
     dados_vida: '4d10+8' tamanho: TM_MEDIO
     info_classes {
       id: 'besta_magica' nivel: 4 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO progressao_bba: PBBA_UM
-      pericias_monstro: 'saltar'
+      pericias_monstro: 'furtividade'
       pericias_monstro: 'ouvir'
       pericias_monstro: 'observar'
+      pericias_monstro: 'esconderse'
     }
     info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
     info_talentos {
       gerais { id: 'prontidao' }
       gerais { id: 'rastrear' }
     }
-    rotulo_especial: 'derrubar como ação livre se acertar mordida +3 mod'
     dados_ataque {
-      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      grupo: 'mordida' rotulo: 'mordida' id_arma: 'mordida_padrao' tipo_ataque: 'Ataque Corpo a Corpo'
+      empunhadura: EA_2_MAOS
+      derrubar_automatico: true
     }
-    info_pericias { id: 'esconderse' pontos: 2 }
-    info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'furtividade' pontos: 4 }
-    info_pericias { id: 'observar' pontos: 4 }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+      }
+    }
+    info_pericias { id: 'ouvir' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 1 } } } }
+    info_pericias { id: 'furtividade' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 1 } } } }
+    info_pericias { id: 'observar' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 1 } } } }
+    info_pericias { id: 'esconderse' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } } }
+    info_pericias { id: 'rastrear' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }

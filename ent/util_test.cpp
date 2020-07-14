@@ -1961,9 +1961,17 @@ TEST(TesteTalentoPericias, TesteTabeladoTalentosPericias) {
             << "talento invalido: " << talento.id() << " para modelo " << modelo.id();
       }
     }
+    int total_gasto = 0;
     for (const auto& pericia : proto.info_pericias()) {
       EXPECT_FALSE(g_tabelas.Pericia(pericia.id()).id().empty())
           << "perícia inválida: " << pericia.id() << " para modelo " << modelo.id();
+      total_gasto += pericia.pontos();
+    }
+    int total_permitido = TotalPontosPericiaPermitidos(g_tabelas, proto);
+    EXPECT_LE(total_gasto, total_permitido)
+        << " modelo " << modelo.id() << " estourou limite de pericias. gasto " << total_gasto << ", permitido: " << total_permitido;
+    if (total_gasto < total_permitido) {
+      LOG(INFO) << "modelo " << modelo.id() << " esta usando menos pericia que pode. Gasto: " << total_gasto << ", permitido: " << total_permitido;
     }
   }
 }
@@ -4849,6 +4857,23 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->DanoNaoLetal(), 0);
   EXPECT_EQ(e->PontosVida(), 15);
   EXPECT_EQ(e->MaximoPontosVida(), 15);
+}
+
+TEST(TesteModelo, TesteWorg) {
+  auto proto = g_tabelas.ModeloEntidade("Worg").entidade();
+  auto worg = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("mordida", worg->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 7);
+    EXPECT_EQ(da.dano(), "1d6+4");
+    EXPECT_EQ(da.ca_normal(), 14) << worg->Proto().dados_defesa().ca().DebugString();
+  }
+
+  EXPECT_EQ(ValorFinalPericia("ouvir", worg->Proto()), 6);
+  EXPECT_EQ(ValorFinalPericia("furtividade", worg->Proto()), 6);
+  EXPECT_EQ(ValorFinalPericia("observar", worg->Proto()), 6);
+  EXPECT_EQ(ValorFinalPericia("esconderse", worg->Proto()), 6);
+  EXPECT_EQ(ValorFinalPericia("rastrear", worg->Proto()), 6);
 }
 
 TEST(TesteModelo, TesteKobold) {
