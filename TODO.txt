@@ -1,4 +1,6 @@
-Efeito de pocao nao aparece em outros cenarios.
+Bonus de saltar baseado em velocidade.
+Janela de forma maior que desktop nao esta maximizando.
+Fazer um efeito ao ler pergaminho.
 
 Terminar armadura e escudo vinda de tesouro.
 - material.
@@ -26,13 +28,10 @@ Implementar desarmar: armas que nao podem desarmar (gauntlet), natural. Colocar 
 Chance de falha de conjuracao (dretch conjurando dretch) e tempo de execucao.
 Fazer hell hound (cão infernal).
 Fazer os invocar criaturas: estao praticamente todos faltando, especialmente o do nivel (ii, iii)
-Conferir link no windows: parou de funcionar pro talko.
 Mobilidade: como diferenciar ataques de arco e magias de movimentacao?
 Fazer: manto do caos: dificil bagarai.
 Som posicional.
 
-
-Fazer unit test para verificar pericias faltando ou sobrando.
 
 Acao de recarregar municao da arma (basear em procurar, cada 5 pontos uma munição?).
 Vincular luz a numero de tochas.
