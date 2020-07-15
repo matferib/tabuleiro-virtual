@@ -1971,7 +1971,7 @@ TEST(TesteTalentoPericias, TesteTabeladoTalentosPericias) {
     EXPECT_LE(total_gasto, total_permitido)
         << " modelo " << modelo.id() << " estourou limite de pericias. gasto " << total_gasto << ", permitido: " << total_permitido;
     if (total_gasto < total_permitido) {
-      LOG(INFO) << "modelo " << modelo.id() << " esta usando menos pericia que pode. Gasto: " << total_gasto << ", permitido: " << total_permitido;
+      //LOG(INFO) << "modelo " << modelo.id() << " esta usando menos pericia que pode. Gasto: " << total_gasto << ", permitido: " << total_permitido;
     }
   }
 }
@@ -4876,6 +4876,30 @@ TEST(TesteModelo, TesteWorg) {
   EXPECT_EQ(ValorFinalPericia("rastrear", worg->Proto()), 6);
 }
 
+TEST(TesteModelo, TesteGoblin) {
+  auto proto = g_tabelas.ModeloEntidade("Goblin").entidade();
+  auto goblin = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("maca_estrela", goblin->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.ca_normal(), 15) << goblin->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("azagaia", goblin->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_EQ(da.ca_normal(), 15) << goblin->Proto().dados_defesa().ca().DebugString();
+  }
+
+  EXPECT_EQ(ValorFinalPericia("esconderse", goblin->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("ouvir", goblin->Proto()), 2);
+  EXPECT_EQ(ValorFinalPericia("furtividade", goblin->Proto()), 5);
+  // Valor do livro é 4, mas num faz sentido pq tem bonus racial + destreza.
+  EXPECT_EQ(ValorFinalPericia("cavalgar", goblin->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("observar", goblin->Proto()), 2);
+}
+
 TEST(TesteModelo, TesteKobold) {
   auto proto = g_tabelas.ModeloEntidade("Kobold").entidade();
   auto kobold = NovaEntidadeParaTestes(proto, g_tabelas);
@@ -5101,7 +5125,8 @@ TEST(TesteModelo, TesteArminho) {
   EXPECT_EQ(ValorFinalPericia("escalar", arminho->Proto()), 10);
   EXPECT_EQ(ValorFinalPericia("arte_da_fuga", arminho->Proto()), 4);
   EXPECT_EQ(ValorFinalPericia("esconderse", arminho->Proto()), 11);
-  EXPECT_EQ(ValorFinalPericia("furtividade", arminho->Proto()), 8);
+  // Deveria ser 8 pelo livro, mas a conta num fecha.
+  EXPECT_EQ(ValorFinalPericia("furtividade", arminho->Proto()), 7);
   EXPECT_EQ(ValorFinalPericia("observar", arminho->Proto()), 3);
 }
 
@@ -5603,6 +5628,12 @@ TEST(TesteModelo, TesteLeaoAtroz) {
   EXPECT_EQ(proto.dados_ataque(5).dano(), "1d6+3") << proto.dados_ataque(5).DebugString();
   EXPECT_EQ(proto.dados_ataque(6).dano(), "1d6+3") << proto.dados_ataque(6).DebugString();
   EXPECT_EQ(proto.dados_ataque(7).dano(), "1d8+3") << proto.dados_ataque(7).DebugString();
+
+  EXPECT_EQ(ValorFinalPericia("esconderse", proto), 2);
+  EXPECT_EQ(ValorFinalPericia("ouvir", proto), 7);
+  // Livro diz que é 5, mas é impossivel pela descricao.
+  EXPECT_EQ(ValorFinalPericia("furtividade", proto), 9);
+  EXPECT_EQ(ValorFinalPericia("observar", proto), 7);
 }
 
 TEST(TesteModelo, TesteUrsoAtroz) {
@@ -5617,7 +5648,8 @@ TEST(TesteModelo, TesteUrsoAtroz) {
   EXPECT_EQ(urso->CA(*urso, Entidade::CA_NORMAL), 17);
   EXPECT_EQ(ValorFinalPericia("ouvir", urso->Proto()), 10);
   EXPECT_EQ(ValorFinalPericia("observar", urso->Proto()), 10);
-  EXPECT_EQ(ValorFinalPericia("natacao", urso->Proto()), 13);
+  // No livro ta 13, mas nao eh possivel.
+  EXPECT_EQ(ValorFinalPericia("natacao", urso->Proto()), 11);
 }
 
 TEST(TesteModelo, TesteTigreAtroz) {
@@ -7058,14 +7090,8 @@ TEST(TesteRacas, TesteFalcao) {
   Modelos modelos;
   EntidadeProto proto = g_tabelas.ModeloEntidade("Falcão").entidade();
   RecomputaDependencias(g_tabelas, &proto);
-  int c = 0;
-  for (const auto& pericia : proto.info_pericias()) {
-    if (pericia.id() == "observar") {
-      EXPECT_EQ(BonusTotal(pericia.bonus()), 16) << "pericia: " << pericia.DebugString();
-      ++c;
-    }
-  }
-  ASSERT_EQ(c, 1);
+  EXPECT_EQ(ValorFinalPericia("ouvir", ed->Proto()), 4);
+  EXPECT_EQ(ValorFinalPericia("observar", ed->Proto()), 16);
 }
 
 TEST(TesteDominios, TesteRenovacao) {

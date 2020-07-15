@@ -322,8 +322,8 @@ modelo {
       outros { id: 'prontidao' }
       outros { id: 'vitalidade' }
     }
-    info_pericias { id: 'ouvir' pontos: 5 }
-    info_pericias { id: 'observar' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 3 }
     info_pericias { id: 'escalar' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
   }
 }
@@ -405,7 +405,7 @@ modelo {
       gerais { id: 'prontidao' }
       outros { id: 'acuidade_arma' origem: 'bonus' }
     }
-    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'ouvir' }
     info_pericias { id: 'observar' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
     movimento {
       aereo_basico_q: 12
@@ -458,10 +458,17 @@ modelo {
       gerais { id: 'prontidao' }
       outros { id: 'rastrear' origem: 'bonus' }
     }
-    info_pericias { id: 'saltar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'observar' pontos: 4 }
-    info_pericias { id: 'sobrevivencia' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    # imagino que eles devem usar destreza para saltar, totalizando os 7 que tao no livro. 
+    info_pericias {
+      id: 'saltar'
+      bonus {
+        bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } }
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'movimento' valor: 4 } }
+      }
+    }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 2 }
+    info_pericias { id: 'rastrear' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     movimento {
       terrestre_basico_q: 10
     }
@@ -490,6 +497,7 @@ modelo {
       pericias_monstro: 'ouvir'
       pericias_monstro: 'observar'
       pericias_monstro: 'sobrevivencia'
+      pericias_monstro: 'natacao'
     }
     rotulo_especial: 'faro'
     atributos {
@@ -512,11 +520,17 @@ modelo {
       gerais { id: 'prontidao' }
       outros { id: 'rastrear' origem: 'bonus' }
     }
-    info_pericias { id: 'saltar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'observar' pontos: 4 }
+    info_pericias {
+      id: 'saltar'
+      bonus {
+        bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } }
+        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'movimento' valor: 4 } }
+      }
+    }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 2 }
     info_pericias { id: 'natacao' pontos: 1 }
-    info_pericias { id: 'sobrevivencia' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'rastrear' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     movimento {
       terrestre_basico_q: 10
     }
@@ -1127,9 +1141,9 @@ modelo {
     info_talentos {
       gerais { id: 'prontidao' }
     }
-    info_pericias { id: 'esconderse' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'ouvir' pontos: 3 }
-    info_pericias { id: 'observar' pontos: 3 }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 2 }
   }
 }
 modelo {
@@ -1372,7 +1386,7 @@ modelo {
     tipo_dnd: TIPO_MORTO_VIVO
     dados_vida: '9d12'
     info_classes {
-      id: 'morto vivo' nivel: 9 salvacoes_fortes: TS_VONTADE progressao_bba: PBBA_MEIO
+      id: 'morto_vivo' nivel: 9
       pericias_monstro: 'esconderse'
       pericias_monstro: 'furtividade'
       pericias_monstro: 'observar'
@@ -1623,9 +1637,9 @@ modelo {
       gerais { id: 'prontidao' }
       outros { id: 'acuidade_arma' origem: 'bonus'}
     }
-    info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 14 } } } }
-    info_pericias { id: 'ouvir' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
-    info_pericias { id: 'observar' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } }  }
+    info_pericias { id: 'ouvir' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 14 } } } }
+    info_pericias { id: 'observar' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } }  }
     movimento {
       terrestre_basico_q: 2
       aereo_basico_q: 8
@@ -4233,16 +4247,23 @@ modelo {
     info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque {
-      rotulo: 'maça estrela' id_arma: 'maca_estrela'
+      grupo: 'maca_estrela' rotulo: 'maça estrela' id_arma: 'maca_estrela' empunhadura: EA_ARMA_ESCUDO
     }
     dados_ataque {
-      rotulo: 'azagaia' tipo_ataque: 'Ataque a Distância' id_arma: 'azagaia'
+      grupo: 'azagaia' rotulo: 'azagaia' tipo_ataque: 'Ataque a Distância' id_arma: 'azagaia' municao: 3 empunhadura: EA_ARMA_ESCUDO
     }
     dados_defesa {
       id_armadura: 'couro'
       id_escudo: 'leve_madeira'
     }
-    info_classes { id: 'combatente' nivel: 1 }
+    info_classes {
+      id: 'combatente' nivel: 1
+#      pericias_monstro: "esconderse"
+#      pericias_monstro: "ouvir"
+#      pericias_monstro: "furtividade"
+#      pericias_monstro: "esconderse"
+#      pericias_monstro: "observar"
+    }
     atributos {
       # Usa o array nao elite: 13 12 11 10 9 8, porque eh combatente. -2 for car, +2 des.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
@@ -4255,11 +4276,11 @@ modelo {
     info_talentos {
       gerais { id: 'prontidao' }
     }
-    info_pericias { id: 'esconderse' pontos: 4 }
-    info_pericias { id: 'ouvir' pontos: 4 }
-    info_pericias { id: 'furtividade' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'cavalgar' pontos: 4  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'saltar' pontos: 4 }
+    info_pericias { id: 'esconderse' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'cavalgar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 2 }
 
     tendencia { simples: TD_NEUTRO_MAU }
   }
@@ -4442,7 +4463,7 @@ modelo {
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
     info_pericias { id: 'ouvir' pontos: 3 }
-    info_pericias { id: 'observar' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
   }
 }
 modelo {
@@ -4606,10 +4627,10 @@ modelo {
       gerais { id: 'corrida' }
       gerais { id: 'foco_em_arma' complemento: 'garra' }
     }
-    info_pericias { id: 'esconderse' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'furtividade' pontos: 4 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'ouvir' pontos: 6 }
-    info_pericias { id: 'observar' pontos: 6 }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
 
     mais_de_duas_pernas: true
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
@@ -4878,7 +4899,7 @@ modelo {
     }
     info_pericias { id: 'ouvir' pontos: 7 }
     info_pericias { id: 'observar' pontos: 7 }
-    info_pericias { id: 'natacao' pontos: 3 }
+    info_pericias { id: 'natacao' pontos: 1 }
     info_talentos {
       gerais { id: 'prontidao' }
       gerais { id: 'tolerancia' }
@@ -5025,7 +5046,6 @@ modelo {
       id: 'animal_atroz' nivel: 5
       pericias_monstro: 'ouvir'
       pericias_monstro: 'observar'
-      pericias_monstro: 'sobrevivencia'
     }
     movimento {
       terrestre_basico_q: 6
@@ -5056,7 +5076,7 @@ modelo {
     }
     info_pericias { id: 'ouvir' pontos: 4 }
     info_pericias { id: 'observar' pontos: 4 }
-    info_pericias { id: 'escalar' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } }  }
+    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } }  }
     info_talentos {
       gerais { id: 'prontidao' }
       gerais { id: 'vitalidade' }
@@ -5156,7 +5176,6 @@ modelo {
     info_classes {
       id: 'animal' nivel: 1
       pericias_monstro: 'esconderse'
-      pericias_monstro: 'ouvir'
       pericias_monstro: 'furtividade'
       pericias_monstro: 'observar'
     }
@@ -5171,9 +5190,16 @@ modelo {
       grupo: 'ataque'
       rotulo: 'mordida' id_arma: 'mordida_padrao'
       tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
+      adesao: true
+      acao_fixa {
+        efeitos_adicionais_conjurador {
+          efeito: EFEITO_ADERIDO
+          rodadas: 1
+        }
+      }
     }
     info_pericias { id: 'esconderse' pontos: 1 }
-    info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } }  }
+    info_pericias { id: 'furtividade' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } }  }
     info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } }  }
     # Esse bonus aqui é pra compensar o fato que ele usa destreza para escalar.
     info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 14 } } }  }
@@ -7240,12 +7266,12 @@ modelo {
     }
     info_pericias { id: 'adestrar_animais' pontos: 5 }
     info_pericias { id: 'concentracao' pontos: 8 }
-    info_pericias { id: 'observar' pontos: 8 }
-    info_pericias { id: 'ouvir' pontos: 8 }
-    info_pericias { id: 'conhecimento_natureza' pontos: 8 }
-    info_pericias { id: 'sobrevivencia' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 6 }
+    info_pericias { id: 'ouvir' pontos: 6 }
+    info_pericias { id: 'conhecimento_natureza' pontos: 6 }
+    info_pericias { id: 'sobrevivencia' pontos: 5 }
     info_pericias { id: 'identificar_magia' pontos: 2 }
-    info_pericias { id: 'cura' pontos: 5 }
+    info_pericias { id: 'cura' pontos: 2 }
     tesouro {
       mantos { id: 'manto_resistencia_1' em_uso: true }  # 1000
 

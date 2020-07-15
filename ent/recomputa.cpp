@@ -1379,7 +1379,7 @@ void ConfiguraSlotsRestritos(bool ha_restricao, RepeatedPtrField<EntidadeProto::
     return;
   }
   if (num_restritos == 0) {
-    LOG(INFO) << "Nenhum slot restrito encontrado, setando o primeiro.";
+    VLOG(1) << "Nenhum slot restrito encontrado, setando o primeiro.";
     // Marca o primeiro como restrito.
     para_lancar->Mutable(0)->set_restrito(true);
   }
@@ -2185,7 +2185,7 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
   const int nivel = Nivel(*proto);
   const int numero = nivel > 0 ? (nivel / 3) + 1 : 0;
   if (proto->info_talentos().gerais().size() > numero) {
-    LOG(WARNING) << "Um dia irei capar talentos da entidade "
+    VLOG(1) << "Um dia irei capar talentos da entidade "
       << RotuloEntidade(*proto) << ", gerais: " << proto->info_talentos().gerais().size() << ", permitido: " << numero;
   } else if (proto->info_talentos().gerais().size() < numero) {
     Redimensiona(numero, proto->mutable_info_talentos()->mutable_gerais());
@@ -2425,7 +2425,7 @@ std::pair<float, float> GeraTendenciaAleatoria(TendenciaSimplificada td) {
   for (int i = 0; i < peso_caos; ++i) { ordem_caos.push_back(0.0f); }
   int indice_oc = RolaDado(ordem_caos.size()) - 1;
   const float oc = ordem_caos[indice_oc];
-  LOG(INFO) << "gerando tendencia aleatoria: bm: " << bm << ", oc: " << oc;
+  VLOG(1) << "gerando tendencia aleatoria: bm: " << bm << ", oc: " << oc;
   return {bm, oc};
 }
 
