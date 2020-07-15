@@ -1529,6 +1529,32 @@ void Entidade::AtualizaAcaoPorGrupo(const std::string& grupo) {
   RecomputaDependencias();
 }
 
+namespace {
+
+// Retorna um vetor com os indices do primeiro ataque de cada grupo de ataque e
+// o indice nesse vetor que representa o ataque corrente.
+// Por exemplo, caso o personagem tenha 5 ataques em 3 grupos: g1, g1, g2, g3, g3
+// e o ataque corrente for g2, retornara:
+// {1, {0, 2, 3}}.
+std::pair<int, std::vector<int>> IndiceCorrenteComIndicesGrupos(
+    const EntidadeProto& proto) {
+  std::unordered_set<std::string> existe;
+  std::vector<int> grupos;
+  int indice_corrente = 0;
+  for (int i = 0; i < (int)proto.dados_ataque().size(); ++i) {
+    const auto& da = proto.dados_ataque(i);
+    if (existe.find(da.grupo()) != existe.end()) continue;
+    existe.insert(da.grupo());
+    if (proto.ultimo_grupo_acao() == da.grupo()) {
+      indice_corrente = grupos.size();
+    }
+    grupos.push_back(i);
+  }
+  return {indice_corrente, grupos};
+}
+
+}  // namespace
+
 bool Entidade::ProximaAcao() {
   if (proto_.dados_ataque().empty()) {
     return false;
@@ -1539,11 +1565,17 @@ bool Entidade::ProximaAcao() {
     proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
     return true;
   }
-  for (int i = 0; i < static_cast<int>(proto_.dados_ataque().size()) - 1; ++i) {
-    proto_.mutable_dados_ataque()->SwapElements(i, i + 1);
+  auto [indice_corrente, grupos] = IndiceCorrenteComIndicesGrupos(proto_);
+  ++indice_corrente;
+  if (indice_corrente >= grupos.size()) {
+    indice_corrente = 0;
   }
-  proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
-  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(0).grupo());
+  if (indice_corrente < 0 || indice_corrente >= grupos.size()) {
+    // Caso bizarro.
+    return false;
+  }
+  proto_.set_ultima_acao(proto_.dados_ataque(grupos[indice_corrente]).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupos[indice_corrente]).grupo());
   return true;
 }
 
@@ -1558,13 +1590,20 @@ bool Entidade::AcaoAnterior() {
   if (proto_.dados_ataque().size() == 1) {
     // ditto.
     proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+    proto_.set_ultimo_grupo_acao(proto_.dados_ataque(0).grupo());
     return true;
   }
-  for (int i = proto_.dados_ataque().size() - 1; i > 0; --i) {
-    proto_.mutable_dados_ataque()->SwapElements(i, i - 1);
+  auto [indice_corrente, grupos] = IndiceCorrenteComIndicesGrupos(proto_);
+  --indice_corrente;
+  if (indice_corrente < 0) {
+    indice_corrente = grupos.size() - 1;
   }
-  proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
-  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(0).grupo());
+  if (indice_corrente < 0 || indice_corrente >= grupos.size()) {
+    // Caso bizarro.
+    return false;
+  }
+  proto_.set_ultima_acao(proto_.dados_ataque(grupos[indice_corrente]).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupos[indice_corrente]).grupo());
   return true;
 }
 

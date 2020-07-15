@@ -7090,8 +7090,8 @@ TEST(TesteRacas, TesteFalcao) {
   Modelos modelos;
   EntidadeProto proto = g_tabelas.ModeloEntidade("Falcão").entidade();
   RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(ValorFinalPericia("ouvir", ed->Proto()), 4);
-  EXPECT_EQ(ValorFinalPericia("observar", ed->Proto()), 16);
+  EXPECT_EQ(ValorFinalPericia("ouvir", proto), 4);
+  EXPECT_EQ(ValorFinalPericia("observar", proto), 16);
 }
 
 TEST(TesteDominios, TesteRenovacao) {
