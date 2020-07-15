@@ -3425,6 +3425,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       delete proto_retornado;
       proto_retornado = nullptr;
   });
+  QSize tam = qobject_cast<QApplication*>(QApplication::instance())->primaryScreen()->size();
+  if (tam.width() < dialogo->size().width() || tam.height() < dialogo->size().height()) {
+    dialogo->showMaximized();
+    LOG(INFO) << "desktop: " << tam.width() << "x" << tam.height() << ", dialogo: " << dialogo->size().width() << "x" << dialogo->size().height();
+  }
   dialogo->exec();
   delete dialogo;
   return proto_retornado;
