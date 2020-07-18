@@ -4975,6 +4975,42 @@ TEST(TesteModelo, TesteBisao) {
   EXPECT_EQ(ValorFinalPericia("observar", bisao->Proto()), 5);
 }
 
+TEST(TesteModelo, TesteCachorro) {
+  auto proto = g_tabelas.ModeloEntidade("Cachorro").entidade();
+  auto cachorro = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("mordida", cachorro->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2);
+    EXPECT_EQ(da.dano(), "1d4+1");
+    EXPECT_EQ(cachorro->CA(*cachorro, Entidade::CA_NORMAL), 15) << cachorro->Proto().dados_defesa().ca().DebugString();
+  }
+  // Este valor tem que estar errado no livro, nao tem como ser 7 (4 racial, 4 movimento, 1 forca).
+  EXPECT_EQ(ValorFinalPericia("saltar", cachorro->Proto()), 9)
+      << Pericia("saltar", cachorro->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("ouvir", cachorro->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("observar", cachorro->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("rastrear", cachorro->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("sobrevivencia", cachorro->Proto()), 1);
+}
+
+TEST(TesteModelo, TesteCachorroMontaria) {
+  auto proto = g_tabelas.ModeloEntidade("Cachorro de Montaria").entidade();
+  auto cachorro = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("mordida", cachorro->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3);
+    EXPECT_EQ(da.dano(), "1d6+3");
+    EXPECT_EQ(cachorro->CA(*cachorro, Entidade::CA_NORMAL), 16) << cachorro->Proto().dados_defesa().ca().DebugString();
+  }
+  // Este valor tem que estar errado no livro, nao tem como ser 8 (4 racial, 4 movimento, 2 forca).
+  EXPECT_EQ(ValorFinalPericia("saltar", cachorro->Proto()), 10) << Pericia("saltar", cachorro->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("ouvir", cachorro->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("observar", cachorro->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("natacao", cachorro->Proto()), 3);
+  EXPECT_EQ(ValorFinalPericia("rastrear", cachorro->Proto()), 5);
+  EXPECT_EQ(ValorFinalPericia("sobrevivencia", cachorro->Proto()), 1);
+}
+
 TEST(TesteModelo, TesteEscorpiao) {
   auto proto = g_tabelas.ModeloEntidade("Escorpião Monstruoso Médio").entidade();
   auto escorpiao = NovaEntidadeParaTestes(proto, g_tabelas);
@@ -5007,6 +5043,41 @@ TEST(TesteModelo, TesteEscorpiao) {
   }
   EXPECT_EQ(ValorFinalPericia("escalar", escorpiao->Proto()), 5);
   EXPECT_EQ(ValorFinalPericia("esconderse", escorpiao->Proto()), 4);
+  EXPECT_EQ(ValorFinalPericia("observar", escorpiao->Proto()), 4);
+}
+
+TEST(TesteModelo, TesteEscorpiaoEnorme) {
+  auto proto = g_tabelas.ModeloEntidade("Escorpião Monstruoso Enorme").entidade();
+  auto escorpiao = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 11);
+    EXPECT_EQ(da.dano(), "1d8+6");
+    EXPECT_EQ(escorpiao->CA(*escorpiao, Entidade::CA_NORMAL), 20) << escorpiao->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.dano_constricao(), "1d8+6");
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 11);
+    EXPECT_EQ(da.dano(), "1d8+6");
+    EXPECT_EQ(escorpiao->CA(*escorpiao, Entidade::CA_NORMAL), 20) << escorpiao->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.dano_constricao(), "1d8+6");
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto(), 2);
+    EXPECT_EQ(da.bonus_ataque_final(), 6);
+    EXPECT_EQ(da.dano(), "2d4+3");
+    EXPECT_EQ(escorpiao->CA(*escorpiao, Entidade::CA_NORMAL), 20) << escorpiao->Proto().dados_defesa().ca().DebugString();
+    EXPECT_TRUE(da.dano_constricao().empty());
+    EXPECT_EQ(da.veneno().cd(), 18);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("Agarrar", escorpiao->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 21);
+    EXPECT_EQ(da.dano(), "1d8+9");
+  }
+  EXPECT_EQ(ValorFinalPericia("escalar", escorpiao->Proto()), 10);
+  EXPECT_EQ(ValorFinalPericia("esconderse", escorpiao->Proto()), -4);
   EXPECT_EQ(ValorFinalPericia("observar", escorpiao->Proto()), 4);
 }
 
@@ -5173,7 +5244,8 @@ TEST(TesteModelo, TesteCaoInfernal) {
   EXPECT_EQ(ValorFinalPericia("ouvir", cao->Proto()), 7);
   EXPECT_EQ(ValorFinalPericia("furtividade", cao->Proto()), 13);
   EXPECT_EQ(ValorFinalPericia("observar", cao->Proto()), 7);
-  EXPECT_EQ(ValorFinalPericia("saltar", cao->Proto()), 12);
+  // Nao tem como ser 12 como no livro, devido ao movimento.
+  EXPECT_EQ(ValorFinalPericia("saltar", cao->Proto()), 16);
   EXPECT_EQ(ValorFinalPericia("sobrevivencia", cao->Proto()), 15);
 }
 

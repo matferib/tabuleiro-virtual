@@ -425,9 +425,10 @@ modelo {
   id: 'Cachorro'
   entidade {
     rotulo: 'cachorro'
+    tamanho: TM_PEQUENO
     tendencia { simples: TD_NEUTRO }
     tipo_dnd: TIPO_ANIMAL
-    dados_vida: '1d8+2' tamanho: TM_PEQUENO cor { r: 0.4 g: 0.1 b: 0.1 }
+    dados_vida: '1d8+2' cor { r: 0.4 g: 0.1 b: 0.1 }
     modelo_3d { id: 'blinkdog' }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     info_classes {
@@ -452,25 +453,24 @@ modelo {
       }
     }
     dados_ataque {
-      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      grupo: 'mordida' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
     }
     info_talentos {
       gerais { id: 'prontidao' }
       outros { id: 'rastrear' origem: 'bonus' }
     }
-    # imagino que eles devem usar destreza para saltar, totalizando os 7 que tao no livro. 
+    # No livro da total de 7, mas nao faz sentido: 4 racial, 4 mov, 1 forca.
     info_pericias {
       id: 'saltar'
       bonus {
         bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } }
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'movimento' valor: 4 } }
       }
     }
     info_pericias { id: 'ouvir' pontos: 2 }
     info_pericias { id: 'observar' pontos: 2 }
     info_pericias { id: 'rastrear' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     movimento {
-      terrestre_basico_q: 10
+      terrestre_basico_q: 8
     }
   }
 }
@@ -510,11 +510,11 @@ modelo {
     }
     dados_defesa {
       ca {
-        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
       }
     }
     dados_ataque {
-      rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d4'
+      grupo: 'mordida' rotulo: 'mordida' id_arma: 'mordida_padrao' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
     }
     info_talentos {
       gerais { id: 'prontidao' }
@@ -524,7 +524,6 @@ modelo {
       id: 'saltar'
       bonus {
         bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } }
-        bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'movimento' valor: 4 } }
       }
     }
     info_pericias { id: 'ouvir' pontos: 2 }
@@ -532,7 +531,7 @@ modelo {
     info_pericias { id: 'natacao' pontos: 1 }
     info_pericias { id: 'rastrear' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     movimento {
-      terrestre_basico_q: 10
+      terrestre_basico_q: 8
     }
   }
 }
@@ -3373,6 +3372,7 @@ modelo {
 modelo {
   id: 'Escorpião Monstruoso Pequeno'
   entidade {
+    tendencia { simples: TD_NEUTRO }
     rotulo: 'escorpião pequeno'
     tipo_dnd: TIPO_VERME
     tamanho: TM_PEQUENO
@@ -3435,6 +3435,7 @@ modelo {
 modelo {
   id: 'Escorpião Monstruoso Médio'
   entidade {
+    tendencia { simples: TD_NEUTRO }
     rotulo: 'escorpião médio'
     tipo_dnd: TIPO_VERME
     info_classes { id: 'verme' nivel: 2 }
@@ -3496,17 +3497,53 @@ modelo {
   }
 }
 modelo {
-  id: 'Escorpião Monstruoso Grande'
-  entidade {
-    dados_vida: '5d8+10' tamanho: TM_GRANDE cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
-    rotulo_especial: 'ini: 0\nat: +1/+6/+6\n1d6+2(+ven)/1d6+4/1d6+4'
-  }
-}
-modelo {
   id: 'Escorpião Monstruoso Enorme'
   entidade {
+    tendencia { simples: TD_NEUTRO }
+    rotulo: 'escorpião enorme' # huge
+    tipo_dnd: TIPO_VERME
+    info_classes { id: 'verme' nivel: 10 }
     dados_vida: '10d8+30' tamanho: TM_ENORME cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
-    rotulo_especial: 'ini: 0\nat: +6/+11/+11\n2d4+3(+ven)/1d8+6/1d8+6'
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 12 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra_padrao'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'Ataque Total' rotulo: 'ferrão' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'ferroada' dano_basico: '2d4'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+      veneno {
+        tipo: TV_FERIMENTO # CD tem que dar 13
+        dano_inicial: '1d6' tipo_dano: TDV_CONSTITUICAO dano_secundario: '1d6' tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    dados_ataque {
+      grupo: 'Agarrar' rotulo: 'Agarrar com Garras' tipo_ataque: 'Agarrar' id_arma: 'garras' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_2_MAOS
+    }
+    movimento {
+      terrestre_basico_q: 10
+    }
+    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 23 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
   }
 }
 modelo {
@@ -5201,8 +5238,7 @@ modelo {
     info_pericias { id: 'esconderse' pontos: 1 }
     info_pericias { id: 'furtividade' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } }  }
     info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } }  }
-    # Esse bonus aqui é pra compensar o fato que ele usa destreza para escalar.
-    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 14 } } }  }
+    info_pericias { id: 'escalar' atributo: TA_DESTREZA bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } }  }
     info_pericias { id: 'observar' pontos: 2 }
     info_talentos {
       gerais { id: 'agil' }
@@ -8062,6 +8098,9 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
+    movimento {
+      terrestre_basico_q: 6
+    }
   }
 }
 modelo {
@@ -8119,6 +8158,9 @@ modelo {
       pocoes { id: 'neutralizar_venenos' }
       tesouro: 'ferramenta de ladino OP'
       moedas { po: 1160 }
+    }
+    movimento {
+      terrestre_basico_q: 6
     }
   }
 }

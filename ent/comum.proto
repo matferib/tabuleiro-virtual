@@ -820,6 +820,8 @@ message InfoPericia {
   optional Bonus bonus = 5;
   // As restricoes de sinergia da pericia.
   repeated string restricoes_sinergia = 6;
+  // Se presente, usara este atributo ao inves do padrao para pericia.
+  optional TipoAtributo atributo = 7;
   // Monstros podem adicionar pericias_monstro em info_classes para considerar a pericia de classe.
 }
 

@@ -1781,11 +1781,23 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     }
 
     // Atributo.
-    AtribuiOuRemoveBonus(ModificadorAtributo(pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto.mutable_bonus());
+    AtribuiOuRemoveBonus(
+        ModificadorAtributo(pericia_proto.has_atributo() ? pericia_proto.atributo() : pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto.mutable_bonus());
 
     if (pt.id() == "esconderse") {
       // Bonus de tamanho.
       AtribuiOuRemoveBonus(ModificadorTamanhoEsconderse(proto->tamanho()), TB_TAMANHO, "tamanho", pericia_proto.mutable_bonus());
+    }
+    if (pt.id() == "saltar") {
+      const auto& movimento = proto->movimento();
+      int mod = 0;
+      const int total = BonusTotal(movimento.terrestre_q());
+      if (total < 6) {
+        mod = ((6 - total) / 2) * -6;
+      } else if (total > 6) {
+        mod = ((total - 6) / 2) * 4;
+      }
+      AtribuiOuRemoveBonus(mod, TB_SEM_NOME, "movimento", pericia_proto.mutable_bonus());
     }
 
     // Talento.
@@ -3686,12 +3698,12 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   // Atualiza os bonus de ataques.
   RecomputaDependenciasDadosAtaque(tabelas, proto);
 
+  RecomputaDependenciasMovimento(tabelas, proto);
   RecomputaDependenciasPericias(tabelas, proto);
 
   RecomputaClasseFeiticoAtiva(tabelas, proto);
   RecomputaDependenciasMagiasConhecidas(tabelas, proto);
   RecomputaDependenciasMagiasParaLancarPorDia(tabelas, proto);
-  RecomputaDependenciasMovimento(tabelas, proto);
 
   VLOG(2) << "Proto depois RecomputaDependencias: " << proto->ShortDebugString();
 }
