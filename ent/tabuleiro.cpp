@@ -8103,6 +8103,57 @@ void Tabuleiro::SalvaOpcoes() const {
   SalvaConfiguracoes(opcoes_);
 }
 
+namespace {
+std::string PreencheEventosAutoEnvenenamento(
+    const VenenoProto& veneno, const Entidade& entidade,
+    EntidadeProto* proto, std::vector<int>* ids_unicos) {
+  if (entidade.ImuneVeneno()) {
+    return "Imune a veneno";
+  }
+  std::string veneno_str;
+  // A mesma notificacao pode gerar mais de um efeito, com ids unicos separados.
+  ntf::Notificacao n_veneno;
+  // TODO permitir salvacao pre definida?
+  int d20 = RolaDado(20);
+  int bonus = entidade.SalvacaoVeneno();
+  int total = d20 + bonus;
+  bool primario_aplicado = false;
+  if (total < veneno.cd()) {
+    // nao salvou: criar o efeito do dano.
+    veneno_str = StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
+    if (!PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade.Proto())) {
+      primario_aplicado = true;
+      ntf::Notificacao n;
+      PreencheNotificacaoEventoParaVenenoPrimario(
+          entidade.Id(), DadosIniciativaEntidade(entidade), veneno, ids_unicos, &n, nullptr);
+      for (auto& evento : *n.mutable_entidade()->mutable_evento()) {
+        proto->add_evento()->Swap(&evento);
+      }
+    }
+  } else {
+    veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
+    primario_aplicado = true;
+  }
+  // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
+  // O veneno vai serializado para quando acabar por passagem de rodadas, aplicar o secundario.
+  {
+    std::string veneno_proto_str;
+    auto copia_veneno = veneno;
+    copia_veneno.set_primario_aplicado(primario_aplicado);
+    google::protobuf::TextFormat::PrintToString(copia_veneno, &veneno_proto_str);
+    std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos));
+    ntf::Notificacao n;
+    PreencheNotificacaoEventoComComplementoStr(
+        entidade.Id(), DadosIniciativaEntidade(entidade), origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
+        ids_unicos, &n, nullptr);
+    for (auto& evento : *n.mutable_entidade()->mutable_evento()) {
+      proto->add_evento()->Swap(&evento);
+    }
+  }
+  return veneno_str;
+}
+}  // namespace
+
 void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao, unsigned int indice_efeito) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_pocao >= entidade->Proto().tesouro().pocoes_size()) return;
@@ -8116,8 +8167,8 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
     if (e_depois->tesouro().pocoes().empty()) {
       e_depois->mutable_tesouro()->add_pocoes();
     }
+    std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade);
     if (indice_efeito < (unsigned int)pocao.tipo_efeito().size()) {
-      std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade);
       AdicionaEventoItemMagico(pocao, indice_efeito, pocao.duracao_rodadas(), false, &ids_unicos, e_depois);
     }
     if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
@@ -8126,6 +8177,16 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
       std::tie(total, dados) = GeraPontosVida(pocao.delta_pontos_vida());
       e_depois->set_pontos_vida(std::min(entidade->MaximoPontosVida(), entidade->PontosVida() + total));
       AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), total, 0);
+    }
+    if (!pocao.complementos_str().empty() && c_any_of(pocao.tipo_efeito(), [](const auto& tipo) {
+          return tipo == EFEITO_ARMA_ENVENENADA; })) {
+      int d100 = RolaDado(100);
+      if (d100 <= 5) {
+        // auto envenenamento.
+        auto veneno_str =
+            PreencheEventosAutoEnvenenamento(tabelas_.Veneno(pocao.complementos_str(0)), *entidade, e_depois, &ids_unicos);
+        AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("auto-envenenamento d100 = %d < 5, %s", d100, veneno_str.c_str()), 0.0f);
+      }
     }
   }
   {
