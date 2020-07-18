@@ -549,7 +549,9 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
     QVariant dados_armadura = gerador.combo_armadura->itemData(i);
     if ((dd.id_armadura_tesouro().empty() && dados_armadura.toString().toStdString() == dd.id_armadura()) ||
         dados_armadura.toString().toStdString() == StringPrintf("equipamento:%s", dd.id_armadura_tesouro().c_str())) {
+      gerador.combo_armadura->blockSignals(true);
       gerador.combo_armadura->setCurrentIndex(i);
+      gerador.combo_armadura->blockSignals(false);
       break;
     }
   }
@@ -559,7 +561,9 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
     QVariant dados_escudo = gerador.combo_escudo->itemData(i);
     if ((dd.id_escudo_tesouro().empty() && dados_escudo.toString().toStdString() == dd.id_escudo()) ||
         dados_escudo.toString().toStdString() == StringPrintf("equipamento:%s", dd.id_escudo_tesouro().c_str())) {
+      gerador.combo_escudo->blockSignals(true);
       gerador.combo_escudo->setCurrentIndex(i);
+      gerador.combo_escudo->blockSignals(false);
       break;
     }
   }

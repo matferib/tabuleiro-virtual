@@ -2036,21 +2036,6 @@ bool Entidade::AcertouAtaqueAnterior() const {
   return false;
 }
 
-namespace {
-std::pair<std::string, std::string> UltimaAcaoGrupo(const EntidadeProto& proto) {
-  std::string ultima_acao = proto.ultima_acao();
-  std::string ultimo_grupo = proto.ultimo_grupo_acao();
-  if (ultima_acao.empty() && ultimo_grupo.empty()) {
-    VLOG(3) << "sobrescrevendo ultima acao e grupo";
-    ultima_acao = proto.dados_ataque().empty() ? "Ataque Corpo a Corpo" : proto.dados_ataque(0).tipo_ataque();
-    ultimo_grupo = proto.dados_ataque().empty() ? "" : proto.dados_ataque(0).grupo();
-  }
-
-  VLOG(3) << "ultima_acao: " << ultima_acao << ", ultimo_grupo: " << ultimo_grupo;
-  return {ultima_acao, ultimo_grupo};
-}
-}  // namespace
-
 DadosAtaque* Entidade::DadoCorrenteMutavelOuNull(bool ignora_ataques_na_rodada) {
   const auto* daconst = DadoCorrente(ignora_ataques_na_rodada);
   for (auto& da : *proto_.mutable_dados_ataque()) {

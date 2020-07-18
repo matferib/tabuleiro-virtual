@@ -419,8 +419,15 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
   // Aqui eh importante diferenciar entre return e break. Eventos que retornam nao seram considerados processados.
   switch (evento->id_efeito()) {
     case EFEITO_ARMA_ENVENENADA: {
-      const auto& veneno = evento->complementos_str().size() >= 1 ? tabelas.Veneno(evento->complementos_str(0)) : VenenoProto::default_instance();
-      auto rotulo = evento->complementos_str().size() >= 2 ? evento->complementos_str(1) : entidade->DadoCorrenteNaoNull().rotulo();
+      while (evento->complementos_str().size() < 2) {
+        evento->add_complementos_str("");
+      }
+      const auto& veneno = tabelas.Veneno(evento->complementos_str(0));
+      std::string rotulo = evento->complementos_str(1);
+      if (rotulo.empty()) {
+        rotulo = DadoCorrenteNaoNull(*proto).rotulo();
+        evento->set_complementos_str(1, rotulo);
+      }
       for (auto& da : *proto->mutable_dados_ataque()) {
         if (da.rotulo() == rotulo && (!da.veneno().has_id_unico_efeito() || da.veneno().id_unico_efeito() != evento->id_unico())) {
           auto* veneno_da = da.mutable_veneno();
@@ -447,7 +454,9 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
       const auto& modelo = tabelas.ModeloEntidade(evento->complementos_str(0));
       if (modelo.id().empty()) break;
       evento->set_estado_anterior(ProtoFormaAlternativa(*proto).SerializeAsString());
-      entidade->DeixaAtualizacaoPendente(ProtoFormaAlternativa(modelo.entidade()));
+      if (entidade != nullptr) {
+        entidade->DeixaAtualizacaoPendente(ProtoFormaAlternativa(modelo.entidade()));
+      }
       break;
     }
     case EFEITO_IMUNIDADE_FEITICO: {

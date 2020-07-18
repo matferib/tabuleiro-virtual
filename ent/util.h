@@ -1149,6 +1149,7 @@ float AplicaEfeitosAdicionais(
 
 // Encontra um ataque no proto igual a da. Compara rotulo, tipo e grupo.
 DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto);
+const DadosAtaque& DadoCorrenteNaoNull(const EntidadeProto& proto);
 
 // Retorna o bonus de salvacao contra veneno.
 int Salvacao(const EntidadeProto& proto, const Bonus& outros_bonus, const EntidadeProto& proto_atacante, TipoSalvacao tipo);
@@ -1175,6 +1176,9 @@ void ImprimeDadosRolados();
 // Rola a pericia do proto, retornando se rolou, o total rolado e o texto descrevendo a rolagem.
 // Em caso de erro, retorna nullopt.
 std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto);
+
+// Retorna o par ultima_acao e grupo do proto.
+std::pair<std::string, std::string> UltimaAcaoGrupo(const EntidadeProto& proto);
 
 // Retorna true se a arma for um feitico.
 bool EhFeitico(const ArmaProto& arma);

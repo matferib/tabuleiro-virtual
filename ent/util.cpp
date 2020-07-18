@@ -2258,6 +2258,34 @@ DadosAtaque* EncontraAtaque(const DadosAtaque& da, EntidadeProto* proto) {
   return nullptr;
 }
 
+std::pair<std::string, std::string> UltimaAcaoGrupo(const EntidadeProto& proto) {
+  std::string ultima_acao = proto.ultima_acao();
+  std::string ultimo_grupo = proto.ultimo_grupo_acao();
+  if (ultima_acao.empty() && ultimo_grupo.empty()) {
+    VLOG(3) << "sobrescrevendo ultima acao e grupo";
+    ultima_acao = proto.dados_ataque().empty() ? "Ataque Corpo a Corpo" : proto.dados_ataque(0).tipo_ataque();
+    ultimo_grupo = proto.dados_ataque().empty() ? "" : proto.dados_ataque(0).grupo();
+  }
+
+  VLOG(3) << "ultima_acao: " << ultima_acao << ", ultimo_grupo: " << ultimo_grupo;
+  return {ultima_acao, ultimo_grupo};
+}
+
+const DadosAtaque* DadoCorrente(const EntidadeProto& proto) {
+  auto [ultima_acao, ultimo_grupo] = UltimaAcaoGrupo(proto);
+  for (const auto& da : proto.dados_ataque()) {
+    if ((ultima_acao.empty() || da.tipo_ataque() == ultima_acao) && da.grupo() == ultimo_grupo) {
+      return &da;
+    }
+  }
+  return nullptr;
+}
+
+const DadosAtaque& DadoCorrenteNaoNull(const EntidadeProto& proto) {
+  const auto* da = DadoCorrente(proto);
+  return da == nullptr ? DadosAtaque::default_instance() : *da;
+}
+
 const std::vector<std::string>& ItemsQueGeramAtaques() {
   static const std::vector<std::string> v = {
     "fogo_alquimico", "agua_benta", "acido", "pedra_trovao", "bolsa_cola", "gas_alquimico_sono", "bomba" };
