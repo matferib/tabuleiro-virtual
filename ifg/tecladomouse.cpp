@@ -189,6 +189,9 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     return;
   }
   switch (tecla) {
+    case Tecla_Insert:
+      tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ADICAO_ENTIDADE);
+    break;
     case Tecla_Backspace:
     case Tecla_Delete: {
       auto n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);

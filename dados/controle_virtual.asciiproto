@@ -1182,6 +1182,19 @@ fixo {
     forma: FORMA_RETANGULO
     dica: "Apaga entidades selecionadas."
   }
+  dados_botoes {
+    tamanho: 1
+    linha: -7
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "+"
+    cor_rotulo { r: 1.0 a: 1.0 }
+    textura: "icon_plus.png"
+    id: CONTROLE_ADICIONA_ENTIDADE
+    forma: FORMA_RETANGULO
+    dica: "Adiciona uma entidade ao clicar."
+  }
 }
 pagina {
   # Botoes de ultimas acoes.

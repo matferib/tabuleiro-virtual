@@ -74,6 +74,7 @@ enum teclas_e {
   Tecla_Ctrl = 0x01000021,
   Tecla_Tab = 0x01000001,
   Tecla_TabInvertido = 0x01000002,
+  Tecla_Insert = 0x01000006,
 };
 
 enum modificadores_e {
