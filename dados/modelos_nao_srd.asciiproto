@@ -1447,3 +1447,25 @@ modelo {
     naturalmente_cego: true
   }
 }
+modelo {
+  id: 'Arma Espiritual Chakram'
+  entidade {
+    modelo_3d { id: 'chakram' }
+    dados_ataque {
+    rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d8+1' multiplicador_critico: 3 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
+    }
+    rotulo_especial: 'Dados para arma de nível 3 genérica/nAjustar:\n- crítico (por arma)\n- ataque: bba + sab\n- dano: 1d8+1/3 niveis'
+    evento { rodadas: 3 descricao: 'duração' }
+    desenha_base: true
+    voadora: true
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+    multiplicador_nivel_dano: 0.334
+    dano_fixo: '1d8'
+    maximo_modificador_dano: 5
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+    rotulo_especial: ''
+  }
+}
+

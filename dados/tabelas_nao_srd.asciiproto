@@ -137,6 +137,20 @@ tabela_classes {
 }
 tabela_armas {
   armas {
+    id: 'chakram'
+    nome: 'chakram'
+    preco: '15'
+    dano { medio: '1d4' }
+    categoria: CAT_DISTANCIA
+    categoria: CAT_ARREMESSO
+    categoria: CAT_LEVE
+    alcance_quadrados: 6
+    tipo_dano: TD_CORTANTE
+    multiplicador_critico: 3
+    peso { medio: '1kg' }
+    categoria_pericia: CATPER_EXOTICA
+  }
+  armas {
     id: 'bomba'
     nome: 'bomba'
     dano { invariavel: '2d6' }

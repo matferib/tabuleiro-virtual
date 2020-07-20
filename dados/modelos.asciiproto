@@ -1241,7 +1241,6 @@ modelo {
 modelo {
   id: 'Arma Espiritual Mangual'
   entidade {
-    cor { r: 1 g: 1 }
     modelo_3d { id: 'flail' }
     dados_ataque {
       rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d8+1' ca_toque: 12 ca_normal: 12 ca_surpreso: 12
@@ -1263,7 +1262,6 @@ modelo {
 modelo {
   id: 'Arma Espiritual Martelo'
   entidade {
-    cor { r: 1 g: 1 }
     modelo_3d { id: 'hammer' }
     dados_ataque {
     rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d8+1' multiplicador_critico: 3 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
@@ -1286,7 +1284,6 @@ modelo {
 modelo {
   id: 'Arma Espiritual Machado'
   entidade {
-    cor { r: 1 g: 1 }
     modelo_3d { id: 'axe' }
     dados_ataque {
     rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d8+1' multiplicador_critico: 3 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
@@ -1308,7 +1305,6 @@ modelo {
 modelo {
   id: 'Arma Espiritual Espada'
   entidade {
-    cor { r: 1 g: 1 }
     modelo_3d { id: 'sword' }
     dados_ataque {
     rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 2 dano: '1d8+1' margem_critico: 19 ca_toque: 12 ca_normal: 12 ca_surpreso: 12

@@ -12637,6 +12637,10 @@ tabela_feiticos {
       parametros_lancamento {
         consequencia: CP_ATRIBUI_MODELO_ENTIDADE
         parametros {
+          texto: 'Chakram'
+          id_modelo_entidade: 'Arma Espiritual Chakram'
+        }
+        parametros {
           texto: 'Mangual'
           id_modelo_entidade: 'Arma Espiritual Mangual'
         }

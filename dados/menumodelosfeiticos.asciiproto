@@ -23,9 +23,11 @@ modelo { id: 'Tentáculos Negros' }
 modelo { id: 'Zona da Verdade' }
 sub_menu {
   id: 'Arma Espiritual'
-  modelo { id: 'Arma Espiritual (19-20/x2)' texto: 'Espada Longa' }
-  modelo { id: 'Arma Espiritual (20/x3)' texto: 'Machado/Martelo de Guerra' }
-  modelo { id: 'Arma Espiritual (20/x2)' texto: 'Mangual' }
+  modelo { id: 'Arma Espiritual Chakram' texto: 'Chakram' }
+  modelo { id: 'Arma Espiritual Espada' texto: 'Espada Longa' }
+  modelo { id: 'Arma Espiritual Martelo' texto: 'Martelo de Guerra' }
+  modelo { id: 'Arma Espiritual Machado' texto: 'Machado' }
+  modelo { id: 'Arma Espiritual Mangual' texto: 'Mangual' }
 }
 modelo { id: 'Tempestade de Fogo' }
 modelo { id: 'Tempestade Glacial' }
