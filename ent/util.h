@@ -48,6 +48,34 @@ class Posicao;
 class Tabuleiro;
 class Tabelas;
 
+// Intervalo [min, max).
+struct Intervalo {
+  Intervalo(float min, float max) : min(min), max(max) {}
+  float min, max;
+  const bool operator<(const Intervalo& rhs) const {
+    return min < rhs.min;
+  }
+};
+
+// Histograma com buckets de tamanho 1.
+class Histograma {
+ public:
+  Histograma(float tam_intervalos = 3.0f, float limite_superior = 30.0f) : limite_superior_(limite_superior), tam_intervalos_(tam_intervalos) {}
+  void Adiciona(float valor);
+  void Imprime() const;
+
+ private:
+  int& AchaIntervalo(float valor);
+
+  std::map<Intervalo, int> intervalos_;
+  float total_ = 0;
+  float total_sem_ultimo_ = 0;
+  float max_ = std::numeric_limits<float>::min();
+  float min_ = std::numeric_limits<float>::max();
+  float limite_superior_ = std::numeric_limits<float>::max();
+  float tam_intervalos_ = 0;
+};
+
 struct DadosIniciativa {
   int iniciativa = 0;
   int modificador = 0;

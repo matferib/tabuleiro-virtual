@@ -34,6 +34,7 @@
 
 namespace ent {
 
+
 namespace {
 using EfeitoAdicional = ent::AcaoProto::EfeitoAdicional;
 using google::protobuf::StringPrintf;
@@ -92,6 +93,48 @@ float DistanciaPontoCorrenteParaNevoa(const ParametrosDesenho* pd) {
 }
 
 }  // namespace
+
+//------------
+// Histograma.
+//------------
+void Histograma::Adiciona(float valor) {
+  total_ += valor;
+  if (valor < limite_superior_) {
+    total_sem_ultimo_ += valor;
+  }
+  max_ = std::max(valor, max_);
+  min_ = std::min(valor, min_);
+  ++AchaIntervalo(valor);
+}
+
+void Histograma::Imprime() const {
+  int maximo = 0;
+  int num_valores = 0, num_valores_sem_ultimo = 0;
+  for (const auto& [intervalo, valor] : intervalos_) {
+    maximo = std::max(valor, maximo);
+    num_valores += valor;
+    if (intervalo.max != std::numeric_limits<float>::max()) {
+      num_valores_sem_ultimo += valor;
+    }
+  }
+  std::cout << "min: " << min_ << "s, max: " << max_ << "s, total: " << total_ << "s, : num valores: " << num_valores << std::endl;
+  std::cout << "média: " << (total_ / num_valores) << "s, média sem último: " << (total_sem_ultimo_ / num_valores_sem_ultimo) << "s" << std::endl;
+  for (const auto& [intervalo, valor] : intervalos_) {
+    const int porcentagem = valor * 50 / maximo;
+    std::string s = StringPrintf("[%f, %f) -> %d: %s", intervalo.min, intervalo.max, valor, std::string(porcentagem, '#').c_str());
+    std::cout << s << std::endl;
+  }
+}
+int& Histograma::AchaIntervalo(float valor) {
+  int bucket = floor(valor / tam_intervalos_);
+  float lim_inferior_intervalo = bucket * tam_intervalos_;
+  float lim_superior_intervalo = lim_inferior_intervalo + tam_intervalos_;
+  Intervalo intervalo = valor >= limite_superior_
+      ? Intervalo(limite_superior_, std::numeric_limits<float>::max())
+      : Intervalo(lim_inferior_intervalo, lim_superior_intervalo);
+  return intervalos_[intervalo];
+}
+// Fim histograma.
 
 std::optional<DadosIniciativa> DadosIniciativaEntidade(const Entidade& entidade) {
   if (!entidade.TemIniciativa()) return std::nullopt;

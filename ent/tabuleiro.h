@@ -1396,6 +1396,8 @@ class Tabuleiro : public ntf::Receptor {
   boost::timer::cpu_timer timer_renderizacao_mapas_;
   /** computa o tempo gasto em cada entidade com iniciativa ligada. */
   std::unordered_map<std::string, boost::timer::cpu_timer> timer_por_entidade_;
+  /** Histograma de timer por entidade. */
+  std::unordered_map<std::string, Histograma> histograma_por_entidade_;
 
   // Listas que armazenam os ultimos tempos computados pelos timers.
   std::list<uint64_t> tempos_entre_cenas_;    // timer_entre_cenas_

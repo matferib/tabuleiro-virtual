@@ -235,9 +235,11 @@ Tabuleiro::~Tabuleiro() {
   LiberaTextura();
   LiberaControleVirtual();
   LOG(INFO) << "timers por entidade";
-  for (auto& [rotulo, timer] : timer_por_entidade_) {
-    timer.stop();
-    LOG(INFO) << rotulo << ": " << (timer.elapsed().wall / DIV_NANO_PARA_SEGUNDOS) << " s.";
+  ParaTimersPorEntidade();
+  for (auto& [rotulo, histograma] : histograma_por_entidade_) {
+    std::cout << "-------------------------------------------" << std::endl;
+    std::cout << "Histograma de tempo para '" << rotulo << "'" << std::endl;
+    histograma.Imprime();
   }
 }
 
@@ -2512,7 +2514,9 @@ void Tabuleiro::ParaTimersPorEntidade() {
   for (auto& [rotulo, timer] : timer_por_entidade_) {
     if (!timer.is_stopped()) {
       LOG(INFO) << "Parando timer de " << rotulo;
+      auto passou_ms = timer.elapsed().wall / DIV_NANO_PARA_MS;
       timer.stop();
+      histograma_por_entidade_[rotulo].Adiciona(passou_ms / 1000.0f);
     }
   }
 }
@@ -2523,10 +2527,10 @@ void Tabuleiro::DisparaTimerEntidadeCorrente() {
   if (const auto& entidade = BuscaEntidade(IdIniciativaCorrente()); entidade != nullptr && entidade->SelecionavelParaJogador()) {
     std::string rotulo = RotuloEntidade(BuscaEntidade(IdIniciativaCorrente()));
     LOG(INFO) << "continuando timer de " << rotulo;
-    timer_por_entidade_[rotulo].resume();
+    timer_por_entidade_[rotulo].start();
   } else {
     LOG(INFO) << "continuando timer de __MESTRE__";
-    timer_por_entidade_["__MESTRE__"].resume();
+    timer_por_entidade_["__MESTRE__"].start();
   }
 }
 
