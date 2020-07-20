@@ -1149,12 +1149,18 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
       int quantidade = 1;
       float x = 0, y = 0, z = 0;
       if (!notificacao.has_entidade()) {
-        if (estado_ != ETAB_QUAD_SELECIONADO) {
-          LOG(ERROR) << "Para notificacao sem entidade é necessario um quadrado selecionado";
-          return;
+        if (notificacao.has_pos()) {
+          x = notificacao.pos().x();
+          y = notificacao.pos().y();
+          z = notificacao.pos().z();
+        } else {
+          if (estado_ != ETAB_QUAD_SELECIONADO) {
+            LOG(ERROR) << "Para notificacao sem entidade é necessario um quadrado selecionado";
+            return;
+          }
+          // Notificacao sem entidade: posicao do quadrado selecionado.
+          CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
         }
-        // Notificacao sem entidade: posicao do quadrado selecionado.
-        CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
         quantidade = QuantidadeAdicionar(modelos_selecionados_);
       }
 

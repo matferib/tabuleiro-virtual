@@ -982,6 +982,8 @@ void ConfiguraParametrosDesenho(const Entidade* entidade_origem, Tabuleiro::modo
       break;
     case Tabuleiro::MODO_DOACAO:
       break;
+    case Tabuleiro::MODO_ADICAO_ENTIDADE:
+      break;
     case Tabuleiro::MODO_ACAO:
       if (entidade_origem != nullptr) {
         const auto& dado_corrente = entidade_origem->DadoCorrente();
@@ -3081,6 +3083,21 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
             tabelas_, notificacao_doacao_, doador->Proto(), receptor->Proto(), &grupo_notificacoes, &grupo_notificacoes);
         TrataNotificacao(grupo_notificacoes);
         AdicionaNotificacaoListaEventos(grupo_notificacoes);
+        break;
+      }
+      case MODO_ADICAO_ENTIDADE: {
+        id = ultima_entidade_selecionada_;
+        ntf::Notificacao notificacao;
+        notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+        if (id != Entidade::IdInvalido) {
+          notificacao.set_id_referencia(id);
+        }
+        notificacao.set_forcado(alterna_selecao);
+        auto* pos = notificacao.mutable_pos();
+        pos->set_x(x3d);
+        pos->set_y(y3d);
+        pos->set_z(z3d);
+        TrataNotificacao(notificacao);
         break;
       }
       case MODO_ACAO:
