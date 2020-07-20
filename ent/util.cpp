@@ -117,7 +117,7 @@ void Histograma::Imprime() const {
       num_valores_sem_ultimo += valor;
     }
   }
-  std::cout << "min: " << min_ << "s, max: " << max_ << "s, total: " << total_ << "s, : num valores: " << num_valores << std::endl;
+  std::cout << "min: " << min_ << "s, max: " << max_ << "s, total: " << total_ << "s, num valores: " << num_valores << std::endl;
   std::cout << "média: " << (total_ / num_valores) << "s, média sem último: " << (total_sem_ultimo_ / num_valores_sem_ultimo) << "s" << std::endl;
   for (const auto& [intervalo, valor] : intervalos_) {
     const int porcentagem = valor * 50 / maximo;

@@ -671,6 +671,9 @@ class Tabuleiro : public ntf::Receptor {
       const ntf::Notificacao& notificacao, const Entidade* referencia, const Modelo& modelo_com_parametros,
       float x, float y, float z,
       ntf::Notificacao* n_desfazer);
+  std::unique_ptr<Entidade> CriaUmaEntidadePorNotificacao(
+      const ntf::Notificacao& notificacao, const Entidade* referencia, const Modelo& modelo_com_parametros,
+      float x, float y, float z);
 
   /** Poe o tabuleiro nas condicoes iniciais. */
   void EstadoInicial();
