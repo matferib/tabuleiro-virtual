@@ -22,7 +22,6 @@ Remover duplicacoes das funcoes Montadas (podem retornar um id mais de uma vez).
 Meio dano de armas cortantes e perfurantes de enxames.
 UI de armas e ataques ligados a elas: delegate de arma;
 
-Testar conexao.
 Implementar desarmar: armas que nao podem desarmar (gauntlet), natural. Colocar a arma que esta desarmado.
 Chance de falha de conjuracao (dretch conjurando dretch) e tempo de execucao.
 Fazer hell hound (cão infernal).
