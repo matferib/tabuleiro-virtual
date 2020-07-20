@@ -1567,10 +1567,10 @@ bool Entidade::ProximaAcao() {
   }
   auto [indice_corrente, grupos] = IndiceCorrenteComIndicesGrupos(proto_);
   ++indice_corrente;
-  if (indice_corrente >= grupos.size()) {
+  if (indice_corrente >= (int)grupos.size()) {
     indice_corrente = 0;
   }
-  if (indice_corrente < 0 || indice_corrente >= grupos.size()) {
+  if (indice_corrente < 0 || indice_corrente >= (int)grupos.size()) {
     // Caso bizarro.
     return false;
   }
@@ -1598,7 +1598,7 @@ bool Entidade::AcaoAnterior() {
   if (indice_corrente < 0) {
     indice_corrente = grupos.size() - 1;
   }
-  if (indice_corrente < 0 || indice_corrente >= grupos.size()) {
+  if (indice_corrente < 0 || indice_corrente >= (int)grupos.size()) {
     // Caso bizarro.
     return false;
   }

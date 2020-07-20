@@ -3390,7 +3390,7 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
 
 void Tabuleiro::TrataMovimentoEntidadesSelecionadasOuCamera(bool frente_atras, float valor) {
   if (IdsEntidadesSelecionadasOuPrimeiraPessoa().empty()) {
-    if (valor < 1.0f) {
+    if (std::abs(valor) < 1.0f) {
       if (frente_atras) {
         TrataInclinacaoPorDelta(valor * 2 * M_PI);
       } else {
