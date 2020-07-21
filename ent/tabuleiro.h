@@ -668,9 +668,7 @@ class Tabuleiro : public ntf::Receptor {
   void AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, int delta, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
   /** Adiciona uma entidade ao tabuleiro, de acordo com a notificacao e os modelos, notificando. */
   void AdicionaUmaEntidadeNotificando(
-      const ntf::Notificacao& notificacao, const Entidade* referencia, const Modelo& modelo_com_parametros,
-      float x, float y, float z,
-      ntf::Notificacao* n_desfazer);
+      std::unique_ptr<Entidade> entidade, const ntf::Notificacao& notificacao, ntf::Notificacao* n_desfazer);
   std::unique_ptr<Entidade> CriaUmaEntidadePorNotificacao(
       const ntf::Notificacao& notificacao, const Entidade* referencia, const Modelo& modelo_com_parametros,
       float x, float y, float z);

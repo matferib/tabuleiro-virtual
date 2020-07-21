@@ -971,15 +971,11 @@ int Tabuleiro::Desenha() {
 }
 
 void Tabuleiro::AdicionaUmaEntidadeNotificando(
-    const ntf::Notificacao& notificacao, const ent::Entidade* referencia, const Modelo& modelo_com_parametros,
-    float x, float y, float z, ntf::Notificacao* n_desfazer) {
+    std::unique_ptr<Entidade> entidade, const ntf::Notificacao& notificacao, ntf::Notificacao* n_desfazer) {
   Entidade* entidade_ptr = nullptr;
-  {
-    auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x, y, z);
-    ids_adicionados_.push_back(entidade->Id());
-    entidade_ptr = entidade.get();
-    entidades_.insert(std::make_pair(entidade->Id(), std::move(entidade)));
-  }
+  ids_adicionados_.push_back(entidade->Id());
+  entidade_ptr = entidade.get();
+  entidades_.insert(std::make_pair(entidade->Id(), std::move(entidade)));
   // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
   if (!Desfazendo()) {
     // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
@@ -990,7 +986,7 @@ void Tabuleiro::AdicionaUmaEntidadeNotificando(
       if (e_selecionada == nullptr) {
         continue;
       }
-      if (e_selecionada->Tipo() == TE_ENTIDADE && entidade->Tipo() == TE_FORMA) {
+      if (e_selecionada->Tipo() == TE_ENTIDADE && entidade_ptr->Tipo() == TE_FORMA) {
         DeselecionaEntidades();
         break;
       }
@@ -1158,11 +1154,10 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         DeselecionaEntidades();
       }
 
-      ntf::Notificacao grupo_desfazer;
-      grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      std::vector<std::unique_ptr<Entidade>> entidades_adicionadas;
       if (notificacao.has_entidade()) {
         VLOG(1) << "gerando entidade ja pronta";
-        AdicionaUmaEntidadeNotificando(notificacao, referencia, Modelo(), x, y, z + 0, grupo_desfazer.add_notificacao());
+        entidades_adicionadas.emplace_back(CriaUmaEntidadePorNotificacao(notificacao, referencia, Modelo(), x, y, z + 0));
       } else {
         VLOG(1) << "gerando " << quantidade << " entidades";
         std::vector<std::pair<std::string, std::string>> ids_com_quantidades = MontaVetorIdsQuantidadeAdicionar(modelos_selecionados_);
@@ -1174,11 +1169,17 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
           }
           for (int j = 0; j < quantidade_modelo; ++j) {
             Vector2 offset = ComputaOffset(indice_offset++);
-            AdicionaUmaEntidadeNotificando(
-                notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
+            entidades_adicionadas.emplace_back(
+                CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0));
           }
         }
       }
+      ntf::Notificacao grupo_desfazer;
+      grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      for (auto& entidade : entidades_adicionadas) {
+        AdicionaUmaEntidadeNotificando(std::move(entidade), notificacao, grupo_desfazer.add_notificacao());
+      }
+
       LOG(INFO) << "tamanho de entidades adicionadas: " << ids_adicionados_.size();
       SelecionaEntidadesAdicionadas();
       if (!Desfazendo() && !grupo_desfazer.notificacao().empty()) {
