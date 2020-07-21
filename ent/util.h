@@ -457,6 +457,10 @@ void PreencheNotificacaoFormaAlternativa(const Tabelas& tabelas, const EntidadeP
 void PreencheNotificacoesTransicaoTesouro(
     const Tabelas& tabelas, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
 
+/** Caso haja correcao, adiciona notificacao de atualizacao da entidade ao grupo. */
+void PreencheNotificacaoArrumarIds(
+    const EntidadeProto& proto, const std::unordered_map<unsigned int, unsigned int>& mapa_ids_adicionados, ntf::Notificacao* grupo_notificacoes);
+
 enum TipoTesouro {
   TT_ANEL = ent::TIPO_ANEL,
   TT_MANTO = ent::TIPO_MANTO,

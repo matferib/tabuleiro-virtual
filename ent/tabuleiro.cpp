@@ -973,7 +973,6 @@ int Tabuleiro::Desenha() {
 void Tabuleiro::AdicionaUmaEntidadeNotificando(
     std::unique_ptr<Entidade> entidade, const ntf::Notificacao& notificacao, ntf::Notificacao* n_desfazer) {
   Entidade* entidade_ptr = nullptr;
-  ids_adicionados_.push_back(entidade->Id());
   entidade_ptr = entidade.get();
   entidades_.insert(std::make_pair(entidade->Id(), std::move(entidade)));
   // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
@@ -1127,6 +1126,15 @@ Vector2 ComputaOffset(int i) {
   return offset;
 }
 
+void AdicionaIdAtualizaMapa(
+    const Entidade& entidade, const EntidadeProto& proto_original,
+    std::vector<unsigned int>* ids_adicionados, std::unordered_map<unsigned int, unsigned int>* mapa_ids_adicionados) {
+  ids_adicionados->push_back(entidade.Id());
+  if (proto_original.has_id()) {
+    (*mapa_ids_adicionados)[proto_original.id()] = entidade.Id();
+  }
+}
+
 }  // namespace
 
 void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao) {
@@ -1157,7 +1165,9 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
       std::vector<std::unique_ptr<Entidade>> entidades_adicionadas;
       if (notificacao.has_entidade()) {
         VLOG(1) << "gerando entidade ja pronta";
-        entidades_adicionadas.emplace_back(CriaUmaEntidadePorNotificacao(notificacao, referencia, Modelo(), x, y, z + 0));
+        auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, Modelo(), x, y, z);
+        AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
+        entidades_adicionadas.emplace_back(std::move(entidade));
       } else {
         VLOG(1) << "gerando " << quantidade << " entidades";
         std::vector<std::pair<std::string, std::string>> ids_com_quantidades = MontaVetorIdsQuantidadeAdicionar(modelos_selecionados_);
@@ -1169,8 +1179,9 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
           }
           for (int j = 0; j < quantidade_modelo; ++j) {
             Vector2 offset = ComputaOffset(indice_offset++);
-            entidades_adicionadas.emplace_back(
-                CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0));
+            auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z);
+            AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
+            entidades_adicionadas.emplace_back(std::move(entidade));
           }
         }
       }
@@ -1180,7 +1191,7 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         AdicionaUmaEntidadeNotificando(std::move(entidade), notificacao, grupo_desfazer.add_notificacao());
       }
 
-      LOG(INFO) << "tamanho de entidades adicionadas: " << ids_adicionados_.size();
+      VLOG(1) << "tamanho de entidades adicionadas: " << ids_adicionados_.size();
       SelecionaEntidadesAdicionadas();
       if (!Desfazendo() && !grupo_desfazer.notificacao().empty()) {
         AdicionaNotificacaoListaEventos(grupo_desfazer);
@@ -1969,6 +1980,17 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
   }
 }
 
+ntf::Notificacao Tabuleiro::ArrumaIdsEntidadesAdicionadas() const {
+  ntf::Notificacao n_grupo;
+  n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : ids_adicionados_) {
+    const auto* e = BuscaEntidade(id);
+    if (e == nullptr) continue;
+    PreencheNotificacaoArrumarIds(e->Proto(), mapa_ids_adicionados_, &n_grupo);
+  }
+  return n_grupo;
+}
+
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_REQUISITAR_LOG_EVENTOS: {
@@ -2107,15 +2129,22 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
     }
-    case ntf::TN_GRUPO_NOTIFICACOES:
+    case ntf::TN_GRUPO_NOTIFICACOES: {
       // Nunca deve vir da central.
       processando_grupo_ = true;
       ids_adicionados_.clear();
+      mapa_ids_adicionados_.clear();
       for (const auto& n : notificacao.notificacao()) {
         TrataNotificacao(n);
       }
+      // O for evita o loop infinito de grupo criando outro grupo.
+      auto grupo_correcoes = ArrumaIdsEntidadesAdicionadas();
+      for (const auto& n_correcao : grupo_correcoes.notificacao()) {
+        TrataNotificacao(n_correcao);
+      }
       processando_grupo_ = false;
       return true;
+    }
     case ntf::TN_REINICIAR_CAMERA:
       if (notificacao.tabuleiro().has_camera_inicial()) {
         ReiniciaCamera(notificacao);
@@ -2149,6 +2178,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ADICIONAR_ENTIDADE:
       AdicionaEntidadesNotificando(notificacao);
+      if (!processando_grupo_) {
+        TrataNotificacao(ArrumaIdsEntidadesAdicionadas());
+      }
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
       if (notificacao.local() && notificacao.acao().adiciona_ao_log_se_local()) {
@@ -5789,7 +5821,7 @@ void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
   for (const auto& ep : entidades_copiadas.entidade()) {
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-    n->mutable_entidade()->CopyFrom(ep);
+    *n->mutable_entidade() = ep;
     entidades_coladas.push_back(n->mutable_entidade());
   }
 #else
@@ -5819,7 +5851,8 @@ void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
       }
       AdicionaNotificacaoListaEventos(grupo_notificacoes);
     } else {
-      LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
+      LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado. Ids adicionados: "
+          << ids_adicionados_.size() << ", tam grupo: " << grupo_notificacoes.notificacao_size();
     }
   }
 }

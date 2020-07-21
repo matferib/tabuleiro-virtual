@@ -6479,6 +6479,50 @@ void PreencheNotificacoesTransicaoTesouro(
   }
 }
 
+void PreencheNotificacaoArrumarIds(
+    const EntidadeProto& proto, const std::unordered_map<unsigned int, unsigned int>& mapa_ids_adicionados, ntf::Notificacao* grupo_notificacoes) {
+  EntidadeProto proto_novo;
+  proto_novo.set_id(proto.id());
+  bool mudou = false;
+  if (proto.has_montado_em()) {
+    if (auto it = mapa_ids_adicionados.find(proto.montado_em()); it != mapa_ids_adicionados.end()) {
+      proto_novo.set_montado_em(it->second);
+      mudou = true;
+    }
+  }
+  if (proto.has_familiar()) {
+    if (auto it = mapa_ids_adicionados.find(proto.familiar()); it != mapa_ids_adicionados.end()) {
+      proto_novo.set_familiar(it->second);
+      mudou = true;
+    }
+  }
+  if (c_any_of(proto.entidades_montadas(), [&mapa_ids_adicionados](unsigned int id) { return mapa_ids_adicionados.find(id) != mapa_ids_adicionados.end(); } )) {
+    for (const auto& id : proto.entidades_montadas()) {
+      if (auto it = mapa_ids_adicionados.find(id); it != mapa_ids_adicionados.end()) {
+        proto_novo.add_entidades_montadas(it->second);
+      } else {
+        proto_novo.add_entidades_montadas(id);
+      }
+    }
+    mudou = true;
+  }
+  if (c_any_of(proto.agarrado_a(), [&mapa_ids_adicionados](unsigned int id) { return mapa_ids_adicionados.find(id) != mapa_ids_adicionados.end(); } )) {
+    for (const auto& id : proto.agarrado_a()) {
+      if (auto it = mapa_ids_adicionados.find(id); it != mapa_ids_adicionados.end()) {
+        proto_novo.add_agarrado_a(it->second);
+      } else {
+        proto_novo.add_agarrado_a(id);
+      }
+    }
+    mudou = true;
+  }
+  if (mudou) {
+    auto* n_filha = grupo_notificacoes->add_notificacao();
+    n_filha->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+    *n_filha->mutable_entidade() = proto_novo;
+    VLOG(2) << "PreencheNotificacaoArrumarIds: " << proto_novo.DebugString();
+  }
+}
 
 void PreencheNotificacoesDoacaoParcialTesouro(
     const Tabelas& tabelas, const ntf::Notificacao& notificacao_doacao,
