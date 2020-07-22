@@ -6992,14 +6992,9 @@ modelo {
 }
 
 modelo {
-  id: 'Humano Especialista Base'
+  id: 'Especialista Base'
   entidade {
-    raca: 'humano'
-    info_textura { id: 'blacksmith.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.3 g: 0.3 b: 0.3 }
-    info_talentos {
-      outros { id: 'vitalidade' origem: 'humano' }
-    }
     atributos {
       # Usa array padrao.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
@@ -7008,6 +7003,19 @@ modelo {
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
+modelo {
+  id: 'Humano Especialista Base'
+  id_entidade_base: 'Especialista Base'
+  entidade {
+    raca: 'humano'
+    info_textura { id: 'blacksmith.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.3 g: 0.3 b: 0.3 }
+    info_talentos {
+      outros { id: 'vitalidade' origem: 'humano' }
     }
   }
 }
@@ -7049,6 +7057,50 @@ modelo {
     info_pericias { id: 'ouvir' pontos: 9 }
     info_pericias { id: 'sentir_motivacao' pontos: 9 }
     info_pericias { id: 'avaliacao' pontos: 9 }
+  }
+}
+modelo {
+  id: 'Anão Especialista Base'
+  id_entidade_base: 'Especialista Base'
+  entidade {
+    raca: 'anao'
+    info_textura { id: 'dwarf_blacksmith.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.3 g: 0.3 b: 0.3 }
+  }
+}
+modelo {
+  id: 'Anão Especialista 12'
+  id_entidade_base: 'Anão Especialista Base'
+  entidade {
+    rotulo: 'Especialista 12'
+    info_classes { id: 'especialista' nivel: 12 }
+    dados_vida: '12d6+12'
+    atributos {
+      inteligencia { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 2 } } }
+    }
+    dados_defesa { id_armadura: 'camisao' bonus_magico_armadura: 1 }
+    dados_ataque { id_arma: 'lanca_longa' empunhadura: EA_2_MAOS bonus_magico: 1 }
+    # Metade do preco.
+    dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 7 }
+    dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 8 }
+    dados_ataque { id_arma: 'bolsa_cola' empunhadura: EA_ARMA_ESCUDO municao: 2 }
+    dados_ataque { id_arma: 'pedra_trovao' empunhadura: EA_ARMA_ESCUDO municao: 4 }
+    tesouro {
+    }
+    info_talentos {
+      gerais { id: 'foco_em_pericia' }  # 1
+      gerais { id: 'especializacao_em_combate' }  # 3
+      gerais { id: 'desarme_aprimorado' }  # 6
+    }
+    info_pericias { id: 'oficios_armeiro' pontos: 15 }
+    info_pericias { id: 'oficios_armoraria' pontos: 15 }
+    info_pericias { id: 'oficios_armoraria' pontos: 15 }
+    info_pericias { id: 'oficios_alquimia' pontos: 15 }
+    info_pericias { id: 'oficios_armadilharia' pontos: 15 }
+    info_pericias { id: 'observar' pontos: 15 }
+    info_pericias { id: 'ouvir' pontos: 15 }
+    info_pericias { id: 'sentir_motivacao' pontos: 15 }
+    info_pericias { id: 'avaliacao' pontos: 15 }
   }
 }
 modelo {
