@@ -1171,6 +1171,19 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
+    linha: -8
+    coluna: -1
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "T"
+    cor_rotulo {}
+    textura: "icon_enter.png"
+    id: CONTROLE_TRANSICAO
+    forma: FORMA_RETANGULO
+    dica: "Entra em um objeto."
+  }
+  dados_botoes {
+    tamanho: 1
     linha: -7
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
