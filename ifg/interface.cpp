@@ -84,8 +84,8 @@ std::string StringArea(const ent::AcaoProto& acao) {
 }  // namespace
 
 void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
-  for (const auto& m : entrada.modelo()) {
-    saida->add_modelo()->CopyFrom(m);
+  for (const auto& item_menu : entrada.item_menu()) {
+    saida->add_item_menu()->CopyFrom(item_menu);
   }
   for (const auto& sub_entrada : entrada.sub_menu()) {
     MenuModelos* sub_saida = nullptr;
