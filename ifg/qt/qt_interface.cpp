@@ -178,9 +178,9 @@ std::set<std::string> ExtraiModelos(const MenuModelos& menu_modelos) {
   std::set<std::string> ret;
   do {
     const auto* menu = menus.top();
-    for (const auto& modelo : menu->modelo()) {
+    for (const auto& item_menu : menu->item_menu()) {
       // ATENCAO: Se o texto for usado, deve-se manter um mapeamento de texto->id porque o callback usa o id.
-      ret.insert(modelo.id());
+      ret.insert(item_menu.id());
     }
     menus.pop();
     for (const auto& sub_menu : menu->sub_menu()) {
