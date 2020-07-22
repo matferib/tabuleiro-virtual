@@ -715,6 +715,10 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       SelecionaModelosEntidades(modelos);
       break;
     }
+    case CONTROLE_ADICIONA_ENTIDADE: {
+      EntraModoClique(MODO_ADICAO_ENTIDADE);
+      break;
+    }
     case CONTROLE_APAGA_ENTIDADES: {
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_REMOVER_ENTIDADE);
@@ -1405,6 +1409,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_ACAO,              [this] (const Entidade* entidade) { return modo_clique_ != MODO_NORMAL; } },
     { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },
+    { CONTROLE_ADICIONA_ENTIDADE, [this] (const Entidade* entidade) { return modo_clique_ == MODO_ADICAO_ENTIDADE; } },
     { CONTROLE_TRANSICAO,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_REGUA; } },
     { CONTROLE_ROLAR_D4,          [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 4; } },

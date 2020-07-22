@@ -283,11 +283,16 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura());
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura());
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
-      float escala_x_inicial = proto.escala().x();
-      float escala_y_inicial = proto.escala().y();
-      gl::Escala(escala_x_inicial / proto.info_textura().escala_x(), escala_y_inicial / proto.info_textura().escala_y(), 1.0f);
+      const float escala_x_inicial = proto.escala().x();
+      const float escala_y_inicial = proto.escala().y();
+      if (!proto.info_textura().direcao_circular()) {
+        gl::Escala(escala_x_inicial / proto.info_textura().escala_x(), escala_y_inicial / proto.info_textura().escala_y(), 1.0f);
+      }
       if (vd.matriz_deslocamento_textura != Matrix4()) {
         gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
+      }
+      if (proto.info_textura().direcao_circular()) {
+        gl::Escala(escala_x_inicial / proto.info_textura().escala_x(), escala_y_inicial / proto.info_textura().escala_y(), 1.0f);
       }
       gl::AtualizaMatrizes();
     } else {

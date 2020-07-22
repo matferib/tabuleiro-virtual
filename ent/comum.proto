@@ -61,7 +61,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 153.
+// Proximo id: 154.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -234,6 +234,8 @@ enum TipoEfeito {
   EFEITO_ELIXIR_CUSPIR_FOGO = 151;
   // Envenena uma arma.
   EFEITO_ARMA_ENVENENADA = 152;
+  // disguise self.
+  EFEITO_TRANSFORMACAO_MOMENTANEA = 153;
 }
 
 enum TipoEfeitoModelo {
@@ -443,6 +445,7 @@ message InfoTextura {
   optional bool textura_movel = 19 [deprecated=true];
   optional int32 periodo_s = 20;  // Para texturas moveis, indica quantos segundos leva para dar a volta.
   optional int32 direcao_graus = 23;  // Para texturas moveis, indica a direcao da rotacao.
+  optional bool direcao_circular = 24;  // Para texturas moveis, indica movimento circular.
 }
 
 // A escala nos tres eixos.

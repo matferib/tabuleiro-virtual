@@ -522,6 +522,8 @@ class Entidade {
     float progresso_espiada_ = 0.0f;
     // Para texturas que se movem.
     float deslocamento_textura = 0.0f;
+    // Para texturas que se movem de forma circular.
+    float angulo_textura_rad = 0.0f;
     // Efeitos da criatura e algum complemento.
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).

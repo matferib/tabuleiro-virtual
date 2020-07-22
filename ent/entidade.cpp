@@ -725,9 +725,14 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
     // O de entidade eh diferente.
     if (proto.tipo() != TE_ENTIDADE) {
       Matrix4 m;
-      m.scale(proto.info_textura().largura(), proto.info_textura().altura(), 1.0f);
-      m.rotateZ(-proto.info_textura().direcao_graus());
-      m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y() + vd.deslocamento_textura, 0.0f);
+      if (proto.info_textura().direcao_circular()) {
+        m.translate(-0.5f, -0.5f, 0.0f);
+        m.rotateZ(vd.angulo_textura_rad * RAD_PARA_GRAUS);
+        m.translate(0.5f, 0.5f, 0.0f);
+      } else {
+        m.rotateZ(-proto.info_textura().direcao_graus());
+        m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y() + vd.deslocamento_textura, 0.0f);
+      }
       md.deslocamento_textura = m;
     }
     return md;
@@ -902,12 +907,16 @@ void Entidade::Atualiza(int intervalo_ms) {
     vd_.angulo_disco_voo_rad = 0.0f;
   }
   if (proto_.info_textura().periodo_s() > 0) {
-    vd_.deslocamento_textura += (intervalo_ms / (proto_.info_textura().periodo_s() * 1000.0f));
-    if (vd_.deslocamento_textura > 2.0) {
-      vd_.deslocamento_textura = 0.0f;
+    if (proto_.info_textura().direcao_circular()) {
+      vd_.angulo_textura_rad += (intervalo_ms / (proto_.info_textura().periodo_s() * 1000.0f)) * (2 * M_PI);
+      vd_.angulo_textura_rad = fmod(vd_.angulo_textura_rad, 2 * M_PI);
+    } else {
+      vd_.deslocamento_textura += (intervalo_ms / (proto_.info_textura().periodo_s() * 1000.0f));
+      vd_.deslocamento_textura = fmod(vd_.deslocamento_textura, 2.0f);
     }
   } else {
     vd_.deslocamento_textura = 0.0f;
+    vd_.angulo_textura_rad = 0.0f;
   }
 
   if (Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d() &&
