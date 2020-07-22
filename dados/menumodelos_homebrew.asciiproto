@@ -1,6 +1,6 @@
 sub_menu {
   id: 'PdMs (NPCs)'
-  modelo {
+  item_menu {
     id: 'Andalara Ranger 9 + Guepardo'
     modelos { id: 'Andalara Ranger 9' }
     modelos { id: 'Guepardo' }
@@ -8,7 +8,7 @@ sub_menu {
 }
 sub_menu {
   id: 'Encontros'
-  modelo {
+  item_menu {
     id: 'bosque_andalara'
     texto: 'Bosque de Andalara'
     quantidade: '1'

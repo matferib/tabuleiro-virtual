@@ -1,123 +1,123 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
-modelo { id: 'Padrão' }
+item_menu { id: 'Padrão' }
 sub_menu {
   id: 'Mortos-Vivos'
-  modelo { id: 'Allip' }
-  modelo { id: 'Aparição' }
-  modelo { id: 'Bodak' }
-  modelo { id: 'Carneçal' }
-  modelo { id: 'Carniçal' }
+  item_menu { id: 'Allip' }
+  item_menu { id: 'Aparição' }
+  item_menu { id: 'Bodak' }
+  item_menu { id: 'Carneçal' }
+  item_menu { id: 'Carniçal' }
   sub_menu {
     id: 'Esqueletos'
-    modelo { id: 'Esqueleto (Humano Combatente)' }
-    modelo { id: 'Esqueleto (Lobo 2)' }
-    modelo { id: 'Esqueleto (Lobo 3)' }
-    modelo { id: 'Esqueleto (Lobo 4)' }
-    modelo { id: 'Esqueleto (Lobo 5)' }
-    modelo { id: 'Esqueleto (Lobo 6)' }
-    modelo { id: 'Esqueleto (Troll)' }
+    item_menu { id: 'Esqueleto (Humano Combatente)' }
+    item_menu { id: 'Esqueleto (Lobo 2)' }
+    item_menu { id: 'Esqueleto (Lobo 3)' }
+    item_menu { id: 'Esqueleto (Lobo 4)' }
+    item_menu { id: 'Esqueleto (Lobo 5)' }
+    item_menu { id: 'Esqueleto (Lobo 6)' }
+    item_menu { id: 'Esqueleto (Troll)' }
   }
   sub_menu {
     id: 'Zumbis'
-    modelo { id: 'Zumbi (humano)' }
-    modelo { id: 'Zumbi (kobold)' }
+    item_menu { id: 'Zumbi (humano)' }
+    item_menu { id: 'Zumbi (kobold)' }
   }
 }
 sub_menu {
   id: 'Aberrações'
-  modelo { id: 'Abocanhador Matraqueante' }
-  modelo { id: 'Mantor' }
-  modelo { id: 'Monstro da Ferrugem' }
-  modelo { id: 'Otyugh' }
+  item_menu { id: 'Abocanhador Matraqueante' }
+  item_menu { id: 'Mantor' }
+  item_menu { id: 'Monstro da Ferrugem' }
+  item_menu { id: 'Otyugh' }
 }
 sub_menu {
   id: 'Animais'
-  modelo { id: 'Águia' }
-  modelo { id: 'Bisão' }
-  modelo {
+  item_menu { id: 'Águia' }
+  item_menu { id: 'Bisão' }
+  item_menu {
     id: 'bisao_manada' texto: 'Bisão (Manada)'
     modelos {
       id: 'Bisão' quantidade: '6d5'
     }
   }
-  modelo { id: 'Arminho Atroz' }
-  modelo { id: 'Cachorro' }
-  modelo { id: 'Cachorro de Montaria' }
-  modelo { id: 'Carcajú' }
-  modelo { id: 'Carcajú Atroz' }
-  modelo { id: 'Coruja' }
+  item_menu { id: 'Arminho Atroz' }
+  item_menu { id: 'Cachorro' }
+  item_menu { id: 'Cachorro de Montaria' }
+  item_menu { id: 'Carcajú' }
+  item_menu { id: 'Carcajú Atroz' }
+  item_menu { id: 'Coruja' }
   sub_menu {
     id: 'Cobras'
     sub_menu {
       id: 'Víboras'
-      modelo { id: 'Cobra, Víbora Miúda' texto: 'Miúda' }
-      modelo { id: 'Cobra, Víbora Pequena' texto: 'Pequena' }
-      modelo { id: 'Cobra, Víbora Média' texto: 'Média' }
+      item_menu { id: 'Cobra, Víbora Miúda' texto: 'Miúda' }
+      item_menu { id: 'Cobra, Víbora Pequena' texto: 'Pequena' }
+      item_menu { id: 'Cobra, Víbora Média' texto: 'Média' }
     }
   }
   sub_menu {
     id: 'Dinossauros'
-    modelo { id: 'Megaraptor' }
-    modelo { id: 'Tiranossauro' }
+    item_menu { id: 'Megaraptor' }
+    item_menu { id: 'Tiranossauro' }
   }
-  modelo { id: 'Falcão' }
-  modelo { id: 'Guepardo' }
-  modelo { id: 'Gorila' }
-  modelo { id: 'Hiena' }
-  modelo { id: 'Leão' }
-  modelo { id: 'Leão Atroz' }
-  modelo { id: 'Lobo' }
-  modelo { id: 'Lobo Atroz' }
-  modelo { id: 'Megaraptor' }
-  modelo { id: 'Rato Atroz' }
-  modelo { id: 'Rinoceronte' }
-  modelo { id: 'Sapo' }
-  modelo { id: 'Texugo Atroz' }
-  modelo { id: 'Tubarão Médio' }
-  modelo { id: 'Tubarão Grande' }
-  modelo { id: 'Tubarão Imenso' }
-  modelo { id: 'Tigre' }
-  modelo { id: 'Tigre Atroz' }
+  item_menu { id: 'Falcão' }
+  item_menu { id: 'Guepardo' }
+  item_menu { id: 'Gorila' }
+  item_menu { id: 'Hiena' }
+  item_menu { id: 'Leão' }
+  item_menu { id: 'Leão Atroz' }
+  item_menu { id: 'Lobo' }
+  item_menu { id: 'Lobo Atroz' }
+  item_menu { id: 'Megaraptor' }
+  item_menu { id: 'Rato Atroz' }
+  item_menu { id: 'Rinoceronte' }
+  item_menu { id: 'Sapo' }
+  item_menu { id: 'Texugo Atroz' }
+  item_menu { id: 'Tubarão Médio' }
+  item_menu { id: 'Tubarão Grande' }
+  item_menu { id: 'Tubarão Imenso' }
+  item_menu { id: 'Tigre' }
+  item_menu { id: 'Tigre Atroz' }
   sub_menu {
     id: 'Ursos'
-    modelo { id: 'Urso Atroz' }
-    modelo { id: 'Urso Marrom' }
-    modelo { id: 'Urso Negro' }
-    modelo { id: 'Urso Negro 4 DV' }
-    modelo { id: 'Urso Negro 5 DV' }
+    item_menu { id: 'Urso Atroz' }
+    item_menu { id: 'Urso Marrom' }
+    item_menu { id: 'Urso Negro' }
+    item_menu { id: 'Urso Negro 4 DV' }
+    item_menu { id: 'Urso Negro 5 DV' }
   }
 }
 sub_menu {
   id: 'Bestas Mágicas'
-  modelo { id: 'Ankheg' }
-  modelo { id: 'Bulette' }
-  modelo { id: 'Cão Teleportador'}
-  modelo { id: 'Coruja Gigante'}
-  modelo { id: 'Stirge'}
+  item_menu { id: 'Ankheg' }
+  item_menu { id: 'Bulette' }
+  item_menu { id: 'Cão Teleportador'}
+  item_menu { id: 'Coruja Gigante'}
+  item_menu { id: 'Stirge'}
 }
 sub_menu {
   id: 'Anões'
-  modelo { id: 'Anão' }
+  item_menu { id: 'Anão' }
 }
-modelo { id: 'Barghest' }
+item_menu { id: 'Barghest' }
 sub_menu {
   id: 'Demônio'
-  modelo { id: 'Demônio Babau' texto: 'Babau' }
-  modelo { id: 'Demônio Bebilith' texto: 'Bebilith' }
-  modelo { id: 'Demônio Glabrezu' texto: 'Glabrezu' }
-  modelo { id: 'Demônio Vrock' texto: 'Vrock' }
-  modelo { id: 'Demônio Dretch' texto: 'Dretch' }
-  modelo { id: 'Demônio Súcubo' texto: 'Súcubo' }
+  item_menu { id: 'Demônio Babau' texto: 'Babau' }
+  item_menu { id: 'Demônio Bebilith' texto: 'Bebilith' }
+  item_menu { id: 'Demônio Glabrezu' texto: 'Glabrezu' }
+  item_menu { id: 'Demônio Vrock' texto: 'Vrock' }
+  item_menu { id: 'Demônio Dretch' texto: 'Dretch' }
+  item_menu { id: 'Demônio Súcubo' texto: 'Súcubo' }
 }
 sub_menu {
   id: 'Drows'
-  modelo { id: 'Drow' }
-  modelo { id: 'Drow Sargento 3' }
-  modelo { id: 'Drow Lider 6' }
+  item_menu { id: 'Drow' }
+  item_menu { id: 'Drow Sargento 3' }
+  item_menu { id: 'Drow Lider 6' }
 }
 sub_menu {
   id: 'Halfling'
-  modelo {
+  item_menu {
     id: 'Halfling Druida 10 + Leão Atroz'
     modelos { id: 'Halfling Druida 10' }
     modelos { id: 'Leão Atroz' }
@@ -125,27 +125,27 @@ sub_menu {
 }
 sub_menu {
   id: 'Elementais'
-  modelo { id: 'Elemental da Água (Pequeno)' }
-  modelo { id: 'Elemental da Água (Médio)' }
-  modelo { id: 'Elemental do Ar (Pequeno)' }
-  modelo { id: 'Elemental do Ar (Médio)' }
-  modelo { id: 'Elemental do Fogo (Pequeno)' }
-  modelo { id: 'Elemental do Fogo (Médio)' }
-  modelo { id: 'Elemental da Terra (Pequeno)' }
-  modelo { id: 'Elemental da Terra (Médio)' }
+  item_menu { id: 'Elemental da Água (Pequeno)' }
+  item_menu { id: 'Elemental da Água (Médio)' }
+  item_menu { id: 'Elemental do Ar (Pequeno)' }
+  item_menu { id: 'Elemental do Ar (Médio)' }
+  item_menu { id: 'Elemental do Fogo (Pequeno)' }
+  item_menu { id: 'Elemental do Fogo (Médio)' }
+  item_menu { id: 'Elemental da Terra (Pequeno)' }
+  item_menu { id: 'Elemental da Terra (Médio)' }
 }
 sub_menu {
   id: 'Enxames'
-  modelo { id: 'Enxame (aranhas)' }
-  modelo { id: 'Enxame (centopéias)' }
-  modelo { id: 'Enxame (gafanhotos)' }
-  modelo { id: 'Enxame (morcegos)' }
-  modelo { id: 'Enxame (ratos)' }
+  item_menu { id: 'Enxame (aranhas)' }
+  item_menu { id: 'Enxame (centopéias)' }
+  item_menu { id: 'Enxame (gafanhotos)' }
+  item_menu { id: 'Enxame (morcegos)' }
+  item_menu { id: 'Enxame (ratos)' }
 }
 sub_menu {
   id: 'Elfos'
-  modelo { id: 'Elfo' }
-  modelo {
+  item_menu { id: 'Elfo' }
+  item_menu {
     id: 'Elfo Druida 5 + Texugo Atroz'
     modelos { id: 'Elfo Druida 5' }
     modelos { id: 'Texugo Atroz' }
@@ -153,89 +153,89 @@ sub_menu {
 }
 sub_menu {
   id: 'Extra-Planares'
-  modelo { id: 'Arconte Guardião' }
-  modelo { id: 'Cão Infernal' }
+  item_menu { id: 'Arconte Guardião' }
+  item_menu { id: 'Cão Infernal' }
 }
 sub_menu {
   id: 'Esfinges'
-  modelo { id: 'Androesfinge' }
-  modelo { id: 'Crioesfinge' }
-  modelo { id: 'Ginoesfinge' }
-  modelo { id: 'Hieracoesfinge' }
+  item_menu { id: 'Androesfinge' }
+  item_menu { id: 'Crioesfinge' }
+  item_menu { id: 'Ginoesfinge' }
+  item_menu { id: 'Hieracoesfinge' }
 }
 sub_menu {
   id: 'Formiga Gigante'
-  modelo { id: 'Formiga Gigante' texto: 'Operária' }
-  modelo { id: 'Formiga Gigante, Soldado' texto: 'Soldado' }
-  modelo { id: 'Formiga Gigante, Rainha'  texto: 'Rainha' }
+  item_menu { id: 'Formiga Gigante' texto: 'Operária' }
+  item_menu { id: 'Formiga Gigante, Soldado' texto: 'Soldado' }
+  item_menu { id: 'Formiga Gigante, Rainha'  texto: 'Rainha' }
 }
 sub_menu {
   id: 'Gavião-Seta'
-  modelo { id: 'Gavião-Seta, adolescente' texto: 'adolescente' }
+  item_menu { id: 'Gavião-Seta, adolescente' texto: 'adolescente' }
 }
 sub_menu {
   id: 'Gigantes'
-  modelo { id: 'Gigante das Colinas' }
-  modelo { id: 'Gigante das Pedras' }
-  modelo { id: 'Gigante das Pedras, Ancião' }
-  modelo { id: 'Gigante das Tempestades' }
+  item_menu { id: 'Gigante das Colinas' }
+  item_menu { id: 'Gigante das Pedras' }
+  item_menu { id: 'Gigante das Pedras, Ancião' }
+  item_menu { id: 'Gigante das Tempestades' }
 }
-modelo { id: 'Grifo' }
-modelo { id: 'Hipogrifo' }
-modelo { id: 'Hipogrifo Celestial' }
-modelo { id: 'Manto Negro' }
-modelo { id: 'Medusa' }
-modelo { id: 'Mephit do Fogo' }
+item_menu { id: 'Grifo' }
+item_menu { id: 'Hipogrifo' }
+item_menu { id: 'Hipogrifo Celestial' }
+item_menu { id: 'Manto Negro' }
+item_menu { id: 'Medusa' }
+item_menu { id: 'Mephit do Fogo' }
 sub_menu {
   id: 'Gnomos'
-  modelo {
+  item_menu {
     id: 'Gnoma Druida 1 + Víbora Pequena'
     modelos { id: 'Gnoma Druida 1' }
     modelos { id: 'Cobra, Víbora Pequena' }
   }
-  modelo { id: 'Gnomo Ilusionista 3' }
-  modelo { id: 'Gnomo Ilusionista 4' }
+  item_menu { id: 'Gnomo Ilusionista 3' }
+  item_menu { id: 'Gnomo Ilusionista 4' }
 }
 sub_menu {
   id: 'Humanos'
-  modelo { texto: 'Adepto 3' id: 'Humano Adepto 3' }
-  modelo { texto: 'Bárbaro' id: 'Humano Bárbaro' }
+  item_menu { texto: 'Adepto 3' id: 'Humano Adepto 3' }
+  item_menu { texto: 'Bárbaro' id: 'Humano Bárbaro' }
   sub_menu {
     id: 'Bardos'
-    modelo { id: 'Humano Bardo 4' }
-    modelo { id: 'Humano Bardo 5' }
+    item_menu { id: 'Humano Bardo 4' }
+    item_menu { id: 'Humano Bardo 5' }
   }
   sub_menu {
     id: 'Clérigos'
-    modelo { id: 'Humano Clérigo 1 (Leal e Neutro)' }
-    modelo { id: 'Humano Clérigo 2 (Neutro)' }
-    modelo { id: 'Humano Clérigo 3 (Neutro)' }
-    modelo { id: 'Humano Clérigo 4 (Neutro)' }
-    modelo { id: 'Humano Clérigo 5 (Leal Bom)' }
-    modelo { id: 'Humano Clérigo 6 (Neutro Bom)' }
-    modelo { id: 'Humano Clérigo 16' }
+    item_menu { id: 'Humano Clérigo 1 (Leal e Neutro)' }
+    item_menu { id: 'Humano Clérigo 2 (Neutro)' }
+    item_menu { id: 'Humano Clérigo 3 (Neutro)' }
+    item_menu { id: 'Humano Clérigo 4 (Neutro)' }
+    item_menu { id: 'Humano Clérigo 5 (Leal Bom)' }
+    item_menu { id: 'Humano Clérigo 6 (Neutro Bom)' }
+    item_menu { id: 'Humano Clérigo 16' }
   }
   sub_menu {
     id: 'Aristocratas'
-    modelo { id: 'Humano Aristocrata 5' }
-    modelo { id: 'Humana Aristocrata 5' }
-    modelo { id: 'Humano Aristocrata 6' }
-    modelo { id: 'Humana Aristocrata 6' }
+    item_menu { id: 'Humano Aristocrata 5' }
+    item_menu { id: 'Humana Aristocrata 5' }
+    item_menu { id: 'Humano Aristocrata 6' }
+    item_menu { id: 'Humana Aristocrata 6' }
   }
   sub_menu {
     id: 'Combatentes'
-    modelo { id: 'Humano Combatente 1' }
-    modelo { id: 'Humano Combatente 2' }
-    modelo { id: 'Humano Combatente 4' }
+    item_menu { id: 'Humano Combatente 1' }
+    item_menu { id: 'Humano Combatente 2' }
+    item_menu { id: 'Humano Combatente 4' }
   }
   sub_menu {
     id: 'Especialistas'
-    modelo { id: 'Humano Especialista 6' }
+    item_menu { id: 'Humano Especialista 6' }
   }
 
   sub_menu {
     id: 'Plebeus'
-    modelo {
+    item_menu {
       id: 'Família de Plebeus' texto: 'Família'
       modelos { id: 'Humano Plebeu 1' }
       modelos { id: 'Humana Plebeia 1' }
@@ -244,26 +244,26 @@ sub_menu {
       modelos { id: 'Humana Menina' quantidade: '1d3-2' }
       modelos { id: 'Humana Menininha' quantidade: '1d3-2' }
     }
-    modelo { id: 'Humano Plebeu 1' texto: 'Plebeu 1' }
-    modelo { id: 'Humano Plebeu 2' texto: 'Plebeu 2' }
-    modelo { id: 'Humano Plebeu 3' texto: 'Plebeu 3' }
-    modelo { id: 'Humano Plebeu 4' texto: 'Plebeu 4' }
-    modelo { id: 'Humano Plebeu 5' texto: 'Plebeu 5' }
-    modelo { id: 'Humano Plebeu 6' texto: 'Plebeu 6' }
-    modelo { id: 'Humano Menino' texto: 'Menino' }
-    modelo { id: 'Humano Menininho' texto: 'Menininho' }
-    modelo { id: 'Humana Plebeia 1' texto: 'Plebeia 1' }
-    modelo { id: 'Humana Plebeia 2' texto: 'Plebeia 2' }
-    modelo { id: 'Humana Plebeia 3' texto: 'Plebeia 3' }
-    modelo { id: 'Humana Plebeia 4' texto: 'Plebeia 4' }
-    modelo { id: 'Humana Plebeia 5' texto: 'Plebeia 5' }
-    modelo { id: 'Humana Plebeia 6' texto: 'Plebeia 6' }
-    modelo { id: 'Humana Menina' texto: 'Menina' }
-    modelo { id: 'Humana Menininha' texto: 'Menininha' }
+    item_menu { id: 'Humano Plebeu 1' texto: 'Plebeu 1' }
+    item_menu { id: 'Humano Plebeu 2' texto: 'Plebeu 2' }
+    item_menu { id: 'Humano Plebeu 3' texto: 'Plebeu 3' }
+    item_menu { id: 'Humano Plebeu 4' texto: 'Plebeu 4' }
+    item_menu { id: 'Humano Plebeu 5' texto: 'Plebeu 5' }
+    item_menu { id: 'Humano Plebeu 6' texto: 'Plebeu 6' }
+    item_menu { id: 'Humano Menino' texto: 'Menino' }
+    item_menu { id: 'Humano Menininho' texto: 'Menininho' }
+    item_menu { id: 'Humana Plebeia 1' texto: 'Plebeia 1' }
+    item_menu { id: 'Humana Plebeia 2' texto: 'Plebeia 2' }
+    item_menu { id: 'Humana Plebeia 3' texto: 'Plebeia 3' }
+    item_menu { id: 'Humana Plebeia 4' texto: 'Plebeia 4' }
+    item_menu { id: 'Humana Plebeia 5' texto: 'Plebeia 5' }
+    item_menu { id: 'Humana Plebeia 6' texto: 'Plebeia 6' }
+    item_menu { id: 'Humana Menina' texto: 'Menina' }
+    item_menu { id: 'Humana Menininha' texto: 'Menininha' }
   }
   sub_menu {
     id: 'Ranger'
-    modelo {
+    item_menu {
       id: 'Humana Ranger 9 + Guepardo'
       modelos { id: 'Humana Ranger 9 Duas Armas' }
       modelos { id: 'Guepardo' }
@@ -272,22 +272,22 @@ sub_menu {
 
   sub_menu {
     id: 'Druidas'
-    modelo {
+    item_menu {
       id: 'Humano Druida 1 + Rato Atroz'
       modelos { id: 'Humano Druida 1' }
       modelos { id: 'Rato Atroz' }
     }
-    modelo {
+    item_menu {
       id: 'Humano Druida 2 + Lobo'
       modelos { id: 'Humano Druida 2' }
       modelos { id: 'Lobo' }
     }
-    modelo {
+    item_menu {
       id: 'Humano Druida 5 + Gorila'
       modelos { id: 'Humano Druida 5' }
       modelos { id: 'Gorila' }
     }
-    modelo {
+    item_menu {
       id: 'Humano Druida 10 + Leão Atroz'
       modelos { id: 'Humano Druida 10' }
       modelos { id: 'Leão Atroz' }
@@ -295,126 +295,126 @@ sub_menu {
   }
   sub_menu {
     id: 'Feiticeiros'
-    modelo { id: 'Humano Feiticeiro 5' }
+    item_menu { id: 'Humano Feiticeiro 5' }
   }
 
   sub_menu {
     id: 'Guerreiros'
-    modelo { id: 'Humana Guerreira' texto: 'Humana 1' }
-    modelo { id: 'Humano Guerreiro' texto: 'Humano 1' }
-    modelo { id: 'Humano Guerreiro 5' texto: 'Humano 5' }
-    modelo { id: 'Humana Guerreira 5' texto: 'Humana 5' }
-    modelo { id: 'Humano Guerreiro 7' texto: 'Humano 7' }
+    item_menu { id: 'Humana Guerreira' texto: 'Humana 1' }
+    item_menu { id: 'Humano Guerreiro' texto: 'Humano 1' }
+    item_menu { id: 'Humano Guerreiro 5' texto: 'Humano 5' }
+    item_menu { id: 'Humana Guerreira 5' texto: 'Humana 5' }
+    item_menu { id: 'Humano Guerreiro 7' texto: 'Humano 7' }
   }
   sub_menu {
     id: 'Ladinos'
-    modelo { id: 'Humano Ladino' }
-    modelo { id: 'Humano Ladino 3' }
-    modelo { id: 'Humano Ladino 4' }
-    modelo { id: 'Humano Ladino 5' }
-    modelo { id: 'Humano Ladino 7' }
+    item_menu { id: 'Humano Ladino' }
+    item_menu { id: 'Humano Ladino 3' }
+    item_menu { id: 'Humano Ladino 4' }
+    item_menu { id: 'Humano Ladino 5' }
+    item_menu { id: 'Humano Ladino 7' }
   }
   sub_menu {
     id: 'Magos'
-    modelo { id: 'Humano Mago' }
-    modelo { id: 'Humano Mago 4' }
-    modelo { id: 'Humano Mago 5' }
-    modelo { id: 'Humano Mago 18' }
+    item_menu { id: 'Humano Mago' }
+    item_menu { id: 'Humano Mago 4' }
+    item_menu { id: 'Humano Mago 5' }
+    item_menu { id: 'Humano Mago 18' }
   }
   sub_menu {
     id: 'Monges'
-    modelo { id: 'Humano Monge 1' texto: 'Monge 1' }
-    modelo { id: 'Humano Monge 5' texto: 'Monge 5' }
+    item_menu { id: 'Humano Monge 1' texto: 'Monge 1' }
+    item_menu { id: 'Humano Monge 5' texto: 'Monge 5' }
   }
   sub_menu {
     id: 'Paladinos'
-    modelo { id: 'Humano Paladino' }
-    modelo { id: 'Humano Paladino 12' }
+    item_menu { id: 'Humano Paladino' }
+    item_menu { id: 'Humano Paladino 12' }
   }
 }
 sub_menu {
   id: 'Goblins'
-  modelo { id: 'Goblin' }
-  modelo { id: 'Goblin Demoníaco' }
-  modelo { id: 'Goblin Sargento' }
+  item_menu { id: 'Goblin' }
+  item_menu { id: 'Goblin Demoníaco' }
+  item_menu { id: 'Goblin Sargento' }
 }
 sub_menu {
   id: 'Gnolls'
-  modelo { id: 'Gnoll' }
-  modelo { id: 'Gnoll Sargento Bárbaro 3' }
-  modelo { id: 'Gnoll Lider Ranger 6' }
+  item_menu { id: 'Gnoll' }
+  item_menu { id: 'Gnoll Sargento Bárbaro 3' }
+  item_menu { id: 'Gnoll Lider Ranger 6' }
 }
 sub_menu {
   id: 'Hobgoblins'
-  modelo { id: 'Hobgoblin' }
-  modelo { id: 'Hobgoblin Sargento' }
-  modelo { id: 'Hobgoblin Tenente 5' }
+  item_menu { id: 'Hobgoblin' }
+  item_menu { id: 'Hobgoblin Sargento' }
+  item_menu { id: 'Hobgoblin Tenente 5' }
 }
 sub_menu {
   id: 'Homem-Rato'
-  modelo { id: 'Homem-Rato' }
-  modelo { id: 'Homem-Rato Ladino 3' }
-  modelo { id: 'Homem-Rato Ladino 5' }
+  item_menu { id: 'Homem-Rato' }
+  item_menu { id: 'Homem-Rato Ladino 3' }
+  item_menu { id: 'Homem-Rato Ladino 5' }
 }
-modelo { id: 'Kobold' }
+item_menu { id: 'Kobold' }
 sub_menu {
   id: 'Ogros'
-  modelo { id: 'Ogro' }
-  modelo { id: 'Ogro Bárbaro' }
+  item_menu { id: 'Ogro' }
+  item_menu { id: 'Ogro Bárbaro' }
 }
 sub_menu {
   id: 'Orcs'
-  modelo { id: 'Orc' }
-  modelo { id: 'Orc Lanceiro' }
-  modelo { id: 'Orc Sargento' }
-  modelo { id: 'Orc Tenente' }
-  modelo { id: 'Orc Capitão' }
+  item_menu { id: 'Orc' }
+  item_menu { id: 'Orc Lanceiro' }
+  item_menu { id: 'Orc Sargento' }
+  item_menu { id: 'Orc Tenente' }
+  item_menu { id: 'Orc Capitão' }
 }
 sub_menu {
   id: 'Plantas'
-  modelo { id: 'Arbusto Errante' }
-  modelo { id: 'Fungo Fantasma' }
-  modelo { id: 'Fungo Guardião' }
-  modelo { id: 'Fungo Violeta' }
+  item_menu { id: 'Arbusto Errante' }
+  item_menu { id: 'Fungo Fantasma' }
+  item_menu { id: 'Fungo Guardião' }
+  item_menu { id: 'Fungo Violeta' }
 }
 sub_menu {
   id: 'Limo/Gosma'
-  modelo { id: 'Cubo Gelatinoso' }
-  modelo { id: 'Pudim Negro' }
+  item_menu { id: 'Cubo Gelatinoso' }
+  item_menu { id: 'Pudim Negro' }
 }
-modelo { id: 'Quimera' }
-modelo { id: 'Troll' }
-modelo { id: 'Uivante' }
+item_menu { id: 'Quimera' }
+item_menu { id: 'Troll' }
+item_menu { id: 'Uivante' }
 sub_menu {
   id: 'Vermes'
-  modelo { id: 'Abelha Gigante' }
-  modelo { id: 'Aranha Gigante Enorme' }
-  modelo { id: 'Vaga-lume Gigante' }  # Besouro do fogo.
-  modelo { id: 'Centopéia Média' }
-  modelo { id: 'Centopéia Grande' }
-  modelo { id: 'Centopéia Enorme' }
-  modelo { id: 'Centopéia Enorme Abissal' }
-  modelo { id: 'Centopéia Imensa' }
-  modelo { id: 'Escorpião Monstruoso Médio' }
-  modelo { id: 'Escorpião Monstruoso Grande' }
-  modelo { id: 'Escorpião Monstruoso Enorme' }
+  item_menu { id: 'Abelha Gigante' }
+  item_menu { id: 'Aranha Gigante Enorme' }
+  item_menu { id: 'Vaga-lume Gigante' }  # Besouro do fogo.
+  item_menu { id: 'Centopéia Média' }
+  item_menu { id: 'Centopéia Grande' }
+  item_menu { id: 'Centopéia Enorme' }
+  item_menu { id: 'Centopéia Enorme Abissal' }
+  item_menu { id: 'Centopéia Imensa' }
+  item_menu { id: 'Escorpião Monstruoso Médio' }
+  item_menu { id: 'Escorpião Monstruoso Grande' }
+  item_menu { id: 'Escorpião Monstruoso Enorme' }
 }
-modelo { id: 'Worg' }
+item_menu { id: 'Worg' }
 sub_menu {
   id: 'Formas'
-  modelo { id: 'Árvore (genérica)' }
-  modelo { id: 'Árvore (pinheiro)' }
-  modelo { id: 'Árvore (seca)' }
-  modelo { id: 'Cactos' }
-  modelo { id: 'Carroça' }
-  modelo { id: 'Casa (8x7)' }
-  modelo { id: 'Cavalo' }
-  modelo { id: 'Moedas' }
-  modelo { id: 'Baú (madeira)' }
-  modelo { id: 'Barras' }
+  item_menu { id: 'Árvore (genérica)' }
+  item_menu { id: 'Árvore (pinheiro)' }
+  item_menu { id: 'Árvore (seca)' }
+  item_menu { id: 'Cactos' }
+  item_menu { id: 'Carroça' }
+  item_menu { id: 'Casa (8x7)' }
+  item_menu { id: 'Cavalo' }
+  item_menu { id: 'Moedas' }
+  item_menu { id: 'Baú (madeira)' }
+  item_menu { id: 'Barras' }
 }
 #sub_menu {
 #  id: 'Teste'
 #modelo { id: 'teste orc' }
-#  modelo { id: 'teste geo' }
+#  item_menu { id: 'teste geo' }
 #}

@@ -1,75 +1,91 @@
 # Este arquivo é uma representação texto do proto ifg::Modelos.
-modelo { id: 'Aarakocra' }
-modelo { id: 'Aranha Armadeira' }
+item_menu { id: 'Aarakocra' }
+item_menu { id: 'Aranha Armadeira' }
 sub_menu {
   id: 'Aberrações'
-  modelo { id: 'Beholder' }
+  item_menu { id: 'Beholder' }
 }
 sub_menu {
   id: 'Bestas Mágicas'
-  modelo { id: 'Veserab' }
-  modelo { id: 'Veserab Avançado' }
+  item_menu { id: 'Veserab' }
+  item_menu { id: 'Veserab Avançado' }
 }
 sub_menu {
   id: 'Demônio'
-  modelo { id: 'Demônio Flecha' texto: 'Flecha' }
-  modelo { id: 'Peticionário Sacerdote Abismo (mane)' }
-  modelo { id: 'Peticionário Ogro Abismo (mane)' }
+  item_menu { id: 'Demônio Flecha' texto: 'Flecha' }
+  item_menu { id: 'Peticionário Sacerdote Abismo (mane)' }
+  item_menu { id: 'Peticionário Ogro Abismo (mane)' }
 }
-modelo { id: 'Dragontino' }
+item_menu { id: 'Dragontino' }
 sub_menu {
   id: 'Drows'
-  modelo { id: 'Sniper Drow' }
-  modelo { id: 'Sacerdotiza Drow' }
+  item_menu { id: 'Sniper Drow' }
+  item_menu { id: 'Sacerdotiza Drow' }
 }
 sub_menu {
   id: 'Enxames'
-  modelo { id: 'Enxame (efêmero)' }
+  item_menu { id: 'Enxame (efêmero)' }
 }
-modelo { id: 'Garra de Ossos' }
+item_menu { id: 'Garra de Ossos' }
 sub_menu {
   id: 'Gigantes'
-  modelo { id: 'Gigante das Montanhas' }
+  item_menu { id: 'Gigante das Montanhas' }
 }
-modelo { id: 'Morcego (Caçador Noturno)' }
+item_menu { id: 'Morcego (Caçador Noturno)' }
 sub_menu {
   id: 'Humanos'
-  modelo { id: 'Humano Bruxo' }
+  item_menu { id: 'Humano Bruxo' }
   sub_menu {
     id: 'Dragões Púrpuras'
-    modelo { id: 'Humano Dragão Púrpura: Combatente Arqueiro 2' texto: 'Arqueiro 2' }
-    modelo { id: 'Humano Dragão Púrpura: Combatente Soldado 2' texto: 'Soldado 2' }
-    modelo { id: 'Humano Dragão Púrpura: Tenente 5' texto: 'Tenente 5' }
-    modelo { id: 'Humano Dragão Púrpura: Arcano de Guerra 4' texto: 'Arcano de Guerra 4' }
-    modelo { id: 'Humano Dragão Púrpura: Arcano de Guerra 5' texto: 'Arcano de Guerra 5' }
+    item_menu { id: 'Humano Dragão Púrpura: Combatente Arqueiro 2' texto: 'Arqueiro 2' }
+    item_menu { id: 'Humano Dragão Púrpura: Combatente Soldado 2' texto: 'Soldado 2' }
+    item_menu { id: 'Humano Dragão Púrpura: Tenente 5' texto: 'Tenente 5' }
+    item_menu { id: 'Humano Dragão Púrpura: Arcano de Guerra 4' texto: 'Arcano de Guerra 4' }
+    item_menu { id: 'Humano Dragão Púrpura: Arcano de Guerra 5' texto: 'Arcano de Guerra 5' }
   }
 }
 sub_menu {
   id: 'Phaerimm'
-  modelo { id: 'Phaerimm Filhote'}
-  modelo { id: 'Phaerimm Juvenil'}
-  modelo { id: 'Phaerimm Jovem Adulto'}
-  modelo { id: 'Phaerimm Adulto'}
-  modelo { id: 'Phaerimm Experiente'}
-  modelo { id: 'Phaerimm Ancião' }
-  modelo { id: 'Phaerimm Ancião Venerável' }
+  item_menu { id: 'Phaerimm Filhote'}
+  item_menu { id: 'Phaerimm Juvenil'}
+  item_menu { id: 'Phaerimm Jovem Adulto'}
+  item_menu { id: 'Phaerimm Adulto'}
+  item_menu { id: 'Phaerimm Experiente'}
+  item_menu { id: 'Phaerimm Ancião' }
+  item_menu { id: 'Phaerimm Ancião Venerável' }
 }
-modelo { id: 'Peryton' }
-modelo { id: 'Soldado do Horror' }
+item_menu { id: 'Peryton' }
+item_menu { id: 'Soldado do Horror' }
 sub_menu {
   id: 'Slaads'
-  modelo { id: 'Slaad Vermelho' texto: 'Vermelho' }
-  modelo { id: 'Slaad Verde' texto: 'Verde' }
+  item_menu { id: 'Slaad Vermelho' texto: 'Vermelho' }
+  item_menu { id: 'Slaad Verde' texto: 'Verde' }
 }
 sub_menu {
   id: 'Mortos-Vivos'
-  modelo { id: 'Guarda de Bane' }
-  modelo { id: 'Guarda de Bane Atroz' }
-  modelo { id: 'Morto de Bane' }
+  item_menu { id: 'Guarda de Bane' }
+  item_menu { id: 'Guarda de Bane Atroz' }
+  item_menu { id: 'Morto de Bane' }
 }
 sub_menu {
   id: 'Encontros'
-  modelo {
+  item_menu {
+    id: 'tilverton_cidade_nova_inicio'
+    texto: 'Tilverton, Cidade Nova, Início'
+    quantidade: '1d4-2'
+    aleatorio: true
+    modelos {
+      id: 'Vulto Guerreiro 5 Montado + Veserab Cidade Nova'
+      modelos { id: 'Vulto Guerreiro 5 Montado' }
+      modelos { id: 'Veserab' }
+    }
+    modelos {
+      id: 'Vulto Feiticeiro 5 Montado + Veserab Cidade Nova'
+      modelos { id: 'Vulto Feiticeiro 5 Montado' }
+      modelos { id: 'Veserab' }
+    }
+  }
+  item_menu {
     id: 'tilverton_cidade_velha_pos_orbe'
     texto: 'Tilverton, Cidade Velha Pós Orbe'
     quantidade: '1d8'
@@ -92,7 +108,7 @@ sub_menu {
     modelos { id: 'Humano Dragão Púrpura: Arcano de Guerra 4' peso: 1 }
     modelos { id: 'Humano Dragão Púrpura: Arcano de Guerra 5' peso: 1 }
   }
-  modelo {
+  item_menu {
     texto: 'Tilverton, Cidade Nova Ida'
     quantidade: '1d8'
     aleatorio: true
@@ -117,7 +133,7 @@ sub_menu {
 }
 sub_menu {
   id: 'Vultos e Obscuros'
-  modelo {
+  item_menu {
     id: 'vultos_1d4'
     texto: 'Vultos (1d4+1)'
     quantidade: '1d4+1'
@@ -131,18 +147,23 @@ sub_menu {
     modelos { id: 'Vulto Feiticeiro 5' peso: 2 }
     modelos { id: 'Veserab' peso: 2 }
   }
-  modelo {
+  item_menu {
     id: 'Vulto Guerreiro 5 Montado + Veserab'
     modelos { id: 'Vulto Guerreiro 5 Montado' }
     modelos { id: 'Veserab' }
   }
-  modelo { id: 'Vulto Bardo 5' }
-  modelo { id: 'Vulto Guerreiro 5' }
-  modelo { id: 'Vulto Feiticeiro 5' }
-  modelo { id: 'Vulto Ladino 5' }
-  modelo { id: 'Vulto Monge 5' }
-  modelo { id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1' }
-  modelo { id: 'Guardião Obscuro Feiticeiro 6/Adepto das Sombras 4' }
-  modelo { id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2' }
-  modelo { id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2/Feiticeiro 4' }
+  item_menu {
+    id: 'Vulto Feiticeiro 5 Montado + Veserab'
+    modelos { id: 'Vulto Feiticeiro 5 Montado' }
+    modelos { id: 'Veserab' }
+  }
+  item_menu { id: 'Vulto Bardo 5' }
+  item_menu { id: 'Vulto Guerreiro 5' }
+  item_menu { id: 'Vulto Feiticeiro 5' }
+  item_menu { id: 'Vulto Ladino 5' }
+  item_menu { id: 'Vulto Monge 5' }
+  item_menu { id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1' }
+  item_menu { id: 'Guardião Obscuro Feiticeiro 6/Adepto das Sombras 4' }
+  item_menu { id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2' }
+  item_menu { id: 'Batedor Aéreo Obscuro Guerreiro 5/Ranger 2/Feiticeiro 4' }
 }

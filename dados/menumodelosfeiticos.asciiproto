@@ -1,33 +1,33 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
-modelo { id: 'Área Escorregadia' }
+item_menu { id: 'Área Escorregadia' }
 sub_menu {
   id: 'Invocar Criaturas I'
-  modelo { id: 'Cachorro Celestial ICI' texto: 'Cachorro Celestial' }
-  modelo { id: 'Coruja Celestial ICI' texto: 'Coruja Celestial' }
-  modelo { id: 'Cobra, Víbora Pequena Abissal ICI' texto: 'Cobra, Víbora Pequena Abissal' }
-  modelo { id: 'Falcão Abissal ICI' texto: 'Falcão Abissal' }
+  item_menu { id: 'Cachorro Celestial ICI' texto: 'Cachorro Celestial' }
+  item_menu { id: 'Coruja Celestial ICI' texto: 'Coruja Celestial' }
+  item_menu { id: 'Cobra, Víbora Pequena Abissal ICI' texto: 'Cobra, Víbora Pequena Abissal' }
+  item_menu { id: 'Falcão Abissal ICI' texto: 'Falcão Abissal' }
 }
-modelo { id: 'Constrição' }
-modelo { id: 'Escuridão' }
-modelo { id: 'Esfera Flamejante' }
-modelo { id: 'Globo de Invulnerabilidade' }
-modelo { id: 'Gravidade Invertida' }
-modelo { id: 'Luz do Dia' }
-modelo { id: 'Coluna de Lâminas' }
-modelo { id: 'Muralha de Lâminas' }
-modelo { id: 'Muralha de Fogo' }
-modelo { id: 'Muralha de Gelo' }
-modelo { id: 'Névoa Mortal' }
-modelo { id: 'Silêncio' }
-modelo { id: 'Tentáculos Negros' }
-modelo { id: 'Zona da Verdade' }
+item_menu { id: 'Constrição' }
+item_menu { id: 'Escuridão' }
+item_menu { id: 'Esfera Flamejante' }
+item_menu { id: 'Globo de Invulnerabilidade' }
+item_menu { id: 'Gravidade Invertida' }
+item_menu { id: 'Luz do Dia' }
+item_menu { id: 'Coluna de Lâminas' }
+item_menu { id: 'Muralha de Lâminas' }
+item_menu { id: 'Muralha de Fogo' }
+item_menu { id: 'Muralha de Gelo' }
+item_menu { id: 'Névoa Mortal' }
+item_menu { id: 'Silêncio' }
+item_menu { id: 'Tentáculos Negros' }
+item_menu { id: 'Zona da Verdade' }
 sub_menu {
   id: 'Arma Espiritual'
-  modelo { id: 'Arma Espiritual Chakram' texto: 'Chakram' }
-  modelo { id: 'Arma Espiritual Espada' texto: 'Espada Longa' }
-  modelo { id: 'Arma Espiritual Martelo' texto: 'Martelo de Guerra' }
-  modelo { id: 'Arma Espiritual Machado' texto: 'Machado' }
-  modelo { id: 'Arma Espiritual Mangual' texto: 'Mangual' }
+  item_menu { id: 'Arma Espiritual Chakram' texto: 'Chakram' }
+  item_menu { id: 'Arma Espiritual Espada' texto: 'Espada Longa' }
+  item_menu { id: 'Arma Espiritual Martelo' texto: 'Martelo de Guerra' }
+  item_menu { id: 'Arma Espiritual Machado' texto: 'Machado' }
+  item_menu { id: 'Arma Espiritual Mangual' texto: 'Mangual' }
 }
-modelo { id: 'Tempestade de Fogo' }
-modelo { id: 'Tempestade Glacial' }
+item_menu { id: 'Tempestade de Fogo' }
+item_menu { id: 'Tempestade Glacial' }
