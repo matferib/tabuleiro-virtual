@@ -12927,6 +12927,34 @@ tabela_feiticos {
     escola: 'adivinhacao'
   }
   armas {
+    id: 'transformacao_momentanea'
+    nome: 'transformação momentânea'
+    nome_ingles: 'disguise_self'
+    info_classes {
+      id: 'bardo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'enganacao'
+      nivel: 1
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'ilusao'
+  }
+
+  armas {
     id: 'invisibilidade'
     nome: 'invisibilidade'
     nome_ingles: 'invisibility'
@@ -12944,7 +12972,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço de Toque Aliado'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       efeitos_adicionais {

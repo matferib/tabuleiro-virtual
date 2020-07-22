@@ -1060,7 +1060,12 @@ modelo {
     raca: 'humano'
     dados_vida: '4d8+1d4+20'
     info_textura { id: '0:shar_cleric.png'  largura: 0.6 translacao_x: 0.2 }
-    info_classes { id: 'clerigo' nivel: 5 }
+    info_classes {
+      id: 'clerigo' nivel: 5
+      pericias_monstro: 'blefar'
+      pericias_monstro: 'disfarces'
+      pericias_monstro: 'esconderse'
+    }
     info_classes { id: 'adepto_sombras' nivel: 1 }
     tendencia { simples: TD_LEAL_MAU }
     cor { r: 0.150 g: 0.150 b: 0.150 }
@@ -1104,9 +1109,11 @@ modelo {
       outros { id: 'magia_traicoeira' origem: 'adepto das sombras' }
       outros { id: 'magia_tenaz' origem: 'adepto das sombras' }
     }
-    info_pericias { id: 'concentracao' pontos: 8 }
-    info_pericias { id: 'conhecimento_arcano' pontos: 8 }
-    info_pericias { id: 'identificar_magia' pontos: 8 }
+    info_pericias { id: 'concentracao' pontos: 7 }
+    info_pericias { id: 'conhecimento_arcano' pontos: 7 }
+    info_pericias { id: 'identificar_magia' pontos: 7 }
+    info_pericias { id: 'blefar' pontos: 3 }
+    info_pericias { id: 'disfarces' pontos: 3 }
     feiticos_classes {
       id_classe: 'clerigo'
       dominios: 'morte'
@@ -1130,7 +1137,6 @@ modelo {
         conhecidos { id: 'bencao' }
         conhecidos { id: 'escudo_fe' }
         conhecidos { id: 'auto' }
-        conhecidos { id: 'causar_medo' }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
