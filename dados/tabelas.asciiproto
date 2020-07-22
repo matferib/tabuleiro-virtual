@@ -1280,9 +1280,16 @@ tabela_armas {
 }
 tabela_efeitos {
   efeitos {
+    id: EFEITO_TRANSFORMACAO_MOMENTANEA
+    nome: 'transformação momentânea'
+    consequencia {
+      dados_pericia { id: 'disfarces' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: 10 origem: 'transformação momentânea' } } } }
+    }
+  }
+  efeitos {
     id: EFEITO_ARMA_ENVENENADA
     nome: 'arma envenenada'
-    # descricao: envenena uma arma para o proximo ataque. 
+    # descricao: envenena uma arma para o proximo ataque.
     # Primeiro complemento: id do veneno. Segundo: rotulo da arma.
   }
   efeitos {
@@ -1756,8 +1763,8 @@ tabela_efeitos {
         salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
         salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
         salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
-        # pericias
       }
+      dados_pericia { id: '*' bonus { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } } }
       jogada_ataque { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
       jogada_dano { bonus_individual { tipo: TB_SORTE por_origem { valor: 1 origem: 'oracao aliados' } } }
     }
@@ -1770,13 +1777,12 @@ tabela_efeitos {
         salvacao_fortitude { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
         salvacao_vontade { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
         salvacao_reflexo { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
-        # pericias
       }
+      dados_pericia { id: '*' bonus { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } } }
       jogada_ataque { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
       jogada_dano { bonus_individual { tipo: TB_SORTE por_origem { valor: -1 origem: 'oracao inimigos' } } }
     }
   }
-
   efeitos {
     id: EFEITO_PROTEGER_OUTRO
     nome: 'proteger outro'
@@ -1831,8 +1837,9 @@ tabela_efeitos {
         salvacao_vontade { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 } } }
         salvacao_reflexo { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 } } }
       }
+      dados_pericia { id: '*' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'abalado' } } } }
     }
-    # TODO -2 em pericias e testes de habilidade.
+    # TODO -2 testes de habilidade.
   }
   efeitos {
     id: EFEITO_AMEDRONTADO  # frightened
@@ -1844,9 +1851,10 @@ tabela_efeitos {
         salvacao_vontade { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
         salvacao_reflexo { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: -2 origem: 'abalado' } } }
       }
+      dados_pericia { id: '*' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'abalado' } } } }
     }
     # A criatura deve fugir e so atacar se acuada.
-    # TODO -2 em pericias e testes de habilidade.
+    # TODO testes de habilidade.
   }
 
   efeitos {
@@ -12947,7 +12955,7 @@ tabela_feiticos {
       id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       efeitos_adicionais {
-        efeito: EFEITO_OUTRO
+        efeito: EFEITO_TRANSFORMACAO_MOMENTANEA
         modificador_rodadas: MR_10_MINUTOS_NIVEL
       }
     }
