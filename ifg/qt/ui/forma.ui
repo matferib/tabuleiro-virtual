@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1403</width>
-    <height>972</height>
+    <height>978</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -505,7 +505,7 @@
                 <string>Direção e Período de Repetição</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_7">
-                <item row="2" column="0">
+                <item row="3" column="0">
                  <widget class="QSpinBox" name="spin_tex_direcao">
                   <property name="minimum">
                    <number>-180</number>
@@ -515,41 +515,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" rowspan="3">
-                 <layout class="QVBoxLayout" name="verticalLayout_4">
-                  <item>
-                   <widget class="QLabel" name="label_11">
-                    <property name="text">
-                     <string>Período (s)</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="spin_tex_periodo">
-                    <property name="maximum">
-                     <number>1000</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="verticalSpacer">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>40</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="0">
+                <item row="1" column="0">
                  <widget class="QLabel" name="label_19">
                   <property name="text">
                    <string>Direção</string>
@@ -559,7 +525,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
+                <item row="2" column="0">
                  <widget class="QDial" name="dial_tex_direcao">
                   <property name="toolTip">
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rotação do objeto ao redor do eixo Y.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -595,6 +561,50 @@
                    <bool>true</bool>
                   </property>
                  </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QCheckBox" name="checkbox_textura_circular">
+                  <property name="toolTip">
+                   <string>Se marcado, textura fara movimento circular de acordo com período</string>
+                  </property>
+                  <property name="text">
+                   <string>Circular</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2" rowspan="4">
+                 <layout class="QVBoxLayout" name="verticalLayout_4">
+                  <item>
+                   <widget class="QLabel" name="label_11">
+                    <property name="text">
+                     <string>Período (s)</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spin_tex_periodo">
+                    <property name="maximum">
+                     <number>1000</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="verticalSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>40</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </widget>

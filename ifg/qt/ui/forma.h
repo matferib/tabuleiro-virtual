@@ -104,12 +104,13 @@ public:
     QGroupBox *groupBox2;
     QGridLayout *gridLayout_7;
     QSpinBox *spin_tex_direcao;
+    QLabel *label_19;
+    QDial *dial_tex_direcao;
+    QCheckBox *checkbox_textura_circular;
     QVBoxLayout *verticalLayout_4;
     QLabel *label_11;
     QSpinBox *spin_tex_periodo;
     QSpacerItem *verticalSpacer;
-    QLabel *label_19;
-    QDial *dial_tex_direcao;
     QGroupBox *groupBox_6;
     QHBoxLayout *horizontalLayout_22;
     QHBoxLayout *horizontalLayout_18;
@@ -312,7 +313,7 @@ public:
     {
         if (ifg__qt__DialogoForma->objectName().isEmpty())
             ifg__qt__DialogoForma->setObjectName(QStringLiteral("ifg__qt__DialogoForma"));
-        ifg__qt__DialogoForma->resize(1403, 972);
+        ifg__qt__DialogoForma->resize(1403, 978);
         gridLayout_2 = new QGridLayout(ifg__qt__DialogoForma);
         gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
         botoes = new QDialogButtonBox(ifg__qt__DialogoForma);
@@ -654,7 +655,33 @@ public:
         spin_tex_direcao->setMinimum(-180);
         spin_tex_direcao->setMaximum(180);
 
-        gridLayout_7->addWidget(spin_tex_direcao, 2, 0, 1, 1);
+        gridLayout_7->addWidget(spin_tex_direcao, 3, 0, 1, 1);
+
+        label_19 = new QLabel(groupBox2);
+        label_19->setObjectName(QStringLiteral("label_19"));
+        label_19->setAlignment(Qt::AlignCenter);
+
+        gridLayout_7->addWidget(label_19, 1, 0, 1, 1);
+
+        dial_tex_direcao = new QDial(groupBox2);
+        dial_tex_direcao->setObjectName(QStringLiteral("dial_tex_direcao"));
+        dial_tex_direcao->setMinimum(0);
+        dial_tex_direcao->setMaximum(360);
+        dial_tex_direcao->setValue(0);
+        dial_tex_direcao->setSliderPosition(0);
+        dial_tex_direcao->setOrientation(Qt::Horizontal);
+        dial_tex_direcao->setInvertedAppearance(true);
+        dial_tex_direcao->setInvertedControls(true);
+        dial_tex_direcao->setWrapping(true);
+        dial_tex_direcao->setNotchTarget(45);
+        dial_tex_direcao->setNotchesVisible(true);
+
+        gridLayout_7->addWidget(dial_tex_direcao, 2, 0, 1, 1);
+
+        checkbox_textura_circular = new QCheckBox(groupBox2);
+        checkbox_textura_circular->setObjectName(QStringLiteral("checkbox_textura_circular"));
+
+        gridLayout_7->addWidget(checkbox_textura_circular, 0, 0, 1, 1);
 
         verticalLayout_4 = new QVBoxLayout();
         verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
@@ -675,28 +702,7 @@ public:
         verticalLayout_4->addItem(verticalSpacer);
 
 
-        gridLayout_7->addLayout(verticalLayout_4, 0, 2, 3, 1);
-
-        label_19 = new QLabel(groupBox2);
-        label_19->setObjectName(QStringLiteral("label_19"));
-        label_19->setAlignment(Qt::AlignCenter);
-
-        gridLayout_7->addWidget(label_19, 0, 0, 1, 1);
-
-        dial_tex_direcao = new QDial(groupBox2);
-        dial_tex_direcao->setObjectName(QStringLiteral("dial_tex_direcao"));
-        dial_tex_direcao->setMinimum(0);
-        dial_tex_direcao->setMaximum(360);
-        dial_tex_direcao->setValue(0);
-        dial_tex_direcao->setSliderPosition(0);
-        dial_tex_direcao->setOrientation(Qt::Horizontal);
-        dial_tex_direcao->setInvertedAppearance(true);
-        dial_tex_direcao->setInvertedControls(true);
-        dial_tex_direcao->setWrapping(true);
-        dial_tex_direcao->setNotchTarget(45);
-        dial_tex_direcao->setNotchesVisible(true);
-
-        gridLayout_7->addWidget(dial_tex_direcao, 1, 0, 1, 1);
+        gridLayout_7->addLayout(verticalLayout_4, 0, 2, 4, 1);
 
 
         gridLayout_6->addWidget(groupBox2, 0, 2, 2, 1);
@@ -1912,11 +1918,15 @@ public:
         label_4->setText(QApplication::translate("ifg::qt::DialogoForma", "Escala X", nullptr));
         label_16->setText(QApplication::translate("ifg::qt::DialogoForma", "Escala Y", nullptr));
         groupBox2->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Dire\303\247\303\243o e Per\303\255odo de Repeti\303\247\303\243o", nullptr));
-        label_11->setText(QApplication::translate("ifg::qt::DialogoForma", "Per\303\255odo (s)", nullptr));
         label_19->setText(QApplication::translate("ifg::qt::DialogoForma", "Dire\303\247\303\243o", nullptr));
 #ifndef QT_NO_TOOLTIP
         dial_tex_direcao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        checkbox_textura_circular->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se marcado, textura fara movimento circular de acordo com per\303\255odo", nullptr));
+#endif // QT_NO_TOOLTIP
+        checkbox_textura_circular->setText(QApplication::translate("ifg::qt::DialogoForma", "Circular", nullptr));
+        label_11->setText(QApplication::translate("ifg::qt::DialogoForma", "Per\303\255odo (s)", nullptr));
         groupBox_6->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Transforma\303\247\303\265es", nullptr));
         label_2->setText(QApplication::translate("ifg::qt::DialogoForma", " Transla\303\247\303\243o em Z", nullptr));
         groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o em Z", nullptr));

@@ -3166,6 +3166,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   gerador.spin_tex_periodo->setValue(entidade.info_textura().periodo_s());
   gerador.spin_tex_escala_x->setValue(entidade.info_textura().escala_x());
   gerador.spin_tex_escala_y->setValue(entidade.info_textura().escala_y());
+  gerador.checkbox_textura_circular->setCheckState(
+      entidade.info_textura().direcao_circular() ? Qt::Checked : Qt::Unchecked);
+
   AjustaSliderSpin(entidade.info_textura().direcao_graus(), gerador.dial_tex_direcao, gerador.spin_tex_direcao);
 
   // Cor da entidade.
@@ -3410,6 +3413,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
         proto_retornado->mutable_info_textura()->set_modo_textura(GL_REPEAT);
       } else {
         proto_retornado->mutable_info_textura()->clear_modo_textura();
+      }
+      if (gerador.checkbox_textura_circular->checkState() == Qt::Checked) {
+        proto_retornado->mutable_info_textura()->set_direcao_circular(true);
+      } else {
+        proto_retornado->mutable_info_textura()->clear_direcao_circular();
       }
       proto_retornado->mutable_info_textura()->set_textura_bump(gerador.checkbox_bump->checkState() == Qt::Checked);
       proto_retornado->mutable_info_textura()->set_periodo_s(gerador.spin_tex_periodo->value());
