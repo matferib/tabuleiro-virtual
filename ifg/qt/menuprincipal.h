@@ -123,7 +123,7 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   std::vector<QAction*> acoes_modelos_;
   std::map<int, QActionGroup*> grupos_exclusivos_;
   // Armazena os modelos por id. O modelo é copiado por nao ser pesistente.
-  std::unordered_map<std::string, Modelo> mapa_modelos_;
+  std::unordered_map<std::string, ItemMenu> mapa_modelos_;
 
   Visualizador3d* v3d_ = nullptr;
   ntf::CentralNotificacoes* central_ = nullptr;

@@ -104,7 +104,7 @@ const char* g_menuitem_strs[] = {
 };
 
 // Preenche o menu recursivamente atraves do proto de menus. O menu ficara ordenado alfabeticamente.
-void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* grupo, std::unordered_map<std::string, Modelo>* mapa_modelos) {
+void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* grupo, std::unordered_map<std::string, ItemMenu>* mapa_modelos) {
   struct DadosMenu {
     DadosMenu(const std::string& id, const QString& str) : id(id), str_menu(str), sub_menu(nullptr) {}
     DadosMenu(const QString& str, const MenuModelos* menu) : str_menu(str), sub_menu(menu) {}
