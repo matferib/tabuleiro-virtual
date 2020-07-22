@@ -334,9 +334,14 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
 
   AplicaBonusPenalidadeOuRemove(consequencia.tamanho(), proto->mutable_bonus_tamanho());
   for (const auto& dp : consequencia.dados_pericia()) {
-    auto* pericia = PericiaOuNullptr(dp.id(), proto);
-    if (pericia == nullptr) continue;
-    AplicaBonusPenalidadeOuRemove(dp.bonus(), pericia->mutable_bonus());
+    if (dp.id() == "*") {
+      for (auto& pericia : *proto->mutable_info_pericias()) {
+        if (Tabelas::Unica().Pericia(pericia.id()).has_derivada_de()) continue;
+        AplicaBonusPenalidadeOuRemove(dp.bonus(), pericia.mutable_bonus());
+      }
+    } else if (auto* pericia = PericiaOuNullptr(dp.id(), proto); pericia != nullptr) {
+      AplicaBonusPenalidadeOuRemove(dp.bonus(), pericia->mutable_bonus());
+    }
   }
 
   AplicaBonusPenalidadeOuRemove(consequencia.movimento().terrestre_q(), proto->mutable_movimento()->mutable_terrestre_q());

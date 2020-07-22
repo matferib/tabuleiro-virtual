@@ -3394,32 +3394,32 @@ TEST(TesteRodadasDinamico, TesteRodadasDinamicoDependenciaAnterior2) {
 
 // Este teste simula mais ou menos a forma como os efeitos adicionais de feiticos sao aplicados.
 TEST(TesteEfeitosAdicionaisMultiplos, TesteEfeitosAdicionaisMultiplos) {
-  {
-    EntidadeProto proto;
-    auto* ic = proto.add_info_classes();
-    ic->set_id("mago");
-    ic->set_nivel(3);
-    std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
-    ntf::Notificacao n;
-    std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
-    const auto& feitico = g_tabelas.Feitico("aterrorizar");
-    ASSERT_EQ(feitico.acao().efeitos_adicionais().size(), 2);
-    PreencheNotificacaoEventoEfeitoAdicional(
-        proto.id(), std::nullopt, /*nivel=*/3, *e,
-        feitico.acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
-    PreencheNotificacaoEventoEfeitoAdicional(
-        proto.id(), std::nullopt, /*nivel=*/3, *e,
-        feitico.acao().efeitos_adicionais(1), &ids_unicos,
-        n.add_notificacao(), nullptr);
-    e->AtualizaParcial(n.notificacao(0).entidade());
-    e->AtualizaParcial(n.notificacao(1).entidade());
-    ASSERT_EQ(e->Proto().evento().size(), 2);
-    EXPECT_EQ(e->Proto().evento(0).id_efeito(), EFEITO_AMEDRONTADO);
-    EXPECT_EQ(e->Proto().evento(1).id_efeito(), EFEITO_ABALADO);
-    ASSERT_EQ(ids_unicos.size(), 2ULL);
-    EXPECT_EQ(ids_unicos[0], 0);
-    EXPECT_EQ(ids_unicos[1], 1);
-  }
+  EntidadeProto proto;
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(3);
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  EXPECT_EQ(ValorFinalPericia("ouvir", e->Proto()), 0);
+  ntf::Notificacao n;
+  std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
+  const auto& feitico = g_tabelas.Feitico("aterrorizar");
+  ASSERT_EQ(feitico.acao().efeitos_adicionais().size(), 2);
+  PreencheNotificacaoEventoEfeitoAdicional(
+      proto.id(), std::nullopt, /*nivel=*/3, *e,
+      feitico.acao().efeitos_adicionais(0), &ids_unicos, n.add_notificacao(), nullptr);
+  PreencheNotificacaoEventoEfeitoAdicional(
+      proto.id(), std::nullopt, /*nivel=*/3, *e,
+      feitico.acao().efeitos_adicionais(1), &ids_unicos,
+      n.add_notificacao(), nullptr);
+  e->AtualizaParcial(n.notificacao(0).entidade());
+  e->AtualizaParcial(n.notificacao(1).entidade());
+  ASSERT_EQ(e->Proto().evento().size(), 2);
+  EXPECT_EQ(e->Proto().evento(0).id_efeito(), EFEITO_AMEDRONTADO);
+  EXPECT_EQ(e->Proto().evento(1).id_efeito(), EFEITO_ABALADO);
+  EXPECT_EQ(ValorFinalPericia("ouvir", e->Proto()), -2);
+  ASSERT_EQ(ids_unicos.size(), 2ULL);
+  EXPECT_EQ(ids_unicos[0], 0);
+  EXPECT_EQ(ids_unicos[1], 1);
 }
 
 TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
@@ -4206,8 +4206,8 @@ TEST(TesteFeiticos, TesteArmaEspiritual) {
 
   AcaoProto acao = da->acao();
   ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
-  ASSERT_EQ(acao.parametros_lancamento().parametros().size(), 4);
-  ASSERT_EQ(acao.parametros_lancamento().parametros(2).id_modelo_entidade(), "Arma Espiritual Espada");
+  ASSERT_EQ(acao.parametros_lancamento().parametros().size(), 5);
+  ASSERT_EQ(acao.parametros_lancamento().parametros(3).id_modelo_entidade(), "Arma Espiritual Espada");
 
   const auto& modelo_arma = g_tabelas.ModeloEntidade(acao.parametros_lancamento().parametros(2).id_modelo_entidade());
   EntidadeProto proto_arma = modelo_arma.entidade();
