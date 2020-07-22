@@ -7117,7 +7117,7 @@ modelo {
       feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'auto' }
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'orientacao' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
@@ -7185,7 +7185,7 @@ modelo {
       feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'auto' }
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'orientacao' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
@@ -7254,7 +7254,7 @@ modelo {
       feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'auto' }
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'orientacao' }
         conhecidos { id: 'luz' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
@@ -7332,7 +7332,7 @@ modelo {
       feiticos_por_nivel_deprecated {
         nivel: 0
         conhecidos { id: 'auto' }
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'orientacao' }
         conhecidos { id: 'luz' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
@@ -7459,7 +7459,7 @@ modelo {
       id_classe: 'druida'
       feiticos_por_nivel_deprecated {
         nivel: 0
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'orientacao' }
         conhecidos { id: 'luz' }
         conhecidos { id: 'curar_ferimentos_minimos' }
@@ -7599,7 +7599,7 @@ modelo {
       # Novamente, a tabela parece estar errada no DMG. Deveria ser 3000 PO pra dar 4300.
       # 0 nivel: 12.5 PO cada
       pergaminhos_arcanos { id: 'detectar_magia' }
-      pergaminhos_arcanos { id: 'detectar_veneno' }
+      pergaminhos_arcanos { id: 'detectar_venenos' }
       pergaminhos_arcanos { id: 'raio_gelo' }
       pergaminhos_arcanos { id: 'raio_gelo' }
       pergaminhos_arcanos { id: 'raio_acido' }
@@ -8428,7 +8428,7 @@ modelo {
         nivel: 0
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'detectar_magia' }
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'toque_fadiga' }
         conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'ler_magias' }
@@ -8550,7 +8550,7 @@ modelo {
         nivel: 0
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'detectar_magia' }
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'mensagem' }
         conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'ler_magias' }
@@ -8647,7 +8647,7 @@ modelo {
       # Cada pergaminho sai por 70% do preco (DMG 110), mais os que tem componente materiais.
       # 0 nivel: 9 PO cada
       pergaminhos_arcanos { id: 'detectar_magia' }
-      pergaminhos_arcanos { id: 'detectar_veneno' }
+      pergaminhos_arcanos { id: 'detectar_venenos' }
       pergaminhos_arcanos { id: 'raio_gelo' }
       pergaminhos_arcanos { id: 'raio_gelo' }
       pergaminhos_arcanos { id: 'raio_acido' }
@@ -8683,7 +8683,7 @@ modelo {
         conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'ler_magias' }
         conhecidos { id: 'detectar_magia' }
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'detectar_venenos' }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
         para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
@@ -8921,7 +8921,7 @@ modelo {
         nivel: 0
         conhecidos { id: 'pasmar' }
         conhecidos { id: 'detectar_magia' }
-        conhecidos { id: 'detectar_veneno' }
+        conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'brilho' }
         conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'raio_gelo' }

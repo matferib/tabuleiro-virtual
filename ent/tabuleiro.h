@@ -641,6 +641,15 @@ class Tabuleiro : public ntf::Receptor {
     bool presente;  // usado durante atualizacao de iniciativa.
   };
 
+  /** Quando entidades sao adicionadas, isso pode ocorrer de formas diferentes:
+  * - Varias entidades como notificacoes separadas de TN_ADICIONAR_ENTIDADE (colar, deserializar): neste caso, cada entidade vira com entidade preenchida na notificacao.
+  * - Uma ou mais entidades em uma notificacao de TN_ADICIONAR_ENTIDADE (clique duplo): neste caso, a entidade vem vazia. Apesar de que por hora, nao ha relacao entre elas,
+  * é provavel que no futuro isto mude (entidade com familiar, por exemplo, que teria um campo de familiar).
+  * Ao ser adicionada, os ids que ligam as entidades tem que ser corrigidos para os ids que realmente foram usados.
+  * Por exemplo, se a entidade 0 estava montada em 3 originalmente e ao deserializa-la elas viram 5 e 6, deve-se corrigir tanto o montada em de 5 quanto o entidades_montadas de 6.
+  */
+  ntf::Notificacao ArrumaIdsEntidadesAdicionadas() const;
+
   /** Descansa o personagem: cura 1 PV por nivel e restaura feiticos. */
   void DescansaPersonagemNotificando();
 
@@ -669,9 +678,10 @@ class Tabuleiro : public ntf::Receptor {
   void AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(unsigned int id, int delta, const std::string& texto, float atraso_s = 0.0f, bool local_apenas = false);
   /** Adiciona uma entidade ao tabuleiro, de acordo com a notificacao e os modelos, notificando. */
   void AdicionaUmaEntidadeNotificando(
+      std::unique_ptr<Entidade> entidade, const ntf::Notificacao& notificacao, ntf::Notificacao* n_desfazer);
+  std::unique_ptr<Entidade> CriaUmaEntidadePorNotificacao(
       const ntf::Notificacao& notificacao, const Entidade* referencia, const Modelo& modelo_com_parametros,
-      float x, float y, float z,
-      ntf::Notificacao* n_desfazer);
+      float x, float y, float z);
 
   /** Poe o tabuleiro nas condicoes iniciais. */
   void EstadoInicial();
@@ -1355,6 +1365,9 @@ class Tabuleiro : public ntf::Receptor {
   // Para processamento de grupos de notificacoes.
   bool processando_grupo_;
   std::vector<unsigned int> ids_adicionados_;
+  // Esse mapa mapeia qual era o id da entidade na entrada e qual foi realmente adicionado.
+  // Isso é usado para remapear campos dependentes do id (como montado em, por exemplo).
+  std::unordered_map<unsigned int, unsigned int> mapa_ids_adicionados_;
 
   // Para rastros de movimentos das unidades.
   std::unordered_map<unsigned int, std::vector<Posicao>> rastros_movimento_;

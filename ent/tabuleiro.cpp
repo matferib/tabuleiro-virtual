@@ -63,7 +63,6 @@
 #endif
 
 #define TAM_MAPA_OCLUSAO 1024
-#define APENAS_MESTRE_CRIA_FORMAS 0
 
 using google::protobuf::RepeatedField;
 using google::protobuf::StringAppendF;
@@ -972,17 +971,45 @@ int Tabuleiro::Desenha() {
 }
 
 void Tabuleiro::AdicionaUmaEntidadeNotificando(
+    std::unique_ptr<Entidade> entidade, const ntf::Notificacao& notificacao, ntf::Notificacao* n_desfazer) {
+  Entidade* entidade_ptr = nullptr;
+  entidade_ptr = entidade.get();
+  entidades_.insert(std::make_pair(entidade->Id(), std::move(entidade)));
+  // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
+  if (!Desfazendo()) {
+    // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
+#if 0
+    // Esse comportamento nao deseleciona outras formas.
+    for (const auto id : ids_entidades_selecionadas_) {
+      auto* e_selecionada = BuscaEntidade(id);
+      if (e_selecionada == nullptr) {
+        continue;
+      }
+      if (e_selecionada->Tipo() == TE_ENTIDADE && entidade_ptr->Tipo() == TE_FORMA) {
+        DeselecionaEntidades();
+        break;
+      }
+    }
+#endif
+    AdicionaEntidadesSelecionadas({ entidade_ptr->Id() });
+  }
+  if (!Desfazendo()) {
+    // Para desfazer.
+    *n_desfazer = notificacao;
+    *n_desfazer->mutable_entidade() = entidade_ptr->Proto();
+  }
+  // Envia a entidade para os outros.
+  auto n = ntf::NovaNotificacao(notificacao.tipo());
+  *n->mutable_entidade() = entidade_ptr->Proto();
+  central_->AdicionaNotificacaoRemota(n.release());
+}
+
+std::unique_ptr<Entidade> Tabuleiro::CriaUmaEntidadePorNotificacao(
     const ntf::Notificacao& notificacao, const ent::Entidade* referencia, const Modelo& modelo_com_parametros,
-    float x, float y, float z, ntf::Notificacao* n_desfazer) {
+    float x, float y, float z) {
   EntidadeProto entidade_modelo(notificacao.has_entidade()
       ? notificacao.entidade()
       : modelo_com_parametros.entidade());
-#if APENAS_MESTRE_CRIA_FORMAS
-  if (entidade_modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
-    LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
-    return;
-  }
-#endif
   if (!notificacao.has_entidade() && modelo_com_parametros.has_parametros()) {
     // Como o clique duplo tira a selecao, tenta pegar da notificacao se nao houver ancoragem.
     if (referencia != nullptr) {
@@ -1008,10 +1035,6 @@ void Tabuleiro::AdicionaUmaEntidadeNotificando(
     entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
   }
   unsigned int id_entidade = GeraIdEntidade(id_cliente_);
-  //if (processando_grupo_) {
-  // Nao sei porque tinha esse processando_grupo aqui, tirei e aparentemente funcionou.
-    ids_adicionados_.push_back(id_entidade);
-  //}
   // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
   // se a entidade eh visivel e selecionavel para os jogadores.
   if (!Desfazendo()) {
@@ -1030,39 +1053,7 @@ void Tabuleiro::AdicionaUmaEntidadeNotificando(
       throw std::logic_error("Id da entidade já está sendo usado.");
     }
   }
-  Entidade* entidade_ptr = nullptr;
-  {
-    auto entidade = NovaEntidade(entidade_modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
-    entidade_ptr = entidade.get();
-    entidades_.insert(std::make_pair(entidade->Id(), std::move(entidade)));
-  }
-  // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
-  if (!Desfazendo()) {
-    // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
-#if 0
-    // Esse comportamento nao deseleciona outras formas.
-    for (const auto id : ids_entidades_selecionadas_) {
-      auto* e_selecionada = BuscaEntidade(id);
-      if (e_selecionada == nullptr) {
-        continue;
-      }
-      if (e_selecionada->Tipo() == TE_ENTIDADE && entidade->Tipo() == TE_FORMA) {
-        DeselecionaEntidades();
-        break;
-      }
-    }
-#endif
-    AdicionaEntidadesSelecionadas({ entidade_ptr->Id() });
-  }
-  if (!Desfazendo()) {
-    // Para desfazer.
-    *n_desfazer = notificacao;
-    *n_desfazer->mutable_entidade() = entidade_modelo;
-  }
-  // Envia a entidade para os outros.
-  auto n = ntf::NovaNotificacao(notificacao.tipo());
-  *n->mutable_entidade() = entidade_ptr->Proto();
-  central_->AdicionaNotificacaoRemota(n.release());
+  return NovaEntidade(entidade_modelo, tabelas_, this, texturas_, m3d_, central_, &parametros_desenho_);
 }
 
 namespace {
@@ -1135,6 +1126,15 @@ Vector2 ComputaOffset(int i) {
   return offset;
 }
 
+void AdicionaIdAtualizaMapa(
+    const Entidade& entidade, const EntidadeProto& proto_original,
+    std::vector<unsigned int>* ids_adicionados, std::unordered_map<unsigned int, unsigned int>* mapa_ids_adicionados) {
+  ids_adicionados->push_back(entidade.Id());
+  if (proto_original.has_id()) {
+    (*mapa_ids_adicionados)[proto_original.id()] = entidade.Id();
+  }
+}
+
 }  // namespace
 
 void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao) {
@@ -1168,11 +1168,12 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         DeselecionaEntidades();
       }
 
-      ntf::Notificacao grupo_desfazer;
-      grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);;
+      std::vector<std::unique_ptr<Entidade>> entidades_adicionadas;
       if (notificacao.has_entidade()) {
         VLOG(1) << "gerando entidade ja pronta";
-        AdicionaUmaEntidadeNotificando(notificacao, referencia, Modelo(), x, y, z + 0, grupo_desfazer.add_notificacao());
+        auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, Modelo(), x, y, z);
+        AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
+        entidades_adicionadas.emplace_back(std::move(entidade));
       } else {
         VLOG(1) << "gerando " << quantidade << " entidades";
         std::vector<std::pair<std::string, std::string>> ids_com_quantidades = MontaVetorIdsQuantidadeAdicionar(modelos_selecionados_);
@@ -1184,12 +1185,19 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
           }
           for (int j = 0; j < quantidade_modelo; ++j) {
             Vector2 offset = ComputaOffset(indice_offset++);
-            AdicionaUmaEntidadeNotificando(
-                notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z + 0, grupo_desfazer.add_notificacao());
+            auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z);
+            AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
+            entidades_adicionadas.emplace_back(std::move(entidade));
           }
         }
       }
-      LOG(INFO) << "tamanho de entidades adicionadas: " << ids_adicionados_.size();
+      ntf::Notificacao grupo_desfazer;
+      grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      for (auto& entidade : entidades_adicionadas) {
+        AdicionaUmaEntidadeNotificando(std::move(entidade), notificacao, grupo_desfazer.add_notificacao());
+      }
+
+      VLOG(1) << "tamanho de entidades adicionadas: " << ids_adicionados_.size();
       SelecionaEntidadesAdicionadas();
       if (!Desfazendo() && !grupo_desfazer.notificacao().empty()) {
         AdicionaNotificacaoListaEventos(grupo_desfazer);
@@ -1203,7 +1211,6 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
     auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro(erro.what());
     central_->AdicionaNotificacao(n.release());
-    return;
   }
   AtualizaLuzesPontuais();
 }
@@ -1979,6 +1986,17 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
   }
 }
 
+ntf::Notificacao Tabuleiro::ArrumaIdsEntidadesAdicionadas() const {
+  ntf::Notificacao n_grupo;
+  n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : ids_adicionados_) {
+    const auto* e = BuscaEntidade(id);
+    if (e == nullptr) continue;
+    PreencheNotificacaoArrumarIds(e->Proto(), mapa_ids_adicionados_, &n_grupo);
+  }
+  return n_grupo;
+}
+
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_REQUISITAR_LOG_EVENTOS: {
@@ -2117,15 +2135,22 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
     }
-    case ntf::TN_GRUPO_NOTIFICACOES:
+    case ntf::TN_GRUPO_NOTIFICACOES: {
       // Nunca deve vir da central.
       processando_grupo_ = true;
       ids_adicionados_.clear();
+      mapa_ids_adicionados_.clear();
       for (const auto& n : notificacao.notificacao()) {
         TrataNotificacao(n);
       }
+      // O for evita o loop infinito de grupo criando outro grupo.
+      auto grupo_correcoes = ArrumaIdsEntidadesAdicionadas();
+      for (const auto& n_correcao : grupo_correcoes.notificacao()) {
+        TrataNotificacao(n_correcao);
+      }
       processando_grupo_ = false;
       return true;
+    }
     case ntf::TN_REINICIAR_CAMERA:
       if (notificacao.tabuleiro().has_camera_inicial()) {
         ReiniciaCamera(notificacao);
@@ -2159,6 +2184,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ADICIONAR_ENTIDADE:
       AdicionaEntidadesNotificando(notificacao);
+      if (!processando_grupo_) {
+        TrataNotificacao(ArrumaIdsEntidadesAdicionadas());
+      }
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
       if (notificacao.local() && notificacao.acao().adiciona_ao_log_se_local()) {
@@ -5799,7 +5827,7 @@ void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
   for (const auto& ep : entidades_copiadas.entidade()) {
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-    n->mutable_entidade()->CopyFrom(ep);
+    *n->mutable_entidade() = ep;
     entidades_coladas.push_back(n->mutable_entidade());
   }
 #else
@@ -5829,7 +5857,8 @@ void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
       }
       AdicionaNotificacaoListaEventos(grupo_notificacoes);
     } else {
-      LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
+      LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado. Ids adicionados: "
+          << ids_adicionados_.size() << ", tam grupo: " << grupo_notificacoes.notificacao_size();
     }
   }
 }
