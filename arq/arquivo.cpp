@@ -171,34 +171,29 @@ void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados)
   }
 }
 
-void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message) {
-  if (level >= google::protobuf::LOGLEVEL_ERROR) {
-    LOG(ERROR) << "erro arquivo: " << filename << ", linha: " << line << ": " << message;
-    throw ParseProtoException(google::protobuf::StringPrintf("%s", message.c_str()));
-  } else if (level == google::protobuf::LOGLEVEL_WARNING) {
-    LOG(WARNING) << "erro arquivo: " << filename << ", linha: " << line << ": " << message;
-  } else if (level == google::protobuf::LOGLEVEL_INFO) {
-    LOG(INFO) << "erro arquivo: " << filename << ", linha: " << line << ": " << message;
-  }
-}
+// Esse log handler imprime filename como o fonte que esta processando o arquivo e nao o arquivo sendo lido :(
+void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message);
 
 struct ScopedLogHandler {
  public:
-  ScopedLogHandler() {
+  ScopedLogHandler(const std::string& nome_arquivo) {
     old = google::protobuf::SetLogHandler(&LogHandler);
+    g_nome_arquivo = nome_arquivo;
   }
   ~ScopedLogHandler() {
     google::protobuf::SetLogHandler(old);
   }
 
+  static std::string g_nome_arquivo;
   google::protobuf::LogHandler* old;
 };
+std::string ScopedLogHandler::g_nome_arquivo;
 
 void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
   std::string dados;
   LeArquivo(tipo, nome_arquivo, &dados);
 
-  ScopedLogHandler slh;
+  ScopedLogHandler slh(nome_arquivo);
   google::protobuf::TextFormat::ParseFromString(dados, mensagem);
 }
 
@@ -206,8 +201,19 @@ void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::pro
   std::string dados;
   LeArquivo(tipo, nome_arquivo, &dados);
 
-  ScopedLogHandler slh;
+  ScopedLogHandler slh(nome_arquivo);
   mensagem->ParseFromString(dados);
+}
+
+void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message) {
+  if (level >= google::protobuf::LOGLEVEL_ERROR) {
+    LOG(ERROR) << "erro arquivo: " << ScopedLogHandler::g_nome_arquivo << ": " << message;
+    throw ParseProtoException(google::protobuf::StringPrintf("%s", message.c_str()));
+  } else if (level == google::protobuf::LOGLEVEL_WARNING) {
+    LOG(WARNING) << "erro arquivo: " << ScopedLogHandler::g_nome_arquivo << ": " << message;
+  } else if (level == google::protobuf::LOGLEVEL_INFO) {
+    LOG(INFO) << "erro arquivo: " << ScopedLogHandler::g_nome_arquivo << ": " << message;
+  }
 }
 
 }  // namespace arq
