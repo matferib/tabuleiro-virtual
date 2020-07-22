@@ -4421,7 +4421,10 @@ void Tabuleiro::OrdenaEntidades() {
     Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
     Vector3 olho_lhs = olho_pos - lhs_pos;
     Vector3 olho_rhs = olho_pos - rhs_pos;
-    return olho_lhs.length() > olho_rhs.length();
+    const float lhs_l = olho_lhs.length();
+    const float rhs_l = olho_rhs.length();
+    // Precisa diferenciar distancias iguais por id pro set nao sobrescrever.
+    return lhs_l > rhs_l || (lhs_l == rhs_l && lhs->Id() > rhs->Id());
   };
   std::set<Entidade*, std::function<bool(Entidade*, Entidade*)>> set_entidades(MaisLongeOlho);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {

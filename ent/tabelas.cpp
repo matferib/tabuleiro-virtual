@@ -566,7 +566,6 @@ void Tabelas::RecarregaMapas() {
     modelos_entidades_[modelo.id()] = &modelo;
   }
 
-
   // Aqui vai ser bem tosco. Enquanto houver entidade com id base, continua a saga.
   bool fim = true;
   do {
