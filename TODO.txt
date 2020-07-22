@@ -1,3 +1,6 @@
+Criar efeito de transformacao momentanea: +10 disfarce.
+Dominio enganacao: 'Blefar, Disfarces e Esconder-se passam a ser perícias de classe.'
+
 Tela preta ao salvar.
 
 Janela de forma maior que desktop em formas nao esta maximizando.
