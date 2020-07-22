@@ -141,7 +141,7 @@ message Notificacao {
   optional bool modo_mestre = 10;
   // Para eventos de mouse e relacionados a posicao.
   optional ent.Posicao pos = 21;
-  // Indica que notificacao foi criada de um evento forcado (ctrl clicque).
+  // Indica que notificacao foi criada de um evento forcado (ctrl clique).
   // A semantica depende do que a notificacao faz.
   optional bool forcado = 22;
   // Indica que a mensagem eh local, ou seja, veio do proprio jogo e nao de um cliente remoto.
