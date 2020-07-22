@@ -727,11 +727,14 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
       Matrix4 m;
       if (proto.info_textura().direcao_circular()) {
         m.translate(-0.5f, -0.5f, 0.0f);
-        m.rotateZ(vd.angulo_textura_rad * RAD_PARA_GRAUS);
+        // Usa a direcao para indicar sentido de rotacao.
+        m.rotateZ((proto.info_textura().direcao_graus() >= 0.0f ? -1.0f : 1.0f) * vd.angulo_textura_rad * RAD_PARA_GRAUS);
+        m.scale(proto.escala().x() / proto.info_textura().escala_x(), proto.escala().y() / proto.info_textura().escala_y(), 1.0f);
         m.translate(0.5f, 0.5f, 0.0f);
       } else {
         m.rotateZ(-proto.info_textura().direcao_graus());
         m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y() + vd.deslocamento_textura, 0.0f);
+        m.scale(proto.escala().x() / proto.info_textura().escala_x(), proto.escala().y() / proto.info_textura().escala_y(), 1.0f);
       }
       md.deslocamento_textura = m;
     }

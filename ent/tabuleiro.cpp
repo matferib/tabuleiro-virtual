@@ -4595,7 +4595,11 @@ void Tabuleiro::DesenhaRosaDosVentos() {
   gl::MatrizEscopo salva_matriz_mv;
   const float kRaioRosa = 20.0f;
   // Deixa espaco para o N.
-  gl::Translada(largura_ - kRaioRosa - 15.0f, kRaioRosa + 15.0f, 0.0f);
+  int fonte_x_int, fonte_y_int, escala;
+  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
+  fonte_x_int *= escala;
+  fonte_y_int *= escala;
+  gl::Translada(largura_ - kRaioRosa - 15.0f - fonte_x_int, kRaioRosa + 15.0f + fonte_y_int, 0.0f);
   // Roda pra posicao correta.
   Posicao direcao;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &direcao);
