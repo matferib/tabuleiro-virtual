@@ -13,7 +13,11 @@ TEST(TesteModelos, TesteModelos) {
   LeArquivoAsciiProto(arq::TIPO_DADOS, "modelos.asciiproto", &ent_modelos);
   ent::Modelos ent_modelos_nao_srd;
   LeArquivoAsciiProto(arq::TIPO_DADOS, "modelos_nao_srd.asciiproto", &ent_modelos_nao_srd);
+  ent::Modelos ent_modelos_hb;
+  LeArquivoAsciiProto(arq::TIPO_DADOS, "modelos_homebrew.asciiproto", &ent_modelos_hb);
+ 
   ent_modelos.MergeFrom(ent_modelos_nao_srd);
+  ent_modelos.MergeFrom(ent_modelos_hb);
   std::set<std::string> ids_modelos;
   for (const auto& m : ent_modelos.modelo()) {
     ids_modelos.insert(m.id());
