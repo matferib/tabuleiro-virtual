@@ -5,6 +5,7 @@ package ifg;
 // Representa um modelo ou grupo de modelos.
 message ItemMenu {
   optional string id = 1;  // id do modelo de acordo com arquivo de modelos.asciiproto
+  optional string id_item_menu = 7;  // Referencia a outro item de menu, de onde virão os modelos.
   optional string texto = 2;  // texto do menu, se houver. Caso contrario usa id.
   optional int32 peso = 3;  // para grupos aleatorios, indica o peso do modelo (% = peso / total de pesos).
 

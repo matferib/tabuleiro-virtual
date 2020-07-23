@@ -167,29 +167,12 @@ MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabule
       if (menuitem_str == nullptr) {
         menu->addSeparator();
       } else if (std::string(menuitem_str) == "&Selecionar modelo") {
-        // Esse sub menu tem tratamento especial.
-        const char* ARQUIVO_MENU_MODELOS = "menumodelos.asciiproto";
-        const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelos_nao_srd.asciiproto";
-        const char* ARQUIVO_MENU_MODELOS_HOMEBREW = "menumodelos_homebrew.asciiproto";
         auto* grupo = new QActionGroup(this);
         grupo->setExclusive(true);
-        const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD, ARQUIVO_MENU_MODELOS_HOMEBREW };
         auto* menu_modelos = menu->addMenu(tr(menuitem_str));
         menu_modelos->setStyleSheet("* { menu-scrollable: 1 }");
         std::vector<ent::EntidadeProto*> entidades;
-        MenuModelos menu_modelos_proto;
-        for (const std::string& nome_arquivo_menu_modelo : arquivos_menu_modelos) {
-          MenuModelos este_menu_modelos_proto;
-          try {
-            arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
-            VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString();
-            MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
-          } catch (const std::exception& erro) {
-            LOG(ERROR) << erro.what();
-          }
-        }
-        VLOG(1) << "Modelos final: " << menu_modelos_proto.DebugString();
-        PreencheMenu(menu_modelos_proto, menu_modelos, grupo, &mapa_modelos_);
+        PreencheMenu(tabelas_.MenuModelos(), menu_modelos, grupo, &mapa_modelos_);
         connect(menu_modelos, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoModelo(QAction*)));
       } else if (std::string(menuitem_str) == "Selecionar modelo para &feitiço") {
         // Esse sub menu tem tratamento especial.
@@ -207,7 +190,7 @@ MenuPrincipal::MenuPrincipal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabule
           try {
             arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
             VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString();
-            MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
+            ent::MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
           } catch (const std::exception& erro) {
             LOG(ERROR) << erro.what();
           }
@@ -364,43 +347,11 @@ void MenuPrincipal::Modo(modomenu_e modo){
 
 void MenuPrincipal::TrataAcaoModelo(QAction* acao) {
   std::string id_menu = acao->data().toString().toUtf8().constData();
-  auto it = mapa_modelos_.find(id_menu);
-  if (it == mapa_modelos_.end()) {
+  if (auto it = mapa_modelos_.find(id_menu); it == mapa_modelos_.end()) {
     LOG(ERROR) << "Nao achei modelo: " << id_menu;
     return;
   }
-  const auto& [id, item_menu] = *it;
-  ent::Tabuleiro::ModelosComPesos modelos_com_pesos;
-  modelos_com_pesos.id = id;
-  if (item_menu.modelos().empty()) {
-    modelos_com_pesos.ids_com_peso.emplace_back(id);
-  } else {
-    if (item_menu.aleatorio()) {
-      modelos_com_pesos.aleatorio = true;
-      if (item_menu.quantidade().empty()) {
-        LOG(ERROR) << "Modelo de grupo sem quantidade: " << id;
-        return;
-      }
-      modelos_com_pesos.quantidade = item_menu.quantidade();
-      LOG(INFO) << "quantidade a ser gerada " << modelos_com_pesos.quantidade;
-    }
-    for (const auto& item : item_menu.modelos()) {
-      int peso = item.has_peso() ? item.peso() : 1;
-      std::string quantidade_str = item.has_quantidade() ? item.quantidade() : "1";
-      if (item.modelos().empty()) {
-        // O item é um modelo.
-        modelos_com_pesos.ids_com_peso.emplace_back(item.id(), peso, quantidade_str);
-      } else {
-        // O item possui varios modelos.
-        std::vector<std::string> ids_modelos;
-        for (const auto& item_modelo : item.modelos()) {
-          ids_modelos.emplace_back(item_modelo.id());
-        }
-        modelos_com_pesos.ids_com_peso.emplace_back(item.id(), ids_modelos, peso, quantidade_str);
-      }
-    }
-  }
-  tabuleiro_->SelecionaModelosEntidades(modelos_com_pesos);
+  tabuleiro_->SelecionaModelosEntidades(id_menu);
 }
 
 void MenuPrincipal::TrataAcaoAcoes(QAction* acao) {

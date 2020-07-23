@@ -83,26 +83,6 @@ std::string StringArea(const ent::AcaoProto& acao) {
 
 }  // namespace
 
-void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
-  for (const auto& item_menu : entrada.item_menu()) {
-    saida->add_item_menu()->CopyFrom(item_menu);
-  }
-  for (const auto& sub_entrada : entrada.sub_menu()) {
-    MenuModelos* sub_saida = nullptr;
-    for (auto& esta_sub_saida : *saida->mutable_sub_menu()) {
-      if (esta_sub_saida.id() == sub_entrada.id()) {
-        sub_saida = &esta_sub_saida;
-        break;
-      }
-    }
-    if (sub_saida == nullptr) {
-      sub_saida = saida->add_sub_menu();
-      sub_saida->set_id(sub_entrada.id());
-    }
-    MisturaProtosMenu(sub_entrada, sub_saida);
-  }
-}
-
 bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_TIPO_TESOURO:
@@ -567,25 +547,8 @@ void InterfaceGrafica::VoltaSalvarTabuleiro(
 //--------------
 void InterfaceGrafica::TrataEscolherModeloEntidade(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
-  const char* ARQUIVO_MENU_MODELOS = "menumodelos.asciiproto";
-  const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelos_nao_srd.asciiproto";
-  const char* ARQUIVO_MENU_MODELOS_FEITICOS = "menumodelosfeiticos.asciiproto";
-  const std::string arquivos_menu_modelos[] = {
-      ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD, ARQUIVO_MENU_MODELOS_FEITICOS };
-  std::vector<ent::EntidadeProto*> entidades;
-  MenuModelos menu_modelos_proto;
-  for (const std::string& nome_arquivo_menu_modelo : arquivos_menu_modelos) {
-    MenuModelos este_menu_modelos_proto;
-    try {
-      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
-      MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
-    } catch (const std::logic_error& erro) {
-      LOG(ERROR) << erro.what();
-      continue;
-    }
-  }
   EscolheModeloEntidade(
-      menu_modelos_proto,
+      tabelas_.MenuModelos(),
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherModeloEntidade,
           this, _1));
@@ -593,9 +556,7 @@ void InterfaceGrafica::TrataEscolherModeloEntidade(const ntf::Notificacao& notif
 
 void InterfaceGrafica::VoltaEscolherModeloEntidade(
     const std::string& nome) {
-  ent::Tabuleiro::ModelosComPesos modelos;
-  modelos.ids_com_peso.emplace_back(nome);
-  tabuleiro_->SelecionaModelosEntidades(modelos);
+  tabuleiro_->SelecionaModelosEntidades(nome);
   tabuleiro_->ReativaWatchdogSeMestre();
 }
 
