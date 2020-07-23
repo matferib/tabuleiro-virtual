@@ -75,13 +75,13 @@ sub_menu {
     quantidade: '1d4-2'
     aleatorio: true
     modelos {
-      id: 'Vulto Guerreiro 5 Montado + Veserab Cidade Nova'
+      id: 'Vulto Guerreiro 5 Montado + Veserab tilverton_cidade_nova_inicio'
       modelos { id: 'Vulto Guerreiro 5 Montado' }
       modelos { id: 'Veserab' }
     }
     modelos {
-      id: 'Vulto Feiticeiro 5 Montado + Veserab Cidade Nova'
-      modelos { id: 'Vulto Feiticeiro 5 Montado' }
+      id: 'Vulto Feiticeiro 5 Montado + Veserab Cidade tilverton_cidade_nova_inicio'
+      modelos { id: 'Vulto Feiticeiro 5' }
       modelos { id: 'Veserab' }
     }
   }
