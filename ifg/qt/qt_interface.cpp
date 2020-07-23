@@ -172,7 +172,7 @@ void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
 
 namespace {
 
-std::set<std::string> ExtraiModelos(const MenuModelos& menu_modelos) {
+std::set<std::string> ExtraiItensMenu(const MenuModelos& menu_modelos) {
   std::stack<const MenuModelos*> menus;
   menus.push(&menu_modelos);
   std::set<std::string> ret;
@@ -198,16 +198,16 @@ void InterfaceGraficaQt::EscolheModeloEntidade(const MenuModelos& menu_modelos, 
   gerador.setupUi(dialogo);
   auto* wie = new QListWidgetItem(pai_->tr("Modelos"), gerador.lista);
   wie->setFlags(Qt::NoItemFlags);
-  std::set<std::string> modelos = ExtraiModelos(menu_modelos);
-  for (const auto& nome : modelos) {
-    new QListWidgetItem(pai_->tr(nome.c_str()), gerador.lista);
+  std::set<std::string> ids_itens = ExtraiItensMenu(menu_modelos);
+  for (const std::string& id : ids_itens) {
+    new QListWidgetItem(pai_->tr(id.c_str()), gerador.lista);
   }
   gerador.lista->setFocus();
-  auto lambda_aceito = [this, &gerador, dialogo, modelos, funcao_volta] () {
+  auto lambda_aceito = [this, &gerador, dialogo, ids_itens, funcao_volta] () {
     int indice = gerador.lista->currentRow();
-    // -1 por causa do label adicionado.
-    if (indice > 1) {
-      auto it = modelos.begin();
+    if (indice > 0) {
+      auto it = ids_itens.begin();
+      // -1 por causa do label adicionado.
       std::advance(it, indice - 1);
       funcao_volta(*it);
     } else {
