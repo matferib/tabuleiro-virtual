@@ -49,8 +49,6 @@ const Tabelas* g_tabela = nullptr;
 
 }  // namespace
 
-
-
 Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
   if (central_ != nullptr) {
     central_->RegistraReceptor(this);
@@ -120,6 +118,25 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
       }
     }
   }
+
+  // Menu.
+  const char* ARQUIVO_MENU_MODELOS = "menumodelos.asciiproto";
+  const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelos_nao_srd.asciiproto";
+  const char* ARQUIVO_MENU_MODELOS_HOMEBREW = "menumodelos_homebrew.asciiproto";
+  const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD, ARQUIVO_MENU_MODELOS_HOMEBREW };
+  ifg::MenuModelos menu_modelos_proto;
+  for (const std::string& nome_arquivo_menu_modelo : arquivos_menu_modelos) {
+    ifg::MenuModelos este_menu_modelos_proto;
+    try {
+      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
+      VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString();
+      MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
+    } catch (const std::exception& erro) {
+      LOG(ERROR) << erro.what();
+    }
+  }
+  menu_modelos_.Swap(&menu_modelos_proto);
+  VLOG(1) << "Modelos final: " << menu_modelos_.DebugString();
 
   RecarregaMapas();
   g_tabela = this;
@@ -281,6 +298,7 @@ void Tabelas::RecarregaMapas() {
   dominios_.clear();
   venenos_.clear();
   modelos_entidades_.clear();
+  itens_menu_.clear();
 
   for (auto& dominio : *tabelas_.mutable_tabela_dominios()->mutable_dominios()) {
     for (auto& da : *dominio.mutable_dados_ataque()) {
@@ -599,6 +617,9 @@ void Tabelas::RecarregaMapas() {
       m.clear_id_entidade_base();
     }
   } while (!fim);
+
+  // Preenche os itens de modelos.
+  PreencheTabelaItensMenu(menu_modelos_);
 }
 
 const ArmaduraOuEscudoProto& Tabelas::Armadura(const std::string& id) const {
@@ -679,6 +700,11 @@ const AcaoProto& Tabelas::Acao(const std::string& id) const {
 const Modelo& Tabelas::ModeloEntidade(const std::string& id) const {
   auto it = modelos_entidades_.find(id);
   return it == modelos_entidades_.end() ? Modelo::default_instance() : *it->second;
+}
+
+const ifg::ItemMenu& Tabelas::ItemMenu(const std::string& id) const {
+  auto it = itens_menu_.find(id);
+  return it == itens_menu_.end() ? ifg::ItemMenu::default_instance() : it->second;
 }
 
 const ItemMagicoProto& Tabelas::Pocao(const std::string& id) const {
@@ -852,4 +878,37 @@ const std::string& Tabelas::FeiticoAleatorio(const DadosParaFeiticoAleatorio& df
   return *ids_validos[indice];
 }
 
-}  // namespace
+void MisturaProtosMenu(const ifg::MenuModelos& entrada, ifg::MenuModelos* saida) {
+  for (const auto& item_menu : entrada.item_menu()) {
+    saida->add_item_menu()->CopyFrom(item_menu);
+  }
+  for (const auto& sub_entrada : entrada.sub_menu()) {
+    ifg::MenuModelos* sub_saida = nullptr;
+    for (auto& esta_sub_saida : *saida->mutable_sub_menu()) {
+      if (esta_sub_saida.id() == sub_entrada.id()) {
+        sub_saida = &esta_sub_saida;
+        break;
+      }
+    }
+    if (sub_saida == nullptr) {
+      sub_saida = saida->add_sub_menu();
+      sub_saida->set_id(sub_entrada.id());
+    }
+    MisturaProtosMenu(sub_entrada, sub_saida);
+  }
+}
+
+void Tabelas::PreencheTabelaItensMenu(const ifg::MenuModelos& menu) {
+  for (const auto& item : menu.item_menu()) {
+    if (item.id().empty()) {
+      LOG(WARNING) << "pulando item com id vazio: " << item.DebugString();
+      continue;
+    }
+    itens_menu_[item.id()] = item;
+  }
+  for (const auto& sub_menu : menu.sub_menu()) {
+    PreencheTabelaItensMenu(sub_menu);
+  }
+}
+
+}  // namespace ent

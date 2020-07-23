@@ -167,6 +167,9 @@ void Tabuleiro::CarregaControleVirtual() {
   for (const auto& modelo : tabelas_.TodosModelosEntidades().modelo()) {
     modelos_entidades_.insert(modelo.id());
   }
+  for (const auto& par : tabelas_.TodosItensMenu()) {
+    itens_menu_.insert(par.first);
+  }
 }
 
 void Tabuleiro::LiberaControleVirtual() {
@@ -688,39 +691,26 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     }
     case CONTROLE_MODELO_ENTIDADE_ANTERIOR: {
-      if (modelos_entidades_.size() < 2 || modelos_selecionados_.ids_com_peso.empty()) {
+      if (itens_menu_.size() < 2) {
         return;
       }
-      /*
-      auto it = modelos_entidades_.find(modelos_selecionados_.id);
-      Tabuleiro::ModelosComPesos nova_selecao;
-      if (it == modelos_entidades_.begin()) {
-        auto it_ultimo = --modelos_entidades_.end();
-        nova_selecao.ids_com_peso.emplace_back(*it_ultimo);
-        nova_selecao.id = it_ultimo->id;
-      } else {
-        auto it_anterior = --it;
-        nova_selecao.ids_com_peso.emplace_back(*it_anterior);
-        nova_selecao.id = it_anterior->id;
+      auto it = itens_menu_.find(item_selecionado_.id);
+      if (it == itens_menu_.end()) {
+        it = itens_menu_.begin();
+        ++it;
       }
-      SelecionaModelosEntidades(modelos);
-      */
+      SelecionaModelosEntidades(tabelas_.ItemMenu(*(it == itens_menu_.begin() ? --itens_menu_.end() : --it)).id());
       break;
     }
     case CONTROLE_MODELO_ENTIDADE_PROXIMA: {
-      if (modelos_entidades_.size() < 2 || modelos_selecionados_.ids_com_peso.empty()) {
+      if (itens_menu_.size() < 2) {
         return;
       }
-      /*
-      auto it = modelos_entidades_.find(modelos_selecionados_.ids_com_peso[0].id);
-      Tabuleiro::ModelosComPesos modelos;
-      if (it == modelos_entidades_.end() || it == --modelos_entidades_.end()) {
-        modelos.ids_com_peso.emplace_back(*modelos_entidades_.begin());
-      } else {
-        modelos.ids_com_peso.emplace_back(*++it);
+      auto it = itens_menu_.find(item_selecionado_.id);
+      if (it != itens_menu_.end()) {
+        ++it;
       }
-      SelecionaModelosEntidades(modelos);
-      */
+      SelecionaModelosEntidades(tabelas_.ItemMenu(*(it == itens_menu_.end() ? itens_menu_.begin() : it)).id());
       break;
     }
     case CONTROLE_ADICIONA_ENTIDADE: {
@@ -1185,7 +1175,7 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const En
       return rotulo.empty() ? "-" : rotulo;
     }
     case CONTROLE_MODELO_ENTIDADE: {
-      return modelos_selecionados_.id.empty() ? "-" : modelos_selecionados_.id;
+      return item_selecionado_.id.empty() ? "-" : item_selecionado_.id;
     }
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:

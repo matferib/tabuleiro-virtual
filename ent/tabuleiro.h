@@ -378,7 +378,7 @@ class Tabuleiro : public ntf::Receptor {
     std::string quantidade = "1";
   };
   /** Pode representar uma entrada simples ou uma complexa, aleatoria, composta por varias outras. */
-  struct ModelosComPesos {
+  struct ItemSelecionado {
     std::string id;
     std::vector<IdsModelosComPeso> ids_com_peso;
     std::string quantidade;
@@ -386,7 +386,7 @@ class Tabuleiro : public ntf::Receptor {
     void Reset();
   };
   /** Seleciona o modelo de entidade através do identificador. */
-  void SelecionaModelosEntidades(const ModelosComPesos& modelos_com_pesos) { modelos_selecionados_ = modelos_com_pesos; }
+  void SelecionaModelosEntidades(const std::string& id_item_selecionado);
 
   /** Retorna true se o tabuleiro tiver nome e puder ser salvo. */
   bool TemNome() const { return !proto_.nome().empty(); }
@@ -1325,7 +1325,7 @@ class Tabuleiro : public ntf::Receptor {
   camera_e camera_ = CAMERA_PERSPECTIVA;
 
   /** O modelo selecionado para inserção de entidades. */
-  ModelosComPesos modelos_selecionados_;
+  ItemSelecionado item_selecionado_;
   std::unordered_map<std::string, std::unique_ptr<Modelo>> mapa_modelos_com_parametros_;
 
   /** Ação selecionada (por id). */
@@ -1485,6 +1485,7 @@ class Tabuleiro : public ntf::Receptor {
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
   std::set<std::string> texturas_entidades_;
   std::set<std::string> modelos_entidades_;
+  std::set<std::string> itens_menu_;
   // Indica iniciativa valida. Pode acontecer apos remocoes de ficar invalidado.
   // Significa que o indice esta certo, mas apontava para outra entidade que foi removida.
   bool iniciativa_valida_ = false;

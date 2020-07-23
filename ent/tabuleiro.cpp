@@ -162,7 +162,7 @@ const TabuleiroProto& BuscaSubCenario(int id_cenario, const TabuleiroProto& prot
 
 }  // namespace.
 
-void Tabuleiro::ModelosComPesos::Reset() {
+void Tabuleiro::ItemSelecionado::Reset() {
   ids_com_peso.clear();
   ids_com_peso.emplace_back("Padrão", 1);
   quantidade.clear();
@@ -184,7 +184,7 @@ Tabuleiro::Tabuleiro(
   // Modelos.
   Modelo* modelo_padrao_com_parametros = new Modelo;
   modelo_padrao_com_parametros->mutable_entidade()->mutable_cor()->set_g(1.0f);
-  modelos_selecionados_.Reset();
+  item_selecionado_.Reset();
 
   // Acoes.
   Acoes acoes;
@@ -1057,26 +1057,26 @@ std::unique_ptr<Entidade> Tabuleiro::CriaUmaEntidadePorNotificacao(
 }
 
 namespace {
-// Retorna a quantidade de entidades a serem adicionadas baseada em modelos_com_pesos.
+// Retorna a quantidade de sorteios a serem feitos baseada em item_selecionado.
 // Retorna 0 em caso de erro.
-int QuantidadeAdicionar(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
-  if (!modelos_com_pesos.aleatorio) {
-    LOG(INFO) << "quantidade nao aleatoria a adicionar, retornando: " << modelos_com_pesos.ids_com_peso.size();
-    return modelos_com_pesos.ids_com_peso.size();
+int QuantidadeSorteios(const Tabuleiro::ItemSelecionado& item_selecionado) {
+  if (!item_selecionado.aleatorio) {
+    LOG(INFO) << "quantidade nao aleatoria a adicionar, retornando: " << item_selecionado.ids_com_peso.size();
+    return item_selecionado.ids_com_peso.size();
   }
-  if (modelos_com_pesos.quantidade.empty()) {
-    LOG(ERROR) << "quantidade aleatoria invalida a adicionar: " << modelos_com_pesos.quantidade;
+  if (item_selecionado.quantidade.empty()) {
+    LOG(ERROR) << "quantidade aleatoria invalida a adicionar: " << item_selecionado.quantidade;
     return 0;
   }
   int quantidade = 0;
   try {
-    LOG(INFO) << "rolando " << modelos_com_pesos.quantidade << " para gerar entidades";
-    quantidade = RolaValor(modelos_com_pesos.quantidade);
+    LOG(INFO) << "rolando " << item_selecionado.quantidade << " para gerar entidades";
+    quantidade = RolaValor(item_selecionado.quantidade);
     if (quantidade > 100) {
       throw std::logic_error("");
     }
   } catch (...) {
-    LOG(ERROR) << "quantidade invalida: " << modelos_com_pesos.quantidade;
+    LOG(ERROR) << "quantidade invalida: " << item_selecionado.quantidade;
   }
   return quantidade;
 }
@@ -1089,13 +1089,13 @@ struct InfoSelecao {
 
 // Retorna o vetor com o id e a quantidade daquele tipo (exemplo de retorno, ('Lobo Atroz', '1d4+4').
 // O peso indica quantas vezes o modelo é adicionado.
-std::vector<InfoSelecao> MontaVetorInfosSelecao(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
+std::vector<InfoSelecao> MontaVetorInfosSelecao(const Tabuleiro::ItemSelecionado& item_selecionado) {
   std::vector<InfoSelecao> infos;
-  for (const auto& ids_com_peso : modelos_com_pesos.ids_com_peso) {
+  for (const auto& ids_com_peso : item_selecionado.ids_com_peso) {
     for (int i = 0; i < ids_com_peso.peso; ++i) {
       infos.emplace_back(InfoSelecao{ .id_tudo = ids_com_peso.id_tudo, .ids = ids_com_peso.ids, .quantidade_str = ids_com_peso.quantidade});
     }
-    VLOG(1) << "adicionando " << modelos_com_pesos.id << ", peso: " << ids_com_peso.peso;
+    VLOG(1) << "adicionando " << item_selecionado.id << ", peso: " << ids_com_peso.peso;
   }
   return infos;
 }
@@ -1177,7 +1177,7 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
           // Notificacao sem entidade: posicao do quadrado selecionado.
           CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
         }
-        quantidade = QuantidadeAdicionar(modelos_selecionados_);
+        quantidade = QuantidadeSorteios(item_selecionado_);
       }
 
       if (!Desfazendo()) {
@@ -1192,10 +1192,10 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         entidades_adicionadas.emplace_back(std::move(entidade));
       } else {
         VLOG(1) << "gerando " << quantidade << " sorteios";
-        std::vector<InfoSelecao> infos = MontaVetorInfosSelecao(modelos_selecionados_);
+        std::vector<InfoSelecao> infos = MontaVetorInfosSelecao(item_selecionado_);
         int indice_offset = 0;
         for (int i = 0; i < quantidade; ++i) {
-          const auto& [modelos_com_parametros, quantidade_modelo] = SorteiaOuEscolheModelo(tabelas_, i, infos, modelos_selecionados_.aleatorio);
+          const auto& [modelos_com_parametros, quantidade_modelo] = SorteiaOuEscolheModelo(tabelas_, i, infos, item_selecionado_.aleatorio);
           if (modelos_com_parametros.empty()) {
             continue;
           }
@@ -8560,6 +8560,54 @@ void Tabuleiro::RemoveEfeitoInvisibilidadeEntidadesNotificando() {
 void Tabuleiro::RequerAtualizacaoLuzesPontuais() {
   luzes_pontuais_.clear();
   AtualizaLuzesPontuais();
+}
+
+void Tabuleiro::SelecionaModelosEntidades(const std::string& id_item_selecionado) {
+  const auto& item_menu = tabelas_.ItemMenu(id_item_selecionado);
+  if (item_menu.id().empty()) {
+    LOG(WARNING) << "item invalido: " << id_item_selecionado << ", item_menu: " << item_menu.DebugString();
+    return;
+  }
+  ent::Tabuleiro::ItemSelecionado item_selecionado;
+  item_selecionado.id = id_item_selecionado;
+  if (item_menu.modelos().empty()) {
+    // Sem 'modelos', implica item com modelo simples.
+    item_selecionado.ids_com_peso.emplace_back(id_item_selecionado);
+  } else {
+    if (item_menu.aleatorio()) {
+      item_selecionado.aleatorio = true;
+      if (item_menu.quantidade().empty()) {
+        LOG(ERROR) << "Modelo de grupo sem quantidade: " << id_item_selecionado;
+        return;
+      }
+      item_selecionado.quantidade = item_menu.quantidade();
+      LOG(INFO) << "quantidade a ser gerada " << item_selecionado.quantidade;
+    }
+    for (const auto& item : item_menu.modelos()) {
+      int peso = item.has_peso() ? item.peso() : 1;
+      std::string quantidade_str = item.has_quantidade() ? item.quantidade() : "1";
+      if (!item.id_item_menu().empty()) {
+        // O item se refere a outro item menu.
+        const auto& item_referenciado = tabelas_.ItemMenu(item.id_item_menu());
+        std::vector<std::string> ids_modelos;
+        for (const auto& item_modelo : item_referenciado.modelos()) {
+          ids_modelos.emplace_back(item_modelo.id());
+        }
+        item_selecionado.ids_com_peso.emplace_back(StringPrintf("ref:%s->%s", item_menu.id().c_str(), item.id().c_str()), ids_modelos, peso, quantidade_str);
+      } else if (item.modelos().empty()) {
+        // O item é um modelo.
+        item_selecionado.ids_com_peso.emplace_back(item.id(), peso, quantidade_str);
+      } else {
+        // O item possui varios modelos.
+        std::vector<std::string> ids_modelos;
+        for (const auto& item_modelo : item.modelos()) {
+          ids_modelos.emplace_back(item_modelo.id());
+        }
+        item_selecionado.ids_com_peso.emplace_back(item.id(), ids_modelos, peso, quantidade_str);
+      }
+    }
+  }
+  item_selecionado_ = std::move(item_selecionado);
 }
 
 }  // namespace ent

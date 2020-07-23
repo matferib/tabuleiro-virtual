@@ -6,6 +6,7 @@
 
 #include "ent/acoes.pb.h"
 #include "ent/tabelas.pb.h"
+#include "ifg/modelos.pb.h"
 #include "ntf/notificacao.h"
 
 namespace ent {
@@ -67,20 +68,28 @@ class Tabelas : public ntf::Receptor {
   const PericiaProto& Pericia(const std::string& id) const;
   const Acoes& TodasAcoes() const { return tabela_acoes_; }
   const Modelos& TodosModelosEntidades() const { return tabela_modelos_entidades_; }
+  const std::unordered_map<std::string, ifg::ItemMenu>& TodosItensMenu() const { return itens_menu_; }
+  const ifg::MenuModelos& MenuModelos() const { return menu_modelos_; }
   const RacaProto& Raca(const std::string& id) const;
   const DominioProto& Dominio(const std::string& id) const;
   const Modelo& ModeloEntidade(const std::string& modelo) const;
+  const ifg::ItemMenu& ItemMenu(const std::string& id) const;
   const VenenoProto& Veneno(const std::string& id) const;
 
  private:
   // Dados os protos tabelas_ e tabela_acoes_, preenche os demais mapas.
   void RecarregaMapas();
 
+  /** Funcao que percorre recursivamente o menu. */
+  void PreencheTabelaItensMenu(const ifg::MenuModelos& menu_modelo);
+
   TodasTabelas tabelas_;
   // Acoes eh um caso a parte. Ta duplicado. A ideia eh remover do tabuleiro (MapaIdAcoes) depois e deixar so na tabela.
   Acoes tabela_acoes_;
   // Os modelos de entidades.
   Modelos tabela_modelos_entidades_;
+  // O menu de modelos de entidades.
+  ifg::MenuModelos menu_modelos_;
 
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> armaduras_;
   std::unordered_map<std::string, const ArmaduraOuEscudoProto*> escudos_;
@@ -111,9 +120,14 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const DominioProto*> dominios_;
   std::unordered_map<std::string, const Modelo*> modelos_entidades_;
   std::unordered_map<std::string, const VenenoProto*> venenos_;
+  // Os itens de menu que podem ser escolhidos.
+  std::unordered_map<std::string, ifg::ItemMenu> itens_menu_;
 
   ntf::CentralNotificacoes* central_;
 };
+
+// Mistura entrada em saida, de forma mais inteligente que o merge.
+void MisturaProtosMenu(const ifg::MenuModelos& entrada, ifg::MenuModelos* saida);
 
 }  // namespace ent
 
