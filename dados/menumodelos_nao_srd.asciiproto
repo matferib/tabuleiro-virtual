@@ -71,18 +71,14 @@ sub_menu {
   id: 'Encontros'
   item_menu {
     id: 'tilverton_cidade_nova_inicio'
-    texto: 'Tilverton, Cidade Nova, Início'
+    texto: 'Tilverton, Portão de Cormyr, Início'
     quantidade: '1d4-2'
     aleatorio: true
     modelos {
-      id: 'Vulto Guerreiro 5 Montado + Veserab tilverton_cidade_nova_inicio'
-      modelos { id: 'Vulto Guerreiro 5 Montado' }
-      modelos { id: 'Veserab' }
+      id_item_menu: 'Vulto Guerreiro 5 Montado + Veserab'
     }
     modelos {
-      id: 'Vulto Feiticeiro 5 Montado + Veserab Cidade tilverton_cidade_nova_inicio'
-      modelos { id: 'Vulto Feiticeiro 5' }
-      modelos { id: 'Veserab' }
+      id_item_menu: 'Vulto Feiticeiro 5 Montado + Veserab'
     }
   }
   item_menu {
@@ -109,6 +105,7 @@ sub_menu {
     modelos { id: 'Humano Dragão Púrpura: Arcano de Guerra 5' peso: 1 }
   }
   item_menu {
+    id: 'tilverton_cidade_nova_ida'
     texto: 'Tilverton, Cidade Nova Ida'
     quantidade: '1d8'
     aleatorio: true
