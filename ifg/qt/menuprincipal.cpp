@@ -116,9 +116,9 @@ void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* gr
     }
   };
   std::set<DadosMenu> conjunto;
-  for (const auto& m : menu_modelos.modelo()) {
-    conjunto.insert(DadosMenu(m.id(), ifg::qt::MenuPrincipal::tr((m.texto().empty() ? m.id() : m.texto()).c_str())));
-    (*mapa_modelos)[m.id()] = m;
+  for (const auto& item : menu_modelos.item_menu()) {
+    conjunto.insert(DadosMenu(item.id(), ifg::qt::MenuPrincipal::tr((item.texto().empty() ? item.id() : item.texto()).c_str())));
+    (*mapa_modelos)[item.id()] = item;
   }
   for (const auto& s : menu_modelos.sub_menu()) {
     conjunto.insert(DadosMenu(ifg::qt::MenuPrincipal::tr(s.id().c_str()), &s));
@@ -363,27 +363,41 @@ void MenuPrincipal::Modo(modomenu_e modo){
 }
 
 void MenuPrincipal::TrataAcaoModelo(QAction* acao) {
-  std::string id = acao->data().toString().toUtf8().constData();
-  auto it = mapa_modelos_.find(id);
+  std::string id_menu = acao->data().toString().toUtf8().constData();
+  auto it = mapa_modelos_.find(id_menu);
   if (it == mapa_modelos_.end()) {
-    LOG(ERROR) << "Nao achei modelo: " << id;
+    LOG(ERROR) << "Nao achei modelo: " << id_menu;
     return;
   }
+  const auto& [id, item_menu] = *it;
   ent::Tabuleiro::ModelosComPesos modelos_com_pesos;
-  if (it->second.modelos().empty()) {
+  modelos_com_pesos.id = id;
+  if (item_menu.modelos().empty()) {
     modelos_com_pesos.ids_com_peso.emplace_back(id);
   } else {
-    if (it->second.aleatorio()) {
+    if (item_menu.aleatorio()) {
       modelos_com_pesos.aleatorio = true;
-      if (it->second.quantidade().empty()) {
+      if (item_menu.quantidade().empty()) {
         LOG(ERROR) << "Modelo de grupo sem quantidade: " << id;
         return;
       }
-      modelos_com_pesos.quantidade = it->second.quantidade();
+      modelos_com_pesos.quantidade = item_menu.quantidade();
       LOG(INFO) << "quantidade a ser gerada " << modelos_com_pesos.quantidade;
     }
-    for (const auto& m : it->second.modelos()) {
-      modelos_com_pesos.ids_com_peso.emplace_back(m.id(), m.has_peso() ? m.peso() : 1, m.has_quantidade() ? m.quantidade() : "1");
+    for (const auto& item : item_menu.modelos()) {
+      int peso = item.has_peso() ? item.peso() : 1;
+      std::string quantidade_str = item.has_quantidade() ? item.quantidade() : "1";
+      if (item.modelos().empty()) {
+        // O item é um modelo.
+        modelos_com_pesos.ids_com_peso.emplace_back(item.id(), peso, quantidade_str);
+      } else {
+        // O item possui varios modelos.
+        std::vector<std::string> ids_modelos;
+        for (const auto& item_modelo : item.modelos()) {
+          ids_modelos.emplace_back(item_modelo.id());
+        }
+        modelos_com_pesos.ids_com_peso.emplace_back(item.id(), ids_modelos, peso, quantidade_str);
+      }
     }
   }
   tabuleiro_->SelecionaModelosEntidades(modelos_com_pesos);

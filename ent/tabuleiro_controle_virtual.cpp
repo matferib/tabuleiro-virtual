@@ -691,20 +691,27 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       if (modelos_entidades_.size() < 2 || modelos_selecionados_.ids_com_peso.empty()) {
         return;
       }
-      auto it = modelos_entidades_.find(modelos_selecionados_.ids_com_peso[0].id);
-      Tabuleiro::ModelosComPesos modelos;
+      /*
+      auto it = modelos_entidades_.find(modelos_selecionados_.id);
+      Tabuleiro::ModelosComPesos nova_selecao;
       if (it == modelos_entidades_.begin()) {
-        modelos.ids_com_peso.emplace_back(*--modelos_entidades_.end());
+        auto it_ultimo = --modelos_entidades_.end();
+        nova_selecao.ids_com_peso.emplace_back(*it_ultimo);
+        nova_selecao.id = it_ultimo->id;
       } else {
-        modelos.ids_com_peso.emplace_back(*--it);
+        auto it_anterior = --it;
+        nova_selecao.ids_com_peso.emplace_back(*it_anterior);
+        nova_selecao.id = it_anterior->id;
       }
       SelecionaModelosEntidades(modelos);
+      */
       break;
     }
     case CONTROLE_MODELO_ENTIDADE_PROXIMA: {
       if (modelos_entidades_.size() < 2 || modelos_selecionados_.ids_com_peso.empty()) {
         return;
       }
+      /*
       auto it = modelos_entidades_.find(modelos_selecionados_.ids_com_peso[0].id);
       Tabuleiro::ModelosComPesos modelos;
       if (it == modelos_entidades_.end() || it == --modelos_entidades_.end()) {
@@ -713,6 +720,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         modelos.ids_com_peso.emplace_back(*++it);
       }
       SelecionaModelosEntidades(modelos);
+      */
       break;
     }
     case CONTROLE_ADICIONA_ENTIDADE: {
@@ -1177,7 +1185,7 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const En
       return rotulo.empty() ? "-" : rotulo;
     }
     case CONTROLE_MODELO_ENTIDADE: {
-      return modelos_selecionados_.ids_com_peso.empty() || modelos_selecionados_.ids_com_peso[0].id.empty() ? "-" : modelos_selecionados_.ids_com_peso[0].id;
+      return modelos_selecionados_.id.empty() ? "-" : modelos_selecionados_.id;
     }
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:

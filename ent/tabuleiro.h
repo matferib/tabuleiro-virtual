@@ -366,14 +366,21 @@ class Tabuleiro : public ntf::Receptor {
   /** inicializa os parametros do openGL. Chamado no IOS e ANDROID tambem para recuperar o contexto grafico. */
   void IniciaGL(bool reinicio = false);
 
-  struct IdModeloComPeso {
-    IdModeloComPeso(const std::string& id, int peso = 1, const std::string& quantidade = "1") : id(id), peso(peso), quantidade(quantidade) {}
-    std::string id;
+  /** Uma entrada pode conter varios modelos, por exemplo feiticeiro com familiar, entidade montada. */
+  struct IdsModelosComPeso {
+    IdsModelosComPeso(const std::string& id, int peso = 1, const std::string& quantidade = "1") : id_tudo(id), ids{id}, peso(peso), quantidade(quantidade) {}
+    IdsModelosComPeso(const std::string& id_tudo, const std::vector<std::string>& ids, int peso = 1, const std::string& quantidade = "1")
+        : id_tudo(id_tudo), ids(ids), peso(peso), quantidade(quantidade) {}
+    std::string id_tudo;
+    std::vector<std::string> ids;
+    // Isso vale para a entrada inteira. Por exemplo, se ha 2 ids e quantidade for "4", gerara 8 entidades.
     int peso = 1;
     std::string quantidade = "1";
   };
+  /** Pode representar uma entrada simples ou uma complexa, aleatoria, composta por varias outras. */
   struct ModelosComPesos {
-    std::vector<IdModeloComPeso> ids_com_peso;
+    std::string id;
+    std::vector<IdsModelosComPeso> ids_com_peso;
     std::string quantidade;
     bool aleatorio = false;
     void Reset();

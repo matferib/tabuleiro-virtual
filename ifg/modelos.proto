@@ -2,14 +2,14 @@ syntax = "proto2";
 
 package ifg;
 
-// Representa um modelo ou grupo de modelos. 
+// Representa um modelo ou grupo de modelos.
 message ItemMenu {
   optional string id = 1;  // id do modelo de acordo com arquivo de modelos.asciiproto
   optional string texto = 2;  // texto do menu, se houver. Caso contrario usa id.
   optional int32 peso = 3;  // para grupos aleatorios, indica o peso do modelo (% = peso / total de pesos).
 
   // Caso o modelo seja de um grupo, modelos nao sera vazio.
-  repeated ItemMenu modelos = 4; // modelos que compoe o grupo. 
+  repeated ItemMenu modelos = 4; // modelos que compoe o grupo.
   optional bool aleatorio = 5; // se verdadeiro, que o grupo sera gerado aleatoriamente.
   optional string quantidade = 6; // quantidade de membros gerados, por exemplo: 1d4+1.
 }
@@ -18,5 +18,5 @@ message ItemMenu {
 message MenuModelos {
   optional string id = 1;
   repeated MenuModelos sub_menu = 2;
-  repeated ItemMenu modelo = 3;
+  repeated ItemMenu item_menu = 3;
 }

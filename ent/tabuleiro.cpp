@@ -1081,39 +1081,55 @@ int QuantidadeAdicionar(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
   return quantidade;
 }
 
+struct InfoSelecao {
+  std::string id_tudo;
+  std::vector<std::string> ids;
+  std::string quantidade_str;
+};
+
 // Retorna o vetor com o id e a quantidade daquele tipo (exemplo de retorno, ('Lobo Atroz', '1d4+4').
 // O peso indica quantas vezes o modelo é adicionado.
-std::vector<std::pair<std::string, std::string>> MontaVetorIdsQuantidadeAdicionar(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
-  std::vector<std::pair<std::string, std::string>> ids;
-  for (const auto& id_com_peso : modelos_com_pesos.ids_com_peso) {
-    VLOG(1) << "adicionando " << id_com_peso.id << ", peso: " << id_com_peso.peso;
-    for (int i = 0; i < id_com_peso.peso; ++i) {
-      ids.push_back(std::make_pair(id_com_peso.id, id_com_peso.quantidade.empty() ? std::string("1") : id_com_peso.quantidade));
+std::vector<InfoSelecao> MontaVetorInfosSelecao(const Tabuleiro::ModelosComPesos& modelos_com_pesos) {
+  std::vector<InfoSelecao> infos;
+  for (const auto& ids_com_peso : modelos_com_pesos.ids_com_peso) {
+    for (int i = 0; i < ids_com_peso.peso; ++i) {
+      infos.emplace_back(InfoSelecao{ .id_tudo = ids_com_peso.id_tudo, .ids = ids_com_peso.ids, .quantidade_str = ids_com_peso.quantidade});
     }
+    VLOG(1) << "adicionando " << modelos_com_pesos.id << ", peso: " << ids_com_peso.peso;
   }
-  return ids;
+  return infos;
 }
 
-std::pair<Modelo, int> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const std::vector<std::pair<std::string, std::string>>& ids_com_quantidades, bool aleatorio) {
-  int sorteio = aleatorio ? RolaDado(ids_com_quantidades.size()) - 1 : i;
-  if (sorteio < 0 || sorteio >= (int)ids_com_quantidades.size()) {
-    LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << ids_com_quantidades.size();
-    return std::make_pair(Modelo::default_instance(), 0);
+std::pair<std::vector<Modelo>, int> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const std::vector<InfoSelecao>& infos, bool aleatorio) {
+  int sorteio = aleatorio ? RolaDado(infos.size()) - 1 : i;
+  if (sorteio < 0 || sorteio >= (int)infos.size()) {
+    LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << infos.size();
+    return {std::vector<Modelo>(), 0};
   }
-  const auto& [id, quantidade_str] = ids_com_quantidades[sorteio];
-  LOG(INFO) << "numero sorteado: " << (sorteio + 1) << " de " << ids_com_quantidades.size() << "; id sorteado: " << id;
-  const auto& modelo_com_parametros = tabelas.ModeloEntidade(id);
-  if (!modelo_com_parametros.has_id()) {
-    LOG(INFO) << "modelo invalido, ignorando";
-    return std::make_pair(Modelo::default_instance(), 0);
-  }
+  const auto& [id_tudo, ids, quantidade_str] = infos[sorteio];
   int valor = RolaValor(quantidade_str);
-  LOG(INFO) << "valor rolado para modelo: " << valor << ", em string: " << quantidade_str;
-  if (valor <= 0 || valor > 100) {
-    LOG(INFO) << "valor invalido para " << quantidade_str << ", valor: " << valor;
-    return std::make_pair(Modelo::default_instance(), 0);
+  if (valor <= 0) {
+    LOG(INFO) << "valor negativo para " << quantidade_str << ", valor: " << valor << ", retornando vazio";
+    return {std::vector<Modelo>(), 0};
   }
-  return std::make_pair(modelo_com_parametros, valor);
+  if (valor > 100) {
+    // Valores negativos sao validos (nao sao erros), mas vamos evitar valores muito grandes.
+    LOG(WARNING) << "valor muito grande para " << quantidade_str << ", valor: " << valor;
+    return {std::vector<Modelo>(), 0};
+  }
+  LOG(INFO) << "numero sorteado: " << (sorteio + 1) << " de " << infos.size() << "; id sorteado: " << id_tudo << ", vezes: " << quantidade_str << "= " << valor;
+  std::vector<Modelo> modelos;
+  for (int i = 0; i < valor; ++i) {
+    for (const auto& id : ids) {
+      const auto& modelo_com_parametros = tabelas.ModeloEntidade(id);
+      if (!modelo_com_parametros.has_id()) {
+        LOG(INFO) << "modelo invalido, ignorando";
+        continue;
+      }
+      modelos.push_back(modelo_com_parametros);
+    }
+  }
+  return std::make_pair(modelos, valor);
 }
 
 Vector2 ComputaOffset(int i) {
@@ -1175,19 +1191,22 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
         entidades_adicionadas.emplace_back(std::move(entidade));
       } else {
-        VLOG(1) << "gerando " << quantidade << " entidades";
-        std::vector<std::pair<std::string, std::string>> ids_com_quantidades = MontaVetorIdsQuantidadeAdicionar(modelos_selecionados_);
+        VLOG(1) << "gerando " << quantidade << " sorteios";
+        std::vector<InfoSelecao> infos = MontaVetorInfosSelecao(modelos_selecionados_);
         int indice_offset = 0;
         for (int i = 0; i < quantidade; ++i) {
-          const auto& [modelo_com_parametros, quantidade_modelo] = SorteiaOuEscolheModelo(tabelas_, i, ids_com_quantidades, modelos_selecionados_.aleatorio);
-          if (!modelo_com_parametros.has_id()) {
+          const auto& [modelos_com_parametros, quantidade_modelo] = SorteiaOuEscolheModelo(tabelas_, i, infos, modelos_selecionados_.aleatorio);
+          if (modelos_com_parametros.empty()) {
             continue;
           }
           for (int j = 0; j < quantidade_modelo; ++j) {
-            Vector2 offset = ComputaOffset(indice_offset++);
-            auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z);
-            AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
-            entidades_adicionadas.emplace_back(std::move(entidade));
+            for (const auto& modelo_com_parametros : modelos_com_parametros) {
+              if (modelo_com_parametros.id().empty()) continue;
+              Vector2 offset = ComputaOffset(indice_offset++);
+              auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z);
+              AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
+              entidades_adicionadas.emplace_back(std::move(entidade));
+            }
           }
         }
       }
