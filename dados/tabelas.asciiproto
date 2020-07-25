@@ -2829,7 +2829,16 @@ tabela_itens_mundanos {
     nome: 'ferramentas ladino obra-prima'
     custo { po: 100 }
   }
-
+  itens {
+    id: 'ferramentas_artesao'
+    nome: 'ferramentas artesão'
+    custo { po: 5 }
+  }
+  itens {
+    id: 'ferramentas_artesao_op'
+    nome: 'ferramentas artesão obra-prima'
+    custo { po: 55 }
+  }
 }
 
 tabela_botas {
@@ -5822,6 +5831,36 @@ tabela_pericias {
     atributo: TA_INTELIGENCIA
   }
   pericias {
+    id: 'avaliacao_oficio'
+    nome: 'Avaliação (ofício específico)'
+    derivada_de: 'avaliacao'
+  }
+  pericias {
+    id: 'avaliacao_armoraria'
+    nome: 'Avaliação (armoraria)'
+    derivada_de: 'avaliacao'
+  }
+  pericias {
+    id: 'avaliacao_alquimia'
+    nome: 'Avaliação (alquimia)'
+    derivada_de: 'avaliacao'
+  }
+  pericias {
+    id: 'avaliacao_arquearia'
+    nome: 'Avaliação (arquearia)'
+    derivada_de: 'avaliacao'
+  }
+  pericias {
+    id: 'avaliacao_armaria'
+    nome: 'Avaliação (armaria)'
+    derivada_de: 'avaliacao'
+  }
+  pericias {
+    id: 'avaliacao_armadilharia'
+    nome: 'Avaliação (armadilharia)'
+    derivada_de: 'avaliacao'
+  }
+  pericias {
     id: 'blefar'
     nome: 'Blefar'
     # classes: [  'bardo'  'ladino'  'feiticeiro'  'aristocrata' ]
@@ -6049,7 +6088,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
-    sinergias { id: 'avaliacao' restricao: 'ao oficio' }
+    sinergias { id: 'avaliacao_oficio' }
   }
   pericias {
     id: 'oficios_alquimia'
@@ -6058,7 +6097,7 @@ tabela_pericias {
     #               'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
-    sinergias { id: 'avaliacao' restricao: 'alquimia' }
+    sinergias { id: 'avaliacao_alquimia' }
   }
   pericias {
     id: 'oficios_armoraria'
@@ -6067,7 +6106,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
-    sinergias { id: 'avaliacao' restricao: 'armaduras' }
+    sinergias { id: 'avaliacao_armoraria' }
   }
   pericias {
     id: 'oficios_arquearia'
@@ -6076,7 +6115,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
-    sinergias { id: 'avaliacao' restricao: 'arcos' }
+    sinergias { id: 'avaliacao_arquearia' }
   }
   pericias {
     id: 'oficios_armeiro'
@@ -6085,7 +6124,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
-    sinergias { id: 'avaliacao' restricao: 'armas' }
+    sinergias { id: 'avaliacao_armaria' }
   }
   pericias {
     id: 'oficios_armadilharia'
@@ -6094,7 +6133,7 @@ tabela_pericias {
     #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
-    sinergias { id: 'avaliacao' restricao: 'armadilhas' }
+    sinergias { id: 'avaliacao_armadilharia' }
   }
   pericias {
     id: 'operar_mecanismo'

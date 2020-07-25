@@ -6997,12 +6997,9 @@ modelo {
     cor { r: 0.3 g: 0.3 b: 0.3 }
     atributos {
       # Usa array padrao.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
   }
 }
@@ -7017,14 +7014,50 @@ modelo {
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
     }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
   }
 }
+modelo {
+  id: 'Humana Especialista Base'
+  id_entidade_base: 'Especialista Base'
+  entidade {
+    raca: 'humano'
+    info_textura { id: 'artisan.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.3 g: 0.3 b: 0.3 }
+    info_talentos {
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
+  }
+}
+
 modelo {
   id: 'Humano Especialista 6'
   id_entidade_base: 'Humano Especialista Base'
   entidade {
     rotulo: 'Especialista 6'
-    info_classes { id: 'especialista' nivel: 6 }
+    info_classes {
+      id: 'especialista' nivel: 6
+      # escolhe 10 pericias.
+      pericias_monstro: 'oficios_armeiro'
+      pericias_monstro: 'oficios_armoraria'
+      pericias_monstro: 'oficios_armoraria'
+      pericias_monstro: 'oficios_alquimia'
+      pericias_monstro: 'oficios_armadilharia'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'sentir_motivacao'
+      pericias_monstro: 'avaliacao'
+      pericias_monstro: 'profissao'
+    }
     dados_vida: '6d6+3'
     cor { r: 0.3 g: 0.3 b: 0.3 }
     atributos {
@@ -7059,6 +7092,65 @@ modelo {
     info_pericias { id: 'avaliacao' pontos: 9 }
   }
 }
+modelo {
+  id: 'Humana Especialista 7'
+  id_entidade_base: 'Humana Especialista Base'
+  entidade {
+    rotulo: 'Especialista 7'
+    info_classes {
+      id: 'especialista' nivel: 7
+      pericias_monstro: 'oficios'
+      pericias_monstro: 'oficios_alquimia'
+      pericias_monstro: 'conhecimento_nobreza_e_realeza'
+      pericias_monstro: 'sentir_motivacao'
+      pericias_monstro: 'avaliacao'
+      pericias_monstro: 'conhecimento_religiao'
+      pericias_monstro: 'obter_informacao'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'blefar'
+      pericias_monstro: 'intimidacao'
+    }
+    dados_vida: '7d6+3'
+    cor { r: 0.3 g: 0.3 b: 0.3 }
+    atributos {
+      inteligencia { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+    }
+    dados_defesa { id_armadura_tesouro: 'camisao +1' }
+    dados_ataque { grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'adaga +1' empunhadura: EA_ARMA_APENAS }
+    dados_ataque { grupo: 'distancia' tipo_ataque: 'Ataque a Disância' id_arma_tesouro: 'adaga OP' empunhadura: EA_ARMA_APENAS }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'agilidade_gato' }
+      pocoes { id: 'elixir_cuspir_fogo' }
+      itens_mundanos { id: 'acido' }
+      itens_mundanos { id: 'acido' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'pedra_trovao' }
+      itens_mundanos { id: 'ferramentas_artesao_op' }
+      armas { id: 'adaga +1' id_tabela: 'adaga_de_soco' bonus_magico: 1 }
+      armas { id: 'adaga OP' id_tabela: 'adaga' obra_prima: true }
+      armaduras { id: 'camisao +1' id_tabela: 'camisao'  bonus_magico: 1 }
+      moedas { po: 305 }
+      valor_esperado_po: 5600
+    }
+    info_talentos {
+      gerais { id: 'foco_em_pericia' complemento: 'oficios' }  # 1
+      gerais { id: 'especializacao_em_combate' }  # 3
+      gerais { id: 'acuidade_arma' }  # 6
+    }
+    info_pericias { id: 'oficios' pontos: 10 }
+    info_pericias { id: 'oficios_alquimia' pontos: 10 }
+    info_pericias { id: 'conhecimento_nobreza_e_realeza' pontos: 10 }
+    info_pericias { id: 'sentir_motivacao' pontos: 10 }
+    info_pericias { id: 'avaliacao' pontos: 10 }
+    info_pericias { id: 'conhecimento_religiao' pontos: 10 }
+    info_pericias { id: 'obter_informacao' pontos: 10 }
+    info_pericias { id: 'blefar' pontos: 10 }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'intimidacao' pontos: 5 }
+  }
+}
+
 modelo {
   id: 'Anão Especialista Base'
   id_entidade_base: 'Especialista Base'
@@ -9461,6 +9553,7 @@ modelo {
       id: 'combatente' nivel: 1
       pericias_monstro: 'profissao'
       pericias_monstro: 'esconderse'
+      pericias_monstro: 'oficios_armadilharia'
     }
     info_talentos { gerais { id: 'prontidao' } }
 

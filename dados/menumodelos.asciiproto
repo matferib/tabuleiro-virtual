@@ -230,7 +230,8 @@ sub_menu {
   }
   sub_menu {
     id: 'Especialistas'
-    item_menu { id: 'Humano Especialista 6' }
+    item_menu { id: 'Humano Especialista 6' texto: 'Armeiro 6' }
+    item_menu { id: 'Humana Especialista 7' texto: 'Tecelã 7' }
   }
 
   sub_menu {

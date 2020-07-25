@@ -461,6 +461,8 @@ class Tabuleiro : public ntf::Receptor {
   void TrataRolarPericiaNotificando(const std::string& pericia, bool local_apenas, float atraso_s, const Bonus& outros_bonus, const EntidadeProto& proto);
   /** Para resistir arte da fuga. */
   void TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros_bonus, const Entidade& entidade);
+  /** Para resistir intimidação. */
+  void TrataRolarContraIntimidacaoNotificando(float atraso_s, const Entidade& entidade);
 
   // Funcao auxiliar pra realizar algum hack qualquer em entidades selecionadas.
   void Hack();

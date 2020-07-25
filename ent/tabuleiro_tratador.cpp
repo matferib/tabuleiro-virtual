@@ -2535,6 +2535,8 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
   }
   if (pericia_origem == "arte_da_fuga") {
     TrataRolarAgarrarNotificando(atraso_s, OutrosBonusPericia(*entidade_destino, pericia_destino, entidade_origem, pericia_origem), *entidade_destino);
+  } else if (pericia_origem == "intimidacao") {
+    TrataRolarContraIntimidacaoNotificando(atraso_s, *entidade_destino);
   } else if (!pericia_destino.empty()) {
     TrataRolarPericiaNotificando(
         pericia_destino, /*local_apenas=*/false, atraso_s,
@@ -3882,7 +3884,27 @@ void Tabuleiro::TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros
   const int d20 = RolaDado(20);
   const int outros_bonus_int = BonusTotal(outros_bonus);
   const int total = d20 + da->bonus_ataque_final() + outros_bonus_int;
-  const std::string texto = StringPrintf("Agarrar: %d + %d%s = %d", d20, da->bonus_ataque_final(), (outros_bonus_int != 0 ? StringPrintf(" %+d") : std::string("")).c_str(), total);
+  const std::string texto = StringPrintf(
+      "Agarrar: %d + %d%s = %d",
+      d20,
+      da->bonus_ataque_final(),
+      (outros_bonus_int != 0 ? StringPrintf(" %+d", outros_bonus_int) : std::string("")).c_str(),
+      total);
+  AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s, /*local_apenas=*/false);
+}
+
+void Tabuleiro::TrataRolarContraIntimidacaoNotificando(float atraso_s, const Entidade& entidade) {
+  const int d20 = RolaDado(20);
+  const int modificador_sabedoria = ModificadorAtributo(TA_SABEDORIA, entidade.Proto());
+  const int bonus_contra_medo = BonusTotal(entidade.Proto().dados_defesa().bonus_salvacao_medo());
+  const int total = d20 + entidade.NivelPersonagem() + bonus_contra_medo;
+  const std::string texto = StringPrintf(
+      "Contra-intimidação: %d %+d %+d%s = %d",
+      d20,
+      entidade.NivelPersonagem(),
+      modificador_sabedoria,
+      (bonus_contra_medo != 0 ? StringPrintf(" %+d", bonus_contra_medo).c_str() : ""),
+      total);
   AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s, /*local_apenas=*/false);
 }
 

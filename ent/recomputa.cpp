@@ -1765,10 +1765,15 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
 
   const bool heroismo = PossuiEvento(EFEITO_HEROISMO, *proto);
   const auto& itens_mundanos = ItensProto(TIPO_ITEM_MUNDANO, *proto);
-  const int bonus_ferramenta =
+  const int bonus_ferramenta_ladino =
       c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_ladino_op";})
       ? 2
       : c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_ladino";}) ? 0 : -2;
+  const int bonus_ferramenta_artesao =
+      c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_artesao_op";})
+      ? 2
+      : c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_artesao";}) ? 0 : -2;
+
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Graduacoes.
     auto& pericia_proto = mapa_pericias_proto[pt.id()];
@@ -1776,13 +1781,16 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     const int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto.pontos() : pericia_proto.pontos() / 2;
     AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto.mutable_bonus());
 
+    // Talento.
+    AtribuiOuRemoveBonus(PossuiTalento("foco_em_pericia", pt.id(), *proto) ? 3 : 0, TB_SEM_NOME, "foco_em_pericia", pericia_proto.mutable_bonus());
+
     // Sinergia.
     for (const auto& s : pt.sinergias()) {
       auto& pericia_alvo = mapa_pericias_proto[s.id()];
-      AtribuiOuRemoveBonus(graduacoes >= 5 ? 2 : 0, TB_SINERGIA, StringPrintf("sinergia_%s", pt.id().c_str()), pericia_alvo.mutable_bonus());
-      if (!s.restricao().empty()) {
-        pericia_alvo.add_restricoes_sinergia(s.restricao());
-      }
+      AtribuiOuRemoveBonus(
+          graduacoes >= 5 ? 2 : 0, TB_SINERGIA,
+          StringPrintf("sinergia_%s", pt.id().c_str()),
+          pericia_alvo.mutable_bonus());
     }
 
     // Atributo.
@@ -1819,7 +1827,10 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
 
     // Bonus de ferramenta de ladino.
     if (c_any(std::vector<std::string>{"abrir_fechaduras", "operar_mecanismo"}, pericia_proto.id())) {
-      AtribuiOuRemoveBonus(bonus_ferramenta, TB_CIRCUNSTANCIA, "ferramenta", pericia_proto.mutable_bonus());
+      AtribuiOuRemoveBonus(bonus_ferramenta_ladino, TB_CIRCUNSTANCIA, "ferramenta", pericia_proto.mutable_bonus());
+    }
+    if (pericia_proto.id().find("oficios") == 0) {
+      AtribuiOuRemoveBonus(bonus_ferramenta_artesao, TB_CIRCUNSTANCIA, "ferramenta", pericia_proto.mutable_bonus());
     }
 
     if (pt.penalidade_armadura()) {
