@@ -3,6 +3,7 @@
 #include <google/protobuf/text_format.h>
 #include <queue>
 #include "arq/arquivo.h"
+#include "ent/acoes.pb.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/recomputa.h"
@@ -19,7 +20,18 @@ namespace {
 
 class CentralColetora : public ntf::CentralNotificacoes {
  public:
+  CentralColetora() : ntf::CentralNotificacoes() {
+    // Para ter notificacao remota coletada.
+    RegistraEmissorRemoto(&emissor_remoto_);
+  }
   std::vector<std::unique_ptr<ntf::Notificacao>>& Notificacoes() { return notificacoes_; }
+  std::vector<std::unique_ptr<ntf::Notificacao>>& NotificacoesRemotas() { return notificacoes_remotas_; }
+
+ private:
+  class EmissorFake : public ntf::EmissorRemoto {
+    bool TrataNotificacaoRemota(const ntf::Notificacao& notificacao) override { return true; }
+  };
+  EmissorFake emissor_remoto_;
 };
 CentralColetora g_central;
 Tabelas g_tabelas(&g_central);
@@ -1753,6 +1765,39 @@ TEST(TesteTalentoPericias, TesteVitalidade) {
   auto orc = NovaEntidadeParaTestes(proto_orc, g_tabelas);
   // 6 vitalidade, 7 constituicao.
   EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 13) << orc->Proto().bonus_dados_vida().DebugString() << " " << orc->NivelPersonagem();
+}
+
+namespace {
+const AcaoProto::PorEntidade& PrimeiraEntidadeOuPadrao(const AcaoProto& acao) {
+  if (acao.por_entidade().empty()) return AcaoProto::PorEntidade::default_instance();
+  return acao.por_entidade(0);
+}
+}  // namespace
+
+TEST(TesteTalentoPericias, TesteIntimidacao) {
+  auto proto_vrock = g_tabelas.ModeloEntidade("Demônio Vrock").entidade();
+  proto_vrock.set_id(1);
+  proto_vrock.set_selecionavel_para_jogador(true);
+  auto* vrock = NovaEntidadeParaTestes(proto_vrock, g_tabelas).release();
+  auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  proto_orc.set_id(2);
+  proto_orc.set_selecionavel_para_jogador(true);
+  AtribuiBonus(5, TB_SEM_NOME, "teste", proto_orc.mutable_dados_defesa()->mutable_bonus_salvacao_medo());
+  auto* orc = NovaEntidadeParaTestes(proto_orc, g_tabelas).release();
+
+  ntf::Notificacao grupo_desfazer;
+  TabuleiroTeste tabuleiro({vrock, orc});
+  ntf::Notificacao notificacao_pericia;
+  notificacao_pericia.set_local(true);
+  *notificacao_pericia.mutable_entidade() = vrock->Proto();
+  tabuleiro.EntraModoPericia("intimidacao", notificacao_pericia);
+  g_dados_teste.push(10);
+  g_dados_teste.push(10);
+  tabuleiro.TrataBotaoPericiaPressionadoPosPicking(2, OBJ_ENTIDADE);
+  const auto& notificacoes = g_central.NotificacoesRemotas();
+  ASSERT_GE(notificacoes.size(), 2ULL);
+  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 2]->acao()).texto().find("10 +16 = 26"), std::string::npos) << notificacoes[notificacoes.size() - 2]->DebugString();
+  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 1]->acao()).texto().find("10 +7 +0 +5 = 22"), std::string::npos) << notificacoes[notificacoes.size() - 1]->DebugString();;
 }
 
 TEST(TesteTalentoPericias, TesteCombateMontado) {

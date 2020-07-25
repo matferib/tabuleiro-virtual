@@ -6866,7 +6866,7 @@ std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tab
     const int dado = RolaDado(20);
     const int total = dado + bonus + outros_bonus_int;
     std::string outros_bonus_str = outros_bonus_int != 0 ? StringPrintf(" %+d", outros_bonus_int) : std::string("");
-    return std::make_tuple(true, total, StringPrintf("%s: %d + %d%s = %d", pericia_tabelada.nome().c_str(), dado, bonus, outros_bonus_str.c_str(), total));
+    return std::make_tuple(true, total, StringPrintf("%s: %d %+d%s = %d", pericia_tabelada.nome().c_str(), dado, bonus, outros_bonus_str.c_str(), total));
   } else {
     return std::make_tuple(false, 0, StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str()));
   }
