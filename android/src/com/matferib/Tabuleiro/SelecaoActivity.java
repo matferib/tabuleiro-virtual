@@ -69,10 +69,6 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
   }
 
   static {
-    if (Build.VERSION.SDK_INT < 18) {
-      // https://developer.android.com/ndk/guides/cpp-support.html#runtimes.
-      System.loadLibrary("gnustl_shared");
-    }
     System.loadLibrary("tabuleiro");
   }
 
