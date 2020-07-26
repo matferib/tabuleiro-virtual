@@ -8,8 +8,8 @@ ${ANDROID_DEV_TOOLKIT}/sdk/tools/android list targets
 -- Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
 // Imprime debug pra cima pra Tabuleiro ou TabuleiroRenderer e suprime o resto.
 // *:S so deixa passar o primeiro filtro. Suppress all.
-${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat TabuleiroJni:D *:S
-${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat TabuleiroRenderer:D *:S
+${ANDROID_DEV_TOOLKIT}/android_sdk/platform-tools/adb logcat TabuleiroJni:D *:S
+${ANDROID_DEV_TOOLKIT}/android_sdk/platform-tools/adb logcat TabuleiroRenderer:D *:S
 
 
 =======
