@@ -260,6 +260,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       for (const auto* entidade : entidades) {
         auto* e = n->add_notificacao()->mutable_entidade();
         e->set_id(entidade->Id());
+        *e->mutable_info_classes() = entidade->Proto().info_classes();
         *e->mutable_info_pericias() = entidade->Proto().info_pericias();
       }
       if (entidades.size() == 1 && alterna_selecao && !entidades[0]->UltimaPericia().empty()) {

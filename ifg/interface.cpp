@@ -222,8 +222,10 @@ void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao)
   std::map<std::string, std::string> mapa_nomes;
   for (const auto& pericia : tabelas_.todas().tabela_pericias().pericias()) {
     if (notificacao.notificacao().size() == 1) {
-      const auto& p = Pericia(pericia.id(), notificacao.notificacao(0).entidade());
-      mapa_nomes.insert(std::make_pair(StringPrintf("%s: %+d", pericia.nome().c_str(), BonusTotal(p.bonus())), pericia.id()));
+      if (PodeUsarPericia(tabelas_, pericia.id(), notificacao.notificacao(0).entidade())) {
+        const auto& p = Pericia(pericia.id(), notificacao.notificacao(0).entidade());
+        mapa_nomes.insert(std::make_pair(StringPrintf("%s: %+d", pericia.nome().c_str(), BonusTotal(p.bonus())), pericia.id()));
+      }
     } else {
       mapa_nomes.insert(std::make_pair(pericia.nome(), pericia.id()));
     }

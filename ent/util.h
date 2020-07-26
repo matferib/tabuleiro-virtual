@@ -744,6 +744,9 @@ bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, c
 // Retorna o total de pontos de pericia permitido para e entidade.
 int TotalPontosPericiaPermitidos(const Tabelas& tabelas, const EntidadeProto& proto);
 
+// Retorna true se o proto puder usar a pericia: ou é sem treinamento, ou requer treinamento e possui ranks.
+bool PodeUsarPericia(const Tabelas& tabelas, const std::string& id_pericia, const EntidadeProto& proto);
+
 // Funcoes de tendencia.
 inline bool Bom(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() > 0.666f; }
 inline bool Mau(const EntidadeProto& proto)     { return proto.tendencia().eixo_bem_mal() <= 0.333f; }

@@ -3563,6 +3563,16 @@ bool PericiaDeClasse(const Tabelas& tabelas, const std::string& chave_pericia, c
   return false;
 }
 
+bool PodeUsarPericia(const Tabelas& tabelas, const std::string& id_pericia, const EntidadeProto& proto) {
+  auto* pt = &tabelas.Pericia(id_pericia);
+  if (!pt->derivada_de().empty()) {
+    pt = &tabelas.Pericia(pt->derivada_de());
+  }
+  if (pt->sem_treinamento()) return true;
+  const auto& pp = Pericia(pt->id(), proto);
+  return PericiaDeClasse(tabelas, pt->id(), proto) ? pp.pontos() > 0 : pp.pontos() > 1;
+}
+
 int TotalPontosPericiaPermitidos(const Tabelas& tabelas, const EntidadeProto& proto) {
   bool primeiro_nivel = true;
   int total = 0;
