@@ -2546,6 +2546,7 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
     TrataRolarAgarrarNotificando(atraso_s, OutrosBonusPericia(*entidade_destino, pericia_destino, entidade_origem, pericia_origem), *entidade_destino);
   } else if (pericia_origem == "intimidacao") {
     auto [total_contra, modificadores_contra] = TrataRolarContraIntimidacaoNotificando(atraso_s, *entidade_destino);
+    atraso_s += 1.0;
     if (total_modificadores.has_value()) {
       auto& [total, modificadores] = *total_modificadores;
       if (total > total_contra || (total == total_contra && modificadores < modificadores_contra)) {
@@ -2558,6 +2559,7 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
             &ids_unicos, &n_abalado, nullptr);
         TrataNotificacao(n_abalado);
         AdicionaNotificacaoListaEventos(n_abalado);
+        AdicionaAcaoTextoLogado(entidade_destino->Id(), "ABALADO", atraso_s);
       }
     }
   } else if (!pericia_destino.empty()) {

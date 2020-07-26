@@ -1798,10 +1798,10 @@ TEST(TesteTalentoPericias, TesteIntimidacao) {
   g_dados_teste.push(10);
   tabuleiro.TrataBotaoPericiaPressionadoPosPicking(2, OBJ_ENTIDADE);
   const auto& notificacoes = g_central.NotificacoesRemotas();
-  ASSERT_GE(notificacoes.size(), 3ULL);
-  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 3]->acao()).texto().find("10 +16 = 26"), std::string::npos) << notificacoes[notificacoes.size() - 3]->DebugString();
-  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 2]->acao()).texto().find("10 +7 +2 +5 = 24"), std::string::npos) << notificacoes[notificacoes.size() - 2]->DebugString();;
-  orc->AtualizaParcial(notificacoes[notificacoes.size() - 1]->entidade());
+  ASSERT_GE(notificacoes.size(), 4ULL);
+  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 4]->acao()).texto().find("10 +16 = 26"), std::string::npos) << notificacoes[notificacoes.size() - 4]->DebugString();
+  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 3]->acao()).texto().find("10 +7 +2 +5 = 24"), std::string::npos) << notificacoes[notificacoes.size() - 3]->DebugString();
+  orc->AtualizaParcial(notificacoes[notificacoes.size() - 2]->entidade());
   EXPECT_TRUE(orc->PossuiEfeito(EFEITO_ABALADO));
 }
 
