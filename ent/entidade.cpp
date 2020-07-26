@@ -1108,6 +1108,20 @@ int Entidade::NivelConjurador(const std::string& id_classe) const {
   return ::ent::NivelConjurador(id_classe, proto_);
 }
 
+int Entidade::NivelConjuradorParaMagia(const std::string& id_classe, const ArmaProto& feitico_tabelado) const {
+  int nivel = NivelConjurador(id_classe);
+  if (PossuiTalento("magia_trama_sombras")) {
+    if (EscolaBoaTramaDasSombras(feitico_tabelado)) {
+      ++nivel;
+    } else if (EscolaRuimTramaDasSombras(feitico_tabelado)) {
+      if (feitico_tabelado.acao().elemento() != DESC_ESCURIDAO) {
+        --nivel;
+      }
+    }
+  }
+  return nivel;
+}
+
 int Entidade::ModificadorAtributoConjuracao() const {
   for (const auto& info_classe : proto_.info_classes()) {
     if (info_classe.nivel_conjurador() > 0) {

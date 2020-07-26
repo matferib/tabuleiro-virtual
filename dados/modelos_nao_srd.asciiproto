@@ -1074,6 +1074,7 @@ modelo {
     info_textura { id: '0:shar_cleric.png'  largura: 0.6 translacao_x: 0.2 }
     info_classes {
       id: 'clerigo' nivel: 5
+      # Dominio de enganacao.
       pericias_monstro: 'blefar'
       pericias_monstro: 'disfarces'
       pericias_monstro: 'esconderse'

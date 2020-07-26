@@ -2026,6 +2026,23 @@ TEST(TesteTalentoPericias, TesteTabeladoTalentosPericias) {
   }
 }
 
+TEST(TesteTalentoPericias, TramaDasSombras) {
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_id("mago");
+    ic->set_nivel(7);
+    proto.mutable_info_talentos()->add_outros()->set_id("magia_trama_sombras");
+  }
+  auto mago = NovaEntidadeParaTestes(proto, g_tabelas);
+  EXPECT_EQ(NivelParaCalculoMagiasPorDia(g_tabelas, "mago", mago->Proto()), 7);
+  EXPECT_EQ(mago->NivelConjurador("mago"), 7);
+  EXPECT_EQ(mago->Proto().classe_feitico_ativa(), "mago");
+  EXPECT_EQ(mago->NivelConjuradorParaMagia("mago", g_tabelas.Feitico("bola_fogo")), 6);
+  EXPECT_EQ(mago->NivelConjuradorParaMagia("mago", g_tabelas.Feitico("enfeiticar_pessoa")), 8);
+  EXPECT_EQ(mago->NivelConjuradorParaMagia("mago", g_tabelas.Feitico("ler_magia")), 7);
+}
+
 TEST(TesteTalentoPericias, AumentaNivelDeDruida) {
   EntidadeProto proto;
   {
@@ -6020,7 +6037,9 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
   // d4 de reflexos.
   g_dados_teste.push(1);
   PreencheNotificacaoEventoEfeitoAdicional(
-      proto.id(), std::nullopt, NivelConjuradorParaAcao(acao, *entidade), *entidade, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+      proto.id(), std::nullopt,
+      NivelConjuradorParaAcao(acao, g_tabelas.Feitico(proto.dados_ataque(3).id_arma()), *entidade),
+      *entidade, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
   const int proximo = proto.evento().size();
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
@@ -6039,7 +6058,8 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
   {
     auto acao = proto.dados_ataque(4).acao();
     ntf::Notificacao n;
-    PreencheNotificacaoReducaoLuzComConsequencia(NivelConjuradorParaAcao(acao, *entidade), *alvo, &acao, &n, nullptr);
+    PreencheNotificacaoReducaoLuzComConsequencia(
+        NivelConjuradorParaAcao(acao, g_tabelas.Feitico(proto.dados_ataque(4).id_arma()), *entidade), *alvo, &acao, &n, nullptr);
     alvo->AtualizaParcial(n.entidade());
     EXPECT_EQ(alvo->Proto().luz().raio_m(), 6.0f);
     EXPECT_EQ(acao.consequencia(), TC_REDUZ_LUZ_ALVO);
@@ -6062,7 +6082,8 @@ TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
     ASSERT_GT(proto.dados_ataque().size(), 2);
     auto acao = proto.dados_ataque(2).acao();
     ntf::Notificacao n;
-    PreencheNotificacaoReducaoLuzComConsequencia(NivelConjuradorParaAcao(acao, *entidade), *alvo, &acao, &n, nullptr);
+    PreencheNotificacaoReducaoLuzComConsequencia(
+        NivelConjuradorParaAcao(acao, g_tabelas.Feitico(proto.dados_ataque(2).id_arma()), *entidade), *alvo, &acao, &n, nullptr);
     alvo->AtualizaParcial(n.entidade());
     EXPECT_FLOAT_EQ(alvo->Proto().luz().raio_m(), 12 * 0.4);
     EXPECT_EQ(acao.consequencia(), TC_REDUZ_LUZ_ALVO);

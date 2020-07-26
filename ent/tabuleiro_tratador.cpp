@@ -1419,7 +1419,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         acao_proto->modelo_maximo_criaturas_afetadas(),
         da.has_nivel_conjurador_pergaminho()
             ? da.nivel_conjurador_pergaminho()
-            : NivelConjuradorParaAcao(*acao_proto, *entidade_origem)));
+            : NivelConjuradorParaAcao(*acao_proto, tabelas_.Feitico(da.id_arma()), *entidade_origem)));
   }
   auto afetados = EntidadesAfetadasPorAcao(*acao_proto);
   atraso_s += acao_proto->duracao_s();
@@ -1616,7 +1616,7 @@ float Tabuleiro::TrataAcaoCriacao(
         case MQ_NENHUM:
         break;
         case MQ_POR_NIVEL:
-          quantidade *= NivelConjuradorParaAcao(*acao_proto, *entidade);
+          quantidade *= NivelConjuradorParaAcao(*acao_proto, tabelas_.Feitico(da == nullptr ? "" : da->id_arma()), *entidade);
         break;
       }
     } catch (...) {

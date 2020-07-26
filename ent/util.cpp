@@ -1908,31 +1908,24 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
     return std::make_tuple(true, "");;
   }
   const int d20 = RolaDado(20);
+  const auto& feitico = tabelas.Feitico(da.id_arma());
   const int nivel_conjurador = da.has_nivel_conjurador_pergaminho()
     ? da.nivel_conjurador_pergaminho()
-    : ea.NivelConjurador(ea.Proto().classe_feitico_ativa());
+    : ea.NivelConjuradorParaMagia(ea.Proto().classe_feitico_ativa(), feitico);
   int mod = nivel_conjurador;
   if (PossuiTalento("magia_penetrante", ea.Proto())) {
     mod += 2;
   }
-  const auto& feitico = tabelas.Feitico(da.id_arma());
-  if (PossuiTalento("magia_trama_sombras", ea.Proto())) {
-    if (EscolaBoaTramaDasSombras(feitico)) {
-      mod += 1;
-    } else if (EscolaRuimTramaDasSombras(feitico)) {
-      // Na verdade tem que mudar eh o nivel de conjurador.
-      mod -= 1;
-    }
-  }
   if (PossuiTalento("magia_penetrante_maior", ea.Proto())) {
     mod += 2;
   }
-  if (PossuiTalento("magia_perniciosa", ea.Proto()) && EscolaBoaTramaDasSombras(feitico) && !PossuiTalento("magia_trama_sombras", ed.Proto())) {
+  if (PossuiTalento("magia_perniciosa", ea.Proto()) && EscolaBoaTramaDasSombras(feitico) &&
+      !PossuiTalento("magia_trama_sombras", ed.Proto())) {
     mod += 4;
   }
   const int total = d20 + mod;
   if (total < rm) {
-    return std::make_tuple(false, google::protobuf::StringPrintf("RM: ataque anulado; %d < %d (d20=%d, mod=%d)", total, rm, d20, mod));
+    return std::make_tuple(false, StringPrintf("RM: ataque anulado; %d < %d (d20=%d, mod=%d)", total, rm, d20, mod));
   }
   return std::make_tuple(
       true, StringPrintf("RM: ataque bem sucedido; %d >= %d (d20=%d, mod=%d)", total, rm, d20, mod));
@@ -3151,10 +3144,12 @@ int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto) {
   }
 }
 
-int NivelConjuradorParaAcao(const AcaoProto& acao, const Entidade& entidade) {
+int NivelConjuradorParaAcao(const AcaoProto& acao, const ArmaProto& feitico_tabelado, const Entidade& entidade) {
   if (!acao.classe_conjuracao().empty()) {
     VLOG(1) << "classe conjuracao: " << acao.classe_conjuracao();
-    return NivelConjurador(acao.classe_conjuracao(), entidade.Proto());
+    return EhFeitico(feitico_tabelado)
+        ? entidade.NivelConjuradorParaMagia(acao.classe_conjuracao(), feitico_tabelado)
+        : NivelConjurador(acao.classe_conjuracao(), entidade.Proto());
   }
   VLOG(1) << "sem classe conjuracao";
   return Nivel(entidade.Proto());
@@ -5565,7 +5560,7 @@ void PassaAtributosReferencia(const ArmaProto& feitico, const Entidade& referenc
 
 void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
   const auto& classe_feitico_ativa = referencia.Proto().classe_feitico_ativa();
-  const int nivel_conjurador = referencia.NivelConjurador(classe_feitico_ativa);
+  const int nivel_conjurador = referencia.NivelConjuradorParaMagia(classe_feitico_ativa, feitico);
   const int nivel_feitico = NivelFeiticoParaClasse(classe_feitico_ativa, feitico);
   VLOG(1) << "usando nivel: " << nivel_conjurador << " para classe: " << referencia.Proto().classe_feitico_ativa();
   PassaAtributosReferencia(feitico, referencia, modelo);
@@ -6644,7 +6639,9 @@ float AplicaEfeitosAdicionais(
     AcaoProto::PorEntidade* por_entidade, AcaoProto* acao_proto, std::vector<int>* ids_unicos_origem, std::vector<int>* ids_unicos_destino,
     ntf::Notificacao* grupo_desfazer, ntf::CentralNotificacoes* central) {
   const int nivel_conjurador =
-      da.has_nivel_conjurador_pergaminho() ? da.nivel_conjurador_pergaminho() : NivelConjuradorParaAcao(*acao_proto, entidade_origem);
+      da.has_nivel_conjurador_pergaminho()
+        ? da.nivel_conjurador_pergaminho()
+        : NivelConjuradorParaAcao(*acao_proto, tabelas.Feitico(da.id_arma()), entidade_origem);
   ResolveEfeitosAdicionaisVariaveis(nivel_conjurador, entidade_origem.Proto(), entidade_destino, acao_proto);
   for (const auto& efeito_adicional : salvou ? acao_proto->efeitos_adicionais_se_salvou() : acao_proto->efeitos_adicionais()) {
     if ((efeito_adicional.afeta_aliados_apenas() && tipo_aliado != TAL_ALIADO) || (efeito_adicional.afeta_inimigos_apenas() && tipo_aliado != TAL_INIMIGO)) {

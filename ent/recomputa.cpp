@@ -1919,6 +1919,16 @@ void PreencheFeiticoConhecidoAleatorio(
     if (id_para_magia == "mago") {
       dfa.escolas_proibidas = EscolasProibidasMago(proto);
     }
+    if (PossuiTalento("magia_trama_sombras", proto)) {
+      if (!dfa.descritores_proibidos.has_value()) {
+        dfa.descritores_proibidos = std::vector<DescritorAtaque>();
+      }
+      dfa.descritores_proibidos->push_back(DESC_LUZ);
+      if (NivelConjurador(id_para_magia, proto) == 1) {
+        dfa.escolas_proibidas->emplace_back("evocacao");
+        dfa.escolas_proibidas->emplace_back("transmutacao");
+      }
+    }
 
     std::string id_sorteado = tabelas.FeiticoAleatorio(dfa);
     VLOG(1) << "Feitiço sorteado para " << id_para_magia << ", nivel " << dfa.nivel << ": " << id_sorteado;

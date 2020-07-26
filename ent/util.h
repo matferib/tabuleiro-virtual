@@ -761,7 +761,7 @@ int Nivel(const std::string& id, const EntidadeProto& proto);
 // Nivel total da entidade.
 int Nivel(const EntidadeProto& proto);
 // Retorna o nivel de conjurador da entidade para uma determinada acao. Caso tenha classe de conjuracao vazia, usara nivel do personagem.
-int NivelConjuradorParaAcao(const AcaoProto& acao, const Entidade& entidade);
+int NivelConjuradorParaAcao(const AcaoProto& acao, const ArmaProto& feitico_tabelado, const Entidade& entidade);
 // Retorna o nivel de conjuracao para a classe.
 int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto);
 // Retorna o nivel de conjurador do personagem para lancar um pergaminho. Caso nao haja, retorna -1.
