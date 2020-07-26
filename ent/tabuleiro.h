@@ -462,7 +462,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Para resistir arte da fuga. */
   void TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros_bonus, const Entidade& entidade);
   /** Para resistir intimidação. Retorna o total e o modificador para desempate. */
-  std::pair<int, int> TrataRolarContraIntimidacaoNotificando(float atraso_s, const Entidade& entidade);
+  void TrataRolarContraIntimidacaoNotificando(float atraso_s, const std::pair<int, int>& total_modificadores, const Entidade& entidade_origem, const Entidade& entidde_destino);
 
   // Funcao auxiliar pra realizar algum hack qualquer em entidades selecionadas.
   void Hack();

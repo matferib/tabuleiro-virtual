@@ -2545,22 +2545,8 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
   if (pericia_origem == "arte_da_fuga") {
     TrataRolarAgarrarNotificando(atraso_s, OutrosBonusPericia(*entidade_destino, pericia_destino, entidade_origem, pericia_origem), *entidade_destino);
   } else if (pericia_origem == "intimidacao") {
-    auto [total_contra, modificadores_contra] = TrataRolarContraIntimidacaoNotificando(atraso_s, *entidade_destino);
-    atraso_s += 1.0;
     if (total_modificadores.has_value()) {
-      auto& [total, modificadores] = *total_modificadores;
-      if (total > total_contra || (total == total_contra && modificadores < modificadores_contra)) {
-        // shaken.
-        auto ids_unicos = IdsUnicosEntidade(*entidade_destino);
-        ntf::Notificacao n_abalado;
-        PreencheNotificacaoEventoSemComplemento(
-            entidade_destino->Id(),
-            entidade_origem->LeDadosIniciativa(), "intimidacao", EFEITO_ABALADO, /*rodadas=*/1,
-            &ids_unicos, &n_abalado, nullptr);
-        TrataNotificacao(n_abalado);
-        AdicionaNotificacaoListaEventos(n_abalado);
-        AdicionaAcaoTextoLogado(entidade_destino->Id(), "ABALADO", atraso_s);
-      }
+      TrataRolarContraIntimidacaoNotificando(atraso_s, *total_modificadores, *entidade_origem, *entidade_destino);
     }
   } else if (!pericia_destino.empty()) {
     TrataRolarPericiaNotificando(
@@ -3918,21 +3904,43 @@ void Tabuleiro::TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros
   AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s, /*local_apenas=*/false);
 }
 
-std::pair<int, int> Tabuleiro::TrataRolarContraIntimidacaoNotificando(float atraso_s, const Entidade& entidade) {
+void Tabuleiro::TrataRolarContraIntimidacaoNotificando(
+    float atraso_s, const std::pair<int, int>& total_modificadores, const Entidade& entidade_origem, const Entidade& entidade_destino) {
+  const auto& da = entidade_origem.DadoCorrenteNaoNull();
+  if (float distancia = DistanciaMinimaAcaoAlvoMetros(entidade_origem, entidade_destino.PosicaoAcao());
+      !da.ataque_corpo_a_corpo() || distancia > da.alcance_m()) {
+    AdicionaAcaoTextoLogado(entidade_destino.Id(), "alvo não ameaçado", atraso_s);
+    return;
+  }
+
   const int d20 = RolaDado(20);
-  const int modificador_sabedoria = ModificadorAtributo(TA_SABEDORIA, entidade.Proto());
-  const int bonus_contra_medo = BonusTotal(entidade.Proto().dados_defesa().bonus_salvacao_medo());
-  const int total_modificadores = entidade.NivelPersonagem() + modificador_sabedoria + bonus_contra_medo;
-  const int total = d20 + total_modificadores;
+  const int modificador_sabedoria = ModificadorAtributo(TA_SABEDORIA, entidade_destino.Proto());
+  const int bonus_contra_medo = BonusTotal(entidade_destino.Proto().dados_defesa().bonus_salvacao_medo());
+  const int modificadores_contra = entidade_destino.NivelPersonagem() + modificador_sabedoria + bonus_contra_medo;
+  const int total_contra = d20 + modificadores_contra;
   const std::string texto = StringPrintf(
       "Contra-intimidação: %d %+d %+d%s = %d",
       d20,
-      entidade.NivelPersonagem(),
+      entidade_destino.NivelPersonagem(),
       modificador_sabedoria,
       (bonus_contra_medo != 0 ? StringPrintf(" %+d", bonus_contra_medo).c_str() : ""),
-      total);
-  AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s, /*local_apenas=*/false);
-  return {total, total_modificadores};
+      total_contra);
+  AdicionaAcaoTextoLogado(entidade_destino.Id(), texto, atraso_s, /*local_apenas=*/false);
+
+  atraso_s += 1.0;
+  auto& [total, modificadores] = total_modificadores;
+  if (total > total_contra || (total == total_contra && modificadores < modificadores_contra)) {
+    // shaken.
+    auto ids_unicos = IdsUnicosEntidade(entidade_destino);
+    ntf::Notificacao n_abalado;
+    PreencheNotificacaoEventoSemComplemento(
+        entidade_destino.Id(),
+        entidade_origem.LeDadosIniciativa(), "intimidacao", EFEITO_ABALADO, /*rodadas=*/1,
+        &ids_unicos, &n_abalado, nullptr);
+    TrataNotificacao(n_abalado);
+    AdicionaNotificacaoListaEventos(n_abalado);
+    AdicionaAcaoTextoLogado(entidade_destino.Id(), "ABALADO", atraso_s);
+  }
 }
 
 std::optional<std::pair<int, int>> Tabuleiro::TrataRolarPericiaNotificando(
