@@ -4,10 +4,12 @@
 #include <algorithm>
 #include <cctype>
 #include <functional>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
 #include "arq/arquivo.h"
@@ -764,6 +766,8 @@ int Nivel(const EntidadeProto& proto);
 int NivelConjuradorParaAcao(const AcaoProto& acao, const ArmaProto& feitico_tabelado, const Entidade& entidade);
 // Retorna o nivel de conjuracao para a classe.
 int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto);
+// Retorna o nivel de conjurador para o fetico passado.
+int NivelConjuradorParaMagia(const std::string& id_classe, const ArmaProto& feitico_tabelado, const EntidadeProto& proto);
 // Retorna o nivel de conjurador do personagem para lancar um pergaminho. Caso nao haja, retorna -1.
 int NivelConjuradorParaLancarPergaminho(const Tabelas& tabelas, TipoMagia tipo_magia, const std::string& id_feitico, const EntidadeProto& proto);
 // Retorna o nivel da classe com modificadores para fins de calculo de numeros de magia.

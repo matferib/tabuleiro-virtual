@@ -145,7 +145,11 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
 // static
 const Tabelas& Tabelas::Unica() {
   if (g_tabela == nullptr) {
+#if ANDROID
+    throw std::logic_error("tabela unica é nullptr");
+#else
     LOG(FATAL) << "tabela indiponivel";
+#endif
   }
   return *g_tabela;
 }

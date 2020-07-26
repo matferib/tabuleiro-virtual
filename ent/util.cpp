@@ -3144,6 +3144,20 @@ int NivelConjurador(const std::string& id_classe, const EntidadeProto& proto) {
   }
 }
 
+int NivelConjuradorParaMagia(const std::string& id_classe, const ArmaProto& feitico_tabelado, const EntidadeProto& proto) {
+  int nivel = NivelConjurador(id_classe, proto);
+  if (PossuiTalento("magia_trama_sombras", proto)) {
+    if (EscolaBoaTramaDasSombras(feitico_tabelado)) {
+      ++nivel;
+    } else if (EscolaRuimTramaDasSombras(feitico_tabelado)) {
+      if (feitico_tabelado.acao().elemento() != DESC_ESCURIDAO) {
+        --nivel;
+      }
+    }
+  }
+  return nivel;
+}
+
 int NivelConjuradorParaAcao(const AcaoProto& acao, const ArmaProto& feitico_tabelado, const Entidade& entidade) {
   if (!acao.classe_conjuracao().empty()) {
     VLOG(1) << "classe conjuracao: " << acao.classe_conjuracao();
@@ -3798,13 +3812,15 @@ std::vector<int> IdsUnicosEntidade(const Entidade& entidade) {
   return IdsUnicosProto(entidade.Proto());;
 }
 
-bool IdsUnicosIguais(const google::protobuf::RepeatedField<google::uint32>& lhs, const google::protobuf::RepeatedField<google::uint32>& rhs) {
+template <class ProtoInt>
+bool IdsUnicosIguais(const google::protobuf::RepeatedField<ProtoInt>& lhs, const google::protobuf::RepeatedField<ProtoInt>& rhs) {
   // Por algum motivo, usar rhs.end da erro no mac.
   if (lhs.size() != rhs.size()) return false;
   return std::equal(lhs.begin(), lhs.end(), rhs.begin());//, rhs.end());
 }
 
-bool IdsUnicosIguaisSemOrdem(const google::protobuf::RepeatedField<google::uint32>& lhs, const google::protobuf::RepeatedField<google::uint32>& rhs) {
+template <class ProtoInt>
+bool IdsUnicosIguaisSemOrdem(const google::protobuf::RepeatedField<ProtoInt>& lhs, const google::protobuf::RepeatedField<ProtoInt>& rhs) {
   std::set<int> lhss(lhs.begin(), lhs.end());
   std::set<int> rhss(rhs.begin(), rhs.end());
   return std::equal(lhss.begin(), lhss.end(), rhss.begin());
@@ -4590,7 +4606,7 @@ void CriaNovoAtaqueComFeitico(
     auto* da = e_depois->add_dados_ataque();
     da->set_tipo_ataque(acao_str);
     da->set_grupo(grupo_str);
-    const int nivel_conjurador = NivelConjurador(id_classe, proto);
+    const int nivel_conjurador = NivelConjuradorParaMagia(id_classe, feitico_tabelado, proto);
     int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), nivel_conjurador);
     da->set_rotulo(StringPrintf("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
     da->set_id_arma(feitico_tabelado.id());
@@ -4788,7 +4804,7 @@ bool NotificacaoConsequenciaFeitico(
     auto* eda = ep.add_dados_ataque();
     eda->set_id_arma(feitico_tabelado.id());
     eda->set_nivel_slot(nivel);
-    
+
     std::string entidade_str;
     google::protobuf::TextFormat::PrintToString(ep, &entidade_str);
     auto ids_unicos = IdsUnicosEntidade(entidade);

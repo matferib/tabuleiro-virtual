@@ -4216,6 +4216,22 @@ TEST(TesteFeiticos, TesteMaosFlamejantesComoDominio) {
   EXPECT_EQ(DadosAtaquePorGrupo("mãos flamejantes", entidade->Proto()).dano(), "3d4");
 }
 
+TEST(TesteFeiticos, TesteTramaDasSombras) {
+  const auto& modelo_vulto = g_tabelas.ModeloEntidade("Vulto Feiticeiro 5");
+  auto proto_vulto = modelo_vulto.entidade();
+  proto_vulto.mutable_info_talentos()->add_outros()->set_id("magia_trama_sombras");
+  auto vulto = NovaEntidadeParaTestes(proto_vulto, g_tabelas);
+  auto grupo = NovoGrupoNotificacoes();
+  ExecutaFeitico(
+      g_tabelas, g_tabelas.Feitico("missil_magico"),
+      /*nivel_conjurador=*/vulto->NivelConjuradorParaMagia("mago", g_tabelas.Feitico("missil_magico")), "mago", 1,
+      std::nullopt, *vulto, grupo.get(), nullptr);
+  for (const auto& n : grupo->notificacao()) {
+    vulto->AtualizaParcial(n.entidade());
+  }
+  EXPECT_EQ(DadosAtaquePorGrupo("mísseis mágicos", vulto->Proto()).limite_vezes(), 2);
+}
+
 TEST(TesteFeiticos, TesteEsferaFlamejante) {
   EntidadeProto proto;
   auto* ic = proto.add_info_classes();

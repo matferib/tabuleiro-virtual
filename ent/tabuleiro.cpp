@@ -789,8 +789,10 @@ int Tabuleiro::Desenha() {
 
   V_ERRO_RET("InicioDesenha");
 
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   GLint buffer_original;
   gl::Le(GL_DRAW_BUFFER, &buffer_original);
+#endif
 
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
