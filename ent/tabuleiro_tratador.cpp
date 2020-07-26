@@ -3907,7 +3907,7 @@ void Tabuleiro::TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros
 void Tabuleiro::TrataRolarContraIntimidacaoNotificando(
     float atraso_s, const std::pair<int, int>& total_modificadores, const Entidade& entidade_origem, const Entidade& entidade_destino) {
   const auto& da = entidade_origem.DadoCorrenteNaoNull();
-  if (float distancia = DistanciaMinimaAcaoAlvoMetros(entidade_origem, entidade_destino.PosicaoAcao());
+  if (float distancia = DistanciaMinimaAcaoAlvoMetros(entidade_origem, entidade_destino.Pos());
       !da.ataque_corpo_a_corpo() || distancia > da.alcance_m()) {
     AdicionaAcaoTextoLogado(entidade_destino.Id(), "alvo não ameaçado", atraso_s);
     return;
