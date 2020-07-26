@@ -5991,6 +5991,7 @@ tabela_pericias {
     # classes: [  'bardo'  'ladino'  'aristocrata'  ]
     sem_treinamento: true
     atributo: TA_CARISMA
+    id_resistido: 'observar'
   }
   pericias {
     id: 'equilibrio'
@@ -6034,6 +6035,7 @@ tabela_pericias {
     # classes: [  'ladino'  'aristocrata'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
+    id_resistido: 'falsificacao'
   }
   pericias {
     id: 'furtividade'
@@ -6211,6 +6213,7 @@ tabela_pericias {
     atributo: TA_DESTREZA
     sinergias { id: 'escalar' restricao: 'cordas' }
     sinergias { id: 'arte_da_fuga' restricao: 'cordas' }
+    id_resistido: 'arte_da_fuga'
   }
   pericias {
     id: 'usar_instrumento_magico'
