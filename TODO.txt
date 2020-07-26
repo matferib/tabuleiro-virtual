@@ -21,7 +21,6 @@ Mestre poder ler log dos jogadores.
 Botoes de bonus de pericia.
 
 Escorpiao: pode usar destreza no teste de agarrar.
-Remover duplicacoes das funcoes Montadas (podem retornar um id mais de uma vez).
 Meio dano de armas cortantes e perfurantes de enxames.
 UI de armas e ataques ligados a elas: delegate de arma;
 
