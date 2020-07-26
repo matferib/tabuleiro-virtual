@@ -2846,7 +2846,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forc
 
   // Posicao destino especificada, caso contrario usa a posicao do objeto de transicao.
   Posicao pos_destino(entidade_transicao->Proto().transicao_cenario().has_x() ? entidade_transicao->Proto().transicao_cenario() : entidade_transicao->Pos());
-  auto ids_a_transitar = IdsPrimeiraPessoaIncluindoEntidadesSelecionadas();
+  auto ids_a_transitar = IdsPrimeiraPessoaMontadasOuEntidadesSelecionadasMontadas();
   if (!ids_a_transitar.empty()) {
     // Computa a posicao centro das entidades.
     Posicao centro;
