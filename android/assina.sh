@@ -22,6 +22,6 @@ bash compila.sh --release -v "${VERSAO}"
 
 rm -f bin/TabuleiroVirtual-release-${VERSAO}.apk && \
 jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore tabuleiro-virtual.keystore bin/TabuleiroVirtual-release-unsigned.apk tabvirt && \
-${ANDROID_DEV_TOOLKIT}/sdk/build-tools/23.0.2/zipalign -v 4 bin/TabuleiroVirtual-release-unsigned.apk bin/TabuleiroVirtual-release-${VERSAO}.apk &&
-echo "instalando" && ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-release-${VERSAO}.apk || \
+${ANDROID_DEV_TOOLKIT}/android_sdk/build-tools/23.0.3/zipalign -v 4 bin/TabuleiroVirtual-release-unsigned.apk bin/TabuleiroVirtual-release-${VERSAO}.apk &&
+echo "instalando" && ${ANDROID_DEV_TOOLKIT}/android_sdk/platform-tools/adb install -r bin/TabuleiroVirtual-release-${VERSAO}.apk || \
 echo "Erro assinando"
