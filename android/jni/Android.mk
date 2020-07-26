@@ -77,6 +77,7 @@ LOCAL_SRC_FILES := gltab/gl_es.cpp gltab/gl_comum.cpp gltab/gl_char.cpp gltab/gl
                    ifg/tecladomouse.cpp ifg/interface.cpp ifg/interface_android.cpp ifg/modelos.pb.cc \
                    tex/texturas.cpp tex/lodepng.cpp \
 									 m3d/m3d.cpp \
+									 som/som.cpp \
 									 arq/arquivo.cpp arq/arquivo_android.cpp
 ifneq ($(USAR_QT),)
 	LOCAL_SRC_FILES += main.cpp \

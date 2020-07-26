@@ -4,6 +4,7 @@
 #include <vector>
 #include <jni.h>
 
+#include "ent/tabelas.h"
 #include "ifg/interface_android.h"
 #include "ifg/modelos.pb.h"
 #include "log/log.h"
@@ -88,28 +89,6 @@ jmethodID InterfaceGraficaAndroid::Metodo(const char* nome_metodo, const char* a
   return metodo;
 }
 
-namespace {
-
-std::set<std::string> ExtraiModelos(const MenuModelos& menu_modelos) {
-  std::stack<const MenuModelos*> menus;
-  menus.push(&menu_modelos);
-  std::set<std::string> ret;
-  do {
-    const auto* menu = menus.top();
-    for (const auto& modelo : menu->modelo()) {
-      // ATENCAO: Se o texto for usado, deve-se manter um mapeamento de texto->id porque o callback usa o id.
-      ret.insert(modelo.id());
-    }
-    menus.pop();
-    for (const auto& sub_menu : menu->sub_menu()) {
-      menus.push(&sub_menu);
-    }
-  } while (!menus.empty());
-  return ret;
-}
-
-}  // namespace
-
 void InterfaceGraficaAndroid::EscolheModeloEntidade(
     const MenuModelos& menu_modelos,
     std::function<void(const std::string& nome)> funcao_volta) {
@@ -119,7 +98,11 @@ void InterfaceGraficaAndroid::EscolheModeloEntidade(
     central_->AdicionaNotificacao(n.release());
     return;
   }
-  std::set<std::string> modelos = ExtraiModelos(menu_modelos);
+  const auto& modelos_tabelados = tabelas_.TodosModelosEntidades();
+  std::set<std::string> modelos;
+  for (const auto& modelo_tabelado : modelos_tabelados.modelo()) {
+    modelos.insert(modelo_tabelado.id());
+  }
   jmethodID metodo = Metodo("abreDialogoAbrirTabuleiro", "([Ljava/lang/String;[Ljava/lang/String;J)V");
   jobjectArray joa = (jobjectArray)env_->NewObjectArray(
       modelos.size(),
@@ -140,6 +123,7 @@ void InterfaceGraficaAndroid::EscolheModeloEntidade(
 
 void InterfaceGraficaAndroid::EscolheItemLista(
     const std::string& titulo,
+    const std::optional<std::string>& rotulo_ok,
     const std::vector<std::string>& lista,
     std::function<void(bool, int)> funcao_volta) {
   if (env_ == nullptr) {
@@ -181,7 +165,7 @@ void InterfaceGraficaAndroid::EscolheItemsLista(
     if (indice != -1) v.push_back(indice);
     funcao_volta(ok, v);
   };
-  EscolheItemLista(titulo, lista, adaptador_volta);
+  EscolheItemLista(titulo, std::nullopt, lista, adaptador_volta);
 }
 
 }  // namespace ifg

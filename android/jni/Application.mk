@@ -1,6 +1,6 @@
 # Baseado na documentacao em: file:///opt/android-ndk-r9d/docs/APPLICATION-MK.html.
 #APP_MODULES := tabuleiro protobuf-prebuilt boost-prebuilt
-APP_CPPFLAGS := -std=c++11
+APP_CPPFLAGS := -std=c++17 -D_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR
 
 ifneq ($(USAR_QT),)
 	APP_ABI := armeabi-v7a
@@ -8,7 +8,7 @@ else
 	APP_ABI := x86 armeabi-v7a
 endif
 APP_PLATFORM := android-17 # 4.4.2, 21 (5.0) da pau de rede.
-APP_STL := gnustl_shared
+APP_STL := c++_shared
 NDK_TOOLCHAIN_VERSION := clang
 
 ifeq ($(DEBUG),"1")

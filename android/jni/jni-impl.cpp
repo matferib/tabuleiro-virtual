@@ -254,7 +254,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeDestroy(JNIEnv* env, jo
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInitGl(JNIEnv* env, jobject thisz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeInitGl");
   // luz por pixel e sombra projetada.
-  gl::IniciaGl(g_opcoes->iluminacao_por_pixel());
+  gl::IniciaGl(gl::TL_POR_PIXEL_ESPECULAR);
   g_texturas->Recarrega();
   g_modelos3d->Recarrega();
   // Tabuleiro usa os dois, portanto deve ser o ultimo.

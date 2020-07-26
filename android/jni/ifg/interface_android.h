@@ -38,6 +38,7 @@ class InterfaceGraficaAndroid : public InterfaceGrafica {
 
   void EscolheItemLista(
       const std::string& titulo,
+      const std::optional<std::string>& rotulo_ok,
       const std::vector<std::string>& lista,
       std::function<void(bool, int)> funcao_volta) override;
 
