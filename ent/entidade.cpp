@@ -2725,4 +2725,8 @@ std::pair<bool, std::string> Entidade::PodeAgir() const {
   return std::make_pair(true, "");
 }
 
+std::optional<DadosIniciativa> Entidade::LeDadosIniciativa() const {
+  return DadosIniciativaEntidade(*this);
+}
+
 }  // namespace ent

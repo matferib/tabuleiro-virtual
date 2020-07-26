@@ -1205,9 +1205,9 @@ bool AtaqueDeItemMundano(const DadosAtaque& da);
 
 void ImprimeDadosRolados();
 
-// Rola a pericia do proto, retornando se rolou, o total rolado e o texto descrevendo a rolagem.
+// Rola a pericia do proto, retornando se rolou, o total rolado, modificadores e o texto descrevendo a rolagem.
 // Em caso de erro, retorna nullopt.
-std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto);
+std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto);
 
 // Retorna o par ultima_acao e grupo do proto.
 std::pair<std::string, std::string> UltimaAcaoGrupo(const EntidadeProto& proto);

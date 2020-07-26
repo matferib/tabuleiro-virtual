@@ -2506,13 +2506,14 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
   const auto* entidade_destino = tipo_objeto == OBJ_ENTIDADE ? BuscaEntidade(id) : nullptr;
   std::string pericia_destino = pericia_tabelada.id_resistido();
 
+  std::optional<std::pair<int, int>> total_modificadores;
   if (notificacao_pericia_.notificacao().empty() && notificacao_pericia_.has_entidade()) {
     entidade_origem = BuscaEntidade(notificacao_pericia_.entidade().id());
     if (entidade_origem == nullptr) {
       LOG(INFO) << "origem nullptr";
       return;
     }
-    TrataRolarPericiaNotificando(
+    total_modificadores = TrataRolarPericiaNotificando(
         pericia_origem, /*local_apenas=*/false, atraso_s,
         OutrosBonusPericia(*entidade_origem, pericia_origem, entidade_origem != entidade_destino ? entidade_destino : nullptr, pericia_destino),
         entidade_origem->Proto());
@@ -2524,7 +2525,7 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
         LOG(INFO) << "origem nullptr";
         continue;
       }
-      TrataRolarPericiaNotificando(
+      total_modificadores = TrataRolarPericiaNotificando(
           pericia_origem, /*local_apenas=*/false, atraso_s,
           OutrosBonusPericia(*entidade_origem, pericia_origem, entidade_origem != entidade_destino ? entidade_destino : nullptr, pericia_destino),
           entidade_origem->Proto());
@@ -2532,6 +2533,7 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
     }
     if (notificacao_pericia_.notificacao().size() != 1) {
       entidade_origem = nullptr;
+      total_modificadores.reset();
     } else {
       entidade_origem->SalvaUltimaPericia(pericia_origem);
     }
@@ -2543,7 +2545,21 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
   if (pericia_origem == "arte_da_fuga") {
     TrataRolarAgarrarNotificando(atraso_s, OutrosBonusPericia(*entidade_destino, pericia_destino, entidade_origem, pericia_origem), *entidade_destino);
   } else if (pericia_origem == "intimidacao") {
-    TrataRolarContraIntimidacaoNotificando(atraso_s, *entidade_destino);
+    auto [total_contra, modificadores_contra] = TrataRolarContraIntimidacaoNotificando(atraso_s, *entidade_destino);
+    if (total_modificadores.has_value()) {
+      auto& [total, modificadores] = *total_modificadores;
+      if (total > total_contra || (total == total_contra && modificadores < modificadores_contra)) {
+        // shaken.
+        auto ids_unicos = IdsUnicosEntidade(*entidade_destino);
+        ntf::Notificacao n_abalado;
+        PreencheNotificacaoEventoSemComplemento(
+            entidade_destino->Id(),
+            entidade_origem->LeDadosIniciativa(), "intimidacao", EFEITO_ABALADO, /*rodadas=*/1,
+            &ids_unicos, &n_abalado, nullptr);
+        TrataNotificacao(n_abalado);
+        AdicionaNotificacaoListaEventos(n_abalado);
+      }
+    }
   } else if (!pericia_destino.empty()) {
     TrataRolarPericiaNotificando(
         pericia_destino, /*local_apenas=*/false, atraso_s,
@@ -3900,11 +3916,12 @@ void Tabuleiro::TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros
   AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s, /*local_apenas=*/false);
 }
 
-void Tabuleiro::TrataRolarContraIntimidacaoNotificando(float atraso_s, const Entidade& entidade) {
+std::pair<int, int> Tabuleiro::TrataRolarContraIntimidacaoNotificando(float atraso_s, const Entidade& entidade) {
   const int d20 = RolaDado(20);
   const int modificador_sabedoria = ModificadorAtributo(TA_SABEDORIA, entidade.Proto());
   const int bonus_contra_medo = BonusTotal(entidade.Proto().dados_defesa().bonus_salvacao_medo());
-  const int total = d20 + entidade.NivelPersonagem() + bonus_contra_medo;
+  const int total_modificadores = entidade.NivelPersonagem() + modificador_sabedoria + bonus_contra_medo;
+  const int total = d20 + total_modificadores;
   const std::string texto = StringPrintf(
       "Contra-intimidação: %d %+d %+d%s = %d",
       d20,
@@ -3913,19 +3930,25 @@ void Tabuleiro::TrataRolarContraIntimidacaoNotificando(float atraso_s, const Ent
       (bonus_contra_medo != 0 ? StringPrintf(" %+d", bonus_contra_medo).c_str() : ""),
       total);
   AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s, /*local_apenas=*/false);
+  return {total, total_modificadores};
 }
 
-void Tabuleiro::TrataRolarPericiaNotificando(
+std::optional<std::pair<int, int>> Tabuleiro::TrataRolarPericiaNotificando(
     const std::string& id_pericia, bool local_apenas, float atraso_s, const Bonus& outros_bonus, const EntidadeProto& proto) {
-  auto resultado = RolaPericia(tabelas_, id_pericia, outros_bonus, proto);
-  if (!resultado.has_value()) {
+  auto resultado_opt = RolaPericia(tabelas_, id_pericia, outros_bonus, proto);
+  if (!resultado_opt.has_value()) {
     LOG(ERROR) << "Pericia invalida " << id_pericia;
-    return;
+    return std::nullopt;
   }
   // TODO recomputando por agora, ver como fazer melhor.
   local_apenas = EmModoMestreIncluindoSecundario() && !proto.selecionavel_para_jogador() && !proto.visivel();
-  std::string texto = std::get<2>(*resultado);
+  auto& [rolou, total, modificadores, texto] = resultado_opt.value();
   AdicionaAcaoTextoLogado(proto.id(), texto, atraso_s, local_apenas);
+  if (rolou) {
+    return std::make_pair(total, modificadores);
+  } else {
+   return std::nullopt;
+  }
 }
 
 }  // namespace ent

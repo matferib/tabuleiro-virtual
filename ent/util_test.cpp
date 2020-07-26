@@ -1782,6 +1782,9 @@ TEST(TesteTalentoPericias, TesteIntimidacao) {
   auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
   proto_orc.set_id(2);
   proto_orc.set_selecionavel_para_jogador(true);
+  auto* evento = proto_orc.add_evento();
+  evento->set_id_efeito(EFEITO_SABEDORIA_CORUJA);
+  evento->set_rodadas(1);
   AtribuiBonus(5, TB_SEM_NOME, "teste", proto_orc.mutable_dados_defesa()->mutable_bonus_salvacao_medo());
   auto* orc = NovaEntidadeParaTestes(proto_orc, g_tabelas).release();
 
@@ -1795,9 +1798,11 @@ TEST(TesteTalentoPericias, TesteIntimidacao) {
   g_dados_teste.push(10);
   tabuleiro.TrataBotaoPericiaPressionadoPosPicking(2, OBJ_ENTIDADE);
   const auto& notificacoes = g_central.NotificacoesRemotas();
-  ASSERT_GE(notificacoes.size(), 2ULL);
-  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 2]->acao()).texto().find("10 +16 = 26"), std::string::npos) << notificacoes[notificacoes.size() - 2]->DebugString();
-  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 1]->acao()).texto().find("10 +7 +0 +5 = 22"), std::string::npos) << notificacoes[notificacoes.size() - 1]->DebugString();;
+  ASSERT_GE(notificacoes.size(), 3ULL);
+  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 3]->acao()).texto().find("10 +16 = 26"), std::string::npos) << notificacoes[notificacoes.size() - 3]->DebugString();
+  EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 2]->acao()).texto().find("10 +7 +2 +5 = 24"), std::string::npos) << notificacoes[notificacoes.size() - 2]->DebugString();;
+  orc->AtualizaParcial(notificacoes[notificacoes.size() - 1]->entidade());
+  EXPECT_TRUE(orc->PossuiEfeito(EFEITO_ABALADO));
 }
 
 TEST(TesteTalentoPericias, TesteCombateMontado) {

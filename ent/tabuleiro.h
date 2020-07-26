@@ -457,12 +457,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. No modo terreno, trata a translacao do terreno. */
   void TrataTranslacaoZ(float delta);
 
-  /** Rola a pericia do proto e mostra notifica clientes. */
-  void TrataRolarPericiaNotificando(const std::string& pericia, bool local_apenas, float atraso_s, const Bonus& outros_bonus, const EntidadeProto& proto);
+  /** Rola a pericia do proto e mostra notifica clientes. Retorna o total e o modificador para desempate, ou nullptr caso nao tenha rolado. */
+  std::optional<std::pair<int, int>> TrataRolarPericiaNotificando(const std::string& pericia, bool local_apenas, float atraso_s, const Bonus& outros_bonus, const EntidadeProto& proto);
   /** Para resistir arte da fuga. */
   void TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros_bonus, const Entidade& entidade);
-  /** Para resistir intimidação. */
-  void TrataRolarContraIntimidacaoNotificando(float atraso_s, const Entidade& entidade);
+  /** Para resistir intimidação. Retorna o total e o modificador para desempate. */
+  std::pair<int, int> TrataRolarContraIntimidacaoNotificando(float atraso_s, const Entidade& entidade);
 
   // Funcao auxiliar pra realizar algum hack qualquer em entidades selecionadas.
   void Hack();

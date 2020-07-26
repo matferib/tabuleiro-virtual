@@ -4694,12 +4694,13 @@ std::optional<std::pair<bool, std::string>> TestaConcentracao(const Tabelas& tab
     LOG(ERROR) << "Pericia concentracao invalida, nunca deveria acontecer";
     return std::nullopt;
   }
-  auto [rolou, valor, texto] = *resultado;
+  auto [rolou, valor, modificadores, texto] = *resultado;
   if (!rolou) {
     LOG(ERROR) << "Pericia concentracao nao rolada, nunca deveria acontecer";
     return std::nullopt;
   }
   const bool passou = valor >= cd;
+  VLOG(1) << "compilador feliz: valor " << valor << ", modificadores: " << modificadores;
   return std::make_pair(passou, StringPrintf("%s: %s", passou ? "passou" : "falhou", texto.c_str()));
 }
 
@@ -5894,8 +5895,8 @@ int DesviaMontariaSeAplicavel(
   if (talento == nullptr || talento->usado_na_rodada()) return delta_pontos_vida;
   auto pericia_cavalgar_opt = RolaPericia(tabelas, "cavalgar", Bonus::default_instance(), montador->Proto());
   if (!pericia_cavalgar_opt.has_value()) return delta_pontos_vida;
-  auto [rolou, pericia_cavalgar, texto] = *pericia_cavalgar_opt;
-  VLOG(1) << "compilador feliz: rolou pericia: " << rolou << ", " << texto;
+  auto [rolou, pericia_cavalgar, modificadores_cavalgar, texto] = *pericia_cavalgar_opt;
+  VLOG(1) << "compilador feliz: rolou pericia: " << rolou << ", total: " << pericia_cavalgar << ", modificadores: " << modificadores_cavalgar << ", " << texto;
   if (pericia_cavalgar <= total_ataque) {
     ConcatenaString(StringPrintf("cavalgar %d <= %d ataque", pericia_cavalgar, total_ataque), por_entidade->mutable_texto());
     return delta_pontos_vida;
@@ -6846,7 +6847,7 @@ bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, co
   return c_any(escolas_proibidas, feitico_tabelado.escola());
 }
 
-std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto) {
+std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto) {
   const auto& pericia_personagem = Pericia(id_pericia, proto);
   if (!pericia_personagem.has_id()) {
     return std::nullopt;
@@ -6864,11 +6865,12 @@ std::optional<std::tuple<bool, int, std::string>> RolaPericia(const Tabelas& tab
     const int bonus = BonusTotal(pericia_personagem.bonus());
     const int outros_bonus_int = BonusTotal(outros_bonus);
     const int dado = RolaDado(20);
-    const int total = dado + bonus + outros_bonus_int;
+    const int total_modificadores = bonus + outros_bonus_int;
+    const int total = dado + total_modificadores;
     std::string outros_bonus_str = outros_bonus_int != 0 ? StringPrintf(" %+d", outros_bonus_int) : std::string("");
-    return std::make_tuple(true, total, StringPrintf("%s: %d %+d%s = %d", pericia_tabelada.nome().c_str(), dado, bonus, outros_bonus_str.c_str(), total));
+    return std::make_tuple(true, total, total_modificadores, StringPrintf("%s: %d %+d%s = %d", pericia_tabelada.nome().c_str(), dado, bonus, outros_bonus_str.c_str(), total));
   } else {
-    return std::make_tuple(false, 0, StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str()));
+    return std::make_tuple(false, 0, 0, StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str()));
   }
 }
 

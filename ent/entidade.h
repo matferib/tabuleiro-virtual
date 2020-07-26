@@ -63,6 +63,9 @@ class Entidade {
   /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
   void Atualiza(int intervalo_ms);
 
+  /** Retorna os dados de iniciativa da entidade, se houver. Note o prefixo Le para difereciar do tipo retornado. */
+  std::optional<DadosIniciativa> LeDadosIniciativa() const;
+
   /** Retorna true se a entidade tiver luz (ou por proto, ou acao). */
   bool TemLuz() const;
   /** Retorna o raio da luz (assume que esta ligada). */
