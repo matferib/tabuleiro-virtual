@@ -92,7 +92,7 @@ lowp vec4 CorLuzDirecionalEspecular(
     in lowp vec3 vetor_olho_objeto_refletido) {
   // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
   lowp float cos_ref = max(0.0, dot(vetor_olho_objeto_refletido, gltab_luz_direcional.pos.xyz));
-  cos_ref = pow(cos_ref, 8);
+  cos_ref = pow(cos_ref, 8.0);
   lowp vec4 cor_final = clamp(gltab_luz_direcional.cor * cos_ref, 0.0, 1.0);
   return cor_final * step(0.1, gltab_luz_direcional.cor.a);
 }
@@ -122,7 +122,7 @@ lowp vec4 CorLuzPontualEspecular(
   // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
   lowp float cos_ref = max(0.0, dot(vetor_olho_objeto_refletido, normalize(objeto_luz)));
   //cos_ref = smoothstep(0.95, 0.98, cos_ref);
-  cos_ref = pow(cos_ref, 8);
+  cos_ref = pow(cos_ref, 8.0);
   return atenuacao * cos_ref * luz.cor * cos_ref;
 }
 
@@ -132,7 +132,7 @@ lowp vec4 CorLuzPontualEspecular(
 lowp float AtenuacaoLuz(in mediump float distancia_objeto_luz, in InfoLuzPontual luz) {
   if (luz.cor.a == 0.0) return 0.0;
   lowp float distancia_pos_raio = max(0.0, distancia_objeto_luz - luz.atributos.r);
-  return 1.0 - smoothstep(0, luz.atributos.r, distancia_pos_raio);
+  return 1.0 - smoothstep(0.0, luz.atributos.r, distancia_pos_raio);
   // Algoritmo real: atenuacao quadratuca apos raio.
     //1.0 / (1.0 + pow(distancia_pos_raio, 2));
   // Melhor para D&D.
