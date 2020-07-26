@@ -1444,10 +1444,10 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
 #if 0 
   *escala = 2;
 #elif ANDROID || (__APPLE__ && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR))
-  unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
-  *escala = std::max(media_tela / 500, 1U);
+  //unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
+  //*escala = std::max(media_tela / 500, 1U);
+  *escala = interno::BuscaContexto()->escala;
 #elif __APPLE__
-
   *escala = interno::BuscaContexto()->escala;
   *largura_fonte = 8;
   *altura = 13;
