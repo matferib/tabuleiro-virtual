@@ -102,6 +102,7 @@ sub_menu {
 sub_menu {
   id: 'Anões'
   item_menu { id: 'Anão' }
+  item_menu { id: 'Anão Guerreiro 1/Especialista (Pedreiro) 11' }
 }
 item_menu { id: 'Barghest' }
 sub_menu {
