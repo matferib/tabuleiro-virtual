@@ -6966,8 +6966,8 @@ int PrecoArmaPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_person
     valor += 300;
     if (PossuiCategoria(CAT_ARMA_DUPLA, arma_tabelada)) valor += 300;
   }
-  valor += 2 * pow(arma_personagem.bonus_magico(), 2);
-  valor += 2 * pow(arma_personagem.bonus_magico_secundario(), 2);
+  valor += 2 * pow(arma_personagem.bonus_magico(), 2) * 1000;
+  valor += 2 * pow(arma_personagem.bonus_magico_secundario(), 2) * 1000;
   return valor;
 }
 
@@ -6984,7 +6984,7 @@ int PrecoArmaduraOuEscudoPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem&
   if (aoe_personagem.obra_prima()) {
     valor += 150;
   }
-  valor += pow(aoe_personagem.bonus_magico(), 2);
+  valor += pow(aoe_personagem.bonus_magico(), 2) * 1000;
   return valor;
 }
 
