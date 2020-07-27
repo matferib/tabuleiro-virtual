@@ -1,3 +1,6 @@
+TODO: terminar testes barundoin.
+Fazer um teste que confere os dados de vida!
+Talento sniper: baseado no sniper de besta do PH 2 (aplica metade da destreza no dano).
 Som no windows nao ta rolando.
 
 Pensar se coloco o feiticeiro vulto com trama das sombras tb.
