@@ -1,6 +1,10 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
 item_menu { id: 'Padrão' }
 sub_menu {
+  id: 'Armadilhas'
+  item_menu { id: 'Estátua Executora Móvel' }
+}
+sub_menu {
   id: 'Mortos-Vivos'
   item_menu { id: 'Allip' }
   item_menu { id: 'Aparição' }
@@ -230,8 +234,8 @@ sub_menu {
   }
   sub_menu {
     id: 'Especialistas'
-    item_menu { id: 'Humano Especialista 6' texto: 'Armeiro 6' }
-    item_menu { id: 'Humana Especialista 7' texto: 'Tecelã 7' }
+    item_menu { id: 'Humano Especialista (Armeiro) 6' texto: 'Armeiro 6' }
+    item_menu { id: 'Humana Especialista (Tecelã) 7' texto: 'Tecelã 7' }
   }
 
   sub_menu {

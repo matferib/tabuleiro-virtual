@@ -1239,6 +1239,17 @@ modelo {
 }
 
 modelo {
+  id: 'Estátua Executora Móvel'
+  entidade {
+    modelo_3d { id: 'moving_executor_statue' }
+    rotulo_especial: 'um ataque por quadrado. ND 5; mecanica; gatilho local; reativação automática; supressor com interruptor oculto (procurar CD 25); multiplos alvos (duas mãos atacam); Procurar CD 25; Operar Mecanismo: CD 18. Preço de mercado: 22500 PO.'
+    dados_ataque {
+      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo (machado grande)' bonus_ataque_final: 16 dano: '1d12+8' multiplicador_critico: 3 incrementa_proximo_ataque: false
+    }
+  }
+}
+
+modelo {
   id: 'Arma Espiritual Mangual'
   entidade {
     modelo_3d { id: 'flail' }
@@ -7040,7 +7051,7 @@ modelo {
 }
 
 modelo {
-  id: 'Humano Especialista 6'
+  id: 'Humano Especialista (Armeiro) 6'
   id_entidade_base: 'Humano Especialista Base'
   entidade {
     rotulo: 'Especialista 6'
@@ -7093,7 +7104,7 @@ modelo {
   }
 }
 modelo {
-  id: 'Humana Especialista 7'
+  id: 'Humana Especialista (Tecelã) 7'
   id_entidade_base: 'Humana Especialista Base'
   entidade {
     rotulo: 'Especialista 7'
@@ -7156,43 +7167,68 @@ modelo {
   id_entidade_base: 'Especialista Base'
   entidade {
     raca: 'anao'
-    info_textura { id: 'dwarf_blacksmith.png' translacao_x: 0.25 largura: 0.5 }
+    info_textura { id: 'dwarf_stonemason.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.3 g: 0.3 b: 0.3 }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+    }
   }
 }
 modelo {
-  id: 'Anão Especialista 12'
+  id: 'Anão Especialista (Pedreiro) 11/Guerreiro 1'
   id_entidade_base: 'Anão Especialista Base'
   entidade {
-    rotulo: 'Especialista 12'
-    info_classes { id: 'especialista' nivel: 12 }
-    dados_vida: '12d6+12'
+    rotulo: 'Anão Pedreiro'
+    info_classes { id: 'guerreiro' nivel: 1 }
+    info_classes { id: 'especialista' nivel: 11 }
+    dados_vida: '1d10+11d6+12'
     atributos {
-      inteligencia { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 2 } } }
+      # 16, mod +3.
+      inteligencia { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 3 } } }
     }
-    dados_defesa { id_armadura: 'camisao' bonus_magico_armadura: 1 }
-    dados_ataque { id_arma: 'lanca_longa' empunhadura: EA_2_MAOS bonus_magico: 1 }
+    dados_defesa { id_armadura_tesouro: 'peitoral' id_escudo_tesouro: 'escudo' }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'martelo' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma_tesouro: 'martelo leve' empunhadura: EA_ARMA_ESCUDO }
     # Metade do preco.
     dados_ataque { id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 7 }
     dados_ataque { id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 8 }
     dados_ataque { id_arma: 'bolsa_cola' empunhadura: EA_ARMA_ESCUDO municao: 2 }
     dados_ataque { id_arma: 'pedra_trovao' empunhadura: EA_ARMA_ESCUDO municao: 4 }
-    tesouro {
-    }
     info_talentos {
-      gerais { id: 'foco_em_pericia' }  # 1
-      gerais { id: 'especializacao_em_combate' }  # 3
-      gerais { id: 'desarme_aprimorado' }  # 6
+      gerais { id: 'foco_em_pericia' complemento: 'oficios_pedreiro' }  # 1
+      gerais { id: 'foco_em_arma' complemento: 'martelo_de_guerra' }  # 3
+      gerais { id: 'foco_em_pericia' complemento: 'alquimia' }  # 6
+      gerais { id: 'negociador' }  # 9
+      gerais { id: 'persuasivo' }  # 12
+      outros { id: 'especializacao_arma' complemento: 'martelo_de_guerra' origem: 'guerreiro' }
     }
-    info_pericias { id: 'oficios_armeiro' pontos: 15 }
-    info_pericias { id: 'oficios_armoraria' pontos: 15 }
-    info_pericias { id: 'oficios_armoraria' pontos: 15 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'forca_touro' }
+      pocoes { id: 'elixir_cuspir_fogo' }
+      pocoes { id: 'ajuda' }
+      itens_mundanos { id: 'acido' }
+      itens_mundanos { id: 'acido' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'pedra_trovao' }
+      itens_mundanos { id: 'ferramentas_artesao_op' }
+      armas { id: 'martelo' id_tabela: 'martelo_de_guerra' bonus_magico: 2 }
+      armas { id: 'martelo leve' id_tabela: 'martelo_leve' obra_prima: true }
+      armaduras { id: 'peitoral' id_tabela: 'peitoral_de_aco'  bonus_magico: 2 }
+      escudos { id: 'escudo' id_tabela: 'pesado_aco'  bonus_magico: 2 }
+      moedas { po: 305 }
+      valor_esperado_po: 21000
+    }
+    info_pericias { id: 'oficios_pedreiro' pontos: 15 }
     info_pericias { id: 'oficios_alquimia' pontos: 15 }
-    info_pericias { id: 'oficios_armadilharia' pontos: 15 }
-    info_pericias { id: 'observar' pontos: 15 }
     info_pericias { id: 'ouvir' pontos: 15 }
     info_pericias { id: 'sentir_motivacao' pontos: 15 }
     info_pericias { id: 'avaliacao' pontos: 15 }
+    info_pericias { id: 'diplomacia' pontos: 15 }
+    info_pericias { id: 'intimidacao' pontos: 14 }
+    info_pericias { id: 'blefar' pontos: 15 }
   }
 }
 modelo {

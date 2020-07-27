@@ -5861,6 +5861,16 @@ tabela_pericias {
     derivada_de: 'avaliacao'
   }
   pericias {
+    id: 'avaliacao_carpintaria'
+    nome: 'Avaliação (carpintaria)'
+    derivada_de: 'avaliacao'
+  }
+  pericias {
+    id: 'avaliacao_pedreiro'
+    nome: 'Avaliação (pedreiro)'
+    derivada_de: 'avaliacao'
+  }
+  pericias {
     id: 'blefar'
     nome: 'Blefar'
     # classes: [  'bardo'  'ladino'  'feiticeiro'  'aristocrata' ]
@@ -6137,6 +6147,25 @@ tabela_pericias {
     atributo: TA_INTELIGENCIA
     sinergias { id: 'avaliacao_armadilharia' }
   }
+  pericias {
+    id: 'oficios_carpintaria'
+    nome: 'Ofícios (carpintaria)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+    sinergias { id: 'avaliacao_carpintaria' }
+  }
+  pericias {
+    id: 'oficios_pedreiro'
+    nome: 'Ofícios (carpintaria)'
+    # classes: [  'barbaro'  'bardo'  'clerigo'  'druida'  'guerreiro'  'monge'
+    #              'paladino'  'ranger'  'ladino'  'feiticeiro'  'mago'  ]
+    sem_treinamento: true
+    atributo: TA_INTELIGENCIA
+    sinergias { id: 'avaliacao_pedreiro' }
+  }
+
   pericias {
     id: 'operar_mecanismo'
     nome: 'Operar Mecanismo'
