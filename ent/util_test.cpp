@@ -4972,21 +4972,21 @@ TEST(TesteModelo, TesteEspecialista7) {
 }
 
 TEST(TesteModelo, TesteAnaoGuerreiro1Especialista11) {
-  auto proto = g_tabelas.ModeloEntidade("Anão Guerreiro 1/Especialista 11").entidade();
+  auto proto = g_tabelas.ModeloEntidade("Anão Guerreiro 1/Especialista (Pedreiro) 11").entidade();
   auto esp = NovaEntidadeParaTestes(proto, g_tabelas);
   {
     const auto& da = DadosAtaquePorGrupo("corpo a corpo", esp->Proto());
-    EXPECT_EQ(da.bonus_ataque_final(), 7);
-    EXPECT_EQ(da.dano(), "1d4");
-    EXPECT_EQ(da.ca_normal(), 16) << esp->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.bonus_ataque_final(), 14);
+    EXPECT_EQ(da.dano(), "1d8+6");
+    EXPECT_EQ(da.ca_normal(), 24) << esp->Proto().dados_defesa().ca().DebugString();
   }
   {
     const auto& da = DadosAtaquePorGrupo("distancia", esp->Proto());
-    EXPECT_EQ(da.bonus_ataque_final(), 7);
-    EXPECT_EQ(da.dano(), "1d4-1");
-    EXPECT_EQ(da.ca_normal(), 16) << esp->Proto().dados_defesa().ca().DebugString();
+    EXPECT_EQ(da.bonus_ataque_final(), 10);
+    EXPECT_EQ(da.dano(), "1d4+2");
+    EXPECT_EQ(da.ca_normal(), 24) << esp->Proto().dados_defesa().ca().DebugString();
   }
-  EXPECT_EQ(ValorFinalPericia("oficios", esp->Proto()), 17) << BonusPericia("oficios", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("oficios_pedreiro", esp->Proto()), 17) << BonusPericia("oficios", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("oficios_alquimia", esp->Proto()), 14) << BonusPericia("oficios_alquimia", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("conhecimento_nobreza_e_realeza", esp->Proto()), 12) << BonusPericia("conhecimento_nobreza_e_realeza", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("sentir_motivacao", esp->Proto()), 9) << BonusPericia("sentir_motivacao", esp->Proto()).DebugString();
@@ -4999,7 +4999,6 @@ TEST(TesteModelo, TesteAnaoGuerreiro1Especialista11) {
   EXPECT_EQ(ValorFinalPericia("ouvir", esp->Proto()), 4) << BonusPericia("ouvir", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("intimidacao", esp->Proto()), 7) << BonusPericia("intimidacao", esp->Proto()).DebugString();
 }
-
 
 TEST(TesteModelo, TesteWorg) {
   auto proto = g_tabelas.ModeloEntidade("Worg").entidade();
