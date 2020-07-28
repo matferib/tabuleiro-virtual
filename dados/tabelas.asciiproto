@@ -6034,6 +6034,11 @@ tabela_pericias {
     derivada_de: 'esconderse'
   }
   pericias {
+    id: 'esconderse_lar'
+    nome: 'Esconder-se (Lar)'
+    derivada_de: 'esconderse'
+  }
+  pericias {
     id: 'falar_idioma'
     nome: 'Falar Idioma'
     # classes: [ 'bardo'  'aristocrata' ]
