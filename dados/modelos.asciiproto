@@ -1244,7 +1244,18 @@ modelo {
     modelo_3d { id: 'moving_executor_statue' }
     rotulo_especial: 'um ataque por quadrado. ND 5; mecanica; gatilho local; reativação automática; supressor com interruptor oculto (procurar CD 25); multiplos alvos (duas mãos atacam); Procurar CD 25; Operar Mecanismo: CD 18. Preço de mercado: 22500 PO.'
     dados_ataque {
-      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo (machado grande)' bonus_ataque_final: 16 dano: '1d12+8' multiplicador_critico: 3 incrementa_proximo_ataque: false
+      rotulo: 'machado grande' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 16 dano: '1d12+8' multiplicador_critico: 3 incrementa_proximo_ataque: false
+    }
+  }
+}
+modelo {
+  id: 'Bloco de Pedra Solto no Teto'
+  entidade {
+    modelo_3d { id: 'builtin:cubo' escala { x: 2 y: 1  z: 1 } }
+    rotulo_especial: 'um ataque por quadrado. ND 5; mecanica; gatilho local; reativação manual; multiplos alvos (dois quadrados); Procurar CD 20; Operar Mecanismo: CD 25. Preço de mercado: 15000 PO.'
+    dados_ataque {
+      rotulo: 'blocos' tipo_ataque: 'Pedrada (gigante)' bonus_ataque_final: 15 dano: '6d6' incrementa_proximo_ataque: false
+      alcance_q: 10
     }
   }
 }
@@ -3972,26 +3983,289 @@ modelo {
 modelo {
   id: 'Fungo Fantasma'
   entidade {
-    dados_vida: '2d8+6'
-    modificador_iniciativa: 0
-    rotulo_especial: 'Fungo Fantasma\nat +3 1d6_3\ninvisibilidade maior' cor { r: 1 g: 1 b: 1 a: 0.5 }
+    rotulo: 'Fungo Fantasma'
+    rotulo_especial: 'invisibilidade maior'
+    evento { continuo: true id_efeito: EFEITO_INVISIBILIDADE rodadas: 1 }
+    tendencia { simples: TD_NEUTRO }
+    tamanho: TM_MEDIO
+    dados_vida: '2d8+6' modelo_3d { id: 'phantom_fungus' } info_textura { id: 'tile_leather.png'}
+    info_classes { id: 'planta' nivel: 2 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida_padrao' empunhadura: EA_2_MAOS
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+    }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'furtividade' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 5 } } } }
+    info_pericias { id: 'observar' pontos: 2 }
+    movimento {
+      terrestre_basico_q: 4
+    }
+  }
+}
+modelo {
+  id: 'Fungo Fantasma 6 DV'
+  entidade {
+    rotulo: 'Fungo Fantasma 6 DV'
+    rotulo_especial: 'invisibilidade maior'
+    evento { continuo: true id_efeito: EFEITO_INVISIBILIDADE rodadas: 1 }
+    tendencia { simples: TD_NEUTRO }
+    tamanho: TM_GRANDE
+    dados_vida: '6d8+18' info_classes { id: 'planta' nivel: 6 }
+    modelo_3d { id: 'phantom_fungus' } info_textura { id: 'tile_leather.png'}
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } } }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'mordida' id_arma: 'mordida_padrao' empunhadura: EA_2_MAOS
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 22 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+    }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'furtividade' pontos: 1 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 5 } } } }
+    info_pericias { id: 'observar' pontos: 2 }
+    movimento {
+      terrestre_basico_q: 4
+    }
+  }
+}
+
+modelo {
+  id: 'Fungo Guardião'
+  entidade {
+    dados_vida: '2d8+2' modelo_3d { id: 'shrieker' }
+    rotulo: 'Fungo Guardiao'
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
+    }
+    atributos {
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+    }
+  }
+}
+modelo {
+  id: 'Fungo Violeta'
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    tamanho: TM_MEDIO
+    rotulo: 'Fungo Violeta'
+    dados_vida: '2d8+6' modelo_3d { id: 'violet_fungus' }
+    info_classes { id: 'planta' nivel: 2 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    movimento {
+      terrestre_basico_q: 2
+    }
+  }
+}
+modelo {
+  id: 'Fungo Violeta 6 DV'
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    tamanho: TM_MEDIO
+    rotulo: 'Fungo Violeta 6 DV'
+    dados_vida: '6d8+18' modelo_3d { id: 'violet_fungus' }
+    info_classes { id: 'planta' nivel: 6 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    movimento {
+      terrestre_basico_q: 2
+    }
+  }
+}
+
+modelo {
+  id: 'Gavião-Seta, adolescente'
+  entidade {
+    dados_vida: '3d8+3'
+    posicao_acao { x: 0.75 y: 0 z: 0 }
+    tamanho: TM_PEQUENO
+    modelo_3d { id: 'arrowhawk' }
+    rotulo_especial: ''
+    info_classes {
+      id: 'extra_planar' nivel: 3
+      pericias_monstro: 'arte_da_fuga'
+      pericias_monstro: 'conhecimento_planos'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'procurar'
+      pericias_monstro: 'sentir_motivacao'
+      pericias_monstro: 'sobrevivencia'
+    }
+    voadora: true
+    rotulo_especial: 'movimento: 12 quadrados\nimune acido, eletricade e veneno\nresistencia frio e fogo 10'
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    # Ou um, ou outro, por isso grupos diferentes.
+    dados_ataque {
+      grupo: 'raio' rotulo: 'raio_eletrico'
+      tipo_ataque: 'Raio' dano: '2d6' alcance_m: 15
+      acao_fixa { cor { r: 0 b: 1 g: 0 } ignora_resistencia_magia: true consequencia: TC_NENHUMA elemento: DESC_ELETRICIDADE }
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'mordida' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+    }
+    info_talentos {
+      gerais { id: 'acuidade_arma' }
+      gerais { id: 'esquiva' }
+    }
+    # Total 48 pontos: 4x8 1o, 8 por dado de vida.
+    info_pericias { id: 'arte_da_fuga' pontos: 6 }
+    movimento {
+      terrestre_basico_q: 4
+    }
   }
 }
 modelo {
   id: 'Fungo Guardião'
   entidade {
     dados_vida: '2d8+2' modelo_3d { id: 'shrieker' }
-    rotulo_especial: 'Fungo Guardiao'
+    rotulo: 'Fungo Guardiao'
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } } }
+    }
+    atributos {
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+    }
   }
 }
 modelo {
   id: 'Fungo Violeta'
   entidade {
+    tendencia { simples: TD_NEUTRO }
+    tamanho: TM_MEDIO
+    rotulo: 'Fungo Violeta'
     dados_vida: '2d8+6' modelo_3d { id: 'violet_fungus' }
-    rotulo_especial: 'Fungo Violeta\nini -1\nat +3/+3/+3/+3 dano 1d6+2+veneno\nca 13/9/13\nveneno fort 14/1d4 for e con/1d4 for e con\nalcance 2 quad'
-    modificador_iniciativa: -1
+    info_classes { id: 'planta' nivel: 2 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    movimento {
+      terrestre_basico_q: 2
+    }
   }
 }
+modelo {
+  id: 'Fungo Violeta 6 DV'
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    tamanho: TM_MEDIO
+    rotulo: 'Fungo Violeta 6 DV'
+    dados_vida: '6d8+18' modelo_3d { id: 'violet_fungus' }
+    info_classes { id: 'planta' nivel: 6 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    movimento {
+      terrestre_basico_q: 2
+    }
+  }
+}
+
 modelo {
   id: 'Gavião-Seta, adolescente'
   entidade {
@@ -7168,6 +7442,9 @@ modelo {
     raca: 'anao'
     info_textura { id: 'dwarf_stonemason.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.3 g: 0.3 b: 0.3 }
+    movimento {
+      terrestre_basico_q: 4
+    }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
@@ -8340,6 +8617,7 @@ modelo {
       pocoes { id: 'neutralizar_venenos' }
       tesouro: 'ferramenta de ladino OP'
       moedas { po: 1160 }
+      valor_esperado: 7200 # = 4200 + couro batido 1 + broquel 1 + arma OP + arco curto OP 
     }
     movimento {
       terrestre_basico_q: 6
@@ -9805,14 +10083,41 @@ modelo {
 modelo {
   id: 'Otyugh'
   entidade {
-    dados_vida: '6d8+9' modelo_3d { id: 'otyugh' }
+    tipo_dnd: TIPO_ABERRACAO
+    dados_vida: '6d8+9'
+    info_classes {
+      id: 'aberracao' nivel: 6
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    modelo_3d { id: 'otyugh' }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 12
     tamanho: TM_GRANDE
-    rotulo_especial: 'agarrar aprimorado: +8 livre tentáculo\nfor +3 ref +2 von +6\ndoenca febre esgoto CD 14 inc 1d3 dias dano 1d3 dez 1d3 con'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano: '1d6' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: -2 dano: '1d4' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
-    modificador_iniciativa: 0
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 8 } }
+      }
+    }
+    dados_ataque { grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico_medio_natural: '1d3' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 2 }
+    dados_ataque { grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true }
+    dados_ataque { grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 5 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'vitalidade' }
+      gerais { id: 'foco_em_arma' complemento: 'tentaculo' }
+    }
+    info_pericias { id: 'esconderse' pontos: 3 }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 3 }
   }
 }
 modelo {

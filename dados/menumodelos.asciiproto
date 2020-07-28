@@ -3,6 +3,7 @@ item_menu { id: 'Padrão' }
 sub_menu {
   id: 'Armadilhas'
   item_menu { id: 'Estátua Executora Móvel' }
+  item_menu { id: 'Bloco de Pedra Solto no Teto' }
 }
 sub_menu {
   id: 'Mortos-Vivos'
@@ -380,8 +381,10 @@ sub_menu {
   id: 'Plantas'
   item_menu { id: 'Arbusto Errante' }
   item_menu { id: 'Fungo Fantasma' }
+  item_menu { id: 'Fungo Fantasma 6 DV' }
   item_menu { id: 'Fungo Guardião' }
   item_menu { id: 'Fungo Violeta' }
+  item_menu { id: 'Fungo Violeta 6 DV' }
 }
 sub_menu {
   id: 'Limo/Gosma'
