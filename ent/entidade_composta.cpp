@@ -97,6 +97,9 @@ void Entidade::DesenhaObjetoCompostoProto(
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     gl::TexturaBump(proto.info_textura().textura_bump());
+    // Para num pegar lixo de outros objetos.
+    gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+    gl::AtualizaMatrizes();
   }
   vd.vbos_gravados.Desenha();
   gl::TexturaBump(false);
