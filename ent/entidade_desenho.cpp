@@ -128,6 +128,7 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
   }
 }
 
+// static
 void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd,
     const Matrix4& modelagem, const Matrix4& tijolo_base, const Matrix4& tijolo_tela, const Matrix4& tela_textura, const Matrix4& deslocamento_textura) {
