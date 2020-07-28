@@ -4919,6 +4919,30 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
   EXPECT_EQ(5, CuraAcelerada(proto));
 }
 
+TEST(TesteModelo, TesteFungoVioleta) {
+  auto proto = g_tabelas.ModeloEntidade("Fungo Violeta").entidade();
+  auto fungo = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("corpo a corpo", fungo->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 3);
+    EXPECT_EQ(da.dano(), "1d6+2");
+    EXPECT_EQ(da.veneno().cd(), 14);
+    EXPECT_EQ(da.ca_normal(), 13) << fungo->Proto().dados_defesa().ca().DebugString();
+  }
+}
+
+TEST(TesteModelo, TesteFungoVioleta6DV) {
+  auto proto = g_tabelas.ModeloEntidade("Fungo Violeta 6 DV").entidade();
+  auto fungo = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("corpo a corpo", fungo->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 6);
+    EXPECT_EQ(da.dano(), "1d6+2");
+    EXPECT_EQ(da.veneno().cd(), 16);
+    EXPECT_EQ(da.ca_normal(), 13) << fungo->Proto().dados_defesa().ca().DebugString();
+  }
+}
+
 TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EntidadeProto proto;
   {
