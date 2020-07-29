@@ -6870,7 +6870,27 @@ bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, co
   return c_any(escolas_proibidas, feitico_tabelado.escola());
 }
 
-std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto) {
+std::optional<std::tuple<bool, int, int, std::string>> RolaTesteAtributo(
+    TipoAtributo atributo, const Bonus& outros_bonus, const EntidadeProto& proto) {
+  std::unordered_map<TipoAtributo, std::string> nomes = {
+    { TA_FORCA, "força"},
+    { TA_DESTREZA, "destreza"},
+    { TA_CONSTITUICAO, "constituição"},
+    { TA_INTELIGENCIA, "inteligência"},
+    { TA_SABEDORIA, "sabedoria"},
+    { TA_CARISMA, "carisma"},
+  };
+  const int bonus = ModificadorAtributo(atributo, proto);
+  const int outros_bonus_int = BonusTotal(outros_bonus);
+  const int dado = RolaDado(20);
+  const int total_modificadores = bonus + outros_bonus_int;
+  const int total = dado + total_modificadores;
+  std::string outros_bonus_str = outros_bonus_int != 0 ? StringPrintf(" %+d", outros_bonus_int) : std::string("");
+  return std::make_tuple(true, total, total_modificadores, StringPrintf("%s: %d %+d%s = %d", nomes[atributo].c_str(), dado, bonus, outros_bonus_str.c_str(), total));
+}
+
+std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(
+    const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto) {
   const auto& pericia_personagem = Pericia(id_pericia, proto);
   if (!pericia_personagem.has_id()) {
     return std::nullopt;

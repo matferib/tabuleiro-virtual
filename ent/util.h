@@ -1212,6 +1212,9 @@ bool AtaqueDeItemMundano(const DadosAtaque& da);
 
 void ImprimeDadosRolados();
 
+// Rola o teste de atributo, retornando se rolou, o total rolado, modoficadores e o texto descrevendo.
+std::optional<std::tuple<bool, int, int, std::string>> RolaTesteAtributo(
+    TipoAtributo atributo, const Bonus& outros_bonus, const EntidadeProto& proto);
 // Rola a pericia do proto, retornando se rolou, o total rolado, modificadores e o texto descrevendo a rolagem.
 // Em caso de erro, retorna nullopt.
 std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto);

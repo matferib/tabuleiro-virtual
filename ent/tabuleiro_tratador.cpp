@@ -2492,6 +2492,23 @@ Bonus OutrosBonusPericia(
   return bonus;
 }
 
+std::optional<TipoAtributo> Atributo(const std::string& id) {
+  std::vector<std::pair<TipoAtributo, std::string>> atributos = {
+    { TA_FORCA, "forca" },
+    { TA_DESTREZA, "destreza" },
+    { TA_CONSTITUICAO, "constituicao" },
+    { TA_INTELIGENCIA, "inteligencia" },
+    { TA_SABEDORIA, "sabedoria" },
+    { TA_CARISMA, "carisma" },
+  };
+  for (const auto& par : atributos) {
+    if (par.second == id) {
+      return par.first;
+    }
+  } 
+  return std::nullopt;
+}
+
 }  // namespace
 
 void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
@@ -2501,10 +2518,11 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
   EntraModoClique(MODO_NORMAL);
   float atraso_s = 0.0f;
   Entidade* entidade_origem = nullptr;
+  const std::optional<TipoAtributo> atributo = Atributo(notificacao_pericia_.str_generica());
   std::string pericia_origem = notificacao_pericia_.str_generica();
   const auto& pericia_tabelada = tabelas_.Pericia(pericia_origem);
   const auto* entidade_destino = tipo_objeto == OBJ_ENTIDADE ? BuscaEntidade(id) : nullptr;
-  std::string pericia_destino = pericia_tabelada.id_resistido();
+  std::string pericia_destino = atributo.has_value() ? notificacao_pericia_.str_generica() : pericia_tabelada.id_resistido();
 
   std::optional<std::pair<int, int>> total_modificadores;
   if (notificacao_pericia_.notificacao().empty() && notificacao_pericia_.has_entidade()) {
@@ -3945,12 +3963,15 @@ void Tabuleiro::TrataRolarContraIntimidacaoNotificando(
 
 std::optional<std::pair<int, int>> Tabuleiro::TrataRolarPericiaNotificando(
     const std::string& id_pericia, bool local_apenas, float atraso_s, const Bonus& outros_bonus, const EntidadeProto& proto) {
-  auto resultado_opt = RolaPericia(tabelas_, id_pericia, outros_bonus, proto);
+  std::optional<TipoAtributo> atributo = Atributo(id_pericia);
+  auto resultado_opt = atributo.has_value()
+      ? RolaTesteAtributo(*atributo, outros_bonus, proto)
+      : RolaPericia(tabelas_, id_pericia, outros_bonus, proto);
   if (!resultado_opt.has_value()) {
     LOG(ERROR) << "Pericia invalida " << id_pericia;
     return std::nullopt;
   }
-  // TODO recomputando por agora, ver como fazer melhor.
+  // TODO recomputando 'local_apenas' e ignorando parametro por agora, ver como fazer melhor.
   local_apenas = EmModoMestreIncluindoSecundario() && !proto.selecionavel_para_jogador() && !proto.visivel();
   auto& [rolou, total, modificadores, texto] = resultado_opt.value();
   AdicionaAcaoTextoLogado(proto.id(), texto, atraso_s, local_apenas);
