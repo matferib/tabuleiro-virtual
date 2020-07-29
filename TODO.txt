@@ -1,12 +1,9 @@
-Pericias: permitir testes de habilidade.
-Textura de enxame de centopeias.
-TODO: terminar testes barundoin e otyugh ladino 7.
+TODO: terminar testes de otyugh e ladino 7.
 Fazer um teste que confere os dados de vida!
 Talento sniper: baseado no sniper de besta do PH 2 (aplica metade da destreza no dano).
 Som no windows nao ta rolando.
 
 Pensar se coloco o feiticeiro vulto com trama das sombras tb.
-Terminar Barundoin.
 Dominio enganacao: 'Blefar, Disfarces e Esconder-se passam a ser perícias de classe.'
 
 Tela preta ao salvar.
