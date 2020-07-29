@@ -3762,7 +3762,8 @@ modelo {
     tipo_dnd: TIPO_VERME
     sub_tipo_dnd: SUBTIPO_ENXAME
     tendencia { simples: TD_NEUTRO }
-    modelo_3d { id: 'swarm_centipede' }
+    info_textura { id: 'centipede_swarm.png' }
+    achatado: true
     dados_vida: '9d8-9'
     # Na verdade é diminuto, mas o grupo é grande.
     tamanho: TM_GRANDE
