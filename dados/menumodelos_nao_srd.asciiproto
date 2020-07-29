@@ -89,7 +89,7 @@ sub_menu {
     # 50% de nao dar nada.
     modelos { id: 'NADA' peso: 24 }
     # Peso total: 17
-    modelos { id: 'Vulto Guerreiro 5 Montado + Veserab' peso: 1 }
+    modelos { id_item_menu: 'Vulto Guerreiro 5 Montado + Veserab' peso: 1 }
     modelos { id: 'Vulto Guerreiro 5' peso: 3 }
     modelos { id: 'Vulto Ladino 5' peso: 4 }
     modelos { id: 'Vulto Monge 5' peso: 4 }
@@ -112,7 +112,7 @@ sub_menu {
     # 30% de nao dar nada.
     modelos { id: 'NADA' peso: 17 }
     # Peso total: 24
-    modelos { id: 'Vulto Guerreiro 5 Montado + Veserab' peso: 1 }
+    modelos { id_item_menu: 'Vulto Guerreiro 5 Montado + Veserab' peso: 1 }
     modelos { id: 'Vulto Guerreiro 5' peso: 4 }
     modelos { id: 'Vulto Ladino 5' peso: 5 }
     modelos { id: 'Vulto Monge 5' peso: 5 }
@@ -136,7 +136,7 @@ sub_menu {
     quantidade: '1d4+1'
     aleatorio: true
     modelos { id: 'Vulto Guerreiro 5' peso: 3 }
-    modelos { id: 'Vulto Guerreiro 5 Montado + Veserab' peso: 1 }
+    modelos { id_item_menu: 'Vulto Guerreiro 5 Montado + Veserab' peso: 1 }
     modelos { id: 'Vulto Ladino 5' peso: 4 }
     modelos { id: 'Vulto Monge 5' peso: 4 }
     modelos { id: 'Vulto Clérigo de Shar/Adepto das Sombras 5/1' peso: 2 }
