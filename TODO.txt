@@ -1,4 +1,5 @@
-TODO: terminar testes barundoin.
+Pericias: permitir testes de habilidade.
+TODO: terminar testes barundoin e otyugh ladino 7.
 Fazer um teste que confere os dados de vida!
 Talento sniper: baseado no sniper de besta do PH 2 (aplica metade da destreza no dano).
 Som no windows nao ta rolando.
