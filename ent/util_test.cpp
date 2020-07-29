@@ -4919,6 +4919,37 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
   EXPECT_EQ(5, CuraAcelerada(proto));
 }
 
+TEST(TesteModelo, TesteEnxameCentepeias) {
+  auto proto = g_tabelas.ModeloEntidade("Enxame (centopéias)").entidade();
+  auto enxame = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("enxame", enxame->Proto());
+    EXPECT_EQ(da.dano(), "2d6");
+    EXPECT_EQ(da.veneno().cd(), 13);
+    EXPECT_EQ(da.ca_normal(), 18) << enxame->Proto().dados_defesa().ca().DebugString();
+  }
+  EXPECT_EQ(ValorFinalPericia("escalar", enxame->Proto()), 12) << BonusPericia("escalar", enxame->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("observar", enxame->Proto()), 4) << BonusPericia("observar", enxame->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("esconderse", enxame->Proto()), 16) << BonusPericia("esconderse", enxame->Proto()).DebugString();
+}
+
+TEST(TesteModelo, TesteEnxameRatos) {
+  auto proto = g_tabelas.ModeloEntidade("Enxame (ratos)").entidade();
+  auto enxame = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("enxame", enxame->Proto());
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.doenca().cd(), 12);
+    EXPECT_EQ(da.ca_normal(), 14) << enxame->Proto().dados_defesa().ca().DebugString();
+  }
+  EXPECT_EQ(ValorFinalPericia("equilibrio", enxame->Proto()), 10) << BonusPericia("equilibrio", enxame->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("escalar", enxame->Proto()), 10) << BonusPericia("escalar", enxame->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("esconderse", enxame->Proto()), 16) << BonusPericia("esconderse", enxame->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("ouvir", enxame->Proto()), 6) << BonusPericia("ouvir", enxame->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("furtividade", enxame->Proto()), 8) << BonusPericia("furtividade", enxame->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("observar", enxame->Proto()), 7) << BonusPericia("observar", enxame->Proto()).DebugString();
+}
+
 TEST(TesteModelo, TesteFungoVioleta) {
   auto proto = g_tabelas.ModeloEntidade("Fungo Violeta").entidade();
   auto fungo = NovaEntidadeParaTestes(proto, g_tabelas);
@@ -5010,18 +5041,16 @@ TEST(TesteModelo, TesteAnaoGuerreiro1Especialista11) {
     EXPECT_EQ(da.dano(), "1d4+2");
     EXPECT_EQ(da.ca_normal(), 24) << esp->Proto().dados_defesa().ca().DebugString();
   }
-  EXPECT_EQ(ValorFinalPericia("oficios_pedreiro", esp->Proto()), 17) << BonusPericia("oficios", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("oficios_alquimia", esp->Proto()), 14) << BonusPericia("oficios_alquimia", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("conhecimento_nobreza_e_realeza", esp->Proto()), 12) << BonusPericia("conhecimento_nobreza_e_realeza", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("sentir_motivacao", esp->Proto()), 9) << BonusPericia("sentir_motivacao", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("avaliacao", esp->Proto()), 12) << BonusPericia("avaliacao", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("avaliacao_oficio", esp->Proto()), 14) << BonusPericia("avaliacao_oficio", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("avaliacao_alquimia", esp->Proto()), 14) << BonusPericia("avaliacao_alquimia", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("conhecimento_religiao", esp->Proto()), 12)  << BonusPericia("conhecimento_religiao", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("obter_informacao", esp->Proto()), 10) << BonusPericia("obter_informacao", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("blefar", esp->Proto()), 10) << BonusPericia("blefar", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("ouvir", esp->Proto()), 4) << BonusPericia("ouvir", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("intimidacao", esp->Proto()), 7) << BonusPericia("intimidacao", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("oficios_pedreiro", esp->Proto()), 24) << BonusPericia("oficios", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("oficios_alquimia", esp->Proto()), 19) << BonusPericia("oficios_alquimia", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("conhecimento_masmorras", esp->Proto()), 18) << BonusPericia("conhecimento_masmorras", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("sentir_motivacao", esp->Proto()), 14) << BonusPericia("sentir_motivacao", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("avaliacao", esp->Proto()), 19) << BonusPericia("avaliacao", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("avaliacao_pedreiro", esp->Proto()), 21) << BonusPericia("avaliacao_oficio", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("avaliacao_alquimia", esp->Proto()), 21) << BonusPericia("avaliacao_alquimia", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("blefar", esp->Proto()), 16) << BonusPericia("blefar", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("ouvir", esp->Proto()), 12) << BonusPericia("ouvir", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("intimidacao", esp->Proto()), 17) << BonusPericia("intimidacao", esp->Proto()).DebugString();
 }
 
 TEST(TesteModelo, TesteWorg) {

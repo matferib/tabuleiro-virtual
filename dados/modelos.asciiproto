@@ -3690,13 +3690,16 @@ modelo {
     tendencia { simples: TD_NEUTRO }
     modelo_3d { id: 'swarm_rat' }
     dados_vida: '4d8'
-    # na verdade eh considerado diminuto, entao tem que ajustar ataque a CA na mao.
+    # na verdade eh considerado miuda.
     tamanho: TM_GRANDE
-    info_classes { id: 'animal' nivel: 4 }
+    info_classes { id: 'animal' nivel: 4
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
     rotulo_especial: 'nausea em quem começar rodada na área (CD12)\nmeio dano armas cortantes e perfurantes\ntoma 50% mais de dano de área\nfaro'
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     dados_ataque {
-      rotulo: 'enxame' tipo_ataque: 'Toque Automático' dano_basico_fixo: '1d6'
+      grupo: 'enxame' rotulo: 'enxame' tipo_ataque: 'Toque Automático' dano_basico_fixo: '1d6'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO ignora_origem: true
       doenca {
         id: 'febre_esgoto'
@@ -3710,7 +3713,7 @@ modelo {
       }
     }
     dados_ataque {
-      rotulo: 'nausea' tipo_ataque: 'Toque Automático' dano_basico_fixo: ''
+      grupo: 'nausea' rotulo: 'nausea' tipo_ataque: 'Toque Automático' dano_basico_fixo: ''
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO ignora_origem: true
       dificuldade_salvacao: 12
       acao_fixa {
@@ -3725,7 +3728,7 @@ modelo {
     }
     dados_defesa {
       imune_critico: true
-      ca { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'miuda' valor: 3 } } }
+      modificador_tamanho: -3
     }
     movimento {
       terrestre_basico_q: 3
@@ -3744,14 +3747,78 @@ modelo {
       gerais { id: 'sorrateiro' }
       outros { id: 'acuidade_arma' }
     }
-    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' modificador_tamanho: -3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
     info_pericias { id: 'natacao' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
-    info_pericias { id: 'escalar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'escalar' atributo: TA_DESTREZA bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 4 }
   }
 }
-
+modelo {
+  id: 'Enxame (centopéias)'
+  entidade {
+    tipo_dnd: TIPO_VERME
+    sub_tipo_dnd: SUBTIPO_ENXAME
+    tendencia { simples: TD_NEUTRO }
+    modelo_3d { id: 'swarm_centipede' }
+    dados_vida: '9d8-9'
+    # Na verdade é diminuto, mas o grupo é grande.
+    tamanho: TM_GRANDE
+    info_classes { id: 'verme' nivel: 9 }
+    rotulo_especial: ''
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    dados_ataque {
+      grupo: 'enxame' rotulo: 'enxame' tipo_ataque: 'Toque Automático' dano_basico_fixo: '2d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO ignora_origem: true
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_DESTREZA tipo_dano: TDV_DESTREZA
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_DESTREZA tipo_dano_secundario: TDV_DESTREZA
+      }
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        cor { r: 0 g: 1 b: 0 }
+      }
+    }
+    dados_ataque {
+      grupo: 'nausea' rotulo: 'nausea' tipo_ataque: 'Toque Automático' dano_basico_fixo: ''
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO ignora_origem: true
+      dificuldade_salvacao: 14
+      acao_fixa {
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        efeitos_adicionais {
+          efeito: EFEITO_NAUSEA
+          rodadas: 1
+        }
+        cor { r: 1 g: 0.5 b: 0 }
+      }
+    }
+    dados_defesa {
+      imune_critico: true
+      modificador_tamanho: -4
+    }
+    movimento {
+      terrestre_basico_q: 4
+      escalando_basico_q: 4
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+    info_talentos {
+      outros { id: 'acuidade_arma' origem: 'bonus' }
+    }
+    info_pericias { id: 'observar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'escalar' atributo: TA_DESTREZA bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'esconderse' modificador_tamanho: -4 }
+  }
+}
 
 modelo {
   id: 'Esqueleto Base'
@@ -7464,6 +7531,16 @@ modelo {
     info_classes { id: 'guerreiro' nivel: 1 }
     info_classes {
       id: 'especialista' nivel: 11
+      pericias_monstro: 'oficios_pedreiro'
+      pericias_monstro: 'oficios_alquimia'
+      pericias_monstro: 'oficios_armeiro'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'sentir_motivacao'
+      pericias_monstro: 'avaliacao'
+      pericias_monstro: 'diplomacia'
+      pericias_monstro: 'intimidacao'
+      pericias_monstro: 'blefar'
+      pericias_monstro: 'conhecimento_masmorras'
     }
     dados_vida: '10+11d6+24'
     atributos {
@@ -7503,15 +7580,15 @@ modelo {
       valor_esperado_po: 21000
     }
     info_pericias { id: 'oficios_pedreiro' pontos: 15 }
-    info_pericias { id: 'oficios_alquimia' pontos: 15 }
-    info_pericias { id: 'oficios_armeiro' pontos: 15 }
-    info_pericias { id: 'ouvir' pontos: 15 }
-    info_pericias { id: 'sentir_motivacao' pontos: 15 }
-    info_pericias { id: 'avaliacao' pontos: 15 }
-    info_pericias { id: 'diplomacia' pontos: 15 }
-    info_pericias { id: 'intimidacao' pontos: 14 }
-    info_pericias { id: 'blefar' pontos: 15 }
-    info_pericias { id: 'conhecimento_masmorras' pontos: 15 }
+    info_pericias { id: 'oficios_alquimia' pontos: 13 }
+    info_pericias { id: 'oficios_armeiro' pontos: 13 }
+    info_pericias { id: 'ouvir' pontos: 13 }
+    info_pericias { id: 'sentir_motivacao' pontos: 13 }
+    info_pericias { id: 'avaliacao' pontos: 13 }
+    info_pericias { id: 'diplomacia' pontos: 13 }
+    info_pericias { id: 'intimidacao' pontos: 13 }
+    info_pericias { id: 'blefar' pontos: 14 }
+    info_pericias { id: 'conhecimento_masmorras' pontos: 14 }
   }
 }
 modelo {
@@ -8617,7 +8694,7 @@ modelo {
       pocoes { id: 'neutralizar_venenos' }
       tesouro: 'ferramenta de ladino OP'
       moedas { po: 1160 }
-      valor_esperado: 7200 # = 4200 + couro batido 1 + broquel 1 + arma OP + arco curto OP 
+      valor_esperado_po: 7200 # = 4200 + couro batido 1 + broquel 1 + arma OP + arco curto OP
     }
     movimento {
       terrestre_basico_q: 6
