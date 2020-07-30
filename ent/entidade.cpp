@@ -130,17 +130,23 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
   // TODO outros talentos que afetam DV como mente_sobre_materia.
   // TODO nao elite.
-  if (!proto->dados_vida().empty()) return;
+  if (!proto->dados_vida().empty() || !proto->dados_vida_automatico()) return;
   bool elite = true;
   bool primeiro = true;
   std::string dv;
   for (const auto& ic : proto->info_classes()) {
-    if (primeiro && elite) {
-      dv = StringPrintf("%d", ic.dv());
-    } else if (primeiro) {
-      dv += StringPrintf("%dd%d", ic.nivel(), ic.dv());
+    const auto& classe_tabelada = Tabelas::Unica().Classe(ic.id());
+    if (primeiro) {
+      if (elite) {
+        dv = StringPrintf("%d", classe_tabelada.dv());
+        if (ic.nivel() > 1) {
+          dv += StringPrintf("+%dd%d", (ic.nivel()-1), classe_tabelada.dv());
+        }
+      } else {
+        dv += StringPrintf("%dd%d", ic.nivel(), classe_tabelada.dv());
+      }
     } else {
-      dv += StringPrintf("+%dd%d", ic.nivel(), ic.dv());
+      dv += StringPrintf("+%dd%d", ic.nivel(), classe_tabelada.dv());
     }
     primeiro = false;
   }
@@ -154,6 +160,11 @@ void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
   }
   if (num_vitalidades > 0) {
     dv += StringPrintf("+%d", num_vitalidades);
+  }
+  if (dv.empty()) {
+    LOG(WARNING) << "dv vazio para dados de vida automatico de " << RotuloEntidade(*proto);
+  } else {
+    proto->set_dados_vida(dv);
   }
 }
 
@@ -239,7 +250,6 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   TalvezCorrijaTipoCelestialAbissal(&proto_);
   TalvezCorrijaVisao(tabelas_, &proto_);
   CorrigeCamposDeprecated(&proto_);
-  GeraDadosVidaSeAutomatico(&proto_);
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
     try {
@@ -273,6 +283,8 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
 
   AtualizaVbo(parametros_desenho_);
   RecomputaDependencias();
+  // Tem que ser depois para computar tudo com os bonus de constituicao.
+  GeraDadosVidaSeAutomatico(&proto_);
   proto_.clear_proxima_salvacao();
 }
 

@@ -5424,7 +5424,7 @@ tabela_classes {
     salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
   }
   info_classes {
-    id: 'monge' nome: 'Monge' progressao_bba: PBBA_TRES_QUARTOS
+    id: 'monge' nome: 'Monge' progressao_bba: PBBA_TRES_QUARTOS dv: 8
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'clava' }
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_leve' }
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'besta_pesada' }
@@ -5509,6 +5509,7 @@ tabela_classes {
     pericias: 'usar_cordas'
 
     salvacoes_fortes: TS_VONTADE
+    dv: 8
   }
   info_classes {
     id: 'plebeu' nome: 'Plebeu' progressao_bba: PBBA_MEIO
@@ -5533,6 +5534,7 @@ tabela_classes {
     pericias: 'usar_cordas'
 
     # Nao tem salvacao forte.
+    dv: 4
   }
   info_classes {
     id: 'especialista' nome: 'Especialista' progressao_bba: PBBA_TRES_QUARTOS
@@ -5593,6 +5595,7 @@ tabela_classes {
     pericias: 'usar_cordas'
 
     salvacoes_fortes: TS_VONTADE
+    dv: 6
   }
 
   info_classes {
@@ -5601,7 +5604,7 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 2
-    # d8
+    dv: 8
   }
 
   info_classes {
@@ -5612,6 +5615,7 @@ tabela_classes {
     salvacoes_fortes: TS_REFLEXO
     pericias_por_nivel: 2
     # Visao na penumbra
+    dv: 8
   }
   info_classes {
     id: 'animal_atroz' nome: 'Animal Atroz'
@@ -5622,6 +5626,7 @@ tabela_classes {
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 2
     # Visao na penumbra
+    dv: 8
   }
    info_classes {
     id: 'besta_magica' nome: 'Besta Mágica'
@@ -5629,7 +5634,7 @@ tabela_classes {
     progressao_bba: PBBA_UM
     salvacoes_fortes: TS_FORTITUDE
     salvacoes_fortes: TS_REFLEXO
-    # DV: 10
+    dv: 10
     # Visao no escuro 12 quadrados.
     pericias_por_nivel: 2
   }
@@ -5639,7 +5644,7 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     # Nao tem salvacoes fortes.
     pericias_por_nivel: 2
-    # DV: 10
+    dv: 10
   }
   info_classes {
     id: 'dragao' nome: 'Dragão'
@@ -5649,7 +5654,7 @@ tabela_classes {
     salvacoes_fortes: TS_REFLEXO
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 6
-    # d12
+    dv: 12
     # visao_escuro: 12 quadrados
     # imune a sono e paralisia
   }
@@ -5665,7 +5670,7 @@ tabela_classes {
     #  imunidade_efeitos: EFEITO_ATORDOADO
     #  imunidades: DESC_VENENO
     #}
-    # d8
+    dv: 8
     # visao_escuro: 12 quadrados
     # imune a critico ou flanqueamento
   }
@@ -5681,7 +5686,7 @@ tabela_classes {
     #  imunidade_efeitos: EFEITO_ATORDOADO
     #  imunidades: DESC_VENENO
     #}
-    # d8
+    dv: 8
     # visao_escuro: 12 quadrados
     # imune a critico ou flanqueamento
   }
@@ -5692,7 +5697,7 @@ tabela_classes {
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 6
     # visao na penumbra_
-    # d6
+    dv: 6
   }
   info_classes {
     id: 'humanoide' nome: 'Humanóide'
@@ -5700,7 +5705,7 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_REFLEXO
     pericias_por_nivel: 2
-    # d8
+    dv: 8
   }
 
   info_classes {
@@ -5710,7 +5715,7 @@ tabela_classes {
     salvacoes_fortes: TS_REFLEXO
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 2
-    # d8
+    dv: 8
     # visao escuro: 12 q
   }
   info_classes {
@@ -5719,6 +5724,7 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     pericias_por_nivel: 2
+    dv: 8
   }
   info_classes {
     id: 'limo' nome: 'Limo'
@@ -5726,7 +5732,7 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     # sem salvacao boa.
     pericias_por_nivel: 2
-    # d10
+    dv: 10
     # Sem mente, imune a efeitos mentais.
     # cego com blindsight.
     # imune a ataques de olhar
@@ -5739,7 +5745,7 @@ tabela_classes {
     salvacoes_fortes: TS_REFLEXO
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 8
-    # d8
+    dv: 8
     # visao escuro: 12
   }
   info_classes {
@@ -5748,7 +5754,7 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_FORTITUDE
     pericias_por_nivel: 2
-    # d8
+    dv: 8
     # visao penumbra
     # imune a efeitos mentais
     # imune a veneno, sono, paralisia, polimorfismo, atordoamento.
@@ -5760,7 +5766,7 @@ tabela_classes {
     progressao_bba: PBBA_MEIO
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 4
-    # d12
+    dv: 12
     # visao escuro 12q
     # sem constituicao
     # sem mente: imune a efeitos mentais.

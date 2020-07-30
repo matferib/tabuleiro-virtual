@@ -7543,7 +7543,7 @@ modelo {
       pericias_monstro: 'blefar'
       pericias_monstro: 'conhecimento_masmorras'
     }
-    dados_vida: '10+11d6+24'
+    dados_vida_automatico: true
     atributos {
       # 18, mod +4.
       inteligencia { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 3 } } }
@@ -8643,8 +8643,9 @@ modelo {
   id: 'Humano Ladino 7'
   entidade {
     rotulo: 'ladino 7'
+    dados_vida_automatico: true
     info_classes { id: 'ladino' nivel: 7 }
-    dados_vida: '6+6d6+7' cor { r: 0.250 g: 0.250 b: 0.250 }
+    cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue7.png' translacao_x: 0.25 largura: 0.5 }
     modificador_iniciativa: 7
     ultimo_grupo_acao: 'corpo a corpo'

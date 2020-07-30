@@ -5029,6 +5029,7 @@ TEST(TesteModelo, TesteEspecialista7) {
 TEST(TesteModelo, TesteAnaoGuerreiro1Especialista11) {
   auto proto = g_tabelas.ModeloEntidade("Anão Guerreiro 1/Especialista (Pedreiro) 11").entidade();
   auto esp = NovaEntidadeParaTestes(proto, g_tabelas);
+  EXPECT_EQ(esp->Proto().dados_vida(), "10+11d6+24");
   {
     const auto& da = DadosAtaquePorGrupo("corpo a corpo", esp->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 14);
