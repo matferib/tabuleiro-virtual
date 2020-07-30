@@ -127,6 +127,36 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
   CorrigeFeiticosPorNivelDeprecated(proto);
 }
 
+void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
+  // TODO outros talentos que afetam DV como mente_sobre_materia.
+  // TODO nao elite.
+  if (!proto->dados_vida().empty()) return;
+  bool elite = true;
+  bool primeiro = true;
+  std::string dv;
+  for (const auto& ic : proto->info_classes()) {
+    if (primeiro && elite) {
+      dv = StringPrintf("%d", ic.dv());
+    } else if (primeiro) {
+      dv += StringPrintf("%dd%d", ic.nivel(), ic.dv());
+    } else {
+      dv += StringPrintf("+%dd%d", ic.nivel(), ic.dv());
+    }
+    primeiro = false;
+  }
+  const int mod_con = ModificadorAtributo(TA_CONSTITUICAO, *proto) * NivelPersonagem(*proto);
+  if (mod_con != 0) {
+    dv += StringPrintf("%+d", mod_con);
+  }
+  int num_vitalidades = 0;
+  for (const auto& talentos_por_tipo : {proto->info_talentos().gerais(), proto->info_talentos().outros(), proto->info_talentos().automaticos() }) {
+    num_vitalidades += c_count_if(talentos_por_tipo, [](const TalentoProto& talento) { return talento.id() == "vitalidade"; });
+  }
+  if (num_vitalidades > 0) {
+    dv += StringPrintf("+%d", num_vitalidades);
+  }
+}
+
 }  // namespace
 
 bool Entidade::TemTipoDnD(TipoDnD tipo) const {
@@ -209,6 +239,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   TalvezCorrijaTipoCelestialAbissal(&proto_);
   TalvezCorrijaVisao(tabelas_, &proto_);
   CorrigeCamposDeprecated(&proto_);
+  GeraDadosVidaSeAutomatico(&proto_);
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
     try {

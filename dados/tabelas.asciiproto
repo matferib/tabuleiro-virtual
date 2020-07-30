@@ -4815,7 +4815,7 @@ tabela_talentos {
 
 tabela_classes {
   info_classes {
-    id: 'guerreiro' nome: 'Guerreiro' progressao_bba: PBBA_UM
+    id: 'guerreiro' nome: 'Guerreiro' progressao_bba: PBBA_UM dv: 10
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_escudo_corpo'
     talentos_automaticos: 'usar_armas_simples'
@@ -4859,7 +4859,7 @@ tabela_classes {
     salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {
-    id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    id: 'clerigo' nome: 'Clérigo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM dv: 8
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armadura_leve'
@@ -4969,7 +4969,7 @@ tabela_classes {
     salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
-    id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM
+    id: 'barbaro' nome: 'Bárbaro' progressao_bba: PBBA_UM dv: 12
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armas_comuns'
@@ -4995,7 +4995,7 @@ tabela_classes {
     salvacoes_fortes: TS_FORTITUDE
   }
   info_classes {
-    id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4 dv: 8
     talentos_automaticos: 'rastrear'
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armadura_leve'
@@ -5058,7 +5058,7 @@ tabela_classes {
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO atributo_conjuracao: TA_SABEDORIA
   }
   info_classes {
-    id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    id: 'druida' nome: 'Druida' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM dv: 8
     talentos_automaticos: 'usar_escudo'
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'clava' }
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'adaga' }
@@ -5120,6 +5120,7 @@ tabela_classes {
   }
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
+    dv: 10
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armas_comuns'
@@ -5192,6 +5193,7 @@ tabela_classes {
   }
   info_classes {
     id: 'ladino' nome: 'Ladino' progressao_bba: PBBA_TRES_QUARTOS
+    dv: 6
     pericias_por_nivel: 8
     talentos_automaticos: 'usar_armas_simples'
     talentos_automaticos: 'usar_armadura_leve'
@@ -5241,7 +5243,7 @@ tabela_classes {
     salvacoes_fortes: TS_REFLEXO
   }
   info_classes {
-    id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM
+    id: 'bardo' nome: 'Bardo' progressao_bba: PBBA_TRES_QUARTOS progressao_conjurador: PCONJ_UM dv: 6
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armadura_leve'
     #talentos_automaticos: 'usar_armadura_media'  # TODO ha uma confusao aqui. Na entrada de bardo nao diz se pode usar ou nao, mas nos talentos diz que sim.
@@ -5321,7 +5323,7 @@ tabela_classes {
     salvacoes_fortes: TS_REFLEXO salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_CARISMA
   }
   info_classes {
-    id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    id: 'mago' nome: 'Mago' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM dv: 4
     tipo_magia: TM_ARCANA
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'clava' }
     talentos_com_complemento_automaticos { id: 'usar_uma_arma_simples' complemento: 'adaga' }
@@ -5378,7 +5380,7 @@ tabela_classes {
     salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_INTELIGENCIA
   }
   info_classes {
-    id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM
+    id: 'feiticeiro' nome: 'Feiticeiro' progressao_bba: PBBA_MEIO progressao_conjurador: PCONJ_UM dv: 4
     tipo_magia: TM_ARCANA
     talentos_automaticos: 'usar_armas_simples'
     id_para_magia: 'mago'

@@ -5160,7 +5160,7 @@ TEST(TesteModelo, TesteLadino5) {
 TEST(TesteModelo, TesteLadino7) {
   auto proto = g_tabelas.ModeloEntidade("Humano Ladino 7").entidade();
   auto ladino = NovaEntidadeParaTestes(proto, g_tabelas);
-  //EXPECT_EQ(ladino->CA(*ladino, Entidade::CA_NORMAL), 10+3+5+2+1) << ladino->Proto().dados_defesa().ca().DebugString();
+  EXPECT_EQ(ladino->Proto().dados_vida(), "6+6d6+7");
   {
     const auto& da = DadosAtaquePorGrupo("corpo a corpo", ladino->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 9);

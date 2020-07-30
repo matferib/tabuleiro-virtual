@@ -812,6 +812,7 @@ message InfoClasse {
   repeated string talentos_automaticos = 29;
   // so id e complemento.
   repeated TalentoProto talentos_com_complemento_automaticos = 31;
+  optional int32 dv = 32;
 }
 
 // Informacao sobre a pericia do personagem.
