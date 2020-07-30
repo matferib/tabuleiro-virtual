@@ -5157,6 +5157,37 @@ TEST(TesteModelo, TesteLadino5) {
   EXPECT_EQ(ValorFinalPericia("operar_mecanismo", ladino->Proto()), 12);
 }
 
+TEST(TesteModelo, TesteLadino7) {
+  auto proto = g_tabelas.ModeloEntidade("Humano Ladino 7").entidade();
+  auto ladino = NovaEntidadeParaTestes(proto, g_tabelas);
+  //EXPECT_EQ(ladino->CA(*ladino, Entidade::CA_NORMAL), 10+3+5+2+1) << ladino->Proto().dados_defesa().ca().DebugString();
+  {
+    const auto& da = DadosAtaquePorGrupo("corpo a corpo", ladino->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 9);
+    EXPECT_EQ(da.dano(), "1d6+1");
+    EXPECT_EQ(da.ca_normal(), 21) << ladino->Proto().dados_defesa().ca().DebugString();
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("distancia", ladino->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 9);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.ca_normal(), 19) << ladino->Proto().dados_defesa().ca().DebugString();
+  }
+  EXPECT_EQ(ladino->Proto().dados_ataque_global().dano_furtivo(), "4d6");
+
+  EXPECT_EQ(ValorFinalPericia("arte_da_fuga", ladino->Proto()), 10) << Pericia("arte_da_fuga", ladino->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("equilibrio", ladino->Proto()), 9) << Pericia("equilibrio", ladino->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("esconderse", ladino->Proto()), 10) << Pericia("esconderse", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("blefar", ladino->Proto()), 6) << Pericia("blefar", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("saltar", ladino->Proto()), 7) << Pericia("saltar", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("furtividade", ladino->Proto()), 11) << Pericia("furtividade", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("abrir_fechaduras", ladino->Proto()), 13) << Pericia("abrir_fechaduras", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("procurar", ladino->Proto()), 10) << Pericia("procurar", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("ouvir", ladino->Proto()), 7) << Pericia("ouvir", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("observar", ladino->Proto()), 8) << Pericia("observar", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("operar_mecanismo", ladino->Proto()), 9) << Pericia("operar_mecanismo", ladino->Proto()).DebugString();;
+}
+
 TEST(TesteModelo, TesteBisao) {
   auto proto = g_tabelas.ModeloEntidade("Bisão").entidade();
   auto bisao = NovaEntidadeParaTestes(proto, g_tabelas);
@@ -6652,6 +6683,10 @@ TEST(TesteTesouro, TesteTesouroEsperado) {
         soma += PrecoArmaduraOuEscudoPo(aoe);
       }
     }
+    for (const auto& item : tesouro.itens_mundanos()) {
+      soma += g_tabelas.ItemMundano(item.id()).has_custo_po() ? g_tabelas.ItemMundano(item.id()).custo_po() : g_tabelas.ItemMundano(item.id()).custo().po();
+    }
+
     soma += tesouro.moedas().po();
     EXPECT_LE(soma, tesouro.valor_esperado_po()) << "modelo extrapolou tesouro: " << modelo.id();
     if (soma <= tesouro.valor_esperado_po()) {

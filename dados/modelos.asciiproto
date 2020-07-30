@@ -8595,7 +8595,6 @@ modelo {
     tesouro {
       amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
       pocoes { id: 'curar_ferimentos_leves' }
-      pocoes { id: 'curar_ferimentos_leves' }
       pocoes { id: 'veneno_escorpiao_grande' }
       pocoes { id: 'neutralizar_venenos' }
       armas { id: 'sabre OP' id_tabela: 'sabre' obra_prima: true }
@@ -8604,7 +8603,7 @@ modelo {
       armaduras { id: 'couro batido OP' id_tabela: 'couro_batido' obra_prima: true }
       escudos { id: 'broquel OP' id_tabela: 'broquel' obra_prima: true }
       itens_mundanos { id: 'ferramentas_ladino_op' }
-      moedas { po: 123 }
+      moedas { po: 73 }
       valor_esperado_po: 4165 # 3000 + armadura e escudo OP + adaga OP + arco curto OP + ferramenta
     }
 
@@ -8645,16 +8644,16 @@ modelo {
   entidade {
     rotulo: 'ladino 7'
     info_classes { id: 'ladino' nivel: 7 }
-    dados_vida: '7d6+7' cor { r: 0.250 g: 0.250 b: 0.250 }
+    dados_vida: '6+6d6+7' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue7.png' translacao_x: 0.25 largura: 0.5 }
     modificador_iniciativa: 7
+    ultimo_grupo_acao: 'corpo a corpo'
     dados_ataque_global { dano_furtivo: '4d6' }
-    dados_ataque { rotulo: 'sabre op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'sabre' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { rotulo: 'adaga op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'adaga' obra_prima: true empunhadura: EA_ARMA_ESCUDO }
-    dados_ataque { rotulo: 'arco curto op' tipo_ataque: 'Ataque a Distância' id_arma: 'arco_curto' obra_prima: true empunhadura: EA_ARMA_APENAS municao: 20 }
+    dados_ataque { grupo: 'corpo a corpo' rotulo: 'sabre op' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'sabre OP' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { grupo: 'distancia' rotulo: 'arco curto op' tipo_ataque: 'Ataque a Distância' id_arma_tesouro: 'arco curto OP' empunhadura: EA_ARMA_APENAS municao: 20 }
     dados_defesa {
-      id_armadura: 'couro' bonus_magico_armadura: 1
-      id_escudo: 'broquel' bonus_magico_escudo: 1
+      id_armadura_tesouro: 'camisao +1'
+      id_escudo_tesouro: 'broquel +1'
     }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
@@ -8669,32 +8668,38 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
     info_pericias { id: 'arte_da_fuga' pontos: 8 }
+    info_pericias { id: 'acrobacias' pontos: 8 }
     info_pericias { id: 'equilibrio' pontos: 5 }
-    info_pericias { id: 'esconderse' pontos: 9 }
-    info_pericias { id: 'blefar' pontos: 8 }
-    info_pericias { id: 'saltar' pontos: 6 }
-    info_pericias { id: 'ouvir' pontos: 9 }
+    info_pericias { id: 'esconderse' pontos: 8 }
+    info_pericias { id: 'blefar' pontos: 7 }
+    info_pericias { id: 'saltar' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 7 }
     info_pericias { id: 'furtividade' pontos: 9 }
-    info_pericias { id: 'abrir_fechaduras' pontos: 9 }
-    info_pericias { id: 'cavalgar' pontos: 8 }
+    info_pericias { id: 'abrir_fechaduras' pontos: 8 }
+    info_pericias { id: 'cavalgar' pontos: 5 }
     info_pericias { id: 'procurar' pontos: 8 }
-    info_pericias { id: 'observar' pontos: 9 }
+    info_pericias { id: 'observar' pontos: 8 }
     info_pericias { id: 'usar_instrumento_magico' pontos: 8 }
+    info_pericias { id: 'operar_mecanismo' pontos: 5 }
     info_talentos {
-      gerais { id: 'sorrateiro' }
+      gerais { id: 'fintar_aprimorado' }
       gerais { id: 'usar_escudo' }
       gerais { id: 'acuidade_arma' }
-      outros { id: 'vitalidade' origem: 'humano' }
+      outros { id: 'especializacao_em_combate' origem: 'humano' }
     }
     tesouro {
-      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
       mantos { id: 'manto_resistencia_1' em_uso: true }
-      pocoes { id: 'curar_ferimentos_leves' }
+      amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
       pocoes { id: 'curar_ferimentos_moderados' }
       pocoes { id: 'neutralizar_venenos' }
-      pocoes { id: 'neutralizar_venenos' }
-      tesouro: 'ferramenta de ladino OP'
-      moedas { po: 1160 }
+      pocoes { id: 'veneno_escorpiao_grande' }
+      itens_mundanos { id: 'ferramentas_ladino_op' }
+      itens_mundanos { id: 'bolsa_cola' }
+      armas { id: 'sabre OP' id_tabela: 'sabre' obra_prima: true }
+      armas { id: 'arco curto OP' id_tabela: 'arco_curto' obra_prima: true }
+      escudos { id: 'broquel +1' id_tabela: 'broquel' bonus_magico: 1 }
+      armaduras { id: 'camisao +1' id_tabela: 'camisao' bonus_magico: 1 }
+      moedas { po: 35 }
       valor_esperado_po: 7200 # = 4200 + couro batido 1 + broquel 1 + arma OP + arco curto OP
     }
     movimento {
