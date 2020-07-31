@@ -330,6 +330,7 @@ tabela_talentos {
     pre_requisitos { talentos: 'magia_trama_sombras' }
     link: 'http://dnd.arkalseif.info/feats/players-guide-to-faerun--22/insidious-magic--1660/index.html'
     descricao: 'Personagem pode usar a trama das sombras para tornar suas magias mais difíceis de serem detectadas.'
+    metamagico: true
     livro: 'PGtF'
   }
   talentos {
@@ -339,6 +340,7 @@ tabela_talentos {
     pre_requisitos { talentos: 'magia_trama_sombras' }
     link: 'http://dnd.arkalseif.info/feats/players-guide-to-faerun--22/pernicious-magic--2136/index.html'
     descricao: '+4 em testes de superar resistência a magia de usuários da trama.'
+    metamagico: true
     livro: 'PGtF'
   }
   talentos {

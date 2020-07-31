@@ -152,17 +152,17 @@ void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
   }
   bool possui_mente_sobre_materia = false;
   int num_vitalidades = 0;
+  int num_metamagicos = 0;
   for (const auto& talentos_por_tipo : {proto->info_talentos().gerais(), proto->info_talentos().outros(), proto->info_talentos().automaticos() }) {
     num_vitalidades += c_count_if(talentos_por_tipo, [](const TalentoProto& talento) { return talento.id() == "vitalidade"; });
     possui_mente_sobre_materia |= c_any_of(talentos_por_tipo, [](const TalentoProto& talento) { return talento.id() == "mente_sobre_materia"; });
+    num_metamagicos += c_count_if(talentos_por_tipo, [](const TalentoProto& talento) { return Tabelas::Unica().Talento(talento.id()).metamagico(); });
   }
   int nivel_para_mod_con = NivelPersonagem(*proto);
   if (possui_mente_sobre_materia) {
-    // TODO adicionar ponto para cada talento.
-    // TODO considerar apenas o valor base.
-    const int mod_int = ModificadorAtributo(TA_INTELIGENCIA, *proto);
-    const int mod_car = ModificadorAtributo(TA_CARISMA, *proto);
-    dv += StringPrintf("+%d", std::max(mod_int, mod_car));
+    const int mod_int = ModificadorAtributoOriginal(TA_INTELIGENCIA, *proto);
+    const int mod_car = ModificadorAtributoOriginal(TA_CARISMA, *proto);
+    dv += StringPrintf("+%d", std::max(mod_int, mod_car) + num_metamagicos);
     nivel_para_mod_con = std::max(0, nivel_para_mod_con - 1);
   }
   const int mod_con = ModificadorAtributo(TA_CONSTITUICAO, *proto) * nivel_para_mod_con;

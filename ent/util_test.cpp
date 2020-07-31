@@ -1770,16 +1770,23 @@ TEST(TesteTalentoPericias, TesteVitalidade) {
 TEST(TesteTalentoPericias, TesteDadosVidaAutomatico) {
   EntidadeProto proto;
   AtribuiBaseAtributo(12, TA_CONSTITUICAO, &proto);
-  AtribuiBaseAtributo(20, TA_INTELIGENCIA, &proto);
+  {
+    auto* bonus = BonusAtributo(TA_INTELIGENCIA, &proto);
+    AtribuiBonus(14, TB_BASE, "base", bonus);
+    AtribuiBonus(6, TB_RACIAL, "racial", bonus);
+    AtribuiBonus(2, TB_NIVEL, "nivel", bonus);  // ignorado
+  }
   AtribuiBaseAtributo(16, TA_CARISMA, &proto);
   auto* ic = proto.add_info_classes();
   ic->set_id("mago");
   ic->set_nivel(4);
   proto.mutable_info_talentos()->add_gerais()->set_id("vitalidade");
   proto.mutable_info_talentos()->add_gerais()->set_id("mente_sobre_materia");
+  proto.mutable_info_talentos()->add_outros()->set_id("elevar_magia");
+  proto.mutable_info_talentos()->add_outros()->set_id("magia_silenciosa");
   proto.set_dados_vida_automatico(true);
   auto e = NovaEntidadeParaTestes(proto, g_tabelas);
-  EXPECT_EQ(e->Proto().dados_vida(), "4+3d4+5+3+3");
+  EXPECT_EQ(e->Proto().dados_vida(), "4+3d4+7+3+3");
 }
 
 

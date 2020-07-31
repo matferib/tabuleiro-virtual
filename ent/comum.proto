@@ -961,6 +961,9 @@ message TalentoProto {
   // Talento pode ser adquirido pela classe no nivel passado.
   optional int32 ranger = 19;
   optional int32 monge = 20;
+
+  // Talento é metamágico.
+  optional bool metamagico = 22;
 }
 
 message HabilidadeEspecialProto {

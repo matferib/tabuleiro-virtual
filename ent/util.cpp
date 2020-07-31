@@ -2938,6 +2938,13 @@ int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto) {
   return ModificadorAtributo(BonusAtributo(ta, proto));
 }
 
+int ModificadorAtributoOriginal(TipoAtributo ta, const EntidadeProto& proto) {
+  const auto& bonus = BonusAtributo(ta, proto);
+  int valor_base = BonusIndividualTotal(TB_BASE, bonus);
+  int valor_racial = BonusIndividualTotal(TB_RACIAL, bonus);
+  return ModificadorAtributo(valor_base + valor_racial);
+}
+
 int ModificadorTamanho(TamanhoEntidade tamanho) {
   switch (tamanho) {
     case TM_MINUSCULO: return 8;

@@ -611,6 +611,8 @@ void CombinaBonus(const Bonus& bonus_novos, Bonus* bonus);
 // Combina atributos_novos em atributos, sobrescrevendo os iguais (prioridade de atributos_depois).
 void CombinaAtributos(const Atributos& atributos_novos, Atributos* atributos);
 
+// So considera modificadores base e racial.
+int ModificadorAtributoOriginal(TipoAtributo ta, const EntidadeProto& proto);
 // Retorna o modificador do atributo.
 int ModificadorAtributo(int atributo);
 // Leva em consideracao a ausencia de bonus BASE, assumindo ser 10.

@@ -4649,14 +4649,16 @@ tabela_talentos {
     nome: 'Acelerar Magia'
     nome_ingles: 'quicken spell'
     descricao: 'Permite conjurar magia como ação livre, ao custo de três níveis adicionais.'
+    metamagico: true
     # niveis_adicionais: 3
     # mago: 1
   }
   talentos {
     id: 'ampliar_magia'
-    nome: 'Ampliar Magia'
-    nome_ingles: 'widen_spell'
+    nome: 'ampliar magia'
+    nome_ingles: 'widen spell'
     descricao: 'Dobra a área da magia, ao custo de três níveis adicionais'
+    metamagico: true
     # niveis_adicionais: 3
     # mago: 1
   }
@@ -4670,9 +4672,10 @@ tabela_talentos {
   }
   talentos {
     id: 'elevar_magia'
-    nome: 'Elevar Magia'
+    nome: 'elevar magia'
     nome_ingles: 'heighten spell'
     descricao: 'Conjura a magia num nível mais elevado, alterando sua classe de dificuldade, nível etc.'
+    metamagico: true
     # mago: 1
     # niveis_adicionais: variavel
   }
@@ -4681,6 +4684,7 @@ tabela_talentos {
     nome: 'Estender Magia'
     nome_ingles: 'extend spell'
     descricao: 'Dobra a duração da magia, ao custo de um nível adicional.'
+    metamagico: true
     # niveis_adicionais: 1
     # mago: 1
   }
@@ -4689,6 +4693,7 @@ tabela_talentos {
     nome: 'Magia sem Gestos'
     nome_ingles: 'still spell'
     descricao: 'Ignora os componentes gestuais da magia, ao custo de um nível adicional.'
+    metamagico: true
     # niveis_adicionais: 1
     # mago: 1
   }
@@ -4697,6 +4702,7 @@ tabela_talentos {
     nome: 'Magia Silenciosa'
     nome_ingles: 'silent spell'
     descricao: 'Ignora os componentes verbais da magia, ao custo de um nível adicional'
+    metamagico: true
     # niveis_adicionais: 1
     # mago: 1
     # TODO feiticos de bardo nao podem.
@@ -4706,6 +4712,7 @@ tabela_talentos {
     nome: 'Maximizar Magia'
     nome_ingles: 'maximize spell'
     descricao: 'Maximiza todas as variáveis numéricas dos efeitos da magia, ao custo de três níveis adicionais'
+    metamagico: true
     # niveis_adicionais: 3
     # mago: 1
   }
@@ -4714,6 +4721,7 @@ tabela_talentos {
     nome: 'Potencializar Magia'
     nome_ingles: 'empower spell'
     descricao: 'Aumenta em 50% todas as variáveis numéricas dos efeitos da magia, ao custo de dois níveis adicionais.'
+    metamagico: true
     # niveis_adicionais: 2
     # mago: 1
   }
