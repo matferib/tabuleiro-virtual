@@ -10180,7 +10180,9 @@ modelo {
   id: 'Otyugh'
   entidade {
     tipo_dnd: TIPO_ABERRACAO
+    gerar_agarrar: false
     dados_vida: '6d8+9'
+    info_textura { id: 'tile_leather.png' }
     info_classes {
       id: 'aberracao' nivel: 6
       pericias_monstro: 'esconderse'
@@ -10196,11 +10198,11 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
     }
     dados_ataque {
-      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
     }
     dados_ataque {
@@ -10212,6 +10214,26 @@ modelo {
         incubacao_dias: "1d3"
         dano: '1d3' tipo_dano: TDV_DESTREZA dano: '1d3' tipo_dano: TDV_CONSTITUICAO
       }
+    }
+    # Agarrado.
+    dados_ataque {
+      grupo: 'ataque total agarrado' tipo_ataque: 'Agarrar' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'ataque total agarrado' tipo_ataque: 'Agarrar' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'ataque total agarrado' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico_medio_natural: '1d3'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 2
+      doenca {
+        id: 'febre_esgoto' cd: 14
+        tipo: TV_FERIMENTO
+        incubacao_dias: "1d3"
+        dano: '1d3' tipo_dano: TDV_DESTREZA dano: '1d3' tipo_dano: TDV_CONSTITUICAO
+      }
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrado' valor: -4 } } }
     }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
