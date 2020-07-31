@@ -6215,7 +6215,7 @@ tabela_pericias {
     # classes: [  'ranger'  'ladino'  ]
     sem_treinamento: true
     atributo: TA_INTELIGENCIA
-    sinergias { id: 'sobrevivencia' restricao: 'rastrear' }
+    sinergias { id: 'rastrear' }
   }
   pericias {
     id: 'profissao'

@@ -1239,7 +1239,7 @@ modelo {
 }
 
 modelo {
-  id: 'Estátua Executora Móvel'
+  id: 'Estátua Executora Móvel'  # moving executioner statue
   entidade {
     modelo_3d { id: 'moving_executor_statue' }
     rotulo_especial: 'um ataque por quadrado. ND 5; mecanica; gatilho local; reativação automática; supressor com interruptor oculto (procurar CD 25); multiplos alvos (duas mãos atacam); Procurar CD 25; Operar Mecanismo: CD 18. Preço de mercado: 22500 PO.'
@@ -1249,7 +1249,7 @@ modelo {
   }
 }
 modelo {
-  id: 'Bloco de Pedra Solto no Teto'
+  id: 'Bloco de Pedra Solto no Teto'  # falling block trap 5.
   entidade {
     modelo_3d { id: 'builtin:cubo' escala { x: 2 y: 1  z: 1 } }
     rotulo_especial: 'um ataque por quadrado. ND 5; mecanica; gatilho local; reativação manual; multiplos alvos (dois quadrados); Procurar CD 20; Operar Mecanismo: CD 25. Preço de mercado: 15000 PO.'
@@ -1259,7 +1259,17 @@ modelo {
     }
   }
 }
-
+modelo {
+  id: 'Parede Instável'  # built to collapse wall 6.
+  entidade {
+    modelo_3d { id: 'builtin:cubo' escala { x: 2 y: 1  z: 1 } }
+    rotulo_especial: 'um ataque por quadrado. ND 6; mecanica; gatilho proximidade; sem reativação; multiplos alvos (dois quadrados); Procurar CD 14; Operar Mecanismo: CD 16. Preço de mercado: 15000 PO.'
+    dados_ataque {
+      rotulo: 'blocos' tipo_ataque: 'Pedrada (gigante)' bonus_ataque_final: 15 dano: '8d6' incrementa_proximo_ataque: false
+      alcance_q: 10
+    }
+  }
+}
 modelo {
   id: 'Arma Espiritual Mangual'
   entidade {
@@ -7534,7 +7544,6 @@ modelo {
       id: 'especialista' nivel: 11
       pericias_monstro: 'oficios_pedreiro'
       pericias_monstro: 'oficios_alquimia'
-      pericias_monstro: 'oficios_armeiro'
       pericias_monstro: 'ouvir'
       pericias_monstro: 'sentir_motivacao'
       pericias_monstro: 'avaliacao'
@@ -7542,6 +7551,7 @@ modelo {
       pericias_monstro: 'intimidacao'
       pericias_monstro: 'blefar'
       pericias_monstro: 'conhecimento_masmorras'
+      pericias_monstro: 'conhecimento_arquitetura_e_engenharia'
     }
     dados_vida_automatico: true
     atributos {
@@ -7582,14 +7592,14 @@ modelo {
     }
     info_pericias { id: 'oficios_pedreiro' pontos: 15 }
     info_pericias { id: 'oficios_alquimia' pontos: 13 }
-    info_pericias { id: 'oficios_armeiro' pontos: 13 }
     info_pericias { id: 'ouvir' pontos: 13 }
     info_pericias { id: 'sentir_motivacao' pontos: 13 }
     info_pericias { id: 'avaliacao' pontos: 13 }
     info_pericias { id: 'diplomacia' pontos: 13 }
     info_pericias { id: 'intimidacao' pontos: 13 }
     info_pericias { id: 'blefar' pontos: 14 }
-    info_pericias { id: 'conhecimento_masmorras' pontos: 14 }
+    info_pericias { id: 'conhecimento_masmorras' pontos: 13 }
+    info_pericias { id: 'conhecimento_arquitetura_e_engenharia' pontos: 14 }
   }
 }
 modelo {
@@ -8677,11 +8687,11 @@ modelo {
     info_pericias { id: 'ouvir' pontos: 7 }
     info_pericias { id: 'furtividade' pontos: 9 }
     info_pericias { id: 'abrir_fechaduras' pontos: 8 }
-    info_pericias { id: 'cavalgar' pontos: 5 }
     info_pericias { id: 'procurar' pontos: 8 }
     info_pericias { id: 'observar' pontos: 8 }
     info_pericias { id: 'usar_instrumento_magico' pontos: 8 }
     info_pericias { id: 'operar_mecanismo' pontos: 5 }
+    info_pericias { id: 'oficios_armadilharia' pontos: 5 }
     info_talentos {
       gerais { id: 'fintar_aprimorado' }
       gerais { id: 'usar_escudo' }
@@ -8689,19 +8699,21 @@ modelo {
       outros { id: 'especializacao_em_combate' origem: 'humano' }
     }
     tesouro {
-      mantos { id: 'manto_resistencia_1' em_uso: true }
       amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
-      pocoes { id: 'curar_ferimentos_moderados' }
+      pocoes { id: 'curar_ferimentos_serios' }
       pocoes { id: 'neutralizar_venenos' }
       pocoes { id: 'veneno_escorpiao_grande' }
+      pocoes { id: 'agilidade_gato' }
       itens_mundanos { id: 'ferramentas_ladino_op' }
+      itens_mundanos { id: 'ferramentas_artesao_op' }
+      itens_mundanos { id: 'bolsa_cola' }
       itens_mundanos { id: 'bolsa_cola' }
       armas { id: 'sabre OP' id_tabela: 'sabre' obra_prima: true }
       armas { id: 'arco curto OP' id_tabela: 'arco_curto' obra_prima: true }
       escudos { id: 'broquel +1' id_tabela: 'broquel' bonus_magico: 1 }
       armaduras { id: 'camisao +1' id_tabela: 'camisao' bonus_magico: 1 }
-      moedas { po: 35 }
-      valor_esperado_po: 7200 # = 4200 + couro batido 1 + broquel 1 + arma OP + arco curto OP
+      moedas { po: 145 }
+      valor_esperado_po: 7200
     }
     movimento {
       terrestre_basico_q: 6

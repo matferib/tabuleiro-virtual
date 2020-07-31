@@ -4,6 +4,7 @@ sub_menu {
   id: 'Armadilhas'
   item_menu { id: 'Estátua Executora Móvel' }
   item_menu { id: 'Bloco de Pedra Solto no Teto' }
+  item_menu { id: 'Parede Instável' }
 }
 sub_menu {
   id: 'Mortos-Vivos'
