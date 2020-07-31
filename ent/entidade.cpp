@@ -150,16 +150,27 @@ void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
     }
     primeiro = false;
   }
-  const int mod_con = ModificadorAtributo(TA_CONSTITUICAO, *proto) * NivelPersonagem(*proto);
-  if (mod_con != 0) {
-    dv += StringPrintf("%+d", mod_con);
-  }
+  bool possui_mente_sobre_materia = false;
   int num_vitalidades = 0;
   for (const auto& talentos_por_tipo : {proto->info_talentos().gerais(), proto->info_talentos().outros(), proto->info_talentos().automaticos() }) {
     num_vitalidades += c_count_if(talentos_por_tipo, [](const TalentoProto& talento) { return talento.id() == "vitalidade"; });
+    possui_mente_sobre_materia |= c_any_of(talentos_por_tipo, [](const TalentoProto& talento) { return talento.id() == "mente_sobre_materia"; });
+  }
+  int nivel_para_mod_con = NivelPersonagem(*proto);
+  if (possui_mente_sobre_materia) {
+    // TODO adicionar ponto para cada talento.
+    // TODO considerar apenas o valor base.
+    const int mod_int = ModificadorAtributo(TA_INTELIGENCIA, *proto);
+    const int mod_car = ModificadorAtributo(TA_CARISMA, *proto);
+    dv += StringPrintf("+%d", std::max(mod_int, mod_car));
+    nivel_para_mod_con = std::max(0, nivel_para_mod_con - 1);
+  }
+  const int mod_con = ModificadorAtributo(TA_CONSTITUICAO, *proto) * nivel_para_mod_con;
+  if (mod_con != 0) {
+    dv += StringPrintf("%+d", mod_con);
   }
   if (num_vitalidades > 0) {
-    dv += StringPrintf("+%d", num_vitalidades);
+    dv += StringPrintf("+%d", num_vitalidades * 3);
   }
   if (dv.empty()) {
     LOG(WARNING) << "dv vazio para dados de vida automatico de " << RotuloEntidade(*proto);

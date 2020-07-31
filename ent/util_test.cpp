@@ -1767,6 +1767,22 @@ TEST(TesteTalentoPericias, TesteVitalidade) {
   EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 13) << orc->Proto().bonus_dados_vida().DebugString() << " " << orc->NivelPersonagem();
 }
 
+TEST(TesteTalentoPericias, TesteDadosVidaAutomatico) {
+  EntidadeProto proto;
+  AtribuiBaseAtributo(12, TA_CONSTITUICAO, &proto);
+  AtribuiBaseAtributo(20, TA_INTELIGENCIA, &proto);
+  AtribuiBaseAtributo(16, TA_CARISMA, &proto);
+  auto* ic = proto.add_info_classes();
+  ic->set_id("mago");
+  ic->set_nivel(4);
+  proto.mutable_info_talentos()->add_gerais()->set_id("vitalidade");
+  proto.mutable_info_talentos()->add_gerais()->set_id("mente_sobre_materia");
+  proto.set_dados_vida_automatico(true);
+  auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+  EXPECT_EQ(e->Proto().dados_vida(), "4+3d4+5+3+3");
+}
+
+
 namespace {
 const AcaoProto::PorEntidade& PrimeiraEntidadeOuPadrao(const AcaoProto& acao) {
   if (acao.por_entidade().empty()) return AcaoProto::PorEntidade::default_instance();
