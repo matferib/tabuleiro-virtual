@@ -4942,6 +4942,36 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
   EXPECT_EQ(5, CuraAcelerada(proto));
 }
 
+TEST(TesteModelo, TesteOtyugh) {
+  auto proto = g_tabelas.ModeloEntidade("Otyugh").entidade();
+  auto otyugh = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 0);
+    EXPECT_EQ(da.bonus_ataque_final(), 4);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 4);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 2);
+    EXPECT_EQ(da.bonus_ataque_final(), -2);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_EQ(da.doenca().cd(), 14);
+  }
+
+  EXPECT_EQ(ValorFinalPericia("esconderse", otyugh->Proto()), -1) << BonusPericia("esconderse", otyugh->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("esconderse_lar", otyugh->Proto()), 7) << BonusPericia("esconderse", otyugh->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("ouvir", otyugh->Proto()), 6) << BonusPericia("ouvir", otyugh->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("observar", otyugh->Proto()), 6) << BonusPericia("observar", otyugh->Proto()).DebugString();
+}
+
+
 TEST(TesteModelo, TesteEnxameCentepeias) {
   auto proto = g_tabelas.ModeloEntidade("Enxame (centopéias)").entidade();
   auto enxame = NovaEntidadeParaTestes(proto, g_tabelas);
