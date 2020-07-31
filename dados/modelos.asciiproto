@@ -10195,9 +10195,24 @@ modelo {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 8 } }
       }
     }
-    dados_ataque { grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico_medio_natural: '1d3' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 2 }
-    dados_ataque { grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true }
-    dados_ataque { grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true }
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico_medio_natural: '1d3'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 2
+      doenca {
+        id: 'febre_esgoto' cd: 14
+        tipo: TV_FERIMENTO
+        incubacao_dias: "1d3"
+        dano: '1d3' tipo_dano: TDV_DESTREZA dano: '1d3' tipo_dano: TDV_CONSTITUICAO
+      }
+    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
@@ -10212,8 +10227,12 @@ modelo {
       gerais { id: 'foco_em_arma' complemento: 'tentaculo' }
     }
     info_pericias { id: 'esconderse' pontos: 3 }
+    info_pericias { id: 'esconderse_lar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
     info_pericias { id: 'ouvir' pontos: 3 }
     info_pericias { id: 'observar' pontos: 3 }
+    movimento {
+      terrestre_basico_q: 4
+    }
   }
 }
 modelo {
