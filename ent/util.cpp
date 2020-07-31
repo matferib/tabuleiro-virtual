@@ -121,7 +121,10 @@ void Histograma::Imprime() const {
   std::cout << "média: " << (total_ / num_valores) << "s, média sem último: " << (total_sem_ultimo_ / num_valores_sem_ultimo) << "s" << std::endl;
   for (const auto& [intervalo, valor] : intervalos_) {
     const int porcentagem = valor * 50 / maximo;
-    std::string s = StringPrintf("[%f, %f) -> %d: %s", intervalo.min, intervalo.max, valor, std::string(porcentagem, '#').c_str());
+    const std::string str_porcentagem = std::string(porcentagem, '#');
+    std::string s = intervalo.max == std::numeric_limits<float>::max()
+        ? StringPrintf("[%f, max) -> %d: %s", intervalo.min, valor, str_porcentagem.c_str())
+        : StringPrintf("[%f, %f) -> %d: %s", intervalo.min, intervalo.max, valor, str_porcentagem.c_str());
     std::cout << s << std::endl;
   }
 }

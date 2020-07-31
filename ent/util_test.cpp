@@ -4947,19 +4947,42 @@ TEST(TesteModelo, TesteOtyugh) {
   auto otyugh = NovaEntidadeParaTestes(proto, g_tabelas);
   {
     const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 0);
-    EXPECT_EQ(da.bonus_ataque_final(), 4);
+    EXPECT_EQ(da.bonus_ataque_final(), 9);
     EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.dano_constricao(), "1d6");
     EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
   }
   {
     const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 1);
-    EXPECT_EQ(da.bonus_ataque_final(), 4);
+    EXPECT_EQ(da.bonus_ataque_final(), 9);
     EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.dano_constricao(), "1d6");
     EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
   }
   {
     const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 2);
     EXPECT_EQ(da.bonus_ataque_final(), -2);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_EQ(da.doenca().cd(), 14);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total agarrado", otyugh->Proto(), 0);
+    EXPECT_EQ(da.bonus_ataque_final(), 8) << da.DebugString();
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.dano_constricao(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total agarrado", otyugh->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 8);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.dano_constricao(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total agarrado", otyugh->Proto(), 2);
+    EXPECT_EQ(da.bonus_ataque_final(), -6);
     EXPECT_EQ(da.dano(), "1d4");
     EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
     EXPECT_EQ(da.doenca().cd(), 14);

@@ -3171,6 +3171,7 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
     da->set_rotulo("agarrar");
     da->set_grupo("Agarrar");
     da->set_alcance_q(1);
+    da->set_dano_basico_fixo("0");
   }
   // Se nao tiver ataque atordoante, gera um.
   if (PossuiTalento("ataque_atordoante", *proto)) {
