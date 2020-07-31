@@ -5067,7 +5067,8 @@ TEST(TesteModelo, TesteAnaoGuerreiro1Especialista11) {
   }
   EXPECT_EQ(ValorFinalPericia("oficios_pedreiro", esp->Proto()), 24) << BonusPericia("oficios", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("oficios_alquimia", esp->Proto()), 19) << BonusPericia("oficios_alquimia", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("conhecimento_masmorras", esp->Proto()), 18) << BonusPericia("conhecimento_masmorras", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("conhecimento_masmorras", esp->Proto()), 17) << BonusPericia("conhecimento_masmorras", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("conhecimento_arquitetura_e_engenharia", esp->Proto()), 18) << BonusPericia("conhecimento_arquitetura_e_engenharia", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("sentir_motivacao", esp->Proto()), 14) << BonusPericia("sentir_motivacao", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("avaliacao", esp->Proto()), 19) << BonusPericia("avaliacao", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("avaliacao_pedreiro", esp->Proto()), 21) << BonusPericia("avaliacao_oficio", esp->Proto()).DebugString();
@@ -5210,6 +5211,7 @@ TEST(TesteModelo, TesteLadino7) {
   EXPECT_EQ(ValorFinalPericia("ouvir", ladino->Proto()), 7) << Pericia("ouvir", ladino->Proto()).DebugString();;
   EXPECT_EQ(ValorFinalPericia("observar", ladino->Proto()), 8) << Pericia("observar", ladino->Proto()).DebugString();;
   EXPECT_EQ(ValorFinalPericia("operar_mecanismo", ladino->Proto()), 9) << Pericia("operar_mecanismo", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("oficios_armadilharia", ladino->Proto()), 9) << Pericia("oficios_armadilharia", ladino->Proto()).DebugString();;
 }
 
 TEST(TesteModelo, TesteBisao) {
