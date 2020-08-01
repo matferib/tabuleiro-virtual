@@ -3072,9 +3072,6 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   if (modo_clique_ == MODO_AJUDA || (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL)) {
     switch (modo_clique_) {
       case MODO_SELECAO_TRANSICAO: {
-        if (tipo_objeto != OBJ_TABULEIRO) {
-          return;
-        }
         auto* entidade = BuscaEntidade(notificacao_selecao_transicao_.entidade().id());
         if (entidade == nullptr) {
           LOG(WARNING) << "Entidade nao existe mais.";
