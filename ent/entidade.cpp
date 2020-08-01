@@ -2139,7 +2139,7 @@ const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
   std::vector<const DadosAtaque*> ataques_casados;
   auto [ultima_acao, ultimo_grupo] = UltimaAcaoGrupo(proto_);
   for (const auto& da : proto_.dados_ataque()) {
-    if ((ultima_acao.empty() || da.tipo_ataque() == ultima_acao) && da.grupo() == ultimo_grupo) {
+    if (da.grupo() == ultimo_grupo) {
       VLOG(3) << "Encontrei ataque para " << da.tipo_ataque() << ", grupo: " << da.grupo();
       ataques_casados.push_back(&da);
       if (ignora_ataques_na_rodada) break;
