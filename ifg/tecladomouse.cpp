@@ -414,17 +414,16 @@ void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e mo
   }
 }
 
-void TratadorTecladoMouse::TrataBotaoMousePressionado(
-    botoesmouse_e botao, unsigned int modificadores, int x, int y) {
+void TratadorTecladoMouse::TrataBotaoMousePressionado(botoesmouse_e botao, unsigned int modificadores, int x, int y) {
   MudaEstado(ESTADO_OUTRO);
   if (modificadores == Modificador_Alt) {
     VLOG(1) << "Pressionado e: " << (botao==Botao_Esquerdo) << " com alt, pos " << x << ", " << y;
     // Acao padrao eh usada quando o botao eh o direito.
     tabuleiro_->TrataBotaoAcaoPressionado(botao == Botao_Direito, x, y);
-  } else if (modificadores == Modificador_Ctrl) {
-    VLOG(1) << "Pressionado e: " << (botao==Botao_Esquerdo) << " com ctrl, pos " << x << ", " << y;
+  } else if (modificadores == Modificador_Ctrl || modificadores == (Modificador_Ctrl | Modificador_AltGr)) {
+    VLOG(1) << "Pressionado e: " << (botao==Botao_Esquerdo) << " com ctrl, pos " << x << ", " << y << ", altgr: " << ((modificadores & Modificador_AltGr) != 0);
     if (botao == Botao_Esquerdo) {
-      tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(x, y);
+      tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(x, y, /*forca_selecao=*/(modificadores & Modificador_AltGr) != 0);
     } else if (botao == Botao_Direito) {
       tabuleiro_->TrataBotaoDesenhoPressionado(x, y);
     }
@@ -435,7 +434,7 @@ void TratadorTecladoMouse::TrataBotaoMousePressionado(
         if (modificadores == Modificador_Shift) {
           tabuleiro_->TrataBotaoRotacaoPressionado(x, y);
         } else {
-          tabuleiro_->TrataBotaoEsquerdoPressionado(x, y);
+          tabuleiro_->TrataBotaoEsquerdoPressionado(x, y, /*alterna_selecao=*/false, /*forca_selecao=*/(modificadores & Modificador_AltGr) != 0);
         }
         break;
       case Botao_Direito:
@@ -453,7 +452,7 @@ void TratadorTecladoMouse::TrataBotaoMousePressionado(
 bool TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
   ultimo_x_ = x;
   ultimo_y_ = y;
-  VLOG(1) << "Movimento: " << x << ", " << y << ", ultimo_x " << ultimo_x_ << ", ultimo_y: " << ultimo_y_;
+  VLOG(2) << "Movimento: " << x << ", " << y << ", ultimo_x " << ultimo_x_ << ", ultimo_y: " << ultimo_y_;
   if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
     temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
     tabuleiro_->TrataMovimentoMouse();
