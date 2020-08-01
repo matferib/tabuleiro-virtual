@@ -10218,11 +10218,11 @@ modelo {
     # Agarrado.
     dados_ataque {
       grupo: 'ataque total agarrado' tipo_ataque: 'Agarrar' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 constricao: true
     }
     dados_ataque {
       grupo: 'ataque total agarrado' tipo_ataque: 'Agarrar' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
-      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 constricao: true
     }
     dados_ataque {
       grupo: 'ataque total agarrado' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico_medio_natural: '1d3'
