@@ -2142,8 +2142,10 @@ float Tabuleiro::TrataAcaoIndividual(
       const bool agarrar_aprimorado = da.agarrar_aprimorado() || (da.agarrar_aprimorado_se_acertou_anterior() && entidade_origem->AcertouAtaqueAnterior());
       if (da.adesao() ||
           (agarrar_aprimorado && entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho())) {
-        // agarrar
-        ResultadoAtaqueVsDefesa resultado_agarrar = da.adesao() ? ResultadoAtaqueVsDefesa{RA_SUCESSO, 1, "auto"} : AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
+        // agarrar: se o ataque original ja era de agarrar, nao precisa fazer outro. Adesao tb é automático.
+        ResultadoAtaqueVsDefesa resultado_agarrar = da.adesao() || da.ataque_agarrar()
+            ? ResultadoAtaqueVsDefesa{RA_SUCESSO, 1, "auto"}
+            : AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
         if (resultado_agarrar.Sucesso()) {
           if (agarrar_aprimorado && da.constricao()) {
             int dano_constricao = RolaValor(da.dano_constricao().empty() ? da.dano() : da.dano_constricao());
