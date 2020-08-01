@@ -5084,7 +5084,7 @@ TEST(TesteModelo, TesteEspecialista7) {
   }
   {
     const auto& da = DadosAtaquePorGrupo("distancia", esp->Proto());
-    EXPECT_EQ(da.bonus_ataque_final(), 7);
+    EXPECT_EQ(da.bonus_ataque_final(), 6);
     EXPECT_EQ(da.dano(), "1d4-1");
     EXPECT_EQ(da.ca_normal(), 16) << esp->Proto().dados_defesa().ca().DebugString();
   }
@@ -6749,10 +6749,35 @@ TEST(TesteTesouro, TesteTesouroEsperado) {
     std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(modelo.entidade(), g_tabelas));
     const auto& tesouro = e->Proto().tesouro();
     if (!tesouro.has_valor_esperado_po()) continue;
+    std::vector<std::pair<const google::protobuf::RepeatedPtrField<ItemMagicoProto>*, TipoItem>> itens_agrupados = {
+      {&tesouro.aneis(), TIPO_ANEL}, {&tesouro.mantos(), TIPO_MANTO}, {&tesouro.luvas(), TIPO_LUVAS},
+      {&tesouro.bracadeiras(), TIPO_BRACADEIRAS}, {&tesouro.amuletos(), TIPO_AMULETO}, {&tesouro.botas(), TIPO_BOTAS},
+      {&tesouro.chapeus(), TIPO_CHAPEU}, {&tesouro.itens_mundanos(), TIPO_ITEM_MUNDANO},
+      {&tesouro.varinhas(), TIPO_VARINHA}, {&tesouro.pergaminhos_divinos(), TIPO_PERGAMINHO_DIVINO},
+      {&tesouro.pergaminhos_arcanos(), TIPO_PERGAMINHO_ARCANO},
+      {&tesouro.pocoes(), TIPO_POCAO},
+    };
     int soma = 0;
     const auto& todos = TodosItens(e->Proto());
-    for (const auto& item : todos) {
-      soma += PrecoItemPo(ItemTabela(g_tabelas, *item));
+    for (const auto& [itens, tipo] : itens_agrupados) {
+      for (const auto& item : *itens) {
+        const auto& item_tabelado = ItemTabela(g_tabelas, tipo, item.id());
+        const int valor = PrecoItemPo(item_tabelado);
+        if (valor == 0 && !item_tabelado.has_custo()) {
+          LOG(INFO)
+              <<  "item sem preco para (personagem): " << item.ShortDebugString()
+              << ", da tabela: " << item_tabelado.ShortDebugString();
+        } else {
+          float fator = 1.0f;
+          if (((tipo == TIPO_POCAO && e->PossuiTalento("preparar_pocao")) ||
+              (tipo == TIPO_PERGAMINHO_DIVINO && e->PossuiTalento("escrever_pergaminho")) ||
+              (tipo == TIPO_PERGAMINHO_ARCANO && e->PossuiTalento("escrever_pergaminho"))) &&
+              TemFeiticoLista(item.id_feitico(), e->Proto())) {
+            fator = 0.75f;
+          }
+          soma += (valor * fator);
+        }
+      }
     }
     for (const auto& arma : tesouro.armas()) {
       soma += PrecoArmaPo(arma);

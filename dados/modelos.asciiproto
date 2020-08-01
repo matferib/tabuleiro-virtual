@@ -7064,7 +7064,7 @@ modelo {
     cor { r: 0.7 g: 0.5 b: 0.3 }
     dados_defesa { id_armadura_tesouro: 'batalha +1' id_escudo_tesouro: 'pesado aço' }
     dados_ataque {
-      grupo: 'corpo a corpo' id_arma_tesouro: 'maça estrela +1' empunhadura: EA_ARMA_ESCUDO
+      grupo: 'corpo a corpo' id_arma_tesouro: 'maça estrela OP' empunhadura: EA_ARMA_ESCUDO
     }
     dados_ataque {
       grupo: 'distancia' id_arma_tesouro: 'besta leve OP' empunhadura: EA_ARMA_ESCUDO
@@ -7089,30 +7089,28 @@ modelo {
     info_pericias { id: 'ouvir' pontos: 9 }
     info_pericias { id: 'identificar_magia' pontos: 9 }
     tesouro {
-      moedas { po: 2 }
+      moedas { po: 52 }
       # Pergaminhos e pocoes: 75%.
       # pocoes.
       pocoes { id: 'pele_arvore_2' }  # preco cheio, nao pode fazer. 300.
       pocoes { id: 'curar_ferimentos_moderados' }  # preco cheio, nao pode fazer. 300.
       # pergaminhos.
       pergaminhos_divinos { id: 'escudo_entropico' }  # 25
-      pergaminhos_divinos { id: 'infligir_ferimentos_leves' }  # 25
       pergaminhos_divinos { id: 'luz_cegante' }  # 375
       pergaminhos_divinos { id: 'oracao' }  # 375
       pergaminhos_divinos { id: 'forca_touro' }  # 150
+      pergaminhos_divinos { id: 'sabedoria_coruja' }  # 150
       pergaminhos_divinos { id: 'infligir_ferimentos_moderados' }  # 150
       pergaminhos_divinos { id: 'escudo_fe' }  # 25
-      pergaminhos_divinos { id: 'arma_magica' }  # 25
-      pergaminhos_divinos { id: 'pedra_encantada' }  # 25
       pergaminhos_divinos { id: 'bencao' }  # 25
-      armas { id: 'maça estrela +1' id_tabela: 'maca_estrela' bonus_magico: 1 }
+      armas { id: 'maça estrela OP' id_tabela: 'maca_estrela' obra_prima: true }
       armas { id: 'besta leve OP' id_tabela: 'besta_leve' obra_prima: true }
       armaduras { id: 'batalha +1' id_tabela: 'armadura_batalha' bonus_magico: 1 }
       escudos { id: 'pesado aço' id_tabela: 'pesado_aco'  }
       itens_mundanos { id: 'fogo_alquimico' }
       itens_mundanos { id: 'fogo_alquimico' }
-      itens_mundanos { id: 'acido' }
-      itens_mundanos { id: 'acido' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'bolsa_cola' }
       itens_mundanos { id: 'agua_benta' }
       itens_mundanos { id: 'agua_benta' }
       itens_mundanos { id: 'simbolo_sagrado_prata' }
@@ -7606,7 +7604,7 @@ modelo {
     }
     dados_defesa { id_armadura_tesouro: 'camisao +1' }
     dados_ataque { grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'adaga +1' empunhadura: EA_ARMA_APENAS }
-    dados_ataque { grupo: 'distancia' tipo_ataque: 'Ataque a Disância' id_arma_tesouro: 'adaga OP' empunhadura: EA_ARMA_APENAS }
+    dados_ataque { grupo: 'distancia' tipo_ataque: 'Ataque a Disância' id_arma_tesouro: 'adaga' empunhadura: EA_ARMA_APENAS }
     tesouro {
       pocoes { id: 'curar_ferimentos_moderados' }
       pocoes { id: 'agilidade_gato' }
@@ -7617,7 +7615,7 @@ modelo {
       itens_mundanos { id: 'pedra_trovao' }
       itens_mundanos { id: 'ferramentas_artesao_op' }
       armas { id: 'adaga +1' id_tabela: 'adaga_de_soco' bonus_magico: 1 }
-      armas { id: 'adaga OP' id_tabela: 'adaga' obra_prima: true }
+      armas { id: 'adaga' id_tabela: 'adaga' }
       armaduras { id: 'camisao +1' id_tabela: 'camisao'  bonus_magico: 1 }
       moedas { po: 305 }
       valor_esperado_po: 5600
@@ -8710,11 +8708,12 @@ modelo {
 modelo {
   id: 'Humano Ladino 5'
   entidade {
+    tendencia { simples: TD_NORMALMENTE_CAOTICO_NEUTRO }
+    rotulo: 'Humano Ladino 5'
     info_classes { id: 'ladino' nivel: 5 }
     dados_vida: '4d6+14' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     raca: 'humano'
-    rotulo_especial: 'Humano Ladino 5'
     dados_ataque { grupo: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'sabre OP' empunhadura: EA_ARMA_ESCUDO }
     dados_ataque { grupo: 'adaga' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'adaga' empunhadura: EA_ARMA_ESCUDO }
     dados_ataque { grupo: 'arco' tipo_ataque: 'Ataque a Distância' id_arma_tesouro: 'arco curto OP' empunhadura: EA_ARMA_APENAS municao: 20 }
@@ -8740,7 +8739,7 @@ modelo {
       escudos { id: 'broquel OP' id_tabela: 'broquel' obra_prima: true }
       itens_mundanos { id: 'ferramentas_ladino_op' }
       moedas { po: 73 }
-      valor_esperado_po: 4165 # 3000 + armadura e escudo OP + adaga OP + arco curto OP + ferramenta
+      valor_esperado_po: 4300
     }
 
     # Ladino 8, humano 1, int 2 total 11 pericias pericias maximizadas.
@@ -8826,7 +8825,7 @@ modelo {
     }
     tesouro {
       amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
-      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'curar_ferimentos_moderados' }
       pocoes { id: 'neutralizar_venenos' }
       pocoes { id: 'veneno_escorpiao_grande' }
       pocoes { id: 'agilidade_gato' }
@@ -8834,11 +8833,15 @@ modelo {
       itens_mundanos { id: 'ferramentas_artesao_op' }
       itens_mundanos { id: 'bolsa_cola' }
       itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'acido' }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'fogo_alquimico' }
       armas { id: 'sabre OP' id_tabela: 'sabre' obra_prima: true }
       armas { id: 'arco curto OP' id_tabela: 'arco_curto' obra_prima: true }
       escudos { id: 'broquel +1' id_tabela: 'broquel' bonus_magico: 1 }
       armaduras { id: 'camisao +1' id_tabela: 'camisao' bonus_magico: 1 }
-      moedas { po: 145 }
+      moedas { po: 175 }
       valor_esperado_po: 7200
     }
     movimento {

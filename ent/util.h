@@ -794,6 +794,7 @@ const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_clas
 
 // Retorna se o feitico pode ser conjurado no nivel passado pela classe cujo id para magia foi passado.
 bool PodeConjurarFeitico(const ArmaProto& feitico, int nivel_maximo, const std::string& id_classe_para_magia);
+bool TemFeiticoLista(const std::string& id_feitico, const EntidadeProto& proto);
 
 // Retorna true se o feitico for pessoal.
 bool FeiticoPessoal(const Tabelas& tabelas, const ArmaProto& feitico_tabelado);
@@ -1046,7 +1047,7 @@ std::string NomeTipoItem(TipoItem tipo);
 const google::protobuf::RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& ArmasArmadurasOuEscudosProto(TipoTesouro tipo, const EntidadeProto& proto);
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
 google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
-// Retorna todos os itens do proto, exceto pocoes.
+// Retorna todos os itens do proto, exceto pocoes. Usado para computar efeitos orfãos (a poção ou ja foi consumida ou ainda não tem efeito).
 std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto);
 std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto);
 std::vector<const ItemMagicoProto*> TodosItens(const EntidadeProto& proto);
