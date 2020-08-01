@@ -7070,15 +7070,6 @@ modelo {
       grupo: 'distancia' id_arma_tesouro: 'besta leve OP' empunhadura: EA_ARMA_ESCUDO
       municao: 20
     }
-    dados_ataque {
-      id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO municao: 3
-    }
-    dados_ataque {
-      id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO municao: 4
-    }
-    dados_ataque {
-      id_arma: 'agua_benta' empunhadura: EA_ARMA_ESCUDO municao: 4
-    }
 
     info_talentos {
       gerais { id: 'preparar_pocao' }
@@ -7284,6 +7275,176 @@ modelo {
     }
   }
 }
+
+modelo {
+  id: 'Humano Clérigo 12 Neutro'
+  id_entidade_base: 'Humano Clérigo Base'
+  entidade {
+    dados_vida_automatico: true info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    info_classes { id: 'clerigo' nivel: 12 }
+    cor { r: 0.5 g: 0.3 b: 0.2 }
+    dados_defesa { id_armadura_tesouro: 'batalha +1' id_escudo: 'pesado aço +1' }
+    dados_ataque {
+      grupo: 'corpo a corpo' id_arma_tesouro: 'maça estrela OP' empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' id_arma_tesouro: 'maça estrela OP' empunhadura: EA_ARMA_ESCUDO ordem_ataque: 1
+    }
+    dados_ataque {
+      grupo: 'distancia' id_arma_tesouro: 'pistola +1' empunhadura: EA_ARMA_ESCUDO
+      municao: 20
+    }
+
+    info_talentos {
+      gerais { id: 'preparar_pocao' } # 1
+      gerais { id: 'reflexos_rapidos' } # 3
+      gerais { id: 'escrever_pergaminho' } # 6
+      gerais { id: 'magia_combate' } # 9
+      gerais { id: 'usar_arma_exotica_fogo' } # 12
+    }
+    info_pericias { id: 'concentracao' pontos: 15 }
+    info_pericias { id: 'diplomacia' pontos: 8}
+    info_pericias { id: 'ouvir' pontos: 7 }
+    info_pericias { id: 'identificar_magia' pontos: 8 }
+    info_pericias { id: 'arte_da_fuga' pontos: 7 }
+
+    tesouro {
+      aneis { id: 'protecao_1' em_uso: true }
+      amuletos { id: 'periapto_sabedoria_2' em_uso: true }
+      luvas { id: 'luvas_destreza_2' em_uso: true }
+
+      pocoes { id: 'voo' }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'heroismo' }
+      pocoes { id: 'velocidade' }
+
+      pergaminhos_divinos { id: 'escudo_entropico' }
+      pergaminhos_divinos { id: 'imobilizar_pessoa' }
+      pergaminhos_divinos { id: 'imobilizar_pessoa' }
+      pergaminhos_divinos { id: 'arma_espiritual' }
+      pergaminhos_divinos { id: 'oracao' }
+      pergaminhos_divinos { id: 'doenca_plena' }
+      pergaminhos_divinos { id: 'doenca_plena' }
+      pergaminhos_divinos { id: 'barreira_laminas' }
+      pergaminhos_divinos { id: 'dissipar_magia_maior' }
+
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'agua_benta' }
+      itens_mundanos { id: 'agua_benta' }
+      itens_mundanos { id: 'simbolo_sagrado_prata' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+
+      armas { id: 'maça estrela OP' id_tabela: 'maca_estrela' obra_prima: true }
+      armas { id: 'pistola +1' id_tabela: 'pistola' bonus_magico: 1 }
+      armaduras { id: 'batalha +2' id_tabela: 'armadura_batalha' bonus_magico: 1 }
+      escudos { id: 'pesado aço +1' id_tabela: 'pesado_aco' bonus_magico: 1 }
+
+      moedas { po: 25 }
+      valor_esperado_po: 27000
+    }
+    feiticos_classes {
+      id_classe: 'clerigo'
+      dominios: 'conhecimento'
+      dominios: 'fogo'
+      feiticos_por_nivel_deprecated {
+        nivel: 0
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'resistencia' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'ler_magias' }
+        conhecidos { id: 'consertar' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 1
+        conhecidos { id: 'compreender_idiomas' }
+        conhecidos { id: 'escudo_fe' }
+        conhecidos { id: 'invocar_criaturas_i' }
+        conhecidos { id: 'santuario' }
+        conhecidos { id: 'auxilio_divino' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 2
+        conhecidos { id: 'ajuda' }
+        conhecidos { id: 'arma_espiritual' }
+        conhecidos { id: 'forca_touro' }
+        conhecidos { id: 'imobilizar_pessoa' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 3
+        conhecidos { id: 'dissipar_magia' }
+        conhecidos { id: 'purgar_invisibilidade' }
+        conhecidos { id: 'circulo_magico_contra_mal' }
+        conhecidos { id: 'protecao_contra_elementos' }
+        conhecidos { id: 'luz_cegante' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 4
+        conhecidos { id: 'poder_divino' }
+        conhecidos { id: 'envenenamento' }
+        conhecidos { id: 'inseto_gigante' }
+        conhecidos { id: 'imunidade_magia' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 5
+        conhecidos { id: 'arma_rompimento' }
+        conhecidos { id: 'cancelar_encantamento' }
+        conhecidos { id: 'coluna_chamas' }
+        conhecidos { id: 'comando_maior' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 6
+        conhecidos { id: 'barreira_laminas' }
+        conhecidos { id: 'cura_completa' }
+        conhecidos { id: 'dissipar_magia_maior' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 1 }
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 3 } } }
+    }
+  }
+}
+
 
 modelo {
   id: 'Humano Clérigo 16'

@@ -6280,6 +6280,37 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'acalmar_emocoes'
+    nome: 'acalmar emoções'
+    nome_ingles: 'calm emotions'
+    componente {
+      material: false
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'ordem'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço Pessoal Dispersão Esfera'
+      tipo_salvacao: TS_VONTADE
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'acalmar emoções'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'encantamento'
+  }
+  armas {
     id: 'recuo_acelerado'
     nome: 'recuo acelerado'
     nome_ingles: 'expeditious retreat'
