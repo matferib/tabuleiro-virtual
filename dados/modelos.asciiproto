@@ -1239,7 +1239,7 @@ modelo {
 }
 
 modelo {
-  id: 'Estátua Executora Móvel'
+  id: 'Estátua Executora Móvel'  # moving executioner statue
   entidade {
     modelo_3d { id: 'moving_executor_statue' }
     rotulo_especial: 'um ataque por quadrado. ND 5; mecanica; gatilho local; reativação automática; supressor com interruptor oculto (procurar CD 25); multiplos alvos (duas mãos atacam); Procurar CD 25; Operar Mecanismo: CD 18. Preço de mercado: 22500 PO.'
@@ -1249,7 +1249,7 @@ modelo {
   }
 }
 modelo {
-  id: 'Bloco de Pedra Solto no Teto'
+  id: 'Bloco de Pedra Solto no Teto'  # falling block trap 5.
   entidade {
     modelo_3d { id: 'builtin:cubo' escala { x: 2 y: 1  z: 1 } }
     rotulo_especial: 'um ataque por quadrado. ND 5; mecanica; gatilho local; reativação manual; multiplos alvos (dois quadrados); Procurar CD 20; Operar Mecanismo: CD 25. Preço de mercado: 15000 PO.'
@@ -1259,7 +1259,17 @@ modelo {
     }
   }
 }
-
+modelo {
+  id: 'Parede Instável'  # built to collapse wall 6.
+  entidade {
+    modelo_3d { id: 'builtin:cubo' escala { x: 2 y: 1  z: 1 } }
+    rotulo_especial: 'um ataque por quadrado. ND 6; mecanica; gatilho proximidade; sem reativação; multiplos alvos (dois quadrados); Procurar CD 14; Operar Mecanismo: CD 16. Preço de mercado: 15000 PO.'
+    dados_ataque {
+      rotulo: 'blocos' tipo_ataque: 'Pedrada (gigante)' bonus_ataque_final: 15 dano: '8d6' incrementa_proximo_ataque: false
+      alcance_q: 10
+    }
+  }
+}
 modelo {
   id: 'Arma Espiritual Mangual'
   entidade {
@@ -7045,6 +7055,121 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Clérigo 6 (Leal e Neutro)'
+  id_entidade_base: 'Humano Clérigo Base'
+  entidade {
+    tendencia { simples: TD_LEAL_NEUTRO }
+    dados_vida: '5d8+18' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    info_classes { id: 'clerigo' nivel: 6 }
+    cor { r: 0.7 g: 0.5 b: 0.3 }
+    dados_defesa { id_armadura_tesouro: 'batalha +1' id_escudo_tesouro: 'pesado aço' }
+    dados_ataque {
+      grupo: 'corpo a corpo' id_arma_tesouro: 'maça estrela OP' empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      grupo: 'distancia' id_arma_tesouro: 'besta leve OP' empunhadura: EA_ARMA_ESCUDO
+      municao: 20
+    }
+
+    info_talentos {
+      gerais { id: 'preparar_pocao' }
+      gerais { id: 'escrever_pergaminho' }
+      gerais { id: 'reflexos_rapidos' }
+    }
+    info_pericias { id: 'concentracao' pontos: 9 }
+    info_pericias { id: 'ouvir' pontos: 9 }
+    info_pericias { id: 'identificar_magia' pontos: 9 }
+    tesouro {
+      moedas { po: 52 }
+      # Pergaminhos e pocoes: 75%.
+      # pocoes.
+      pocoes { id: 'pele_arvore_2' }  # preco cheio, nao pode fazer. 300.
+      pocoes { id: 'curar_ferimentos_moderados' }  # preco cheio, nao pode fazer. 300.
+      # pergaminhos.
+      pergaminhos_divinos { id: 'escudo_entropico' }  # 25
+      pergaminhos_divinos { id: 'luz_cegante' }  # 375
+      pergaminhos_divinos { id: 'oracao' }  # 375
+      pergaminhos_divinos { id: 'forca_touro' }  # 150
+      pergaminhos_divinos { id: 'sabedoria_coruja' }  # 150
+      pergaminhos_divinos { id: 'infligir_ferimentos_moderados' }  # 150
+      pergaminhos_divinos { id: 'escudo_fe' }  # 25
+      pergaminhos_divinos { id: 'bencao' }  # 25
+      armas { id: 'maça estrela OP' id_tabela: 'maca_estrela' obra_prima: true }
+      armas { id: 'besta leve OP' id_tabela: 'besta_leve' obra_prima: true }
+      armaduras { id: 'batalha +1' id_tabela: 'armadura_batalha' bonus_magico: 1 }
+      escudos { id: 'pesado aço' id_tabela: 'pesado_aco'  }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'agua_benta' }
+      itens_mundanos { id: 'agua_benta' }
+      itens_mundanos { id: 'simbolo_sagrado_prata' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+      valor_esperado_po: 5600
+    }
+    feiticos_classes {
+      id_classe: 'clerigo'
+      dominios: 'ordem'
+      dominios: 'forca'
+      feiticos_por_nivel_deprecated {
+        nivel: 0
+        conhecidos { id: 'detectar_magia' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 1
+        conhecidos { id: 'maldicao_menor' }
+        conhecidos { id: 'bencao' }
+        conhecidos { id: 'escudo_fe' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 2
+        conhecidos { id: 'ajuda' }
+        conhecidos { id: 'forca_touro' }
+        conhecidos { id: 'explosao_sonora' }
+        conhecidos { id: 'arma_espiritual' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 3
+        conhecidos { id: 'dissipar_magia' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
+      }
+    }
+    atributos {
+      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+    }
+  }
+}
+
+
+modelo {
   id: 'Humano Clérigo 6 (Neutro Bom)'
   id_entidade_base: 'Humano Clérigo Base'
   entidade {
@@ -7150,6 +7275,176 @@ modelo {
     }
   }
 }
+
+modelo {
+  id: 'Humano Clérigo 12 Neutro'
+  id_entidade_base: 'Humano Clérigo Base'
+  entidade {
+    dados_vida_automatico: true info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    info_classes { id: 'clerigo' nivel: 12 }
+    cor { r: 0.5 g: 0.3 b: 0.2 }
+    dados_defesa { id_armadura_tesouro: 'batalha +1' id_escudo: 'pesado aço +1' }
+    dados_ataque {
+      grupo: 'corpo a corpo' id_arma_tesouro: 'maça estrela OP' empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' id_arma_tesouro: 'maça estrela OP' empunhadura: EA_ARMA_ESCUDO ordem_ataque: 1
+    }
+    dados_ataque {
+      grupo: 'distancia' id_arma_tesouro: 'pistola +1' empunhadura: EA_ARMA_ESCUDO
+      municao: 20
+    }
+
+    info_talentos {
+      gerais { id: 'preparar_pocao' } # 1
+      gerais { id: 'reflexos_rapidos' } # 3
+      gerais { id: 'escrever_pergaminho' } # 6
+      gerais { id: 'magia_combate' } # 9
+      gerais { id: 'usar_arma_exotica_fogo' } # 12
+    }
+    info_pericias { id: 'concentracao' pontos: 15 }
+    info_pericias { id: 'diplomacia' pontos: 8}
+    info_pericias { id: 'ouvir' pontos: 7 }
+    info_pericias { id: 'identificar_magia' pontos: 8 }
+    info_pericias { id: 'arte_da_fuga' pontos: 7 }
+
+    tesouro {
+      aneis { id: 'protecao_1' em_uso: true }
+      amuletos { id: 'periapto_sabedoria_2' em_uso: true }
+      luvas { id: 'luvas_destreza_2' em_uso: true }
+
+      pocoes { id: 'voo' }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'curar_ferimentos_serios' }
+      pocoes { id: 'heroismo' }
+      pocoes { id: 'velocidade' }
+
+      pergaminhos_divinos { id: 'escudo_entropico' }
+      pergaminhos_divinos { id: 'imobilizar_pessoa' }
+      pergaminhos_divinos { id: 'imobilizar_pessoa' }
+      pergaminhos_divinos { id: 'arma_espiritual' }
+      pergaminhos_divinos { id: 'oracao' }
+      pergaminhos_divinos { id: 'doenca_plena' }
+      pergaminhos_divinos { id: 'doenca_plena' }
+      pergaminhos_divinos { id: 'barreira_laminas' }
+      pergaminhos_divinos { id: 'dissipar_magia_maior' }
+
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'agua_benta' }
+      itens_mundanos { id: 'agua_benta' }
+      itens_mundanos { id: 'simbolo_sagrado_prata' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+      itens_mundanos { id: 'tocha' }
+
+      armas { id: 'maça estrela OP' id_tabela: 'maca_estrela' obra_prima: true }
+      armas { id: 'pistola +1' id_tabela: 'pistola' bonus_magico: 1 }
+      armaduras { id: 'batalha +2' id_tabela: 'armadura_batalha' bonus_magico: 1 }
+      escudos { id: 'pesado aço +1' id_tabela: 'pesado_aco' bonus_magico: 1 }
+
+      moedas { po: 25 }
+      valor_esperado_po: 27000
+    }
+    feiticos_classes {
+      id_classe: 'clerigo'
+      dominios: 'conhecimento'
+      dominios: 'fogo'
+      feiticos_por_nivel_deprecated {
+        nivel: 0
+        conhecidos { id: 'luz' }
+        conhecidos { id: 'resistencia' }
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'ler_magias' }
+        conhecidos { id: 'consertar' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 1
+        conhecidos { id: 'compreender_idiomas' }
+        conhecidos { id: 'escudo_fe' }
+        conhecidos { id: 'invocar_criaturas_i' }
+        conhecidos { id: 'santuario' }
+        conhecidos { id: 'auxilio_divino' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 2
+        conhecidos { id: 'ajuda' }
+        conhecidos { id: 'arma_espiritual' }
+        conhecidos { id: 'forca_touro' }
+        conhecidos { id: 'imobilizar_pessoa' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 3
+        conhecidos { id: 'dissipar_magia' }
+        conhecidos { id: 'purgar_invisibilidade' }
+        conhecidos { id: 'circulo_magico_contra_mal' }
+        conhecidos { id: 'protecao_contra_elementos' }
+        conhecidos { id: 'luz_cegante' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 2 }
+        para_lancar { nivel_conhecido: 3 indice_conhecido: 3 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 4
+        conhecidos { id: 'poder_divino' }
+        conhecidos { id: 'envenenamento' }
+        conhecidos { id: 'inseto_gigante' }
+        conhecidos { id: 'imunidade_magia' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 4 indice_conhecido: 1 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 5
+        conhecidos { id: 'arma_rompimento' }
+        conhecidos { id: 'cancelar_encantamento' }
+        conhecidos { id: 'coluna_chamas' }
+        conhecidos { id: 'comando_maior' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 1 }
+        para_lancar { nivel_conhecido: 5 indice_conhecido: 2 }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 6
+        conhecidos { id: 'barreira_laminas' }
+        conhecidos { id: 'cura_completa' }
+        conhecidos { id: 'dissipar_magia_maior' }
+        conhecidos { id: 'auto' }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 6 indice_conhecido: 1 }
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 1 } } }
+      sabedoria { bonus_individual { tipo: TB_NIVEL por_origem { origem: 'nivel' valor: 3 } } }
+    }
+  }
+}
+
 
 modelo {
   id: 'Humano Clérigo 16'
@@ -7470,7 +7765,7 @@ modelo {
     }
     dados_defesa { id_armadura_tesouro: 'camisao +1' }
     dados_ataque { grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'adaga +1' empunhadura: EA_ARMA_APENAS }
-    dados_ataque { grupo: 'distancia' tipo_ataque: 'Ataque a Disância' id_arma_tesouro: 'adaga OP' empunhadura: EA_ARMA_APENAS }
+    dados_ataque { grupo: 'distancia' tipo_ataque: 'Ataque a Disância' id_arma_tesouro: 'adaga' empunhadura: EA_ARMA_APENAS }
     tesouro {
       pocoes { id: 'curar_ferimentos_moderados' }
       pocoes { id: 'agilidade_gato' }
@@ -7481,7 +7776,7 @@ modelo {
       itens_mundanos { id: 'pedra_trovao' }
       itens_mundanos { id: 'ferramentas_artesao_op' }
       armas { id: 'adaga +1' id_tabela: 'adaga_de_soco' bonus_magico: 1 }
-      armas { id: 'adaga OP' id_tabela: 'adaga' obra_prima: true }
+      armas { id: 'adaga' id_tabela: 'adaga' }
       armaduras { id: 'camisao +1' id_tabela: 'camisao'  bonus_magico: 1 }
       moedas { po: 305 }
       valor_esperado_po: 5600
@@ -7534,7 +7829,6 @@ modelo {
       id: 'especialista' nivel: 11
       pericias_monstro: 'oficios_pedreiro'
       pericias_monstro: 'oficios_alquimia'
-      pericias_monstro: 'oficios_armeiro'
       pericias_monstro: 'ouvir'
       pericias_monstro: 'sentir_motivacao'
       pericias_monstro: 'avaliacao'
@@ -7542,6 +7836,7 @@ modelo {
       pericias_monstro: 'intimidacao'
       pericias_monstro: 'blefar'
       pericias_monstro: 'conhecimento_masmorras'
+      pericias_monstro: 'conhecimento_arquitetura_e_engenharia'
     }
     dados_vida_automatico: true
     atributos {
@@ -7582,14 +7877,14 @@ modelo {
     }
     info_pericias { id: 'oficios_pedreiro' pontos: 15 }
     info_pericias { id: 'oficios_alquimia' pontos: 13 }
-    info_pericias { id: 'oficios_armeiro' pontos: 13 }
     info_pericias { id: 'ouvir' pontos: 13 }
     info_pericias { id: 'sentir_motivacao' pontos: 13 }
     info_pericias { id: 'avaliacao' pontos: 13 }
     info_pericias { id: 'diplomacia' pontos: 13 }
     info_pericias { id: 'intimidacao' pontos: 13 }
     info_pericias { id: 'blefar' pontos: 14 }
-    info_pericias { id: 'conhecimento_masmorras' pontos: 14 }
+    info_pericias { id: 'conhecimento_masmorras' pontos: 13 }
+    info_pericias { id: 'conhecimento_arquitetura_e_engenharia' pontos: 14 }
   }
 }
 modelo {
@@ -8574,11 +8869,12 @@ modelo {
 modelo {
   id: 'Humano Ladino 5'
   entidade {
+    tendencia { simples: TD_NORMALMENTE_CAOTICO_NEUTRO }
+    rotulo: 'Humano Ladino 5'
     info_classes { id: 'ladino' nivel: 5 }
     dados_vida: '4d6+14' cor { r: 0.250 g: 0.250 b: 0.250 }
     info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     raca: 'humano'
-    rotulo_especial: 'Humano Ladino 5'
     dados_ataque { grupo: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'sabre OP' empunhadura: EA_ARMA_ESCUDO }
     dados_ataque { grupo: 'adaga' tipo_ataque: 'Ataque Corpo a Corpo' id_arma_tesouro: 'adaga' empunhadura: EA_ARMA_ESCUDO }
     dados_ataque { grupo: 'arco' tipo_ataque: 'Ataque a Distância' id_arma_tesouro: 'arco curto OP' empunhadura: EA_ARMA_APENAS municao: 20 }
@@ -8604,7 +8900,7 @@ modelo {
       escudos { id: 'broquel OP' id_tabela: 'broquel' obra_prima: true }
       itens_mundanos { id: 'ferramentas_ladino_op' }
       moedas { po: 73 }
-      valor_esperado_po: 4165 # 3000 + armadura e escudo OP + adaga OP + arco curto OP + ferramenta
+      valor_esperado_po: 4300
     }
 
     # Ladino 8, humano 1, int 2 total 11 pericias pericias maximizadas.
@@ -8677,11 +8973,11 @@ modelo {
     info_pericias { id: 'ouvir' pontos: 7 }
     info_pericias { id: 'furtividade' pontos: 9 }
     info_pericias { id: 'abrir_fechaduras' pontos: 8 }
-    info_pericias { id: 'cavalgar' pontos: 5 }
     info_pericias { id: 'procurar' pontos: 8 }
     info_pericias { id: 'observar' pontos: 8 }
     info_pericias { id: 'usar_instrumento_magico' pontos: 8 }
     info_pericias { id: 'operar_mecanismo' pontos: 5 }
+    info_pericias { id: 'oficios_armadilharia' pontos: 5 }
     info_talentos {
       gerais { id: 'fintar_aprimorado' }
       gerais { id: 'usar_escudo' }
@@ -8689,19 +8985,25 @@ modelo {
       outros { id: 'especializacao_em_combate' origem: 'humano' }
     }
     tesouro {
-      mantos { id: 'manto_resistencia_1' em_uso: true }
       amuletos { id: 'amuleto_armadura_natural_1' em_uso: true }
       pocoes { id: 'curar_ferimentos_moderados' }
       pocoes { id: 'neutralizar_venenos' }
       pocoes { id: 'veneno_escorpiao_grande' }
+      pocoes { id: 'agilidade_gato' }
       itens_mundanos { id: 'ferramentas_ladino_op' }
+      itens_mundanos { id: 'ferramentas_artesao_op' }
       itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'bolsa_cola' }
+      itens_mundanos { id: 'acido' }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'fogo_alquimico' }
       armas { id: 'sabre OP' id_tabela: 'sabre' obra_prima: true }
       armas { id: 'arco curto OP' id_tabela: 'arco_curto' obra_prima: true }
       escudos { id: 'broquel +1' id_tabela: 'broquel' bonus_magico: 1 }
       armaduras { id: 'camisao +1' id_tabela: 'camisao' bonus_magico: 1 }
-      moedas { po: 35 }
-      valor_esperado_po: 7200 # = 4200 + couro batido 1 + broquel 1 + arma OP + arco curto OP
+      moedas { po: 175 }
+      valor_esperado_po: 7200
     }
     movimento {
       terrestre_basico_q: 6
@@ -10168,7 +10470,9 @@ modelo {
   id: 'Otyugh'
   entidade {
     tipo_dnd: TIPO_ABERRACAO
+    gerar_agarrar: false
     dados_vida: '6d8+9'
+    info_textura { id: 'tile_leather.png' }
     info_classes {
       id: 'aberracao' nivel: 6
       pericias_monstro: 'esconderse'
@@ -10183,9 +10487,44 @@ modelo {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 8 } }
       }
     }
-    dados_ataque { grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico_medio_natural: '1d3' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 2 }
-    dados_ataque { grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true }
-    dados_ataque { grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true }
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 agarrar_aprimorado: true constricao: true
+    }
+    dados_ataque {
+      grupo: 'ataque total' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico_medio_natural: '1d3'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 2
+      doenca {
+        id: 'febre_esgoto' cd: 14
+        tipo: TV_FERIMENTO
+        incubacao_dias: "1d3"
+        dano: '1d3' tipo_dano: TDV_DESTREZA dano: '1d3' tipo_dano: TDV_CONSTITUICAO
+      }
+    }
+    # Agarrado.
+    dados_ataque {
+      grupo: 'ataque total agarrado' tipo_ataque: 'Agarrar' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 constricao: true
+    }
+    dados_ataque {
+      grupo: 'ataque total agarrado' tipo_ataque: 'Agarrar' rotulo: 'tentáculo' id_arma: 'tentaculo' dano_basico_medio_natural: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO alcance_q: 3 constricao: true
+    }
+    dados_ataque {
+      grupo: 'ataque total agarrado' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico_medio_natural: '1d3'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO alcance_q: 2
+      doenca {
+        id: 'febre_esgoto' cd: 14
+        tipo: TV_FERIMENTO
+        incubacao_dias: "1d3"
+        dano: '1d3' tipo_dano: TDV_DESTREZA dano: '1d3' tipo_dano: TDV_CONSTITUICAO
+      }
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrado' valor: -4 } } }
+    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
@@ -10200,8 +10539,12 @@ modelo {
       gerais { id: 'foco_em_arma' complemento: 'tentaculo' }
     }
     info_pericias { id: 'esconderse' pontos: 3 }
+    info_pericias { id: 'esconderse_lar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
     info_pericias { id: 'ouvir' pontos: 3 }
     info_pericias { id: 'observar' pontos: 3 }
+    movimento {
+      terrestre_basico_q: 4
+    }
   }
 }
 modelo {

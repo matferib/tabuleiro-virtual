@@ -300,8 +300,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** trata o clique do botao esquerdo, preparando para movimento de arrastar entidades.
   * Seleciona a entidade o clique for nela. Se alterna_selecao for true, alterna o estado de selecao da entidade.
+  * Se forca_selecao for true, ira selecionar até as entidades fixas.
   */
-  void TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao = false);
+  void TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao = false, bool forca_selecao = false);
 
   /** trata o click do botao direito, preparando para movimento de deslizamento. */
   void TrataBotaoDireitoPressionado(int x, int y);
@@ -313,13 +314,14 @@ class Tabuleiro : public ntf::Receptor {
   void TrataBotaoDesenhoPressionado(int x, int y);
 
   /** Ocorre quando se clica com o control em uma entidade. */
-  void TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y);
+  void TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y, bool forca_selecao = false);
 
   /** altera o estado da opcao de iluminacao do mestre igual a dos jogadores. */
   void TrataBotaoAlternarIluminacaoMestre();
 
   /** trata o botao pressionado em modo de acao, recebendo x, y (ja em coordenadas opengl).
   * Se acao_padrao == true, usa a acao de sinalizacao, caso contrario, usa a acao selecionada.
+  * Se forcar for true, ira fazer um click forçado (tipo selecionar ate entidades fixas.
   */
   void TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y);
 
@@ -924,7 +926,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Adiciona ids as entidades selecionadas. O estado final depende do tamanho dos ids e do
   * numero de entidades selecionadas corrente.
   */
-  void AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids);
+  void AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids, bool forca_selecao = false);
 
   /** Se a entidade estiver selecionada, verifica se ela pode continuar (por exemplo, apos atualizacao do bit
   * de selecao para jogador.
@@ -932,7 +934,7 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaSelecaoEntidade(unsigned int id);
 
   /** Alterna a selecao da entidade. */
-  void AlternaSelecaoEntidade(unsigned int id);
+  void AlternaSelecaoEntidade(unsigned int id, bool forca_selecao = false);
 
   /** deseleciona todas as entidades selecionadas. */
   void DeselecionaEntidades();

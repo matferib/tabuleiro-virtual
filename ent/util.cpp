@@ -121,7 +121,10 @@ void Histograma::Imprime() const {
   std::cout << "média: " << (total_ / num_valores) << "s, média sem último: " << (total_sem_ultimo_ / num_valores_sem_ultimo) << "s" << std::endl;
   for (const auto& [intervalo, valor] : intervalos_) {
     const int porcentagem = valor * 50 / maximo;
-    std::string s = StringPrintf("[%f, %f) -> %d: %s", intervalo.min, intervalo.max, valor, std::string(porcentagem, '#').c_str());
+    const std::string str_porcentagem = std::string(porcentagem, '#');
+    std::string s = intervalo.max == std::numeric_limits<float>::max()
+        ? StringPrintf("[%f, max) -> %d: %s", intervalo.min, valor, str_porcentagem.c_str())
+        : StringPrintf("[%f, %f) -> %d: %s", intervalo.min, intervalo.max, valor, str_porcentagem.c_str());
     std::cout << s << std::endl;
   }
 }
@@ -5283,7 +5286,7 @@ void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto) {
 std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto) {
   const auto& tesouro = proto.tesouro();
   std::vector<const RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
-    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus(), &tesouro.itens_mundanos(), &tesouro.varinhas(),
+    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus(), &tesouro.itens_mundanos(), &tesouro.varinhas(), &tesouro.pergaminhos_divinos(), &tesouro.pergaminhos_arcanos(),
   };
   std::vector<const ItemMagicoProto*> itens;
   for (const auto* itens_grupo : itens_agrupados) {
@@ -5304,7 +5307,7 @@ std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
   std::vector<RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
     tesouro->mutable_aneis(), tesouro->mutable_mantos(), tesouro->mutable_luvas(), tesouro->mutable_bracadeiras(),
     tesouro->mutable_amuletos(), tesouro->mutable_botas(), tesouro->mutable_chapeus(), tesouro->mutable_itens_mundanos(),
-    tesouro->mutable_varinhas(),
+    tesouro->mutable_varinhas(), tesouro->mutable_pergaminhos_divinos(), tesouro->mutable_pergaminhos_arcanos(),
   };
   std::vector<ItemMagicoProto*> itens;
   for (auto* itens_grupo : itens_agrupados) {
@@ -5429,6 +5432,14 @@ bool PodeConjurarFeitico(const ArmaProto& feitico, int nivel_maximo_feitico, con
       if (ic.nivel() <= nivel_maximo_feitico) return true;
       else return false;
     }
+  }
+  return false;
+}
+
+bool TemFeiticoLista(const std::string& id_feitico, const EntidadeProto& proto) {
+  const auto& feitico = Tabelas::Unica().Feitico(id_feitico);
+  for (const auto& ic : feitico.info_classes()) {
+    if (Nivel(ic.id(), proto) > 0) return true;
   }
   return false;
 }

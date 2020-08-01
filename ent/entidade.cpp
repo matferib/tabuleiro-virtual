@@ -1601,24 +1601,37 @@ void Entidade::AtualizaAcaoPorGrupo(const std::string& grupo) {
 
 namespace {
 
-// Retorna um vetor com os indices do primeiro ataque de cada grupo de ataque e
-// o indice nesse vetor que representa o ataque corrente.
+// Retorna:
+// - indice do ataque corrente no vetor abaixo descrito a seguir.
+// -  um vetor com o par:
+//   * indices do primeiro ataque de cada grupo de ataque em todos os dados de ataque;
+//   * quantos ataques há no grupo;
+//
 // Por exemplo, caso o personagem tenha 5 ataques em 3 grupos: g1, g1, g2, g3, g3
 // e o ataque corrente for g2, retornara:
-// {1, {0, 2, 3}}.
-std::pair<int, std::vector<int>> IndiceCorrenteComIndicesGrupos(
-    const EntidadeProto& proto) {
-  std::unordered_set<std::string> existe;
-  std::vector<int> grupos;
+// {1,  // ataque corrente é 2 (indice 1 abaixo)
+//  {{0, 2},   // g1 comeca no indice 0, tem 2 ataques
+//   {2, 1},   // g2 comeca no indice 2, tem 1 ataque.
+//   {3, 2}}}. // g3 comeca no indice 3, tem 2 ataques.
+struct IndiceQuantidade {
+  int indice;
+  int quantidade;
+};
+std::pair<int, std::vector<IndiceQuantidade>> IndiceCorrenteComIndicesGrupos(const EntidadeProto& proto) {
+  std::unordered_map<std::string, IndiceQuantidade*> existentes;
+  std::vector<IndiceQuantidade> grupos;
   int indice_corrente = 0;
   for (int i = 0; i < (int)proto.dados_ataque().size(); ++i) {
     const auto& da = proto.dados_ataque(i);
-    if (existe.find(da.grupo()) != existe.end()) continue;
-    existe.insert(da.grupo());
+    if (auto it = existentes.find(da.grupo()); it != existentes.end()) {
+      ++it->second->quantidade;
+      continue;
+    }
     if (proto.ultimo_grupo_acao() == da.grupo()) {
       indice_corrente = grupos.size();
     }
-    grupos.push_back(i);
+    grupos.push_back({i, 1});
+    existentes.insert({da.grupo(), &grupos.back()});
   }
   return {indice_corrente, grupos};
 }
@@ -1633,9 +1646,15 @@ bool Entidade::ProximaAcao() {
     // Pode acontecer quando a entidade tem ultima_acao default e eh colocada outra
     // manualmente. Neste caso, eh bom setar pra ter certeza.
     proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+    proto_.set_ultimo_grupo_acao(proto_.dados_ataque(0).grupo());
     return true;
   }
   auto [indice_corrente, grupos] = IndiceCorrenteComIndicesGrupos(proto_);
+  if (const auto& grupo_corrente = grupos[indice_corrente];
+      vd_.ataques_na_rodada < (grupo_corrente.quantidade - 1)) {
+    ProximoAtaque();
+    return false;
+  }
   ++indice_corrente;
   if (indice_corrente >= (int)grupos.size()) {
     indice_corrente = 0;
@@ -1644,8 +1663,10 @@ bool Entidade::ProximaAcao() {
     // Caso bizarro.
     return false;
   }
-  proto_.set_ultima_acao(proto_.dados_ataque(grupos[indice_corrente]).tipo_ataque());
-  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupos[indice_corrente]).grupo());
+  const auto& grupo_corrente = grupos[indice_corrente];
+  vd_.ataques_na_rodada = 0;
+  proto_.set_ultima_acao(proto_.dados_ataque(grupo_corrente.indice).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupo_corrente.indice).grupo());
   return true;
 }
 
@@ -1672,8 +1693,8 @@ bool Entidade::AcaoAnterior() {
     // Caso bizarro.
     return false;
   }
-  proto_.set_ultima_acao(proto_.dados_ataque(grupos[indice_corrente]).tipo_ataque());
-  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupos[indice_corrente]).grupo());
+  proto_.set_ultima_acao(proto_.dados_ataque(grupos[indice_corrente].indice).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupos[indice_corrente].indice).grupo());
   return true;
 }
 
@@ -2118,7 +2139,7 @@ const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
   std::vector<const DadosAtaque*> ataques_casados;
   auto [ultima_acao, ultimo_grupo] = UltimaAcaoGrupo(proto_);
   for (const auto& da : proto_.dados_ataque()) {
-    if ((ultima_acao.empty() || da.tipo_ataque() == ultima_acao) && da.grupo() == ultimo_grupo) {
+    if (da.grupo() == ultimo_grupo) {
       VLOG(3) << "Encontrei ataque para " << da.tipo_ataque() << ", grupo: " << da.grupo();
       ataques_casados.push_back(&da);
       if (ignora_ataques_na_rodada) break;

@@ -4942,6 +4942,59 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
   EXPECT_EQ(5, CuraAcelerada(proto));
 }
 
+TEST(TesteModelo, TesteOtyugh) {
+  auto proto = g_tabelas.ModeloEntidade("Otyugh").entidade();
+  auto otyugh = NovaEntidadeParaTestes(proto, g_tabelas);
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 0);
+    EXPECT_EQ(da.bonus_ataque_final(), 4);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.dano_constricao(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 4);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.dano_constricao(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 2);
+    EXPECT_EQ(da.bonus_ataque_final(), -2);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_EQ(da.doenca().cd(), 14);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total agarrado", otyugh->Proto(), 0);
+    EXPECT_EQ(da.bonus_ataque_final(), 9) << da.DebugString();
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.dano_constricao(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total agarrado", otyugh->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 9);
+    EXPECT_EQ(da.dano(), "1d6");
+    EXPECT_EQ(da.dano_constricao(), "1d6");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 4.5f);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque total agarrado", otyugh->Proto(), 2);
+    EXPECT_EQ(da.bonus_ataque_final(), -6);
+    EXPECT_EQ(da.dano(), "1d4");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+    EXPECT_EQ(da.doenca().cd(), 14);
+  }
+
+  EXPECT_EQ(ValorFinalPericia("esconderse", otyugh->Proto()), -1) << BonusPericia("esconderse", otyugh->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("esconderse_lar", otyugh->Proto()), 7) << BonusPericia("esconderse", otyugh->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("ouvir", otyugh->Proto()), 6) << BonusPericia("ouvir", otyugh->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("observar", otyugh->Proto()), 6) << BonusPericia("observar", otyugh->Proto()).DebugString();
+}
+
+
 TEST(TesteModelo, TesteEnxameCentepeias) {
   auto proto = g_tabelas.ModeloEntidade("Enxame (centopéias)").entidade();
   auto enxame = NovaEntidadeParaTestes(proto, g_tabelas);
@@ -5031,7 +5084,7 @@ TEST(TesteModelo, TesteEspecialista7) {
   }
   {
     const auto& da = DadosAtaquePorGrupo("distancia", esp->Proto());
-    EXPECT_EQ(da.bonus_ataque_final(), 7);
+    EXPECT_EQ(da.bonus_ataque_final(), 6);
     EXPECT_EQ(da.dano(), "1d4-1");
     EXPECT_EQ(da.ca_normal(), 16) << esp->Proto().dados_defesa().ca().DebugString();
   }
@@ -5067,7 +5120,8 @@ TEST(TesteModelo, TesteAnaoGuerreiro1Especialista11) {
   }
   EXPECT_EQ(ValorFinalPericia("oficios_pedreiro", esp->Proto()), 24) << BonusPericia("oficios", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("oficios_alquimia", esp->Proto()), 19) << BonusPericia("oficios_alquimia", esp->Proto()).DebugString();
-  EXPECT_EQ(ValorFinalPericia("conhecimento_masmorras", esp->Proto()), 18) << BonusPericia("conhecimento_masmorras", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("conhecimento_masmorras", esp->Proto()), 17) << BonusPericia("conhecimento_masmorras", esp->Proto()).DebugString();
+  EXPECT_EQ(ValorFinalPericia("conhecimento_arquitetura_e_engenharia", esp->Proto()), 18) << BonusPericia("conhecimento_arquitetura_e_engenharia", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("sentir_motivacao", esp->Proto()), 14) << BonusPericia("sentir_motivacao", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("avaliacao", esp->Proto()), 19) << BonusPericia("avaliacao", esp->Proto()).DebugString();
   EXPECT_EQ(ValorFinalPericia("avaliacao_pedreiro", esp->Proto()), 21) << BonusPericia("avaliacao_oficio", esp->Proto()).DebugString();
@@ -5210,6 +5264,7 @@ TEST(TesteModelo, TesteLadino7) {
   EXPECT_EQ(ValorFinalPericia("ouvir", ladino->Proto()), 7) << Pericia("ouvir", ladino->Proto()).DebugString();;
   EXPECT_EQ(ValorFinalPericia("observar", ladino->Proto()), 8) << Pericia("observar", ladino->Proto()).DebugString();;
   EXPECT_EQ(ValorFinalPericia("operar_mecanismo", ladino->Proto()), 9) << Pericia("operar_mecanismo", ladino->Proto()).DebugString();;
+  EXPECT_EQ(ValorFinalPericia("oficios_armadilharia", ladino->Proto()), 9) << Pericia("oficios_armadilharia", ladino->Proto()).DebugString();;
 }
 
 TEST(TesteModelo, TesteBisao) {
@@ -6694,10 +6749,35 @@ TEST(TesteTesouro, TesteTesouroEsperado) {
     std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(modelo.entidade(), g_tabelas));
     const auto& tesouro = e->Proto().tesouro();
     if (!tesouro.has_valor_esperado_po()) continue;
+    std::vector<std::pair<const google::protobuf::RepeatedPtrField<ItemMagicoProto>*, TipoItem>> itens_agrupados = {
+      {&tesouro.aneis(), TIPO_ANEL}, {&tesouro.mantos(), TIPO_MANTO}, {&tesouro.luvas(), TIPO_LUVAS},
+      {&tesouro.bracadeiras(), TIPO_BRACADEIRAS}, {&tesouro.amuletos(), TIPO_AMULETO}, {&tesouro.botas(), TIPO_BOTAS},
+      {&tesouro.chapeus(), TIPO_CHAPEU}, {&tesouro.itens_mundanos(), TIPO_ITEM_MUNDANO},
+      {&tesouro.varinhas(), TIPO_VARINHA}, {&tesouro.pergaminhos_divinos(), TIPO_PERGAMINHO_DIVINO},
+      {&tesouro.pergaminhos_arcanos(), TIPO_PERGAMINHO_ARCANO},
+      {&tesouro.pocoes(), TIPO_POCAO},
+    };
     int soma = 0;
     const auto& todos = TodosItens(e->Proto());
-    for (const auto& item : todos) {
-      soma += PrecoItemPo(ItemTabela(g_tabelas, *item));
+    for (const auto& [itens, tipo] : itens_agrupados) {
+      for (const auto& item : *itens) {
+        const auto& item_tabelado = ItemTabela(g_tabelas, tipo, item.id());
+        const int valor = PrecoItemPo(item_tabelado);
+        if (valor == 0 && !item_tabelado.has_custo()) {
+          LOG(INFO)
+              <<  "item sem preco para (personagem): " << item.ShortDebugString()
+              << ", da tabela: " << item_tabelado.ShortDebugString();
+        } else {
+          float fator = 1.0f;
+          if (((tipo == TIPO_POCAO && e->PossuiTalento("preparar_pocao")) ||
+              (tipo == TIPO_PERGAMINHO_DIVINO && e->PossuiTalento("escrever_pergaminho")) ||
+              (tipo == TIPO_PERGAMINHO_ARCANO && e->PossuiTalento("escrever_pergaminho"))) &&
+              TemFeiticoLista(item.id_feitico(), e->Proto())) {
+            fator = 0.75f;
+          }
+          soma += (valor * fator);
+        }
+      }
     }
     for (const auto& arma : tesouro.armas()) {
       soma += PrecoArmaPo(arma);
