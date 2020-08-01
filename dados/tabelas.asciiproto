@@ -2775,6 +2775,16 @@ tabela_varinhas {
 }
 tabela_itens_mundanos {
   itens {
+    id: 'simbolo_sagrado_madeira'
+    nome: 'símbolo sagrado de madeira'
+    custo { po: 1 }
+  }
+  itens {
+    id: 'simbolo_sagrado_prata'
+    nome: 'símbolo sagrado de prata'
+    custo { po: 25 }
+  }
+  itens {
     id: 'fogo_alquimico'
     nome: 'fogo alquímico'
     custo { po: 20 }
@@ -2798,11 +2808,6 @@ tabela_itens_mundanos {
     id: 'bolsa_cola'
     nome: 'bolsa de cola'
     custo { po: 50 }
-  }
-  itens {
-    id: 'tocha'
-    nome: 'tocha'
-    custo { pc: 1 }
   }
   itens {
     id: 'tocha'
