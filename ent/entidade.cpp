@@ -1650,11 +1650,11 @@ bool Entidade::ProximaAcao() {
     return true;
   }
   auto [indice_corrente, grupos] = IndiceCorrenteComIndicesGrupos(proto_);
-  //if (const auto& grupo_corrente = grupos[indice_corrente];
-  //    vd_.ataques_na_rodada < (grupo_corrente.quantidade - 1)) {
-  //  ++vd_.ataques_na_rodada;
-  //  return false;
-  //}
+  if (const auto& grupo_corrente = grupos[indice_corrente];
+      vd_.ataques_na_rodada < (grupo_corrente.quantidade - 1)) {
+    ProximoAtaque();
+    return false;
+  }
   ++indice_corrente;
   if (indice_corrente >= (int)grupos.size()) {
     indice_corrente = 0;

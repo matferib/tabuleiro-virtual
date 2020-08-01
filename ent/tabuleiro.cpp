@@ -3178,24 +3178,10 @@ void Tabuleiro::ProximaAcao() {
       auto* e_depois = PreencheNotificacaoDadosAtaqueAntesRetornandoDepois(*entidade, &n);
       if (entidade->ProximaAcao()) {
         PreencheDadosAtaqueDepois(*entidade, e_depois);
-        *grupo->add_notificacao() = n;
+        grupo->add_notificacao()->Swap(&n);
         continue;
       }
     }
-    std::string acao_str(entidade->Acao().id());
-    if (acao_str.empty()) {
-      acao_str = ID_ACAO_ATAQUE_CORPO_A_CORPO;
-    }
-    auto it = std::find(id_acoes_.begin(), id_acoes_.end(), acao_str);
-    if (it == id_acoes_.end()) {
-      LOG(ERROR) << "Id de acao inválido: " << acao_str;
-      continue;
-    }
-    ++it;
-    if (it == id_acoes_.end()) {
-      it = id_acoes_.begin();
-    }
-    entidade->AtualizaAcao(*it);
   }
   if (opcoes_.tab_ativa_ataque()) {
     EntraModoClique(MODO_ACAO);
