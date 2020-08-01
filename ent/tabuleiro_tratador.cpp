@@ -935,7 +935,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
   }
 }
 
-void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
+void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y, bool forca_selecao) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
@@ -958,7 +958,7 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
   if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
     // Entidade.
     VLOG(1) << "Picking alternar selecao entidade id " << id;
-    AlternaSelecaoEntidade(id);
+    AlternaSelecaoEntidade(id, forca_selecao);
   } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking alternar selecao no controle virtual " << id;
     PickingControleVirtual(x, y, true  /*alt*/, false  /*duplo*/, id);
@@ -973,7 +973,7 @@ namespace {
 
 // De acordo com o modo de desenho, altera as configuracoes de pd.
 // tipo_objeto: um dos OBJ_*.
-void ConfiguraParametrosDesenho(const Entidade* entidade_origem, Tabuleiro::modo_clique_e modo_clique, ParametrosDesenho* pd) {
+void ConfiguraParametrosDesenho(const Entidade* entidade_origem, Tabuleiro::modo_clique_e modo_clique, ParametrosDesenho* pd, bool forca_selecao = false) {
   pd->set_nao_desenha_entidades_fixas_translucidas(true);
   switch (modo_clique) {
     case Tabuleiro::MODO_NORMAL:
@@ -3053,14 +3053,14 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
   AdicionaNotificacaoListaEventos(g_desfazer);
 }
 
-void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
+void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao, bool forca_selecao) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
   ultimo_x_ = x;
   ultimo_y_ = y;
 
-  ConfiguraParametrosDesenho(EntidadeCameraPresaOuSelecionada(), modo_clique_, &parametros_desenho_);
+  ConfiguraParametrosDesenho(EntidadeCameraPresaOuSelecionada(), modo_clique_, &parametros_desenho_, forca_selecao);
   unsigned int id, tipo_objeto;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
@@ -3208,7 +3208,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     } else {
       if (!EntidadeEstaSelecionada(id)) {
         // Se nao estava selecionada, so ela.
-        SelecionaEntidade(id, tipo_objeto == OBJ_ENTIDADE_LISTA);
+        SelecionaEntidade(id, tipo_objeto == OBJ_ENTIDADE_LISTA || forca_selecao);
       }
       bool ha_entidades_selecionadas = !ids_entidades_selecionadas_.empty();
       for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {

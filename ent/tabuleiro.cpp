@@ -5038,13 +5038,13 @@ void Tabuleiro::SelecionaEntidades(const std::vector<unsigned int>& ids) {
   AdicionaEntidadesSelecionadas(ids);
 }
 
-void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids) {
+void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids, bool forca_selecao) {
   if (ids.empty()) {
     return;
   }
   for (unsigned int id : ids) {
     auto* entidade = BuscaEntidade(id);
-    if (entidade == nullptr || entidade->Fixa() ||
+    if (entidade == nullptr || (entidade->Fixa() && !forca_selecao) ||
         (!EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador())) {
       continue;
     }
@@ -5070,7 +5070,7 @@ void Tabuleiro::AtualizaSelecaoEntidade(unsigned int id) {
   MudaEstadoAposSelecao();
 }
 
-void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
+void Tabuleiro::AlternaSelecaoEntidade(unsigned int id, bool forca_selecao) {
   VLOG(1) << "Selecionando entidade: " << id;
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
@@ -5085,7 +5085,7 @@ void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
     }
     MudaEstadoAposSelecao();
   } else {
-    AdicionaEntidadesSelecionadas({id});
+    AdicionaEntidadesSelecionadas({id}, forca_selecao);
   }
 }
 
