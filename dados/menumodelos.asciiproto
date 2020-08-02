@@ -131,6 +131,11 @@ sub_menu {
   }
 }
 sub_menu {
+  id: 'Catapultas'
+  item_menu { id: 'Catapulta Leve' }
+  item_menu { id: 'Catapulta Pesada' }
+}
+sub_menu {
   id: 'Elementais'
   item_menu { id: 'Elemental da Água (Pequeno)' }
   item_menu { id: 'Elemental da Água (Médio)' }

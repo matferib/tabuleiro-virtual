@@ -283,6 +283,42 @@ modelo {
   }
 }
 modelo {
+  id: 'Catapulta Leve'
+  entidade {
+    info_textura { id: 'catapult.png' }
+    tamanho: TM_GRANDE
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'pedrada' id_arma: 'pedrada' tipo_ataque: 'Pedrada (gigante)'
+      dano_basico: '4d6'
+      dificuldade_salvacao: 15
+      alcance_q: 30 incrementos: 10
+      acao_fixa {
+        som_inicial: 'miss.wav'
+        permite_ataque_vs_defesa: false permite_salvacao: true tipo_salvacao: TS_REFLEXO resultado_ao_salvar: RS_MEIO
+        faz_arco: true
+      }
+    }
+  }
+}
+modelo {
+  id: 'Catapulta Pesada'
+  entidade {
+    info_textura { id: 'catapult.png' }
+    tamanho: TM_ENORME
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'pedrada' id_arma: 'pedrada' tipo_ataque: 'Pedrada (gigante)'
+      dano_basico: '6d6'
+      dificuldade_salvacao: 15
+      alcance_q: 30 incrementos: 10
+      acao_fixa {
+        som_inicial: 'miss.wav'
+        permite_ataque_vs_defesa: false permite_salvacao: true tipo_salvacao: TS_REFLEXO resultado_ao_salvar: RS_MEIO
+        faz_arco: true
+      }
+    }
+  }
+}
+modelo {
   id: 'Gorila'
   entidade {
     tipo_dnd: TIPO_ANIMAL

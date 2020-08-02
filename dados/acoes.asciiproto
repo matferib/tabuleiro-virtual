@@ -258,6 +258,8 @@ acao {
   ignora_resistencia_magia: true
   permite_ataque_vs_defesa: true
   consequencia: TC_DESLOCA_ALVO
+  som_sucesso: 'landslide.wav'
+  som_fracasso: 'landslide.wav'
 }
 acao {
   id: 'Projétil de Área'
