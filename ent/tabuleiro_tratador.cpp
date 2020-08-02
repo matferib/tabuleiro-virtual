@@ -576,6 +576,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_ENTS_PRESSIONADAS: {
+      VLOG(1) << "movendo entidades selecionadas";
       // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
@@ -593,6 +594,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         if (entidade_selecionada == nullptr) {
           continue;
         }
+        VLOG(2) << "entidade: " << entidade_selecionada->Id();
         float ex0 = entidade_selecionada->X();
         float ey0 = entidade_selecionada->Y();
         float ex1 = ex0 + dx;
@@ -2304,8 +2306,8 @@ void Tabuleiro::AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigne
 }
 
 float Tabuleiro::TrataPreAcaoComum(
-    float atraso_s, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
-    ntf::Notificacao* grupo_desfazer) {
+    float atraso_s, const Posicao& pos_entidade, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino,
+    AcaoProto* acao_proto, ntf::Notificacao* grupo_desfazer) {
   if (acao_proto->has_dado_pv_mais_alto()) {
     acao_proto->set_pv_mais_alto(RolaValor(acao_proto->dado_pv_mais_alto()));
   }
@@ -2383,6 +2385,9 @@ float Tabuleiro::TrataPreAcaoComum(
   acao_proto->set_bem_sucedida(true);
   acao_proto->set_atraso_s(atraso_s);
   *acao_proto->mutable_pos_tabuleiro() = pos_tabuleiro;
+  if (pos_entidade.has_x()) {
+    *acao_proto->mutable_pos_entidade() = pos_entidade;
+  }
   acao_proto->set_id_entidade_origem(entidade_origem.Id());
   VLOG(1) << "acao proto: " << acao_proto->DebugString();
   return atraso_s;
@@ -2445,7 +2450,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   ntf::Notificacao grupo_desfazer;
   grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   atraso_s = TrataPreAcaoComum(
-      atraso_s, pos_tabuleiro, entidade_origem_nao_null, id_entidade_destino, &acao_proto, &grupo_desfazer);
+      atraso_s, pos_entidade_destino, pos_tabuleiro, entidade_origem_nao_null, id_entidade_destino, &acao_proto, &grupo_desfazer);
 
   if (acao_proto.bem_sucedida()) {
     auto n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
@@ -3284,7 +3289,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
+
   primeiro_x_ = x;
   primeiro_y_ = y;
   ultimo_x_ = x;

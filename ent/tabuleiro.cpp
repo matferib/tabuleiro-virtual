@@ -7385,6 +7385,14 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
   }
 }
 
+namespace {
+void DeixaSoUnicos(std::vector<unsigned int>* ids) {
+  std::sort(ids->begin(), ids->end());
+  auto ultimo = std::unique(ids->begin(), ids->end());
+  ids->erase(ultimo, ids->end());
+}
+}  // namespace
+
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaMontadasOuEntidadesSelecionadasMontadas() const {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     const auto* e1 = EntidadePrimeiraPessoa();
@@ -7392,8 +7400,7 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaMontadasOuEntidadesSelecio
     std::vector<unsigned int> ids;
     ids.push_back(e1->Id());
     std::copy(e1->Proto().entidades_montadas().begin(), e1->Proto().entidades_montadas().end(), std::back_inserter(ids));
-    auto ultimo = std::unique(ids.begin(), ids.end());
-    ids.erase(ultimo, ids.end());
+    DeixaSoUnicos(&ids);
     return ids;
   } else {
     return IdsEntidadesSelecionadasEMontadas();
@@ -7424,8 +7431,7 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadas() const {
     if (e == nullptr) continue;
     std::copy(e->Proto().entidades_montadas().begin(), e->Proto().entidades_montadas().end(), std::back_inserter(ids));
   }
-  auto ultimo = std::unique(ids.begin(), ids.end());
-  ids.erase(ultimo, ids.end());
+  DeixaSoUnicos(&ids);
   return ids;
 }
 
@@ -7436,8 +7442,7 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadasOuPrimeira
     if (e == nullptr) continue;
     std::copy(e->Proto().entidades_montadas().begin(), e->Proto().entidades_montadas().end(), std::back_inserter(ids));
   }
-  auto ultimo = std::unique(ids.begin(), ids.end());
-  ids.erase(ultimo, ids.end());
+  DeixaSoUnicos(&ids);
   return ids;
 }
 

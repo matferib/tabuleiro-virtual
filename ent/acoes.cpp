@@ -746,7 +746,7 @@ class AcaoProjetil : public Acao {
       estagio_ = FIM;
       return;
     }
-    const auto& pos_destino = entidade_destino->PosicaoAcao();
+    const auto& pos_destino = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : entidade_destino->PosicaoAcao();
     // Recalcula vetor.
     dx_ = pos_destino.x() - pos_.x();
     dy_ = pos_destino.y() - pos_.y();
