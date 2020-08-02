@@ -7277,7 +7277,7 @@ modelo {
 }
 
 modelo {
-  id: 'Humano Clérigo 12 Neutro'
+  id: 'Humano Clérigo 12 (Neutro)'
   id_entidade_base: 'Humano Clérigo Base'
   entidade {
     dados_vida_automatico: true info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
