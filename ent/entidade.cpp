@@ -261,6 +261,18 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   TalvezCorrijaTipoCelestialAbissal(&proto_);
   TalvezCorrijaVisao(tabelas_, &proto_);
   CorrigeCamposDeprecated(&proto_);
+  // Evitar oscilacoes juntas.
+  vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
+  if (proto_.tipo() == TE_FORMA) {
+    InicializaForma(proto_, &vd_);
+  } else if (proto_.tipo() == TE_COMPOSTA) {
+    InicializaComposta(proto_, &vd_);
+  }
+
+  AtualizaVbo(parametros_desenho_);
+  RecomputaDependencias();
+  // Tem que ser depois para computar tudo com os bonus de constituicao.
+  GeraDadosVidaSeAutomatico(&proto_);
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
     try {
@@ -284,18 +296,6 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
       proto_.set_pontos_vida(proto_.max_pontos_vida());
     }
   }
-  // Evitar oscilacoes juntas.
-  vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
-  if (proto_.tipo() == TE_FORMA) {
-    InicializaForma(proto_, &vd_);
-  } else if (proto_.tipo() == TE_COMPOSTA) {
-    InicializaComposta(proto_, &vd_);
-  }
-
-  AtualizaVbo(parametros_desenho_);
-  RecomputaDependencias();
-  // Tem que ser depois para computar tudo com os bonus de constituicao.
-  GeraDadosVidaSeAutomatico(&proto_);
   proto_.clear_proxima_salvacao();
 }
 

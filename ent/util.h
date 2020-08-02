@@ -62,7 +62,7 @@ struct Intervalo {
 // Histograma com buckets de tamanho 1.
 class Histograma {
  public:
-  Histograma(float tam_intervalos = 3.0f, float limite_superior = 30.0f) : limite_superior_(limite_superior), tam_intervalos_(tam_intervalos) {}
+  Histograma(float tam_intervalos = 15.0f, float limite_superior = 120.0f) : limite_superior_(limite_superior), tam_intervalos_(tam_intervalos) {}
   void Adiciona(float valor);
   void Imprime() const;
 
@@ -221,7 +221,7 @@ void AcumulaDado(int valor);
 void LimpaDadosAcumulados();
 
 /** Gera um aleatorio de 1 a nfaces. */
-int RolaDado(unsigned int nfaces);
+int RolaDado(unsigned int nfaces, bool ignora_forcado = false);
 /** Gera um aleatorio entre [0.0 e 1.0]. Os valores tem precisao de duas casas. */
 float Aleatorio();
 

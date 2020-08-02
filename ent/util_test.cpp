@@ -1787,8 +1787,9 @@ TEST(TesteTalentoPericias, TesteDadosVidaAutomatico) {
   proto.set_dados_vida_automatico(true);
   auto e = NovaEntidadeParaTestes(proto, g_tabelas);
   EXPECT_EQ(e->Proto().dados_vida(), "4+3d4+7+3+3");
+  EXPECT_TRUE(e->Proto().has_max_pontos_vida());
+  EXPECT_GT(e->Proto().pontos_vida(), 0);
 }
-
 
 namespace {
 const AcaoProto::PorEntidade& PrimeiraEntidadeOuPadrao(const AcaoProto& acao) {
