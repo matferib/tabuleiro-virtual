@@ -262,6 +262,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         e->set_id(entidade->Id());
         *e->mutable_info_classes() = entidade->Proto().info_classes();
         *e->mutable_info_pericias() = entidade->Proto().info_pericias();
+        *e->mutable_atributos() = entidade->Proto().atributos();
       }
       if (entidades.size() == 1 && alterna_selecao && !entidades[0]->UltimaPericia().empty()) {
         EntraModoPericia(entidades[0]->UltimaPericia(), *n);

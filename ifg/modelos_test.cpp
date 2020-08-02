@@ -3,47 +3,38 @@
 #include <string>
 
 #include "arq/arquivo.h"
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.pb.h"
 #include "ifg/modelos.pb.h"
 #include "gtest/gtest.h"
 
 // Teste quer verifica que todos os modelos no menu tem correspondencia em modelos.
 TEST(TesteModelos, TesteModelos) {
-  ent::Modelos ent_modelos;
-  LeArquivoAsciiProto(arq::TIPO_DADOS, "modelos.asciiproto", &ent_modelos);
-  ent::Modelos ent_modelos_nao_srd;
-  LeArquivoAsciiProto(arq::TIPO_DADOS, "modelos_nao_srd.asciiproto", &ent_modelos_nao_srd);
-  ent::Modelos ent_modelos_hb;
-  LeArquivoAsciiProto(arq::TIPO_DADOS, "modelos_homebrew.asciiproto", &ent_modelos_hb);
- 
-  ent_modelos.MergeFrom(ent_modelos_nao_srd);
-  ent_modelos.MergeFrom(ent_modelos_hb);
-  std::set<std::string> ids_modelos;
-  for (const auto& m : ent_modelos.modelo()) {
-    ids_modelos.insert(m.id());
-  }
-
-  ifg::MenuModelos menu_modelos;
-  LeArquivoAsciiProto(arq::TIPO_DADOS, "menumodelos.asciiproto", &menu_modelos);
-  ifg::MenuModelos menu_modelos_nao_srd;
-  LeArquivoAsciiProto(arq::TIPO_DADOS, "menumodelos_nao_srd.asciiproto", &menu_modelos_nao_srd);
-  menu_modelos.MergeFrom(menu_modelos_nao_srd);
+  ent::Tabelas tabelas(nullptr);
 
   std::stack<const ifg::MenuModelos*> pilha;
-  pilha.push(&menu_modelos);
+  pilha.push(&tabelas.MenuModelos());
   do {
     const auto* menu = pilha.top();
-    for (const auto& m : menu->modelo()) {
+    for (const auto& item : menu->item_menu()) {
       // verifica os ids.
-      if (m.id() == "Padrão") {
+      if (item.id() == "Padrão") {
         continue;
       }
-      if (m.modelos().empty()) {
-        EXPECT_FALSE(ids_modelos.find(m.id()) == ids_modelos.end()) << ", id: " << m.id() << " não encontrado nos modelos.";
+      if (item.modelos().empty()) {
+        if (!item.id().empty()) {
+          EXPECT_FALSE(tabelas.ModeloEntidade(item.id()).id().empty()) << "id de modelo invalido para item.id: " << item.id();
+        } else {
+          EXPECT_FALSE(tabelas.ItemMenu(item.id_item_menu()).id().empty()) << "id de item de modelo invalido para item.id_item_menu: " << item.id_item_menu();
+        }
       } else {
-        for (const auto& mm : m.modelos()) {
-          if (mm.id() != "NADA") {
-            EXPECT_FALSE(ids_modelos.find(mm.id()) == ids_modelos.end()) << ", id: " << mm.id() << " não encontrado nos modelos.";
+        for (const auto& modelo : item.modelos()) {
+          if (modelo.id() != "NADA") {
+            if (!modelo.id().empty()) {
+              EXPECT_FALSE(tabelas.ModeloEntidade(modelo.id()).id().empty()) << ", id: " << modelo.id() << " não encontrado dentro de modelos de " << item.id();
+            } else {
+              EXPECT_FALSE(tabelas.ItemMenu(modelo.id_item_menu()).id().empty()) << ", id: " << modelo.id_item_menu() << " não encontrado dentro de modelos de " << item.id();
+            }
           }
         }
       }

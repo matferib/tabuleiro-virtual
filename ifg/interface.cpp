@@ -219,14 +219,30 @@ void InterfaceGrafica::VoltaEscolherTipoTesouro(const ntf::Notificacao notificac
 //-----------------
 void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
+  std::vector<std::tuple<ent::TipoAtributo, std::string, std::string>> atributos = {
+          { ent::TA_FORCA, " atributo: força", "forca" },
+          { ent::TA_DESTREZA, " atributo: destreza", "destreza" },
+          { ent::TA_CONSTITUICAO, " atributo: constituição", "constituicao" },
+          { ent::TA_INTELIGENCIA, " atributo: inteligência", "inteligencia" },
+          { ent::TA_SABEDORIA, " atributo: sabedoria", "sabedoria" },
+          { ent::TA_CARISMA, " atributo: carisma", "carisma" } };
   std::map<std::string, std::string> mapa_nomes;
   for (const auto& pericia : tabelas_.todas().tabela_pericias().pericias()) {
     if (notificacao.notificacao().size() == 1) {
+      for (const auto& [atributo, nome, id] : atributos) {
+        mapa_nomes.insert(std::make_pair(
+            StringPrintf("%s: %+d", nome.c_str(), ModificadorAtributo(atributo, notificacao.notificacao(0).entidade())),
+            id));
+      }
       if (PodeUsarPericia(tabelas_, pericia.id(), notificacao.notificacao(0).entidade())) {
         const auto& p = Pericia(pericia.id(), notificacao.notificacao(0).entidade());
         mapa_nomes.insert(std::make_pair(StringPrintf("%s: %+d", pericia.nome().c_str(), BonusTotal(p.bonus())), pericia.id()));
       }
     } else {
+      for (const auto& [atributo, nome, id] : atributos) {
+        VLOG(1) << "compilador feliz: " << (int)atributo;
+        mapa_nomes.insert(std::make_pair(nome, id));
+      }
       mapa_nomes.insert(std::make_pair(pericia.nome(), pericia.id()));
     }
   }

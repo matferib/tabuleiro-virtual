@@ -26,7 +26,7 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Proximo id: 119.
+// Proximo id: 121.
 message EntidadeProto {
   optional string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -55,6 +55,8 @@ message EntidadeProto {
   optional int32 max_pontos_vida = 12;
   // Exemplo: 4d8 + 8.
   optional string dados_vida = 19;
+  // Se true, os dados_vida serao gerados automaticamente.
+  optional bool dados_vida_automatico = 120;
   // Armazena os bonus de dados de vida do personagem (como vitalidade).
   optional Bonus bonus_dados_vida = 117;
   // Para os jogadores poderem se identificar.

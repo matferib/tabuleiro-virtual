@@ -121,7 +121,10 @@ void Histograma::Imprime() const {
   std::cout << "média: " << (total_ / num_valores) << "s, média sem último: " << (total_sem_ultimo_ / num_valores_sem_ultimo) << "s" << std::endl;
   for (const auto& [intervalo, valor] : intervalos_) {
     const int porcentagem = valor * 50 / maximo;
-    std::string s = StringPrintf("[%f, %f) -> %d: %s", intervalo.min, intervalo.max, valor, std::string(porcentagem, '#').c_str());
+    const std::string str_porcentagem = std::string(porcentagem, '#');
+    std::string s = intervalo.max == std::numeric_limits<float>::max()
+        ? StringPrintf("[%f, max) -> %d: %s", intervalo.min, valor, str_porcentagem.c_str())
+        : StringPrintf("[%f, %f) -> %d: %s", intervalo.min, intervalo.max, valor, str_porcentagem.c_str());
     std::cout << s << std::endl;
   }
 }
@@ -2938,6 +2941,13 @@ int ModificadorAtributo(TipoAtributo ta, const EntidadeProto& proto) {
   return ModificadorAtributo(BonusAtributo(ta, proto));
 }
 
+int ModificadorAtributoOriginal(TipoAtributo ta, const EntidadeProto& proto) {
+  const auto& bonus = BonusAtributo(ta, proto);
+  int valor_base = BonusIndividualTotal(TB_BASE, bonus);
+  int valor_racial = BonusIndividualTotal(TB_RACIAL, bonus);
+  return ModificadorAtributo(valor_base + valor_racial);
+}
+
 int ModificadorTamanho(TamanhoEntidade tamanho) {
   switch (tamanho) {
     case TM_MINUSCULO: return 8;
@@ -5276,7 +5286,7 @@ void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto) {
 std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto) {
   const auto& tesouro = proto.tesouro();
   std::vector<const RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
-    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus(), &tesouro.itens_mundanos(), &tesouro.varinhas(),
+    &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus(), &tesouro.itens_mundanos(), &tesouro.varinhas(), &tesouro.pergaminhos_divinos(), &tesouro.pergaminhos_arcanos(),
   };
   std::vector<const ItemMagicoProto*> itens;
   for (const auto* itens_grupo : itens_agrupados) {
@@ -5297,7 +5307,7 @@ std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
   std::vector<RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
     tesouro->mutable_aneis(), tesouro->mutable_mantos(), tesouro->mutable_luvas(), tesouro->mutable_bracadeiras(),
     tesouro->mutable_amuletos(), tesouro->mutable_botas(), tesouro->mutable_chapeus(), tesouro->mutable_itens_mundanos(),
-    tesouro->mutable_varinhas(),
+    tesouro->mutable_varinhas(), tesouro->mutable_pergaminhos_divinos(), tesouro->mutable_pergaminhos_arcanos(),
   };
   std::vector<ItemMagicoProto*> itens;
   for (auto* itens_grupo : itens_agrupados) {
@@ -5422,6 +5432,14 @@ bool PodeConjurarFeitico(const ArmaProto& feitico, int nivel_maximo_feitico, con
       if (ic.nivel() <= nivel_maximo_feitico) return true;
       else return false;
     }
+  }
+  return false;
+}
+
+bool TemFeiticoLista(const std::string& id_feitico, const EntidadeProto& proto) {
+  const auto& feitico = Tabelas::Unica().Feitico(id_feitico);
+  for (const auto& ic : feitico.info_classes()) {
+    if (Nivel(ic.id(), proto) > 0) return true;
   }
   return false;
 }
@@ -6870,7 +6888,27 @@ bool FeiticoEscolaProibida(const std::vector<std::string>& escolas_proibidas, co
   return c_any(escolas_proibidas, feitico_tabelado.escola());
 }
 
-std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto) {
+std::optional<std::tuple<bool, int, int, std::string>> RolaTesteAtributo(
+    TipoAtributo atributo, const Bonus& outros_bonus, const EntidadeProto& proto) {
+  std::unordered_map<TipoAtributo, std::string> nomes = {
+    { TA_FORCA, "força"},
+    { TA_DESTREZA, "destreza"},
+    { TA_CONSTITUICAO, "constituição"},
+    { TA_INTELIGENCIA, "inteligência"},
+    { TA_SABEDORIA, "sabedoria"},
+    { TA_CARISMA, "carisma"},
+  };
+  const int bonus = ModificadorAtributo(atributo, proto);
+  const int outros_bonus_int = BonusTotal(outros_bonus);
+  const int dado = RolaDado(20);
+  const int total_modificadores = bonus + outros_bonus_int;
+  const int total = dado + total_modificadores;
+  std::string outros_bonus_str = outros_bonus_int != 0 ? StringPrintf(" %+d", outros_bonus_int) : std::string("");
+  return std::make_tuple(true, total, total_modificadores, StringPrintf("%s: %d %+d%s = %d", nomes[atributo].c_str(), dado, bonus, outros_bonus_str.c_str(), total));
+}
+
+std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(
+    const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto) {
   const auto& pericia_personagem = Pericia(id_pericia, proto);
   if (!pericia_personagem.has_id()) {
     return std::nullopt;
@@ -6966,8 +7004,8 @@ int PrecoArmaPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_person
     valor += 300;
     if (PossuiCategoria(CAT_ARMA_DUPLA, arma_tabelada)) valor += 300;
   }
-  valor += 2 * pow(arma_personagem.bonus_magico(), 2);
-  valor += 2 * pow(arma_personagem.bonus_magico_secundario(), 2);
+  valor += 2 * pow(arma_personagem.bonus_magico(), 2) * 1000;
+  valor += 2 * pow(arma_personagem.bonus_magico_secundario(), 2) * 1000;
   return valor;
 }
 
@@ -6984,7 +7022,7 @@ int PrecoArmaduraOuEscudoPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem&
   if (aoe_personagem.obra_prima()) {
     valor += 150;
   }
-  valor += pow(aoe_personagem.bonus_magico(), 2);
+  valor += pow(aoe_personagem.bonus_magico(), 2) * 1000;
   return valor;
 }
 

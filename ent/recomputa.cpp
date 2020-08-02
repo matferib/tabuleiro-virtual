@@ -1799,7 +1799,8 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
 
     if (pt.id() == "esconderse") {
       // Bonus de tamanho.
-      AtribuiOuRemoveBonus(ModificadorTamanhoEsconderse(proto->tamanho()), TB_TAMANHO, "tamanho", pericia_proto.mutable_bonus());
+      int tamanho = std::max<int>(std::min<int>(proto->tamanho() + pericia_proto.modificador_tamanho(), TamanhoEntidade_MAX), TamanhoEntidade_MIN);
+      AtribuiOuRemoveBonus(ModificadorTamanhoEsconderse(static_cast<TamanhoEntidade>(tamanho)), TB_TAMANHO, "tamanho", pericia_proto.mutable_bonus());
     }
     if (pt.id() == "saltar") {
       const auto& movimento = proto->movimento();
@@ -2302,7 +2303,8 @@ void RecomputaCAParaUmAtaque(const Tabelas& tabelas, const DadosAtaque& da, cons
   }
   const int modificador_destreza = std::min(ModificadorAtributo(proto.atributos().destreza()), bonus_maximo);
   AtribuiBonus(modificador_destreza, TB_ATRIBUTO, "destreza", ca);
-  const int modificador_tamanho = ModificadorTamanho(proto.tamanho());
+  int tamanho_modificado = std::max<int>((std::min<int>(proto.tamanho() + proto.dados_defesa().modificador_tamanho(), TamanhoEntidade_MAX)), TamanhoEntidade_MIN);
+  const int modificador_tamanho = ModificadorTamanho(static_cast<TamanhoEntidade>(tamanho_modificado));
   ent::AtribuiBonus(10, TB_BASE, "base", ca);
   AtribuiOuRemoveBonus(modificador_tamanho, TB_TAMANHO, "tamanho", ca);
   AtribuiOuRemoveBonus(dd.has_id_armadura() ? tabelas.Armadura(dd.id_armadura()).bonus() : 0, TB_ARMADURA, "armadura", ca);
@@ -3169,6 +3171,7 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
     da->set_rotulo("agarrar");
     da->set_grupo("Agarrar");
     da->set_alcance_q(1);
+    da->set_dano_basico_fixo("0");
   }
   // Se nao tiver ataque atordoante, gera um.
   if (PossuiTalento("ataque_atordoante", *proto)) {

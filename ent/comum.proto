@@ -581,7 +581,7 @@ message DadosAtaqueGlobal {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 40.
+// Proximo id: 41.
 message DadosDefesa {
   optional string tipo_defesa = 1 [deprecated=true];
   optional bool imune_critico = 3;
@@ -591,6 +591,8 @@ message DadosDefesa {
   // A chave na verdade é TipoDnD, mas o mapa nao permite.
   map<int32, Bonus> bonus_ca_por_tipo = 36;
   optional Bonus ca = 4;
+  // Para modificar CA.
+  optional int32 modificador_tamanho = 40;
   optional Bonus salvacao_fortitude = 5;
   optional Bonus salvacao_reflexo = 6;
   optional Bonus salvacao_vontade = 7;
@@ -810,6 +812,7 @@ message InfoClasse {
   repeated string talentos_automaticos = 29;
   // so id e complemento.
   repeated TalentoProto talentos_com_complemento_automaticos = 31;
+  optional int32 dv = 32;
 }
 
 // Informacao sobre a pericia do personagem.
@@ -826,6 +829,8 @@ message InfoPericia {
   // Se presente, usara este atributo ao inves do padrao para pericia.
   optional TipoAtributo atributo = 7;
   // Monstros podem adicionar pericias_monstro em info_classes para considerar a pericia de classe.
+  // Para monstros que usam tamanho diferente para computar pericia, como enxames. Esse valor é aplicado assim: (tamanho - mod) = tamanho usado.
+  optional int32 modificador_tamanho = 8;
 }
 
 message RestricaoArma {
@@ -956,6 +961,9 @@ message TalentoProto {
   // Talento pode ser adquirido pela classe no nivel passado.
   optional int32 ranger = 19;
   optional int32 monge = 20;
+
+  // Talento é metamágico.
+  optional bool metamagico = 22;
 }
 
 message HabilidadeEspecialProto {

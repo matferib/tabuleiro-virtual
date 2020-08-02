@@ -127,6 +127,58 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
   CorrigeFeiticosPorNivelDeprecated(proto);
 }
 
+void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
+  // TODO outros talentos que afetam DV como mente_sobre_materia.
+  // TODO nao elite.
+  if (!proto->dados_vida().empty() || !proto->dados_vida_automatico()) return;
+  bool elite = true;
+  bool primeiro = true;
+  std::string dv;
+  for (const auto& ic : proto->info_classes()) {
+    const auto& classe_tabelada = Tabelas::Unica().Classe(ic.id());
+    if (primeiro) {
+      if (elite) {
+        dv = StringPrintf("%d", classe_tabelada.dv());
+        if (ic.nivel() > 1) {
+          dv += StringPrintf("+%dd%d", (ic.nivel()-1), classe_tabelada.dv());
+        }
+      } else {
+        dv += StringPrintf("%dd%d", ic.nivel(), classe_tabelada.dv());
+      }
+    } else {
+      dv += StringPrintf("+%dd%d", ic.nivel(), classe_tabelada.dv());
+    }
+    primeiro = false;
+  }
+  bool possui_mente_sobre_materia = false;
+  int num_vitalidades = 0;
+  int num_metamagicos = 0;
+  for (const auto& talentos_por_tipo : {proto->info_talentos().gerais(), proto->info_talentos().outros(), proto->info_talentos().automaticos() }) {
+    num_vitalidades += c_count_if(talentos_por_tipo, [](const TalentoProto& talento) { return talento.id() == "vitalidade"; });
+    possui_mente_sobre_materia |= c_any_of(talentos_por_tipo, [](const TalentoProto& talento) { return talento.id() == "mente_sobre_materia"; });
+    num_metamagicos += c_count_if(talentos_por_tipo, [](const TalentoProto& talento) { return Tabelas::Unica().Talento(talento.id()).metamagico(); });
+  }
+  int nivel_para_mod_con = NivelPersonagem(*proto);
+  if (possui_mente_sobre_materia) {
+    const int mod_int = ModificadorAtributoOriginal(TA_INTELIGENCIA, *proto);
+    const int mod_car = ModificadorAtributoOriginal(TA_CARISMA, *proto);
+    dv += StringPrintf("+%d", std::max(mod_int, mod_car) + num_metamagicos);
+    nivel_para_mod_con = std::max(0, nivel_para_mod_con - 1);
+  }
+  const int mod_con = ModificadorAtributo(TA_CONSTITUICAO, *proto) * nivel_para_mod_con;
+  if (mod_con != 0) {
+    dv += StringPrintf("%+d", mod_con);
+  }
+  if (num_vitalidades > 0) {
+    dv += StringPrintf("+%d", num_vitalidades * 3);
+  }
+  if (dv.empty()) {
+    LOG(WARNING) << "dv vazio para dados de vida automatico de " << RotuloEntidade(*proto);
+  } else {
+    proto->set_dados_vida(dv);
+  }
+}
+
 }  // namespace
 
 bool Entidade::TemTipoDnD(TipoDnD tipo) const {
@@ -242,6 +294,8 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
 
   AtualizaVbo(parametros_desenho_);
   RecomputaDependencias();
+  // Tem que ser depois para computar tudo com os bonus de constituicao.
+  GeraDadosVidaSeAutomatico(&proto_);
   proto_.clear_proxima_salvacao();
 }
 
@@ -1547,24 +1601,37 @@ void Entidade::AtualizaAcaoPorGrupo(const std::string& grupo) {
 
 namespace {
 
-// Retorna um vetor com os indices do primeiro ataque de cada grupo de ataque e
-// o indice nesse vetor que representa o ataque corrente.
+// Retorna:
+// - indice do ataque corrente no vetor abaixo descrito a seguir.
+// -  um vetor com o par:
+//   * indices do primeiro ataque de cada grupo de ataque em todos os dados de ataque;
+//   * quantos ataques há no grupo;
+//
 // Por exemplo, caso o personagem tenha 5 ataques em 3 grupos: g1, g1, g2, g3, g3
 // e o ataque corrente for g2, retornara:
-// {1, {0, 2, 3}}.
-std::pair<int, std::vector<int>> IndiceCorrenteComIndicesGrupos(
-    const EntidadeProto& proto) {
-  std::unordered_set<std::string> existe;
-  std::vector<int> grupos;
+// {1,  // ataque corrente é 2 (indice 1 abaixo)
+//  {{0, 2},   // g1 comeca no indice 0, tem 2 ataques
+//   {2, 1},   // g2 comeca no indice 2, tem 1 ataque.
+//   {3, 2}}}. // g3 comeca no indice 3, tem 2 ataques.
+struct IndiceQuantidade {
+  int indice;
+  int quantidade;
+};
+std::pair<int, std::vector<IndiceQuantidade>> IndiceCorrenteComIndicesGrupos(const EntidadeProto& proto) {
+  std::unordered_map<std::string, IndiceQuantidade*> existentes;
+  std::vector<IndiceQuantidade> grupos;
   int indice_corrente = 0;
   for (int i = 0; i < (int)proto.dados_ataque().size(); ++i) {
     const auto& da = proto.dados_ataque(i);
-    if (existe.find(da.grupo()) != existe.end()) continue;
-    existe.insert(da.grupo());
+    if (auto it = existentes.find(da.grupo()); it != existentes.end()) {
+      ++it->second->quantidade;
+      continue;
+    }
     if (proto.ultimo_grupo_acao() == da.grupo()) {
       indice_corrente = grupos.size();
     }
-    grupos.push_back(i);
+    grupos.push_back({i, 1});
+    existentes.insert({da.grupo(), &grupos.back()});
   }
   return {indice_corrente, grupos};
 }
@@ -1579,9 +1646,15 @@ bool Entidade::ProximaAcao() {
     // Pode acontecer quando a entidade tem ultima_acao default e eh colocada outra
     // manualmente. Neste caso, eh bom setar pra ter certeza.
     proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+    proto_.set_ultimo_grupo_acao(proto_.dados_ataque(0).grupo());
     return true;
   }
   auto [indice_corrente, grupos] = IndiceCorrenteComIndicesGrupos(proto_);
+  if (const auto& grupo_corrente = grupos[indice_corrente];
+      vd_.ataques_na_rodada < (grupo_corrente.quantidade - 1)) {
+    ProximoAtaque();
+    return false;
+  }
   ++indice_corrente;
   if (indice_corrente >= (int)grupos.size()) {
     indice_corrente = 0;
@@ -1590,8 +1663,10 @@ bool Entidade::ProximaAcao() {
     // Caso bizarro.
     return false;
   }
-  proto_.set_ultima_acao(proto_.dados_ataque(grupos[indice_corrente]).tipo_ataque());
-  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupos[indice_corrente]).grupo());
+  const auto& grupo_corrente = grupos[indice_corrente];
+  vd_.ataques_na_rodada = 0;
+  proto_.set_ultima_acao(proto_.dados_ataque(grupo_corrente.indice).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupo_corrente.indice).grupo());
   return true;
 }
 
@@ -1618,8 +1693,8 @@ bool Entidade::AcaoAnterior() {
     // Caso bizarro.
     return false;
   }
-  proto_.set_ultima_acao(proto_.dados_ataque(grupos[indice_corrente]).tipo_ataque());
-  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupos[indice_corrente]).grupo());
+  proto_.set_ultima_acao(proto_.dados_ataque(grupos[indice_corrente].indice).tipo_ataque());
+  proto_.set_ultimo_grupo_acao(proto_.dados_ataque(grupos[indice_corrente].indice).grupo());
   return true;
 }
 
@@ -2064,7 +2139,7 @@ const DadosAtaque* Entidade::DadoCorrente(bool ignora_ataques_na_rodada) const {
   std::vector<const DadosAtaque*> ataques_casados;
   auto [ultima_acao, ultimo_grupo] = UltimaAcaoGrupo(proto_);
   for (const auto& da : proto_.dados_ataque()) {
-    if ((ultima_acao.empty() || da.tipo_ataque() == ultima_acao) && da.grupo() == ultimo_grupo) {
+    if (da.grupo() == ultimo_grupo) {
       VLOG(3) << "Encontrei ataque para " << da.tipo_ataque() << ", grupo: " << da.grupo();
       ataques_casados.push_back(&da);
       if (ignora_ataques_na_rodada) break;

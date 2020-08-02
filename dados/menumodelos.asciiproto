@@ -1,6 +1,12 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
 item_menu { id: 'Padrão' }
 sub_menu {
+  id: 'Armadilhas'
+  item_menu { id: 'Estátua Executora Móvel' }
+  item_menu { id: 'Bloco de Pedra Solto no Teto' }
+  item_menu { id: 'Parede Instável' }
+}
+sub_menu {
   id: 'Mortos-Vivos'
   item_menu { id: 'Allip' }
   item_menu { id: 'Aparição' }
@@ -98,6 +104,7 @@ sub_menu {
 sub_menu {
   id: 'Anões'
   item_menu { id: 'Anão' }
+  item_menu { id: 'Anão Guerreiro 1/Especialista (Pedreiro) 11' }
 }
 item_menu { id: 'Barghest' }
 sub_menu {
@@ -213,6 +220,7 @@ sub_menu {
     item_menu { id: 'Humano Clérigo 4 (Neutro)' }
     item_menu { id: 'Humano Clérigo 5 (Leal Bom)' }
     item_menu { id: 'Humano Clérigo 6 (Neutro Bom)' }
+    item_menu { id: 'Humano Clérigo 6 (Leal e Neutro)' }
     item_menu { id: 'Humano Clérigo 16' }
   }
   sub_menu {
@@ -230,8 +238,8 @@ sub_menu {
   }
   sub_menu {
     id: 'Especialistas'
-    item_menu { id: 'Humano Especialista 6' texto: 'Armeiro 6' }
-    item_menu { id: 'Humana Especialista 7' texto: 'Tecelã 7' }
+    item_menu { id: 'Humano Especialista (Armeiro) 6' texto: 'Armeiro 6' }
+    item_menu { id: 'Humana Especialista (Tecelã) 7' texto: 'Tecelã 7' }
   }
 
   sub_menu {
@@ -375,8 +383,10 @@ sub_menu {
   id: 'Plantas'
   item_menu { id: 'Arbusto Errante' }
   item_menu { id: 'Fungo Fantasma' }
+  item_menu { id: 'Fungo Fantasma 6 DV' }
   item_menu { id: 'Fungo Guardião' }
   item_menu { id: 'Fungo Violeta' }
+  item_menu { id: 'Fungo Violeta 6 DV' }
 }
 sub_menu {
   id: 'Limo/Gosma'

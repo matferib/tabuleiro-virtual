@@ -935,7 +935,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
   }
 }
 
-void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
+void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y, bool forca_selecao) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
@@ -958,7 +958,7 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
   if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
     // Entidade.
     VLOG(1) << "Picking alternar selecao entidade id " << id;
-    AlternaSelecaoEntidade(id);
+    AlternaSelecaoEntidade(id, forca_selecao);
   } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking alternar selecao no controle virtual " << id;
     PickingControleVirtual(x, y, true  /*alt*/, false  /*duplo*/, id);
@@ -973,7 +973,7 @@ namespace {
 
 // De acordo com o modo de desenho, altera as configuracoes de pd.
 // tipo_objeto: um dos OBJ_*.
-void ConfiguraParametrosDesenho(const Entidade* entidade_origem, Tabuleiro::modo_clique_e modo_clique, ParametrosDesenho* pd) {
+void ConfiguraParametrosDesenho(const Entidade* entidade_origem, Tabuleiro::modo_clique_e modo_clique, ParametrosDesenho* pd, bool forca_selecao = false) {
   pd->set_nao_desenha_entidades_fixas_translucidas(true);
   switch (modo_clique) {
     case Tabuleiro::MODO_NORMAL:
@@ -2142,8 +2142,10 @@ float Tabuleiro::TrataAcaoIndividual(
       const bool agarrar_aprimorado = da.agarrar_aprimorado() || (da.agarrar_aprimorado_se_acertou_anterior() && entidade_origem->AcertouAtaqueAnterior());
       if (da.adesao() ||
           (agarrar_aprimorado && entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho())) {
-        // agarrar
-        ResultadoAtaqueVsDefesa resultado_agarrar = da.adesao() ? ResultadoAtaqueVsDefesa{RA_SUCESSO, 1, "auto"} : AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
+        // agarrar: se o ataque original ja era de agarrar, nao precisa fazer outro. Adesao tb é automático.
+        ResultadoAtaqueVsDefesa resultado_agarrar = da.adesao() || da.ataque_agarrar()
+            ? ResultadoAtaqueVsDefesa{RA_SUCESSO, 1, "auto"}
+            : AtaqueVsDefesaAgarrar(*entidade_origem, *entidade_destino);
         if (resultado_agarrar.Sucesso()) {
           if (agarrar_aprimorado && da.constricao()) {
             int dano_constricao = RolaValor(da.dano_constricao().empty() ? da.dano() : da.dano_constricao());
@@ -2492,6 +2494,23 @@ Bonus OutrosBonusPericia(
   return bonus;
 }
 
+std::optional<TipoAtributo> Atributo(const std::string& id) {
+  std::vector<std::pair<TipoAtributo, std::string>> atributos = {
+    { TA_FORCA, "forca" },
+    { TA_DESTREZA, "destreza" },
+    { TA_CONSTITUICAO, "constituicao" },
+    { TA_INTELIGENCIA, "inteligencia" },
+    { TA_SABEDORIA, "sabedoria" },
+    { TA_CARISMA, "carisma" },
+  };
+  for (const auto& par : atributos) {
+    if (par.second == id) {
+      return par.first;
+    }
+  } 
+  return std::nullopt;
+}
+
 }  // namespace
 
 void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
@@ -2501,10 +2520,11 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
   EntraModoClique(MODO_NORMAL);
   float atraso_s = 0.0f;
   Entidade* entidade_origem = nullptr;
+  const std::optional<TipoAtributo> atributo = Atributo(notificacao_pericia_.str_generica());
   std::string pericia_origem = notificacao_pericia_.str_generica();
   const auto& pericia_tabelada = tabelas_.Pericia(pericia_origem);
   const auto* entidade_destino = tipo_objeto == OBJ_ENTIDADE ? BuscaEntidade(id) : nullptr;
-  std::string pericia_destino = pericia_tabelada.id_resistido();
+  std::string pericia_destino = atributo.has_value() ? notificacao_pericia_.str_generica() : pericia_tabelada.id_resistido();
 
   std::optional<std::pair<int, int>> total_modificadores;
   if (notificacao_pericia_.notificacao().empty() && notificacao_pericia_.has_entidade()) {
@@ -3033,14 +3053,14 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
   AdicionaNotificacaoListaEventos(g_desfazer);
 }
 
-void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
+void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao, bool forca_selecao) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
   ultimo_x_ = x;
   ultimo_y_ = y;
 
-  ConfiguraParametrosDesenho(EntidadeCameraPresaOuSelecionada(), modo_clique_, &parametros_desenho_);
+  ConfiguraParametrosDesenho(EntidadeCameraPresaOuSelecionada(), modo_clique_, &parametros_desenho_, forca_selecao);
   unsigned int id, tipo_objeto;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
@@ -3052,9 +3072,6 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   if (modo_clique_ == MODO_AJUDA || (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL)) {
     switch (modo_clique_) {
       case MODO_SELECAO_TRANSICAO: {
-        if (tipo_objeto != OBJ_TABULEIRO) {
-          return;
-        }
         auto* entidade = BuscaEntidade(notificacao_selecao_transicao_.entidade().id());
         if (entidade == nullptr) {
           LOG(WARNING) << "Entidade nao existe mais.";
@@ -3191,7 +3208,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     } else {
       if (!EntidadeEstaSelecionada(id)) {
         // Se nao estava selecionada, so ela.
-        SelecionaEntidade(id, tipo_objeto == OBJ_ENTIDADE_LISTA);
+        SelecionaEntidade(id, tipo_objeto == OBJ_ENTIDADE_LISTA || forca_selecao);
       }
       bool ha_entidades_selecionadas = !ids_entidades_selecionadas_.empty();
       for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
@@ -3945,12 +3962,15 @@ void Tabuleiro::TrataRolarContraIntimidacaoNotificando(
 
 std::optional<std::pair<int, int>> Tabuleiro::TrataRolarPericiaNotificando(
     const std::string& id_pericia, bool local_apenas, float atraso_s, const Bonus& outros_bonus, const EntidadeProto& proto) {
-  auto resultado_opt = RolaPericia(tabelas_, id_pericia, outros_bonus, proto);
+  std::optional<TipoAtributo> atributo = Atributo(id_pericia);
+  auto resultado_opt = atributo.has_value()
+      ? RolaTesteAtributo(*atributo, outros_bonus, proto)
+      : RolaPericia(tabelas_, id_pericia, outros_bonus, proto);
   if (!resultado_opt.has_value()) {
     LOG(ERROR) << "Pericia invalida " << id_pericia;
     return std::nullopt;
   }
-  // TODO recomputando por agora, ver como fazer melhor.
+  // TODO recomputando 'local_apenas' e ignorando parametro por agora, ver como fazer melhor.
   local_apenas = EmModoMestreIncluindoSecundario() && !proto.selecionavel_para_jogador() && !proto.visivel();
   auto& [rolou, total, modificadores, texto] = resultado_opt.value();
   AdicionaAcaoTextoLogado(proto.id(), texto, atraso_s, local_apenas);

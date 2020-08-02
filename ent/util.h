@@ -611,6 +611,8 @@ void CombinaBonus(const Bonus& bonus_novos, Bonus* bonus);
 // Combina atributos_novos em atributos, sobrescrevendo os iguais (prioridade de atributos_depois).
 void CombinaAtributos(const Atributos& atributos_novos, Atributos* atributos);
 
+// So considera modificadores base e racial.
+int ModificadorAtributoOriginal(TipoAtributo ta, const EntidadeProto& proto);
 // Retorna o modificador do atributo.
 int ModificadorAtributo(int atributo);
 // Leva em consideracao a ausencia de bonus BASE, assumindo ser 10.
@@ -792,6 +794,7 @@ const std::string IdParaMagia(const Tabelas& tabelas, const std::string& id_clas
 
 // Retorna se o feitico pode ser conjurado no nivel passado pela classe cujo id para magia foi passado.
 bool PodeConjurarFeitico(const ArmaProto& feitico, int nivel_maximo, const std::string& id_classe_para_magia);
+bool TemFeiticoLista(const std::string& id_feitico, const EntidadeProto& proto);
 
 // Retorna true se o feitico for pessoal.
 bool FeiticoPessoal(const Tabelas& tabelas, const ArmaProto& feitico_tabelado);
@@ -1044,7 +1047,7 @@ std::string NomeTipoItem(TipoItem tipo);
 const google::protobuf::RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& ArmasArmadurasOuEscudosProto(TipoTesouro tipo, const EntidadeProto& proto);
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
 google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
-// Retorna todos os itens do proto, exceto pocoes.
+// Retorna todos os itens do proto, exceto pocoes. Usado para computar efeitos orfãos (a poção ou ja foi consumida ou ainda não tem efeito).
 std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto);
 std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto);
 std::vector<const ItemMagicoProto*> TodosItens(const EntidadeProto& proto);
@@ -1212,6 +1215,9 @@ bool AtaqueDeItemMundano(const DadosAtaque& da);
 
 void ImprimeDadosRolados();
 
+// Rola o teste de atributo, retornando se rolou, o total rolado, modoficadores e o texto descrevendo.
+std::optional<std::tuple<bool, int, int, std::string>> RolaTesteAtributo(
+    TipoAtributo atributo, const Bonus& outros_bonus, const EntidadeProto& proto);
 // Rola a pericia do proto, retornando se rolou, o total rolado, modificadores e o texto descrevendo a rolagem.
 // Em caso de erro, retorna nullopt.
 std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(const Tabelas& tabelas, const std::string& id_pericia, const Bonus& outros_bonus, const EntidadeProto& proto);

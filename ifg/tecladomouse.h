@@ -79,8 +79,10 @@ enum teclas_e {
 
 enum modificadores_e {
   Modificador_Shift = 0x02000000,
-  Modificador_Ctrl = 0x04000000,
-  Modificador_Alt = 0x08000000,
+  Modificador_Ctrl =  0x04000000,
+  Modificador_Alt =   0x08000000,
+  Modificador_Meta =  0x10000000,
+  Modificador_AltGr = 0x40000000,
 };
 
 enum botoesmouse_e {
