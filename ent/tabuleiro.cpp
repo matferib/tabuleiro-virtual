@@ -1095,7 +1095,8 @@ std::vector<InfoSelecao> MontaVetorInfosSelecao(const Tabuleiro::ItemSelecionado
   std::vector<InfoSelecao> infos;
   for (const auto& ids_com_peso : item_selecionado.ids_com_peso) {
     for (int i = 0; i < ids_com_peso.peso; ++i) {
-      infos.emplace_back(InfoSelecao{ .id_tudo = ids_com_peso.id_tudo, .ids = ids_com_peso.ids, .quantidade_str = ids_com_peso.quantidade});
+      //infos.emplace_back(InfoSelecao{ .id_tudo = ids_com_peso.id_tudo, .ids = ids_com_peso.ids, .quantidade_str = ids_com_peso.quantidade});
+      infos.emplace_back(InfoSelecao{ ids_com_peso.id_tudo, ids_com_peso.ids, ids_com_peso.quantidade});
     }
     VLOG(1) << "adicionando " << item_selecionado.id << ", peso: " << ids_com_peso.peso;
   }
@@ -1159,7 +1160,7 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
   try {
     if (notificacao.local()) {
       VLOG(1) << "buscando referencia para criacao de entidade";
-      const auto* referencia = EntidadeCameraPresaOuSelecionada();
+      const Entidade* referencia = EntidadeCameraPresaOuSelecionada();
       if (referencia == nullptr && notificacao.has_id_referencia()) {
         VLOG(1) << "Notificacao com referencia, id: " << notificacao.id_referencia();
         referencia = BuscaEntidade(notificacao.id_referencia());
@@ -1242,7 +1243,7 @@ void Tabuleiro::AlteraFormaEntidadeNotificando() {
   ntf::Notificacao n_desfazer;
   n_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
-    auto* entidade_selecionada = BuscaEntidade(id);
+    Entidade* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       LOG(INFO) << "Nao foi possivel alterar forma, entidade nao encontrada: " << id;;
       continue;
