@@ -681,7 +681,9 @@ class AcaoProjetilArea: public Acao {
 // Uma acao de projetil, tipo flecha ou missil magico.
 class AcaoProjetil : public Acao {
  public:
-  AcaoProjetil(const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d, ntf::CentralNotificacoes* central)
+  AcaoProjetil(
+      const Tabelas& tabelas, const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas, const m3d::Modelos3d* modelos3d,
+      ntf::CentralNotificacoes* central)
       : Acao(tabelas, acao_proto, tabuleiro, texturas, modelos3d, central) {
     estagio_ = INICIAL;
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
@@ -700,7 +702,11 @@ class AcaoProjetil : public Acao {
       estagio_ = FIM;
       return;
     }
-    pos_ = entidade_origem->PosicaoAcao();
+    pos_ = pos_linear_ = entidade_origem->PosicaoAcao();
+    Entidade* entidade_destino = BuscaPrimeiraEntidadeDestino(acao_proto_, tabuleiro_);
+    pos_destino_ = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : entidade_destino->PosicaoAcao();
+    arco_progresso_ = 0;
+    distancia_inicial_ = DistanciaAbsoluta(pos_, pos_destino_);
   }
 
   void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
@@ -740,38 +746,52 @@ class AcaoProjetil : public Acao {
 
  private:
   void AtualizaVoo(int intervalo_ms, const Olho& camera) {
-    Entidade* entidade_destino = BuscaPrimeiraEntidadeDestino(acao_proto_, tabuleiro_);
-    if (entidade_destino == nullptr) {
-      VLOG(1) << "Finalizando projetil, destino não existe.";
-      estagio_ = FIM;
-      return;
-    }
-    const auto& pos_destino = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : entidade_destino->PosicaoAcao();
-    // Recalcula vetor.
-    dx_ = pos_destino.x() - pos_.x();
-    dy_ = pos_destino.y() - pos_.y();
-    dz_ = pos_destino.z() - pos_.z();
     AtualizaVelocidade(intervalo_ms);
     VLOG(1) << "Velocidade: " << velocidade_m_ms_;
+
+    const float arco_progresso_antes = arco_progresso_;
+    // Recalcula vetor.
+    dx_ = pos_destino_.x() - pos_linear_.x();
+    dy_ = pos_destino_.y() - pos_linear_.y();
+    dz_ = pos_destino_.z() - pos_linear_.z();
+
     Vector3 v(dx_, dy_, dz_);
     Vector3 vn(v.normalize());
     v *= (velocidade_m_ms_ * intervalo_ms);
-    // Posicao antes.
-    float xa = pos_.x();
-    float ya = pos_.y();
-    float za = pos_.z();
-    // Antes, depois, destino.
-    pos_.set_x(ArrumaSePassou(xa, xa + v.x, pos_destino.x()));
-    pos_.set_y(ArrumaSePassou(ya, ya + v.y, pos_destino.y()));
-    pos_.set_z(ArrumaSePassou(za, za + v.z, pos_destino.z()));
-    // Deslocamento do alvo.
-    vn /= 2.0f;  // meio metro de deslocamento.
-    dx_ = vn.x;
-    dy_ = vn.y;
-    dz_ = vn.z;
-    if (pos_.x() == pos_destino.x() &&
-        pos_.y() == pos_destino.y() &&
-        pos_.z() == pos_destino.z()) {
+
+    // Posicao linear antes.
+    const float xa = pos_linear_.x();
+    const float ya = pos_linear_.y();
+    const float za = pos_linear_.z();
+
+    {
+      // Antes, depois, destino.
+      pos_linear_.set_x(ArrumaSePassou(xa, xa + v.x, pos_destino_.x()));
+      pos_linear_.set_y(ArrumaSePassou(ya, ya + v.y, pos_destino_.y()));
+      pos_linear_.set_z(ArrumaSePassou(za, za + v.z, pos_destino_.z()));
+      // Deslocamento do alvo.
+      vn /= 2.0f;  // meio metro de deslocamento.
+      dx_ = vn.x;
+      dy_ = vn.y;
+      dz_ = vn.z;
+
+      const float distancia = std::max(0.0f, DistanciaAbsoluta(pos_linear_, pos_destino_));
+      const float porcentagem = 1.0f - distancia / distancia_inicial_;
+      arco_progresso_ = M_PI * porcentagem;
+    }
+
+    {
+      // Ajuste de arco.
+      float dz_arco = acao_proto_.faz_arco()
+          ? (sinf(arco_progresso_) - sinf(arco_progresso_antes)) * (distancia_inicial_ / 4.0f)
+          : 0.0f;
+      // Posicao real.
+      pos_.set_x(pos_.x() + v.x);
+      pos_.set_y(pos_.y() + v.y);
+      pos_.set_z(pos_.z() + v.z + dz_arco);
+    }
+
+    if (arco_progresso_ >= M_PI) {
       VLOG(1) << "Projetil atingiu alvo.";
       estagio_ = ATINGIU_ALVO;
       TocaSomSucessoOuFracasso(camera);
@@ -786,6 +806,11 @@ class AcaoProjetil : public Acao {
     FIM
   } estagio_;
   Posicao pos_;
+  Posicao pos_linear_;
+  Posicao pos_destino_;
+
+  float arco_progresso_;
+  float distancia_inicial_;
 };
 
 // Acao de raio.

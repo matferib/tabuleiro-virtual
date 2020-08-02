@@ -105,7 +105,7 @@ enum ModificadorQuantidade {
   MQ_POR_NIVEL = 1;
 }
 
-// Proximo id: 105.
+// Proximo id: 106.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
   optional string id = 1;
@@ -139,6 +139,8 @@ message AcaoProto {
   optional GeometriaAcao geometria = 16;
   optional Modelo3d modelo_3d = 86;
   optional Velocidade velocidade = 19;
+  // Se verdadeiro, o projetil fara um arco.
+  optional bool faz_arco = 105;
   // Duracao em s.
   optional float duracao_s = 20;
   // Atraso para comecar a acao em s.
