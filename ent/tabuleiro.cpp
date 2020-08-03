@@ -1072,8 +1072,9 @@ int QuantidadeSorteios(const Tabuleiro::ItemSelecionado& item_selecionado) {
   }
   int quantidade = 0;
   try {
-    LOG(INFO) << "rolando " << item_selecionado.quantidade << " para gerar entidades";
+    LOG(INFO) << "rolando " << item_selecionado.quantidade << " para gerar entidades.";
     quantidade = RolaValor(item_selecionado.quantidade);
+    LOG(INFO) << "resultado: " << quantidade;
     if (quantidade > 100) {
       throw std::logic_error("");
     }
@@ -1102,24 +1103,24 @@ std::vector<InfoSelecao> MontaVetorInfosSelecao(const Tabuleiro::ItemSelecionado
   return infos;
 }
 
-std::pair<std::vector<Modelo>, int> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const std::vector<InfoSelecao>& infos, bool aleatorio) {
+std::vector<Modelo> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const std::vector<InfoSelecao>& infos, bool aleatorio) {
   int sorteio = aleatorio ? RolaDado(infos.size()) - 1 : i;
   if (sorteio < 0 || sorteio >= (int)infos.size()) {
     LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << infos.size();
-    return {std::vector<Modelo>(), 0};
+    return {};
   }
   const auto& [id_tudo, ids, quantidade_str] = infos[sorteio];
   int valor = RolaValor(quantidade_str);
   if (valor <= 0) {
     LOG(INFO) << "valor negativo para " << quantidade_str << ", valor: " << valor << ", retornando vazio";
-    return {std::vector<Modelo>(), 0};
+    return {};
   }
   if (valor > 100) {
     // Valores negativos sao validos (nao sao erros), mas vamos evitar valores muito grandes.
     LOG(WARNING) << "valor muito grande para " << quantidade_str << ", valor: " << valor;
-    return {std::vector<Modelo>(), 0};
+    return {};
   }
-  LOG(INFO) << "numero sorteado: " << (sorteio + 1) << " de " << infos.size() << "; id sorteado: " << id_tudo << ", vezes: " << quantidade_str << "= " << valor;
+  LOG(INFO) << "numero sorteado: " << (sorteio + 1) << " de " << infos.size() << "; id sorteado: " << id_tudo << ", vezes: " << quantidade_str << " = " << valor;
   std::vector<Modelo> modelos;
   for (int i = 0; i < valor; ++i) {
     for (const auto& id : ids) {
@@ -1131,7 +1132,7 @@ std::pair<std::vector<Modelo>, int> SorteiaOuEscolheModelo(const Tabelas& tabela
       modelos.push_back(modelo_com_parametros);
     }
   }
-  return std::make_pair(modelos, valor);
+  return modelos;
 }
 
 Vector2 ComputaOffset(int i) {
@@ -1197,18 +1198,16 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         std::vector<InfoSelecao> infos = MontaVetorInfosSelecao(item_selecionado_);
         int indice_offset = 0;
         for (int i = 0; i < quantidade; ++i) {
-          const auto& [modelos_com_parametros, quantidade_modelo] = SorteiaOuEscolheModelo(tabelas_, i, infos, item_selecionado_.aleatorio);
+          const auto& modelos_com_parametros = SorteiaOuEscolheModelo(tabelas_, i, infos, item_selecionado_.aleatorio);
           if (modelos_com_parametros.empty()) {
             continue;
           }
-          for (int j = 0; j < quantidade_modelo; ++j) {
-            for (const auto& modelo_com_parametros : modelos_com_parametros) {
-              if (modelo_com_parametros.id().empty()) continue;
-              Vector2 offset = ComputaOffset(indice_offset++);
-              auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z);
-              AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
-              entidades_adicionadas.emplace_back(std::move(entidade));
-            }
+          for (const auto& modelo_com_parametros : modelos_com_parametros) {
+            if (modelo_com_parametros.id().empty()) continue;
+            Vector2 offset = ComputaOffset(indice_offset++);
+            auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z);
+            AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
+            entidades_adicionadas.emplace_back(std::move(entidade));
           }
         }
       }
