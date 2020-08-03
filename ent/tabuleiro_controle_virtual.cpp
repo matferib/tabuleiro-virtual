@@ -734,6 +734,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_MODO_REMOVER_DE_GRUPO:
       AlternaModoRemocaoDeGrupo();
       break;
+    case CONTROLE_MODO_MINECRAFT:
+      AlternaModoMinecraft();
+      break;
     case CONTROLE_DESENHO_COR_VERMELHO:
     case CONTROLE_DESENHO_COR_VERDE:
     case CONTROLE_DESENHO_COR_AZUL:
@@ -1421,6 +1424,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ROLAR_D100,        [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 100; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
     { CONTROLE_MODO_REMOVER_DE_GRUPO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_REMOCAO_DE_GRUPO; } },
+    { CONTROLE_MODO_MINECRAFT,    [this] (const Entidade* entidade) { return modo_clique_ == MODO_MINECRAFT; } },
     { CONTROLE_MODO_ESQUIVA,      [this] (const Entidade* entidade) {
       if (modo_clique_ == MODO_ESQUIVA) return true;
       return entidade != nullptr && entidade->Proto().dados_defesa().has_entidade_esquiva();

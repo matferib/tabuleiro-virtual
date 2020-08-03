@@ -576,6 +576,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_ENTS_PRESSIONADAS: {
+      VLOG(1) << "movendo entidades selecionadas";
       // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
@@ -593,6 +594,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         if (entidade_selecionada == nullptr) {
           continue;
         }
+        VLOG(2) << "entidade: " << entidade_selecionada->Id();
         float ex0 = entidade_selecionada->X();
         float ey0 = entidade_selecionada->Y();
         float ex1 = ex0 + dx;
@@ -2304,8 +2306,8 @@ void Tabuleiro::AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigne
 }
 
 float Tabuleiro::TrataPreAcaoComum(
-    float atraso_s, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
-    ntf::Notificacao* grupo_desfazer) {
+    float atraso_s, const Posicao& pos_entidade, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino,
+    AcaoProto* acao_proto, ntf::Notificacao* grupo_desfazer) {
   if (acao_proto->has_dado_pv_mais_alto()) {
     acao_proto->set_pv_mais_alto(RolaValor(acao_proto->dado_pv_mais_alto()));
   }
@@ -2383,6 +2385,9 @@ float Tabuleiro::TrataPreAcaoComum(
   acao_proto->set_bem_sucedida(true);
   acao_proto->set_atraso_s(atraso_s);
   *acao_proto->mutable_pos_tabuleiro() = pos_tabuleiro;
+  if (pos_entidade.has_x()) {
+    *acao_proto->mutable_pos_entidade() = pos_entidade;
+  }
   acao_proto->set_id_entidade_origem(entidade_origem.Id());
   VLOG(1) << "acao proto: " << acao_proto->DebugString();
   return atraso_s;
@@ -2445,7 +2450,7 @@ float Tabuleiro::TrataAcaoUmaEntidade(
   ntf::Notificacao grupo_desfazer;
   grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   atraso_s = TrataPreAcaoComum(
-      atraso_s, pos_tabuleiro, entidade_origem_nao_null, id_entidade_destino, &acao_proto, &grupo_desfazer);
+      atraso_s, pos_entidade_destino, pos_tabuleiro, entidade_origem_nao_null, id_entidade_destino, &acao_proto, &grupo_desfazer);
 
   if (acao_proto.bem_sucedida()) {
     auto n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
@@ -2760,6 +2765,31 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
   } else {
     LOG(WARNING) << "ids_adicionados_ zoado, desfazer vai quebrar";
   }
+}
+
+void Tabuleiro::TrataBotaoAdicionarBlocoMinecraftPressionadoPosPicking(float x3d, float y3d, float z3d) {
+  LOG(INFO) << "entrou: x3d " << x3d << ", y3d: " << y3d << ", z3d: " << z3d;
+  x3d = floor(x3d / TAMANHO_LADO_QUADRADO) * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2;
+  y3d = floor(y3d / TAMANHO_LADO_QUADRADO) * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2;
+  z3d = floor(z3d / TAMANHO_LADO_QUADRADO) * TAMANHO_LADO_QUADRADO;
+  LOG(INFO) << "virou: x3d " << x3d << ", y3d: " << y3d << ", z3d: " << z3d;
+  EntidadeProto cubo;
+  cubo.set_id(GeraIdEntidade(id_cliente_));
+  cubo.set_tipo(TE_FORMA);
+  cubo.set_sub_tipo(TF_CUBO);
+  auto* pos = cubo.mutable_pos();
+  pos->set_x(x3d);
+  pos->set_y(y3d);
+  pos->set_z(z3d);
+  auto* escala = cubo.mutable_escala();
+  escala->set_x(TAMANHO_LADO_QUADRADO);
+  escala->set_y(TAMANHO_LADO_QUADRADO);
+  escala->set_z(TAMANHO_LADO_QUADRADO);
+  *cubo.mutable_cor() = forma_cor_;
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+  n.mutable_entidade()->Swap(&cubo);
+  TrataNotificacao(n);
 }
 
 void Tabuleiro::TrataBotaoMontariaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
@@ -3149,6 +3179,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       case MODO_REMOCAO_DE_GRUPO:
         TrataBotaoRemocaoGrupoPressionadoPosPicking(x, y, id, tipo_objeto);
         return;
+      case MODO_MINECRAFT:
+        TrataBotaoAdicionarBlocoMinecraftPressionadoPosPicking(x3d, y3d, z3d);
+        return;
       case MODO_MONTAR:
         TrataBotaoMontariaPressionadoPosPicking(id, tipo_objeto);
         return;
@@ -3284,7 +3317,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
   if (modo_clique_ == MODO_AGUARDANDO) {
     return;
   }
- 
+
   primeiro_x_ = x;
   primeiro_y_ = y;
   ultimo_x_ = x;

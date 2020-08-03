@@ -1855,6 +1855,18 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
+    coluna: 7
+    rotulo: "Mc"
+    cor_rotulo {}
+    textura: "icon_minecraft.png"
+    id: CONTROLE_MODO_MINECRAFT
+    forma: FORMA_RETANGULO
+    dica: "Alterna modo minecraft."
+  }
+
+  dados_botoes {
+    tamanho: 1
+    linha: 2
     coluna: 8
     rotulo: "Rc"
     cor_rotulo {}

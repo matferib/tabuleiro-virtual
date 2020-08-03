@@ -707,10 +707,10 @@ void LimpaDadosAcumulados() {
 }
 
 // Rola um dado de nfaces.
-int RolaDado(unsigned int nfaces) {
+int RolaDado(unsigned int nfaces, bool ignora_forcado) {
   // TODO inicializacao do motor de baseada no timestamp.
   static std::default_random_engine motor(std::chrono::system_clock::now().time_since_epoch().count());
-  if (!g_dados_teste.empty()) {
+  if (!g_dados_teste.empty() && !ignora_forcado) {
     int valor = g_dados_teste.front();
     g_dados_teste.pop();
     VLOG(1) << "retornando valor forcado: " << valor;
@@ -738,7 +738,7 @@ void ImprimeDadosRolados() {
 }
 
 float Aleatorio() {
-  int val = RolaDado(10001) - 1;  // [0-10000]
+  int val = RolaDado(10001, /*ignora_forcado=*/true) - 1;  // [0-10000]
   return val / 10000.0f;
 }
 
@@ -1110,7 +1110,7 @@ float DistanciaMetros(const Posicao& pos_acao_a, const Posicao& pos_acao_d) {
   float distancia_m = 0;
   vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
   distancia_m += (va - vd).length();
-  VLOG(1) << "distancia_m: " << distancia_m;
+  VLOG(2) << "distancia_m: " << distancia_m;
   return distancia_m;
 }
 
