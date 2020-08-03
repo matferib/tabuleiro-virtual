@@ -7909,6 +7909,17 @@ void Tabuleiro::AlternaModoRemocaoDeGrupo() {
   }
 }
 
+void Tabuleiro::AlternaModoMinecraft() {
+  if (!EmModoMestreIncluindoSecundario()) {
+    return;
+  }
+  if (modo_clique_ == MODO_MINECRAFT) {
+    EntraModoClique(MODO_NORMAL);
+  } else {
+    EntraModoClique(MODO_MINECRAFT);
+  }
+}
+
 void Tabuleiro::EntraModoClique(modo_clique_e modo) {
   if (modo_clique_ == MODO_AGUARDANDO && modo != MODO_SAIR_AGUARDANDO) {
     LOG(INFO) << "mundança de modo inválida no modo aguardando, modo: " << modo;

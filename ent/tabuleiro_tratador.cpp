@@ -2767,6 +2767,31 @@ void Tabuleiro::TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsign
   }
 }
 
+void Tabuleiro::TrataBotaoAdicionarBlocoMinecraftPressionadoPosPicking(float x3d, float y3d, float z3d) {
+  LOG(INFO) << "entrou: x3d " << x3d << ", y3d: " << y3d << ", z3d: " << z3d;
+  x3d = floor(x3d / TAMANHO_LADO_QUADRADO) * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2;
+  y3d = floor(y3d / TAMANHO_LADO_QUADRADO) * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2;
+  z3d = floor(z3d / TAMANHO_LADO_QUADRADO) * TAMANHO_LADO_QUADRADO;
+  LOG(INFO) << "virou: x3d " << x3d << ", y3d: " << y3d << ", z3d: " << z3d;
+  EntidadeProto cubo;
+  cubo.set_id(GeraIdEntidade(id_cliente_));
+  cubo.set_tipo(TE_FORMA);
+  cubo.set_sub_tipo(TF_CUBO);
+  auto* pos = cubo.mutable_pos();
+  pos->set_x(x3d);
+  pos->set_y(y3d);
+  pos->set_z(z3d);
+  auto* escala = cubo.mutable_escala();
+  escala->set_x(TAMANHO_LADO_QUADRADO);
+  escala->set_y(TAMANHO_LADO_QUADRADO);
+  escala->set_z(TAMANHO_LADO_QUADRADO);
+  *cubo.mutable_cor() = forma_cor_;
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+  n.mutable_entidade()->Swap(&cubo);
+  TrataNotificacao(n);
+}
+
 void Tabuleiro::TrataBotaoMontariaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto) {
   EntraModoClique(MODO_NORMAL);
   const auto ids = IdsEntidadesSelecionadasOuPrimeiraPessoa();
@@ -3153,6 +3178,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         return;
       case MODO_REMOCAO_DE_GRUPO:
         TrataBotaoRemocaoGrupoPressionadoPosPicking(x, y, id, tipo_objeto);
+        return;
+      case MODO_MINECRAFT:
+        TrataBotaoAdicionarBlocoMinecraftPressionadoPosPicking(x3d, y3d, z3d);
         return;
       case MODO_MONTAR:
         TrataBotaoMontariaPressionadoPosPicking(id, tipo_objeto);
