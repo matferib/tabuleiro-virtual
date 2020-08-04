@@ -7602,7 +7602,11 @@ std::string AtualizaVenenoAposZerarDuracao(const Entidade& entidade, EntidadePro
 
 std::tuple<int, std::string> AtualizaFogoAlquimicoAposZerarDuracao(const Entidade& entidade, EntidadeProto::Evento* evento_depois, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   int dano = -RolaValor("1d6");
-  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO, &n_efeito, grupo_desfazer);
+  if (n_efeito != nullptr) {
+    grupo->add_notificacao()->Swap(n_efeito.get());
+  }
   if (resultado.causa == ALT_IMUNIDADE) {
     return {0, "fogo alquimico: imune"};
   }
@@ -7616,7 +7620,11 @@ std::tuple<int, std::string> AtualizaFogoAlquimicoAposZerarDuracao(const Entidad
 
 std::tuple<int, std::string> AtualizaFlechaAcidaAposPassarRodada(const Entidade& entidade, EntidadeProto::Evento* evento_depois, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   int dano = -RolaValor("2d4");
-  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO, &n_efeito, grupo_desfazer);
+  if (n_efeito != nullptr) {
+    grupo->add_notificacao()->Swap(n_efeito.get());
+  }
   if (resultado.causa == ALT_IMUNIDADE) {
     return {0, "flecha ácida: imune"};
   }

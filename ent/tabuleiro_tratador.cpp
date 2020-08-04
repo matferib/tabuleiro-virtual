@@ -1272,9 +1272,13 @@ float Tabuleiro::TrataAcaoProjetilArea(
         AdicionaLogEvento(id, texto_afeta);
       }
     } else {
+      std::unique_ptr<ntf::Notificacao> n_efeito;
       ResultadoImunidadeOuResistencia resultado_elemento =
-          ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
+          ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento(), &n_efeito, grupo_desfazer);
       if (resultado_elemento.causa != ALT_NENHUMA) {
+        if (n_efeito != nullptr) {
+          central_->AdicionaNotificacao(std::move(n_efeito));
+        }
         delta_pv += resultado_elemento.resistido;
         ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
         AdicionaLogEvento(id, resultado_elemento.texto);
@@ -1305,9 +1309,13 @@ float Tabuleiro::TrataAcaoProjetilArea(
 
     if (acao_proto->respingo_causa_efeitos_adicionais()) {
       // Imunidade ao tipo de ataque.
+      std::unique_ptr<ntf::Notificacao> n_efeito;
       ResultadoImunidadeOuResistencia resultado_elemento =
-          ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
+          ImunidadeOuResistenciaParaElemento(delta_pv, da, entidade_destino->Proto(), acao_proto->elemento(), &n_efeito, grupo_desfazer);
       if (resultado_elemento.causa != ALT_NENHUMA) {
+        if (n_efeito != nullptr) {
+          central_->AdicionaNotificacao(std::move(n_efeito));
+        }
         delta_pv += resultado_elemento.resistido;
         ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
         AdicionaLogEvento(entidade_origem->Id(), resultado_elemento.texto);
@@ -1480,16 +1488,22 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       AdicionaLogEvento(entidade_origem->Id(), texto_salvacao);
     }
     // Imunidade ao tipo de ataque.
-    if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
-          delta_pv_pos_salvacao, da, entidade_destino->Proto(), acao_proto->elemento());
-        resultado_elemento.causa != ALT_NENHUMA) {
-      delta_pv_pos_salvacao += resultado_elemento.resistido;
-      atraso_s += 1.5f;
-      ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
-      AdicionaLogEvento(entidade_destino->Id(), resultado_elemento.texto);
-      if (resultado_elemento.causa == ALT_IMUNIDADE || (resultado_elemento.causa == ALT_RESISTENCIA && delta_pv_pos_salvacao == 0)) {
-        por_entidade->set_delta(0);
-        continue;
+    {
+      std::unique_ptr<ntf::Notificacao> n_efeito;
+      if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
+              delta_pv_pos_salvacao, da, entidade_destino->Proto(), acao_proto->elemento(), &n_efeito, grupo_desfazer);
+          resultado_elemento.causa != ALT_NENHUMA) {
+        if (n_efeito != nullptr) {
+          central_->AdicionaNotificacao(std::move(n_efeito));
+        }
+        delta_pv_pos_salvacao += resultado_elemento.resistido;
+        atraso_s += 1.5f;
+        ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
+        AdicionaLogEvento(entidade_destino->Id(), resultado_elemento.texto);
+        if (resultado_elemento.causa == ALT_IMUNIDADE || (resultado_elemento.causa == ALT_RESISTENCIA && delta_pv_pos_salvacao == 0)) {
+          por_entidade->set_delta(0);
+          continue;
+        }
       }
     }
     if (auto vopt = VulnerabilidadeParaElemento(delta_pv_pos_salvacao, entidade_destino->Proto(), acao_proto->elemento());
@@ -1499,12 +1513,18 @@ float Tabuleiro::TrataAcaoEfeitoArea(
       AdicionaLogEvento(entidade_destino->Id(), texto);
       delta_pv_pos_salvacao += delta;
     }
-    if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
-          delta_pv_adicional_entidade, da, entidade_destino->Proto(), da.elemento_dano_adicional());
-        resultado_elemento.causa != ALT_NENHUMA) {
-      delta_pv_adicional_entidade += resultado_elemento.resistido;
-      ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
-      AdicionaLogEvento(entidade_destino->Id(), resultado_elemento.texto);
+    {
+      std::unique_ptr<ntf::Notificacao> n_efeito;
+      if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
+              delta_pv_adicional_entidade, da, entidade_destino->Proto(), da.elemento_dano_adicional(), &n_efeito, grupo_desfazer);
+          resultado_elemento.causa != ALT_NENHUMA) {
+        if (n_efeito != nullptr) {
+          central_->AdicionaNotificacao(std::move(n_efeito));
+        }
+        delta_pv_adicional_entidade += resultado_elemento.resistido;
+        ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
+        AdicionaLogEvento(entidade_destino->Id(), resultado_elemento.texto);
+      }
     }
     if (auto vopt = VulnerabilidadeParaElemento(delta_pv_adicional_entidade, entidade_destino->Proto(), da.elemento_dano_adicional());
         vopt.has_value()) {
@@ -2173,14 +2193,20 @@ float Tabuleiro::TrataAcaoIndividual(
     }
 
     // Resistencias e imunidades.
-    if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
-          delta_pv, da, entidade_destino->Proto(), acao_proto->elemento());
-        resultado_elemento.causa != ALT_NENHUMA) {
-      delta_pv += resultado_elemento.resistido;
-      ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
-      if (delta_pv == 0) {
-        // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
-        por_entidade->set_delta(0);
+    {
+      std::unique_ptr<ntf::Notificacao> n_efeito;
+      if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
+                delta_pv, da, entidade_destino->Proto(), acao_proto->elemento(), &n_efeito, grupo_desfazer);
+          resultado_elemento.causa != ALT_NENHUMA) {
+        if (n_efeito != nullptr) {
+          central_->AdicionaNotificacao(std::move(n_efeito));
+        }
+        delta_pv += resultado_elemento.resistido;
+        ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
+        if (delta_pv == 0) {
+          // Seta delta para indicar que houve acerto, apesar da imunidade/resistencia.
+          por_entidade->set_delta(0);
+        }
       }
     }
     if (auto vopt = VulnerabilidadeParaElemento(delta_pv, entidade_destino->Proto(), acao_proto->elemento());
@@ -2190,11 +2216,17 @@ float Tabuleiro::TrataAcaoIndividual(
       AdicionaLogEvento(entidade_destino->Id(), texto);
       delta_pv += delta;
     }
-    if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
-          delta_pv_adicional, da, entidade_destino->Proto(), da.elemento_dano_adicional());
-        resultado_elemento.causa != ALT_NENHUMA) {
-      delta_pv_adicional += resultado_elemento.resistido;
-      ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
+    {
+      std::unique_ptr<ntf::Notificacao> n_efeito;
+      if (ResultadoImunidadeOuResistencia resultado_elemento = ImunidadeOuResistenciaParaElemento(
+            delta_pv_adicional, da, entidade_destino->Proto(), da.elemento_dano_adicional(), &n_efeito, grupo_desfazer);
+          resultado_elemento.causa != ALT_NENHUMA) {
+        if (n_efeito != nullptr) {
+          central_->AdicionaNotificacao(std::move(n_efeito));
+        }
+        delta_pv_adicional += resultado_elemento.resistido;
+        ConcatenaString(resultado_elemento.texto, por_entidade->mutable_texto());
+      }
     }
     if (auto vopt = VulnerabilidadeParaElemento(delta_pv_adicional, entidade_destino->Proto(), da.elemento_dano_adicional());
         vopt.has_value()) {
