@@ -1787,8 +1787,9 @@ TEST(TesteTalentoPericias, TesteDadosVidaAutomatico) {
   proto.set_dados_vida_automatico(true);
   auto e = NovaEntidadeParaTestes(proto, g_tabelas);
   EXPECT_EQ(e->Proto().dados_vida(), "4+3d4+7+3+3");
+  EXPECT_TRUE(e->Proto().has_max_pontos_vida());
+  EXPECT_GT(e->Proto().pontos_vida(), 0);
 }
-
 
 namespace {
 const AcaoProto::PorEntidade& PrimeiraEntidadeOuPadrao(const AcaoProto& acao) {
@@ -4729,7 +4730,9 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
 TEST(TesteImunidades, TesteImunidadesNada) {
   EntidadeProto proto;
   RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO).causa, ALT_NENHUMA);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  ntf::Notificacao grupo_desfazer;
+  EXPECT_EQ(ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO, &n_efeito, &grupo_desfazer).causa, ALT_NENHUMA);
 }
 
 TEST(TesteImunidades, TesteEscudoVsMisseisMagicos) {
@@ -4743,16 +4746,79 @@ TEST(TesteImunidades, TesteEscudoVsMisseisMagicos) {
   RecomputaDependencias(g_tabelas, &proto);
   DadosAtaque da;
   da.set_id_arma("missil_magico");
-  auto resistencia = ImunidadeOuResistenciaParaElemento(-10, da, proto, DESC_NENHUM);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  ntf::Notificacao grupo_desfazer;
+  auto resistencia = ImunidadeOuResistenciaParaElemento(-10, da, proto, DESC_NENHUM, &n_efeito, &grupo_desfazer);
   EXPECT_EQ(resistencia.causa, ALT_IMUNIDADE);
   EXPECT_EQ(resistencia.resistido, 10);
+}
+
+namespace {
+
+template <class T>
+const T& PrimeiroOuPadrao(const google::protobuf::RepeatedPtrField<T>& repeated) {
+  if (repeated.empty()) return T::default_instance();
+  return repeated.Get(0);
+}
+
+}  // namespace
+
+TEST(TesteImunidades, TesteEscudoVsMisseisMagicosBrocheParcial) {
+  EntidadeProto proto;
+  proto.set_id(123);
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_BROCHE_ESCUDO);
+    evento->set_id_unico(0);
+    evento->set_rodadas(1);
+    evento->add_complementos(3);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  DadosAtaque da;
+  da.set_id_arma("missil_magico");
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  ntf::Notificacao grupo_desfazer;
+  auto resistencia = ImunidadeOuResistenciaParaElemento(-4, da, proto, DESC_FORCA, &n_efeito, &grupo_desfazer);
+  EXPECT_EQ(resistencia.causa, ALT_RESISTENCIA);
+  EXPECT_EQ(resistencia.resistido, 3);
+  ASSERT_NE(n_efeito, nullptr);
+  EXPECT_EQ(n_efeito->entidade().id(), 123);
+  const auto& evento = PrimeiroOuPadrao(n_efeito->entidade().evento());
+  EXPECT_EQ(evento.id_efeito(), EFEITO_BROCHE_ESCUDO);
+  ASSERT_FALSE(evento.complementos().empty());
+  EXPECT_EQ(evento.complementos(0), 0);
+}
+
+TEST(TesteImunidades, TesteEscudoVsMisseisMagicosBrocheTudo) {
+  EntidadeProto proto;
+  {
+    auto* evento = proto.add_evento();
+    evento->set_id_efeito(EFEITO_BROCHE_ESCUDO);
+    evento->set_id_unico(0);
+    evento->set_rodadas(1);
+    evento->add_complementos(3);
+  }
+  RecomputaDependencias(g_tabelas, &proto);
+  DadosAtaque da;
+  da.set_id_arma("missil_magico");
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  ntf::Notificacao grupo_desfazer;
+  auto resistencia = ImunidadeOuResistenciaParaElemento(-2, da, proto, DESC_FORCA, &n_efeito, &grupo_desfazer);
+  EXPECT_EQ(resistencia.causa, ALT_IMUNIDADE);
+  EXPECT_EQ(resistencia.resistido, 2);
+  const auto& evento = PrimeiroOuPadrao(n_efeito->entidade().evento());
+  EXPECT_EQ(evento.id_efeito(), EFEITO_BROCHE_ESCUDO);
+  ASSERT_FALSE(evento.complementos().empty());
+  EXPECT_EQ(evento.complementos(0), 1);
 }
 
 TEST(TesteImunidades, TesteImunidade) {
   EntidadeProto proto;
   proto.mutable_dados_defesa()->add_imunidades(DESC_ACIDO);
   RecomputaDependencias(g_tabelas, &proto);
-  auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  ntf::Notificacao grupo_desfazer;
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO, &n_efeito, &grupo_desfazer);
   EXPECT_EQ(resultado.causa, ALT_IMUNIDADE);
   EXPECT_EQ(resultado.resistido, 10);
 }
@@ -4763,7 +4829,9 @@ TEST(TesteImunidades, TesteResistencia) {
   resistencia->set_valor(10);
   resistencia->set_descritor(DESC_ACIDO);
   RecomputaDependencias(g_tabelas, &proto);
-  auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  ntf::Notificacao grupo_desfazer;
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO, &n_efeito, &grupo_desfazer);
   EXPECT_EQ(resultado.causa, ALT_RESISTENCIA);
   EXPECT_EQ(resultado.resistido, 10);
 }
@@ -4778,7 +4846,9 @@ TEST(TesteImunidades, TesteMultiplasResistencia) {
   resistencia2->set_descritor(DESC_ACIDO);
 
   RecomputaDependencias(g_tabelas, &proto);
-  auto resultado = ImunidadeOuResistenciaParaElemento(-15, DadosAtaque::default_instance(), proto, DESC_ACIDO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  ntf::Notificacao grupo_desfazer;
+  auto resultado = ImunidadeOuResistenciaParaElemento(-15, DadosAtaque::default_instance(), proto, DESC_ACIDO, &n_efeito, &grupo_desfazer);
   EXPECT_EQ(resultado.causa, ALT_RESISTENCIA);
   EXPECT_EQ(resultado.resistido, 12);
 }
@@ -4790,7 +4860,9 @@ TEST(TesteImunidades, TesteResistenciaNaoBate) {
   resistencia->set_descritor(DESC_ACIDO);
 
   RecomputaDependencias(g_tabelas, &proto);
-  auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_FOGO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  ntf::Notificacao grupo_desfazer;
+  auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_FOGO, &n_efeito, &grupo_desfazer);
   EXPECT_EQ(resultado.causa, ALT_NENHUMA);
 }
 
@@ -6758,7 +6830,6 @@ TEST(TesteTesouro, TesteTesouroEsperado) {
       {&tesouro.pocoes(), TIPO_POCAO},
     };
     int soma = 0;
-    const auto& todos = TodosItens(e->Proto());
     for (const auto& [itens, tipo] : itens_agrupados) {
       for (const auto& item : *itens) {
         const auto& item_tabelado = ItemTabela(g_tabelas, tipo, item.id());

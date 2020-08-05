@@ -1,3 +1,6 @@
+Dados de vida automatico: nao elite!
+Fazer modelo para ruinas de casas.
+Tesouro: permitir transicao de varios tesouros.
 Implementar acalmar emoções.
 Tabelar doencas.
 Talento sniper: baseado no sniper de besta do PH 2 (aplica metade da destreza no dano).

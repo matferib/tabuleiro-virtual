@@ -1072,8 +1072,9 @@ int QuantidadeSorteios(const Tabuleiro::ItemSelecionado& item_selecionado) {
   }
   int quantidade = 0;
   try {
-    LOG(INFO) << "rolando " << item_selecionado.quantidade << " para gerar entidades";
+    LOG(INFO) << "rolando " << item_selecionado.quantidade << " para gerar entidades.";
     quantidade = RolaValor(item_selecionado.quantidade);
+    LOG(INFO) << "resultado: " << quantidade;
     if (quantidade > 100) {
       throw std::logic_error("");
     }
@@ -1103,24 +1104,24 @@ std::vector<InfoSelecao> MontaVetorInfosSelecao(const Tabuleiro::ItemSelecionado
   return infos;
 }
 
-std::pair<std::vector<Modelo>, int> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const std::vector<InfoSelecao>& infos, bool aleatorio) {
+std::vector<Modelo> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const std::vector<InfoSelecao>& infos, bool aleatorio) {
   int sorteio = aleatorio ? RolaDado(infos.size()) - 1 : i;
   if (sorteio < 0 || sorteio >= (int)infos.size()) {
     LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << infos.size();
-    return {std::vector<Modelo>(), 0};
+    return {};
   }
   const auto& [id_tudo, ids, quantidade_str] = infos[sorteio];
   int valor = RolaValor(quantidade_str);
   if (valor <= 0) {
     LOG(INFO) << "valor negativo para " << quantidade_str << ", valor: " << valor << ", retornando vazio";
-    return {std::vector<Modelo>(), 0};
+    return {};
   }
   if (valor > 100) {
     // Valores negativos sao validos (nao sao erros), mas vamos evitar valores muito grandes.
     LOG(WARNING) << "valor muito grande para " << quantidade_str << ", valor: " << valor;
-    return {std::vector<Modelo>(), 0};
+    return {};
   }
-  LOG(INFO) << "numero sorteado: " << (sorteio + 1) << " de " << infos.size() << "; id sorteado: " << id_tudo << ", vezes: " << quantidade_str << "= " << valor;
+  LOG(INFO) << "numero sorteado: " << (sorteio + 1) << " de " << infos.size() << "; id sorteado: " << id_tudo << ", vezes: " << quantidade_str << " = " << valor;
   std::vector<Modelo> modelos;
   for (int i = 0; i < valor; ++i) {
     for (const auto& id : ids) {
@@ -1132,7 +1133,7 @@ std::pair<std::vector<Modelo>, int> SorteiaOuEscolheModelo(const Tabelas& tabela
       modelos.push_back(modelo_com_parametros);
     }
   }
-  return std::make_pair(modelos, valor);
+  return modelos;
 }
 
 Vector2 ComputaOffset(int i) {
@@ -1198,18 +1199,16 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         std::vector<InfoSelecao> infos = MontaVetorInfosSelecao(item_selecionado_);
         int indice_offset = 0;
         for (int i = 0; i < quantidade; ++i) {
-          const auto& [modelos_com_parametros, quantidade_modelo] = SorteiaOuEscolheModelo(tabelas_, i, infos, item_selecionado_.aleatorio);
+          const auto& modelos_com_parametros = SorteiaOuEscolheModelo(tabelas_, i, infos, item_selecionado_.aleatorio);
           if (modelos_com_parametros.empty()) {
             continue;
           }
-          for (int j = 0; j < quantidade_modelo; ++j) {
-            for (const auto& modelo_com_parametros : modelos_com_parametros) {
-              if (modelo_com_parametros.id().empty()) continue;
-              Vector2 offset = ComputaOffset(indice_offset++);
-              auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z);
-              AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
-              entidades_adicionadas.emplace_back(std::move(entidade));
-            }
+          for (const auto& modelo_com_parametros : modelos_com_parametros) {
+            if (modelo_com_parametros.id().empty()) continue;
+            Vector2 offset = ComputaOffset(indice_offset++);
+            auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, modelo_com_parametros, x + offset.x, y + offset.y, z);
+            AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
+            entidades_adicionadas.emplace_back(std::move(entidade));
           }
         }
       }
@@ -7386,6 +7385,14 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
   }
 }
 
+namespace {
+void DeixaSoUnicos(std::vector<unsigned int>* ids) {
+  std::sort(ids->begin(), ids->end());
+  auto ultimo = std::unique(ids->begin(), ids->end());
+  ids->erase(ultimo, ids->end());
+}
+}  // namespace
+
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaMontadasOuEntidadesSelecionadasMontadas() const {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     const auto* e1 = EntidadePrimeiraPessoa();
@@ -7393,8 +7400,7 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaMontadasOuEntidadesSelecio
     std::vector<unsigned int> ids;
     ids.push_back(e1->Id());
     std::copy(e1->Proto().entidades_montadas().begin(), e1->Proto().entidades_montadas().end(), std::back_inserter(ids));
-    auto ultimo = std::unique(ids.begin(), ids.end());
-    ids.erase(ultimo, ids.end());
+    DeixaSoUnicos(&ids);
     return ids;
   } else {
     return IdsEntidadesSelecionadasEMontadas();
@@ -7425,8 +7431,7 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadas() const {
     if (e == nullptr) continue;
     std::copy(e->Proto().entidades_montadas().begin(), e->Proto().entidades_montadas().end(), std::back_inserter(ids));
   }
-  auto ultimo = std::unique(ids.begin(), ids.end());
-  ids.erase(ultimo, ids.end());
+  DeixaSoUnicos(&ids);
   return ids;
 }
 
@@ -7437,8 +7442,7 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasEMontadasOuPrimeira
     if (e == nullptr) continue;
     std::copy(e->Proto().entidades_montadas().begin(), e->Proto().entidades_montadas().end(), std::back_inserter(ids));
   }
-  auto ultimo = std::unique(ids.begin(), ids.end());
-  ids.erase(ultimo, ids.end());
+  DeixaSoUnicos(&ids);
   return ids;
 }
 
@@ -7599,7 +7603,11 @@ std::string AtualizaVenenoAposZerarDuracao(const Entidade& entidade, EntidadePro
 
 std::tuple<int, std::string> AtualizaFogoAlquimicoAposZerarDuracao(const Entidade& entidade, EntidadeProto::Evento* evento_depois, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   int dano = -RolaValor("1d6");
-  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO, &n_efeito, grupo_desfazer);
+  if (n_efeito != nullptr) {
+    grupo->add_notificacao()->Swap(n_efeito.get());
+  }
   if (resultado.causa == ALT_IMUNIDADE) {
     return {0, "fogo alquimico: imune"};
   }
@@ -7613,7 +7621,11 @@ std::tuple<int, std::string> AtualizaFogoAlquimicoAposZerarDuracao(const Entidad
 
 std::tuple<int, std::string> AtualizaFlechaAcidaAposPassarRodada(const Entidade& entidade, EntidadeProto::Evento* evento_depois, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   int dano = -RolaValor("2d4");
-  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO, &n_efeito, grupo_desfazer);
+  if (n_efeito != nullptr) {
+    grupo->add_notificacao()->Swap(n_efeito.get());
+  }
   if (resultado.causa == ALT_IMUNIDADE) {
     return {0, "flecha ácida: imune"};
   }
@@ -7903,6 +7915,17 @@ void Tabuleiro::AlternaModoRemocaoDeGrupo() {
     EntraModoClique(MODO_NORMAL);
   } else {
     EntraModoClique(MODO_REMOCAO_DE_GRUPO);
+  }
+}
+
+void Tabuleiro::AlternaModoMinecraft() {
+  if (!EmModoMestreIncluindoSecundario()) {
+    return;
+  }
+  if (modo_clique_ == MODO_MINECRAFT) {
+    EntraModoClique(MODO_NORMAL);
+  } else {
+    EntraModoClique(MODO_MINECRAFT);
   }
 }
 

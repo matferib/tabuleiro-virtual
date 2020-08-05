@@ -517,6 +517,9 @@ class Tabuleiro : public ntf::Receptor {
    * composta. */
   void AlternaModoRemocaoDeGrupo();
 
+  /** Alterna para o modo minecraft, onde cada clique adiciona um cubo alinhado a grade. */
+  void AlternaModoMinecraft();
+
   // Controle virtual.
   // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
   // No MODO_TRANSICAO, o clique executara uma transicao de cenario.
@@ -542,6 +545,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_SAIR_AGUARDANDO,   // vide acima.
     MODO_PERICIA,           // O clique rolará a perícia do personagem.
     MODO_ADICAO_ENTIDADE,   // O clique adicionara as entidades escolhidas ao redor do ponto 3d do clique.
+    MODO_MINECRAFT,         // O clique adicionara um cubo de 1 quadrado alinhado ao grid.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -807,8 +811,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Tudo que for comum as ações antes de sua execução deve ser tratado aqui. */
   float TrataPreAcaoComum(
-      float atraso_s, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino, AcaoProto* acao_proto,
-      ntf::Notificacao* grupo_desfazer);
+      float atraso_s, const Posicao& pos_entidade, const Posicao& pos_tabuleiro, const Entidade& entidade_origem, unsigned int id_entidade_destino,
+      AcaoProto* acao_proto, ntf::Notificacao* grupo_desfazer);
   float TrataAcaoEfeitoArea(
       unsigned int id_entidade_destino, float atraso_s, const Posicao& pos_entidade_destino, Entidade* entidade, AcaoProto* acao_proto,
       ntf::Notificacao* n, ntf::Notificacao* grupo_desfazer);
@@ -839,6 +843,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Remove um objeto de dentro de um composto. */
   void TrataBotaoRemocaoGrupoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
+
+  /** Cria um cubo alinhado a grade. */
+  void TrataBotaoAdicionarBlocoMinecraftPressionadoPosPicking(float x3d, float y3d, float z3d);
 
   /** Monta em um objeto. */
   void TrataBotaoMontariaPressionadoPosPicking(unsigned int id, unsigned int tipo_objeto);

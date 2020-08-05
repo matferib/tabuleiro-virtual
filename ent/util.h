@@ -62,7 +62,7 @@ struct Intervalo {
 // Histograma com buckets de tamanho 1.
 class Histograma {
  public:
-  Histograma(float tam_intervalos = 3.0f, float limite_superior = 30.0f) : limite_superior_(limite_superior), tam_intervalos_(tam_intervalos) {}
+  Histograma(float tam_intervalos = 15.0f, float limite_superior = 120.0f) : limite_superior_(limite_superior), tam_intervalos_(tam_intervalos) {}
   void Adiciona(float valor);
   void Imprime() const;
 
@@ -221,7 +221,7 @@ void AcumulaDado(int valor);
 void LimpaDadosAcumulados();
 
 /** Gera um aleatorio de 1 a nfaces. */
-int RolaDado(unsigned int nfaces);
+int RolaDado(unsigned int nfaces, bool ignora_forcado = false);
 /** Gera um aleatorio entre [0.0 e 1.0]. Os valores tem precisao de duas casas. */
 float Aleatorio();
 
@@ -655,6 +655,9 @@ bool PossuiModeloAtivo(TipoEfeitoModelo efeito_modelo, const EntidadeProto& prot
 // Retorna o evento pelo id unico. Retorna nullptr se nao houver.
 EntidadeProto::Evento* AchaEvento(int id_unico, EntidadeProto* proto);
 const EntidadeProto::Evento* AchaEvento(int id_unico, const EntidadeProto& proto);
+// Retorna os eventos do tipo passado.
+std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& proto);
+
 // Retorna verdadeiro se a entidade tiver um evento do tipo passado.
 bool PossuiEvento(TipoEfeito tipo, const EntidadeProto& proto);
 // Retorna true se possuir evento tipo_sim e nao possui evento tipo_nao.
@@ -677,10 +680,6 @@ void LimpaResistenciaElementoEfeitoModelo(DescritorAtaque descritor, TipoEfeitoM
 // Funcoes de reducao de dano.
 ReducaoDano* AchaOuCriaReducaoDanoEfeitoModelo(TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto);
 void LimpaReducaoDanoEfeitoModelo(TipoEfeitoModelo id_efeito_modelo, EntidadeProto* proto);
-
-
-// Retorna os eventos do tipo passado.
-std::vector<const EntidadeProto::Evento*> EventosTipo(TipoEfeito tipo, const EntidadeProto& proto);
 
 // Retorna true se a classe possuir a salvacao forte do tipo passado.
 bool ClassePossuiSalvacaoForte(TipoSalvacao ts, const InfoClasse& ic);
@@ -999,7 +998,10 @@ struct ResultadoImunidadeOuResistencia {
   const ResistenciaElementos* resistencia = nullptr;  // qual resistencia barrou.
 };
 // Retorna se o ataque foi resistido, por que tipo de defesa e qual o valor resistido, que nunca passara de -delta_pv.
-ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento);
+// Caso algum efeito seja alterado, preenche n_efeito e grupo desfazer.
+ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(
+    int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento,
+    std::unique_ptr<ntf::Notificacao>* n_efeito, ntf::Notificacao* grupo_desfazer);
 
 // Retorna o novo delta_pv e o texto de vulnerabilidade.
 std::optional<std::pair<int, std::string>> VulnerabilidadeParaElemento(

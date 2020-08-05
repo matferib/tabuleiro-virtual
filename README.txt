@@ -15,6 +15,7 @@ som glass_break: https://freesound.org/people/unfa/sounds/221528/
 som spiked_chain: https://freesound.org/people/daveincamas/sounds/44076/
 som hideous_laughter: https://freesound.org/people/RaspberryTickle/sounds/203231/
 som pistol: https://freesound.org/people/schots/sounds/382735/
+som landslide: https://freesound.org/people/tayingalive/sounds/442552/
 
 terrain_foliage_coarse.png: CC BY-SA 3.0 -- Heath Rezabek -- Vessel CC -- http://vessel.cc
 swarm_spider: Spider made by Tuomo Untinen.

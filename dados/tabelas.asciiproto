@@ -1280,6 +1280,10 @@ tabela_armas {
 }
 tabela_efeitos {
   efeitos {
+    id: EFEITO_BROCHE_ESCUDO
+    nome: 'broche do escudo'
+  }
+  efeitos {
     id: EFEITO_TRANSFORMACAO_MOMENTANEA
     nome: 'transformação momentânea'
     consequencia {
@@ -2972,6 +2976,14 @@ tabela_bracadeiras {
 }
 
 tabela_amuletos {
+  amuletos {
+    id: 'broche_escudo'  # brooch of shielding
+    nome: 'Broche do Escudo'
+    descricao: 'Absorve 101 pontos de dano de mísseis mágicos.'
+    custo_po: 1500
+    tipo_efeito: EFEITO_BROCHE_ESCUDO
+    complementos: 101
+  }
   amuletos {
     id: 'amuleto_saude_2'
     nome: 'Amuleto da Saúde +2'
@@ -7353,7 +7365,6 @@ tabela_feiticos {
   armas {
     id: 'pele_rochosa'
     nome_ingles: 'stoneskin'
-    link: 'https://www.d20srd.org/srd/spells/stoneskin.htm'
     nome: 'pele rochosa'
     info_classes {
       id: 'mago'

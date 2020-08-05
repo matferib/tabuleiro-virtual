@@ -707,10 +707,10 @@ void LimpaDadosAcumulados() {
 }
 
 // Rola um dado de nfaces.
-int RolaDado(unsigned int nfaces) {
+int RolaDado(unsigned int nfaces, bool ignora_forcado) {
   // TODO inicializacao do motor de baseada no timestamp.
   static std::default_random_engine motor(std::chrono::system_clock::now().time_since_epoch().count());
-  if (!g_dados_teste.empty()) {
+  if (!g_dados_teste.empty() && !ignora_forcado) {
     int valor = g_dados_teste.front();
     g_dados_teste.pop();
     VLOG(1) << "retornando valor forcado: " << valor;
@@ -738,7 +738,7 @@ void ImprimeDadosRolados() {
 }
 
 float Aleatorio() {
-  int val = RolaDado(10001) - 1;  // [0-10000]
+  int val = RolaDado(10001, /*ignora_forcado=*/true) - 1;  // [0-10000]
   return val / 10000.0f;
 }
 
@@ -1110,7 +1110,7 @@ float DistanciaMetros(const Posicao& pos_acao_a, const Posicao& pos_acao_d) {
   float distancia_m = 0;
   vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
   distancia_m += (va - vd).length();
-  VLOG(1) << "distancia_m: " << distancia_m;
+  VLOG(2) << "distancia_m: " << distancia_m;
   return distancia_m;
 }
 
@@ -4954,7 +4954,9 @@ const char* TextoDescritor(int descritor) {
   return "desconhecido";
 }
 
-ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento) {
+ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(
+    int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento,
+    std::unique_ptr<ntf::Notificacao>* n_efeito, ntf::Notificacao* grupo_desfazer) {
   ResultadoImunidadeOuResistencia resultado;
   if (delta_pv >= 0) {
     return resultado;
@@ -4973,6 +4975,36 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
     resultado.texto = StringPrintf("imunidade: %s", TextoDescritor(elemento));
     resultado.causa = ALT_IMUNIDADE;
     return resultado;
+  }
+
+  if (da.id_arma() == "missil_magico" && PossuiEvento(EFEITO_BROCHE_ESCUDO, proto)) {
+    if (auto eventos = EventosTipo(EFEITO_BROCHE_ESCUDO, proto); !eventos.empty() && !eventos[0]->complementos().empty()) {
+      const auto* evento = eventos[0];
+      resultado.resistido = std::min(std::abs(delta_pv), evento->complementos(0));
+      if (resultado.resistido > 0) {
+        n_efeito->reset(new ntf::Notificacao);
+        auto [proto_antes, proto_depois] =
+            PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n_efeito->get());
+        *proto_antes->add_evento() = *evento;
+        auto* evento_depois = proto_depois->add_evento();
+        *evento_depois = *evento;
+        evento_depois->mutable_complementos()->Set(0, std::max(0, evento_depois->complementos(0) - resultado.resistido));
+        *grupo_desfazer->add_notificacao() = *n_efeito->get();
+      }
+
+      if (resultado.resistido == std::abs(delta_pv)) {
+        resultado.texto = "imunidade por broche do escudo";
+        resultado.causa = ALT_IMUNIDADE;
+        // Cria uma atualizacao do efeito.
+        return resultado;
+      }
+
+      if (resultado.resistido > 0) {
+        resultado.texto = "resistência por broche do escudo";
+        resultado.causa = ALT_RESISTENCIA;
+        return resultado;
+      }
+    }
   }
 
   // Resistencia ao tipo de ataque.
