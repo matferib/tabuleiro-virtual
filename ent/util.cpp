@@ -4954,7 +4954,9 @@ const char* TextoDescritor(int descritor) {
   return "desconhecido";
 }
 
-ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento) {
+ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(
+    int delta_pv, const DadosAtaque& da, const EntidadeProto& proto, DescritorAtaque elemento,
+    std::unique_ptr<ntf::Notificacao>* n_efeito, ntf::Notificacao* grupo_desfazer) {
   ResultadoImunidadeOuResistencia resultado;
   if (delta_pv >= 0) {
     return resultado;
@@ -4973,6 +4975,36 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(int delta_pv,
     resultado.texto = StringPrintf("imunidade: %s", TextoDescritor(elemento));
     resultado.causa = ALT_IMUNIDADE;
     return resultado;
+  }
+
+  if (da.id_arma() == "missil_magico" && PossuiEvento(EFEITO_BROCHE_ESCUDO, proto)) {
+    if (auto eventos = EventosTipo(EFEITO_BROCHE_ESCUDO, proto); !eventos.empty() && !eventos[0]->complementos().empty()) {
+      const auto* evento = eventos[0];
+      resultado.resistido = std::min(std::abs(delta_pv), evento->complementos(0));
+      if (resultado.resistido > 0) {
+        n_efeito->reset(new ntf::Notificacao);
+        auto [proto_antes, proto_depois] =
+            PreencheNotificacaoEntidadeProto(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n_efeito->get());
+        *proto_antes->add_evento() = *evento;
+        auto* evento_depois = proto_depois->add_evento();
+        *evento_depois = *evento;
+        evento_depois->mutable_complementos()->Set(0, std::max(0, evento_depois->complementos(0) - resultado.resistido));
+        *grupo_desfazer->add_notificacao() = *n_efeito->get();
+      }
+
+      if (resultado.resistido == std::abs(delta_pv)) {
+        resultado.texto = "imunidade por broche do escudo";
+        resultado.causa = ALT_IMUNIDADE;
+        // Cria uma atualizacao do efeito.
+        return resultado;
+      }
+
+      if (resultado.resistido > 0) {
+        resultado.texto = "resistência por broche do escudo";
+        resultado.causa = ALT_RESISTENCIA;
+        return resultado;
+      }
+    }
   }
 
   // Resistencia ao tipo de ataque.

@@ -1096,7 +1096,8 @@ std::vector<InfoSelecao> MontaVetorInfosSelecao(const Tabuleiro::ItemSelecionado
   std::vector<InfoSelecao> infos;
   for (const auto& ids_com_peso : item_selecionado.ids_com_peso) {
     for (int i = 0; i < ids_com_peso.peso; ++i) {
-      infos.emplace_back(InfoSelecao{ .id_tudo = ids_com_peso.id_tudo, .ids = ids_com_peso.ids, .quantidade_str = ids_com_peso.quantidade});
+      //infos.emplace_back(InfoSelecao{ .id_tudo = ids_com_peso.id_tudo, .ids = ids_com_peso.ids, .quantidade_str = ids_com_peso.quantidade});
+      infos.emplace_back(InfoSelecao{ ids_com_peso.id_tudo, ids_com_peso.ids, ids_com_peso.quantidade});
     }
     VLOG(1) << "adicionando " << item_selecionado.id << ", peso: " << ids_com_peso.peso;
   }
@@ -1160,7 +1161,7 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
   try {
     if (notificacao.local()) {
       VLOG(1) << "buscando referencia para criacao de entidade";
-      const auto* referencia = EntidadeCameraPresaOuSelecionada();
+      const Entidade* referencia = EntidadeCameraPresaOuSelecionada();
       if (referencia == nullptr && notificacao.has_id_referencia()) {
         VLOG(1) << "Notificacao com referencia, id: " << notificacao.id_referencia();
         referencia = BuscaEntidade(notificacao.id_referencia());
@@ -1241,7 +1242,7 @@ void Tabuleiro::AlteraFormaEntidadeNotificando() {
   ntf::Notificacao n_desfazer;
   n_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
-    auto* entidade_selecionada = BuscaEntidade(id);
+    Entidade* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       LOG(INFO) << "Nao foi possivel alterar forma, entidade nao encontrada: " << id;;
       continue;
@@ -7602,7 +7603,11 @@ std::string AtualizaVenenoAposZerarDuracao(const Entidade& entidade, EntidadePro
 
 std::tuple<int, std::string> AtualizaFogoAlquimicoAposZerarDuracao(const Entidade& entidade, EntidadeProto::Evento* evento_depois, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   int dano = -RolaValor("1d6");
-  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_FOGO, &n_efeito, grupo_desfazer);
+  if (n_efeito != nullptr) {
+    grupo->add_notificacao()->Swap(n_efeito.get());
+  }
   if (resultado.causa == ALT_IMUNIDADE) {
     return {0, "fogo alquimico: imune"};
   }
@@ -7616,7 +7621,11 @@ std::tuple<int, std::string> AtualizaFogoAlquimicoAposZerarDuracao(const Entidad
 
 std::tuple<int, std::string> AtualizaFlechaAcidaAposPassarRodada(const Entidade& entidade, EntidadeProto::Evento* evento_depois, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   int dano = -RolaValor("2d4");
-  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO);
+  std::unique_ptr<ntf::Notificacao> n_efeito;
+  auto resultado = ImunidadeOuResistenciaParaElemento(dano, DadosAtaque::default_instance(), entidade.Proto(), DESC_ACIDO, &n_efeito, grupo_desfazer);
+  if (n_efeito != nullptr) {
+    grupo->add_notificacao()->Swap(n_efeito.get());
+  }
   if (resultado.causa == ALT_IMUNIDADE) {
     return {0, "flecha ácida: imune"};
   }

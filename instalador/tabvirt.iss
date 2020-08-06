@@ -29,7 +29,7 @@ Source: ..\tabvirt.exe; Destdir: {app}; Flags: ignoreversion;
 Source: ..\icon.ico; Destdir: {app}; Flags: ignoreversion;
 Source: ..\win32\vcpkg\installed\x64-windows\bin\libprotobuf.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\win32\vcpkg\installed\x64-windows\bin\libprotobuf-lite.dll; Destdir: {app}; Flags: ignoreversion;
-Source: ..\win32\libqt5\*.dll; Destdir: {app}; Flags: ignoreversion;
+Source: ..\Qt5*.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\texturas\*.png; Destdir: {app}\texturas; Flags: ignoreversion;
 Source: ..\sons\*.wav; Destdir: {app}\sons; Flags: ignoreversion;
 Source: ..\dados\*.asciiproto; Destdir: {app}\dados; Flags: ignoreversion;
@@ -39,6 +39,13 @@ Source: ..\tabuleiros_salvos\castelo.binproto; Destdir: {app}\tabuleiros_salvos;
 Source: ..\tabuleiros_salvos\deserto.binproto; Destdir: {app}\tabuleiros_salvos; Flags: ignoreversion;
 Source: ..\tabuleiros_salvos\features.binproto; Destdir: {app}\tabuleiros_salvos; Flags: ignoreversion;
 Source: ..\platforms\*.dll; Destdir: {app}\platforms; Flags: ignoreversion;
+Source: ..\audio\*.dll; Destdir: {app}\audio; Flags: ignoreversion;
+Source: ..\styles\*.dll; Destdir: {app}\styles; Flags: ignoreversion;
+Source: ..\mediaservice\*.dll; Destdir: {app}\mediaservice; Flags: ignoreversion;
+Source: ..\playlistformats\*.dll; Destdir: {app}\playlistformats; Flags: ignoreversion;
+Source: ..\iconengines\*.dll; Destdir: {app}\iconengines; Flags: ignoreversion;
+Source: ..\imageformats\*.dll; Destdir: {app}\imageformats; Flags: ignoreversion;
+Source: ..\bearer\*.dll; Destdir: {app}\bearer; Flags: ignoreversion;
 
 [Icons]
 Name: "{group}\Tabuleiro Virtual"; Filename: "{app}\tabvirt.exe"; WorkingDir: "{app}"; IconFilename: "{app}/icon.ico"
