@@ -131,7 +131,8 @@ sub_menu {
   }
 }
 sub_menu {
-  id: 'Catapultas'
+  id: 'Armas de Cerco'
+  item_menu { id: 'Balestra' }
   item_menu { id: 'Catapulta Leve' }
   item_menu { id: 'Catapulta Pesada' }
 }
