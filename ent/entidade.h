@@ -40,8 +40,8 @@ std::unique_ptr<Entidade> NovaEntidade(
     const EntidadeProto& proto,
     const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
     ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
-inline std::unique_ptr<Entidade> NovaEntidadeParaTestes(const EntidadeProto& proto, const Tabelas& tabelas) {
-  return NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr);
+inline std::unique_ptr<Entidade> NovaEntidadeParaTestes(const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro = nullptr) {
+  return NovaEntidade(proto, tabelas, tabuleiro, nullptr, nullptr, nullptr, nullptr);
 }
 inline std::unique_ptr<Entidade> NovaEntidadeFalsa(const Tabelas& tabelas) {
   return NovaEntidadeParaTestes(EntidadeProto::default_instance(), tabelas);
@@ -621,7 +621,8 @@ class Entidade {
 
   /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao). */
   void DesenhaDecoracoes(ParametrosDesenho* pd);
-  void DesenhaArmas(ParametrosDesenho* pd);
+  void DesenhaArmas(ParametrosDesenho* pd) const;
+  void DesenhaArma(const DadosAtaque& da, const Posicao& posicao_acao, const Matrix4& matriz_acao, const ParametrosDesenho* pd) const;
 
   /** Desenha os efeitos do objeto. Sera chamado uma vez para solido e outra para translucido. Cada efeito devera
   * saber o que e quando desenhar (usando pd->alfa_translucidos para diferenciar).
