@@ -67,7 +67,7 @@ elif sistema == 'apple':
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_date_time', 'pthread']
 else:
   # linux.
-  env['CPPPATH'] += ['./', '/home/matheus/protobuf-2.6.1/src'] + env['QT_CPPPATH']
+  env['CPPPATH'] += ['./'] + env['QT_CPPPATH']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++17', '-Wfatal-errors', '-fPIC']
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_timer', 'boost_chrono', 'boost_filesystem', 'boost_system', 'boost_date_time', 'pthread']
