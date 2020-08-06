@@ -433,6 +433,7 @@ class Tabuleiro : public ntf::Receptor {
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
   const Entidade* BuscaEntidade(unsigned int id) const;
+  inline const MapaEntidades& TodasEntidades() const { return entidades_; }
 
   /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
   void CopiaEntidadesSelecionadas();

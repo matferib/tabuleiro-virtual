@@ -38,7 +38,13 @@ Tabelas g_tabelas(&g_central);
 
 class TabuleiroTeste : public Tabuleiro {
  public:
-  TabuleiroTeste(const std::vector<Entidade*>& entidades) : Tabuleiro(OpcoesProto::default_instance(), g_tabelas, nullptr, nullptr, &g_central) {
+  TabuleiroTeste() : Tabuleiro(OpcoesProto::default_instance(), g_tabelas, nullptr, nullptr, &g_central) {}
+  TabuleiroTeste(
+      const std::vector<Entidade*>& entidades) : Tabuleiro(OpcoesProto::default_instance(), g_tabelas, nullptr, nullptr, &g_central) {
+    InsereEntidades(entidades);
+  }
+
+  void InsereEntidades(const std::vector<Entidade*>& entidades) {
     for (auto* entidade : entidades) {
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
     }
@@ -4782,7 +4788,7 @@ TEST(TesteImunidades, TesteEscudoVsMisseisMagicosBrocheParcial) {
   EXPECT_EQ(resistencia.causa, ALT_RESISTENCIA);
   EXPECT_EQ(resistencia.resistido, 3);
   ASSERT_NE(n_efeito, nullptr);
-  EXPECT_EQ(n_efeito->entidade().id(), 123);
+  EXPECT_EQ(n_efeito->entidade().id(), 123ULL);
   const auto& evento = PrimeiroOuPadrao(n_efeito->entidade().evento());
   EXPECT_EQ(evento.id_efeito(), EFEITO_BROCHE_ESCUDO);
   ASSERT_FALSE(evento.complementos().empty());
@@ -5012,6 +5018,25 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
   }
   RecomputaDependencias(g_tabelas, &proto);
   EXPECT_EQ(5, CuraAcelerada(proto));
+}
+
+TEST(TesteModelo, TesteBalestra) {
+  TabuleiroTeste tabuleiro;
+  auto tenente_proto = g_tabelas.ModeloEntidade("Humano Dragão Púrpura: Tenente 5").entidade();
+  tenente_proto.set_id(2);
+  auto* tenente = NovaEntidadeParaTestes(tenente_proto, g_tabelas, &tabuleiro).release();
+  tabuleiro.InsereEntidades({tenente});
+
+  auto balestra_proto = g_tabelas.ModeloEntidade("Balestra").entidade();
+  balestra_proto.set_id(1);
+  balestra_proto.add_entidades_montadas(2);
+  auto* balestra = NovaEntidadeParaTestes(balestra_proto, g_tabelas, &tabuleiro).release();
+  {
+    const auto& da = DadosAtaquePorGrupo("flecha", balestra->Proto());
+    EXPECT_EQ(da.bonus_ataque_final(), 2);  // +6 tenente, -4 tamanho da arma.
+    EXPECT_EQ(da.dano(), "3d8");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 25.0f * TAMANHO_LADO_QUADRADO);
+  }
 }
 
 TEST(TesteModelo, TesteOtyugh) {
