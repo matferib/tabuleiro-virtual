@@ -1614,7 +1614,7 @@ void Tabuleiro::DesenhaControleVirtual() {
 
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
-  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz_2(gl::MATRIZ_MODELAGEM);
 
   // Todos botoes, mapeados por id.
   std::vector<DadosBotao*> botoes;
