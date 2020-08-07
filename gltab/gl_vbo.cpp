@@ -225,7 +225,7 @@ void VbosNaoGravados::Concatena(VbosNaoGravados* rhs) {
 void VbosNaoGravados::Desenha(GLenum modo) const {
   AtualizaMatrizes();
   for (const auto& vbo : vbos_) {
-    DesenhaVbo(vbo, modo, false);
+    DesenhaVbo(vbo, modo, /*atualiza_matrizes=*/false);
   }
 }
 
@@ -255,7 +255,7 @@ void VbosGravados::Desgrava() {
 void VbosGravados::Desenha() const {
   AtualizaMatrizes();
   for (const auto& vbo : vbos_) {
-    DesenhaVbo(vbo, GL_TRIANGLES, false);
+    DesenhaVbo(vbo, GL_TRIANGLES, /*atualiza_matrizes=*/false);
   }
 }
 
