@@ -33,7 +33,6 @@ varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
 uniform bool gltab_oclusao_ligada;          // true se oclusao estiver ligada.
 uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
-uniform highp mat3 gltab_view_nm;  // Matriz de normais da camera.
 varying highp vec4 v_Pos_sombra;   // Posicao do fragmento na perspectiva de sombra.
 varying highp vec3 v_Pos_oclusao;  // Posicao do fragmento com relacao a primeira pesssoa.
 varying highp vec3 v_Pos_luz;      // Posicao do fragmento com relacao a luz.
@@ -200,10 +199,6 @@ void main() {
       highp vec3 desvio = ((vec3(2.0, 2.0, 2.0) * texture2D(gltab_unidade_textura, v_Tex.st).xyz) - vec3(1.0, 1.0, 1.0));
       mediump mat3 tbn = mat3(v_Tangent, v_Bitangent, v_Normal);
       normal = normalize(tbn * desvio);
-      //normal = normalize(gltab_view_nm * desvio);
-      // Uma forma boa de testar.
-      //gl_FragColor = vec4(gltab_view_nm[0], 1.0);
-      //return;
     } else {
       cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
     }

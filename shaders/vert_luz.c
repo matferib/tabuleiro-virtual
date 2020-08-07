@@ -31,7 +31,6 @@ varying lowp vec2 v_Tex;  // coordenada texel.
 // Uniformes nao variam por vertice, vem de fora.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform highp mat4 gltab_prm;           // projecao.
-uniform highp mat4 gltab_mvm;    // modelview.
 uniform highp mat4 gltab_prm_sombra;    // projecao sombra.
 uniform highp mat4 gltab_mvm_sombra;    // modelagem sombra.
 uniform highp mat4 gltab_mvm_oclusao;   // modelagem oclusao.
@@ -39,7 +38,7 @@ uniform highp mat4 gltab_mvm_luz;       // modelagem luz.
 uniform highp mat4 gltab_mvm_ajuste_textura;    // modelagem ajuste textura.
 uniform highp mat3 gltab_nm;     // normal matrix
 uniform highp mat4 gltab_view;          // Matriz de view.
-uniform highp mat3 gltab_view_nm;       // Matriz de normais para view.
+uniform highp mat4 gltab_model;          // Matriz de modelagem.
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
 uniform bool gltab_especularidade_ligada;
 // Atributos variam por vertice.
@@ -55,17 +54,18 @@ void main() {
   v_Tangent = normalize(gltab_nm * gltab_tangent);
   v_Bitangent = cross(v_Normal, v_Tangent);
   v_Color = gltab_cor;
-  v_Pos = gltab_mvm * gltab_vertice;
+  highp vec4 vertice_mundo = gltab_model * gltab_vertice;
+  v_Pos = gltab_view * vertice_mundo;
   v_Pos = v_Pos / v_Pos.w;
   v_Pos_model = gltab_vertice;
   v_Tex.st = (gltab_mvm_ajuste_textura * vec4(gltab_texel.st, 1.0, 1.0)).st;
   gl_Position = gltab_prm * v_Pos;
-  v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * gltab_vertice;
+  v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * vertice_mundo;
   // Oclusao.
-  highp vec4 pos_oclusao = gltab_mvm_oclusao * gltab_vertice;
+  highp vec4 pos_oclusao = gltab_mvm_oclusao * vertice_mundo;
   v_Pos_oclusao = pos_oclusao.xyz / pos_oclusao.w;
   // luz pontual.
-  highp vec4 pos_luz = gltab_mvm_luz * gltab_vertice;
+  highp vec4 pos_luz = gltab_mvm_luz * vertice_mundo;
   v_Pos_luz = pos_luz.xyz / pos_luz.w;
 
   gl_PointSize = gltab_dados_raster.p;
