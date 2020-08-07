@@ -44,13 +44,11 @@ struct VarShader {
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
   GLint uni_gltab_especularidade_ligada;// Objeto especular.
   GLint uni_gltab_dados_raster;         // p = Tamanho do ponto.
-  GLint uni_gltab_mvm;                  // Matrix camera * model.
   GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
   GLint uni_gltab_mvm_oclusao;          // Matrix modelview oclusao.
   GLint uni_gltab_mvm_luz;              // Matrix modelview luz.
   GLint uni_gltab_mvm_ajuste_textura;   // Matrix modelview ajuste de textura.
   GLint uni_gltab_camera;               // Matrix view.
-  GLint uni_gltab_camera_nm;            // Matrix de normais para view.
   GLint uni_gltab_modelagem;            // Matrix de modelagem apenas.
   GLint uni_gltab_nm;                   // Matrix de normais.
   GLint uni_gltab_prm;                  // Matrix projecao.
@@ -96,7 +94,6 @@ class Contexto {
   VarShader* shader_corrente = nullptr;  // Aponta para o shader corrente.
 
   // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
-  std::stack<Matrix4> pilha_mvm;
   std::stack<Matrix4> pilha_model;
   std::stack<Matrix4> pilha_camera;
   std::stack<Matrix4> pilha_prj;
@@ -107,7 +104,6 @@ class Contexto {
   std::stack<Matrix4> pilha_mvm_ajuste_textura;
 
   std::stack<Matrix4>* pilha_corrente = nullptr;
-  Matrix4 matriz_modelagem;  // Apenas a matriz de modelagem.
   Matrix3 matriz_normal;  // Computada da mvm corrente.
   Matrix3 matriz_camera_normal;  // Computada da mvm corrente.
   float plano_distante;   // distancia de corte do plano distante.
