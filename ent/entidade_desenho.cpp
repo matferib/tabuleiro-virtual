@@ -252,14 +252,14 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) const {
   ParametrosDesenho pd_sem_texturas_de_frente = pd == nullptr ? ParametrosDesenho::default_instance() : *pd;
   pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
   if (dac->has_id_arma()) {
-    DesenhaArma(*dac, PosicaoAcaoSemTransformacoes(), vd_.matriz_acao_principal, pd);
+    DesenhaArma(*dac, PosicaoAcaoSemTransformacoes(), vd_.matriz_acao_principal, &pd_sem_texturas_de_frente);
     // Neste caso, sera a mesma arma dos dois lados.
     if (PossuiCategoria(CAT_ARMA_DUPLA, tabelas_.Arma(dac->id_arma()))) return;
   }
   const DadosAtaque* das = DadoCorrenteSecundario();
   // O da se refere ao primeiro ataque, caso a empunhadura seja MAO_BOA, implica 2 armas, desenha a secundaria tb.
   if (das != nullptr && das->has_id_arma()) {
-    DesenhaArma(*das, PosicaoAcaoSecundariaSemTransformacoes(), vd_.matriz_acao_secundaria, pd);
+    DesenhaArma(*das, PosicaoAcaoSecundariaSemTransformacoes(), vd_.matriz_acao_secundaria, &pd_sem_texturas_de_frente);
     return;
   }
   if (dac->empunhadura() == EA_ARMA_ESCUDO && !proto_.dados_defesa().id_escudo().empty()) {
@@ -273,7 +273,6 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) const {
       }
       const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
       gl::MatrizEscopo salva_matriz;
-      pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
       MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
       gl::Translada(posicao.x(), posicao.y(), posicao.z());
       modelo->vbos_gravados.Desenha();
