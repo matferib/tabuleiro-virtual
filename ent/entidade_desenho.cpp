@@ -145,7 +145,7 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
 #if VBO_COM_MODELAGEM
     vd.vbos_gravados.Desenha();
 #else
-    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
     if (proto.has_modelo_3d()) {
       const auto* modelo = vd.m3d->Modelo(proto.modelo_3d().id());
       if (modelo != nullptr) {
@@ -155,18 +155,15 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
           gl::Habilita(GL_TEXTURE_2D);
           gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
         }
-        gl::MatrizModelagem(modelagem.get());
         gl::MultiplicaMatriz(modelagem.get());
         modelo->vbos_gravados.Desenha();
         gl::Desabilita(GL_TEXTURE_2D);
       }
     } else if (!proto.info_textura().id().empty()) {
       gl::MultiplicaMatriz(tijolo_tela.get());
-      gl::MatrizModelagem(tijolo_tela.get());
       gl::DesenhaVbo(g_vbos[VBO_MOLDURA_PECA]);
     } else {
       gl::MultiplicaMatriz(modelagem.get());
-      gl::MatrizModelagem(modelagem.get());
       gl::DesenhaVbo(g_vbos[VBO_PEAO]);
     }
 #endif
@@ -179,9 +176,8 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
     if (proto.has_modelo_3d()) {
       AjustaCor(proto, pd);
     }
-    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
     gl::MultiplicaMatriz(tijolo_base.get());
-    gl::MatrizModelagem(tijolo_base.get());
     gl::DesenhaVbo(g_vbos[VBO_BASE_PECA]);
   }
 #endif
@@ -191,8 +187,7 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
   }
 
   // Tela da textura.
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  gl::MatrizModelagem(tela_textura.get());
+  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
   gl::MultiplicaMatriz(tela_textura.get());
 
   GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
