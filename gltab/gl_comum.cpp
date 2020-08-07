@@ -1226,6 +1226,7 @@ GLuint TipoAtribParaIndice(atributo_e tipo) {
     case ATR_TANGENT_ARRAY: ret = interno::BuscaShader().atr_gltab_tangente; break;
     case ATR_COLOR_ARRAY: ret = interno::BuscaShader().atr_gltab_cor; break;
     case ATR_TEXTURE_COORD_ARRAY: ret = interno::BuscaShader().atr_gltab_texel; break;
+    case ATR_MATRIX_ARRAY: ret = interno::BuscaShader().atr_gltab_matriz; break;
     default:
       LOG(ERROR) << "tipo invalido: " << (int)tipo;
       break;
