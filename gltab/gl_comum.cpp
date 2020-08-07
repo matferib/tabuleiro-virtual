@@ -419,6 +419,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {{"gltab_cor", &shader->atr_gltab_cor}, 3},
           {{"gltab_texel", &shader->atr_gltab_texel}, 4},
           {{"gltab_tangent", &shader->atr_gltab_tangente}, 5},
+          {{"gltab_matrix", &shader->atr_gltab_tangente}, 6},
   }) {
 #if __APPLE__
     // OpenGL do mac nao curte atribuir o local do atributo.

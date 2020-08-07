@@ -1,6 +1,7 @@
 #ifndef GLTAB_GL_VBO_H
 #define GLTAB_GL_VBO_H
 
+#include <optional>
 #include <utility>
 #include <vector>
 #include "gltab/gl.h"
@@ -46,6 +47,8 @@ class VboNaoGravado {
   void AtribuiTexturas(const float* dados);
   void AtribuiTexturas(std::vector<float>* dados);
 
+  void AtribuiMatriz(const Matrix4& matriz);
+
   // Atribui a mesma cor a todas coordenadas.
   void AtribuiCor(float r, float g, float b, float a);
   // Cores independentes, como array por vertice.
@@ -79,7 +82,7 @@ class VboNaoGravado {
   bool tem_tangentes() const { return !tangentes_.empty(); }
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return !texturas_.empty(); }
-  bool tem_matriz() const { return false; }
+  bool tem_matriz() const;
 
   const std::vector<unsigned short>& indices() const { return indices_; }
   std::vector<float>& coordenadas() { return coordenadas_; }
@@ -87,13 +90,13 @@ class VboNaoGravado {
   std::vector<float>& tangentes() { return tangentes_; }
   std::vector<float>& texturas() { return texturas_; }
   std::vector<float>& cores() { return cores_; }
-  std::vector<float>& matriz() { return matriz_; }
+  Matrix4& matriz() { return *matriz_; }
   const std::vector<float>& coordenadas() const { return coordenadas_; }
   const std::vector<float>& normais() const { return normais_; }
   const std::vector<float>& tangentes() const { return tangentes_; }
   const std::vector<float>& texturas() const { return texturas_; }
   const std::vector<float>& cores() const { return cores_; }
-  const std::vector<float>& matriz() const { return matriz_; }
+  const Matrix4& matriz() const { return *matriz_; }
 
  private:
   void ArrumaMatrizesNormais();
@@ -103,7 +106,7 @@ class VboNaoGravado {
   std::vector<float> tangentes_;
   std::vector<float> cores_;
   std::vector<float> texturas_;
-  std::vector<float> matriz_;
+  std::optional<Matrix4> matriz_;
   std::vector<unsigned short> indices_;  // Indices tem seu proprio buffer.
   std::string nome_;
   unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
@@ -150,7 +153,7 @@ class VboGravado {
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return tem_texturas_; }
   void forca_texturas(bool tem) { tem_texturas_ = tem; }
-  bool tem_matriz() const { return false; }
+  bool tem_matriz() const;
 
   std::string ParaString() const {
 #if WIN32 || ANDROID
@@ -189,6 +192,7 @@ class VboGravado {
   bool tem_tangentes_ = false;
   bool tem_cores_ = false;
   bool tem_texturas_ = false;
+  bool tem_matriz_ = false;
 
   bool gravado_ = false;
 };

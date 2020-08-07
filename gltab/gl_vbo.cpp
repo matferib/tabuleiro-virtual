@@ -262,6 +262,10 @@ void VbosGravados::Desenha() const {
 //--------------
 // VboNaoGravado
 //--------------
+bool VboNaoGravado::tem_matriz() const {
+  return matriz_.has_value();
+}
+
 void VboNaoGravado::Escala(GLfloat x, GLfloat y, GLfloat z) {
   if (num_dimensoes_ == 2) {
     for (unsigned int i = 0; i < coordenadas_.size(); i += 2) {
@@ -557,6 +561,10 @@ void VboNaoGravado::AtribuiTangentes(std::vector<float>* dados) {
   }
 }
 
+void VboNaoGravado::AtribuiMatriz(const Matrix4& matriz) {
+  matriz_ = matriz;
+}
+
 void VboNaoGravado::AtribuiTexturas(const float* dados) {
   texturas_.clear();
   texturas_.insert(texturas_.end(), dados, dados + (coordenadas_.size() * 2) / num_dimensoes_ );
@@ -653,6 +661,10 @@ std::string VboNaoGravado::ParaString(bool completo) const {
 //-----------
 // VboGravado
 //-----------
+bool VboGravado::tem_matriz() const {
+  return tem_matriz_;
+}
+
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("antes tudo gravar");
   V_ERRO("depois desgravar");
@@ -1915,7 +1927,7 @@ void DesenhaVbo(GLenum modo,
   V_ERRO("DesenhaVBO: mei ponteiro vertices");
 
   if (tem_matriz && gl::HabilitaVetorAtributosVerticePorTipo(ATR_MATRIX_ARRAY)) {
-    gl::PonteiroMatriz(static_cast<const char*>(matriz) + d_matriz);
+    gl::PonteiroMatriz(reinterpret_cast<const char*>(static_cast<const Matrix4*>(matriz)->get()) + d_matriz);
   } else {
     if (atualiza_matrizes) {
       gl::AtualizaMatrizes();
@@ -1971,7 +1983,7 @@ void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo, bool atualiza_matrizes) {
              vbo.tem_tangentes(), vbo.tangentes().data(), 0,
              vbo.tem_texturas(), vbo.texturas().data(), 0,
              vbo.tem_cores(), vbo.cores().data(), 0,
-             vbo.tem_matriz(), vbo.matriz().data(), 0,
+             vbo.tem_matriz(), &vbo.matriz(), 0,
              atualiza_matrizes);
 }
 
