@@ -1274,7 +1274,7 @@ void Acao::DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDese
             << " vs olho id: " << pd->pos_olho().id_cenario();
     return;
   }
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
   GLuint id_textura = acao_proto_.info_textura().id().empty() ? GL_INVALID_VALUE : texturas_->Textura(acao_proto_.info_textura().id());
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
