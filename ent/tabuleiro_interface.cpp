@@ -608,7 +608,7 @@ void InterfaceGraficaOpengl::Desenha(ParametrosDesenho* pd) {
   gl::Desabilita(GL_DEPTH_TEST);
   gl::CarregaNome(CONTROLE_INTERFACE_GRAFICA);
   // Modo 2d: eixo com origem embaixo esquerda.
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::MatrizEscopo salva_matriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
@@ -616,7 +616,11 @@ void InterfaceGraficaOpengl::Desenha(ParametrosDesenho* pd) {
     gl::MatrizPicking(pd->picking_x(), pd->picking_y(), 1.0, 1.0, viewport);
   }
   gl::Ortogonal(0, viewport[2], 0, viewport[3], 0, 1);
-  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
+  gl::AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_camera(gl::MATRIZ_CAMERA);
+  gl::CarregaIdentidade();
+  gl::AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_modelagem(gl::MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
   elemento_->DesenhaSeValido(pd);
   return;
