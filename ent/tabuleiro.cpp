@@ -387,18 +387,24 @@ void Tabuleiro::ConfiguraOlhar() {
     // Mapa de sombras.
     if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
+      gl::CarregaIdentidade();
       ConfiguraOlharMapeamentoSombras();
-      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+      gl::AtualizaMatrizes();
+      gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
     }
     if (MapeamentoOclusao() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_OCLUSAO);
+      gl::CarregaIdentidade();
       ConfiguraOlharMapeamentoOclusao();
-      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+      gl::AtualizaMatrizes();
+      gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
     }
     if (!parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_LUZ);
+      gl::CarregaIdentidade();
       ConfiguraOlharMapeamentoLuzes();
-      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+      gl::AtualizaMatrizes();
+      gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
     }
     const Posicao& alvo = olho_.alvo();
     if (camera_ == CAMERA_ISOMETRICA) {
@@ -3281,18 +3287,12 @@ void Tabuleiro::DesenhaCena(bool debug) {
   }
   V_ERRO("desabilitando luzes");
 
-  // Idealmente, a gente preencheria a MATRIZ_CAMERA primeiro, mas como a ConfiguraOlhar ta hardcoded pra modelagem
-  // mais facil fazer assim.
-  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
-
-  gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
-  GLfloat mv[16];
-  gl::Le(GL_MODELVIEW_MATRIX, mv);
+  gl::AtualizaMatrizes();
+  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
-  gl::MultiplicaMatriz(mv);
-  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
 
   if (!parametros_desenho_.has_pos_olho()) {
     *parametros_desenho_.mutable_pos_olho() = olho_.pos();
@@ -3447,7 +3447,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
-    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
     gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
@@ -3469,7 +3469,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
-    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
     gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
@@ -3502,7 +3502,10 @@ void Tabuleiro::DesenhaCena(bool debug) {
   }
   gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
   gl::AtualizaMatrizProjecao();
-  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_matriz_view(gl::MATRIZ_CAMERA);
+  gl::CarregaIdentidade();
+  gl::AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
@@ -3578,9 +3581,12 @@ void Tabuleiro::DesenhaCenaVbos() {
   }
   V_ERRO("desabilitando luzes");
 
-  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
+  gl::AtualizaMatrizes();
+  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM);
+  gl::CarregaIdentidade();
 
   if (!parametros_desenho_.has_pos_olho()) {
     *parametros_desenho_.mutable_pos_olho() = olho_.pos();
@@ -4253,6 +4259,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::MatrizEscopo salva_matriz;
   float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
+
   //gl::Normal(0, 0, 1.0f);
   V_ERRO("desenhando tabuleiro normal");
   // Experimentalmente, desligar face nula de terreno para evitar que a camera veja
@@ -4278,8 +4285,7 @@ void Tabuleiro::DesenhaTabuleiro() {
     MudaCor(cenario_piso.has_info_textura_piso() ? COR_BRANCA : COR_CINZA_CLARO);
   }
   Matrix4 modelagem;
-  modelagem.translate(deltaX / 2.0f, deltaY / 2.0f, parametros_desenho_.offset_terreno());
-  gl::MatrizModelagem(modelagem.get());
+  modelagem.translate(deltaX / 2.0f, deltaY / 2.0f, 0 * parametros_desenho_.offset_terreno());
   gl::MultiplicaMatriz(modelagem.get());
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       cenario_piso.has_info_textura_piso() &&
@@ -4625,7 +4631,6 @@ void Tabuleiro::DesenhaRosaDosVentos() {
 void Tabuleiro::DesenhaPontosRolagem() {
   // 4 pontos.
   MudaCor(COR_PRETA);
-  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
   float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO +
                        ((TamanhoX() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
@@ -6011,7 +6016,8 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
 
 Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
     float x, float y, float z_olho, float espaco_entidade, const Vector3& movimento, bool ignora_espaco_entidade) {
-  gl::MatrizEscopo salva_mvm(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_camera(gl::MATRIZ_CAMERA);
+  gl::MatrizEscopo salva_mvm(gl::MATRIZ_MODELAGEM);
   gl::MatrizEscopo salva_prj(gl::MATRIZ_PROJECAO);
   float tamanho_movimento = movimento.length();
   espaco_entidade = ignora_espaco_entidade ? 0.0f : espaco_entidade;
@@ -6771,7 +6777,8 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     // No android, as chamadas de atualizacao se misturam com as de picking, que dependem das matrizes para funcionar
     // corretamente (MousePara3dParaleloZero);
     gl::MatrizEscopo salva_proj(gl::MATRIZ_PROJECAO);
-    gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+    gl::MatrizEscopo salva_view(gl::MATRIZ_CAMERA);
+    gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM);
     DesenhaMapaLuz(/*indice_luz=*/i);
     // Para as funcoes de configuracao funcionarem.
     parametros_desenho_.set_desenha_mapa_luzes(0);
@@ -6902,7 +6909,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
     MudaCor(cenario_luz.luz_ambiente());
   }
 
-  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -6941,7 +6948,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   }
   gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_CAIXA_CEU);
-  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM);
   gl::Translada(0.0f, 0.0f, 5.0f);
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -7230,7 +7237,10 @@ void Tabuleiro::DesenhaCoordenadas() {
 
 void Tabuleiro::DesenhaInfoGeral() {
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_matriz_view(gl::MATRIZ_CAMERA);
+  gl::CarregaIdentidade();
+  gl::AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
   int largura_fonte, altura_fonte, escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
@@ -7283,9 +7293,11 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
   // Modo 2d.
   {
     MudaCor(COR_PRETA);
-    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+    gl::MatrizEscopo salva_matriz_view(gl::MATRIZ_CAMERA);
     gl::CarregaIdentidade();
     gl::AtualizaMatrizes();
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
+    gl::CarregaIdentidade();
     gl::Retangulo(0.0f, yi, tempo_str.size() * largura_fonte + 2.0f, ys);
   }
   // Eixo com origem embaixo esquerda.
