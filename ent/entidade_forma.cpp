@@ -295,7 +295,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     }
   }
 
-  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
   gl::MultiplicaMatriz(vd.matriz_modelagem.get());
 
   switch (proto.sub_tipo()) {
