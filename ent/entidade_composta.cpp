@@ -88,7 +88,7 @@ void Entidade::DesenhaObjetoCompostoProto(
   }
 
 #if !VBO_COM_MODELAGEM
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
   gl::MultiplicaMatriz(vd.matriz_modelagem.get());
 #endif
   GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
