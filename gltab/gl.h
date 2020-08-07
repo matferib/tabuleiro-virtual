@@ -89,7 +89,7 @@ void DebugaMatrizes();
 void EmpilhaMatriz();
 void DesempilhaMatriz();
 enum matriz_e {
-  MATRIZ_MODELAGEM_CAMERA = GL_MODELVIEW,
+  MATRIZ_MODELAGEM_CAMERA_NAO_USAR = GL_MODELVIEW,
   MATRIZ_PROJECAO = GL_PROJECTION,
   MATRIZ_AJUSTE_TEXTURA = GL_TEXTURE,
   MATRIZ_SOMBRA = GL_MODELVIEW + 3,
@@ -116,9 +116,9 @@ class MatrizEscopo {
       : modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { EmpilhaMatriz(); }
 
   /** Muda matriz para matriz do modo e salva pelo escopo. Ao terminar, retorna para o modo anterior a chamada. */
-  explicit MatrizEscopo(int modo) : modo_(modo) {
+  explicit MatrizEscopo(matriz_e modo) : modo_(modo) {
     modo_anterior_ = ModoMatrizCorrente();
-    MudaModoMatriz(static_cast<matriz_e>(modo_));
+    MudaModoMatriz(modo_);
     EmpilhaMatriz();
   }
 
