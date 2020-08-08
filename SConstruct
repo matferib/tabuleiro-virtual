@@ -65,6 +65,7 @@ elif sistema == 'apple':
   env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
   env['LIBPATH'] += [ '/usr/local/lib' ]
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_date_time', 'pthread']
+  env['LINKFLAGS'] = ['-headerpad_max_install_names']
 else:
   # linux.
   env['CPPPATH'] += ['./'] + env['QT_CPPPATH']
