@@ -62,7 +62,7 @@
 #endif
 #endif
 
-#define TAM_MAPA_OCLUSAO 1024
+#define TAM_MAPA_OCLUSAO 256
 
 using google::protobuf::RepeatedField;
 using google::protobuf::StringAppendF;
@@ -7388,6 +7388,7 @@ void Tabuleiro::DesenhaTempos() {
   DesenhaTempo(3, "atualizacao", tempos_uma_atualizacao_);
   DesenhaTempo(4, "at parcial ", tempos_atualiza_parcial_);
   DesenhaTempo(5, "cont virt  ", tempos_uma_renderizacao_controle_virtual_);
+  DesenhaTempo(6, "num objetos", {entidades_ordenadas_.size()});
   V_ERRO("tempo de renderizacao");
 }
 
