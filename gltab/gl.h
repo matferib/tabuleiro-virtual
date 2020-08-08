@@ -81,6 +81,7 @@ void FinalizaGl();
 void AtualizaMatrizes();
 /** Atualiza a matriz de projecao do shader, independente do modo. */
 void AtualizaMatrizProjecao();
+void AtualizaMatrizCamera();
 // Atualiza todas as matrizes do shader.
 void AtualizaTodasMatrizes();
 void DebugaMatrizes();
@@ -128,9 +129,12 @@ class MatrizEscopo {
       MudaModoMatriz(static_cast<matriz_e>(modo_));
     }
     DesempilhaMatriz();
-    // No caso da matriz de projecao, eh sempre interessante atualizar a volta, ja que ela so eh configurada uma vez.
-    if (modo_ == GL_PROJECTION) {
+    // No caso da matriz de projecao e camera, eh sempre interessante atualizar a volta, ja que ela so eh configurada uma vez.
+    if (modo_ == MATRIZ_PROJECAO) {
       AtualizaMatrizProjecao();
+    }
+    if (modo_ == MATRIZ_CAMERA) {
+      AtualizaMatrizCamera();
     }
     if (modo_anterior_ != GL_INVALID_ENUM) {
       MudaModoMatriz(static_cast<matriz_e>(modo_anterior_));
