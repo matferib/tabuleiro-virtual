@@ -243,7 +243,7 @@ class Tabuleiro : public ntf::Receptor {
   int Desenha();
 
   /** Desenha o mundo do ponto de vista da luz, gerando o framebuffer de sombra projetada. */
-  void DesenhaMapaSombra();
+  void DesenhaMapaSombraLuzDirecional();
   void DesenhaMapaOclusao();
   void DesenhaMapaLuz(unsigned int indice_luz);
 
@@ -745,10 +745,14 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaElosAgarrar();
 
   /** Desenha as entidades. */
-  void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool ordenar = false);
-  void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha, false); }
-  void DesenhaEntidadesTranslucidas(bool ordenar) { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido, ordenar); }
-  void OrdenaEntidades();
+  void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
+  void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
+  void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
+  /** Retorna a posicao de referencia, id do cenario e a funcao de ordenacao. */
+  std::pair<int, std::function<bool(const Entidade* lhs, const Entidade* rhs)>>
+      IdCenarioComFuncaoOrdenacao(const ParametrosDesenho& pd) const;
+  /** Ordena as entidades de acordo com os parametros de desenho. Preenche entidades_ordenadas_. */
+  void OrdenaEntidades(const ParametrosDesenho& pd);
 
   /** Detecta se havera colisao no movimento da entidade. */
   struct ResultadoColisao {
@@ -1161,7 +1165,7 @@ class Tabuleiro : public ntf::Receptor {
   void ConfiguraProjecaoMapeamentoOclusaoLuzes();
   /** Configura o olho, de acordo com o tipo de camera. */
   void ConfiguraOlhar();
-  void ConfiguraOlharMapeamentoSombras();
+  void ConfiguraOlharMapeamentoSombrasLuzDirecional();
   void ConfiguraOlharMapeamentoOclusao();
   void ConfiguraOlharMapeamentoLuzes();
 

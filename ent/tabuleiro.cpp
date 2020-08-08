@@ -292,6 +292,7 @@ void Tabuleiro::EstadoInicial() {
   ciclos_para_atualizar_ = -1;
   // Mapa de entidades e acoes vazios.
   entidades_.clear();
+  entidades_ordenadas_.clear();
   acoes_.clear();
   // Entidades selecionadas.
   ids_entidades_selecionadas_.clear();
@@ -388,7 +389,7 @@ void Tabuleiro::ConfiguraOlhar() {
     if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
       gl::CarregaIdentidade();
-      ConfiguraOlharMapeamentoSombras();
+      ConfiguraOlharMapeamentoSombrasLuzDirecional();
       gl::AtualizaMatrizes();
       gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
     }
@@ -434,7 +435,7 @@ void Tabuleiro::ConfiguraOlhar() {
   }
 
   if (MapeamentoSombras() && parametros_desenho_.desenha_mapa_sombras()) {
-    ConfiguraOlharMapeamentoSombras();
+    ConfiguraOlharMapeamentoSombrasLuzDirecional();
     return;
   }
   if (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) {
@@ -447,7 +448,7 @@ void Tabuleiro::ConfiguraOlhar() {
   }
 }
 
-void Tabuleiro::ConfiguraOlharMapeamentoSombras() {
+void Tabuleiro::ConfiguraOlharMapeamentoSombrasLuzDirecional() {
   const auto& cenario_luz = CenarioIluminacao(*proto_corrente_);
   Matrix4 mr;
   mr.rotateY(-cenario_luz.luz_direcional().inclinacao_graus());
@@ -638,6 +639,8 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   V_ERRO("LigacaoComFramebufferOclusao");
 
+  parametros_desenho_.set_desenha_mapa_oclusao(0);
+  OrdenaEntidades(parametros_desenho_);
   for (int i = 0; i < 6; ++i) {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_oclusao_.textura, 0);
@@ -711,6 +714,8 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
   V_ERRO(StringPrintf("LigacaoComFramebuffer dfb_luzes_[%d].framebuffer, valor framebuffer %d", indice_luz, dfb_luzes_[indice_luz].framebuffer));
   //LOG(INFO) << "desenhando mapa de luzes";
 
+  parametros_desenho_.set_desenha_mapa_luzes(0);
+  OrdenaEntidades(parametros_desenho_);
   for (int i = 0; i < 6; ++i) {
     //LOG(INFO) << "DesenhaMapaLuzes " << i;
     // Face a ser desenhada.
@@ -726,7 +731,7 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
   V_ERRO("LigacaoComFramebufferOclusao");
 }
 
-void Tabuleiro::DesenhaMapaSombra() {
+void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   if (!parametros_desenho_.desenha_sombras()) {
     return;
   }
@@ -780,6 +785,7 @@ void Tabuleiro::DesenhaMapaSombra() {
   gl::BufferDesenho(GL_NONE);
 #endif
   //LOG(INFO) << "sombra projetada";
+  OrdenaEntidades(parametros_desenho_);
 #if VBO_COM_MODELAGEM
   DesenhaCenaVbos();
 #else
@@ -911,7 +917,7 @@ int Tabuleiro::Desenha() {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
-    DesenhaMapaSombra();
+    DesenhaMapaSombraLuzDirecional();
 
     V_ERRO_RET("Depois DesenhaMapaSombra");
     // Restaura os valores e usa a textura como sombra.
@@ -966,7 +972,8 @@ int Tabuleiro::Desenha() {
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
-  DesenhaCena(true);
+  OrdenaEntidades(parametros_desenho_);
+  DesenhaCena(/*debug=*/true);
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
 #if DEBUG
   glFinish();
@@ -3416,7 +3423,8 @@ void Tabuleiro::DesenhaCena(bool debug) {
       parametros_desenho_.set_observador_ve_invisivel(entidade != nullptr && PossuiEvento(EFEITO_VER_INVISIVEL, entidade->Proto()));
       gl::HabilitaEscopo blend_escopo(GL_BLEND);
       gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
-      DesenhaEntidadesTranslucidas(/*ordena=*/true);
+      OrdenaEntidades(parametros_desenho_);
+      DesenhaEntidadesTranslucidas();
       parametros_desenho_.clear_alfa_translucidos();
       DesenhaAuras();
       if (parametros_desenho_.desenha_acoes()) {
@@ -3426,7 +3434,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     } else {
       gl::TipoEscopo nomes(OBJ_ENTIDADE);
       // Desenha os translucidos de forma solida para picking.
-      DesenhaEntidadesTranslucidas(/*ordena=*/false);
+      DesenhaEntidadesTranslucidas();
     }
   }
   V_ERRO("desenhando entidades alfa");
@@ -4418,31 +4426,92 @@ bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   }
   return false;
 }
+
+bool MaisLongeOlho(const Vector3& olho_pos, int cenario_olho, const Entidade* lhs, const Entidade* rhs) {
+  // Na pratica faz pouca diferenca em termos 3d pq essas entidades nao vao ser desenhadas.
+  // Mas evita computacao cara de CPU.
+  if (lhs->IdCenario() != cenario_olho) {
+    return true;
+  }
+  if (rhs->IdCenario() != cenario_olho) {
+    return false;
+  }
+  Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
+  Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
+  Vector3 olho_lhs = olho_pos - lhs_pos;
+  Vector3 olho_rhs = olho_pos - rhs_pos;
+  const float lhs_l = olho_lhs.length();
+  const float rhs_l = olho_rhs.length();
+  // Precisa diferenciar distancias iguais por id pro set nao sobrescrever.
+  return lhs_l > rhs_l || (lhs_l == rhs_l && lhs->Id() > rhs->Id());
+}
+
+bool MaisPertoOlho(const Vector3& olho_pos, int cenario_olho, const Entidade* lhs, const Entidade* rhs) {
+  if (lhs->IdCenario() != cenario_olho) {
+    return false;
+  }
+  if (rhs->IdCenario() != cenario_olho) {
+    return true;
+  }
+  Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
+  Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
+  Vector3 olho_lhs = olho_pos - lhs_pos;
+  Vector3 olho_rhs = olho_pos - rhs_pos;
+  const float lhs_l = olho_lhs.length();
+  const float rhs_l = olho_rhs.length();
+  // Precisa diferenciar distancias iguais por id pro set nao sobrescrever.
+  return lhs_l < rhs_l || (lhs_l == rhs_l && lhs->Id() < rhs->Id());
+}
 }  // namespace
 
-void Tabuleiro::OrdenaEntidades() {
-  int cenario_olho = olho_.pos().id_cenario();
-  Vector3 olho_pos(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
-  auto MaisLongeOlho = [this, &olho_pos, cenario_olho] (Entidade* lhs, Entidade* rhs) {
-    if (lhs->IdCenario() != cenario_olho) {
-      return true;
+std::pair<int, std::function<bool(const Entidade* lhs, const Entidade* rhs)>>
+Tabuleiro::IdCenarioComFuncaoOrdenacao(const ParametrosDesenho& pd) const {
+  Vector3 posicao = PosParaVector3(olho_.pos());
+  int id_cenario = olho_.pos().id_cenario();
+  std::function<bool(const Entidade* lhs, const Entidade* rhs)> funcao;
+  if (pd.has_alfa_translucidos()) {
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisLongeOlho(posicao, id_cenario, lhs, rhs); };
+  } else if (pd.has_desenha_mapa_oclusao()) {
+    const auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
+    if (entidade_referencia == nullptr) {
+      LOG(ERROR) << "nao ha entidade de referencia, usando padrao!";
+    } else {
+      const auto& pos_ref = entidade_referencia->Pos();
+      posicao = PosParaVector3(pos_ref);
+      posicao.z = entidade_referencia->ZOlho();
+      id_cenario = entidade_referencia->IdCenario();
     }
-    if (rhs->IdCenario() != cenario_olho) {
-      return false;
-    }
-    Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
-    Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
-    Vector3 olho_lhs = olho_pos - lhs_pos;
-    Vector3 olho_rhs = olho_pos - rhs_pos;
-    const float lhs_l = olho_lhs.length();
-    const float rhs_l = olho_rhs.length();
-    // Precisa diferenciar distancias iguais por id pro set nao sobrescrever.
-    return lhs_l > rhs_l || (lhs_l == rhs_l && lhs->Id() > rhs->Id());
-  };
-  std::set<Entidade*, std::function<bool(Entidade*, Entidade*)>> set_entidades(MaisLongeOlho);
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+  } else if (pd.has_desenha_mapa_luzes()) {
+    // TODO aqui teria que ver qual luz esta sendo desenhada.
+    posicao = PosParaVector3(luzes_pontuais_[0].pos);
+    id_cenario = luzes_pontuais_[0].pos.id_cenario();
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+  } else if (pd.desenha_mapa_sombras()) {
+    const auto& cenario_luz = CenarioIluminacao(*proto_corrente_);
+    Matrix4 mr;
+    mr.rotateY(-cenario_luz.luz_direcional().inclinacao_graus());
+    mr.rotateZ(cenario_luz.luz_direcional().posicao_graus());
+    mr.scale(DISTANCIA_LUZ_DIRECIONAL_METROS);
+    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
+    vl = mr * vl;
+    posicao.x = vl.x;
+    posicao.y = vl.y;
+    posicao.z = vl.z;
+    id_cenario = IdCenario();
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+  } else {
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+  }
+  return {id_cenario, funcao};
+}
+
+void Tabuleiro::OrdenaEntidades(const ParametrosDesenho& pd) {
+  const auto& [id_cenario, funcao] = IdCenarioComFuncaoOrdenacao(pd);
+  std::set<Entidade*, std::function<bool(const Entidade*, const Entidade*)>> set_entidades(funcao);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* entidade = it->second.get();
-    if (entidade->IdCenario() == IdCenario()) {
+    if (entidade->IdCenario() == id_cenario) {
       set_entidades.insert(entidade);
     }
   }
@@ -4452,18 +4521,9 @@ void Tabuleiro::OrdenaEntidades() {
   }
 }
 
-void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool ordena) {
+void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
   //LOG(INFO) << "LOOP";
-  std::vector<Entidade*> entidades;
-  if (ordena) {
-    OrdenaEntidades();
-    entidades.assign(entidades_ordenadas_.begin(), entidades_ordenadas_.end());
-  } else {
-    for (auto& it : entidades_) {
-      entidades.push_back(it.second.get());
-    }
-  }
-  for (auto* entidade : entidades) {
+  for (auto* entidade : entidades_ordenadas_) {
     //LOG(INFO) << "entidade: " << RotuloEntidade(entidade);
     if (entidade == nullptr) {
       LOG(ERROR) << "Entidade nao existe.";
