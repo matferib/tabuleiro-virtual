@@ -193,9 +193,6 @@ void main() {
   // Aplica textura.
   if (gltab_textura > 0.0) {
     if (gltab_textura_bump > 0.0) {
-      // Isso aqui vai funcionar apenas para superficies paralelas ao plano XY,
-      // pois assume que as normais do objeto todas apontam para cima, portanto transforma-se apenas
-      // de acordo com a orientacao da camera.
       highp vec3 desvio = ((vec3(2.0, 2.0, 2.0) * texture2D(gltab_unidade_textura, v_Tex.st).xyz) - vec3(1.0, 1.0, 1.0));
       mediump mat3 tbn = mat3(v_Tangent, v_Bitangent, v_Normal);
       normal = normalize(tbn * desvio);
