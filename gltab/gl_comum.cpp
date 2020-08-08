@@ -164,7 +164,6 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   vbos_ng.Desenha(GL_POINTS);
 }
 
-
 bool ImprimeSeShaderErro(GLuint shader) {
   GLint success = 0;
   ShaderLeParam(shader, GL_COMPILE_STATUS, &success);
@@ -1290,13 +1289,20 @@ void AtualizaMatrizProjecao() {
   Matriz4Uniforme(mloc, 1, false, c->pilha_prj.top().get());
 }
 
+void AtualizaMatrizCamera() {
+  auto* c = interno::BuscaContexto();
+  const interno::VarShader& shader = interno::BuscaShader();
+  GLuint mloc = shader.uni_gltab_camera;
+  Matriz4Uniforme(mloc, 1, false, c->pilha_camera.top().get());
+}
+
 void AtualizaMatrizes() {
   auto* c = interno::BuscaContexto();
   int modo = ModoMatrizCorrente();
   const interno::VarShader& shader = interno::BuscaShader();
   GLuint mloc = IdMatrizCorrente(shader);
   Matriz4Uniforme(mloc, 1, false, c->pilha_corrente->top().get());
-  if (modo == MATRIZ_MODELAGEM) {
+  if (modo == MATRIZ_MODELAGEM || modo == MATRIZ_CAMERA) {
     if (shader.uni_gltab_nm != -1) {
       // Matriz normal: inverso da transposta da MV.
       const Matrix4 m = c->pilha_camera.top() * c->pilha_model.top();
