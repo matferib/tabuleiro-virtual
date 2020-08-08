@@ -75,7 +75,6 @@ uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para prese
 uniform highp vec4 gltab_nevoa_referencia;      // Ponto de referencia para computar distancia da nevoa em coordenadas de olho.
 //uniform mat4 gltab_modelview_camera;     // Matriz de modelagem ponto de vista da camera.
 //uniform bool gltab_stencil;              // Stencil ligado?
-uniform highp mat3 gltab_nm;     // normal matrix
 
 //-------------------------------
 // Luz distante direcional (sol).
