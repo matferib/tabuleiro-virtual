@@ -1,5 +1,3 @@
-bump ta zoado.
-
 Dados de vida automatico: nao elite!
 Fazer modelo para ruinas de casas.
 Tesouro: permitir transicao de varios tesouros.
