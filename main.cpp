@@ -80,7 +80,7 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
 
 QSurfaceFormat Formato() {
   QSurfaceFormat formato;
-  formato.setVersion(2, 1);
+  formato.setVersion(3, 2);
   formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
   formato.setRedBufferSize(8);
   formato.setGreenBufferSize(8);
