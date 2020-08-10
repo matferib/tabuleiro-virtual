@@ -301,44 +301,44 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   switch (proto.sub_tipo()) {
     case TF_CILINDRO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::DesenhaVbo(g_vbos[VBO_CILINDRO_FECHADO]);
+      gl::DesenhaVboGravado(g_vbos[VBO_CILINDRO_FECHADO]);
     }
     break;
     case TF_CONE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::DesenhaVbo(g_vbos[VBO_CONE_FECHADO]);
+      gl::DesenhaVboGravado(g_vbos[VBO_CONE_FECHADO]);
     }
     break;
     case TF_CUBO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::DesenhaVbo(g_vbos[VBO_CUBO]);
+      gl::DesenhaVboGravado(g_vbos[VBO_CUBO]);
     }
     break;
     case TF_CIRCULO: {
-      gl::DesenhaVbo(g_vbos[VBO_DISCO]);
+      gl::DesenhaVboGravado(g_vbos[VBO_DISCO]);
     }
     break;
     case TF_PIRAMIDE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::DesenhaVbo(g_vbos[VBO_PIRAMIDE_FECHADA]);
+      gl::DesenhaVboGravado(g_vbos[VBO_PIRAMIDE_FECHADA]);
     }
     break;
     case TF_RETANGULO: {
-      gl::DesenhaVbo(g_vbos[VBO_RETANGULO], GL_TRIANGLE_FAN);
+      gl::DesenhaVboGravado(g_vbos[VBO_RETANGULO]);
     }
     break;
     case TF_TRIANGULO: {
-      gl::DesenhaVbo(g_vbos[VBO_TRIANGULO], GL_TRIANGLES);
+      gl::DesenhaVboGravado(g_vbos[VBO_TRIANGULO]);
     }
     break;
     case TF_ESFERA: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::DesenhaVbo(g_vbos[VBO_ESFERA]);
+      gl::DesenhaVboGravado(g_vbos[VBO_ESFERA]);
     }
     break;
     case TF_HEMISFERIO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::DesenhaVbo(g_vbos[VBO_HEMISFERIO]);
+      gl::DesenhaVboGravado(g_vbos[VBO_HEMISFERIO]);
     }
     break;
     case TF_LIVRE: {
