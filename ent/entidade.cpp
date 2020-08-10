@@ -2567,7 +2567,12 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   g_vbos.resize(NUM_VBOS);
   for (int i = 0; i < NUM_VBOS; ++i) {
     g_vbos[i].Desgrava();
-    g_vbos[i].Grava(vbos_nao_gravados[i]);
+    GLenum modo = GL_TRIANGLES;
+    if (i == VBO_TELA_TEXTURA || i == VBO_RETANGULO) {
+      modo = GL_TRIANGLE_FAN;
+    }
+    VLOG(1) << "Gravando VBO: " << i;
+    g_vbos[i].Grava(modo, vbos_nao_gravados[i]);
   }
   // Texturas globais.
   {

@@ -3271,6 +3271,9 @@ void Tabuleiro::DesenhaCena(bool debug) {
       (parametros_desenho_.tipo_visao() != VISAO_ESCURO) &&
        parametros_desenho_.projecao().tipo_camera() != CAMERA_ISOMETRICA) {
     desenhar_caixa_ceu = true;
+    // Segundo https://doc.qt.io/qt-5/qopenglwidget.html, é sempre bom chamar o glClear.
+    bits_limpar |= GL_COLOR_BUFFER_BIT;
+    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
   } else {
     bits_limpar |= GL_COLOR_BUFFER_BIT;
     if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
@@ -3717,7 +3720,7 @@ void Tabuleiro::GeraVboRosaDosVentos() {
   vbo_disco.Concatena(vbo_seta);
   vbo_disco.Concatena(vbo_n);
   vbo_rosa_.Desgrava();
-  vbo_rosa_.Grava(vbo_disco);
+  vbo_rosa_.Grava(GL_TRIANGLES, vbo_disco);
 }
 
 void Tabuleiro::GeraVboCaixaCeu() {
@@ -3761,7 +3764,7 @@ void Tabuleiro::GeraVboCaixaCeu() {
   };
   vbo.AtribuiTexturas(texturas);
   vbo_caixa_ceu_.Desgrava();
-  vbo_caixa_ceu_.Grava(vbo);
+  vbo_caixa_ceu_.Grava(GL_TRIANGLES, vbo);
 }
 
 void Tabuleiro::RegeraVboTabuleiro() {
@@ -3792,6 +3795,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   tabuleiro_nao_gravado.Concatena(tabuleiro_parcial);
   V_ERRO("RegeraVboTabuleiro antes gravar");
   // Todo VBO deve ser desgravado para o caso de recuperacao de contexto.
+  vbos_tabuleiro_.Nomeia("terreno");
   vbos_tabuleiro_.Desgrava();
   vbos_tabuleiro_.Grava(tabuleiro_nao_gravado);
   V_ERRO("RegeraVboTabuleiro depois gravar");
@@ -3873,6 +3877,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   grade_nao_gravada.Concatena(&grade_horizontal);
   vbos_grade_.Desgrava();
   vbos_grade_.Grava(grade_nao_gravada);
+  vbos_grade_.Nomeia("grade tabuleiro");
   V_ERRO("RegeraVboTabuleiro fim");
 }
 
@@ -4389,7 +4394,7 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
     vbo.AtribuiCoordenadas(3, coordenadas, 12);
     vbo.AtribuiIndices(indices, 6);
     vbo.Nomeia("triangulo_quadrado_selecionado");
-    gl::DesenhaVbo(vbo);
+    gl::DesenhaVboNaoGravado(vbo);
   }
 }
 
@@ -4685,7 +4690,7 @@ void Tabuleiro::DesenhaRosaDosVentos() {
   gl::AtualizaMatrizes();
   //gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
   //gl::Retangulo(10.0f);
-  gl::DesenhaVbo(vbo_rosa_, GL_TRIANGLES);
+  gl::DesenhaVboGravado(vbo_rosa_);
 }
 
 void Tabuleiro::DesenhaPontosRolagem() {
@@ -4735,7 +4740,7 @@ void Tabuleiro::DesenhaElosAgarrar() {
     cubo.Multiplica(mr);
     cubo.Translada(v1.x, v1.y, v1.z);
     MudaCor(COR_PRETA);
-    gl::DesenhaVbo(cubo);
+    gl::DesenhaVboNaoGravado(cubo);
   }
 }
 
@@ -6993,7 +6998,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   //vetor.set_z(0);
   //gl::Roda(VetorParaRotacaoGraus(vetor), 0.0f, 0.0f, 1.0f);
 
-  gl::DesenhaVbo(vbo_caixa_ceu_);
+  gl::DesenhaVboGravado(vbo_caixa_ceu_);
   gl::LigacaoComTextura(tipo_textura, 0);
   gl::Desabilita(tipo_textura);
   gl::UnidadeTextura(GL_TEXTURE0);

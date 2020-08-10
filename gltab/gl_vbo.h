@@ -119,11 +119,15 @@ class VboGravado {
   VboGravado() {}
   ~VboGravado() { Desgrava(); }
 
+  void Nomeia(const std::string& nome) { nome_ = nome; }
+
   // Grava o vbo a partir de um VboNaoGravado.
-  void Grava(const VboNaoGravado& vbo);
+  void Grava(GLuint modo, const VboNaoGravado& vbo);
   // Desgrava se gravado.
   void Desgrava();
   bool Gravado() const { return gravado_; }
+
+  GLenum Modo() const { return modo_; }
 
   unsigned int NumVertices() const { return indices_.size(); }
 
@@ -132,6 +136,8 @@ class VboGravado {
   void ApagaBufferUnico() {
     buffer_unico_.clear();
   }
+
+  const std::vector<float>& BufferUnico() const { return buffer_unico_; }
 
   // Deslocamento em bytes para a primeira coordenada de normal.
   unsigned int DeslocamentoNormais() const { return deslocamento_normais_; }
@@ -154,6 +160,7 @@ class VboGravado {
   bool tem_texturas() const { return tem_texturas_; }
   void forca_texturas(bool tem) { tem_texturas_ = tem; }
   bool tem_matriz() const;
+  GLuint Vao() const { return vao_; }
 
   std::string ParaString() const {
 #if WIN32 || ANDROID
@@ -180,6 +187,8 @@ class VboGravado {
   // Buffers.
   GLuint nome_coordenadas_ = 0;
   GLuint nome_indices_ = 0;
+  GLuint vao_ = 0;
+  GLenum modo_ = GL_TRIANGLES;
 
   unsigned int deslocamento_normais_ = 0;
   unsigned int deslocamento_tangentes_ = 0;
@@ -244,85 +253,88 @@ class VbosNaoGravados {
   friend class VbosGravados;
 };
 
-/** Conjunto de Vbos gravados. */
+/** Conjunto de Vbos gravados. So pode ser GL_TRIANGLES. */
 class VbosGravados {
  public:
+  // Grava os vbos usando GL_TRIANGLES.
   void Grava(const VbosNaoGravados& vbos_nao_gravados);
   void Desgrava();
   void Desenha() const;
   bool Vazio() const { return vbos_.empty(); }
+  void Nomeia(const std::string& nome);
 
  private:
   std::vector<VboGravado> vbos_;
+  std::string nome_;
 };
 
-
-
 // Desenha o vbo, assumindo que ele ja tenha sido gravado.
-void DesenhaVbo(const VboGravado& vbo, GLenum modo = GL_TRIANGLES, bool atualiza_matrizes = true);
+void DesenhaVboGravado(
+    const VboGravado& vbo, bool atualiza_matrizes = true);
 // Desenha o vbo, assumindo que ele nao tenha sido gravado.
-void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo = GL_TRIANGLES, bool atualiza_matrizes = true);
+void DesenhaVboNaoGravado(
+    const VboNaoGravado& vbo, GLenum modo = GL_TRIANGLES, bool atualiza_matrizes = true);
 
 //---------------------------------------------------------------------------
 // Todos VBOs retornados serao em modo triangulo, para permitir concatenacao.
 //---------------------------------------------------------------------------
 VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
 inline void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
-  DesenhaVbo(VboCilindroSolido(raio, altura, fatias, tocos));
+  DesenhaVboNaoGravado(VboCilindroSolido(raio, altura, fatias, tocos));
 }
 
 VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
 inline void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
-  DesenhaVbo(VboTroncoConeSolido(raio_base, raio_topo, altura, fatias, tocos));
+  DesenhaVboNaoGravado(VboTroncoConeSolido(raio_base, raio_topo, altura, fatias, tocos));
 }
 
 VboNaoGravado VboConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos);
 inline void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
-  DesenhaVbo(VboConeSolido(base, altura, num_fatias, num_tocos));
+  DesenhaVboNaoGravado(VboConeSolido(base, altura, num_fatias, num_tocos));
 }
 
 VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
 inline void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
-  DesenhaVbo(VboEsferaSolida(raio, num_fatias, num_tocos));
+  DesenhaVboNaoGravado(VboEsferaSolida(raio, num_fatias, num_tocos));
 }
 
 VboNaoGravado VboHemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_tocos);
 inline void HemisferioSolido(GLfloat raio, GLint num_fatias, GLint num_tocos) {
-  DesenhaVbo(VboHemisferioSolido(raio, num_fatias, num_tocos));
+  DesenhaVboNaoGravado(VboHemisferioSolido(raio, num_fatias, num_tocos));
 }
 
 VboNaoGravado VboCuboSolido(GLfloat tam_lado);
 inline void CuboSolido(GLfloat tam_lado) {
-  DesenhaVbo(VboCuboSolido(tam_lado));
+  DesenhaVboNaoGravado(VboCuboSolido(tam_lado));
 }
 // Desenha cubo de lado 1.0f, centrado na posicao. Usa VBO.
 void CuboUnitario();
 
 VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura);
 inline void PiramideSolida(GLfloat tam_lado, GLfloat altura) {
-  DesenhaVbo(VboPiramideSolida(tam_lado, altura));
+  DesenhaVboNaoGravado(VboPiramideSolida(tam_lado, altura));
 }
 
 // Retangulo cercando a origem.
 VboNaoGravado VboRetangulo(GLfloat tam_x, GLfloat tam_y);
 inline VboNaoGravado VboRetangulo(GLfloat tam_lado) { return VboRetangulo(tam_lado, tam_lado); }
 inline void Retangulo(GLfloat tam_x, GLfloat tam_y) {
-  DesenhaVbo(VboRetangulo(tam_x, tam_y));
+  DesenhaVboNaoGravado(VboRetangulo(tam_x, tam_y));
 }
 inline void Retangulo(GLfloat tam) {
-  DesenhaVbo(VboRetangulo(tam, tam));
+  DesenhaVboNaoGravado(VboRetangulo(tam, tam));
 }
 // Eficiente, usa VBO gravado.
 void RetanguloUnitario();
 
 VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
-  DesenhaVbo(VboRetangulo(x1, y1, x2, y2));
+  DesenhaVboNaoGravado(VboRetangulo(x1, y1, x2, y2));
 }
 
 VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces);
 inline void Disco(GLfloat raio, GLfloat num_faces) {
-  DesenhaVbo(VboDisco(raio, num_faces));
+  DesenhaVboNaoGravado(VboDisco(raio, num_faces));
 }
 // Disco de raio 0,5 (1 diametro) com 12 lados. Eficiente, usa VBO gravado.
 void DiscoUnitario();
@@ -330,14 +342,14 @@ void DiscoUnitario();
 // Triangulo equilatero, pico para eixo y com a base no y=0.
 VboNaoGravado VboTriangulo(float lado);
 inline void Triangulo(GLfloat lado) {
-  DesenhaVbo(VboTriangulo(lado));
+  DesenhaVboNaoGravado(VboTriangulo(lado));
 }
 // Triangulo equilatero unitario.
 void TrianguloUnitario();
 
 VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float largura);
 inline void Livre(const std::vector<std::pair<float, float>>& pontos, float largura) {
-  DesenhaVbo(VboLivre(pontos, largura));
+  DesenhaVboNaoGravado(VboLivre(pontos, largura));
 }
 
 // Retorna o VBO do caractere.

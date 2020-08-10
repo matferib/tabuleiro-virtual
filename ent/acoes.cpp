@@ -104,7 +104,7 @@ class AcaoSinalizacao : public Acao {
       gl::VboNaoGravado vbong("acao_sinalizacao");
       vbong.AtribuiIndices(indices, 9);
       vbong.AtribuiCoordenadas(2, coordenadas, 18);
-      vbo_.Grava(vbong);
+      vbo_.Grava(GL_TRIANGLES, vbong);
     }
   }
 
@@ -120,7 +120,7 @@ class AcaoSinalizacao : public Acao {
       gl::MatrizEscopo salva_matriz;
       gl::Translada(pos.x(), pos.y(), pos.z());
       gl::Escala(estado_, estado_, 0.0f);
-      gl::DesenhaVbo(vbo_, GL_TRIANGLES);
+      gl::DesenhaVboGravado(vbo_);
     }
   }
 
@@ -159,9 +159,9 @@ class AcaoPocao: public Acao {
 
   void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const override {
     VLOG(3) << "Desenhando acao pocao";
-    gl::DesenhaVbo(bolhas_[0]);
-    if (duracao_ms_ > INTERVALO_MS) gl::DesenhaVbo(bolhas_[1]);
-    if (duracao_ms_ > INTERVALO_MS * 2) gl::DesenhaVbo(bolhas_[2]);
+    gl::DesenhaVboNaoGravado(bolhas_[0]);
+    if (duracao_ms_ > INTERVALO_MS) gl::DesenhaVboNaoGravado(bolhas_[1]);
+    if (duracao_ms_ > INTERVALO_MS * 2) gl::DesenhaVboNaoGravado(bolhas_[2]);
   }
 
   void AtualizaAposAtraso(int intervalo_ms, const Olho& camera) override {
