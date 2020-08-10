@@ -243,10 +243,15 @@ std::string VbosNaoGravados::ParaString(bool completo) const {
 //-------------
 void VbosGravados::Grava(const VbosNaoGravados& vbos_nao_gravados) {
   //LOG(INFO) << "gravando vbos de " << nome_ << " atualmente com " << vbos_.size() << " vbos";
-  vbos_ = std::vector<VboGravado>(vbos_nao_gravados.vbos_.size());//.resize(vbos_nao_gravados.vbos_.size());
+  vbos_.resize(vbos_nao_gravados.vbos_.size());
   for (unsigned int i = 0; i < vbos_nao_gravados.vbos_.size(); ++i) {
-    vbos_[i].Nomeia(StringPrintf("%s %i", nome_.c_str(), i));
+    //vbos_[i].Desgrava();
     vbos_[i].Grava(GL_TRIANGLES, vbos_nao_gravados.vbos_[i]);
+  }
+  if (nome_.empty() && !vbos_nao_gravados.vbos_.empty() && !vbos_nao_gravados.vbos_[0].nome().empty()) {
+    Nomeia(vbos_nao_gravados.vbos_[0].nome());
+  } else if (!nome_.empty()) {
+    Nomeia(nome_); // para pegar os novos vbos.
   }
 }
 
@@ -265,12 +270,12 @@ void VbosGravados::Nomeia(const std::string& nome) {
 }
 
 void VbosGravados::Desenha() const {
-  //LOG(INFO) << "----- Desenhando: " << nome_;
+  LOG(INFO) << "----- Desenhando: " << nome_;
   AtualizaMatrizes();
   for (const auto& vbo : vbos_) {
     DesenhaVboGravado(vbo, /*atualiza_matrizes=*/false);
   }
-  //LOG(INFO) << "----- Fim Desenhando " << nome_;
+  LOG(INFO) << "----- Fim Desenhando " << nome_;
 }
 
 //--------------
@@ -693,22 +698,34 @@ void HabilitaAtributosVertice(
   if (tem_normais && gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY)) {
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
   } else {
+    if (tem_normais) {
+      LOG(WARNING) << "nao consegui gravar normais.";
+    }
     tem_normais = false;
   }
   if (tem_tangentes && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY)) {
     gl::PonteiroTangentes(GL_FLOAT, static_cast<const char*>(tangentes) + d_tangentes);
   } else {
+    if (tem_tangentes) {
+      LOG(WARNING) << "nao consegui gravar tangentes.";
+    }
     tem_tangentes = false;
   }
   if (tem_texturas && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY)) {
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
   } else {
+    if (tem_texturas) {
+      LOG(WARNING) << "nao consegui gravar texturas.";
+    }
     tem_texturas = false;
   }
   V_ERRO("DesenhaVBO: um quarto");
   if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor() && gl::HabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY)) {
     gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
   } else {
+    if (tem_cores) {
+      LOG(WARNING) << "nao consegui gravar cores.";
+    }
     tem_cores = false;
   }
 
@@ -770,9 +787,9 @@ void DesenhaElementosComAtributos(
   DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz);
 }
 
-void HabilitaAtributosVerticeParaVbo(GLenum modo, const VboGravado& vbo) {
-  //glBindVertexArray(vbo.Vao());
-  //gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
+void ConfiguraVao(GLenum modo, const VboGravado& vbo) {
+  glBindVertexArray(vbo.Vao());
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
   bool tem_normais = vbo.tem_normais();
   bool tem_tangentes = vbo.tem_tangentes();
   bool tem_texturas = vbo.tem_texturas();
@@ -795,11 +812,11 @@ void HabilitaAtributosVerticeParaVbo(GLenum modo, const VboGravado& vbo) {
       tem_cores, nullptr, vbo.DeslocamentoCores(),
       tem_matriz, nullptr, vbo.DeslocamentoMatriz(),
       /*atualiza_matrizes=*/false);
-  glBindVertexArray(0);
-  DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz);
-  //gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
+  glBindVertexArray(0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz);
 }
 
 }  // namespace
@@ -818,17 +835,6 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
     nome_ = vbo_nao_gravado.nome();
   }
   modo_ = modo;
-
-  if (!gravado_) {
-    glGenVertexArrays(1, &vao_);
-    V_ERRO("ao gerar VAO");
-    if (vao_ == 0) {
-      LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenVErtexArrays gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
-      return;
-    }
-  }
-  glBindVertexArray(vao_);
-  V_ERRO("ao fazer ligacao como VAO");
 
   // Gera o buffer se ja nao for gravado.
   bool usar_buffer_sub_data = true;
@@ -873,6 +879,7 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
         GL_STATIC_DRAW);
   }
   V_ERRO("ao bufferizar");
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
 
   // Buffer de indices.
   if (!gravado_) {
@@ -892,11 +899,19 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
     gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);
   }
   V_ERRO("ao bufferizar elementos");
-
-  HabilitaAtributosVerticeParaVbo(modo_, *this);
-  glBindVertexArray(0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+
+  if (!gravado_) {
+    glGenVertexArrays(1, &vao_);
+    V_ERRO("ao gerar VAO");
+    if (vao_ == 0) {
+      LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenVErtexArrays gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
+      return;
+    }
+  }
+
+  ConfiguraVao(modo_, *this);
+
   V_ERRO("ao desligar Vao");
   //LOG(INFO) << "gravado nome_coordenadas: " << nome_coordenadas_ << ", nome_indices: " << nome_indices_ << ", vao: " << vao_ << ", sub dados: " << usar_buffer_sub_data;
   gravado_ = true;
@@ -2068,7 +2083,7 @@ void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
   if (atualiza_matrizes) {
     AtualizaMatrizes();
   }
-  #if 0
+  #if 1
   glBindVertexArray(vbo.Vao());
   V_ERRO("DesenhaVboGravado: bind");
   if (!atualiza_matrizes) {
@@ -2077,8 +2092,8 @@ void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
   gl::DesenhaElementos(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr);
   V_ERRO("DesenhaVboGravado: desenha");
   glBindVertexArray(0);
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+  //gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  //gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
 
   V_ERRO("DesenhaVB0: pos bind");
 
