@@ -485,7 +485,7 @@ void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
     { "programa_profundidade", TSH_PROFUNDIDADE, "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
     { "programa_preto_branco", TSH_PRETO_BRANCO, "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
     { "programa_pontual", TSH_PONTUAL, "vert_pontual.c", "frag_pontual.c", &contexto->shaders[TSH_PONTUAL] },
-    { "programa_teste", TSH_TESTE, "vert_luz_model.c", "frag_simples.c", &contexto->shaders[TSH_TESTE] },
+    { "programa_teste", TSH_TESTE, "vert_luz.c", "frag_simples.c", &contexto->shaders[TSH_TESTE] },
   };
 
   for (auto& ds : dados_shaders) {
