@@ -160,7 +160,8 @@ class VboGravado {
   bool tem_texturas() const { return tem_texturas_; }
   void forca_texturas(bool tem) { tem_texturas_ = tem; }
   bool tem_matriz() const;
-  GLuint Vao() const { return vao_; }
+  // Retorna o vao para o shader corrente.
+  GLuint Vao() const;
 
   std::string ParaString() const {
 #if WIN32 || ANDROID
@@ -187,7 +188,7 @@ class VboGravado {
   // Buffers.
   GLuint nome_coordenadas_ = 0;
   GLuint nome_indices_ = 0;
-  GLuint vao_ = 0;
+  std::vector<GLuint> vao_por_shader_;  // um VAO por shader.
   GLenum modo_ = GL_TRIANGLES;
 
   unsigned int deslocamento_normais_ = 0;

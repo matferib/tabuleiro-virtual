@@ -270,12 +270,12 @@ void VbosGravados::Nomeia(const std::string& nome) {
 }
 
 void VbosGravados::Desenha() const {
-  LOG(INFO) << "----- Desenhando: " << nome_;
+  //LOG(INFO) << "----- Desenhando: " << nome_ << " no shader: " << interno::BuscaShader().nome;
   AtualizaMatrizes();
   for (const auto& vbo : vbos_) {
     DesenhaVboGravado(vbo, /*atualiza_matrizes=*/false);
   }
-  LOG(INFO) << "----- Fim Desenhando " << nome_;
+  //LOG(INFO) << "----- Fim Desenhando " << nome_ << " no shader: " << interno::BuscaShader().nome;
 }
 
 //--------------
@@ -698,15 +698,15 @@ void HabilitaAtributosVertice(
   if (tem_normais && gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY)) {
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
   } else {
-    if (tem_normais) {
-      LOG(WARNING) << "nao consegui gravar normais.";
+    if (tem_normais && interno::BuscaShader().atr_gltab_normal != -1) {
+      LOG(WARNING) << "nao consegui gravar normais. Shader: " << interno::BuscaShader().nome;
     }
     tem_normais = false;
   }
   if (tem_tangentes && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY)) {
     gl::PonteiroTangentes(GL_FLOAT, static_cast<const char*>(tangentes) + d_tangentes);
   } else {
-    if (tem_tangentes) {
+    if (tem_tangentes && interno::BuscaShader().atr_gltab_tangente != -1) {
       LOG(WARNING) << "nao consegui gravar tangentes.";
     }
     tem_tangentes = false;
@@ -714,7 +714,7 @@ void HabilitaAtributosVertice(
   if (tem_texturas && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY)) {
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
   } else {
-    if (tem_texturas) {
+    if (tem_texturas && interno::BuscaShader().atr_gltab_texel != -1) {
       LOG(WARNING) << "nao consegui gravar texturas.";
     }
     tem_texturas = false;
@@ -723,7 +723,7 @@ void HabilitaAtributosVertice(
   if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor() && gl::HabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY)) {
     gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
   } else {
-    if (tem_cores) {
+    if (tem_cores && interno::BuscaShader().atr_gltab_cor != -1) {
       LOG(WARNING) << "nao consegui gravar cores.";
     }
     tem_cores = false;
@@ -788,7 +788,7 @@ void DesenhaElementosComAtributos(
 }
 
 void ConfiguraVao(GLenum modo, const VboGravado& vbo) {
-  glBindVertexArray(vbo.Vao());
+  LigacaoComObjetoVertices(vbo.Vao());
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
   bool tem_normais = vbo.tem_normais();
   bool tem_tangentes = vbo.tem_tangentes();
@@ -814,7 +814,7 @@ void ConfiguraVao(GLenum modo, const VboGravado& vbo) {
       /*atualiza_matrizes=*/false);
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
-  glBindVertexArray(0);
+  LigacaoComObjetoVertices(0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz);
 }
@@ -824,6 +824,10 @@ void ConfiguraVao(GLenum modo, const VboGravado& vbo) {
 //-----------
 // VboGravado
 //-----------
+GLuint VboGravado::Vao() const {
+  return vao_por_shader_[TipoShaderCorrente()];
+}
+
 bool VboGravado::tem_matriz() const {
   return tem_matriz_;
 }
@@ -902,17 +906,21 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   if (!gravado_) {
-    glGenVertexArrays(1, &vao_);
-    V_ERRO("ao gerar VAO");
-    if (vao_ == 0) {
-      LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenVErtexArrays gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
-      return;
+    TipoShader shader_corrente = TipoShaderCorrente();
+    vao_por_shader_.resize(TSH_NUM);
+    for (int shader = TSH_LUZ; shader < TSH_NUM; ++shader) {
+      UsaShader(static_cast<TipoShader>(shader));
+      GLuint& vao = vao_por_shader_[shader];
+      GeraObjetosVertices(1, &vao);
+      V_ERRO("ao gerar VAO");
+      if (vao == 0) {
+        LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenVErtexArrays gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
+        continue;
+      }
+      ConfiguraVao(modo_, *this);
     }
+    UsaShader(shader_corrente);
   }
-
-  ConfiguraVao(modo_, *this);
-
-  V_ERRO("ao desligar Vao");
   //LOG(INFO) << "gravado nome_coordenadas: " << nome_coordenadas_ << ", nome_indices: " << nome_indices_ << ", vao: " << vao_ << ", sub dados: " << usar_buffer_sub_data;
   gravado_ = true;
 }
@@ -928,9 +936,11 @@ void VboGravado::Desgrava() {
   gl::ApagaBuffers(1, &nome_indices_);
   V_ERRO("ao deletar VBO indices");
   nome_indices_ = 0;
-  glDeleteVertexArrays(1, &vao_);
+  for (GLuint vao : vao_por_shader_) {
+    ApagaObjetosVertices(1, &vao);
+  }
+  vao_por_shader_.clear();
   V_ERRO("ao deletar VAO");
-  vao_ = 0;
   ApagaBufferUnico();
   gravado_ = false;
 }
@@ -2084,17 +2094,14 @@ void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
     AtualizaMatrizes();
   }
   #if 1
-  glBindVertexArray(vbo.Vao());
+  LigacaoComObjetoVertices(vbo.Vao());
   V_ERRO("DesenhaVboGravado: bind");
-  if (!atualiza_matrizes) {
-    LOG(INFO) << "Desenhando: " << vbo.nome() << ", vao: " << vbo.Vao() << ", modo: " << vbo.Modo() << ", num vertices: " << vbo.NumVertices();
-  }
+  //if (!atualiza_matrizes) {
+  //  LOG(INFO) << "Desenhando: " << vbo.nome() << ", vao: " << vbo.Vao() << ", modo: " << vbo.Modo() << ", num vertices: " << vbo.NumVertices();
+  //}
   gl::DesenhaElementos(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr);
   V_ERRO("DesenhaVboGravado: desenha");
-  glBindVertexArray(0);
-  //gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  //gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
-
+  LigacaoComObjetoVertices(0);
   V_ERRO("DesenhaVB0: pos bind");
 
   #else

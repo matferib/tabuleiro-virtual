@@ -787,31 +787,27 @@ void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo,
 }
 
 void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
-  if (!interno::UsandoShaderLuz()) {
-    return;
+  if (interno::BuscaShader().atr_gltab_normal != -1) {
+    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
   }
-  PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
 }
 
 void PonteiroTangentes(GLenum tipo, GLsizei passo, const GLvoid* tangentes) {
-  if (!interno::UsandoShaderLuz()) {
-    return;
+  if (interno::BuscaShader().atr_gltab_tangente != -1) {
+    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_tangente, 3  /**dimensoes*/, tipo, GL_FALSE, passo, tangentes);
   }
-  PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_tangente, 3  /**dimensoes*/, tipo, GL_FALSE, passo, tangentes);
 }
 
 void Normal(GLfloat x, GLfloat y, GLfloat z) {
-  if (!interno::UsandoShaderLuz()) {
-    return;
+  if (interno::BuscaShader().atr_gltab_normal != -1) {
+    AtributoVertice(interno::BuscaShader().atr_gltab_normal, x, y, z);
   }
-  AtributoVertice(interno::BuscaShader().atr_gltab_normal, x, y, z);
 }
 
 void Tangente(GLfloat x, GLfloat y, GLfloat z) {
-  if (!interno::UsandoShaderLuz()) {
-    return;
+  if (interno::BuscaShader().atr_gltab_tangente != -1) {
+    AtributoVertice(interno::BuscaShader().atr_gltab_tangente, x, y, z);
   }
-  AtributoVertice(interno::BuscaShader().atr_gltab_tangente, x, y, z);
 }
 
 void MatrizModelagem(const GLfloat* matriz) {

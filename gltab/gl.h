@@ -261,8 +261,11 @@ void BufferLeitura(GLenum modo);
 void GeraMipmap(GLenum alvo);
 void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 void GeraBuffers(GLsizei n, GLuint* buffers);
+void GeraObjetosVertices(GLsizei n, GLuint *arrays);
 void LigacaoComBuffer(GLenum target, GLuint buffer);
+void LigacaoComObjetoVertices(GLuint buffer);
 void ApagaBuffers(GLsizei n, const GLuint* buffers);
+void ApagaObjetosVertices(GLsizei n, const GLuint *arrays);
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
 void BufferizaSubDados(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data);
 void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog);
@@ -307,7 +310,21 @@ inline void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLenum alvo_textura, G
 inline void GeraMipmap(GLenum alvo) { glGenerateMipmap(alvo); }
 inline void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glBlendColor(r, g, b, a); }
 inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
+inline void GeraObjetosVertices(GLsizei n, GLuint *arrays) {
+#if __APPLE__
+  glGenVertexArraysAPPLE(n, arrays);
+#else
+  glGenVertexArrays(n, arrays);
+#endif
+}
 inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
+inline void LigacaoComObjetoVertices(GLuint buffer) {
+#if __APPLE__
+  glBindVertexArrayAPPLE(buffer);
+#else
+  glBindVertexArray(buffer);
+#endif
+}
 inline void LigacaoComRenderbuffer(GLenum target, GLuint buffer) { glBindRenderbuffer(target, buffer); }
 inline void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers) { glGenRenderbuffers(n, renderbuffers); }
 inline void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers) { glDeleteRenderbuffers(n, renderbuffers); }
@@ -316,6 +333,13 @@ inline void RenderbufferDeFramebuffer(GLenum target, GLenum attachment, GLenum r
   glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
 }
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
+inline void ApagaObjetosVertices(GLsizei n, const GLuint *arrays) {
+#if __APPLE__
+  glDeleteVertexArraysAPPLE(n, arrays);
+#else
+  glDeleteVertexArrays(n, arrays);
+#endif
+}
 inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
 inline void BufferizaSubDados(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data) { glBufferSubData(target, offset, size, data); }
 inline void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glGetShaderInfoLog(shader, maxLength, length, infoLog); }
