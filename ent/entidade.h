@@ -452,13 +452,14 @@ class Entidade {
   static constexpr unsigned int MaxNumAcoes = 3;
 
   // Nome dos buffers de VBO.
-  constexpr static unsigned short NUM_VBOS = 25;
-  constexpr static unsigned short
-      VBO_PEAO = 0, VBO_TIJOLO = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3,
-      VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7,
-      VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10, VBO_CONE_FECHADO = 11,
-      VBO_CILINDRO_FECHADO = 12, VBO_BASE_PECA = 13, VBO_MOLDURA_PECA = 14,
-      VBO_HEMISFERIO = 15, VBO_PIRAMIDE_FECHADA = 16;
+  enum EntVbos {
+      VBO_PEAO, VBO_TIJOLO, VBO_TELA_TEXTURA, VBO_CUBO,
+      VBO_ESFERA, VBO_PIRAMIDE, VBO_CILINDRO, VBO_DISCO,
+      VBO_RETANGULO, VBO_TRIANGULO, VBO_CONE, VBO_CONE_FECHADO,
+      VBO_CILINDRO_FECHADO, VBO_BASE_PECA, VBO_MOLDURA_PECA,
+      VBO_HEMISFERIO, VBO_PIRAMIDE_FECHADA,
+      // sempre deve ser o ultimo.
+      NUM_VBOS };
   static std::vector<gl::VboGravado> g_vbos;
 
   // Alguns efeitos tem complementos.
