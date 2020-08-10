@@ -161,10 +161,10 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
       }
     } else if (!proto.info_textura().id().empty()) {
       gl::MultiplicaMatriz(tijolo_tela.get());
-      gl::DesenhaVbo(g_vbos[VBO_MOLDURA_PECA]);
+      gl::DesenhaVboGravado(g_vbos[VBO_MOLDURA_PECA]);
     } else {
       gl::MultiplicaMatriz(modelagem.get());
-      gl::DesenhaVbo(g_vbos[VBO_PEAO]);
+      gl::DesenhaVboGravado(g_vbos[VBO_PEAO]);
     }
 #endif
   }
@@ -178,7 +178,7 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
     }
     gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
     gl::MultiplicaMatriz(tijolo_base.get());
-    gl::DesenhaVbo(g_vbos[VBO_BASE_PECA]);
+    gl::DesenhaVboGravado(g_vbos[VBO_BASE_PECA]);
   }
 #endif
 
@@ -209,7 +209,7 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
     c.set_b(1.0f);
     c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
     MudaCor(MortaInconscienteIncapaz(proto) ? EscureceCor(c) : c);
-    gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
+    gl::DesenhaVboGravado(g_vbos[VBO_TELA_TEXTURA]);
     gl::Desabilita(GL_TEXTURE_2D);
 
     // restaura.
