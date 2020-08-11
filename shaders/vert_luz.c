@@ -47,15 +47,15 @@ attribute mediump vec3 gltab_normal;
 attribute mediump vec3 gltab_tangent;
 attribute lowp vec4 gltab_cor;
 attribute lowp vec2 gltab_texel;
-attribute highp mat4 gltab_model_i;
-attribute highp mat3 gltab_nm_i;
+//attribute highp mat4 gltab_model_i;
+//attribute highp mat3 gltab_nm_i;
 
 void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);
   v_Tangent = normalize(gltab_nm * gltab_tangent);
   v_Bitangent = cross(v_Normal, v_Tangent);
   v_Color = gltab_cor;
-  highp vec4 vertice_mundo = gltab_model_i * gltab_vertice;
+  highp vec4 vertice_mundo = gltab_model * gltab_vertice;
   v_Pos = gltab_view * vertice_mundo;
   v_Pos = v_Pos / v_Pos.w;
   v_Pos_model = gltab_vertice;
