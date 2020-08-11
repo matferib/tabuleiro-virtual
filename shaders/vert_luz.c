@@ -47,7 +47,6 @@ attribute mediump vec3 gltab_normal;
 attribute mediump vec3 gltab_tangent;
 attribute lowp vec4 gltab_cor;
 attribute lowp vec2 gltab_texel;
-attribute lowp mat4 gltab_matriz_normal;
 
 void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);
