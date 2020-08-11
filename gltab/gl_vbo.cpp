@@ -283,10 +283,6 @@ void VbosGravados::Desenha() const {
 //--------------
 // VboNaoGravado
 //--------------
-bool VboNaoGravado::tem_matriz() const {
-  return matriz_.has_value();
-}
-
 void VboNaoGravado::Escala(GLfloat x, GLfloat y, GLfloat z) {
   if (num_dimensoes_ == 2) {
     for (unsigned int i = 0; i < coordenadas_.size(); i += 2) {
@@ -491,7 +487,8 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
     unsigned int* deslocamento_normais,
     unsigned int* deslocamento_tangentes,
     unsigned int* deslocamento_cores,
-    unsigned int* deslocamento_texturas) const {
+    unsigned int* deslocamento_texturas,
+    unsigned int* deslocamento_matriz_modelagem) const {
   std::vector<float> buffer_unico;
   buffer_unico.clear();
   buffer_unico.insert(buffer_unico.end(), coordenadas_.begin(), coordenadas_.end());
@@ -499,6 +496,9 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
   buffer_unico.insert(buffer_unico.end(), tangentes_.begin(), tangentes_.end());
   buffer_unico.insert(buffer_unico.end(), cores_.begin(), cores_.end());
   buffer_unico.insert(buffer_unico.end(), texturas_.begin(), texturas_.end());
+  if (tem_matriz_modelagem()) {
+    buffer_unico.insert(buffer_unico.end(), matriz_modelagem_->get(), matriz_modelagem_->get() + 16);
+  }
   unsigned int pos_final = coordenadas_.size() * sizeof(float);
   if (tem_normais()) {
     *deslocamento_normais = pos_final;
@@ -515,6 +515,10 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
   if (tem_texturas()) {
     *deslocamento_texturas = pos_final;
     pos_final += texturas_.size() * sizeof(float);
+  }
+  if (tem_matriz_modelagem()) {
+    *deslocamento_matriz_modelagem = pos_final;
+    pos_final += (16 * sizeof(float));
   }
   return buffer_unico;
 }
@@ -584,8 +588,8 @@ void VboNaoGravado::AtribuiTangentes(std::vector<float>* dados) {
   }
 }
 
-void VboNaoGravado::AtribuiMatriz(const Matrix4& matriz) {
-  matriz_ = matriz;
+void VboNaoGravado::AtribuiMatrizModelagem(const Matrix4& matriz_modelagem) {
+  matriz_modelagem_ = matriz_modelagem;
 }
 
 void VboNaoGravado::AtribuiTexturas(const float* dados) {
@@ -786,6 +790,7 @@ void ConfiguraVao(GLenum modo, const VboGravado& vbo, int shader) {
   bool tem_normais = vbo.tem_normais();
   bool tem_tangentes = vbo.tem_tangentes();
   bool tem_texturas = vbo.tem_texturas();
+  // Isso é necessario pq o shader de picking tem cor. Entao, mesmo o objeto tendo cor, temos que força-lo a nao ter.
   bool tem_cores = shader == gl::TSH_PICKING ? false : vbo.tem_cores();
   //LOG(INFO)
   //    << "tem_normais: " << tem_normais << ", desloc: " << vbo.DeslocamentoNormais()
@@ -819,8 +824,8 @@ GLuint VboGravado::Vao() const {
   return vao_por_shader_[TipoShaderCorrente()];
 }
 
-bool VboGravado::tem_matriz() const {
-  return tem_matriz_;
+GLuint VboGravado::VaoInstancia() const {
+  return vao_instancia_por_shader_[TipoShaderCorrente()];
 }
 
 void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
@@ -832,7 +837,7 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
   modo_ = modo;
 
   // Gera o buffer se ja nao for gravado.
-  bool usar_buffer_sub_data = true;
+  bool usar_buffer_sub_data = gravado_;
   if (!gravado_) {
     nome_coordenadas_ = 0;
     gl::GeraBuffers(1, &nome_coordenadas_);
@@ -841,7 +846,6 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
       LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenBuffers gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
       return;
     }
-    usar_buffer_sub_data = false;
   }
   V_ERRO("ao gerar buffer coordenadas");
   // Associa coordenadas com ARRAY_BUFFER.
@@ -849,8 +853,14 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
   deslocamento_tangentes_ = -1;
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
+  deslocamento_matriz_modelagem_ = -1;
   auto tam_antes = buffer_unico_.size();
-  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_tangentes_, &deslocamento_cores_, &deslocamento_texturas_);
+  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(
+      &deslocamento_normais_,
+      &deslocamento_tangentes_,
+      &deslocamento_cores_,
+      &deslocamento_texturas_,
+      &deslocamento_matriz_modelagem_);
   if (tam_antes != buffer_unico_.size()) {
     usar_buffer_sub_data = false;
   }
@@ -859,6 +869,7 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
   tem_tangentes_ = (deslocamento_tangentes_ != static_cast<unsigned int>(-1));
   tem_cores_ = (deslocamento_cores_ != static_cast<unsigned int>(-1));
   tem_texturas_ = (deslocamento_texturas_ != static_cast<unsigned int>(-1));
+  tem_matriz_modelagem_ = (deslocamento_matriz_modelagem_ != static_cast<unsigned int>(-1));
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
   V_ERRO("na ligacao com buffer");
   if (usar_buffer_sub_data) {
@@ -899,16 +910,19 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
   if (!gravado_) {
     TipoShader shader_corrente = TipoShaderCorrente();
     vao_por_shader_.resize(TSH_NUM);
+    vao_instancia_por_shader_.resize(TSH_NUM);
     for (int shader = TSH_LUZ; shader < TSH_NUM; ++shader) {
       UsaShader(static_cast<TipoShader>(shader));
-      GLuint& vao = vao_por_shader_[shader];
-      GeraObjetosVertices(1, &vao);
-      V_ERRO("ao gerar VAO");
-      if (vao == 0) {
-        LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenVErtexArrays gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
-        continue;
+      {
+        GLuint& vao = vao_por_shader_[shader];
+        GeraObjetosVertices(1, &vao);
+        V_ERRO("ao gerar VAO");
+        if (vao == 0) {
+          LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenVErtexArrays gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
+          continue;
+        }
+        ConfiguraVao(modo_, *this, shader);
       }
-      ConfiguraVao(modo_, *this, shader);
     }
     UsaShader(shader_corrente);
   }
@@ -931,6 +945,10 @@ void VboGravado::Desgrava() {
     ApagaObjetosVertices(1, &vao);
   }
   vao_por_shader_.clear();
+  for (GLuint vao : vao_instancia_por_shader_) {
+    ApagaObjetosVertices(1, &vao);
+  }
+  vao_instancia_por_shader_.clear();
   V_ERRO("ao deletar VAO");
   ApagaBufferUnico();
   gravado_ = false;

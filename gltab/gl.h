@@ -419,6 +419,8 @@ enum atributo_e {
   ATR_COLOR_ARRAY         = 2,
   ATR_TEXTURE_COORD_ARRAY = 3,
   ATR_TANGENT_ARRAY       = 5,
+  ATR_MODEL_MATRIX_ARRAY  = 6,
+  ATR_NORMAL_MATRIX_ARRAY = 7,
 };
 // Retorna true se o tipo de atributo possui indice (alguns shaders nao tem, ai ja evita muita coisa).
 bool HabilitaVetorAtributosVerticePorTipo(atributo_e tipo);

@@ -47,7 +47,7 @@ class VboNaoGravado {
   void AtribuiTexturas(const float* dados);
   void AtribuiTexturas(std::vector<float>* dados);
 
-  void AtribuiMatriz(const Matrix4& matriz);
+  void AtribuiMatrizModelagem(const Matrix4& matriz_modelagem);
 
   // Atribui a mesma cor a todas coordenadas.
   void AtribuiCor(float r, float g, float b, float a);
@@ -66,7 +66,8 @@ class VboNaoGravado {
   std::vector<float> GeraBufferUnico(unsigned int* deslocamento_normais,
                                      unsigned int* deslocamento_tangentes,
                                      unsigned int* deslocamento_cores,
-                                     unsigned int* deslocamento_texturas) const;
+                                     unsigned int* deslocamento_texturas,
+                                     unsigned int* deslocamento_matriz_modelagem) const;
 
   unsigned int NumVertices() const {
     return indices_.size();
@@ -82,7 +83,7 @@ class VboNaoGravado {
   bool tem_tangentes() const { return !tangentes_.empty(); }
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return !texturas_.empty(); }
-  bool tem_matriz() const;
+  bool tem_matriz_modelagem() const { return matriz_modelagem_.has_value(); }
 
   const std::vector<unsigned short>& indices() const { return indices_; }
   std::vector<float>& coordenadas() { return coordenadas_; }
@@ -90,13 +91,12 @@ class VboNaoGravado {
   std::vector<float>& tangentes() { return tangentes_; }
   std::vector<float>& texturas() { return texturas_; }
   std::vector<float>& cores() { return cores_; }
-  Matrix4& matriz() { return *matriz_; }
   const std::vector<float>& coordenadas() const { return coordenadas_; }
   const std::vector<float>& normais() const { return normais_; }
   const std::vector<float>& tangentes() const { return tangentes_; }
   const std::vector<float>& texturas() const { return texturas_; }
   const std::vector<float>& cores() const { return cores_; }
-  const Matrix4& matriz() const { return *matriz_; }
+  const Matrix4& matriz_modelagem() const { return *matriz_modelagem_; }
 
  private:
   void ArrumaMatrizesNormais();
@@ -106,7 +106,7 @@ class VboNaoGravado {
   std::vector<float> tangentes_;
   std::vector<float> cores_;
   std::vector<float> texturas_;
-  std::optional<Matrix4> matriz_;
+  std::optional<Matrix4> matriz_modelagem_;
   std::vector<unsigned short> indices_;  // Indices tem seu proprio buffer.
   std::string nome_;
   unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
@@ -147,7 +147,7 @@ class VboGravado {
   // Deslocamento em bytes para a primeira coordenada de cores.
   unsigned int DeslocamentoCores() const { return deslocamento_cores_; }
   // Deslocamento em bytes para a primeira coordenada da matriz.
-  unsigned int DeslocamentoMatriz() const { return deslocamento_matriz_; }
+  unsigned int DeslocamentoMatrizModelagem() const { return deslocamento_matriz_modelagem_; }
 
   const std::vector<unsigned short>& indices() const { return indices_; }
 
@@ -159,9 +159,11 @@ class VboGravado {
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return tem_texturas_; }
   void forca_texturas(bool tem) { tem_texturas_ = tem; }
-  bool tem_matriz() const;
+  bool tem_matriz_modelagem() const { return tem_matriz_modelagem_; }
   // Retorna o vao para o shader corrente.
   GLuint Vao() const;
+  // Retorna o vao de instancia para o shader corrente.
+  GLuint VaoInstancia() const;
 
   std::string ParaString() const {
 #if WIN32 || ANDROID
@@ -189,20 +191,21 @@ class VboGravado {
   GLuint nome_coordenadas_ = 0;
   GLuint nome_indices_ = 0;
   std::vector<GLuint> vao_por_shader_;  // um VAO por shader.
+  std::vector<GLuint> vao_instancia_por_shader_;  // um VAO por shader.
   GLenum modo_ = GL_TRIANGLES;
 
   unsigned int deslocamento_normais_ = 0;
   unsigned int deslocamento_tangentes_ = 0;
   unsigned int deslocamento_cores_ = 0;
   unsigned int deslocamento_texturas_ = 0;
-  unsigned int deslocamento_matriz_ = 0;
+  unsigned int deslocamento_matriz_modelagem_ = 0;
   unsigned short num_dimensoes_ = 0;
 
   bool tem_normais_ = false;
   bool tem_tangentes_ = false;
   bool tem_cores_ = false;
   bool tem_texturas_ = false;
-  bool tem_matriz_ = false;
+  bool tem_matriz_modelagem_ = false;
 
   bool gravado_ = false;
 };
