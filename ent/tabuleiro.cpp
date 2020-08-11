@@ -62,7 +62,7 @@
 #endif
 #endif
 
-#define TAM_MAPA_OCLUSAO 256
+#define TAM_MAPA_OCLUSAO 512
 
 using google::protobuf::RepeatedField;
 using google::protobuf::StringAppendF;
