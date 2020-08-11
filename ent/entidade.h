@@ -11,8 +11,6 @@
 #include "ent/util.h"
 #include "gltab/gl_vbo.h"
 
-#define VBO_COM_MODELAGEM 0
-
 namespace m3d {
 class Modelos3d;
 }  // namespace m3d
@@ -541,7 +539,7 @@ class Entidade {
     DadosEmissao bolhas;
     DadosLuzAcao luz_acao;
 
-    // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
+    // Alguns tipos de entidade possuem VBOs.
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
     gl::VbosGravados vbos_gravados;
     Matrix4 matriz_modelagem;

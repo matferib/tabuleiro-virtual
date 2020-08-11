@@ -231,42 +231,6 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                                        const VariaveisDerivadas& vd,
                                        ParametrosDesenho* pd) {
-#if VBO_COM_MODELAGEM
-  bool usar_stencil = false;
-  if (proto.sub_tipo() == TF_LIVRE) {
-    usar_stencil = !pd->desenha_mapa_sombras() && !pd->desenha_mapa_oclusao() && !pd->has_picking_x();
-    if (usar_stencil) {
-      LigaStencil();
-    }
-  }
-  Cor c;
-  c.set_a(proto.cor().a());  // a gente so quer o alfa aqui.
-  //AlteraBlendEscopo blend_escopo(pd, c);
-  MisturaPreNevoaEscopo blend_escopo(pd->entidade_selecionada() ? CorRealcada(proto.cor()) : proto.cor(), pd);
-  GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
-    vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-  if (id_textura != GL_INVALID_VALUE) {
-    gl::Habilita(GL_TEXTURE_2D);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-  }
-  if (vd.vbos_gravados.Vazio()) {
-    // Para formas sendo desenhada, nao ha um VBO ainda.
-    gl::VbosNaoGravados vbo(ExtraiVboForma(proto, vd, pd, VBO_COM_MODELAGEM));
-    vbo.Desenha();
-  } else {
-    vd.vbos_gravados.Desenha();
-  }
-  gl::Desabilita(GL_TEXTURE_2D);
-  if (usar_stencil) {
-    float xi, yi, xs, ys;
-    LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
-    //LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
-    gl::MatrizEscopo salva_matriz;
-    gl::MultiplicaMatriz(MontaMatrizModelagemForma(false, false, proto, vd, pd).get());
-    float cor[] = { proto.cor().r(), proto.cor().g(), proto.cor().b(), proto.cor().a() };
-    DesenhaStencil3d(xi, yi, xs, ys, cor);
-  }
-#else
   AjustaCor(proto, pd);
   bool usar_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() &&
                       (proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
@@ -374,7 +338,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
 
   gl::Desabilita(GL_TEXTURE_2D);
   gl::TexturaBump(false);
-#endif
 }
 
 bool Entidade::ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {

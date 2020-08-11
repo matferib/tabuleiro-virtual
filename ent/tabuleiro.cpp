@@ -645,11 +645,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_oclusao_.textura, 0);
     V_ERRO("TexturaFramebufferOclusao");
-#if VBO_COM_MODELAGEM
-    DesenhaCenaVbos();
-#else
     DesenhaCena();
-#endif
   }
 
   V_ERRO("LigacaoComFramebufferOclusao");
@@ -722,11 +718,7 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
     parametros_desenho_.set_desenha_mapa_luzes(i);
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_luzes_[indice_luz].textura, 0);
     V_ERRO("TexturaFramebufferOclusao");
-#if VBO_COM_MODELAGEM
-    DesenhaCenaVbos();
-#else
     DesenhaCena();
-#endif
   }
   V_ERRO("LigacaoComFramebufferOclusao");
 }
@@ -786,11 +778,7 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
 #endif
   //LOG(INFO) << "sombra projetada";
   OrdenaEntidades(parametros_desenho_);
-#if VBO_COM_MODELAGEM
-  DesenhaCenaVbos();
-#else
   DesenhaCena();
-#endif
 }
 
 int Tabuleiro::Desenha() {
