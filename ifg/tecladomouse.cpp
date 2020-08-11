@@ -6,6 +6,8 @@
 #include "ent/util.h"
 #include "log/log.h"
 
+bool g_hack = false;
+
 namespace ifg {
 
 namespace {
@@ -334,7 +336,9 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         return;
       }
       if (modificadores == Modificador_Alt) {
-        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_HACK_ANDROID));
+        //central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_HACK_ANDROID));
+        g_hack = !g_hack;
+        LOG(INFO) << "hack " << (g_hack ? "ativado" : "desativado");
         return;
       }
       // Entra em modo de temporizacao.
