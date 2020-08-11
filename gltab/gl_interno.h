@@ -62,8 +62,8 @@ struct VarShader {
   GLint atr_gltab_tangente;
   GLint atr_gltab_cor;
   GLint atr_gltab_texel;
-  GLint atr_gltab_matriz;
-  GLint atr_gltab_matriz_normal;
+  GLint atr_gltab_matriz_modelagem;     // instancia.
+  GLint atr_gltab_matriz_normal;        // instancia.
 
   // Alguns bits de estado para diminuir comunicacao com a placa.
   bool textura_ligada = false;
