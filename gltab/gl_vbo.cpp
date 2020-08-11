@@ -6,6 +6,8 @@
 #include "goog/stringprintf.h"
 #include "log/log.h"
 
+extern bool g_hack;
+
 namespace gl {
 
 namespace {
@@ -2093,37 +2095,34 @@ void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
   if (atualiza_matrizes) {
     AtualizaMatrizes();
   }
-  #if 1
-  LigacaoComObjetoVertices(vbo.Vao());
-  V_ERRO("DesenhaVboGravado: bind");
-  //if (!atualiza_matrizes) {
-  //  LOG(INFO) << "Desenhando: " << vbo.nome() << ", vao: " << vbo.Vao() << ", modo: " << vbo.Modo() << ", num vertices: " << vbo.NumVertices();
-  //}
-  gl::DesenhaElementos(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr);
-  V_ERRO("DesenhaVboGravado: desenha");
-  LigacaoComObjetoVertices(0);
-  V_ERRO("DesenhaVB0: pos bind");
-
-  #else
-  // Os casts de char* 0 sao para evitar warning de conversao de short pra void*.
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
-
-  DesenhaElementosComAtributos(
-      vbo.Modo(), vbo.NumVertices(), vbo.NumDimensoes(), nullptr, nullptr,
-      vbo.tem_normais(), nullptr, vbo.DeslocamentoNormais(),
-      vbo.tem_tangentes(), nullptr, vbo.DeslocamentoTangentes(),
-      vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
-      vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(),
-      vbo.tem_matriz(), nullptr, vbo.DeslocamentoMatriz(),
-      atualiza_matrizes);
-
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  #endif
+  if (!g_hack) {
+    LigacaoComObjetoVertices(vbo.Vao());
+    V_ERRO("DesenhaVboGravado: bind");
+    //if (!atualiza_matrizes) {
+    //  LOG(INFO) << "Desenhando: " << vbo.nome() << ", vao: " << vbo.Vao() << ", modo: " << vbo.Modo() << ", num vertices: " << vbo.NumVertices();
+    //}
+    gl::DesenhaElementos(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr);
+    V_ERRO("DesenhaVboGravado: desenha");
+  } else {
+    LigacaoComObjetoVertices(0);
+    // Os casts de char* 0 sao para evitar warning de conversao de short pra void*.
+    gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
+    gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
+    DesenhaElementosComAtributos(
+        vbo.Modo(), vbo.NumVertices(), vbo.NumDimensoes(), nullptr, nullptr,
+        vbo.tem_normais(), nullptr, vbo.DeslocamentoNormais(),
+        vbo.tem_tangentes(), nullptr, vbo.DeslocamentoTangentes(),
+        vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
+        vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(),
+        vbo.tem_matriz(), nullptr, vbo.DeslocamentoMatriz(),
+        atualiza_matrizes);
+    gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+    gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  }
 }
 
 void DesenhaVboNaoGravado(const VboNaoGravado& vbo, GLenum modo, bool atualiza_matrizes) {
+  LigacaoComObjetoVertices(0);
   DesenhaElementosComAtributos(
       modo, vbo.NumVertices(), vbo.NumDimensoes(), vbo.indices().data(), vbo.coordenadas().data(),
       vbo.tem_normais(), vbo.normais().data(), 0,

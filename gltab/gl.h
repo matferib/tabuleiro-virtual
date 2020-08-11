@@ -325,6 +325,14 @@ inline void LigacaoComObjetoVertices(GLuint buffer) {
   glBindVertexArray(buffer);
 #endif
 }
+
+inline void DivisorAtributoVertice(GLuint index, GLuint divisor) {
+#if __APPLE__
+  glVertexAttribDivisorARB(index, divisor);
+#else
+  glVertexAttribDivisor(index, divisor);
+#endif
+}
 inline void LigacaoComRenderbuffer(GLenum target, GLuint buffer) { glBindRenderbuffer(target, buffer); }
 inline void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers) { glGenRenderbuffers(n, renderbuffers); }
 inline void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers) { glDeleteRenderbuffers(n, renderbuffers); }
