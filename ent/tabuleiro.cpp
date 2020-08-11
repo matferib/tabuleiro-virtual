@@ -3531,12 +3531,12 @@ void Tabuleiro::DesenhaCena(bool debug) {
     // Controle na quarta posicao da pilha.
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
 #if DEBUG
-    //glFinish();
+    glFinish();
 #endif
     timer_uma_renderizacao_controle_virtual_.start();
     DesenhaControleVirtual();
 #if DEBUG
-    //glFinish();
+    glFinish();
 #endif
     timer_uma_renderizacao_controle_virtual_.stop();
     EnfileiraTempo(timer_uma_renderizacao_controle_virtual_, &tempos_uma_renderizacao_controle_virtual_);
