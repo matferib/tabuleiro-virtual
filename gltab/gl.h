@@ -413,15 +413,11 @@ inline void PonteiroTangentes(GLenum tipo, const GLvoid* tangentes) { PonteiroTa
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores);
 
-void PonteiroMatriz(const GLvoid* matriz);
-void PonteiroMatrizNormal(const GLvoid* matriz);
-
 enum atributo_e {
   ATR_VERTEX_ARRAY        = 0,
   ATR_NORMAL_ARRAY        = 1,
   ATR_COLOR_ARRAY         = 2,
   ATR_TEXTURE_COORD_ARRAY = 3,
-  ATR_MATRIX_ARRAY        = 4,
   ATR_TANGENT_ARRAY       = 5,
 };
 // Retorna true se o tipo de atributo possui indice (alguns shaders nao tem, ai ja evita muita coisa).
