@@ -732,7 +732,7 @@ void HabilitaAtributosVertice(
 
   V_ERRO("HabilitaAtributosVertice: meio");
   V_ERRO(StringPrintf("DesenhaVBO: mei ponteiro vertices num dimensoes: %d", num_dimensoes));
-  
+
   if (atualiza_matrizes) {
     gl::AtualizaMatrizes();
   }
@@ -780,13 +780,13 @@ void DesenhaElementosComAtributos(
   DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores);
 }
 
-void ConfiguraVao(GLenum modo, const VboGravado& vbo) {
+void ConfiguraVao(GLenum modo, const VboGravado& vbo, int shader) {
   LigacaoComObjetoVertices(vbo.Vao());
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
   bool tem_normais = vbo.tem_normais();
   bool tem_tangentes = vbo.tem_tangentes();
   bool tem_texturas = vbo.tem_texturas();
-  bool tem_cores = vbo.tem_cores();
+  bool tem_cores = shader == gl::TSH_PICKING ? false : vbo.tem_cores();
   //LOG(INFO)
   //    << "tem_normais: " << tem_normais << ", desloc: " << vbo.DeslocamentoNormais()
   //    << ", tem_tangentes: " << tem_tangentes << ", desloc: " << vbo.DeslocamentoTangentes()
@@ -908,7 +908,7 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
         LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenVErtexArrays gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
         continue;
       }
-      ConfiguraVao(modo_, *this);
+      ConfiguraVao(modo_, *this, shader);
     }
     UsaShader(shader_corrente);
   }
@@ -2091,6 +2091,7 @@ void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
     //  LOG(INFO) << "Desenhando: " << vbo.nome() << ", vao: " << vbo.Vao() << ", modo: " << vbo.Modo() << ", num vertices: " << vbo.NumVertices();
     //}
     gl::DesenhaElementos(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr);
+    LigacaoComObjetoVertices(0);
     V_ERRO("DesenhaVboGravado: desenha");
   } else {
     LigacaoComObjetoVertices(0);
