@@ -1,3 +1,7 @@
+FAZER: ta estranho as normais. Se matriz normal nao funcionar, transforma-la em 4x4 e passar isso pro shader.
+Gerar estatisticas de desenho.
+Pensar em transformar os objetos compostos em instances.
+
 Dados de vida automatico: nao elite!
 Fazer modelo para ruinas de casas.
 Tesouro: permitir transicao de varios tesouros.

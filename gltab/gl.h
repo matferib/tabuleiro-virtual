@@ -413,6 +413,7 @@ inline void PonteiroTangentes(GLenum tipo, const GLvoid* tangentes) { PonteiroTa
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores);
 void PonteiroMatrizModelagem(const GLvoid* matriz_modelagem);
+void PonteiroMatrizNormal(const GLvoid* matriz_normal);
 
 enum atributo_e {
   ATR_VERTEX_ARRAY        = 0,
