@@ -38,7 +38,6 @@ uniform highp mat4 gltab_mvm_luz;       // modelagem luz.
 uniform highp mat4 gltab_mvm_ajuste_textura;    // modelagem ajuste textura.
 uniform highp mat3 gltab_nm;            // normal matrix
 uniform highp mat4 gltab_view;          // Matriz de view.
-uniform highp mat4 gltab_model;          // Matriz de modelagem.
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
 uniform bool gltab_especularidade_ligada;
 // Atributos variam por vertice.
