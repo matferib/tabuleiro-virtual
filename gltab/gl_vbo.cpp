@@ -263,6 +263,12 @@ void VbosGravados::Grava(const VbosNaoGravados& vbos_nao_gravados) {
   }
 }
 
+void VbosGravados::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
+  for (auto& vbo : vbos_) {
+    vbo.AtualizaMatrizes(matriz_modelagem);
+  }
+}
+
 void VbosGravados::Desgrava() {
   //LOG(INFO) << "desgravando vbos de " << nome_;
   vbos_.clear();
@@ -280,7 +286,7 @@ void VbosGravados::Nomeia(const std::string& nome) {
 void VbosGravados::Desenha() const {
   //LOG(INFO) << "----- Desenhando: " << nome_ << " no shader: " << interno::BuscaShader().nome;
   if (!vbos_.empty() && !vbos_[0].tem_matriz_modelagem()) {
-    AtualizaMatrizes();
+    ::gl::AtualizaMatrizes();
   }
   for (const auto& vbo : vbos_) {
     DesenhaVboGravado(vbo, /*atualiza_matrizes=*/false);
@@ -853,6 +859,33 @@ void ConfiguraVao(GLenum modo, const VboGravado& vbo, int shader) {
 //-----------
 GLuint VboGravado::Vao() const {
   return vao_por_shader_[TipoShaderCorrente()];
+}
+
+void VboGravado::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
+  if (!gravado_) {
+    LOG(ERROR) << "tentando atualizar a matriz de VBO nao gravado";
+    return;
+  }
+  if (!tem_matriz_modelagem_) {
+    LOG(ERROR) << "tentando atualizar a matriz de VBO sem matriz de modelagem";
+    return;
+  }
+  if ((DeslocamentoMatrizModelagem() + 16 * sizeof(float)) > (buffer_unico_.size() * sizeof(float))) {
+    LOG(ERROR) << "matriz de modelagem vai explodir o buffer unico";
+    return;
+  }
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
+  // Aqui é so pra manter o buffer unico sincronizado.
+  memcpy(
+      &reinterpret_cast<char*>(buffer_unico_.data())[DeslocamentoMatrizModelagem()],
+      matriz_modelagem.get(), 16 * sizeof(float));
+  V_ERRO("na ligacao com buffer");
+  gl::BufferizaSubDados(
+      GL_ARRAY_BUFFER, DeslocamentoMatrizModelagem(),
+      sizeof(GL_FLOAT) * 16,
+      matriz_modelagem.get());
+  V_ERRO("ao bufferizar");
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {

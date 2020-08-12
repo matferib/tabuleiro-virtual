@@ -608,6 +608,8 @@ class Entidade {
   * Teoricamente deveria sempre receber pd, mas se for nullptr vai usar valor padrao (o que implica em olho em 0,0).
   */
   void AtualizaVbo(const ParametrosDesenho* pd);
+  /** Atualiza as matrizes do VBO, se tiver. */
+  void AtualizaMatrizesVbo(const ParametrosDesenho* pd);
 
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
   static float DeltaVoo(const VariaveisDerivadas& vd);

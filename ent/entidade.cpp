@@ -393,9 +393,24 @@ void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
   }
   if (pd != nullptr) {
     vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd, false);
+    vd_.vbos_nao_gravados.AtribuiMatrizModelagem(vd_.matriz_modelagem);
     if (!vd_.vbos_nao_gravados.Vazio()) {
       vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
     }
+    V_ERRO("Erro atualizacao de VBOs");
+  }
+}
+
+void Entidade::AtualizaMatrizesVbo(const ParametrosDesenho* pd) {
+  // Por enquanto, apenas compostos tem a matriz no VBO.
+  switch (proto_.tipo()) {
+    case TE_ENTIDADE: return;  // entidades simples nao possuem vbo.
+    case TE_FORMA: return;
+    case TE_COMPOSTA:
+    default: ;
+  }
+  if (pd != nullptr) {
+    vd_.vbos_gravados.AtualizaMatrizes(vd_.matriz_modelagem);
     V_ERRO("Erro atualizacao de VBOs");
   }
 }
@@ -759,7 +774,12 @@ void Entidade::AtualizaBolhas(int intervalo_ms) {
 
 void Entidade::AtualizaMatrizes() {
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
+  bool atualiza_matriz_vbo = vd_.matriz_modelagem != md.modelagem;
   vd_.matriz_modelagem = md.modelagem;
+  if (atualiza_matriz_vbo) {
+    AtualizaMatrizesVbo(parametros_desenho_);
+  }
+  if (proto_.tipo() == TE_COMPOSTA) return; 
   vd_.matriz_modelagem_tijolo_base = md.tijolo_base;
   vd_.matriz_modelagem_tijolo_tela = md.tijolo_tela;
   vd_.matriz_modelagem_tela_textura = md.tela_textura;

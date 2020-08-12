@@ -123,6 +123,7 @@ class VboGravado {
 
   // Grava o vbo a partir de um VboNaoGravado.
   void Grava(GLuint modo, const VboNaoGravado& vbo);
+  void AtualizaMatrizes(const Matrix4& matriz_modelagem);
   // Desgrava se gravado.
   void Desgrava();
   bool Gravado() const { return gravado_; }
@@ -267,6 +268,7 @@ class VbosGravados {
   void Desenha() const;
   bool Vazio() const { return vbos_.empty(); }
   void Nomeia(const std::string& nome);
+  void AtualizaMatrizes(const Matrix4& matriz);
 
  private:
   std::vector<VboGravado> vbos_;
