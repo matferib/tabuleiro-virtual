@@ -36,7 +36,6 @@ uniform highp mat4 gltab_mvm_sombra;    // modelagem sombra.
 uniform highp mat4 gltab_mvm_oclusao;   // modelagem oclusao.
 uniform highp mat4 gltab_mvm_luz;       // modelagem luz.
 uniform highp mat4 gltab_mvm_ajuste_textura;    // modelagem ajuste textura.
-uniform highp mat3 gltab_nm;            // normal matrix
 uniform highp mat4 gltab_view;          // Matriz de view.
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
 uniform bool gltab_especularidade_ligada;
@@ -47,11 +46,12 @@ attribute mediump vec3 gltab_tangent;
 attribute lowp vec4 gltab_cor;
 attribute lowp vec2 gltab_texel;
 attribute highp mat4 gltab_model_i;
-attribute highp mat3 gltab_nm_i;
+attribute highp mat4 gltab_nm_i;
 
 void main() {
-  v_Normal = normalize(gltab_nm * gltab_normal);
-  v_Tangent = normalize(gltab_nm * gltab_tangent);
+  highp mat3 nm = mat3(gltab_view * gltab_nm_i);
+  v_Normal = normalize(nm * gltab_normal);
+  v_Tangent = normalize(nm * gltab_tangent);
   v_Bitangent = cross(v_Normal, v_Tangent);
   v_Color = gltab_cor;
   highp vec4 vertice_mundo = gltab_model_i * gltab_vertice;
