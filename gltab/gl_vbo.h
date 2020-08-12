@@ -67,7 +67,8 @@ class VboNaoGravado {
                                      unsigned int* deslocamento_tangentes,
                                      unsigned int* deslocamento_cores,
                                      unsigned int* deslocamento_texturas,
-                                     unsigned int* deslocamento_matriz_modelagem) const;
+                                     unsigned int* deslocamento_matriz_modelagem,
+                                     unsigned int* deslocamento_matriz_normal) const;
 
   unsigned int NumVertices() const {
     return indices_.size();
@@ -84,6 +85,7 @@ class VboNaoGravado {
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return !texturas_.empty(); }
   bool tem_matriz_modelagem() const { return matriz_modelagem_.has_value(); }
+  bool tem_matriz_normal() const { return tem_normais() && tem_matriz_modelagem(); }
 
   const std::vector<unsigned short>& indices() const { return indices_; }
   std::vector<float>& coordenadas() { return coordenadas_; }
@@ -97,16 +99,16 @@ class VboNaoGravado {
   const std::vector<float>& texturas() const { return texturas_; }
   const std::vector<float>& cores() const { return cores_; }
   const Matrix4& matriz_modelagem() const { return *matriz_modelagem_; }
+  const Matrix4& matriz_normal() const { return matriz_normal_; }
 
  private:
-  void ArrumaMatrizesNormais();
-
   std::vector<float> coordenadas_;
   std::vector<float> normais_;
   std::vector<float> tangentes_;
   std::vector<float> cores_;
   std::vector<float> texturas_;
   std::optional<Matrix4> matriz_modelagem_;
+  Matrix4 matriz_normal_;
   std::vector<unsigned short> indices_;  // Indices tem seu proprio buffer.
   std::string nome_;
   unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
@@ -149,6 +151,7 @@ class VboGravado {
   unsigned int DeslocamentoCores() const { return deslocamento_cores_; }
   // Deslocamento em bytes para a primeira coordenada da matriz.
   unsigned int DeslocamentoMatrizModelagem() const { return deslocamento_matriz_modelagem_; }
+  unsigned int DeslocamentoMatrizNormal() const { return deslocamento_matriz_normal_; }
 
   const std::vector<unsigned short>& indices() const { return indices_; }
 
@@ -161,6 +164,7 @@ class VboGravado {
   bool tem_texturas() const { return tem_texturas_; }
   void forca_texturas(bool tem) { tem_texturas_ = tem; }
   bool tem_matriz_modelagem() const { return tem_matriz_modelagem_; }
+  bool tem_matriz_normal() const { return tem_normais() && tem_matriz_modelagem_; }
   // Retorna o vao para o shader corrente.
   GLuint Vao() const;
   // Retorna o vao de instancia para o shader corrente.
@@ -200,6 +204,7 @@ class VboGravado {
   unsigned int deslocamento_cores_ = 0;
   unsigned int deslocamento_texturas_ = 0;
   unsigned int deslocamento_matriz_modelagem_ = 0;
+  unsigned int deslocamento_matriz_normal_ = 0;
   unsigned short num_dimensoes_ = 0;
 
   bool tem_normais_ = false;
@@ -268,7 +273,7 @@ class VbosGravados {
   void Desenha() const;
   bool Vazio() const { return vbos_.empty(); }
   void Nomeia(const std::string& nome);
-  void AtualizaMatrizes(const Matrix4& matriz);
+  void AtualizaMatrizes(const Matrix4& matriz_modelagem);
 
  private:
   std::vector<VboGravado> vbos_;
