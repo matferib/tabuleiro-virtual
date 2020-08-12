@@ -335,7 +335,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         tabuleiro_->AlternaModoDebug();
         return;
       }
-      if (modificadores == Modificador_Alt) {
+      if (modificadores == (Modificador_Ctrl | Modificador_Shift)) {
         //central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_HACK_ANDROID));
         g_hack = !g_hack;
         LOG(INFO) << "hack " << (g_hack ? "ativado" : "desativado");
