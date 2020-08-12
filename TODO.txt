@@ -1,4 +1,4 @@
-FAZER: ta estranho as normais. Se matriz normal nao funcionar, transforma-la em 4x4 e passar isso pro shader.
+FAZER: ta estranho as normais, voltar normal para 3x3.
 Gerar estatisticas de desenho.
 Pensar em transformar os objetos compostos em instances.
 
