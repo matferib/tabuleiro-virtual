@@ -502,7 +502,8 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
     unsigned int* deslocamento_tangentes,
     unsigned int* deslocamento_cores,
     unsigned int* deslocamento_texturas,
-    unsigned int* deslocamento_matriz_modelagem) const {
+    unsigned int* deslocamento_matriz_modelagem,
+    unsigned int* deslocamento_matriz_normal) const {
   std::vector<float> buffer_unico;
   buffer_unico.clear();
   buffer_unico.insert(buffer_unico.end(), coordenadas_.begin(), coordenadas_.end());
@@ -511,7 +512,14 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
   buffer_unico.insert(buffer_unico.end(), cores_.begin(), cores_.end());
   buffer_unico.insert(buffer_unico.end(), texturas_.begin(), texturas_.end());
   if (tem_matriz_modelagem()) {
-    buffer_unico.insert(buffer_unico.end(), matriz_modelagem_->get(), matriz_modelagem_->get() + 16);
+    const float* mm = matriz_modelagem_->get();
+    buffer_unico.insert(buffer_unico.end(), mm, mm + 16);
+    if (tem_normais()) {
+      Matrix4 matriz_normal = *matriz_modelagem_;
+      matriz_normal.invert().transpose();
+      const float* mn = matriz_normal.get();
+      buffer_unico.insert(buffer_unico.end(), mn, mn + 16);
+    }
   }
   unsigned int pos_final = coordenadas_.size() * sizeof(float);
   if (tem_normais()) {
@@ -531,9 +539,13 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
     pos_final += texturas_.size() * sizeof(float);
   }
   if (tem_matriz_modelagem()) {
-    LOG(INFO) << "gerando buffer unico com matriz modelagem"; 
+    LOG(INFO) << "gerando buffer unico com matriz modelagem";
     *deslocamento_matriz_modelagem = pos_final;
     pos_final += (16 * sizeof(float));
+    if (tem_normais()) {
+      *deslocamento_matriz_normal = pos_final;
+      pos_final += (16 * sizeof(float));
+    }
   }
   return buffer_unico;
 }
@@ -605,6 +617,10 @@ void VboNaoGravado::AtribuiTangentes(std::vector<float>* dados) {
 
 void VboNaoGravado::AtribuiMatrizModelagem(const Matrix4& matriz_modelagem) {
   matriz_modelagem_ = matriz_modelagem;
+  if (tem_normais()) {
+    matriz_normal_ = matriz_modelagem;
+    matriz_normal_.invert().transpose();
+  }
 }
 
 void VboNaoGravado::AtribuiTexturas(const float* dados) {
@@ -707,6 +723,7 @@ void HabilitaAtributosVertice(
     bool &tem_texturas, const void* texturas, int d_texturas,
     bool &tem_cores, const void* cores, int d_cores,
     bool &tem_matriz_modelagem, const void* matriz_modelagem, int d_modelagem,
+    bool &tem_matriz_normal, const void* matriz_normal, int d_normal,
     bool atualiza_matrizes) {
   const auto& shader = interno::BuscaShader();
   V_ERRO("HabilitaAtributosVertice: antes");
@@ -762,6 +779,17 @@ void HabilitaAtributosVertice(
     tem_matriz_modelagem = false;
   }
 
+  V_ERRO("DesenhaVBO: um quarto e tres quartos");
+  if (tem_matriz_normal && gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_MATRIX_ARRAY)) {
+    gl::PonteiroMatrizNormal(
+        static_cast<const char*>(matriz_normal) + d_normal);
+  } else {
+    if (tem_matriz_normal && shader.atr_gltab_matriz_normal != -1) {
+      LOG(WARNING) << "nao consegui gravar matriz normal. Shader " << shader.nome;
+    }
+    tem_matriz_normal = false;
+  }
+
   V_ERRO("HabilitaAtributosVertice: meio");
   V_ERRO(StringPrintf("DesenhaVBO: mei ponteiro vertices num dimensoes: %d", num_dimensoes));
 
@@ -775,7 +803,8 @@ void DesabilitaAtributosVertice(
                 bool tem_tangentes,
                 bool tem_texturas,
                 bool tem_cores,
-                bool tem_matriz_modelagem) {
+                bool tem_matriz_modelagem,
+                bool tem_matriz_normal) {
   V_ERRO("DesenhaVBO: mei elementos");
   gl::DesabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY);
   if (tem_normais) {
@@ -794,7 +823,9 @@ void DesabilitaAtributosVertice(
   if (tem_matriz_modelagem) {
     gl::DesabilitaVetorAtributosVerticePorTipo(ATR_MODEL_MATRIX_ARRAY);
   }
-
+  if (tem_matriz_normal) {
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_MATRIX_ARRAY);
+  }
   V_ERRO("DesenhaVBO: depois");
 }
 
@@ -806,6 +837,7 @@ void DesenhaElementosComAtributos(
     bool tem_texturas, const void* texturas, int d_texturas,
     bool tem_cores, const void* cores, int d_cores,
     bool tem_matriz_modelagem, const void* matriz_modelagem, int d_matriz_modelagem,
+    bool tem_matriz_normal, const void* matriz_normal, int d_matriz_normal,
     bool atualiza_matrizes) {
   HabilitaAtributosVertice(
       num_vertices, num_dimensoes, dados,
@@ -814,9 +846,10 @@ void DesenhaElementosComAtributos(
       tem_texturas, texturas, d_texturas,
       tem_cores, cores, d_cores,
       tem_matriz_modelagem, matriz_modelagem, d_matriz_modelagem,
+      tem_matriz_normal, matriz_normal, d_matriz_normal,
       atualiza_matrizes);
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
-  DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz_modelagem);
+  DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz_modelagem, tem_matriz_normal);
 }
 
 void ConfiguraVao(GLenum modo, const VboGravado& vbo, int shader) {
@@ -826,6 +859,7 @@ void ConfiguraVao(GLenum modo, const VboGravado& vbo, int shader) {
   bool tem_tangentes = vbo.tem_tangentes();
   bool tem_texturas = vbo.tem_texturas();
   bool tem_matriz_modelagem = vbo.tem_matriz_modelagem();
+  bool tem_matriz_normal = vbo.tem_matriz_normal();
   // Isso é necessario pq o shader de picking tem cor. Entao, mesmo o objeto tendo cor, temos que força-lo a nao ter.
   bool tem_cores = shader == gl::TSH_PICKING ? false : vbo.tem_cores();
   //LOG(INFO)
@@ -844,12 +878,13 @@ void ConfiguraVao(GLenum modo, const VboGravado& vbo, int shader) {
       tem_texturas, nullptr, vbo.DeslocamentoTexturas(),
       tem_cores, nullptr, vbo.DeslocamentoCores(),
       tem_matriz_modelagem, nullptr, vbo.DeslocamentoMatrizModelagem(),
+      tem_matriz_normal, nullptr, vbo.DeslocamentoMatrizNormal(),
       /*atualiza_matrizes=*/false);
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
   LigacaoComObjetoVertices(0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz_modelagem);
+  DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz_modelagem, tem_matriz_normal);
 }
 
 }  // namespace
@@ -886,6 +921,29 @@ void VboGravado::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
       matriz_modelagem.get());
   V_ERRO("ao bufferizar");
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+
+  if (!tem_matriz_normal()) {
+    return;
+  }
+  if ((DeslocamentoMatrizNormal() + 16 * sizeof(float)) > (buffer_unico_.size() * sizeof(float))) {
+    LOG(ERROR) << "matriz de normal vai explodir o buffer unico";
+    return;
+  }
+  Matrix4 matriz_normal = matriz_modelagem.get();
+  matriz_normal.invert().transpose();
+  const float* mn = matriz_normal.get();
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
+  // Aqui é so pra manter o buffer unico sincronizado.
+  memcpy(
+      &reinterpret_cast<char*>(buffer_unico_.data())[DeslocamentoMatrizNormal()],
+      mn, 16 * sizeof(float));
+  V_ERRO("na ligacao com buffer");
+  gl::BufferizaSubDados(
+      GL_ARRAY_BUFFER, DeslocamentoMatrizNormal(),
+      sizeof(GL_FLOAT) * 16,
+      mn);
+  V_ERRO("ao bufferizar");
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
@@ -914,13 +972,15 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
   deslocamento_matriz_modelagem_ = -1;
+  deslocamento_matriz_normal_ = -1;
   auto tam_antes = buffer_unico_.size();
   buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(
       &deslocamento_normais_,
       &deslocamento_tangentes_,
       &deslocamento_cores_,
       &deslocamento_texturas_,
-      &deslocamento_matriz_modelagem_);
+      &deslocamento_matriz_modelagem_,
+      &deslocamento_matriz_normal_);
   if (tam_antes != buffer_unico_.size()) {
     usar_buffer_sub_data = false;
   }
@@ -2187,6 +2247,7 @@ void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
         vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
         vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(),
         vbo.tem_matriz_modelagem(), nullptr, vbo.DeslocamentoMatrizModelagem(),
+        vbo.tem_matriz_normal(), nullptr, vbo.DeslocamentoMatrizNormal(),
         atualiza_matrizes);
     gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
     gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -2202,6 +2263,7 @@ void DesenhaVboNaoGravado(const VboNaoGravado& vbo, GLenum modo, bool atualiza_m
       vbo.tem_texturas(), vbo.texturas().data(), 0,
       vbo.tem_cores(), vbo.cores().data(), 0,
       false, nullptr, 0,   // matriz modelagem.
+      false, nullptr, 0,   // matriz normal.
       atualiza_matrizes);
 }
 
