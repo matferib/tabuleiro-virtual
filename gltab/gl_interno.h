@@ -49,8 +49,6 @@ struct VarShader {
   GLint uni_gltab_mvm_luz;              // Matrix modelview luz.
   GLint uni_gltab_mvm_ajuste_textura;   // Matrix modelview ajuste de textura.
   GLint uni_gltab_camera;               // Matrix view.
-  GLint uni_gltab_modelagem;            // Matrix de modelagem apenas.
-  GLint uni_gltab_nm;                   // Matrix de normais.
   GLint uni_gltab_prm;                  // Matrix projecao.
   GLint uni_gltab_prm_sombra;           // Matrix projecao sombra.
   GLint uni_gltab_plano_distante;       // Distancia do plano de corte distante.
@@ -104,8 +102,6 @@ class Contexto {
   std::stack<Matrix4> pilha_mvm_ajuste_textura;
 
   std::stack<Matrix4>* pilha_corrente = nullptr;
-  Matrix3 matriz_normal;  // Computada da mvm corrente.
-  Matrix3 matriz_camera_normal;  // Computada da mvm corrente.
   float plano_distante;   // distancia de corte do plano distante.
 
   std::unique_ptr<ContextoDependente> interno;
