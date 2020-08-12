@@ -3774,27 +3774,33 @@ void Tabuleiro::RegeraVboTabuleiro() {
                    &coordenadas_tabuleiro,
                    &coordenadas_normais,
                    &coordenadas_textura);
-  gl::VbosNaoGravados tabuleiro_nao_gravado;
-  gl::VboNaoGravado tabuleiro_parcial;
-  tabuleiro_parcial.AtribuiIndices(&indices_tabuleiro);
-  tabuleiro_parcial.AtribuiCoordenadas(3, &coordenadas_tabuleiro);
-  tabuleiro_parcial.AtribuiTexturas(&coordenadas_textura);
-  tabuleiro_parcial.AtribuiNormais(&coordenadas_normais);
-  tabuleiro_nao_gravado.Concatena(tabuleiro_parcial);
-  V_ERRO("RegeraVboTabuleiro antes gravar");
-  // Todo VBO deve ser desgravado para o caso de recuperacao de contexto.
-  vbos_tabuleiro_.Nomeia("terreno");
-  vbos_tabuleiro_.Desgrava();
-  vbos_tabuleiro_.Grava(tabuleiro_nao_gravado);
+  {
+    gl::VbosNaoGravados tabuleiro_nao_gravado;
+    gl::VboNaoGravado tabuleiro_parcial;
+    tabuleiro_parcial.AtribuiIndices(&indices_tabuleiro);
+    tabuleiro_parcial.AtribuiCoordenadas(3, &coordenadas_tabuleiro);
+    tabuleiro_parcial.AtribuiTexturas(&coordenadas_textura);
+    tabuleiro_parcial.AtribuiNormais(&coordenadas_normais);
+    tabuleiro_parcial.Translada(
+        -TamanhoX() * TAMANHO_LADO_QUADRADO_2, -TamanhoY() * TAMANHO_LADO_QUADRADO_2, 0);
+    tabuleiro_nao_gravado.Concatena(tabuleiro_parcial);
+    tabuleiro_nao_gravado.AtribuiMatrizModelagem(Matrix4());
+
+    V_ERRO("RegeraVboTabuleiro antes gravar");
+    // Todo VBO deve ser desgravado para o caso de recuperacao de contexto.
+    vbos_tabuleiro_.Nomeia("terreno");
+    vbos_tabuleiro_.Desgrava();
+    vbos_tabuleiro_.Grava(tabuleiro_nao_gravado);
+  }
   V_ERRO("RegeraVboTabuleiro depois gravar");
 
   // Regera a grade.
-  gl::VbosNaoGravados grade_nao_gravada;
   std::vector<float> coordenadas_grade;
   std::vector<unsigned short> indices_grade;
   int indice = 0;
   float deslocamento_x = -TamanhoX() * TAMANHO_LADO_QUADRADO_2;
   float deslocamento_y = -TamanhoY() * TAMANHO_LADO_QUADRADO_2;
+  gl::VbosNaoGravados grade_nao_gravada;
   // Linhas verticais (S-N).
   {
     for (int xcorrente = 0; xcorrente <= TamanhoX(); ++xcorrente) {
@@ -3824,11 +3830,11 @@ void Tabuleiro::RegeraVboTabuleiro() {
         indice += 4;
       }
     }
+    gl::VboNaoGravado grade_vertical;
+    grade_vertical.AtribuiIndices(&indices_grade);
+    grade_vertical.AtribuiCoordenadas(3, &coordenadas_grade);
+    grade_nao_gravada.Concatena(&grade_vertical);
   }
-  gl::VboNaoGravado grade_vertical;
-  grade_vertical.AtribuiIndices(&indices_grade);
-  grade_vertical.AtribuiCoordenadas(3, &coordenadas_grade);
-  grade_nao_gravada.Concatena(&grade_vertical);
   indice = 0;
   {
     for (int ycorrente = 0; ycorrente <= TamanhoY(); ++ycorrente) {
@@ -3858,11 +3864,12 @@ void Tabuleiro::RegeraVboTabuleiro() {
         indice += 4;
       }
     }
+    gl::VboNaoGravado grade_horizontal;
+    grade_horizontal.AtribuiIndices(&indices_grade);
+    grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
+    grade_nao_gravada.Concatena(&grade_horizontal);
   }
-  gl::VboNaoGravado grade_horizontal;
-  grade_horizontal.AtribuiIndices(&indices_grade);
-  grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
-  grade_nao_gravada.Concatena(&grade_horizontal);
+  grade_nao_gravada.AtribuiMatrizModelagem(Matrix4());
   vbos_grade_.Desgrava();
   vbos_grade_.Grava(grade_nao_gravada);
   vbos_grade_.Nomeia("grade tabuleiro");
@@ -4258,8 +4265,6 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::CarregaNome(0);
   V_ERRO("desenhando tabuleiro nome");
   gl::MatrizEscopo salva_matriz;
-  float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
-  float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
 
   //gl::Normal(0, 0, 1.0f);
   V_ERRO("desenhando tabuleiro normal");
@@ -4285,9 +4290,11 @@ void Tabuleiro::DesenhaTabuleiro() {
   } else {
     MudaCor(cenario_piso.has_info_textura_piso() ? COR_BRANCA : COR_CINZA_CLARO);
   }
-  Matrix4 modelagem;
-  modelagem.translate(deltaX / 2.0f, deltaY / 2.0f, 0 * parametros_desenho_.offset_terreno());
-  gl::MultiplicaMatriz(modelagem.get());
+  //float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
+  //float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
+  //Matrix4 modelagem;
+  //modelagem.translate(deltaX / 2.0f, deltaY / 2.0f, 0 * parametros_desenho_.offset_terreno());
+  //gl::MultiplicaMatriz(modelagem.get());
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       cenario_piso.has_info_textura_piso() &&
                       (!proto_corrente_->textura_mestre_apenas() || VisaoMestre()) ?
