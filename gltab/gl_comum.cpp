@@ -811,12 +811,6 @@ void Tangente(GLfloat x, GLfloat y, GLfloat z) {
   }
 }
 
-void MatrizModelagem(const GLfloat* matriz) {
-  if (interno::BuscaShader().uni_gltab_modelagem != -1) {
-    Matriz4Uniforme(interno::BuscaShader().uni_gltab_modelagem, 1, false, matriz);
-  }
-}
-
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
   if (interno::BuscaShader().atr_gltab_cor != -1) {
     PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
@@ -1154,6 +1148,8 @@ GLuint TipoAtribParaIndice(atributo_e tipo) {
     case ATR_TANGENT_ARRAY: ret = interno::BuscaShader().atr_gltab_tangente; break;
     case ATR_COLOR_ARRAY: ret = interno::BuscaShader().atr_gltab_cor; break;
     case ATR_TEXTURE_COORD_ARRAY: ret = interno::BuscaShader().atr_gltab_texel; break;
+    case ATR_MODEL_MATRIX_ARRAY: ret = interno::BuscaShader().atr_gltab_matriz_modelagem; break;
+    case ATR_NORMAL_MATRIX_ARRAY: ret = interno::BuscaShader().atr_gltab_matriz_normal; break;
     default:
       LOG(ERROR) << "tipo invalido: " << (int)tipo;
       break;
@@ -1169,7 +1165,12 @@ GLuint TipoAtribParaIndice(atributo_e tipo) {
 bool HabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
   GLuint indice = TipoAtribParaIndice(tipo);
   if (indice < GL_MAX_VERTEX_ATTRIBS) {
-    HabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
+    HabilitaVetorAtributosVertice(indice);
+    if (tipo != ATR_MODEL_MATRIX_ARRAY) return true;
+    if ((indice + 3) >= GL_MAX_VERTEX_ATTRIBS) return false;
+    HabilitaVetorAtributosVertice(indice + 1);
+    HabilitaVetorAtributosVertice(indice + 2);
+    HabilitaVetorAtributosVertice(indice + 3);
     return true;
   } else {
     return false;
@@ -1273,6 +1274,27 @@ void AtualizaMatrizCamera() {
   const interno::VarShader& shader = interno::BuscaShader();
   GLuint mloc = shader.uni_gltab_camera;
   Matriz4Uniforme(mloc, 1, false, c->pilha_camera.top().get());
+}
+
+void PonteiroMatrizModelagem(const void* matriz_modelagem) {
+  const auto& shader = interno::BuscaShader();
+  if (shader.atr_gltab_matriz_modelagem != -1) {
+    // Pode ser que tenha que usar esse stride ao inves de 0.
+    const int stride = 16 * sizeof(float);
+    const float* pf = reinterpret_cast<const float*>(matriz_modelagem);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_modelagem,     4, GL_FLOAT, GL_FALSE, stride, pf);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_modelagem + 1, 4, GL_FLOAT, GL_FALSE, stride, pf + 4);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_modelagem + 2, 4, GL_FLOAT, GL_FALSE, stride, pf + 8);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_modelagem + 3, 4, GL_FLOAT, GL_FALSE, stride, pf + 12);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_modelagem, 1);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_modelagem + 1, 1);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_modelagem + 2, 1);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_modelagem + 3, 1);
+  }
 }
 
 void AtualizaMatrizModelagem() {

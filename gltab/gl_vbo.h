@@ -249,6 +249,7 @@ class VbosNaoGravados {
   bool Vazio() const { return vbos_.empty(); }
   void Multiplica(const Matrix4& m);
   void AtribuiCor(float r, float g, float b, float a);
+  void AtribuiMatrizModelagem(const Matrix4& matriz_modelagem);
   void MesclaCores(float r, float g, float b, float a);
   std::string ParaString(bool completo) const;
 

@@ -412,6 +412,7 @@ void PonteiroTangentes(GLenum tipo, GLsizei passo, const GLvoid* normais);
 inline void PonteiroTangentes(GLenum tipo, const GLvoid* tangentes) { PonteiroTangentes(tipo, 0, tangentes); }
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores);
+void PonteiroMatrizModelagem(const GLvoid* matriz_modelagem);
 
 enum atributo_e {
   ATR_VERTEX_ARRAY        = 0,
@@ -481,7 +482,6 @@ void PlanoDistanteOclusao(GLfloat distancia);
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);
 void Tangente(GLfloat x, GLfloat y, GLfloat z);
-void MatrizModelagem(const GLfloat* matriz);
 
 void TamanhoPonto(float tam);
 
