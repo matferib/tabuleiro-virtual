@@ -71,8 +71,6 @@ LIBPROTOBUF_EXPORT extern const int kStringPrintfVectorMaxArgs;
 LIBPROTOBUF_EXPORT extern string StringPrintfVector(
     const char* format, const std::vector<std::string>& v);
 
-LIBPROTOBUF_EXPORT void SplitStringUsing(const string& full, const char* delim,
-                                         std::vector<string>* res);
 LIBPROTOBUF_EXPORT void JoinStrings(const std::vector<string>& components,
                                     const char* delim, string* result);
 
