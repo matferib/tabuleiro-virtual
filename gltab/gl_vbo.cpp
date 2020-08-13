@@ -515,10 +515,9 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
     const float* mm = matriz_modelagem_->get();
     buffer_unico.insert(buffer_unico.end(), mm, mm + 16);
     if (tem_normais()) {
-      Matrix4 matriz_normal = *matriz_modelagem_;
-      matriz_normal.invert().transpose();
+      Matrix3 matriz_normal = interno::ExtraiMatrizNormal(*matriz_modelagem_);
       const float* mn = matriz_normal.get();
-      buffer_unico.insert(buffer_unico.end(), mn, mn + 16);
+      buffer_unico.insert(buffer_unico.end(), mn, mn + 9);
     }
   }
   unsigned int pos_final = coordenadas_.size() * sizeof(float);
@@ -544,7 +543,7 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
     pos_final += (16 * sizeof(float));
     if (tem_normais()) {
       *deslocamento_matriz_normal = pos_final;
-      pos_final += (16 * sizeof(float));
+      pos_final += (9 * sizeof(float));
     }
   }
   return buffer_unico;
@@ -618,8 +617,7 @@ void VboNaoGravado::AtribuiTangentes(std::vector<float>* dados) {
 void VboNaoGravado::AtribuiMatrizModelagem(const Matrix4& matriz_modelagem) {
   matriz_modelagem_ = matriz_modelagem;
   if (tem_normais()) {
-    matriz_normal_ = matriz_modelagem;
-    matriz_normal_.invert().transpose();
+    matriz_normal_ = interno::ExtraiMatrizNormal(matriz_modelagem);
   }
 }
 
@@ -925,7 +923,7 @@ void VboGravado::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
   if (!tem_matriz_normal()) {
     return;
   }
-  if ((DeslocamentoMatrizNormal() + 16 * sizeof(float)) > (buffer_unico_.size() * sizeof(float))) {
+  if ((DeslocamentoMatrizNormal() + 9 * sizeof(float)) > (buffer_unico_.size() * sizeof(float))) {
     LOG(ERROR) << "matriz de normal vai explodir o buffer unico";
     return;
   }
@@ -936,11 +934,11 @@ void VboGravado::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
   // Aqui é so pra manter o buffer unico sincronizado.
   memcpy(
       &reinterpret_cast<char*>(buffer_unico_.data())[DeslocamentoMatrizNormal()],
-      mn, 16 * sizeof(float));
+      mn, 9 * sizeof(float));
   V_ERRO("na ligacao com buffer");
   gl::BufferizaSubDados(
       GL_ARRAY_BUFFER, DeslocamentoMatrizNormal(),
-      sizeof(GL_FLOAT) * 16,
+      sizeof(GL_FLOAT) * 9,
       mn);
   V_ERRO("ao bufferizar");
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);

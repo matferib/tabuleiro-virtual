@@ -161,6 +161,7 @@ void TexturaAtivaInterno(GLenum textura);
 
 // Quebra uma string em varias.
 const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
+Matrix3 ExtraiMatrizNormal(const Matrix4& matriz_modelagem);
 
 }  // namespace interno
 

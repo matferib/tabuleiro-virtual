@@ -99,7 +99,7 @@ class VboNaoGravado {
   const std::vector<float>& texturas() const { return texturas_; }
   const std::vector<float>& cores() const { return cores_; }
   const Matrix4& matriz_modelagem() const { return *matriz_modelagem_; }
-  const Matrix4& matriz_normal() const { return matriz_normal_; }
+  const Matrix3& matriz_normal() const { return matriz_normal_; }
 
  private:
   std::vector<float> coordenadas_;
@@ -108,7 +108,7 @@ class VboNaoGravado {
   std::vector<float> cores_;
   std::vector<float> texturas_;
   std::optional<Matrix4> matriz_modelagem_;
-  Matrix4 matriz_normal_;
+  Matrix3 matriz_normal_;
   std::vector<unsigned short> indices_;  // Indices tem seu proprio buffer.
   std::string nome_;
   unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
