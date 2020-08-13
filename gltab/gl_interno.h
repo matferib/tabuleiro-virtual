@@ -2,6 +2,8 @@
 #define GLTAB_INTERNO_H
 
 #include <set>
+#include <unordered_map>
+#include <utility>
 #include "gltab/gl.h"
 
 namespace gl {
@@ -65,6 +67,16 @@ struct VarShader {
 
   // Alguns bits de estado para diminuir comunicacao com a placa.
   bool textura_ligada = false;
+  GLenum unidade_textura = GL_INVALID_ENUM;
+  struct hash_pair {
+    size_t operator()(const std::pair<GLenum, GLenum>& p) const {
+      auto hash1 = std::hash<GLenum>{}(p.first);
+      auto hash2 = std::hash<GLenum>{}(p.second);
+      return hash1 ^ hash2;
+    }
+  };
+  // Cache de textura por unidade e target.
+  std::unordered_map<std::pair<GLenum, GLenum>, GLuint, hash_pair> cache_textura;
 };
 
 // Depende de plataforma.

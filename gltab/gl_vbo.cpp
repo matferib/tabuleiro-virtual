@@ -538,7 +538,7 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
     pos_final += texturas_.size() * sizeof(float);
   }
   if (tem_matriz_modelagem()) {
-    LOG(INFO) << "gerando buffer unico com matriz modelagem";
+    //LOG(INFO) << "gerando buffer unico com matriz modelagem";
     *deslocamento_matriz_modelagem = pos_final;
     pos_final += (16 * sizeof(float));
     if (tem_normais()) {

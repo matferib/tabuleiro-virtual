@@ -87,8 +87,8 @@ void Entidade::DesenhaObjetoCompostoProto(
     blend_escopo.reset(new MisturaPreNevoaEscopo(pd->entidade_selecionada() ? CorRealcada(proto.cor()) : proto.cor(), pd));
   }
 
-  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
-  gl::MultiplicaMatriz(vd.matriz_modelagem.get());
+  //gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
+  //gl::MultiplicaMatriz(vd.matriz_modelagem.get());
   GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
