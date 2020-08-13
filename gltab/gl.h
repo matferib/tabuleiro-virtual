@@ -224,7 +224,7 @@ void UnidadeTextura(GLenum unidade);
 void TexturaBump(bool estado);
 inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, texturas); }
 inline void ApagaTexturas(GLsizei n, const GLuint* texturas) { glDeleteTextures(n, texturas); }
-inline void LigacaoComTextura(GLenum alvo, GLuint textura) { glBindTexture(alvo, textura); }
+void LigacaoComTextura(GLenum alvo, GLuint textura);
 inline void ParametroTextura(GLenum alvo, GLenum nome_param, GLint valor_param) { glTexParameteri(alvo, nome_param, valor_param); }
 inline void ImagemTextura2d(
     GLenum alvo, GLint nivel, GLint formato_interno, GLsizei largura, GLsizei altura, GLint borda,

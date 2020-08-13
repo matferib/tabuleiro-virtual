@@ -1705,10 +1705,24 @@ void UnidadeTextura(GLenum unidade) {
   glActiveTexture(unidade);
   //glClientActiveTexture(unidade);
 #endif
+  interno::BuscaShaderMutavel().unidade_textura = unidade;
 }
 
 void TexturaBump(bool estado) {
   interno::UniformeSeValido(interno::BuscaShader().uni_gltab_textura_bump, estado ? 1.0f : 0.0f);
+}
+
+void LigacaoComTextura(GLenum alvo, GLuint textura) {
+  auto& shader = interno::BuscaShaderMutavel();
+  auto chave = std::make_pair(shader.unidade_textura, alvo);
+  if (auto it = shader.cache_textura.find(chave);
+      it == shader.cache_textura.end() || it->second != textura) {
+    shader.cache_textura[chave] = textura;
+    glBindTexture(alvo, textura);
+    //LOG(INFO) << "miss, alvo: " << alvo << ", textura: " << textura;
+  //} else {
+    //LOG(INFO) << "hit, alvo: " << alvo << ", textura: " << textura;
+  }
 }
 
 void CorMisturaPreNevoa(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
