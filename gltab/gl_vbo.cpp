@@ -2227,7 +2227,7 @@ void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
     //  LOG(INFO) << "Desenhando: " << vbo.nome() << ", vao: " << vbo.Vao() << ", modo: " << vbo.Modo() << ", num vertices: " << vbo.NumVertices();
     //}
     if (vbo.tem_matriz_modelagem()) {
-      glDrawElementsInstanced(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr, 1);
+      gl::DesenhaElementosInstanciado(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr, 1);
     } else {
       gl::DesenhaElementos(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr);
     }
