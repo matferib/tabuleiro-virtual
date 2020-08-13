@@ -76,6 +76,9 @@ struct ContextoDesktop : public ContextoDependente {
   PROC pglActiveTexture;
   PROC pglVertexAttribDivisor;
   PROC pglDrawElementsInstanced;
+  PROC pglBindVertexArray;
+  PROC pglDeleteVertexArrays;
+  PROC pglGenVertexArrays;
 #endif
 };
 
@@ -150,6 +153,9 @@ void IniciaGl(TipoLuz tipo_luz, float escala) {
   PGL(glActiveTexture);
   PGL(glVertexAttribDivisor);
   PGL(glDrawElementsInstanced);
+  PGL(glDeleteVertexArrays);
+  PGL(glGenVertexArrays);
+  PGL(glBindVertexArray);
 
   if (!erro.empty()) {
     LOG(ERROR) << "Erro: " << erro;
@@ -416,6 +422,17 @@ void DesenhaElementosInstanciado(GLenum modo, GLsizei num_vertices, GLenum tipo,
   ((PFNGLDRAWELEMENTSINSTANCEDPROC)INTERNO->pglDrawElementsInstanced)(modo, num_vertices, tipo, indices, instancecount);
 }
 
+void LigacaoComObjetoVertices(GLuint buffer) {
+  ((PFNGLBINDVERTEXARRAYPROC)INTERNO->pglBindVertexArray)(buffer);
+}
+
+void ApagaObjetosVertices(GLsizei n, GLuint *arrays) {
+  ((PFNGLCREATEVERTEXARRAYSPROC)INTERNO->pglDeleteVertexArrays)(n, arrays);
+}
+
+void GeraObjetosVertices(GLsizei n, GLuint *arrays) {
+  ((PFNGLGENVERTEXARRAYSPROC)INTERNO->pglGenVertexArrays)(n, arrays);
+}
 
 #endif
 

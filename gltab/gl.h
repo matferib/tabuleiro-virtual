@@ -265,7 +265,7 @@ void GeraObjetosVertices(GLsizei n, GLuint *arrays);
 void LigacaoComBuffer(GLenum target, GLuint buffer);
 void LigacaoComObjetoVertices(GLuint buffer);
 void ApagaBuffers(GLsizei n, const GLuint* buffers);
-void ApagaObjetosVertices(GLsizei n, const GLuint *arrays);
+void ApagaObjetosVertices(GLsizei n, GLuint *arrays);
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
 void BufferizaSubDados(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data);
 void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog);
