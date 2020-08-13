@@ -46,10 +46,10 @@ attribute mediump vec3 gltab_tangent;
 attribute lowp vec4 gltab_cor;
 attribute lowp vec2 gltab_texel;
 attribute highp mat4 gltab_model_i;
-attribute highp mat4 gltab_nm_i;
+attribute highp mat3 gltab_nm_i;
 
 void main() {
-  highp mat3 nm = mat3(gltab_view * gltab_nm_i);
+  highp mat3 nm = mat3(gltab_view) * gltab_nm_i;
   v_Normal = normalize(nm * gltab_normal);
   v_Tangent = normalize(nm * gltab_tangent);
   v_Bitangent = cross(v_Normal, v_Tangent);
