@@ -396,6 +396,13 @@ inline void DesenhaArrays(GLenum modo, GLint primeiro, GLsizei num) { glDrawArra
 
 /** Desenha elementos e afins. */
 inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) { glDrawElements(modo, num_vertices, tipo, indices); }
+inline void DesenhaElementosInstanciado(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices, GLsizei instancecount) {
+#if __APPLE__
+  glDrawElementsInstancedARB(modo, num_vertices, tipo, indices, instancecount);
+#else
+  glDrawElementsInstanced(modo, num_vertices, tipo, indices, instancecount);
+#endif
+}
 // Vertices.
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices);
 inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
