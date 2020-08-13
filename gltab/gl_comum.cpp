@@ -47,6 +47,13 @@ bool ImprimeSeErro(const char* mais) {
 
 namespace interno {
 
+Matrix3 ExtraiMatrizNormal(const Matrix4& matriz_modelagem) {
+  const float* mm = matriz_modelagem.get();
+  return Matrix3(mm[0], mm[1], mm[2],
+                 mm[4], mm[5], mm[6],
+                 mm[8], mm[9], mm[10]).invert().transpose();
+}
+
 void UniformeSeValido(GLint location, GLint v0) {
   if (location == -1) {
     return;
@@ -418,7 +425,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {{"gltab_texel", &shader->atr_gltab_texel}, 4},
           {{"gltab_tangent", &shader->atr_gltab_tangente}, 5},
           {{"gltab_model_i", &shader->atr_gltab_matriz_modelagem}, 6},  // 7 8 9
-          {{"gltab_nm_i", &shader->atr_gltab_matriz_normal}, 10},  // 11 12 13
+          {{"gltab_nm_i", &shader->atr_gltab_matriz_normal}, 10},  // 11 12
   }) {
 #if __APPLE__
     // OpenGL do mac nao curte atribuir o local do atributo.
@@ -1166,11 +1173,15 @@ bool HabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
   HabilitaVetorAtributosVertice(indice);
   switch (tipo) {
     case ATR_MODEL_MATRIX_ARRAY:
-    case ATR_NORMAL_MATRIX_ARRAY:
       if ((indice + 3) >= GL_MAX_VERTEX_ATTRIBS) return false;
       HabilitaVetorAtributosVertice(indice + 1);
       HabilitaVetorAtributosVertice(indice + 2);
       HabilitaVetorAtributosVertice(indice + 3);
+      break;
+    case ATR_NORMAL_MATRIX_ARRAY:
+      if ((indice + 2) >= GL_MAX_VERTEX_ATTRIBS) return false;
+      HabilitaVetorAtributosVertice(indice + 1);
+      HabilitaVetorAtributosVertice(indice + 2);
       break;
     default:
       ;
@@ -1184,11 +1195,15 @@ void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
   DesabilitaVetorAtributosVertice(indice);
   switch (tipo) {
     case ATR_MODEL_MATRIX_ARRAY:
-    case ATR_NORMAL_MATRIX_ARRAY:
       if ((indice + 3) >= GL_MAX_VERTEX_ATTRIBS) return;
       DesabilitaVetorAtributosVertice(indice + 1);
       DesabilitaVetorAtributosVertice(indice + 2);
       DesabilitaVetorAtributosVertice(indice + 3);
+      break;
+    case ATR_NORMAL_MATRIX_ARRAY:
+      if ((indice + 2) >= GL_MAX_VERTEX_ATTRIBS) return;
+      DesabilitaVetorAtributosVertice(indice + 1);
+      DesabilitaVetorAtributosVertice(indice + 2);
       break;
     default:
       ;
@@ -1316,21 +1331,18 @@ void PonteiroMatrizNormal(const void* matriz_normal) {
   const auto& shader = interno::BuscaShader();
   if (shader.atr_gltab_matriz_normal != -1) {
     // Pode ser que tenha que usar esse stride ao inves de 0.
-    const int stride = 16 * sizeof(float);
+    const int stride = 9 * sizeof(float);
     const float* pf = reinterpret_cast<const float*>(matriz_normal);
     PonteiroAtributosVertices(
-        shader.atr_gltab_matriz_normal,     4, GL_FLOAT, GL_FALSE, stride, pf);
+        shader.atr_gltab_matriz_normal,     3, GL_FLOAT, GL_FALSE, stride, pf);
     PonteiroAtributosVertices(
-        shader.atr_gltab_matriz_normal + 1, 4, GL_FLOAT, GL_FALSE, stride, pf + 4);
+        shader.atr_gltab_matriz_normal + 1, 3, GL_FLOAT, GL_FALSE, stride, pf + 3);
     PonteiroAtributosVertices(
-        shader.atr_gltab_matriz_normal + 2, 4, GL_FLOAT, GL_FALSE, stride, pf + 8);
-    PonteiroAtributosVertices(
-        shader.atr_gltab_matriz_normal + 3, 4, GL_FLOAT, GL_FALSE, stride, pf + 12);
+        shader.atr_gltab_matriz_normal + 2, 3, GL_FLOAT, GL_FALSE, stride, pf + 6);
 
     DivisorAtributoVertice(shader.atr_gltab_matriz_normal, 1);
     DivisorAtributoVertice(shader.atr_gltab_matriz_normal + 1, 1);
     DivisorAtributoVertice(shader.atr_gltab_matriz_normal + 2, 1);
-    DivisorAtributoVertice(shader.atr_gltab_matriz_normal + 3, 1);
   }
 }
 
@@ -1345,13 +1357,11 @@ void AtualizaMatrizNormal() {
     // Como V^1 = V^t, V^1^t = V.
     // Portanto, so vamos salvar a parte de model e fazer o resto no shader, assim nao precisamo recomputar
     // a normal quando a camera mexer.
-    Matrix4 matriz_normal = interno::BuscaContexto()->pilha_model.top();
-    matriz_normal.invert().transpose();
+    Matrix3 matriz_normal = interno::ExtraiMatrizNormal(interno::BuscaContexto()->pilha_model.top());
     const float* me = matriz_normal.get();
-    AtributoVertice(shader.atr_gltab_matriz_normal,     me[0],  me[1],  me[2],  me[3]);
-    AtributoVertice(shader.atr_gltab_matriz_normal + 1, me[4],  me[5],  me[6],  me[7]);
-    AtributoVertice(shader.atr_gltab_matriz_normal + 2, me[8],  me[9],  me[10], me[11]);
-    AtributoVertice(shader.atr_gltab_matriz_normal + 3, me[12], me[13], me[14], me[15]);
+    AtributoVertice(shader.atr_gltab_matriz_normal,     me[0],  me[1],  me[2]);
+    AtributoVertice(shader.atr_gltab_matriz_normal + 1, me[3],  me[4],  me[5]);
+    AtributoVertice(shader.atr_gltab_matriz_normal + 2, me[6],  me[7],  me[8]);
   }
 }
 
