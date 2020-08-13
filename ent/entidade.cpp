@@ -380,7 +380,6 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, cons
 
 void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
   // A atualizacao deve ser feita apenas para os tipos corretos.
-#if !VBO_COM_MODELAGEM
   switch (proto_.tipo()) {
     case TE_ENTIDADE: return;  // entidades simples nao possuem vbo.
     case TE_FORMA:
@@ -392,12 +391,26 @@ void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
     case TE_COMPOSTA:
     default: ;
   }
-#endif
   if (pd != nullptr) {
-    vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd, VBO_COM_MODELAGEM);
+    vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd, false);
+    vd_.vbos_nao_gravados.AtribuiMatrizModelagem(vd_.matriz_modelagem);
     if (!vd_.vbos_nao_gravados.Vazio()) {
       vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
     }
+    V_ERRO("Erro atualizacao de VBOs");
+  }
+}
+
+void Entidade::AtualizaMatrizesVbo(const ParametrosDesenho* pd) {
+  // Por enquanto, apenas compostos tem a matriz no VBO.
+  switch (proto_.tipo()) {
+    case TE_ENTIDADE: return;  // entidades simples nao possuem vbo.
+    case TE_FORMA: return;
+    case TE_COMPOSTA:
+    default: ;
+  }
+  if (pd != nullptr) {
+    vd_.vbos_gravados.AtualizaMatrizes(vd_.matriz_modelagem);
     V_ERRO("Erro atualizacao de VBOs");
   }
 }
@@ -761,7 +774,12 @@ void Entidade::AtualizaBolhas(int intervalo_ms) {
 
 void Entidade::AtualizaMatrizes() {
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
+  bool atualiza_matriz_vbo = vd_.matriz_modelagem != md.modelagem;
   vd_.matriz_modelagem = md.modelagem;
+  if (atualiza_matriz_vbo) {
+    AtualizaMatrizesVbo(parametros_desenho_);
+  }
+  if (proto_.tipo() == TE_COMPOSTA) return; 
   vd_.matriz_modelagem_tijolo_base = md.tijolo_base;
   vd_.matriz_modelagem_tijolo_tela = md.tijolo_tela;
   vd_.matriz_modelagem_tela_textura = md.tela_textura;
@@ -868,9 +886,6 @@ void Entidade::Atualiza(int intervalo_ms) {
     vbo_escopo.atualizar = true;
   }
   if (parametros_desenho_->entidade_selecionada() && Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d()) {
-#if VBO_COM_MODELAGEM
-    vbo_escopo.atualizar = true;
-#endif
     vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   }
 
@@ -926,9 +941,6 @@ void Entidade::Atualiza(int intervalo_ms) {
       vd_.angulo_disco_voo_rad = montaria->vd_.angulo_disco_voo_rad;  // oscila junto.
     }
   } else if (proto_.voadora()) {
-#if VBO_COM_MODELAGEM
-    vbo_escopo.atualizar = true;
-#endif
     if (vd_.altura_voo < ALTURA_VOO) {
       if (vd_.altura_voo == 0.0f) {
         vd_.angulo_disco_voo_rad = 0.0f;
@@ -944,9 +956,6 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
   } else {
     if (vd_.altura_voo > 0) {
-#if VBO_COM_MODELAGEM
-      vbo_escopo.atualizar = true;
-#endif
       const float DECREMENTO = ALTURA_VOO * static_cast<float>(intervalo_ms) / DURACAO_POSICIONAMENTO_INICIAL_MS;
       if (Z() > proto_.z_antes_voo()) {
         proto_.mutable_pos()->set_z(Z() - DECREMENTO);
@@ -995,9 +1004,6 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
     if (fabs(angulo - vd_.angulo_rotacao_textura_graus) > 0.1f) {
       vd_.angulo_rotacao_textura_graus = angulo;
-#if VBO_COM_MODELAGEM
-      vbo_escopo.atualizar = true;
-#endif
       //LOG(INFO) << "atualizou angulo: " << angulo;
     }
   }
@@ -1007,9 +1013,6 @@ void Entidade::Atualiza(int intervalo_ms) {
   const float DELTA_QUEDA = (static_cast<float>(intervalo_ms) / DURACAO_QUEDA_MS) * 90.0f;
   if (proto_.caida()) {
     if (vd_.angulo_disco_queda_graus < 90.0f) {
-#if VBO_COM_MODELAGEM
-      vbo_escopo.atualizar = true;
-#endif
       vd_.angulo_disco_queda_graus += DELTA_QUEDA;
       if (vd_.angulo_disco_queda_graus > 90.0f) {
         vd_.angulo_disco_queda_graus = 90.0f;
@@ -1017,9 +1020,6 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
   } else {
     if (vd_.angulo_disco_queda_graus > 0) {
-#if VBO_COM_MODELAGEM
-      vbo_escopo.atualizar = true;
-#endif
       vd_.angulo_disco_queda_graus -= DELTA_QUEDA;
       if (vd_.angulo_disco_queda_graus < 0) {
         vd_.angulo_disco_queda_graus = 0.0f;
@@ -1035,9 +1035,6 @@ void Entidade::Atualiza(int intervalo_ms) {
   if (!proto_.has_destino()) {
     return;
   }
-#if VBO_COM_MODELAGEM
-  vbo_escopo.atualizar = true;
-#endif
   auto* po = proto_.mutable_pos();
   const auto& pd = proto_.destino();
   if (proto_.destino().has_id_cenario()) {
@@ -1085,9 +1082,6 @@ void Entidade::MovePara(float x, float y, float z) {
   p->set_z(z /*std::max(ZChao(x, y), z)*/);
   proto_.clear_destino();
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
-#if VBO_COM_MODELAGEM
-  AtualizaVbo(parametros_desenho_);
-#endif
 }
 
 void Entidade::MovePara(const Posicao& pos) {
@@ -1095,9 +1089,6 @@ void Entidade::MovePara(const Posicao& pos) {
   *proto_.mutable_pos() = pos;
   proto_.clear_destino();
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
-#if VBO_COM_MODELAGEM
-  AtualizaVbo(parametros_desenho_);
-#endif
 }
 
 void Entidade::MoveDelta(float dx, float dy, float dz) {
@@ -1111,23 +1102,14 @@ void Entidade::Destino(const Posicao& pos) {
 void Entidade::IncrementaZ(float delta) {
   //proto_.set_translacao_z(proto_.translacao_z() + delta);
   proto_.mutable_pos()->set_z(proto_.pos().z() + delta);
-#if VBO_COM_MODELAGEM
-  AtualizaVbo(parametros_desenho_);
-#endif
 }
 
 void Entidade::IncrementaRotacaoZGraus(float delta) {
   proto_.set_rotacao_z_graus(proto_.rotacao_z_graus() + delta);
-#if VBO_COM_MODELAGEM
-  AtualizaVbo(parametros_desenho_);
-#endif
 }
 
 void Entidade::AlteraRotacaoZGraus(float rotacao_graus) {
   proto_.set_rotacao_z_graus(rotacao_graus);
-#if VBO_COM_MODELAGEM
-  AtualizaVbo(parametros_desenho_);
-#endif
 }
 
 EntidadeProto::TipoTransicao Entidade::TipoTransicao() const {
@@ -1544,11 +1526,8 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
   //}
   if (proto_parcial.has_pos() && !proto_parcial.has_destino()) {
     proto_.clear_destino();
-#if VBO_COM_MODELAGEM
-    atualizar_vbo = true;
-#endif
   }
-  if (VBO_COM_MODELAGEM || (proto_parcial.has_escala() && Tipo() == TE_FORMA && proto_.sub_tipo() == TF_LIVRE)) {
+  if ((proto_parcial.has_escala() && Tipo() == TE_FORMA && proto_.sub_tipo() == TF_LIVRE)) {
     atualizar_vbo = true;
   }
 
@@ -2373,7 +2352,8 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   // Vbos de armas.
   std::vector<std::string> dados_vbo = {
     "kama", "quarterstaff", "sword", "short_sword", "bow", "club", "shield", "hammer", "flail",
-    "crossbow", "axe", "shield", "mace", "morning_star", "spear", "two_bladed_sword", "pistol"
+    "crossbow", "axe", "shield", "mace", "morning_star", "spear", "two_bladed_sword", "pistol",
+    "ballista"
   };
   for (const auto& id : dados_vbo) {
     std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D));
@@ -2566,7 +2546,12 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   g_vbos.resize(NUM_VBOS);
   for (int i = 0; i < NUM_VBOS; ++i) {
     g_vbos[i].Desgrava();
-    g_vbos[i].Grava(vbos_nao_gravados[i]);
+    GLenum modo = GL_TRIANGLES;
+    if (i == VBO_TELA_TEXTURA || i == VBO_RETANGULO) {
+      modo = GL_TRIANGLE_FAN;
+    }
+    VLOG(1) << "Gravando VBO: " << i;
+    g_vbos[i].Grava(modo, vbos_nao_gravados[i]);
   }
   // Texturas globais.
   {
@@ -2728,7 +2713,7 @@ void LimpaSubForma(EntidadeProto* sub_forma) {
 }
 
 void Entidade::RecomputaDependencias() {
-  ent::RecomputaDependencias(tabelas_, &proto_, this);
+  ent::RecomputaDependencias(tabelas_, &proto_, this, tabuleiro_ == nullptr ? nullptr : &tabuleiro_->TodasEntidades());
   for (auto& sf : *proto_.mutable_sub_forma()) {
     LimpaSubForma(&sf);
   }

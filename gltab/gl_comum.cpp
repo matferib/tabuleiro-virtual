@@ -47,6 +47,13 @@ bool ImprimeSeErro(const char* mais) {
 
 namespace interno {
 
+Matrix3 ExtraiMatrizNormal(const Matrix4& matriz_modelagem) {
+  const float* mm = matriz_modelagem.get();
+  return Matrix3(mm[0], mm[1], mm[2],
+                 mm[4], mm[5], mm[6],
+                 mm[8], mm[9], mm[10]).invert().transpose();
+}
+
 void UniformeSeValido(GLint location, GLint v0) {
   if (location == -1) {
     return;
@@ -121,12 +128,15 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   gl::Le(GL_VIEWPORT, viewport);
 
   // Precisa salvar a projecao para a volta, senao ela fica bichada ja que nao eh alterada de novo.
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::MatrizEscopo salva_matriz(MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
   AtualizaMatrizes();
 
-  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz_camera(MATRIZ_CAMERA);
+  gl::CarregaIdentidade();
+  AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_modelagem(MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
 
   int largura_fonte, altura_fonte, escala;
@@ -160,7 +170,6 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   VbosNaoGravados vbos_ng(std::move(vbos));
   vbos_ng.Desenha(GL_POINTS);
 }
-
 
 bool ImprimeSeShaderErro(GLuint shader) {
   GLint success = 0;
@@ -372,17 +381,13 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
           {"gltab_especularidade_ligada", &shader->uni_gltab_especularidade_ligada },
-          {"gltab_mvm", &shader->uni_gltab_mvm },
-          {"gltab_model", &shader->uni_gltab_modelagem },
           {"gltab_view", &shader->uni_gltab_camera },
-          {"gltab_view_nm", &shader->uni_gltab_camera_nm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
           {"gltab_mvm_luz", &shader->uni_gltab_mvm_luz },
           {"gltab_mvm_ajuste_textura", &shader->uni_gltab_mvm_ajuste_textura },
           {"gltab_prm", &shader->uni_gltab_prm },
           {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
-          {"gltab_nm", &shader->uni_gltab_nm },
           {"gltab_dados_raster", &shader->uni_gltab_dados_raster },
           {"gltab_oclusao_ligada", &shader->uni_gltab_oclusao_ligada },
           {"gltab_plano_distante_oclusao", &shader->uni_gltab_plano_distante },
@@ -413,26 +418,28 @@ bool IniciaVariaveis(VarShader* shader) {
     GLint indice;
   };
   // Forca as variaveis para indices > 0 (driver da ATI nao curte).
-  for (const auto& d : std::vector<DadosAtributo> {
+  for (auto& [dv, indice_forcado] : std::vector<DadosAtributo> {
           {{"gltab_vertice", &shader->atr_gltab_vertice}, 1},
           {{"gltab_normal", &shader->atr_gltab_normal}, 2},
           {{"gltab_cor", &shader->atr_gltab_cor}, 3},
           {{"gltab_texel", &shader->atr_gltab_texel}, 4},
           {{"gltab_tangent", &shader->atr_gltab_tangente}, 5},
+          {{"gltab_model_i", &shader->atr_gltab_matriz_modelagem}, 6},  // 7 8 9
+          {{"gltab_nm_i", &shader->atr_gltab_matriz_normal}, 10},  // 11 12
   }) {
 #if __APPLE__
     // OpenGL do mac nao curte atribuir o local do atributo.
-    *d.dv.var = LeLocalAtributo(shader->programa, d.dv.nome);
+    *dv.var = LeLocalAtributo(shader->programa, dv.nome);
 #else
-    LocalAtributo(shader->programa, d.indice, d.dv.nome);
-    V_ERRO_RET(StringPrintf("shader: %s atribuindo local de atributo %s", shader->nome.c_str(), d.dv.nome).c_str());
-    *d.dv.var = d.indice;
+    LocalAtributo(shader->programa, indice_forcado, dv.nome);
+    V_ERRO_RET(StringPrintf("shader: %s atribuindo local de atributo %s", shader->nome.c_str(), dv.nome).c_str());
+    *dv.var = indice_forcado;
 #endif
-    if (*d.dv.var == -1) {
-      LOG(INFO) << "Shader '" << shader->nome << "' nao possui atributo " << d.dv.nome;
+    if (*dv.var == -1) {
+      LOG(INFO) << "Shader '" << shader->nome << "' nao possui atributo " << dv.nome;
       continue;
     }
-    LOG(INFO) << "Atributo " << d.dv.nome << " na posicao " << *d.dv.var;
+    LOG(INFO) << "Atributo " << dv.nome << " na posicao " << *dv.var;
   }
 
   // Variaveis de software, otimizacoes.
@@ -484,7 +491,7 @@ void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
     { "programa_profundidade", TSH_PROFUNDIDADE, "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
     { "programa_preto_branco", TSH_PRETO_BRANCO, "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
     { "programa_pontual", TSH_PONTUAL, "vert_pontual.c", "frag_pontual.c", &contexto->shaders[TSH_PONTUAL] },
-    { "programa_teste", TSH_TESTE, "vert_luz_model.c", "frag_simples.c", &contexto->shaders[TSH_TESTE] },
+    { "programa_teste", TSH_TESTE, "vert_luz.c", "frag_simples.c", &contexto->shaders[TSH_TESTE] },
   };
 
   for (auto& ds : dados_shaders) {
@@ -503,13 +510,12 @@ void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
     LOG(INFO) << "---------------------------------------------------------------------------";
   }
   UsaShader(TSH_LUZ);
-  V_ERRO("usando programa shader");
+  V_ERRO("usando programa shader luz");
 }
 
 }  // namespace
 
 void IniciaComum(TipoLuz tipo_luz, float escala, interno::Contexto* contexto) {
-  contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_model.push(Matrix4());
   contexto->pilha_camera.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
@@ -518,7 +524,7 @@ void IniciaComum(TipoLuz tipo_luz, float escala, interno::Contexto* contexto) {
   contexto->pilha_mvm_oclusao.push(Matrix4());
   contexto->pilha_mvm_luz.push(Matrix4());
   contexto->pilha_mvm_ajuste_textura.push(Matrix4());
-  contexto->pilha_corrente = &contexto->pilha_mvm;
+  contexto->pilha_corrente = &contexto->pilha_camera;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
   CarregaExtensoes();
@@ -633,44 +639,6 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   }
 }
 
-void AtualizaMatrizSombraOclusao(const Matrix4& m) {
-  if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
-    return;
-  }
-  auto* c = interno::BuscaContexto();
-  c->pilha_mvm_sombra.top() *= m;
-  c->pilha_mvm_oclusao.top() *= m;
-  c->pilha_mvm_luz.top() *= m;
-}
-
-void IdentidadeMatrizSombraOclusao() {
-  if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
-    return;
-  }
-  auto* c = interno::BuscaContexto();
-  c->pilha_mvm_sombra.top().identity();
-  c->pilha_mvm_oclusao.top().identity();
-  c->pilha_mvm_luz.top().identity();
-}
-
-void EmpilhaMatrizSombraOclusao(interno::Contexto* c) {
-  if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
-    return;
-  }
-  c->pilha_mvm_sombra.emplace(c->pilha_mvm_sombra.top().get());
-  c->pilha_mvm_oclusao.emplace(c->pilha_mvm_oclusao.top().get());
-  c->pilha_mvm_luz.emplace(c->pilha_mvm_luz.top().get());
-}
-
-void DesempilhaMatrizSombraOclusao(interno::Contexto* c) {
-  if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
-    return;
-  }
-  c->pilha_mvm_sombra.pop();
-  c->pilha_mvm_oclusao.pop();
-  c->pilha_mvm_luz.pop();
-}
-
 }  // namespace interno
 
 void HabilitaMipmapAniso(GLenum alvo) {
@@ -715,8 +683,6 @@ void DesabilitaMipmapAniso(GLenum alvo) {
 void EmpilhaMatriz() {
   auto* c = interno::BuscaContexto();
   c->pilha_corrente->emplace(c->pilha_corrente->top().get());
-  interno::EmpilhaMatrizSombraOclusao(c);
-  // Nao precisa porque a matriz empilhada eh igual.
 }
 
 void DesempilhaMatriz() {
@@ -728,13 +694,11 @@ void DesempilhaMatriz() {
   }
 #endif
   c->pilha_corrente->pop();
-  interno::DesempilhaMatrizSombraOclusao(c);
 }
 
 int ModoMatrizCorrente() {
   auto* c = interno::BuscaContexto();
-  if (c->pilha_corrente == &c->pilha_mvm) { return MATRIZ_MODELAGEM_CAMERA; }
-  else if (c->pilha_corrente == &c->pilha_model) { return MATRIZ_MODELAGEM; }
+  if (c->pilha_corrente == &c->pilha_model) { return MATRIZ_MODELAGEM; }
   else if (c->pilha_corrente == &c->pilha_camera) { return MATRIZ_CAMERA; }
   else if (c->pilha_corrente == &c->pilha_prj) { return MATRIZ_PROJECAO; }
   else if (c->pilha_corrente == &c->pilha_prj_sombra) { return MATRIZ_PROJECAO_SOMBRA; }
@@ -744,15 +708,13 @@ int ModoMatrizCorrente() {
   else if (c->pilha_corrente == &c->pilha_mvm_ajuste_textura) { return MATRIZ_AJUSTE_TEXTURA; }
   else {
     LOG(ERROR) << "Nao ha matriz corrente!!";
-    return MATRIZ_MODELAGEM_CAMERA;
+    return MATRIZ_MODELAGEM;
   }
 }
 
 void MudaModoMatriz(int modo) {
   auto* c = interno::BuscaContexto();
-  if (modo == MATRIZ_MODELAGEM_CAMERA) {
-    c->pilha_corrente = &c->pilha_mvm;
-  } else if (modo == MATRIZ_MODELAGEM) {
+  if (modo == MATRIZ_MODELAGEM) {
     c->pilha_corrente = &c->pilha_model;
   } else if (modo == MATRIZ_CAMERA) {
     c->pilha_corrente = &c->pilha_camera;
@@ -776,35 +738,30 @@ void MudaModoMatriz(int modo) {
 
 void CarregaIdentidade() {
   interno::BuscaContexto()->pilha_corrente->top().identity();
-  interno::IdentidadeMatrizSombraOclusao();
 }
 
 void MultiplicaMatriz(const GLfloat* matriz) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   const Matrix4 m4(matriz);
   topo *= m4;
-  interno::AtualizaMatrizSombraOclusao(m4);
 }
 
 void Escala(GLfloat x, GLfloat y, GLfloat z) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   const Matrix4 m4 = Matrix4().scale(x, y, z);
   topo *= m4;
-  interno::AtualizaMatrizSombraOclusao(m4);
 }
 
 void Translada(GLfloat x, GLfloat y, GLfloat z) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   const auto m4 = Matrix4().translate(x, y, z);
   topo *= m4;
-  interno::AtualizaMatrizSombraOclusao(m4);
 }
 
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   const Matrix4 m4 = Matrix4().rotate(angulo_graus, x, y, z);
   topo *= m4;
-  interno::AtualizaMatrizSombraOclusao(m4);
 }
 
 void TamanhoPonto(float tam) {
@@ -836,38 +793,26 @@ void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo,
 }
 
 void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
-  if (!interno::UsandoShaderLuz()) {
-    return;
+  if (interno::BuscaShader().atr_gltab_normal != -1) {
+    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
   }
-  PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
 }
 
 void PonteiroTangentes(GLenum tipo, GLsizei passo, const GLvoid* tangentes) {
-  if (!interno::UsandoShaderLuz()) {
-    return;
+  if (interno::BuscaShader().atr_gltab_tangente != -1) {
+    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_tangente, 3  /**dimensoes*/, tipo, GL_FALSE, passo, tangentes);
   }
-  PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_tangente, 3  /**dimensoes*/, tipo, GL_FALSE, passo, tangentes);
 }
 
-
 void Normal(GLfloat x, GLfloat y, GLfloat z) {
-  if (!interno::UsandoShaderLuz()) {
-    return;
+  if (interno::BuscaShader().atr_gltab_normal != -1) {
+    AtributoVertice(interno::BuscaShader().atr_gltab_normal, x, y, z);
   }
-  AtributoVertice(interno::BuscaShader().atr_gltab_normal, x, y, z);
 }
 
 void Tangente(GLfloat x, GLfloat y, GLfloat z) {
-  if (!interno::UsandoShaderLuz()) {
-    return;
-  }
-  AtributoVertice(interno::BuscaShader().atr_gltab_tangente, x, y, z);
-}
-
-void MatrizModelagem(const GLfloat* matriz) {
-  interno::BuscaContexto()->matriz_modelagem.set(matriz);
-  if (interno::BuscaShader().uni_gltab_modelagem != -1) {
-    Matriz4Uniforme(interno::BuscaShader().uni_gltab_modelagem, 1, false, matriz);
+  if (interno::BuscaShader().atr_gltab_tangente != -1) {
+    AtributoVertice(interno::BuscaShader().atr_gltab_tangente, x, y, z);
   }
 }
 
@@ -881,23 +826,6 @@ void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsize
   if (interno::BuscaShader().atr_gltab_texel != -1) {
     PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
   }
-}
-
-void PonteiroMatriz(const GLvoid* matriz) {
-  if (interno::BuscaShader().atr_gltab_matriz != -1) {
-    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_matriz, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, 0, matriz);
-  }
-}
-
-void PonteiroMatrizNormal(const GLvoid* matriz) {
-  const float* matriz_f = (const float*)matriz;
-  GLint indice = interno::BuscaShader().atr_gltab_matriz_normal;
-  if (indice == -1) return;
-  const float stride_bytes = sizeof(float) * 16;
-  PonteiroAtributosVertices(indice + 0, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, stride_bytes, matriz_f + 0);
-  PonteiroAtributosVertices(indice + 1, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, stride_bytes, matriz_f + 4);
-  PonteiroAtributosVertices(indice + 2, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, stride_bytes, matriz_f + 8);
-  PonteiroAtributosVertices(indice + 3, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, stride_bytes, matriz_f + 12);
 }
 
 bool EstaHabilitado(GLenum cap) {
@@ -1168,9 +1096,7 @@ GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
 
 Matrix4 LeMatriz(matriz_e modo) {
   auto* c = interno::BuscaContexto();
-  if (modo == MATRIZ_MODELAGEM_CAMERA) {
-    return c->pilha_mvm.top();
-  } else if (modo == MATRIZ_MODELAGEM) {
+  if (modo == MATRIZ_MODELAGEM) {
     return c->pilha_model.top();
   } else if (modo == MATRIZ_CAMERA) {
     return c->pilha_camera.top();
@@ -1200,7 +1126,8 @@ bool TemExtensao(const std::string& nome_extensao) {
 void Le(GLenum nome_parametro, GLfloat* valor) {
   auto* c = interno::BuscaContexto();
   if (nome_parametro == GL_MODELVIEW_MATRIX) {
-    memcpy(valor, c->pilha_mvm.top().get(), 16 * sizeof(float));
+    Matrix4 mvm = c->pilha_camera.top() * c->pilha_model.top();
+    memcpy(valor, mvm.get(), 16 * sizeof(float));
   } else if (nome_parametro == MATRIZ_MODELAGEM) {
     memcpy(valor, c->pilha_model.top().get(), 16 * sizeof(float));
   } else if (nome_parametro == MATRIZ_CAMERA) {
@@ -1226,6 +1153,8 @@ GLuint TipoAtribParaIndice(atributo_e tipo) {
     case ATR_TANGENT_ARRAY: ret = interno::BuscaShader().atr_gltab_tangente; break;
     case ATR_COLOR_ARRAY: ret = interno::BuscaShader().atr_gltab_cor; break;
     case ATR_TEXTURE_COORD_ARRAY: ret = interno::BuscaShader().atr_gltab_texel; break;
+    case ATR_MODEL_MATRIX_ARRAY: ret = interno::BuscaShader().atr_gltab_matriz_modelagem; break;
+    case ATR_NORMAL_MATRIX_ARRAY: ret = interno::BuscaShader().atr_gltab_matriz_normal; break;
     default:
       LOG(ERROR) << "tipo invalido: " << (int)tipo;
       break;
@@ -1240,16 +1169,45 @@ GLuint TipoAtribParaIndice(atributo_e tipo) {
 
 bool HabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
   GLuint indice = TipoAtribParaIndice(tipo);
-  if (indice < GL_MAX_VERTEX_ATTRIBS) {
-    HabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
-    return true;
-  } else {
-    return false;
+  if (indice >= GL_MAX_VERTEX_ATTRIBS) return false;
+  HabilitaVetorAtributosVertice(indice);
+  switch (tipo) {
+    case ATR_MODEL_MATRIX_ARRAY:
+      if ((indice + 3) >= GL_MAX_VERTEX_ATTRIBS) return false;
+      HabilitaVetorAtributosVertice(indice + 1);
+      HabilitaVetorAtributosVertice(indice + 2);
+      HabilitaVetorAtributosVertice(indice + 3);
+      break;
+    case ATR_NORMAL_MATRIX_ARRAY:
+      if ((indice + 2) >= GL_MAX_VERTEX_ATTRIBS) return false;
+      HabilitaVetorAtributosVertice(indice + 1);
+      HabilitaVetorAtributosVertice(indice + 2);
+      break;
+    default:
+      ;
   }
+  return true;
 }
 
 void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
-  DesabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
+  GLuint indice = TipoAtribParaIndice(tipo);
+  if (indice >= GL_MAX_VERTEX_ATTRIBS) return;
+  DesabilitaVetorAtributosVertice(indice);
+  switch (tipo) {
+    case ATR_MODEL_MATRIX_ARRAY:
+      if ((indice + 3) >= GL_MAX_VERTEX_ATTRIBS) return;
+      DesabilitaVetorAtributosVertice(indice + 1);
+      DesabilitaVetorAtributosVertice(indice + 2);
+      DesabilitaVetorAtributosVertice(indice + 3);
+      break;
+    case ATR_NORMAL_MATRIX_ARRAY:
+      if ((indice + 2) >= GL_MAX_VERTEX_ATTRIBS) return;
+      DesabilitaVetorAtributosVertice(indice + 1);
+      DesabilitaVetorAtributosVertice(indice + 2);
+      break;
+    default:
+      ;
+  }
 }
 
 void HabilitaEstadoCliente(GLenum cap) {
@@ -1320,14 +1278,16 @@ TipoShader TipoShaderCorrente() {
 namespace {
 GLint IdMatrizCorrente(const interno::VarShader& shader) {
   switch (ModoMatrizCorrente()) {
-    case MATRIZ_MODELAGEM_CAMERA: return shader.uni_gltab_mvm;
+    case MATRIZ_CAMERA:           return shader.uni_gltab_camera;
     case MATRIZ_AJUSTE_TEXTURA:   return shader.uni_gltab_mvm_ajuste_textura;
     case MATRIZ_PROJECAO:         return shader.uni_gltab_prm;
     case MATRIZ_PROJECAO_SOMBRA:  return shader.uni_gltab_prm_sombra;
     case MATRIZ_OCLUSAO:          return shader.uni_gltab_mvm_oclusao;
     case MATRIZ_LUZ:              return shader.uni_gltab_mvm_luz;
-    case MATRIZ_SOMBRA:
-    default:                      return shader.uni_gltab_mvm_sombra;
+    case MATRIZ_SOMBRA:           return shader.uni_gltab_mvm_sombra;
+    default:
+      LOG(INFO) << "id corrente invalido: " << ModoMatrizCorrente();
+      return shader.uni_gltab_mvm_sombra;
   }
 }
 }  // namespace
@@ -1339,57 +1299,97 @@ void AtualizaMatrizProjecao() {
   Matriz4Uniforme(mloc, 1, false, c->pilha_prj.top().get());
 }
 
+void AtualizaMatrizCamera() {
+  auto* c = interno::BuscaContexto();
+  const interno::VarShader& shader = interno::BuscaShader();
+  GLuint mloc = shader.uni_gltab_camera;
+  Matriz4Uniforme(mloc, 1, false, c->pilha_camera.top().get());
+}
+
+void PonteiroMatrizModelagem(const void* matriz_modelagem) {
+  const auto& shader = interno::BuscaShader();
+  if (shader.atr_gltab_matriz_modelagem != -1) {
+    // Pode ser que tenha que usar esse stride ao inves de 0.
+    const int stride = 16 * sizeof(float);
+    const float* pf = reinterpret_cast<const float*>(matriz_modelagem);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_modelagem,     4, GL_FLOAT, GL_FALSE, stride, pf);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_modelagem + 1, 4, GL_FLOAT, GL_FALSE, stride, pf + 4);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_modelagem + 2, 4, GL_FLOAT, GL_FALSE, stride, pf + 8);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_modelagem + 3, 4, GL_FLOAT, GL_FALSE, stride, pf + 12);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_modelagem, 1);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_modelagem + 1, 1);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_modelagem + 2, 1);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_modelagem + 3, 1);
+  }
+}
+
+void PonteiroMatrizNormal(const void* matriz_normal) {
+  const auto& shader = interno::BuscaShader();
+  if (shader.atr_gltab_matriz_normal != -1) {
+    // Pode ser que tenha que usar esse stride ao inves de 0.
+    const int stride = 9 * sizeof(float);
+    const float* pf = reinterpret_cast<const float*>(matriz_normal);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_normal,     3, GL_FLOAT, GL_FALSE, stride, pf);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_normal + 1, 3, GL_FLOAT, GL_FALSE, stride, pf + 3);
+    PonteiroAtributosVertices(
+        shader.atr_gltab_matriz_normal + 2, 3, GL_FLOAT, GL_FALSE, stride, pf + 6);
+
+    DivisorAtributoVertice(shader.atr_gltab_matriz_normal, 1);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_normal + 1, 1);
+    DivisorAtributoVertice(shader.atr_gltab_matriz_normal + 2, 1);
+  }
+}
+
+namespace {
+void AtualizaMatrizNormal() {
+  auto shader = interno::BuscaShader();
+  if (shader.atr_gltab_matriz_normal != -1) {
+    // Matriz normal: inverso da transposta da MV ( V * M na verdade).
+    // Porem, sabemos que V é ortognal, portanto seu inverso é sua transposta.
+    // Alem disso, o inverso do produto (V * M)^1 = M^1 * V^1.
+    // O tranposto disso (M^1 * V^1)^t = V^1^t * M^1^t.
+    // Como V^1 = V^t, V^1^t = V.
+    // Portanto, so vamos salvar a parte de model e fazer o resto no shader, assim nao precisamo recomputar
+    // a normal quando a camera mexer.
+    Matrix3 matriz_normal = interno::ExtraiMatrizNormal(interno::BuscaContexto()->pilha_model.top());
+    const float* me = matriz_normal.get();
+    AtributoVertice(shader.atr_gltab_matriz_normal,     me[0],  me[1],  me[2]);
+    AtributoVertice(shader.atr_gltab_matriz_normal + 1, me[3],  me[4],  me[5]);
+    AtributoVertice(shader.atr_gltab_matriz_normal + 2, me[6],  me[7],  me[8]);
+  }
+}
+
+void AtualizaMatrizModelagemNormal() {
+  auto shader = interno::BuscaShader();
+  if (shader.atr_gltab_matriz_modelagem != -1) {
+    auto* c = interno::BuscaContexto();
+    const auto& m = c->pilha_model.top();
+    const float* me = m.get();
+    AtributoVertice(shader.atr_gltab_matriz_modelagem,     me[0],  me[1],  me[2],  me[3]);
+    AtributoVertice(shader.atr_gltab_matriz_modelagem + 1, me[4],  me[5],  me[6],  me[7]);
+    AtributoVertice(shader.atr_gltab_matriz_modelagem + 2, me[8],  me[9],  me[10], me[11]);
+    AtributoVertice(shader.atr_gltab_matriz_modelagem + 3, me[12], me[13], me[14], me[15]);
+  }
+  AtualizaMatrizNormal();
+}
+}  // namespace
+
 void AtualizaMatrizes() {
   auto* c = interno::BuscaContexto();
   int modo = ModoMatrizCorrente();
+  if (modo == MATRIZ_MODELAGEM) {
+    AtualizaMatrizModelagemNormal();
+    return;
+  }
   const interno::VarShader& shader = interno::BuscaShader();
   GLuint mloc = IdMatrizCorrente(shader);
   Matriz4Uniforme(mloc, 1, false, c->pilha_corrente->top().get());
-  if (modo != MATRIZ_MODELAGEM_CAMERA) {
-    return;
-  }
-  if (shader.uni_gltab_mvm_oclusao != -1) {
-    Matriz4Uniforme(shader.uni_gltab_mvm_oclusao, 1, false, c->pilha_mvm_oclusao.top().get());
-  }
-  if (shader.uni_gltab_nm != -1) {
-    // Normal matrix, apenas para modelview.
-    const auto& m = c->pilha_corrente->top();
-    Matrix3 normal(
-        m[0], m[1], m[2],
-        m[4], m[5], m[6],
-        m[8], m[9], m[10]);
-    normal.invert().transpose();
-    if (normal != c->matriz_normal) {
-      c->matriz_normal = normal;
-      Matriz3Uniforme(shader.uni_gltab_nm, 1, false, normal.get());
-    }
-  }
-  if (shader.uni_gltab_mvm_sombra != -1) {
-    Matriz4Uniforme(shader.uni_gltab_mvm_sombra, 1, false, c->pilha_mvm_sombra.top().get());
-  }
-  if (shader.uni_gltab_mvm_luz != -1) {
-    Matriz4Uniforme(shader.uni_gltab_mvm_luz, 1, false, c->pilha_mvm_luz.top().get());
-  }
-  if (shader.uni_gltab_camera != -1) {
-    Matriz4Uniforme(shader.uni_gltab_camera, 1, false, c->pilha_camera.top().get());
-  }
-  if (shader.uni_gltab_modelagem != -1) {
-    Matriz4Uniforme(shader.uni_gltab_modelagem, 1, false, c->matriz_modelagem.get());
-  }
-
-  if (shader.uni_gltab_camera_nm != -1) {
-    // Normal matrix, apenas para modelview.
-    const auto& m = c->pilha_camera.top();
-    Matrix3 normal(
-        m[0], m[1], m[2],
-        m[4], m[5], m[6],
-        m[8], m[9], m[10]);
-    normal.invert().transpose();
-    if (normal != c->matriz_camera_normal) {
-      c->matriz_camera_normal = normal;
-      Matriz3Uniforme(shader.uni_gltab_camera_nm, 1, false, normal.get());
-    }
-  }
 }
 
 void AtualizaTodasMatrizes() {
@@ -1400,7 +1400,6 @@ void AtualizaTodasMatrizes() {
     Matrix4* matriz;
   };
   std::vector<DadosMatriz> dados_matriz = {
-    { shader.uni_gltab_mvm, &c->pilha_mvm.top() },
     { shader.uni_gltab_prm, &c->pilha_prj.top() },
     { shader.uni_gltab_mvm_sombra, &c->pilha_mvm_sombra.top() },
     { shader.uni_gltab_prm_sombra, &c->pilha_prj_sombra.top() },
@@ -1408,18 +1407,11 @@ void AtualizaTodasMatrizes() {
     { shader.uni_gltab_mvm_luz, &c->pilha_mvm_luz.top() },
     { shader.uni_gltab_mvm_ajuste_textura, &c->pilha_mvm_ajuste_textura.top() },
     { shader.uni_gltab_camera, &c->pilha_camera.top() },
-    { shader.uni_gltab_modelagem, &c->matriz_modelagem },
   };
   for (const auto& dm : dados_matriz) {
     if (dm.id != -1) {
       Matriz4Uniforme(dm.id, 1, false, dm.matriz->get());
     }
-  }
-  if (shader.uni_gltab_nm != -1) {
-    Matriz3Uniforme(shader.uni_gltab_nm, 1, false, c->matriz_normal.get());
-  }
-  if (shader.uni_gltab_camera_nm != -1) {
-    Matriz3Uniforme(shader.uni_gltab_camera_nm, 1, false, c->matriz_camera_normal.get());
   }
 }
 
@@ -1441,7 +1433,7 @@ void TamanhoFonte(int* largura, int* altura, int* escala) {
 }
 
 void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura, int* escala) {
-#if 0 
+#if 0
   *escala = 2;
 #elif ANDROID || (__APPLE__ && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR))
   //unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
@@ -1713,10 +1705,24 @@ void UnidadeTextura(GLenum unidade) {
   glActiveTexture(unidade);
   //glClientActiveTexture(unidade);
 #endif
+  interno::BuscaShaderMutavel().unidade_textura = unidade;
 }
 
 void TexturaBump(bool estado) {
   interno::UniformeSeValido(interno::BuscaShader().uni_gltab_textura_bump, estado ? 1.0f : 0.0f);
+}
+
+void LigacaoComTextura(GLenum alvo, GLuint textura) {
+  auto& shader = interno::BuscaShaderMutavel();
+  auto chave = std::make_pair(shader.unidade_textura, alvo);
+  if (auto it = shader.cache_textura.find(chave);
+      it == shader.cache_textura.end() || it->second != textura) {
+    shader.cache_textura[chave] = textura;
+    glBindTexture(alvo, textura);
+    //LOG(INFO) << "miss, alvo: " << alvo << ", textura: " << textura;
+  //} else {
+    //LOG(INFO) << "hit, alvo: " << alvo << ", textura: " << textura;
+  }
 }
 
 void CorMisturaPreNevoa(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {

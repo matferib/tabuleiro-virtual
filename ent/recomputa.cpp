@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include "ent/acoes.h"
 #include "ent/constantes.h"
+#include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "goog/stringprintf.h"
 #include "log/log.h"
@@ -3304,8 +3305,20 @@ int CAToqueUmAtaque(const Bonus& ca) {
            TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA, TB_ARMADURA_NATURAL_MELHORIA });
 }
 
-void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadeProto& proto, const Bonus& ca_base, DadosAtaque* da) {
+const EntidadeProto& EntidadeMontada(const EntidadeProto& proto, const MapaEntidades* mapa_entidades) {
+  if (mapa_entidades == nullptr || proto.entidades_montadas().empty()) {
+    return EntidadeProto::default_instance();
+  }
+  if (auto it = mapa_entidades->find(proto.entidades_montadas(0)); it != mapa_entidades->end()) {
+    return it->second->Proto();
+  }
+  return EntidadeProto::default_instance();
+}
+
+void RecomputaDependenciasUmDadoAtaque(
+    const Tabelas& tabelas, const EntidadeProto& proto, const Bonus& ca_base, DadosAtaque* da, const MapaEntidades* mapa_entidades) {
   ResetDadosAtaque(da);
+  const EntidadeProto& proto_montado = EntidadeMontada(proto, mapa_entidades);
   *da->mutable_acao() = AcaoProto::default_instance();
 
   ArmaTesouroParaDadosAtaque(tabelas, proto, da);
@@ -3322,8 +3335,8 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
   LimpaBonus(TB_PENALIDADE_ARMADURA, "armadura", bonus_ataque);
   LimpaBonus(TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
   LimpaBonus(TB_SEM_NOME, "nao_proficiente", bonus_ataque);
-  const int bba_cac = proto.bba().cac();
-  const int bba_distancia = proto.bba().distancia();
+  const int bba_cac = (da->requer_entidade_montada() ? proto_montado : proto).bba().cac();
+  const int bba_distancia = (da->requer_entidade_montada() ? proto_montado : proto).bba().distancia();
   if (usando_escudo_na_defesa && !TalentoComEscudo(proto.dados_defesa().id_escudo(), proto)) {
     AtribuiOuRemoveBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo_sem_talento", bonus_ataque);
   }
@@ -3331,13 +3344,17 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
     const int penalidade_ataque_armadura = PenalidadeArmadura(tabelas, proto);
     AtribuiOuRemoveBonus(-penalidade_ataque_armadura, TB_PENALIDADE_ARMADURA, "armadura_sem_talento", bonus_ataque);
   }
-  if (!TalentoComArma(arma, proto)) {
+  if (!TalentoComArma(arma, da->requer_entidade_montada() ? proto_montado : proto)) {
     AtribuiOuRemoveBonus(-4, TB_SEM_NOME, "nao_proficiente", bonus_ataque);
   }
   // Aplica diferenca de tamanho de arma.
-  TamanhoEntidade tamanho = proto.tamanho();
+  TamanhoEntidade tamanho = (da->requer_entidade_montada() ? proto_montado : proto).tamanho();
   if (da->has_tamanho()) {
-    tamanho = static_cast<TamanhoEntidade>(tamanho + (da->tamanho() - proto.tamanho()));
+    const int dif_tamanho = da->tamanho() - (da->requer_entidade_montada() ? proto_montado : proto).tamanho();
+    tamanho = static_cast<TamanhoEntidade>(tamanho + (dif_tamanho));
+    if (dif_tamanho > 0) {
+      AtribuiOuRemoveBonus(-2 * dif_tamanho, TB_SEM_NOME, "tamanho_arma", bonus_ataque);
+    }
   }
   if (tamanho < 0) {
     tamanho = TM_MINUSCULO;
@@ -3554,7 +3571,9 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
       PossuiTalento("especializacao_arma_maior", arma.has_id() ? IdArmaBase(arma) : da->id_arma(), proto) ? 2 : 0, TB_SEM_NOME, "especializacao_arma_maior", da->mutable_bonus_dano());
   // Estes dois campos (bonus_ataque_final e dano) sao os mais importantes, porque sao os que valem.
   // So atualiza o BBA se houver algo para atualizar. Caso contrario deixa como esta.
-  if (proto.has_bba() || !da->has_bonus_ataque_final()) da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
+  if ((da->requer_entidade_montada() ? proto_montado : proto).has_bba() || !da->has_bonus_ataque_final()) {
+    da->set_bonus_ataque_final(CalculaBonusBaseParaAtaque(*da, proto));
+  }
   if (da->ataque_derrubar()) da->clear_dano();
   else if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
 
@@ -3572,11 +3591,10 @@ void RecomputaDependenciasUmDadoAtaque(const Tabelas& tabelas, const EntidadePro
 
   // Veneno.
   RecomputaDependenciasVenenoParaAtaque(proto, da);
-
   VLOG(1) << "Ataque recomputado: " << da->DebugString();
 }
 
-void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto) {
+void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto, const MapaEntidades* mapa_entidades) {
   Bonus ca_base = proto->dados_defesa().ca();
   {
     LimpaBonus(TB_ESCUDO, "escudo", &ca_base);
@@ -3584,7 +3602,7 @@ void RecomputaDependenciasDadosAtaque(const Tabelas& tabelas, EntidadeProto* pro
     LimpaBonus(TB_ESCUDO_MELHORIA, "escudo_melhoria", &ca_base);
   }
   for (auto& da : *proto->mutable_dados_ataque()) {
-    RecomputaDependenciasUmDadoAtaque(tabelas, *proto, ca_base, &da);
+    RecomputaDependenciasUmDadoAtaque(tabelas, *proto, ca_base, &da, mapa_entidades);
   }
   //EntidadeProto p;
   //*p.mutable_dados_ataque() = proto->dados_ataque();
@@ -3651,7 +3669,9 @@ void PreencheCamposVindosDeTesouro(const Tabelas& tabelas, EntidadeProto* proto)
 
 }  // namespace
 
-void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
+void RecomputaDependencias(
+    const Tabelas& tabelas, EntidadeProto* proto,
+    Entidade* entidade, const MapaEntidades* mapa_entidades) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   ResetComputados(proto);
   PreencheCamposVindosDeTesouro(tabelas, proto);
@@ -3725,7 +3745,7 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidad
   }
 
   // Atualiza os bonus de ataques.
-  RecomputaDependenciasDadosAtaque(tabelas, proto);
+  RecomputaDependenciasDadosAtaque(tabelas, proto, mapa_entidades);
 
   RecomputaDependenciasMovimento(tabelas, proto);
   RecomputaDependenciasPericias(tabelas, proto);

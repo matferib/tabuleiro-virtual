@@ -62,7 +62,7 @@
 #endif
 #endif
 
-#define TAM_MAPA_OCLUSAO 1024
+#define TAM_MAPA_OCLUSAO 512
 
 using google::protobuf::RepeatedField;
 using google::protobuf::StringAppendF;
@@ -292,6 +292,7 @@ void Tabuleiro::EstadoInicial() {
   ciclos_para_atualizar_ = -1;
   // Mapa de entidades e acoes vazios.
   entidades_.clear();
+  entidades_ordenadas_.clear();
   acoes_.clear();
   // Entidades selecionadas.
   ids_entidades_selecionadas_.clear();
@@ -387,18 +388,24 @@ void Tabuleiro::ConfiguraOlhar() {
     // Mapa de sombras.
     if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
-      ConfiguraOlharMapeamentoSombras();
-      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+      gl::CarregaIdentidade();
+      ConfiguraOlharMapeamentoSombrasLuzDirecional();
+      gl::AtualizaMatrizes();
+      gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
     }
     if (MapeamentoOclusao() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_OCLUSAO);
+      gl::CarregaIdentidade();
       ConfiguraOlharMapeamentoOclusao();
-      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+      gl::AtualizaMatrizes();
+      gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
     }
     if (!parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_LUZ);
+      gl::CarregaIdentidade();
       ConfiguraOlharMapeamentoLuzes();
-      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+      gl::AtualizaMatrizes();
+      gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
     }
     const Posicao& alvo = olho_.alvo();
     if (camera_ == CAMERA_ISOMETRICA) {
@@ -428,7 +435,7 @@ void Tabuleiro::ConfiguraOlhar() {
   }
 
   if (MapeamentoSombras() && parametros_desenho_.desenha_mapa_sombras()) {
-    ConfiguraOlharMapeamentoSombras();
+    ConfiguraOlharMapeamentoSombrasLuzDirecional();
     return;
   }
   if (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) {
@@ -441,7 +448,7 @@ void Tabuleiro::ConfiguraOlhar() {
   }
 }
 
-void Tabuleiro::ConfiguraOlharMapeamentoSombras() {
+void Tabuleiro::ConfiguraOlharMapeamentoSombrasLuzDirecional() {
   const auto& cenario_luz = CenarioIluminacao(*proto_corrente_);
   Matrix4 mr;
   mr.rotateY(-cenario_luz.luz_direcional().inclinacao_graus());
@@ -632,15 +639,13 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   V_ERRO("LigacaoComFramebufferOclusao");
 
+  parametros_desenho_.set_desenha_mapa_oclusao(0);
+  OrdenaEntidades(parametros_desenho_);
   for (int i = 0; i < 6; ++i) {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_oclusao_.textura, 0);
     V_ERRO("TexturaFramebufferOclusao");
-#if VBO_COM_MODELAGEM
-    DesenhaCenaVbos();
-#else
     DesenhaCena();
-#endif
   }
 
   V_ERRO("LigacaoComFramebufferOclusao");
@@ -705,22 +710,20 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
   V_ERRO(StringPrintf("LigacaoComFramebuffer dfb_luzes_[%d].framebuffer, valor framebuffer %d", indice_luz, dfb_luzes_[indice_luz].framebuffer));
   //LOG(INFO) << "desenhando mapa de luzes";
 
+  parametros_desenho_.set_desenha_mapa_luzes(0);
+  OrdenaEntidades(parametros_desenho_);
   for (int i = 0; i < 6; ++i) {
     //LOG(INFO) << "DesenhaMapaLuzes " << i;
     // Face a ser desenhada.
     parametros_desenho_.set_desenha_mapa_luzes(i);
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_luzes_[indice_luz].textura, 0);
     V_ERRO("TexturaFramebufferOclusao");
-#if VBO_COM_MODELAGEM
-    DesenhaCenaVbos();
-#else
     DesenhaCena();
-#endif
   }
   V_ERRO("LigacaoComFramebufferOclusao");
 }
 
-void Tabuleiro::DesenhaMapaSombra() {
+void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   if (!parametros_desenho_.desenha_sombras()) {
     return;
   }
@@ -774,11 +777,8 @@ void Tabuleiro::DesenhaMapaSombra() {
   gl::BufferDesenho(GL_NONE);
 #endif
   //LOG(INFO) << "sombra projetada";
-#if VBO_COM_MODELAGEM
-  DesenhaCenaVbos();
-#else
+  OrdenaEntidades(parametros_desenho_);
   DesenhaCena();
-#endif
 }
 
 int Tabuleiro::Desenha() {
@@ -905,7 +905,7 @@ int Tabuleiro::Desenha() {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
-    DesenhaMapaSombra();
+    DesenhaMapaSombraLuzDirecional();
 
     V_ERRO_RET("Depois DesenhaMapaSombra");
     // Restaura os valores e usa a textura como sombra.
@@ -960,7 +960,8 @@ int Tabuleiro::Desenha() {
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
-  DesenhaCena(true);
+  OrdenaEntidades(parametros_desenho_);
+  DesenhaCena(/*debug=*/true);
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
 #if DEBUG
   glFinish();
@@ -3258,6 +3259,9 @@ void Tabuleiro::DesenhaCena(bool debug) {
       (parametros_desenho_.tipo_visao() != VISAO_ESCURO) &&
        parametros_desenho_.projecao().tipo_camera() != CAMERA_ISOMETRICA) {
     desenhar_caixa_ceu = true;
+    // Segundo https://doc.qt.io/qt-5/qopenglwidget.html, é sempre bom chamar o glClear.
+    bits_limpar |= GL_COLOR_BUFFER_BIT;
+    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
   } else {
     bits_limpar |= GL_COLOR_BUFFER_BIT;
     if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
@@ -3281,18 +3285,12 @@ void Tabuleiro::DesenhaCena(bool debug) {
   }
   V_ERRO("desabilitando luzes");
 
-  // Idealmente, a gente preencheria a MATRIZ_CAMERA primeiro, mas como a ConfiguraOlhar ta hardcoded pra modelagem
-  // mais facil fazer assim.
-  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
-
-  gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
-  GLfloat mv[16];
-  gl::Le(GL_MODELVIEW_MATRIX, mv);
+  gl::AtualizaMatrizes();
+  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
-  gl::MultiplicaMatriz(mv);
-  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
 
   if (!parametros_desenho_.has_pos_olho()) {
     *parametros_desenho_.mutable_pos_olho() = olho_.pos();
@@ -3416,7 +3414,8 @@ void Tabuleiro::DesenhaCena(bool debug) {
       parametros_desenho_.set_observador_ve_invisivel(entidade != nullptr && PossuiEvento(EFEITO_VER_INVISIVEL, entidade->Proto()));
       gl::HabilitaEscopo blend_escopo(GL_BLEND);
       gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
-      DesenhaEntidadesTranslucidas(/*ordena=*/true);
+      OrdenaEntidades(parametros_desenho_);
+      DesenhaEntidadesTranslucidas();
       parametros_desenho_.clear_alfa_translucidos();
       DesenhaAuras();
       if (parametros_desenho_.desenha_acoes()) {
@@ -3426,7 +3425,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     } else {
       gl::TipoEscopo nomes(OBJ_ENTIDADE);
       // Desenha os translucidos de forma solida para picking.
-      DesenhaEntidadesTranslucidas(/*ordena=*/false);
+      DesenhaEntidadesTranslucidas();
     }
   }
   V_ERRO("desenhando entidades alfa");
@@ -3447,7 +3446,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
-    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
     gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
@@ -3469,7 +3468,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
-    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
     gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
@@ -3502,7 +3501,10 @@ void Tabuleiro::DesenhaCena(bool debug) {
   }
   gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
   gl::AtualizaMatrizProjecao();
-  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_matriz_view(gl::MATRIZ_CAMERA);
+  gl::CarregaIdentidade();
+  gl::AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
@@ -3529,12 +3531,12 @@ void Tabuleiro::DesenhaCena(bool debug) {
     // Controle na quarta posicao da pilha.
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
 #if DEBUG
-    //glFinish();
+    glFinish();
 #endif
     timer_uma_renderizacao_controle_virtual_.start();
     DesenhaControleVirtual();
 #if DEBUG
-    //glFinish();
+    glFinish();
 #endif
     timer_uma_renderizacao_controle_virtual_.stop();
     EnfileiraTempo(timer_uma_renderizacao_controle_virtual_, &tempos_uma_renderizacao_controle_virtual_);
@@ -3578,9 +3580,12 @@ void Tabuleiro::DesenhaCenaVbos() {
   }
   V_ERRO("desabilitando luzes");
 
-  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
+  gl::AtualizaMatrizes();
+  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM);
+  gl::CarregaIdentidade();
 
   if (!parametros_desenho_.has_pos_olho()) {
     *parametros_desenho_.mutable_pos_olho() = olho_.pos();
@@ -3703,7 +3708,7 @@ void Tabuleiro::GeraVboRosaDosVentos() {
   vbo_disco.Concatena(vbo_seta);
   vbo_disco.Concatena(vbo_n);
   vbo_rosa_.Desgrava();
-  vbo_rosa_.Grava(vbo_disco);
+  vbo_rosa_.Grava(GL_TRIANGLES, vbo_disco);
 }
 
 void Tabuleiro::GeraVboCaixaCeu() {
@@ -3747,7 +3752,7 @@ void Tabuleiro::GeraVboCaixaCeu() {
   };
   vbo.AtribuiTexturas(texturas);
   vbo_caixa_ceu_.Desgrava();
-  vbo_caixa_ceu_.Grava(vbo);
+  vbo_caixa_ceu_.Grava(GL_TRIANGLES, vbo);
 }
 
 void Tabuleiro::RegeraVboTabuleiro() {
@@ -3769,26 +3774,33 @@ void Tabuleiro::RegeraVboTabuleiro() {
                    &coordenadas_tabuleiro,
                    &coordenadas_normais,
                    &coordenadas_textura);
-  gl::VbosNaoGravados tabuleiro_nao_gravado;
-  gl::VboNaoGravado tabuleiro_parcial;
-  tabuleiro_parcial.AtribuiIndices(&indices_tabuleiro);
-  tabuleiro_parcial.AtribuiCoordenadas(3, &coordenadas_tabuleiro);
-  tabuleiro_parcial.AtribuiTexturas(&coordenadas_textura);
-  tabuleiro_parcial.AtribuiNormais(&coordenadas_normais);
-  tabuleiro_nao_gravado.Concatena(tabuleiro_parcial);
-  V_ERRO("RegeraVboTabuleiro antes gravar");
-  // Todo VBO deve ser desgravado para o caso de recuperacao de contexto.
-  vbos_tabuleiro_.Desgrava();
-  vbos_tabuleiro_.Grava(tabuleiro_nao_gravado);
+  {
+    gl::VbosNaoGravados tabuleiro_nao_gravado;
+    gl::VboNaoGravado tabuleiro_parcial;
+    tabuleiro_parcial.AtribuiIndices(&indices_tabuleiro);
+    tabuleiro_parcial.AtribuiCoordenadas(3, &coordenadas_tabuleiro);
+    tabuleiro_parcial.AtribuiTexturas(&coordenadas_textura);
+    tabuleiro_parcial.AtribuiNormais(&coordenadas_normais);
+    tabuleiro_parcial.Translada(
+        -TamanhoX() * TAMANHO_LADO_QUADRADO_2, -TamanhoY() * TAMANHO_LADO_QUADRADO_2, 0);
+    tabuleiro_nao_gravado.Concatena(tabuleiro_parcial);
+    tabuleiro_nao_gravado.AtribuiMatrizModelagem(Matrix4());
+
+    V_ERRO("RegeraVboTabuleiro antes gravar");
+    // Todo VBO deve ser desgravado para o caso de recuperacao de contexto.
+    vbos_tabuleiro_.Nomeia("terreno");
+    vbos_tabuleiro_.Desgrava();
+    vbos_tabuleiro_.Grava(tabuleiro_nao_gravado);
+  }
   V_ERRO("RegeraVboTabuleiro depois gravar");
 
   // Regera a grade.
-  gl::VbosNaoGravados grade_nao_gravada;
   std::vector<float> coordenadas_grade;
   std::vector<unsigned short> indices_grade;
   int indice = 0;
   float deslocamento_x = -TamanhoX() * TAMANHO_LADO_QUADRADO_2;
   float deslocamento_y = -TamanhoY() * TAMANHO_LADO_QUADRADO_2;
+  gl::VbosNaoGravados grade_nao_gravada;
   // Linhas verticais (S-N).
   {
     for (int xcorrente = 0; xcorrente <= TamanhoX(); ++xcorrente) {
@@ -3818,11 +3830,11 @@ void Tabuleiro::RegeraVboTabuleiro() {
         indice += 4;
       }
     }
+    gl::VboNaoGravado grade_vertical;
+    grade_vertical.AtribuiIndices(&indices_grade);
+    grade_vertical.AtribuiCoordenadas(3, &coordenadas_grade);
+    grade_nao_gravada.Concatena(&grade_vertical);
   }
-  gl::VboNaoGravado grade_vertical;
-  grade_vertical.AtribuiIndices(&indices_grade);
-  grade_vertical.AtribuiCoordenadas(3, &coordenadas_grade);
-  grade_nao_gravada.Concatena(&grade_vertical);
   indice = 0;
   {
     for (int ycorrente = 0; ycorrente <= TamanhoY(); ++ycorrente) {
@@ -3852,13 +3864,15 @@ void Tabuleiro::RegeraVboTabuleiro() {
         indice += 4;
       }
     }
+    gl::VboNaoGravado grade_horizontal;
+    grade_horizontal.AtribuiIndices(&indices_grade);
+    grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
+    grade_nao_gravada.Concatena(&grade_horizontal);
   }
-  gl::VboNaoGravado grade_horizontal;
-  grade_horizontal.AtribuiIndices(&indices_grade);
-  grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
-  grade_nao_gravada.Concatena(&grade_horizontal);
+  grade_nao_gravada.AtribuiMatrizModelagem(Matrix4());
   vbos_grade_.Desgrava();
   vbos_grade_.Grava(grade_nao_gravada);
+  vbos_grade_.Nomeia("grade tabuleiro");
   V_ERRO("RegeraVboTabuleiro fim");
 }
 
@@ -4251,8 +4265,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::CarregaNome(0);
   V_ERRO("desenhando tabuleiro nome");
   gl::MatrizEscopo salva_matriz;
-  float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
-  float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
+
   //gl::Normal(0, 0, 1.0f);
   V_ERRO("desenhando tabuleiro normal");
   // Experimentalmente, desligar face nula de terreno para evitar que a camera veja
@@ -4277,10 +4290,11 @@ void Tabuleiro::DesenhaTabuleiro() {
   } else {
     MudaCor(cenario_piso.has_info_textura_piso() ? COR_BRANCA : COR_CINZA_CLARO);
   }
-  Matrix4 modelagem;
-  modelagem.translate(deltaX / 2.0f, deltaY / 2.0f, parametros_desenho_.offset_terreno());
-  gl::MatrizModelagem(modelagem.get());
-  gl::MultiplicaMatriz(modelagem.get());
+  //float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
+  //float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
+  //Matrix4 modelagem;
+  //modelagem.translate(deltaX / 2.0f, deltaY / 2.0f, 0 * parametros_desenho_.offset_terreno());
+  //gl::MultiplicaMatriz(modelagem.get());
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       cenario_piso.has_info_textura_piso() &&
                       (!proto_corrente_->textura_mestre_apenas() || VisaoMestre()) ?
@@ -4375,7 +4389,7 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
     vbo.AtribuiCoordenadas(3, coordenadas, 12);
     vbo.AtribuiIndices(indices, 6);
     vbo.Nomeia("triangulo_quadrado_selecionado");
-    gl::DesenhaVbo(vbo);
+    gl::DesenhaVboNaoGravado(vbo);
   }
 }
 
@@ -4412,31 +4426,92 @@ bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   }
   return false;
 }
+
+bool MaisLongeOlho(const Vector3& olho_pos, int cenario_olho, const Entidade* lhs, const Entidade* rhs) {
+  // Na pratica faz pouca diferenca em termos 3d pq essas entidades nao vao ser desenhadas.
+  // Mas evita computacao cara de CPU.
+  if (lhs->IdCenario() != cenario_olho) {
+    return true;
+  }
+  if (rhs->IdCenario() != cenario_olho) {
+    return false;
+  }
+  Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
+  Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
+  Vector3 olho_lhs = olho_pos - lhs_pos;
+  Vector3 olho_rhs = olho_pos - rhs_pos;
+  const float lhs_l = olho_lhs.length();
+  const float rhs_l = olho_rhs.length();
+  // Precisa diferenciar distancias iguais por id pro set nao sobrescrever.
+  return lhs_l > rhs_l || (lhs_l == rhs_l && lhs->Id() > rhs->Id());
+}
+
+bool MaisPertoOlho(const Vector3& olho_pos, int cenario_olho, const Entidade* lhs, const Entidade* rhs) {
+  if (lhs->IdCenario() != cenario_olho) {
+    return false;
+  }
+  if (rhs->IdCenario() != cenario_olho) {
+    return true;
+  }
+  Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
+  Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
+  Vector3 olho_lhs = olho_pos - lhs_pos;
+  Vector3 olho_rhs = olho_pos - rhs_pos;
+  const float lhs_l = olho_lhs.length();
+  const float rhs_l = olho_rhs.length();
+  // Precisa diferenciar distancias iguais por id pro set nao sobrescrever.
+  return lhs_l < rhs_l || (lhs_l == rhs_l && lhs->Id() < rhs->Id());
+}
 }  // namespace
 
-void Tabuleiro::OrdenaEntidades() {
-  int cenario_olho = olho_.pos().id_cenario();
-  Vector3 olho_pos(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
-  auto MaisLongeOlho = [this, &olho_pos, cenario_olho] (Entidade* lhs, Entidade* rhs) {
-    if (lhs->IdCenario() != cenario_olho) {
-      return true;
+std::pair<int, std::function<bool(const Entidade* lhs, const Entidade* rhs)>>
+Tabuleiro::IdCenarioComFuncaoOrdenacao(const ParametrosDesenho& pd) const {
+  Vector3 posicao = PosParaVector3(olho_.pos());
+  int id_cenario = olho_.pos().id_cenario();
+  std::function<bool(const Entidade* lhs, const Entidade* rhs)> funcao;
+  if (pd.has_alfa_translucidos()) {
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisLongeOlho(posicao, id_cenario, lhs, rhs); };
+  } else if (pd.has_desenha_mapa_oclusao()) {
+    const auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
+    if (entidade_referencia == nullptr) {
+      LOG(ERROR) << "nao ha entidade de referencia, usando padrao!";
+    } else {
+      const auto& pos_ref = entidade_referencia->Pos();
+      posicao = PosParaVector3(pos_ref);
+      posicao.z = entidade_referencia->ZOlho();
+      id_cenario = entidade_referencia->IdCenario();
     }
-    if (rhs->IdCenario() != cenario_olho) {
-      return false;
-    }
-    Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
-    Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
-    Vector3 olho_lhs = olho_pos - lhs_pos;
-    Vector3 olho_rhs = olho_pos - rhs_pos;
-    const float lhs_l = olho_lhs.length();
-    const float rhs_l = olho_rhs.length();
-    // Precisa diferenciar distancias iguais por id pro set nao sobrescrever.
-    return lhs_l > rhs_l || (lhs_l == rhs_l && lhs->Id() > rhs->Id());
-  };
-  std::set<Entidade*, std::function<bool(Entidade*, Entidade*)>> set_entidades(MaisLongeOlho);
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+  } else if (pd.has_desenha_mapa_luzes()) {
+    // TODO aqui teria que ver qual luz esta sendo desenhada.
+    posicao = PosParaVector3(luzes_pontuais_[0].pos);
+    id_cenario = luzes_pontuais_[0].pos.id_cenario();
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+  } else if (pd.desenha_mapa_sombras()) {
+    const auto& cenario_luz = CenarioIluminacao(*proto_corrente_);
+    Matrix4 mr;
+    mr.rotateY(-cenario_luz.luz_direcional().inclinacao_graus());
+    mr.rotateZ(cenario_luz.luz_direcional().posicao_graus());
+    mr.scale(DISTANCIA_LUZ_DIRECIONAL_METROS);
+    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
+    vl = mr * vl;
+    posicao.x = vl.x;
+    posicao.y = vl.y;
+    posicao.z = vl.z;
+    id_cenario = IdCenario();
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+  } else {
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+  }
+  return {id_cenario, funcao};
+}
+
+void Tabuleiro::OrdenaEntidades(const ParametrosDesenho& pd) {
+  const auto& [id_cenario, funcao] = IdCenarioComFuncaoOrdenacao(pd);
+  std::set<Entidade*, std::function<bool(const Entidade*, const Entidade*)>> set_entidades(funcao);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* entidade = it->second.get();
-    if (entidade->IdCenario() == IdCenario()) {
+    if (entidade->IdCenario() == id_cenario) {
       set_entidades.insert(entidade);
     }
   }
@@ -4446,18 +4521,9 @@ void Tabuleiro::OrdenaEntidades() {
   }
 }
 
-void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool ordena) {
+void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
   //LOG(INFO) << "LOOP";
-  std::vector<Entidade*> entidades;
-  if (ordena) {
-    OrdenaEntidades();
-    entidades.assign(entidades_ordenadas_.begin(), entidades_ordenadas_.end());
-  } else {
-    for (auto& it : entidades_) {
-      entidades.push_back(it.second.get());
-    }
-  }
-  for (auto* entidade : entidades) {
+  for (auto* entidade : entidades_ordenadas_) {
     //LOG(INFO) << "entidade: " << RotuloEntidade(entidade);
     if (entidade == nullptr) {
       LOG(ERROR) << "Entidade nao existe.";
@@ -4619,13 +4685,12 @@ void Tabuleiro::DesenhaRosaDosVentos() {
   gl::AtualizaMatrizes();
   //gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
   //gl::Retangulo(10.0f);
-  gl::DesenhaVbo(vbo_rosa_, GL_TRIANGLES);
+  gl::DesenhaVboGravado(vbo_rosa_);
 }
 
 void Tabuleiro::DesenhaPontosRolagem() {
   // 4 pontos.
   MudaCor(COR_PRETA);
-  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
   float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO +
                        ((TamanhoX() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
@@ -4670,7 +4735,7 @@ void Tabuleiro::DesenhaElosAgarrar() {
     cubo.Multiplica(mr);
     cubo.Translada(v1.x, v1.y, v1.z);
     MudaCor(COR_PRETA);
-    gl::DesenhaVbo(cubo);
+    gl::DesenhaVboNaoGravado(cubo);
   }
 }
 
@@ -6011,7 +6076,8 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
 
 Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
     float x, float y, float z_olho, float espaco_entidade, const Vector3& movimento, bool ignora_espaco_entidade) {
-  gl::MatrizEscopo salva_mvm(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_camera(gl::MATRIZ_CAMERA);
+  gl::MatrizEscopo salva_mvm(gl::MATRIZ_MODELAGEM);
   gl::MatrizEscopo salva_prj(gl::MATRIZ_PROJECAO);
   float tamanho_movimento = movimento.length();
   espaco_entidade = ignora_espaco_entidade ? 0.0f : espaco_entidade;
@@ -6771,7 +6837,8 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     // No android, as chamadas de atualizacao se misturam com as de picking, que dependem das matrizes para funcionar
     // corretamente (MousePara3dParaleloZero);
     gl::MatrizEscopo salva_proj(gl::MATRIZ_PROJECAO);
-    gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+    gl::MatrizEscopo salva_view(gl::MATRIZ_CAMERA);
+    gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM);
     DesenhaMapaLuz(/*indice_luz=*/i);
     // Para as funcoes de configuracao funcionarem.
     parametros_desenho_.set_desenha_mapa_luzes(0);
@@ -6902,7 +6969,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
     MudaCor(cenario_luz.luz_ambiente());
   }
 
-  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -6926,7 +6993,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   //vetor.set_z(0);
   //gl::Roda(VetorParaRotacaoGraus(vetor), 0.0f, 0.0f, 1.0f);
 
-  gl::DesenhaVbo(vbo_caixa_ceu_);
+  gl::DesenhaVboGravado(vbo_caixa_ceu_);
   gl::LigacaoComTextura(tipo_textura, 0);
   gl::Desabilita(tipo_textura);
   gl::UnidadeTextura(GL_TEXTURE0);
@@ -6941,7 +7008,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   }
   gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_CAIXA_CEU);
-  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM);
   gl::Translada(0.0f, 0.0f, 5.0f);
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -7230,7 +7297,10 @@ void Tabuleiro::DesenhaCoordenadas() {
 
 void Tabuleiro::DesenhaInfoGeral() {
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_matriz_view(gl::MATRIZ_CAMERA);
+  gl::CarregaIdentidade();
+  gl::AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
   int largura_fonte, altura_fonte, escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
@@ -7283,9 +7353,11 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
   // Modo 2d.
   {
     MudaCor(COR_PRETA);
-    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
+    gl::MatrizEscopo salva_matriz_view(gl::MATRIZ_CAMERA);
     gl::CarregaIdentidade();
     gl::AtualizaMatrizes();
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
+    gl::CarregaIdentidade();
     gl::Retangulo(0.0f, yi, tempo_str.size() * largura_fonte + 2.0f, ys);
   }
   // Eixo com origem embaixo esquerda.
@@ -7316,6 +7388,7 @@ void Tabuleiro::DesenhaTempos() {
   DesenhaTempo(3, "atualizacao", tempos_uma_atualizacao_);
   DesenhaTempo(4, "at parcial ", tempos_atualiza_parcial_);
   DesenhaTempo(5, "cont virt  ", tempos_uma_renderizacao_controle_virtual_);
+  DesenhaTempo(6, "num objetos", {entidades_ordenadas_.size()});
   V_ERRO("tempo de renderizacao");
 }
 

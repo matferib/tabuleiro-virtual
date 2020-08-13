@@ -464,9 +464,12 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       if (entidade == nullptr) {
         break;
       }
-      gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
+      gl::MatrizEscopo salva_matriz_view(gl::MATRIZ_CAMERA);
       gl::CarregaIdentidade();
       ConfiguraOlhar();
+      gl::AtualizaMatrizes();
+      gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
+      gl::CarregaIdentidade();
       // Faz picking do tabuleiro sem entidades.
       float nx, ny, nz;
       if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
@@ -672,11 +675,14 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         ultimo_y_ = y;
       } else {
         // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
-        //gl::ModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+        //gl::ModoMatriz(gl::MATRIZ_MODELAGEM);
         parametros_desenho_.set_offset_terreno(primeiro_z_3d_);
-        gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
+        gl::MatrizEscopo salva_matriz_view(gl::MATRIZ_CAMERA);
         gl::CarregaIdentidade();
         ConfiguraOlhar();
+        gl::AtualizaMatrizes();
+        gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
+        gl::CarregaIdentidade();
         // Faz picking do tabuleiro sem entidades.
         float nx, ny, nz;
         if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {

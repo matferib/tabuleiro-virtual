@@ -1243,7 +1243,6 @@ modelo {
     modelo_3d { id: 'purple_dragon_soldier' }
   }
 }
-
 modelo {
   id: 'Humano Dragão Púrpura: Combatente Arqueiro 2'
   id_entidade_base: 'Combatente Base'

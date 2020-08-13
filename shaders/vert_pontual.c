@@ -16,13 +16,14 @@
 // Output pro frag shader, interpolado dos vertices.
 // Uniformes nao variam por vertice, vem de fora.
 uniform highp mat4 gltab_prm;    // projecao.
-uniform highp mat4 gltab_mvm;    // modelview.
+uniform highp mat4 gltab_view;    // view.
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
+attribute highp mat4 gltab_model_i;
 
 varying highp vec4 v_PosView;
 
 void main() {
-  v_PosView = gltab_mvm * gltab_vertice;
+  v_PosView = gltab_view * gltab_model_i * gltab_vertice;
   gl_Position = gltab_prm * v_PosView;
 }

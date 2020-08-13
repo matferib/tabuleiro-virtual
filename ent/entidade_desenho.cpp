@@ -141,11 +141,8 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
   } else {
     AjustaCor(proto, pd);
   }
-  if (!achatar || VBO_COM_MODELAGEM) {
-#if VBO_COM_MODELAGEM
-    vd.vbos_gravados.Desenha();
-#else
-    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  if (!achatar) {
+    gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
     if (proto.has_modelo_3d()) {
       const auto* modelo = vd.m3d->Modelo(proto.modelo_3d().id());
       if (modelo != nullptr) {
@@ -155,44 +152,36 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
           gl::Habilita(GL_TEXTURE_2D);
           gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
         }
-        gl::MatrizModelagem(modelagem.get());
         gl::MultiplicaMatriz(modelagem.get());
         modelo->vbos_gravados.Desenha();
         gl::Desabilita(GL_TEXTURE_2D);
       }
     } else if (!proto.info_textura().id().empty()) {
       gl::MultiplicaMatriz(tijolo_tela.get());
-      gl::MatrizModelagem(tijolo_tela.get());
-      gl::DesenhaVbo(g_vbos[VBO_MOLDURA_PECA]);
+      gl::DesenhaVboGravado(g_vbos[VBO_MOLDURA_PECA]);
     } else {
       gl::MultiplicaMatriz(modelagem.get());
-      gl::MatrizModelagem(modelagem.get());
-      gl::DesenhaVbo(g_vbos[VBO_PEAO]);
+      gl::DesenhaVboGravado(g_vbos[VBO_PEAO]);
     }
-#endif
   }
 
-#if !VBO_COM_MODELAGEM
   // No caso de VBO com modelagem, o tijolo da base ja esta no modelo.
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   if (DesenhaBase(proto)) {
     if (proto.has_modelo_3d()) {
       AjustaCor(proto, pd);
     }
-    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
     gl::MultiplicaMatriz(tijolo_base.get());
-    gl::MatrizModelagem(tijolo_base.get());
-    gl::DesenhaVbo(g_vbos[VBO_BASE_PECA]);
+    gl::DesenhaVboGravado(g_vbos[VBO_BASE_PECA]);
   }
-#endif
 
   if (proto.has_modelo_3d() || proto.info_textura().id().empty()) {
     return;
   }
 
   // Tela da textura.
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  gl::MatrizModelagem(tela_textura.get());
+  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
   gl::MultiplicaMatriz(tela_textura.get());
 
   GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
@@ -214,7 +203,7 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
     c.set_b(1.0f);
     c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
     MudaCor(MortaInconscienteIncapaz(proto) ? EscureceCor(c) : c);
-    gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
+    gl::DesenhaVboGravado(g_vbos[VBO_TELA_TEXTURA]);
     gl::Desabilita(GL_TEXTURE_2D);
 
     // restaura.
@@ -233,50 +222,41 @@ void Entidade::DesenhaObjetoEntidadeProto(
       vd.matriz_modelagem, vd.matriz_modelagem_tijolo_base, vd.matriz_modelagem_tijolo_tela, vd.matriz_modelagem_tela_textura, vd.matriz_deslocamento_textura);
 }
 
-void Entidade::DesenhaArmas(ParametrosDesenho* pd) {
+void Entidade::DesenhaArma(
+    const DadosAtaque& da, const Posicao& posicao_acao, const Matrix4& matriz_acao, const ParametrosDesenho* pd) const {
+  const auto& arma_tabelada = tabelas_.Arma(da.id_arma());
+  const auto* modelo = vd_.m3d->Modelo(arma_tabelada.info_modelo_3d().id());
+  if (modelo == nullptr) return;
+  const auto& escala = arma_tabelada.info_modelo_3d().escala();
+  const auto& translacao = arma_tabelada.info_modelo_3d().translacao();
+
+  VLOG(3) << "desenhando " << da.id_arma();
+  gl::MatrizEscopo salva_matriz;
+  MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
+  gl::Translada(posicao_acao.x() + translacao.x(), posicao_acao.y() + translacao.y(), posicao_acao.z() + translacao.z());
+  gl::Escala(escala.x(), escala.y(), escala.z());
+  gl::MultiplicaMatriz(matriz_acao.get());
+  modelo->vbos_gravados.Desenha();
+}
+
+void Entidade::DesenhaArmas(ParametrosDesenho* pd) const {
   const DadosAtaque* dac = DadoCorrente(/*ignora_ataques_na_rodada=*/true);
   if (dac == nullptr) return;
 
   ParametrosDesenho pd_sem_texturas_de_frente = pd == nullptr ? ParametrosDesenho::default_instance() : *pd;
+  pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
   if (dac->has_id_arma()) {
-    const auto& arma_tabelada = tabelas_.Arma(dac->id_arma());
-    const auto* modelo = vd_.m3d->Modelo(arma_tabelada.info_modelo_3d().id());
-    const auto& escala = arma_tabelada.info_modelo_3d().escala();
-    VLOG(3) << "tentando desenhar " << dac->id_arma() << " usando modelo " << arma_tabelada.info_modelo_3d().id();
-    if (modelo != nullptr) {
-      VLOG(3) << "desenhando " << dac->id_arma();
-      const auto posicao = PosicaoAcaoSemTransformacoes();
-      gl::MatrizEscopo salva_matriz;
-      pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
-      MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
-      gl::Translada(posicao.x(), posicao.y(), posicao.z());
-      gl::Escala(escala.x(), escala.y(), escala.z());
-      gl::MultiplicaMatriz(vd_.matriz_acao_principal.get());
-      modelo->vbos_gravados.Desenha();
-    }
-    if (PossuiCategoria(CAT_ARMA_DUPLA, arma_tabelada)) return;
+    DesenhaArma(*dac, PosicaoAcaoSemTransformacoes(), vd_.matriz_acao_principal, &pd_sem_texturas_de_frente);
+    // Neste caso, sera a mesma arma dos dois lados.
+    if (PossuiCategoria(CAT_ARMA_DUPLA, tabelas_.Arma(dac->id_arma()))) return;
   }
   const DadosAtaque* das = DadoCorrenteSecundario();
   // O da se refere ao primeiro ataque, caso a empunhadura seja MAO_BOA, implica 2 armas, desenha a secundaria tb.
-  if (das != nullptr) {
-    // Busca a segunda arma.
-    const auto& arma_tabelada = tabelas_.Arma(das->id_arma());
-    const auto* modelo = vd_.m3d->Modelo(arma_tabelada.info_modelo_3d().id());
-    const auto& escala = arma_tabelada.info_modelo_3d().escala();
-    VLOG(3) << "tentando desenhar " << das->id_arma() << " usando modelo " << arma_tabelada.info_modelo_3d().id();
-    if (modelo != nullptr) {
-      VLOG(3) << "desenhando " << das->id_arma();
-      const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
-      gl::MatrizEscopo salva_matriz;
-      pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
-      MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
-      gl::Translada(posicao.x(), posicao.y(), posicao.z());
-      gl::Escala(escala.x(), escala.y(), escala.z());
-      gl::MultiplicaMatriz(vd_.matriz_acao_principal.get());
-      gl::MultiplicaMatriz(vd_.matriz_acao_secundaria.get());
-      modelo->vbos_gravados.Desenha();
-    }
-  } else if (dac->empunhadura() == EA_ARMA_ESCUDO && !proto_.dados_defesa().id_escudo().empty()) {
+  if (das != nullptr && das->has_id_arma()) {
+    DesenhaArma(*das, PosicaoAcaoSecundariaSemTransformacoes(), vd_.matriz_acao_secundaria, &pd_sem_texturas_de_frente);
+    return;
+  }
+  if (dac->empunhadura() == EA_ARMA_ESCUDO && !proto_.dados_defesa().id_escudo().empty()) {
     const auto* modelo = vd_.m3d->Modelo("shield");
     if (modelo != nullptr) {
       gl::Habilita(GL_TEXTURE_2D);
@@ -287,7 +267,6 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) {
       }
       const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
       gl::MatrizEscopo salva_matriz;
-      pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
       MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
       gl::Translada(posicao.x(), posicao.y(), posicao.z());
       modelo->vbos_gravados.Desenha();

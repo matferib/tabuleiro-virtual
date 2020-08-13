@@ -283,6 +283,19 @@ modelo {
   }
 }
 modelo {
+  id: 'Balestra'
+  entidade {
+    modelo_3d { id: 'ballista' }
+    tamanho: TM_MEDIO  # o tamanho na pratica é enorme, mas para num avacalhar o modificador de ataque.
+    gerar_agarrar: false
+    dados_ataque {
+      grupo: 'flecha' rotulo: 'flecha' id_arma: 'balestra' tipo_ataque: 'Ataque a Distância'
+      requer_entidade_montada: true tamanho: TM_ENORME
+    }
+  }
+}
+
+modelo {
   id: 'Catapulta Leve'
   entidade {
     info_textura { id: 'catapult.png' }

@@ -2,6 +2,9 @@
 all_sem_testes:
 	scons -j 2
 
+util_test:
+	 scons -j 2 testes=1 teste_ent_util
+
 all:
 	scons -j 2 testes=1 tabvirt teste_ent_util teste_ent_acoes teste_ent_ent teste_modelos teste_ent_util teste_arquivo #teste_net_util
 

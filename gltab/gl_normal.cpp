@@ -181,7 +181,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   gl::MatrizEscopo salva_matriz_2(GL_PROJECTION);
   gl::CarregaIdentidade(false);
   gl::Ortogonal(0, largura, 0, altura, 0, 1);
-  gl::MatrizEscopo salva_matriz_3(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz_3(MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
   int x_original = raster_pos[0];
   int y = raster_pos[1];
