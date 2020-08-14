@@ -298,7 +298,7 @@ void VbosGravados::Desenha() const {
 // VboNaoGravado
 //--------------
 bool VboNaoGravado::tem_matriz_modelagem() const {
-  return false && matriz_modelagem_.has_value();
+  return matriz_modelagem_.has_value();
 }
 
 bool VboNaoGravado::tem_matriz_normal() const {
