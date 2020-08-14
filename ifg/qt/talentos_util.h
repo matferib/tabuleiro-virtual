@@ -269,7 +269,8 @@ class ComplementoTalentoDelegate : public QItemDelegate {
 
   QWidget* createEditor(
       QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
-    QVariant valor = modelo_->data(index.child(index.row(), 0), Qt::EditRole);
+    //QVariant valor = modelo_->data(index.child(index.row(), 0), Qt::EditRole);
+	QVariant valor = modelo_->data(modelo_->index(index.row(), 0, index), Qt::EditRole);
     const auto& talento = tabelas_.Talento(valor.toString().toStdString());
     switch (talento.tipo_complemento()) {
       case ent::TCT_ARMA_SIMPLES:

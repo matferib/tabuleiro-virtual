@@ -74,6 +74,11 @@ struct ContextoDesktop : public ContextoDependente {
   PROC pglBlendColor;
   PROC pglGenerateMipmap;
   PROC pglActiveTexture;
+  PROC pglVertexAttribDivisor;
+  PROC pglDrawElementsInstanced;
+  PROC pglBindVertexArray;
+  PROC pglDeleteVertexArrays;
+  PROC pglGenVertexArrays;
 #endif
 };
 
@@ -146,6 +151,11 @@ void IniciaGl(TipoLuz tipo_luz, float escala) {
   PGL(glGetUniformLocation);
   PGL(glGenerateMipmap);
   PGL(glActiveTexture);
+  PGL(glVertexAttribDivisor);
+  PGL(glDrawElementsInstanced);
+  PGL(glDeleteVertexArrays);
+  PGL(glGenVertexArrays);
+  PGL(glBindVertexArray);
 
   if (!erro.empty()) {
     LOG(ERROR) << "Erro: " << erro;
@@ -403,6 +413,25 @@ void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const G
 
 void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
   ((PFNGLUNIFORMMATRIX4FVPROC)INTERNO->pglUniformMatrix4fv)(location, count, transpose, value);
+}
+void DivisorAtributoVertice(GLuint index, GLuint divisor) {
+  ((PFNGLVERTEXATTRIBDIVISORPROC)INTERNO->pglVertexAttribDivisor)(index, divisor);
+}
+
+void DesenhaElementosInstanciado(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices, GLsizei instancecount) {
+  ((PFNGLDRAWELEMENTSINSTANCEDPROC)INTERNO->pglDrawElementsInstanced)(modo, num_vertices, tipo, indices, instancecount);
+}
+
+void LigacaoComObjetoVertices(GLuint buffer) {
+  ((PFNGLBINDVERTEXARRAYPROC)INTERNO->pglBindVertexArray)(buffer);
+}
+
+void ApagaObjetosVertices(GLsizei n, GLuint *arrays) {
+  ((PFNGLCREATEVERTEXARRAYSPROC)INTERNO->pglDeleteVertexArrays)(n, arrays);
+}
+
+void GeraObjetosVertices(GLsizei n, GLuint *arrays) {
+  ((PFNGLGENVERTEXARRAYSPROC)INTERNO->pglGenVertexArrays)(n, arrays);
 }
 
 #endif

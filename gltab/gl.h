@@ -265,7 +265,7 @@ void GeraObjetosVertices(GLsizei n, GLuint *arrays);
 void LigacaoComBuffer(GLenum target, GLuint buffer);
 void LigacaoComObjetoVertices(GLuint buffer);
 void ApagaBuffers(GLsizei n, const GLuint* buffers);
-void ApagaObjetosVertices(GLsizei n, const GLuint *arrays);
+void ApagaObjetosVertices(GLsizei n, GLuint *arrays);
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
 void BufferizaSubDados(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data);
 void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog);
@@ -298,6 +298,8 @@ GLint LeLocalAtributo(GLuint program, const GLchar* name);
 void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);
 void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+void DivisorAtributoVertice(GLuint index, GLuint divisor);
+void DesenhaElementosInstanciado(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices, GLsizei instancecount);
 #else
 inline void LocalAtributo(GLuint program, GLuint index, const GLchar *name) { glBindAttribLocation(program, index, name); }
 inline GLenum VerificaFramebuffer(GLenum alvo) { return glCheckFramebufferStatus(alvo); }
