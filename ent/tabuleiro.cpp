@@ -3753,6 +3753,7 @@ void Tabuleiro::GeraVboCaixaCeu() {
   vbo.AtribuiTexturas(texturas);
   vbo_caixa_ceu_.Desgrava();
   vbo_caixa_ceu_.Grava(GL_TRIANGLES, vbo);
+  vbo_caixa_ceu_.Nomeia("caixa_ceu");
 }
 
 void Tabuleiro::RegeraVboTabuleiro() {
