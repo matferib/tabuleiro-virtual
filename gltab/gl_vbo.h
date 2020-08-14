@@ -84,8 +84,8 @@ class VboNaoGravado {
   bool tem_tangentes() const { return !tangentes_.empty(); }
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return !texturas_.empty(); }
-  bool tem_matriz_modelagem() const { return matriz_modelagem_.has_value(); }
-  bool tem_matriz_normal() const { return tem_normais() && tem_matriz_modelagem(); }
+  bool tem_matriz_modelagem() const;
+  bool tem_matriz_normal() const;
 
   const std::vector<unsigned short>& indices() const { return indices_; }
   std::vector<float>& coordenadas() { return coordenadas_; }

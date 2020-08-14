@@ -297,6 +297,14 @@ void VbosGravados::Desenha() const {
 //--------------
 // VboNaoGravado
 //--------------
+bool VboNaoGravado::tem_matriz_modelagem() const {
+  return false && matriz_modelagem_.has_value();
+}
+
+bool VboNaoGravado::tem_matriz_normal() const {
+  return tem_matriz_modelagem() && tem_normais();
+}
+
 void VboNaoGravado::Escala(GLfloat x, GLfloat y, GLfloat z) {
   if (num_dimensoes_ == 2) {
     for (unsigned int i = 0; i < coordenadas_.size(); i += 2) {
@@ -2223,8 +2231,8 @@ void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
     }
     LigacaoComObjetoVertices(vbo.Vao());
     V_ERRO("DesenhaVboGravado: bind");
-    //if (!atualiza_matrizes) {
-    //  LOG(INFO) << "Desenhando: " << vbo.nome() << ", vao: " << vbo.Vao() << ", modo: " << vbo.Modo() << ", num vertices: " << vbo.NumVertices();
+    //if (!atualiza_matrizes || vbo.nome() == "caixa_ceu") {
+    //  LOG(INFO) << "Desenhando: " << vbo.nome() << ", vao: " << vbo.Vao() << ", modo: " << vbo.Modo() << ", num vertices: " << vbo.NumVertices() << ", tem matriz: " << vbo.tem_matriz_modelagem();
     //}
     if (vbo.tem_matriz_modelagem()) {
       gl::DesenhaElementosInstanciado(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr, 1);
