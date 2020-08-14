@@ -361,13 +361,6 @@ bool IniciaVariaveis(VarShader* shader) {
     DadosVariavel dv;
     GLint indice;
   };
-  std::vector<DadosAtributo> datribs {
-          {{"gltab_vertice", &shader->atr_gltab_vertice}, 0},
-          {{"gltab_normal", &shader->atr_gltab_normal}, 1},
-          {{"gltab_texel", &shader->atr_gltab_texel}, 2},
-          {{"gltab_tangent", &shader->atr_gltab_tangente}, 3},
-          {{"gltab_cor", &shader->atr_gltab_cor}, 4}
-  };
   // Forca as variaveis para indices > 0 (driver da ATI nao curte).
   // No caso da apple, tem que começar com vertice no indice 0... vai entender.
   constexpr int ii =
@@ -377,7 +370,7 @@ bool IniciaVariaveis(VarShader* shader) {
     1
 #endif
   ;
-  for (auto& [dv, indice_forcado] : std::vector<DadosAtributo> {
+  std::vector<DadosAtributo> datribs {
           {{"gltab_vertice", &shader->atr_gltab_vertice}, ii + 0},
           {{"gltab_normal", &shader->atr_gltab_normal}, ii + 1},
           {{"gltab_cor", &shader->atr_gltab_cor}, ii + 2},
@@ -385,9 +378,12 @@ bool IniciaVariaveis(VarShader* shader) {
           {{"gltab_tangent", &shader->atr_gltab_tangente}, ii + 4},
           {{"gltab_model_i", &shader->atr_gltab_matriz_modelagem}, ii + 5},  // 4 dimensoes.
           {{"gltab_nm_i", &shader->atr_gltab_matriz_normal}, ii + 9},  // 3 dimensoes
-  }) {
+  };
+
+  for (auto& [dv, indice_forcado] : datribs) {
     LocalAtributo(shader->programa, indice_forcado, dv.nome);
     V_ERRO_RET(StringPrintf("shader: %s atribuindo local de atributo %s", shader->nome.c_str(), dv.nome).c_str());
+    LOG(INFO) << "Tentando atribuir" << dv.nome << " na posicao " << *dv.var;
   }
 
   // Variaveis de software, otimizacoes.
@@ -400,17 +396,22 @@ bool IniciaVariaveis(VarShader* shader) {
   LinkaPrograma(shader->programa);
   V_ERRO_RET("linkando programa shader");
   LOG(INFO) << "LINKADO!";
-  for (const auto& d : datribs) {
+
+  // Confere os atributos apos linkagem.
+  for (const auto& [dv, indice_forcado] : datribs) {
     // OpenGL do mac nao curte atribuir o local do atributo.
-    *d.dv.var = LeLocalAtributo(shader->programa, d.dv.nome);
-    if (*d.dv.var == -1) {
-      LOG(INFO) << "Shader '" << shader->nome << "' nao possui atributo " << d.dv.nome;
-      continue;
+    *dv.var = LeLocalAtributo(shader->programa, dv.nome);
+    if (*dv.var == -1) {
+      LOG(INFO) << "Shader '" << shader->nome << "' nao possui atributo " << dv.nome;
+    } else if (*dv.var == indice_forcado) {
+      LOG(WARNING) << "Shader '" << shader->nome << "' tentou colocar " << dv.nome << " na posicao " << indice_forcado << " mas pos na " << *dv.var;
+    } else {
+      LOG(INFO) << "Atributo " << dv.nome << " na posicao " << *dv.var;
     }
-    LOG(INFO) << "Atributo " << d.dv.nome << " na posicao " << *d.dv.var;
   }
+
   // Variaveis uniformes.
-  for (const auto& d : std::vector<DadosVariavel> {
+  for (auto& [nome, p_local_atributo] : std::vector<DadosVariavel> {
           {"gltab_luz_ambiente", &shader->uni_gltab_luz_ambiente_cor },
           {"gltab_cor_mistura_pre_nevoa", &shader->uni_gltab_cor_mistura_pre_nevoa },
           {"gltab_luz_direcional.cor", &shader->uni_gltab_luz_direcional_cor },
@@ -439,11 +440,11 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_oclusao_ligada", &shader->uni_gltab_oclusao_ligada },
           {"gltab_plano_distante_oclusao", &shader->uni_gltab_plano_distante },
   }) {
-    *d.var = LocalUniforme(shader->programa, d.nome);
-    if (*d.var == -1) {
-      LOG(INFO) << "Shader nao possui uniforme " << d.nome;
+    *p_local_atributo = LocalUniforme(shader->programa, nome);
+    if (*p_local_atributo == -1) {
+      LOG(INFO) << "Shader nao possui uniforme " << nome;
     } else {
-      LOG(INFO) << "Uniforme " << d.nome << " na posicao " << *d.var;
+      LOG(INFO) << "Uniforme " << nome << " na posicao " << *p_local_atributo;
     }
   }
   // Uniformes array.
