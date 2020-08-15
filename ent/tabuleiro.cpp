@@ -3355,11 +3355,6 @@ void Tabuleiro::DesenhaCena(bool debug) {
   }
   V_ERRO("desenhando elos de agarrar");
 
-  if (desenhar_caixa_ceu) {
-    DesenhaCaixaCeu();
-  }
-  V_ERRO("desenhando caixa do ceu");
-
   if (parametros_desenho_.desenha_acoes()) {
     DesenhaAcoes();
   }
@@ -3400,6 +3395,12 @@ void Tabuleiro::DesenhaCena(bool debug) {
     gl::HabilitaEscopo blend_escopo(GL_BLEND);
     gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
   }
+
+  if (desenhar_caixa_ceu) {
+    DesenhaCaixaCeu();
+  }
+  V_ERRO("desenhando caixa do ceu");
+
 
   // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam
   // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
