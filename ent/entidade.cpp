@@ -985,8 +985,7 @@ void Entidade::Atualiza(int intervalo_ms) {
     vd_.angulo_textura_rad = 0.0f;
   }
 
-  if (Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d() &&
-      !proto_.info_textura().id().empty()) {
+  if (Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d() && !proto_.info_textura().id().empty()) {
     float angulo = 0.0f;
     if (proto_.caida()) {
       angulo = 0.0f;
@@ -1004,7 +1003,6 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
     if (fabs(angulo - vd_.angulo_rotacao_textura_graus) > 0.1f) {
       vd_.angulo_rotacao_textura_graus = angulo;
-      //LOG(INFO) << "atualizou angulo: " << angulo;
     }
   }
 
