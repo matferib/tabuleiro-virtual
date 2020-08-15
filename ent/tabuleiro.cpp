@@ -620,6 +620,9 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::UnidadeTextura(GL_TEXTURE0);
   DesenhaCena();
 
+  auto tipo_anterior = gl::TipoShaderCorrente();
+  gl::UsaShader(gl::TSH_SIMPLES);
+
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
 
@@ -650,7 +653,7 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::Retangulo(0.0f, 0.0f, largura_, altura_);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
 
-  V_ERRO("LigacaoComFramebufferOclusao");
+  gl::UsaShader(tipo_anterior);
 }
 
 void Tabuleiro::DesenhaMapaOclusao() {
@@ -2858,6 +2861,7 @@ void Tabuleiro::AtualizaPorTemporizacao() {
     parametros_desenho_.set_regera_vbo(true);
   }
 
+  *parametros_desenho_.mutable_pos_olho() = olho_.pos();
   AtualizaEntidades(passou_ms);
   AtualizaLuzesPontuais();
 
