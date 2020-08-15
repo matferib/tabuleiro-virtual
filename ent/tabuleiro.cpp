@@ -4042,8 +4042,8 @@ void Tabuleiro::GeraFramebufferPrincipal(int tamanho, DadosFramebuffer* dfb) {
 
   gl::GeraRenderbuffers(1, &dfb->renderbuffer);
   gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, dfb->renderbuffer);
-  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, tamanho, tamanho);
-  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
+  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, tamanho, tamanho);
+  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
 
   auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
   if (ret != GL_FRAMEBUFFER_COMPLETE) {
