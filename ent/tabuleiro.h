@@ -1242,6 +1242,7 @@ class Tabuleiro : public ntf::Receptor {
   // Gera um framebuffer.
   void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, DadosFramebuffer* dfb);
   void GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb);
+  void GeraFramebufferPrincipal(int tamanho, DadosFramebuffer* dfb);
 
   float DistanciaPlanoCorteDistante() const;
 
@@ -1471,6 +1472,7 @@ class Tabuleiro : public ntf::Receptor {
   DadosFramebuffer dfb_luz_direcional_;
   DadosFramebuffer dfb_oclusao_;
   DadosFramebuffer dfb_colisao_;
+  DadosFramebuffer dfb_principal_;
   std::vector<DadosFramebuffer> dfb_luzes_;
 
 #if 0

@@ -4025,6 +4025,41 @@ void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_
   LOG(INFO) << "framebuffer gerado";
 }
 
+void Tabuleiro::GeraFramebufferPrincipal(int tamanho, DadosFramebuffer* dfb) {
+  dfb->Apaga();
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  LOG(INFO) << "gerando framebuffer principal";
+  gl::GeraFramebuffers(1, &dfb->framebuffer);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb->framebuffer);
+  V_ERRO("LigacaoComFramebuffer");
+  gl::GeraTexturas(1, &dfb->textura);
+  V_ERRO("GeraTexturas");
+  gl::LigacaoComTextura(GL_TEXTURE_2D, dfb->textura);
+  V_ERRO("LigacaoComTextura");
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, tamanho, tamanho, 0, GL_RGBA, GL_FLOAT, nullptr);
+  V_ERRO("ImagemTextura2d");
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  V_ERRO("ParametroTextura");
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dfb->textura, 0);
+  V_ERRO("TexturaFramebuffer");
+  auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
+  if (ret != GL_FRAMEBUFFER_COMPLETE) {
+    LOG(ERROR) << "Framebuffer principal incompleto: " << ret;
+  } else {
+    LOG(INFO) << "Framebuffer principal completo";
+  }
+
+  // Volta estado normal.
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  V_ERRO("Fim da Geracao de framebuffer principal");
+  LOG(INFO) << "framebuffer principal gerado";
+}
 
 void Tabuleiro::GeraFramebuffer(bool reinicia) {
   GeraFramebufferColisao(TAM_BUFFER_COLISAO, &dfb_colisao_);
@@ -4035,6 +4070,7 @@ void Tabuleiro::GeraFramebuffer(bool reinicia) {
   dfb_luzes_.resize(1);
   GeraFramebufferLocal(
       1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luzes_[0]);
+  GeraFramebufferPrincipal(1024, &dfb_principal_);
 }
 
 namespace {
