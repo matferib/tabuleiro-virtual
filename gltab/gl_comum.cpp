@@ -1282,6 +1282,8 @@ void UsaShader(TipoShader ts) {
 
   interno::UniformeSeValido(shader->uni_gltab_plano_distante, c->plano_distante);
 
+  shader->cache_textura.clear();
+
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
 }
 
