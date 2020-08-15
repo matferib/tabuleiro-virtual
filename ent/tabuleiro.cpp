@@ -1033,6 +1033,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_grade(false);
     parametros_desenho_.set_nao_limpa_cor(true);
     DesenhaCena(/*debug=*/true);
+    parametros_desenho_ = salva_pd;
   } else {
     DesenhaCena(/*debug=*/true);
   }
