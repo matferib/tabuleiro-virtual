@@ -28,6 +28,24 @@ tabela_escudos {
 
 tabela_armas {
   armas {
+    id: 'balestra'
+    dano { medio: '1d10' }
+    categoria: CAT_DISTANCIA
+    tipo_dano: TD_PERFURANTE
+    margem_critico: 19
+    multiplicador_critico: 2
+    alcance_quadrados: 25
+    peso { medio: '4kg' }
+    tipo_dano: TD_PERFURANTE
+    carregamento {
+      requer_carregamento: true
+      tipo_carregamento: TC_RODADA_COMPLETA
+    }
+    #info_modelo_3d { id: 'ballista' translacao { x: 0.7 y: -0.3 z: -1 } }
+    categoria_pericia: CATPER_SIMPLES
+    preco: '500 PO'
+  }
+  armas {
     id: 'mordida'
     # falha pra ankheg, grande com 2d6 ao inves de 1d8.
     #dano { medio: '1d6' }

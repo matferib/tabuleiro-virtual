@@ -7,6 +7,7 @@
 #include "ent/tabelas.h"
 #include "ent/util.h"
 #include "goog/stringprintf.h"
+#include "goog/strutil.h"
 #include "log/log.h"
 
 namespace ent {

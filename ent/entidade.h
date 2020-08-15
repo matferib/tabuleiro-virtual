@@ -11,8 +11,6 @@
 #include "ent/util.h"
 #include "gltab/gl_vbo.h"
 
-#define VBO_COM_MODELAGEM 0
-
 namespace m3d {
 class Modelos3d;
 }  // namespace m3d
@@ -40,8 +38,8 @@ std::unique_ptr<Entidade> NovaEntidade(
     const EntidadeProto& proto,
     const Tabelas& tabelas, const Tabuleiro* tabuleiro, const Texturas* texturas, const m3d::Modelos3d* m3d,
     ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
-inline std::unique_ptr<Entidade> NovaEntidadeParaTestes(const EntidadeProto& proto, const Tabelas& tabelas) {
-  return NovaEntidade(proto, tabelas, nullptr, nullptr, nullptr, nullptr, nullptr);
+inline std::unique_ptr<Entidade> NovaEntidadeParaTestes(const EntidadeProto& proto, const Tabelas& tabelas, const Tabuleiro* tabuleiro = nullptr) {
+  return NovaEntidade(proto, tabelas, tabuleiro, nullptr, nullptr, nullptr, nullptr);
 }
 inline std::unique_ptr<Entidade> NovaEntidadeFalsa(const Tabelas& tabelas) {
   return NovaEntidadeParaTestes(EntidadeProto::default_instance(), tabelas);
@@ -452,13 +450,14 @@ class Entidade {
   static constexpr unsigned int MaxNumAcoes = 3;
 
   // Nome dos buffers de VBO.
-  constexpr static unsigned short NUM_VBOS = 25;
-  constexpr static unsigned short
-      VBO_PEAO = 0, VBO_TIJOLO = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3,
-      VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7,
-      VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10, VBO_CONE_FECHADO = 11,
-      VBO_CILINDRO_FECHADO = 12, VBO_BASE_PECA = 13, VBO_MOLDURA_PECA = 14,
-      VBO_HEMISFERIO = 15, VBO_PIRAMIDE_FECHADA = 16;
+  enum EntVbos {
+      VBO_PEAO, VBO_TIJOLO, VBO_TELA_TEXTURA, VBO_CUBO,
+      VBO_ESFERA, VBO_PIRAMIDE, VBO_CILINDRO, VBO_DISCO,
+      VBO_RETANGULO, VBO_TRIANGULO, VBO_CONE, VBO_CONE_FECHADO,
+      VBO_CILINDRO_FECHADO, VBO_BASE_PECA, VBO_MOLDURA_PECA,
+      VBO_HEMISFERIO, VBO_PIRAMIDE_FECHADA,
+      // sempre deve ser o ultimo.
+      NUM_VBOS };
   static std::vector<gl::VboGravado> g_vbos;
 
   // Alguns efeitos tem complementos.
@@ -540,7 +539,7 @@ class Entidade {
     DadosEmissao bolhas;
     DadosLuzAcao luz_acao;
 
-    // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
+    // Alguns tipos de entidade possuem VBOs.
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
     gl::VbosGravados vbos_gravados;
     Matrix4 matriz_modelagem;
@@ -609,6 +608,8 @@ class Entidade {
   * Teoricamente deveria sempre receber pd, mas se for nullptr vai usar valor padrao (o que implica em olho em 0,0).
   */
   void AtualizaVbo(const ParametrosDesenho* pd);
+  /** Atualiza as matrizes do VBO, se tiver. */
+  void AtualizaMatrizesVbo(const ParametrosDesenho* pd);
 
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
   static float DeltaVoo(const VariaveisDerivadas& vd);
@@ -621,7 +622,8 @@ class Entidade {
 
   /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao). */
   void DesenhaDecoracoes(ParametrosDesenho* pd);
-  void DesenhaArmas(ParametrosDesenho* pd);
+  void DesenhaArmas(ParametrosDesenho* pd) const;
+  void DesenhaArma(const DadosAtaque& da, const Posicao& posicao_acao, const Matrix4& matriz_acao, const ParametrosDesenho* pd) const;
 
   /** Desenha os efeitos do objeto. Sera chamado uma vez para solido e outra para translucido. Cada efeito devera
   * saber o que e quando desenhar (usando pd->alfa_translucidos para diferenciar).

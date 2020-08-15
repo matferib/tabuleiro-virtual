@@ -101,11 +101,15 @@
     <ClCompile Include="..\..\ifg\qt\visualizador3d.cpp" />
     <ClCompile Include="..\..\ifg\tecladomouse.cpp" />
     <ClCompile Include="..\..\m3d\m3d.cpp" />
-    <ClCompile Include="..\..\main.cpp" />
+    <ClCompile Include="..\..\main.cpp">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
     <ClCompile Include="..\..\matrix\matrices.cpp" />
     <ClCompile Include="..\..\net\cliente.cpp" />
     <ClCompile Include="..\..\net\servidor.cpp" />
-    <ClCompile Include="..\..\net\socket.cpp" />
+    <ClCompile Include="..\..\net\socket.cpp">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
     <ClCompile Include="..\..\net\util.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\net_util.cpp</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\net_util.cpp</ObjectFileName>
@@ -127,6 +131,8 @@
     <ClInclude Include="..\..\ent\tabuleiro.h" />
     <ClInclude Include="..\..\ent\util.h" />
     <ClInclude Include="..\..\gltab\gl.h" />
+    <ClInclude Include="..\..\goog\stringprintf.h" />
+    <ClInclude Include="..\..\goog\strutil.h" />
     <ClInclude Include="..\..\ifg\interface.h" />
     <ClInclude Include="..\..\ifg\qt\atualiza_ui.h" />
     <ClInclude Include="..\..\ifg\qt\bonus_util.h" />
@@ -438,6 +444,5 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <QComboBox>
+#include <Qt>
 #include <QTableView>
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
@@ -116,7 +117,7 @@ const google::protobuf::RepeatedField<int> StringParaComplementos(const QString&
 
 const google::protobuf::RepeatedPtrField<std::string> StringParaComplementosStr(const QString& complementos) {
   google::protobuf::RepeatedPtrField<std::string> ss;
-  QStringList lista = complementos.split(";",  QString::SkipEmptyParts);
+  QStringList lista = complementos.split(";", QString::SkipEmptyParts);
   for (const auto& s : lista) {
     *ss.Add() = s.toStdString();
   }
@@ -126,7 +127,7 @@ const google::protobuf::RepeatedPtrField<std::string> StringParaComplementosStr(
 void StringEspecialParaComplementos(const QString& complementos, ent::EntidadeProto::Evento* evento) {
   switch (evento->id_efeito()) {
     case ent::EFEITO_ARMA_MAGICA: {
-      QStringList lista = complementos.split(";",  QString::SkipEmptyParts);
+      QStringList lista = complementos.split(";", QString::SkipEmptyParts);
       evento->clear_complementos_str();
       evento->add_complementos_str("");
       evento->clear_complementos();
@@ -143,7 +144,7 @@ void StringEspecialParaComplementos(const QString& complementos, ent::EntidadePr
       }
     }
     case ent::EFEITO_PRESA_MAGICA_MAIOR: {
-      QStringList lista = complementos.split(";",  QString::SkipEmptyParts);
+      QStringList lista = complementos.split(";", QString::SkipEmptyParts);
       evento->clear_complementos_str();
       evento->add_complementos_str("");
       evento->clear_complementos();

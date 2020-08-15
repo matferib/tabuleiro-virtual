@@ -81,6 +81,7 @@ void FinalizaGl();
 void AtualizaMatrizes();
 /** Atualiza a matriz de projecao do shader, independente do modo. */
 void AtualizaMatrizProjecao();
+void AtualizaMatrizCamera();
 // Atualiza todas as matrizes do shader.
 void AtualizaTodasMatrizes();
 void DebugaMatrizes();
@@ -89,7 +90,7 @@ void DebugaMatrizes();
 void EmpilhaMatriz();
 void DesempilhaMatriz();
 enum matriz_e {
-  MATRIZ_MODELAGEM_CAMERA = GL_MODELVIEW,
+  MATRIZ_MODELAGEM_CAMERA_NAO_USAR = GL_MODELVIEW,
   MATRIZ_PROJECAO = GL_PROJECTION,
   MATRIZ_AJUSTE_TEXTURA = GL_TEXTURE,
   MATRIZ_SOMBRA = GL_MODELVIEW + 3,
@@ -116,9 +117,9 @@ class MatrizEscopo {
       : modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { EmpilhaMatriz(); }
 
   /** Muda matriz para matriz do modo e salva pelo escopo. Ao terminar, retorna para o modo anterior a chamada. */
-  explicit MatrizEscopo(int modo) : modo_(modo) {
+  explicit MatrizEscopo(matriz_e modo) : modo_(modo) {
     modo_anterior_ = ModoMatrizCorrente();
-    MudaModoMatriz(static_cast<matriz_e>(modo_));
+    MudaModoMatriz(modo_);
     EmpilhaMatriz();
   }
 
@@ -128,9 +129,12 @@ class MatrizEscopo {
       MudaModoMatriz(static_cast<matriz_e>(modo_));
     }
     DesempilhaMatriz();
-    // No caso da matriz de projecao, eh sempre interessante atualizar a volta, ja que ela so eh configurada uma vez.
-    if (modo_ == GL_PROJECTION) {
+    // No caso da matriz de projecao e camera, eh sempre interessante atualizar a volta, ja que ela so eh configurada uma vez.
+    if (modo_ == MATRIZ_PROJECAO) {
       AtualizaMatrizProjecao();
+    }
+    if (modo_ == MATRIZ_CAMERA) {
+      AtualizaMatrizCamera();
     }
     if (modo_anterior_ != GL_INVALID_ENUM) {
       MudaModoMatriz(static_cast<matriz_e>(modo_anterior_));
@@ -220,7 +224,7 @@ void UnidadeTextura(GLenum unidade);
 void TexturaBump(bool estado);
 inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, texturas); }
 inline void ApagaTexturas(GLsizei n, const GLuint* texturas) { glDeleteTextures(n, texturas); }
-inline void LigacaoComTextura(GLenum alvo, GLuint textura) { glBindTexture(alvo, textura); }
+void LigacaoComTextura(GLenum alvo, GLuint textura);
 inline void ParametroTextura(GLenum alvo, GLenum nome_param, GLint valor_param) { glTexParameteri(alvo, nome_param, valor_param); }
 inline void ImagemTextura2d(
     GLenum alvo, GLint nivel, GLint formato_interno, GLsizei largura, GLsizei altura, GLint borda,
@@ -257,8 +261,11 @@ void BufferLeitura(GLenum modo);
 void GeraMipmap(GLenum alvo);
 void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 void GeraBuffers(GLsizei n, GLuint* buffers);
+void GeraObjetosVertices(GLsizei n, GLuint *arrays);
 void LigacaoComBuffer(GLenum target, GLuint buffer);
+void LigacaoComObjetoVertices(GLuint buffer);
 void ApagaBuffers(GLsizei n, const GLuint* buffers);
+void ApagaObjetosVertices(GLsizei n, GLuint *arrays);
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
 void BufferizaSubDados(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data);
 void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog);
@@ -291,6 +298,8 @@ GLint LeLocalAtributo(GLuint program, const GLchar* name);
 void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);
 void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+void DivisorAtributoVertice(GLuint index, GLuint divisor);
+void DesenhaElementosInstanciado(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices, GLsizei instancecount);
 #else
 inline void LocalAtributo(GLuint program, GLuint index, const GLchar *name) { glBindAttribLocation(program, index, name); }
 inline GLenum VerificaFramebuffer(GLenum alvo) { return glCheckFramebufferStatus(alvo); }
@@ -303,7 +312,29 @@ inline void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLenum alvo_textura, G
 inline void GeraMipmap(GLenum alvo) { glGenerateMipmap(alvo); }
 inline void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glBlendColor(r, g, b, a); }
 inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
+inline void GeraObjetosVertices(GLsizei n, GLuint *arrays) {
+#if __APPLE__
+  glGenVertexArraysAPPLE(n, arrays);
+#else
+  glGenVertexArrays(n, arrays);
+#endif
+}
 inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
+inline void LigacaoComObjetoVertices(GLuint buffer) {
+#if __APPLE__
+  glBindVertexArrayAPPLE(buffer);
+#else
+  glBindVertexArray(buffer);
+#endif
+}
+
+inline void DivisorAtributoVertice(GLuint index, GLuint divisor) {
+#if __APPLE__
+  glVertexAttribDivisorARB(index, divisor);
+#else
+  glVertexAttribDivisor(index, divisor);
+#endif
+}
 inline void LigacaoComRenderbuffer(GLenum target, GLuint buffer) { glBindRenderbuffer(target, buffer); }
 inline void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers) { glGenRenderbuffers(n, renderbuffers); }
 inline void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers) { glDeleteRenderbuffers(n, renderbuffers); }
@@ -312,6 +343,13 @@ inline void RenderbufferDeFramebuffer(GLenum target, GLenum attachment, GLenum r
   glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
 }
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
+inline void ApagaObjetosVertices(GLsizei n, const GLuint *arrays) {
+#if __APPLE__
+  glDeleteVertexArraysAPPLE(n, arrays);
+#else
+  glDeleteVertexArrays(n, arrays);
+#endif
+}
 inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
 inline void BufferizaSubDados(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data) { glBufferSubData(target, offset, size, data); }
 inline void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glGetShaderInfoLog(shader, maxLength, length, infoLog); }
@@ -360,6 +398,13 @@ inline void DesenhaArrays(GLenum modo, GLint primeiro, GLsizei num) { glDrawArra
 
 /** Desenha elementos e afins. */
 inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) { glDrawElements(modo, num_vertices, tipo, indices); }
+inline void DesenhaElementosInstanciado(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices, GLsizei instancecount) {
+#if __APPLE__
+  glDrawElementsInstancedARB(modo, num_vertices, tipo, indices, instancecount);
+#else
+  glDrawElementsInstanced(modo, num_vertices, tipo, indices, instancecount);
+#endif
+}
 // Vertices.
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices);
 inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
@@ -376,17 +421,17 @@ void PonteiroTangentes(GLenum tipo, GLsizei passo, const GLvoid* normais);
 inline void PonteiroTangentes(GLenum tipo, const GLvoid* tangentes) { PonteiroTangentes(tipo, 0, tangentes); }
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores);
-
-void PonteiroMatriz(const GLvoid* matriz);
-void PonteiroMatrizNormal(const GLvoid* matriz);
+void PonteiroMatrizModelagem(const GLvoid* matriz_modelagem);
+void PonteiroMatrizNormal(const GLvoid* matriz_normal);
 
 enum atributo_e {
   ATR_VERTEX_ARRAY        = 0,
   ATR_NORMAL_ARRAY        = 1,
   ATR_COLOR_ARRAY         = 2,
   ATR_TEXTURE_COORD_ARRAY = 3,
-  ATR_MATRIX_ARRAY        = 4,
   ATR_TANGENT_ARRAY       = 5,
+  ATR_MODEL_MATRIX_ARRAY  = 6,
+  ATR_NORMAL_MATRIX_ARRAY = 7,
 };
 // Retorna true se o tipo de atributo possui indice (alguns shaders nao tem, ai ja evita muita coisa).
 bool HabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
@@ -447,7 +492,6 @@ void PlanoDistanteOclusao(GLfloat distancia);
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);
 void Tangente(GLfloat x, GLfloat y, GLfloat z);
-void MatrizModelagem(const GLfloat* matriz);
 
 void TamanhoPonto(float tam);
 

@@ -6,6 +6,8 @@
 #include "goog/stringprintf.h"
 #include "log/log.h"
 
+extern bool g_hack;
+
 namespace gl {
 
 namespace {
@@ -162,7 +164,7 @@ void IniciaVbos() {
   }
   g_vbos.resize(VBO_NUM);
   for (int i = 0; i < VBO_NUM; ++i) {
-    g_vbos[i].Grava(vbos_nao_gravados[i]);
+    g_vbos[i].Grava(GL_TRIANGLES, vbos_nao_gravados[i]);
   }
 }
 }  // namespace interno
@@ -170,6 +172,12 @@ void IniciaVbos() {
 //----------------
 // VbosNaoGravados
 //----------------
+void VbosNaoGravados::AtribuiMatrizModelagem(const Matrix4& m) {
+  for (auto& vbo : vbos_) {
+    vbo.AtribuiMatrizModelagem(m);
+  }
+}
+
 void VbosNaoGravados::Multiplica(const Matrix4& m) {
   for (auto& vbo : vbos_) {
     vbo.Multiplica(m);
@@ -225,7 +233,7 @@ void VbosNaoGravados::Concatena(VbosNaoGravados* rhs) {
 void VbosNaoGravados::Desenha(GLenum modo) const {
   AtualizaMatrizes();
   for (const auto& vbo : vbos_) {
-    DesenhaVbo(vbo, modo, false);
+    DesenhaVboNaoGravado(vbo, modo, /*atualiza_matrizes=*/false);
   }
 }
 
@@ -242,26 +250,61 @@ std::string VbosNaoGravados::ParaString(bool completo) const {
 // VbosGravados
 //-------------
 void VbosGravados::Grava(const VbosNaoGravados& vbos_nao_gravados) {
+  //LOG(INFO) << "gravando vbos de " << nome_ << " atualmente com " << vbos_.size() << " vbos";
   vbos_.resize(vbos_nao_gravados.vbos_.size());
   for (unsigned int i = 0; i < vbos_nao_gravados.vbos_.size(); ++i) {
-    vbos_[i].Grava(vbos_nao_gravados.vbos_[i]);
+    //vbos_[i].Desgrava();
+    vbos_[i].Grava(GL_TRIANGLES, vbos_nao_gravados.vbos_[i]);
+  }
+  if (nome_.empty() && !vbos_nao_gravados.vbos_.empty() && !vbos_nao_gravados.vbos_[0].nome().empty()) {
+    Nomeia(vbos_nao_gravados.vbos_[0].nome());
+  } else if (!nome_.empty()) {
+    Nomeia(nome_); // para pegar os novos vbos.
+  }
+}
+
+void VbosGravados::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
+  for (auto& vbo : vbos_) {
+    vbo.AtualizaMatrizes(matriz_modelagem);
   }
 }
 
 void VbosGravados::Desgrava() {
+  //LOG(INFO) << "desgravando vbos de " << nome_;
   vbos_.clear();
 }
 
-void VbosGravados::Desenha() const {
-  AtualizaMatrizes();
-  for (const auto& vbo : vbos_) {
-    DesenhaVbo(vbo, GL_TRIANGLES, false);
+void VbosGravados::Nomeia(const std::string& nome) {
+  nome_ = nome;
+  int i = 0;
+  for (auto& vbo : vbos_) {
+    vbo.Nomeia(StringPrintf("%s %i", nome.c_str(), i));
+    ++i;
   }
+}
+
+void VbosGravados::Desenha() const {
+  //LOG(INFO) << "----- Desenhando: " << nome_ << " no shader: " << interno::BuscaShader().nome;
+  if (!vbos_.empty() && !vbos_[0].tem_matriz_modelagem()) {
+    ::gl::AtualizaMatrizes();
+  }
+  for (const auto& vbo : vbos_) {
+    DesenhaVboGravado(vbo, /*atualiza_matrizes=*/false);
+  }
+  //LOG(INFO) << "----- Fim Desenhando " << nome_ << " no shader: " << interno::BuscaShader().nome;
 }
 
 //--------------
 // VboNaoGravado
 //--------------
+bool VboNaoGravado::tem_matriz_modelagem() const {
+  return matriz_modelagem_.has_value();
+}
+
+bool VboNaoGravado::tem_matriz_normal() const {
+  return tem_matriz_modelagem() && tem_normais();
+}
+
 void VboNaoGravado::Escala(GLfloat x, GLfloat y, GLfloat z) {
   if (num_dimensoes_ == 2) {
     for (unsigned int i = 0; i < coordenadas_.size(); i += 2) {
@@ -457,14 +500,18 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
   } else if (rhs.tem_texturas()) {
     //LOG(WARNING) << "Ignorando texturas ao concatenar porque lhs nao tem.";
   }
-  //Nomeia(nome_ + "+" + rhs.nome_);
+#if DEBUG
+  Nomeia(nome_ + "+" + rhs.nome_);
+#endif
 }
 
 std::vector<float> VboNaoGravado::GeraBufferUnico(
     unsigned int* deslocamento_normais,
     unsigned int* deslocamento_tangentes,
     unsigned int* deslocamento_cores,
-    unsigned int* deslocamento_texturas) const {
+    unsigned int* deslocamento_texturas,
+    unsigned int* deslocamento_matriz_modelagem,
+    unsigned int* deslocamento_matriz_normal) const {
   std::vector<float> buffer_unico;
   buffer_unico.clear();
   buffer_unico.insert(buffer_unico.end(), coordenadas_.begin(), coordenadas_.end());
@@ -472,6 +519,15 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
   buffer_unico.insert(buffer_unico.end(), tangentes_.begin(), tangentes_.end());
   buffer_unico.insert(buffer_unico.end(), cores_.begin(), cores_.end());
   buffer_unico.insert(buffer_unico.end(), texturas_.begin(), texturas_.end());
+  if (tem_matriz_modelagem()) {
+    const float* mm = matriz_modelagem_->get();
+    buffer_unico.insert(buffer_unico.end(), mm, mm + 16);
+    if (tem_normais()) {
+      Matrix3 matriz_normal = interno::ExtraiMatrizNormal(*matriz_modelagem_);
+      const float* mn = matriz_normal.get();
+      buffer_unico.insert(buffer_unico.end(), mn, mn + 9);
+    }
+  }
   unsigned int pos_final = coordenadas_.size() * sizeof(float);
   if (tem_normais()) {
     *deslocamento_normais = pos_final;
@@ -488,6 +544,15 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
   if (tem_texturas()) {
     *deslocamento_texturas = pos_final;
     pos_final += texturas_.size() * sizeof(float);
+  }
+  if (tem_matriz_modelagem()) {
+    //LOG(INFO) << "gerando buffer unico com matriz modelagem";
+    *deslocamento_matriz_modelagem = pos_final;
+    pos_final += (16 * sizeof(float));
+    if (tem_normais()) {
+      *deslocamento_matriz_normal = pos_final;
+      pos_final += (9 * sizeof(float));
+    }
   }
   return buffer_unico;
 }
@@ -554,6 +619,13 @@ void VboNaoGravado::AtribuiTangentes(std::vector<float>* dados) {
   tangentes_.swap(*dados);
   if (tangentes_.size() != normais_.size()) {
     tangentes_.clear();
+  }
+}
+
+void VboNaoGravado::AtribuiMatrizModelagem(const Matrix4& matriz_modelagem) {
+  matriz_modelagem_ = matriz_modelagem;
+  if (tem_normais()) {
+    matriz_normal_ = interno::ExtraiMatrizNormal(matriz_modelagem);
   }
 }
 
@@ -649,16 +721,247 @@ std::string VboNaoGravado::ParaString(bool completo) const {
 #endif
 }
 
+namespace {
+void HabilitaAtributosVertice(
+    int num_vertices, int num_dimensoes, const void* dados,
+    bool &tem_normais, const void* normais, int d_normais,
+    bool &tem_tangentes, const void* tangentes, int d_tangentes,
+    bool &tem_texturas, const void* texturas, int d_texturas,
+    bool &tem_cores, const void* cores, int d_cores,
+    bool &tem_matriz_modelagem, const void* matriz_modelagem, int d_modelagem,
+    bool &tem_matriz_normal, const void* matriz_normal, int d_normal,
+    bool atualiza_matrizes) {
+  const auto& shader = interno::BuscaShader();
+  V_ERRO("HabilitaAtributosVertice: antes");
+  if (gl::HabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY)) {
+    gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
+  } else {
+    // Aqui a vaca foi pro brejo.
+    LOG(ERROR) << "nao ha indice para vertices";
+    return;
+  }
+  if (tem_normais && gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY)) {
+    gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
+  } else {
+    if (tem_normais && shader.atr_gltab_normal != -1) {
+      LOG(WARNING) << "nao consegui gravar normais. Shader: " << shader.nome;
+    }
+    tem_normais = false;
+  }
+  if (tem_tangentes && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY)) {
+    gl::PonteiroTangentes(GL_FLOAT, static_cast<const char*>(tangentes) + d_tangentes);
+  } else {
+    if (tem_tangentes && shader.atr_gltab_tangente != -1) {
+      LOG(WARNING) << "nao consegui gravar tangentes. Shader: " << shader.nome;
+    }
+    tem_tangentes = false;
+  }
+  if (tem_texturas && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY)) {
+    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
+  } else {
+    if (tem_texturas && shader.atr_gltab_texel != -1) {
+      LOG(WARNING) << "nao consegui gravar texturas.";
+    }
+    tem_texturas = false;
+  }
+  V_ERRO("DesenhaVBO: um quarto");
+  if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor() && gl::HabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY)) {
+    gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
+  } else {
+    if (tem_cores && shader.atr_gltab_cor != -1) {
+      LOG(WARNING) << "nao consegui gravar cores.";
+    }
+    tem_cores = false;
+  }
+
+  V_ERRO("DesenhaVBO: um quarto e meio");
+  if (tem_matriz_modelagem && gl::HabilitaVetorAtributosVerticePorTipo(ATR_MODEL_MATRIX_ARRAY)) {
+    gl::PonteiroMatrizModelagem(
+        static_cast<const char*>(matriz_modelagem) + d_modelagem);
+  } else {
+    if (tem_matriz_modelagem && shader.atr_gltab_matriz_modelagem != -1) {
+      LOG(WARNING) << "nao consegui gravar matriz modelagem. Shader " << shader.nome;
+    }
+    tem_matriz_modelagem = false;
+  }
+
+  V_ERRO("DesenhaVBO: um quarto e tres quartos");
+  if (tem_matriz_normal && gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_MATRIX_ARRAY)) {
+    gl::PonteiroMatrizNormal(
+        static_cast<const char*>(matriz_normal) + d_normal);
+  } else {
+    if (tem_matriz_normal && shader.atr_gltab_matriz_normal != -1) {
+      LOG(WARNING) << "nao consegui gravar matriz normal. Shader " << shader.nome;
+    }
+    tem_matriz_normal = false;
+  }
+
+  V_ERRO("HabilitaAtributosVertice: meio");
+  V_ERRO(StringPrintf("DesenhaVBO: mei ponteiro vertices num dimensoes: %d", num_dimensoes));
+
+  if (atualiza_matrizes) {
+    gl::AtualizaMatrizes();
+  }
+}
+
+void DesabilitaAtributosVertice(
+                bool tem_normais,
+                bool tem_tangentes,
+                bool tem_texturas,
+                bool tem_cores,
+                bool tem_matriz_modelagem,
+                bool tem_matriz_normal) {
+  V_ERRO("DesenhaVBO: mei elementos");
+  gl::DesabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY);
+  if (tem_normais) {
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY);
+  }
+  if (tem_tangentes) {
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY);
+  }
+  V_ERRO("DesenhaVBO: tres quartos");
+  if (tem_cores) {
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY);
+  }
+  if (tem_texturas) {
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY);
+  }
+  if (tem_matriz_modelagem) {
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_MODEL_MATRIX_ARRAY);
+  }
+  if (tem_matriz_normal) {
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_MATRIX_ARRAY);
+  }
+  V_ERRO("DesenhaVBO: depois");
+}
+
+void DesenhaElementosComAtributos(
+    GLenum modo,
+    int num_vertices, int num_dimensoes, const void* indices, const void* dados,
+    bool tem_normais, const void* normais, int d_normais,
+    bool tem_tangentes, const void* tangentes, int d_tangentes,
+    bool tem_texturas, const void* texturas, int d_texturas,
+    bool tem_cores, const void* cores, int d_cores,
+    bool tem_matriz_modelagem, const void* matriz_modelagem, int d_matriz_modelagem,
+    bool tem_matriz_normal, const void* matriz_normal, int d_matriz_normal,
+    bool atualiza_matrizes) {
+  HabilitaAtributosVertice(
+      num_vertices, num_dimensoes, dados,
+      tem_normais, normais, d_normais,
+      tem_tangentes, tangentes, d_tangentes,
+      tem_texturas, texturas, d_texturas,
+      tem_cores, cores, d_cores,
+      tem_matriz_modelagem, matriz_modelagem, d_matriz_modelagem,
+      tem_matriz_normal, matriz_normal, d_matriz_normal,
+      atualiza_matrizes);
+  gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
+  DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz_modelagem, tem_matriz_normal);
+}
+
+void ConfiguraVao(GLenum modo, const VboGravado& vbo, int shader) {
+  LigacaoComObjetoVertices(vbo.Vao());
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
+  bool tem_normais = vbo.tem_normais();
+  bool tem_tangentes = vbo.tem_tangentes();
+  bool tem_texturas = vbo.tem_texturas();
+  bool tem_matriz_modelagem = vbo.tem_matriz_modelagem();
+  bool tem_matriz_normal = vbo.tem_matriz_normal();
+  // Isso é necessario pq o shader de picking tem cor. Entao, mesmo o objeto tendo cor, temos que força-lo a nao ter.
+  bool tem_cores = shader == gl::TSH_PICKING ? false : vbo.tem_cores();
+  //LOG(INFO)
+  //    << "tem_normais: " << tem_normais << ", desloc: " << vbo.DeslocamentoNormais()
+  //    << ", tem_tangentes: " << tem_tangentes << ", desloc: " << vbo.DeslocamentoTangentes()
+  //    << ", tem cores: " << tem_cores << ", desloc: " << vbo.DeslocamentoCores()
+  //    << ", tem_texturas: " << tem_texturas << ", desloc: " << vbo.DeslocamentoTexturas()
+  //    << ", num dimensoes: " << vbo.NumDimensoes()
+  //    << ", modo: " << vbo.Modo() << ", tamanho buffer: " << (vbo.BufferUnico().size() * sizeof(float))
+  //    << ", num vertices: " << vbo.NumVertices()
+  //    << ", nome: " << vbo.nome();
+  HabilitaAtributosVertice(
+      vbo.NumVertices(), vbo.NumDimensoes(), nullptr,
+      tem_normais, nullptr, vbo.DeslocamentoNormais(),
+      tem_tangentes, nullptr, vbo.DeslocamentoTangentes(),
+      tem_texturas, nullptr, vbo.DeslocamentoTexturas(),
+      tem_cores, nullptr, vbo.DeslocamentoCores(),
+      tem_matriz_modelagem, nullptr, vbo.DeslocamentoMatrizModelagem(),
+      tem_matriz_normal, nullptr, vbo.DeslocamentoMatrizNormal(),
+      /*atualiza_matrizes=*/false);
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
+  LigacaoComObjetoVertices(0);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  DesabilitaAtributosVertice(tem_normais, tem_tangentes, tem_texturas, tem_cores, tem_matriz_modelagem, tem_matriz_normal);
+}
+
+}  // namespace
 
 //-----------
 // VboGravado
 //-----------
-void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
+GLuint VboGravado::Vao() const {
+  return vao_por_shader_[TipoShaderCorrente()];
+}
+
+void VboGravado::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
+  if (!gravado_) {
+    LOG(ERROR) << "tentando atualizar a matriz de VBO nao gravado";
+    return;
+  }
+  if (!tem_matriz_modelagem_) {
+    LOG(ERROR) << "tentando atualizar a matriz de VBO sem matriz de modelagem";
+    return;
+  }
+  if ((DeslocamentoMatrizModelagem() + 16 * sizeof(float)) > (buffer_unico_.size() * sizeof(float))) {
+    LOG(ERROR) << "matriz de modelagem vai explodir o buffer unico";
+    return;
+  }
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
+  // Aqui é so pra manter o buffer unico sincronizado.
+  memcpy(
+      &reinterpret_cast<char*>(buffer_unico_.data())[DeslocamentoMatrizModelagem()],
+      matriz_modelagem.get(), 16 * sizeof(float));
+  V_ERRO("na ligacao com buffer");
+  gl::BufferizaSubDados(
+      GL_ARRAY_BUFFER, DeslocamentoMatrizModelagem(),
+      sizeof(GL_FLOAT) * 16,
+      matriz_modelagem.get());
+  V_ERRO("ao bufferizar");
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+
+  if (!tem_matriz_normal()) {
+    return;
+  }
+  if ((DeslocamentoMatrizNormal() + 9 * sizeof(float)) > (buffer_unico_.size() * sizeof(float))) {
+    LOG(ERROR) << "matriz de normal vai explodir o buffer unico";
+    return;
+  }
+  Matrix4 matriz_normal = matriz_modelagem.get();
+  matriz_normal.invert().transpose();
+  const float* mn = matriz_normal.get();
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
+  // Aqui é so pra manter o buffer unico sincronizado.
+  memcpy(
+      &reinterpret_cast<char*>(buffer_unico_.data())[DeslocamentoMatrizNormal()],
+      mn, 9 * sizeof(float));
+  V_ERRO("na ligacao com buffer");
+  gl::BufferizaSubDados(
+      GL_ARRAY_BUFFER, DeslocamentoMatrizNormal(),
+      sizeof(GL_FLOAT) * 9,
+      mn);
+  V_ERRO("ao bufferizar");
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("antes tudo gravar");
   V_ERRO("depois desgravar");
-  nome_ = vbo_nao_gravado.nome();
+  if (nome_.empty()) {
+    nome_ = vbo_nao_gravado.nome();
+  }
+  modo_ = modo;
+
   // Gera o buffer se ja nao for gravado.
-  bool usar_buffer_sub_data = true;
+  bool usar_buffer_sub_data = gravado_;
   if (!gravado_) {
     nome_coordenadas_ = 0;
     gl::GeraBuffers(1, &nome_coordenadas_);
@@ -667,18 +970,23 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
       LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenBuffers gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
       return;
     }
-    usar_buffer_sub_data = false;
   }
   V_ERRO("ao gerar buffer coordenadas");
   // Associa coordenadas com ARRAY_BUFFER.
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
-  V_ERRO("na ligacao com buffer");
   deslocamento_normais_ = -1;
   deslocamento_tangentes_ = -1;
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
+  deslocamento_matriz_modelagem_ = -1;
+  deslocamento_matriz_normal_ = -1;
   auto tam_antes = buffer_unico_.size();
-  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_tangentes_, &deslocamento_cores_, &deslocamento_texturas_);
+  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(
+      &deslocamento_normais_,
+      &deslocamento_tangentes_,
+      &deslocamento_cores_,
+      &deslocamento_texturas_,
+      &deslocamento_matriz_modelagem_,
+      &deslocamento_matriz_normal_);
   if (tam_antes != buffer_unico_.size()) {
     usar_buffer_sub_data = false;
   }
@@ -687,6 +995,9 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   tem_tangentes_ = (deslocamento_tangentes_ != static_cast<unsigned int>(-1));
   tem_cores_ = (deslocamento_cores_ != static_cast<unsigned int>(-1));
   tem_texturas_ = (deslocamento_texturas_ != static_cast<unsigned int>(-1));
+  tem_matriz_modelagem_ = (deslocamento_matriz_modelagem_ != static_cast<unsigned int>(-1));
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
+  V_ERRO("na ligacao com buffer");
   if (usar_buffer_sub_data) {
     gl::BufferizaSubDados(
         GL_ARRAY_BUFFER, 0,
@@ -700,24 +1011,49 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
         GL_STATIC_DRAW);
   }
   V_ERRO("ao bufferizar");
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+
   // Buffer de indices.
   if (!gravado_) {
     gl::GeraBuffers(1, &nome_indices_);
+    if (nome_indices_ == 0) {
+      LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenBuffers gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
+      return;
+    }
   }
   V_ERRO("ao gerar buffer indices");
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_indices_);
   V_ERRO("na ligacao com buffer 2");
   indices_ = vbo_nao_gravado.indices();
   if (usar_buffer_sub_data) {
-#if USAR_BUFFER_SUB_DATA
-    gl::BufferizaSubDados(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short) * indices_.size(), indices_.data());
-#endif
+    // Os indices nao mudam normalmente, exceto em caso de mudancas profundas. Mas ai trigaria o buffer todo e nao so um pedaco.
+    //gl::BufferizaSubDados(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short) * indices_.size(), indices_.data());
   } else {
     gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);
   }
   V_ERRO("ao bufferizar elementos");
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+
+  if (!gravado_) {
+    TipoShader shader_corrente = TipoShaderCorrente();
+    vao_por_shader_.resize(TSH_NUM);
+    vao_instancia_por_shader_.resize(TSH_NUM);
+    for (int shader = TSH_LUZ; shader < TSH_NUM; ++shader) {
+      UsaShader(static_cast<TipoShader>(shader));
+      {
+        GLuint& vao = vao_por_shader_[shader];
+        GeraObjetosVertices(1, &vao);
+        V_ERRO("ao gerar VAO");
+        if (vao == 0) {
+          LOG(ERROR) << "ERRO GRAFICO SERIO!!!!!!!!: glGenVErtexArrays gerou valor 0. Provavelmente aplicação está sem o contexto grafico.";
+          continue;
+        }
+        ConfiguraVao(modo_, *this, shader);
+      }
+    }
+    UsaShader(shader_corrente);
+  }
+  //LOG(INFO) << "gravado nome_coordenadas: " << nome_coordenadas_ << ", nome_indices: " << nome_indices_ << ", vao: " << vao_ << ", sub dados: " << usar_buffer_sub_data;
   gravado_ = true;
 }
 
@@ -725,14 +1061,25 @@ void VboGravado::Desgrava() {
   if (!gravado_) {
     return;
   }
+  //LOG(INFO) << "desgravando vbo: " << nome_ << ", nome_coordenadas: " << nome_coordenadas_ << ", nome_indices: " << nome_indices_ << ", vao: " << vao_;
   gl::ApagaBuffers(1, &nome_coordenadas_);
+  V_ERRO("ao deletar VBO coordenadas");
   nome_coordenadas_ = 0;
   gl::ApagaBuffers(1, &nome_indices_);
+  V_ERRO("ao deletar VBO indices");
   nome_indices_ = 0;
+  for (GLuint vao : vao_por_shader_) {
+    ApagaObjetosVertices(1, &vao);
+  }
+  vao_por_shader_.clear();
+  for (GLuint vao : vao_instancia_por_shader_) {
+    ApagaObjetosVertices(1, &vao);
+  }
+  vao_instancia_por_shader_.clear();
+  V_ERRO("ao deletar VAO");
   ApagaBufferUnico();
   gravado_ = false;
 }
-
 
 //--------
 // Funcoes
@@ -1565,7 +1912,7 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
 }
 
 void CuboUnitario() {
-  DesenhaVbo(g_vbos[VBO_CUBO]);
+  DesenhaVboGravado(g_vbos[VBO_CUBO]);
 }
 
 VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
@@ -1693,7 +2040,7 @@ VboNaoGravado VboRetangulo(GLfloat tam_x, GLfloat tam_y) {
 }
 
 void RetanguloUnitario() {
-  DesenhaVbo(g_vbos[VBO_RETANGULO]);
+  DesenhaVboGravado(g_vbos[VBO_RETANGULO]);
 }
 
 VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
@@ -1776,8 +2123,8 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   coordenadas_texel[1] = -1.0f;
   for (unsigned int i = 2; i < num_coordenadas_texel; i += 2) {
     float angulo_rad = (180.0f * GRAUS_PARA_RAD) + ((i / 2) * angulo_fatia);
-    coordenadas_texel[i] = sin(angulo_rad); 
-    coordenadas_texel[i + 1] = cos(angulo_rad); 
+    coordenadas_texel[i] = sin(angulo_rad);
+    coordenadas_texel[i + 1] = cos(angulo_rad);
   }
   // Mapeia para [0, 1.0].
   for (unsigned int i = 0; i < coordenadas_texel.size(); ++i) {
@@ -1800,7 +2147,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   return vbo;
 }
 void DiscoUnitario() {
-  DesenhaVbo(g_vbos[VBO_DISCO]);
+  DesenhaVboGravado(g_vbos[VBO_DISCO]);
 }
 
 VboNaoGravado VboTriangulo(GLfloat lado) {
@@ -1809,12 +2156,12 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
   GLfloat tangentes[9] = { 0.0f };
   float h = 0.86602540378f * lado;  // sen 60.
   coordenadas[0] = 0.0f;
-  coordenadas[1] = h; 
+  coordenadas[1] = h;
   coordenadas[3] = -lado / 2.0f;
   coordenadas[4] = 0.0f;
   coordenadas[6] = lado / 2.0f;
   coordenadas[7] = 0.0f;
-  tangentes[0] = 1.0f; 
+  tangentes[0] = 1.0f;
   tangentes[3] = 1.0f;
   tangentes[6] = 1.0f;
 
@@ -1836,7 +2183,7 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
 }
 
 void TrianguloUnitario() {
-  DesenhaVbo(g_vbos[VBO_TRIANGULO]);
+  DesenhaVboGravado(g_vbos[VBO_TRIANGULO]);
 }
 
 VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float largura) {
@@ -1874,105 +2221,60 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
   return vbo;
 }
 
-namespace {
-void DesenhaVbo(GLenum modo,
-                int num_vertices, int num_dimensoes, const void* indices, const void* dados,
-                bool tem_normais, const void* normais, int d_normais,
-                bool tem_tangentes, const void* tangentes, int d_tangentes,
-                bool tem_texturas, const void* texturas, int d_texturas,
-                bool tem_cores, const void* cores, int d_cores,
-                bool tem_matriz, const void* matriz, int d_matriz,
-                bool atualiza_matrizes) {
-  V_ERRO("DesenhaVB0: antes");
-  if (!gl::HabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY)) {
-    LOG(ERROR) << "nao ha indice para vertices";
-    return;
-  }
-  if (tem_normais && gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY)) {
-    gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
-  } else {
-    tem_normais = false;
-  }
-  if (tem_tangentes && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY)) {
-    gl::PonteiroTangentes(GL_FLOAT, static_cast<const char*>(tangentes) + d_tangentes);
-  } else {
-    tem_tangentes = false;
-  }
-  if (tem_texturas && gl::HabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY)) {
-    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
-  } else {
-    tem_texturas = false;
-  }
-  V_ERRO("DesenhaVBO: um quarto");
-  if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor() && gl::HabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY)) {
-    gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
-  } else {
-    tem_cores = false;
-  }
-
-  V_ERRO("DesenhaVBO: meio");
-  gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
-  V_ERRO("DesenhaVBO: mei ponteiro vertices");
-
-  if (tem_matriz && gl::HabilitaVetorAtributosVerticePorTipo(ATR_MATRIX_ARRAY)) {
-    gl::PonteiroMatriz(static_cast<const char*>(matriz) + d_matriz);
-  } else {
-    if (atualiza_matrizes) {
-      gl::AtualizaMatrizes();
-    }
-    tem_matriz = false;
-  }
-  gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
-  V_ERRO("DesenhaVBO: mei elementos");
-
-  gl::DesabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY);
-  if (tem_normais) {
-    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY);
-  }
-  if (tem_tangentes) {
-    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_TANGENT_ARRAY);
-  }
-  V_ERRO("DesenhaVBO: tres quartos");
-  if (tem_cores) {
-    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY);
-  }
-  if (tem_texturas) {
-    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY);
-  }
-  V_ERRO("DesenhaVBO: depois");
-}
-
-}  // namespace
-
-void DesenhaVbo(const VboGravado& vbo, GLenum modo, bool atualiza_matrizes) {
+void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
   if (!vbo.Gravado()) {
     LOG(WARNING) << "ignorando vbo nao gravado: " << vbo.nome();
     return;
   }
-  // Os casts de char* 0 sao para evitar warning de conversao de short pra void*.
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
-
-  DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), nullptr, nullptr,
-             vbo.tem_normais(), nullptr, vbo.DeslocamentoNormais(),
-             vbo.tem_tangentes(), nullptr, vbo.DeslocamentoTangentes(),
-             vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
-             vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(),
-             vbo.tem_matriz(), nullptr, vbo.DeslocamentoMatriz(),
-             atualiza_matrizes);
-
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  if (!g_hack) {
+    if (!vbo.tem_matriz_modelagem() && atualiza_matrizes) {
+      gl::AtualizaMatrizes();
+    }
+    LigacaoComObjetoVertices(vbo.Vao());
+    V_ERRO("DesenhaVboGravado: bind");
+    //if (!atualiza_matrizes || vbo.nome() == "caixa_ceu") {
+    //  LOG(INFO) << "Desenhando: " << vbo.nome() << ", vao: " << vbo.Vao() << ", modo: " << vbo.Modo() << ", num vertices: " << vbo.NumVertices() << ", tem matriz: " << vbo.tem_matriz_modelagem();
+    //}
+    if (vbo.tem_matriz_modelagem()) {
+      gl::DesenhaElementosInstanciado(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr, 1);
+    } else {
+      gl::DesenhaElementos(vbo.Modo(), vbo.NumVertices(), GL_UNSIGNED_SHORT, nullptr);
+    }
+    LigacaoComObjetoVertices(0);
+    V_ERRO("DesenhaVboGravado: desenha");
+  } else {
+    LigacaoComObjetoVertices(0);
+    if (atualiza_matrizes) {
+      gl::AtualizaMatrizes();
+    }
+    // Os casts de char* 0 sao para evitar warning de conversao de short pra void*.
+    gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
+    gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
+    DesenhaElementosComAtributos(
+        vbo.Modo(), vbo.NumVertices(), vbo.NumDimensoes(), nullptr, nullptr,
+        vbo.tem_normais(), nullptr, vbo.DeslocamentoNormais(),
+        vbo.tem_tangentes(), nullptr, vbo.DeslocamentoTangentes(),
+        vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
+        vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(),
+        vbo.tem_matriz_modelagem(), nullptr, vbo.DeslocamentoMatrizModelagem(),
+        vbo.tem_matriz_normal(), nullptr, vbo.DeslocamentoMatrizNormal(),
+        atualiza_matrizes);
+    gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+    gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  }
 }
 
-void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo, bool atualiza_matrizes) {
-  DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), vbo.indices().data(), vbo.coordenadas().data(),
-             vbo.tem_normais(), vbo.normais().data(), 0,
-             vbo.tem_tangentes(), vbo.tangentes().data(), 0,
-             vbo.tem_texturas(), vbo.texturas().data(), 0,
-             vbo.tem_cores(), vbo.cores().data(), 0,
-             vbo.tem_matriz(), vbo.matriz().data(), 0,
-             atualiza_matrizes);
+void DesenhaVboNaoGravado(const VboNaoGravado& vbo, GLenum modo, bool atualiza_matrizes) {
+  LigacaoComObjetoVertices(0);
+  DesenhaElementosComAtributos(
+      modo, vbo.NumVertices(), vbo.NumDimensoes(), vbo.indices().data(), vbo.coordenadas().data(),
+      vbo.tem_normais(), vbo.normais().data(), 0,
+      vbo.tem_tangentes(), vbo.tangentes().data(), 0,
+      vbo.tem_texturas(), vbo.texturas().data(), 0,
+      vbo.tem_cores(), vbo.cores().data(), 0,
+      false, nullptr, 0,   // matriz modelagem.
+      false, nullptr, 0,   // matriz normal.
+      atualiza_matrizes);
 }
 
 }  // namespace gl

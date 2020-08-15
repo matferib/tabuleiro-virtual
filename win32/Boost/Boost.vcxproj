@@ -204,9 +204,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="boost_src\libs\chrono\src\chrono.cpp" />
     <ClCompile Include="boost_src\libs\chrono\src\process_cpu_clocks.cpp" />
     <ClCompile Include="boost_src\libs\chrono\src\thread_clock.cpp" />
@@ -215,6 +212,8 @@
     <ClCompile Include="boost_src\libs\date_time\src\gregorian\greg_month.cpp" />
     <ClCompile Include="boost_src\libs\date_time\src\gregorian\greg_weekday.cpp" />
     <ClCompile Include="boost_src\libs\filesystem\src\codecvt_error_category.cpp" />
+    <ClCompile Include="boost_src\libs\filesystem\src\directory.cpp" />
+    <ClCompile Include="boost_src\libs\filesystem\src\exception.cpp" />
     <ClCompile Include="boost_src\libs\filesystem\src\operations.cpp" />
     <ClCompile Include="boost_src\libs\filesystem\src\path.cpp" />
     <ClCompile Include="boost_src\libs\filesystem\src\path_traits.cpp" />

@@ -283,6 +283,19 @@ modelo {
   }
 }
 modelo {
+  id: 'Balestra'
+  entidade {
+    modelo_3d { id: 'ballista' }
+    tamanho: TM_MEDIO  # o tamanho na pratica é enorme, mas para num avacalhar o modificador de ataque.
+    gerar_agarrar: false
+    dados_ataque {
+      grupo: 'flecha' rotulo: 'flecha' id_arma: 'balestra' tipo_ataque: 'Ataque a Distância'
+      requer_entidade_montada: true tamanho: TM_ENORME
+    }
+  }
+}
+
+modelo {
   id: 'Catapulta Leve'
   entidade {
     info_textura { id: 'catapult.png' }
@@ -6474,7 +6487,10 @@ modelo {
     rotulo: 'humano combatente 4'
     info_classes { id: 'combatente' nivel: 4 }
     dados_vida: '4d8+7' info_textura { id: 'warrior4.png'} cor { r: 0.6 g: 0.5 b: 0.3 }
-    # TODO
+    dados_ataque { grupo: 'cac' id_arma: 'espada_longa' tipo_ataque: 'Ataque Corpo a Corpo' }
+    dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' municao: 20 }
+    dados_defesa { id_armadura: 'peitoral_de_aco' id_escudo: 'pesado_aco' }
+    tesouro { tesouro: '2d20 PP' }
   }
 }
 

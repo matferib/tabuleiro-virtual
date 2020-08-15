@@ -10,8 +10,12 @@
 
 namespace ent {
 
+typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaEntidades;
+
 // Recomputa as dependencias do proto.
-void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade = nullptr);
+void RecomputaDependencias(
+    const Tabelas& tabelas, EntidadeProto* proto,
+    Entidade* entidade = nullptr, const MapaEntidades* mapa_entidades = nullptr);
 
 }  // namespace ent
 

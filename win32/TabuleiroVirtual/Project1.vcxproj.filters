@@ -46,6 +46,9 @@
     <Filter Include="som\Headers">
       <UniqueIdentifier>{030d42b9-6cd4-48be-9175-2beb7778f945}</UniqueIdentifier>
     </Filter>
+    <Filter Include="goog">
+      <UniqueIdentifier>{a1d691de-f239-4c84-b205-390bfb028fc7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ent\acoes.cpp">
@@ -288,6 +291,12 @@
     </ClInclude>
     <ClInclude Include="..\..\som\som.h">
       <Filter>som\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\goog\stringprintf.h">
+      <Filter>goog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\goog\strutil.h">
+      <Filter>goog</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

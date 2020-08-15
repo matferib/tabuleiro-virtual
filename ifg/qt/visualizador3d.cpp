@@ -357,14 +357,14 @@ Visualizador3d::Visualizador3d(
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
 
-  //std::cerr << "phyx: " << QGuiApplication::primaryScreen()->physicalDotsPerInchX();
-  //std::cerr << "phyy: " << QGuiApplication::primaryScreen()->physicalDotsPerInchY();
-  //std::cerr << "logx: " << QGuiApplication::primaryScreen()->logicalDotsPerInchX();
-  //std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY();
+  std::cerr << "phyx: " << QGuiApplication::primaryScreen()->physicalDotsPerInchX() << std::endl;
+  std::cerr << "phyy: " << QGuiApplication::primaryScreen()->physicalDotsPerInchY() << std::endl;
+  std::cerr << "logx: " << QGuiApplication::primaryScreen()->logicalDotsPerInchX() << std::endl;
+  std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY() << std::endl;
   //std::cerr << "screen: " << *QGuiApplication::primaryScreen();
 
   scale_ = QApplication::desktop()->devicePixelRatio();
-  std::cerr << "scale: " << scale_ << std::endl;
+  LOG(INFO) << "scale: " << scale_;
 }
 
 Visualizador3d::~Visualizador3d() {

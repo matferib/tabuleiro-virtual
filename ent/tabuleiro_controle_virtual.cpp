@@ -1614,7 +1614,7 @@ void Tabuleiro::DesenhaControleVirtual() {
 
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
-  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz_2(gl::MATRIZ_MODELAGEM);
 
   // Todos botoes, mapeados por id.
   std::vector<DadosBotao*> botoes;
@@ -1681,7 +1681,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
     // Dicas.
     for (const auto* db : botoes) {
-      if (id_entidade_detalhada_ != db->id() || db->dica().empty()) {
+      if (id_entidade_detalhada_ != static_cast<unsigned int>(db->id()) || db->dica().empty()) {
         continue;
       }
       DesenhaDicaBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);

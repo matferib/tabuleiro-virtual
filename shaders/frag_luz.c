@@ -36,7 +36,6 @@ varying highp vec3 v_Pos_luz;      // Posicao do fragmento com relacao a luz.
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform lowp vec4 gltab_cor_mistura_pre_nevoa;      // Mistura antes de aplicar nevoa.
-uniform highp mat3 gltab_nm;     // normal matrix
 
 // Luz ambiente e direcional.
 struct InfoLuzDirecional {
@@ -83,8 +82,6 @@ lowp float Visivel(samplerCube sampler, highp vec3 pos) {
 
 lowp vec4 CorLuzDirecional(in lowp vec3 normal, in InfoLuzDirecional luz_direcional) {
   highp vec3 direcao_luz = vec3(luz_direcional.pos * (1 / luz_direcional.pos.w));
-  //direcao_luz = gltab_nm * vec3(0, 0, 1);
-  // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
   lowp float cos_com_normal = dot(normal, direcao_luz);
   lowp vec4 cor_final = clamp(luz_direcional.cor * cos_com_normal, 0.0, 1.0);
   return cor_final * step(0.1, luz_direcional.cor.a);

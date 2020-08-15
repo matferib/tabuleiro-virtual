@@ -2,6 +2,8 @@
 #define GLTAB_INTERNO_H
 
 #include <set>
+#include <unordered_map>
+#include <utility>
 #include "gltab/gl.h"
 
 namespace gl {
@@ -44,15 +46,11 @@ struct VarShader {
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
   GLint uni_gltab_especularidade_ligada;// Objeto especular.
   GLint uni_gltab_dados_raster;         // p = Tamanho do ponto.
-  GLint uni_gltab_mvm;                  // Matrix camera * model.
   GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
   GLint uni_gltab_mvm_oclusao;          // Matrix modelview oclusao.
   GLint uni_gltab_mvm_luz;              // Matrix modelview luz.
   GLint uni_gltab_mvm_ajuste_textura;   // Matrix modelview ajuste de textura.
   GLint uni_gltab_camera;               // Matrix view.
-  GLint uni_gltab_camera_nm;            // Matrix de normais para view.
-  GLint uni_gltab_modelagem;            // Matrix de modelagem apenas.
-  GLint uni_gltab_nm;                   // Matrix de normais.
   GLint uni_gltab_prm;                  // Matrix projecao.
   GLint uni_gltab_prm_sombra;           // Matrix projecao sombra.
   GLint uni_gltab_plano_distante;       // Distancia do plano de corte distante.
@@ -64,11 +62,21 @@ struct VarShader {
   GLint atr_gltab_tangente;
   GLint atr_gltab_cor;
   GLint atr_gltab_texel;
-  GLint atr_gltab_matriz;
-  GLint atr_gltab_matriz_normal;
+  GLint atr_gltab_matriz_modelagem;     // instancia.
+  GLint atr_gltab_matriz_normal;        // instancia.
 
   // Alguns bits de estado para diminuir comunicacao com a placa.
   bool textura_ligada = false;
+  GLenum unidade_textura = GL_INVALID_ENUM;
+  struct hash_pair {
+    size_t operator()(const std::pair<GLenum, GLenum>& p) const {
+      auto hash1 = std::hash<GLenum>{}(p.first);
+      auto hash2 = std::hash<GLenum>{}(p.second);
+      return hash1 ^ hash2;
+    }
+  };
+  // Cache de textura por unidade e target.
+  std::unordered_map<std::pair<GLenum, GLenum>, GLuint, hash_pair> cache_textura;
 };
 
 // Depende de plataforma.
@@ -96,7 +104,6 @@ class Contexto {
   VarShader* shader_corrente = nullptr;  // Aponta para o shader corrente.
 
   // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
-  std::stack<Matrix4> pilha_mvm;
   std::stack<Matrix4> pilha_model;
   std::stack<Matrix4> pilha_camera;
   std::stack<Matrix4> pilha_prj;
@@ -107,9 +114,6 @@ class Contexto {
   std::stack<Matrix4> pilha_mvm_ajuste_textura;
 
   std::stack<Matrix4>* pilha_corrente = nullptr;
-  Matrix4 matriz_modelagem;  // Apenas a matriz de modelagem.
-  Matrix3 matriz_normal;  // Computada da mvm corrente.
-  Matrix3 matriz_camera_normal;  // Computada da mvm corrente.
   float plano_distante;   // distancia de corte do plano distante.
 
   std::unique_ptr<ContextoDependente> interno;
@@ -169,6 +173,7 @@ void TexturaAtivaInterno(GLenum textura);
 
 // Quebra uma string em varias.
 const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
+Matrix3 ExtraiMatrizNormal(const Matrix4& matriz_modelagem);
 
 }  // namespace interno
 

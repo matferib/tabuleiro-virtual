@@ -33,7 +33,6 @@ varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
 uniform bool gltab_oclusao_ligada;          // true se oclusao estiver ligada.
 uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
-uniform highp mat3 gltab_view_nm;  // Matriz de normais da camera.
 varying highp vec4 v_Pos_sombra;   // Posicao do fragmento na perspectiva de sombra.
 varying highp vec3 v_Pos_oclusao;  // Posicao do fragmento com relacao a primeira pesssoa.
 varying highp vec3 v_Pos_luz;      // Posicao do fragmento com relacao a luz.
@@ -76,7 +75,6 @@ uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para prese
 uniform highp vec4 gltab_nevoa_referencia;      // Ponto de referencia para computar distancia da nevoa em coordenadas de olho.
 //uniform mat4 gltab_modelview_camera;     // Matriz de modelagem ponto de vista da camera.
 //uniform bool gltab_stencil;              // Stencil ligado?
-uniform highp mat3 gltab_nm;     // normal matrix
 
 //-------------------------------
 // Luz distante direcional (sol).
@@ -194,16 +192,9 @@ void main() {
   // Aplica textura.
   if (gltab_textura > 0.0) {
     if (gltab_textura_bump > 0.0) {
-      // Isso aqui vai funcionar apenas para superficies paralelas ao plano XY,
-      // pois assume que as normais do objeto todas apontam para cima, portanto transforma-se apenas
-      // de acordo com a orientacao da camera.
       highp vec3 desvio = ((vec3(2.0, 2.0, 2.0) * texture2D(gltab_unidade_textura, v_Tex.st).xyz) - vec3(1.0, 1.0, 1.0));
       mediump mat3 tbn = mat3(v_Tangent, v_Bitangent, v_Normal);
       normal = normalize(tbn * desvio);
-      //normal = normalize(gltab_view_nm * desvio);
-      // Uma forma boa de testar.
-      //gl_FragColor = vec4(gltab_view_nm[0], 1.0);
-      //return;
     } else {
       cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
     }

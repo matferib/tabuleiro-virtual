@@ -509,12 +509,13 @@ void DesenhaStencil2d(const float* cor) {
   gl::OperacaoStencil(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
   // Desenha uma chapa na tela toda, preenchera so os buracos do stencil.
   {
-    gl::MatrizEscopo salva_projecao(GL_PROJECTION);
+    gl::MatrizEscopo salva_projecao(gl::MATRIZ_PROJECAO);
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura, 0, altura, 0.0f, 1.0f);
+    gl::AtualizaMatrizes();
     {
-      gl::MatrizEscopo salva_projecao(GL_MODELVIEW);
+      gl::MatrizEscopo salva_projecao(gl::MATRIZ_MODELAGEM);
       gl::CarregaIdentidade();
       if (cor != nullptr) {
         MudaCorAlfa(cor);

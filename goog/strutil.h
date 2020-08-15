@@ -1,3 +1,6 @@
+#include <google/protobuf/stubs/strutil.h>
+
+#if 0
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
 // https://developers.google.com/protocol-buffers/
@@ -938,3 +941,4 @@ inline bool EndsWith(StringPiece text, StringPiece suffix) {
 #include <google/protobuf/port_undef.inc>
 
 #endif  // GOOGLE_PROTOBUF_STUBS_STRUTIL_H__
+#endif

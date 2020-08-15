@@ -21,11 +21,12 @@ varying lowp vec2 v_Tex;  // coordenada texel.
 varying lowp vec4 v_Color;
 // Uniformes nao variam por vertice, vem de fora.
 uniform highp mat4 gltab_prm;           // projecao.
-uniform highp mat4 gltab_mvm;    // modelview.
+uniform highp mat4 gltab_view;    // view.
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
 attribute lowp vec2 gltab_texel;
 attribute lowp vec4 gltab_cor;
+attribute highp mat4 gltab_model_i;
 
 void main() {
   v_Color = gltab_cor;
@@ -35,7 +36,7 @@ void main() {
   v_Pos_model = mat4(vec4(1, 0, 0, 0), vec4(0, 0, -1, 0), vec4(0, 1, 0, 0), vec4(0, 0, 0, 1)) * gltab_vertice;
   //v_Pos_model = gltab_vertice;
   v_Tex.st = gltab_texel;
-  gl_Position = gltab_prm * gltab_mvm * gltab_vertice;
+  gl_Position = gltab_prm * gltab_view * gltab_model_i * gltab_vertice;
   // Esta linha joga o skybox la pro fundo da cena. Fazendo o z == w, o valor
   // de profundidade sera z / w = 1.0. Assim, o skybox pode ser desenhado por ultimo
   // melhorando a performance, pois o fragmento so sera desenhado onde necessario.

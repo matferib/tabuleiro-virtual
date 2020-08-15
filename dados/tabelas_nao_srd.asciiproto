@@ -207,6 +207,7 @@ tabela_armas {
     id: 'mosquete'
     nome: 'mosquete'
     categoria: CAT_DISTANCIA
+    categoria: CAT_DUAS_MAOS
     preco: '500 PO'
     dano { medio: '1d12' }
     multiplicador_critico: 3
