@@ -32,7 +32,7 @@ Gerando os proto pb.cc pb.h:
 protoc.exe -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
 
 Gerando os moc:
-export MOC=/c/Qt5/5.9.1/msvc2015_64/bin/moc.exe
+export MOC=/c/Qt/5.11.1/msvc2015_64/bin/moc.exe
 $MOC -I. -oifg/qt/moc_menuprincipal.cpp ifg/qt/menuprincipal.h
 $MOC -I. -oifg/qt/moc_principal.cpp ifg/qt/principal.h
 $MOC -I. -oifg/qt/moc_util.cpp ifg/qt/util.h
