@@ -54,7 +54,6 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   //gl::MatrizEscopo salva_proj(gl::MATRIZ_PROJECAO);
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
-  LOG(INFO) << "largura: " << viewport[2] << ", altura: " << viewport[3];
   gl::CarregaIdentidade();
   // Hack para testar projecao menor.
   //if (!parametros_desenho_.projecao().has_largura_m()) {
