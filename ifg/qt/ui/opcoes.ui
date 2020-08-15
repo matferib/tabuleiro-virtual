@@ -99,6 +99,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkbox_resolucao_fixa">
+     <property name="text">
+      <string>Resolução fixa (1024)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
