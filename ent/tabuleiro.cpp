@@ -590,6 +590,69 @@ void Tabuleiro::ConfiguraOlharMapeamentoLuzes() {
       up.x, up.y, up.z);
 }
 
+void Tabuleiro::DesenhaFramebufferPrincipal() {
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+
+  const int tam = opcoes_.tamanho_framebuffer_fixo();
+  {
+    int altura, largura;
+    if (altura_ > largura_) {
+      altura = tam;
+      largura = tam * static_cast<float>(largura_) / static_cast<float>(altura_);
+    } else {
+      largura = tam;
+      altura = tam * static_cast<float>(altura_) / static_cast<float>(largura_);
+    }
+    parametros_desenho_.mutable_projecao()->set_razao_aspecto(static_cast<double>(largura) / static_cast<double>(altura));
+  }
+  gl::Viewport(0, 0, tam, tam);
+  //LOG(INFO) << "DesenhaMapaOclusao";
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_principal_.framebuffer);
+  V_ERRO("LigacaoComFramebufferPrincipal");
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dfb_principal_.textura, 0);
+  V_ERRO("TexturaFramebufferOclusao");
+  parametros_desenho_.set_desenha_controle_virtual(false);
+  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_fps(false);
+  parametros_desenho_.set_desenha_info_geral(false);
+
+  gl::UnidadeTextura(GL_TEXTURE0);
+  DesenhaCena();
+
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+
+  gl::MatrizEscopo salva_matriz_1(gl::MATRIZ_PROJECAO);
+  gl::CarregaIdentidade();
+  gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
+  gl::AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_2(gl::MATRIZ_CAMERA);
+  gl::CarregaIdentidade();
+  gl::AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_3(gl::MATRIZ_MODELAGEM);
+  //gl::CarregaIdentidade();
+  gl::AtualizaMatrizes();
+  gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
+  gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+
+  //gl::Habilita(GL_CULL_FACE);
+  //gl::FaceNula(GL_FRONT);
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::DesligaEscritaProfundidadeEscopo desliga_escopo;
+  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::Habilita(GL_TEXTURE_2D);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, dfb_principal_.textura);
+  gl::MudaCor(1.0f, 1.0f, 1.0f, 1.0f);
+  gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+  gl::Escala(1.0f, -1.0f, 1.0f);  // inverte a textura.
+  gl::AtualizaMatrizes();
+  gl::Retangulo(0.0f, 0.0f, largura_, altura_);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+
+  V_ERRO("LigacaoComFramebufferOclusao");
+}
+
 void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
@@ -865,10 +928,6 @@ int Tabuleiro::Desenha() {
   }
   V_ERRO_RET("Antes desenha sombras");
 
-#if VBO_COM_MODELAGEM
-  GeraVbosCena();
-#endif
-
 #if !USAR_OPENGL_ES
   if (opcoes_.anti_aliasing()) {
     // Se estiver ligado, desliga aqui para desenhar mapas.
@@ -955,13 +1014,28 @@ int Tabuleiro::Desenha() {
 #endif
   V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  OrdenaEntidades(parametros_desenho_);
+
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
-  //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
-  //DesenhaCenaVbos();
-  OrdenaEntidades(parametros_desenho_);
-  DesenhaCena(/*debug=*/true);
+
+  if (opcoes_.renderizacao_em_framebuffer_fixo()) {
+    ParametrosDesenho salva_pd(parametros_desenho_);
+    DesenhaFramebufferPrincipal();
+    parametros_desenho_ = salva_pd;
+    parametros_desenho_.set_desenha_entidades(false);
+    parametros_desenho_.set_nao_desenha_caixa_ceu(true);
+    parametros_desenho_.set_desenha_terreno(false);
+    parametros_desenho_.set_desenha_grade(false);
+    parametros_desenho_.set_nao_limpa_cor(true);
+    DesenhaCena(/*debug=*/true);
+  } else {
+    DesenhaCena(/*debug=*/true);
+  }
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
 #if DEBUG
   glFinish();
@@ -3258,12 +3332,18 @@ void Tabuleiro::DesenhaCena(bool debug) {
       !parametros_desenho_.has_picking_x() &&
       (parametros_desenho_.tipo_visao() != VISAO_ESCURO) &&
        parametros_desenho_.projecao().tipo_camera() != CAMERA_ISOMETRICA) {
-    desenhar_caixa_ceu = true;
-    // Segundo https://doc.qt.io/qt-5/qopenglwidget.html, é sempre bom chamar o glClear.
-    bits_limpar |= GL_COLOR_BUFFER_BIT;
-    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
+    if (!parametros_desenho_.nao_desenha_caixa_ceu()) {
+      desenhar_caixa_ceu = true;
+    }
+    if (!parametros_desenho_.nao_limpa_cor()) {
+      // Segundo https://doc.qt.io/qt-5/qopenglwidget.html, é sempre bom chamar o glClear.
+      bits_limpar |= GL_COLOR_BUFFER_BIT;
+      gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
+    }
   } else {
-    bits_limpar |= GL_COLOR_BUFFER_BIT;
+    if (!parametros_desenho_.nao_limpa_cor()) {
+      bits_limpar |= GL_COLOR_BUFFER_BIT;
+    }
     if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
       gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
     } else if (parametros_desenho_.has_desenha_mapa_oclusao() ||
@@ -3562,98 +3642,6 @@ void Tabuleiro::DesenhaCena(bool debug) {
 #if DEBUG
   //glFlush();
 #endif
-}
-
-void Tabuleiro::DesenhaCenaVbos() {
-  //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
-  V_ERRO("ha algum erro no opengl, investigue");
-
-  gl::Habilita(GL_DEPTH_TEST);
-  V_ERRO("Teste profundidade");
-  int bits_limpar = GL_DEPTH_BUFFER_BIT;
-  bits_limpar |= GL_COLOR_BUFFER_BIT;
-  gl::CorLimpeza(1.0f, 1.0f, 1.0f, 1.0f);
-  gl::Limpa(bits_limpar);
-  V_ERRO("Limpa");
-
-  for (int i = 1; i < 8; ++i) {
-    gl::Desabilita(GL_LIGHT0 + i);
-  }
-  V_ERRO("desabilitando luzes");
-
-  gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
-  gl::CarregaIdentidade();
-  ConfiguraOlhar();
-  gl::AtualizaMatrizes();
-  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM);
-  gl::CarregaIdentidade();
-
-  if (!parametros_desenho_.has_pos_olho()) {
-    *parametros_desenho_.mutable_pos_olho() = olho_.pos();
-  }
-  // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
-  if (camera_ == CAMERA_ISOMETRICA ||
-      (camera_ != CAMERA_PRIMEIRA_PESSOA && (olho_.altura() > (2 * olho_.raio())))) {
-    parametros_desenho_.set_desenha_texturas_para_cima(true);
-  } else {
-    parametros_desenho_.set_desenha_texturas_para_cima(false);
-  }
-  V_ERRO("configurando olhar");
-
-  gl::Desabilita(GL_LIGHTING);
-  gl::Desabilita(GL_FOG);
-  V_ERRO("desenhando luzes");
-
-  {
-    DesenhaTabuleiro();
-  }
-  V_ERRO("desenhando tabuleiro");
-
-  if (parametros_desenho_.desenha_entidades()) {
-    if (!parametros_desenho_.nao_desenha_entidades_selecionaveis()) {
-      for (const auto& vbo : vbos_selecionaveis_cena_) {
-        vbo->Desenha();
-      }
-    }
-    for (const auto& vbo : vbos_nao_selecionaveis_cena_) {
-      vbo->Desenha();
-    }
-  }
-  V_ERRO("desenhando entidades");
-
-  if (parametros_desenho_.desenha_acoes()) {
-    // TODO
-  }
-  V_ERRO("desenhando acoes");
-}
-
-void Tabuleiro::GeraVbosCena() {
-  vbos_nao_selecionaveis_cena_.clear();
-  vbos_selecionaveis_cena_.clear();
-  vbos_acoes_cena_.clear();
-
-  //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
-  V_ERRO("ha algum erro no opengl, investigue");
-
-  {
-    // Tabuleiro ja eh Vbo.
-    //DesenhaTabuleiro();
-  }
-  V_ERRO("desenhando tabuleiro");
-
-  ColetaVbosEntidades();
-  V_ERRO("desenhando entidades");
-
-  if (parametros_desenho_.desenha_acoes()) {
-//#error TODO
-    //DesenhaAcoes();
-    //std::move(std::begin(vbos_acoes), std::end(vbos_acoes), std::back_inserter(vbos_acoes_cena_));
-  }
-  V_ERRO("desenhando acoes");
-
-  //if (estado_ == ETAB_DESENHANDO && parametros_desenho_.desenha_forma_selecionada()) {
-  //  vbos_entidades_translucidas_cena_.emplace_back(Entidade::ExtraiVbo(forma_proto_, &parametros_desenho_)[0]);
-  //}
 }
 
 void Tabuleiro::DesenhaOlho() {
@@ -4033,19 +4021,24 @@ void Tabuleiro::GeraFramebufferPrincipal(int tamanho, DadosFramebuffer* dfb) {
   gl::GeraFramebuffers(1, &dfb->framebuffer);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb->framebuffer);
   V_ERRO("LigacaoComFramebuffer");
+
   gl::GeraTexturas(1, &dfb->textura);
   V_ERRO("GeraTexturas");
   gl::LigacaoComTextura(GL_TEXTURE_2D, dfb->textura);
   V_ERRO("LigacaoComTextura");
-  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, tamanho, tamanho, 0, GL_RGBA, GL_FLOAT, nullptr);
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGB, tamanho, tamanho, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
   V_ERRO("ImagemTextura2d");
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   V_ERRO("ParametroTextura");
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dfb->textura, 0);
   V_ERRO("TexturaFramebuffer");
+
+  gl::GeraRenderbuffers(1, &dfb->renderbuffer);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, dfb->renderbuffer);
+  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, tamanho, tamanho);
+  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
+
   auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
   if (ret != GL_FRAMEBUFFER_COMPLETE) {
     LOG(ERROR) << "Framebuffer principal incompleto: " << ret;
@@ -4070,7 +4063,9 @@ void Tabuleiro::GeraFramebuffer(bool reinicia) {
   dfb_luzes_.resize(1);
   GeraFramebufferLocal(
       1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luzes_[0]);
-  GeraFramebufferPrincipal(1024, &dfb_principal_);
+  if (opcoes_.renderizacao_em_framebuffer_fixo()) {
+    GeraFramebufferPrincipal(opcoes_.tamanho_framebuffer_fixo(), &dfb_principal_);
+  }
 }
 
 namespace {
@@ -4602,44 +4597,6 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
         (VisaoMestre() || entidade->SelecionavelParaJogador()));
     //LOG(INFO) << "Desenhando: " << entidade->Id();
     f(entidade, &parametros_desenho_);
-  }
-  parametros_desenho_.set_entidade_selecionada(false);
-  parametros_desenho_.set_desenha_barra_vida(false);
-}
-
-void Tabuleiro::ColetaVbosEntidades() {
-  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    Entidade* entidade = it->second.get();
-    if (entidade == nullptr) {
-      LOG(ERROR) << "Entidade nao existe.";
-      continue;
-    }
-    if (entidade->Pos().id_cenario() != IdCenario()) {
-      continue;
-    }
-    if (!entidade->Proto().faz_sombra() && parametros_desenho_.desenha_mapa_sombras()) {
-      continue;
-    }
-    if (!entidade->Proto().visivel() &&
-        !entidade->Proto().selecionavel_para_jogador() &&
-        (!EmModoMestreIncluindoSecundario() || visao_jogador_)) {
-      continue;
-    }
-    // Nao roda disco se estiver arrastando.
-    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
-                                                 EntidadeEstaSelecionada(entidade->Id()));
-    parametros_desenho_.set_desenha_barra_vida(false);
-    // Rotulos apenas individualmente.
-    parametros_desenho_.set_desenha_rotulo(false);
-    parametros_desenho_.set_desenha_rotulo_especial(false);
-    parametros_desenho_.set_desenha_eventos_entidades(VisaoMestre() || entidade->SelecionavelParaJogador());
-    std::vector<const gl::VbosGravados*>* dest = entidade->Proto().selecionavel_para_jogador()
-        ? &vbos_selecionaveis_cena_ : &vbos_nao_selecionaveis_cena_;
-    try {
-      dest->push_back(entidade->VboExtraido());
-    } catch (...) {
-      // Vbo vazio, pode acontecer. Ignora.
-    }
   }
   parametros_desenho_.set_entidade_selecionada(false);
   parametros_desenho_.set_desenha_barra_vida(false);
@@ -5795,7 +5752,14 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 }
 
 void Tabuleiro::AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto) {
+  const bool render_antes = opcoes_.renderizacao_em_framebuffer_fixo();
   opcoes_.CopyFrom(novo_proto);
+  if (render_antes != opcoes_.renderizacao_em_framebuffer_fixo()) {
+    dfb_principal_.Apaga();
+    if (opcoes_.renderizacao_em_framebuffer_fixo()) {
+      GeraFramebufferPrincipal(opcoes_.tamanho_framebuffer_fixo(), &dfb_principal_);
+    }
+  }
   SalvaConfiguracoes(opcoes_);
   V_ERRO("erro deserializando GL");
 }

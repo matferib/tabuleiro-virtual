@@ -246,6 +246,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaMapaSombraLuzDirecional();
   void DesenhaMapaOclusao();
   void DesenhaMapaLuz(unsigned int indice_luz);
+  void DesenhaFramebufferPrincipal();
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;

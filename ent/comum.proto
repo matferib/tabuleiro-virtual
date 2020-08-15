@@ -1199,6 +1199,10 @@ message ParametrosDesenho {
   optional uint32 entidade_referencia_luz = 63;
   // Ignorar entidades com o id passado.
   repeated uint32 nao_desenhar_entidades = 64;
+  // Se verdadeiro, nao desenhara caixa do ceu.
+  optional bool nao_desenha_caixa_ceu = 65;
+  // Se verdadeiro, nao chamara gl::Limpa para limpar o buffer de cores.
+  optional bool nao_limpa_cor = 66;
 }
 
 enum TipoVeneno {
