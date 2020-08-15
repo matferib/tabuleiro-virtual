@@ -2244,6 +2244,9 @@ void DesenhaVboGravado(const VboGravado& vbo, bool atualiza_matrizes) {
     V_ERRO("DesenhaVboGravado: desenha");
   } else {
     LigacaoComObjetoVertices(0);
+    if (atualiza_matrizes) {
+      gl::AtualizaMatrizes();
+    }
     // Os casts de char* 0 sao para evitar warning de conversao de short pra void*.
     gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
     gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
