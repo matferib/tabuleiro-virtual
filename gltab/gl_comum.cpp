@@ -216,7 +216,8 @@ namespace {
 
 void CarregaExtensoes() {
   auto* contexto = BuscaContexto();
-  std::string extstr((const char*)gl::Le(GL_EXTENSIONS));
+  const char* ext_cstr = ((const char*)gl::Le(GL_EXTENSIONS));
+  std::string extstr(ext_cstr == nullptr ? "" : ext_cstr);
   std::string corrente;
   for (auto c : extstr) {
     if (!isspace(c)) {
