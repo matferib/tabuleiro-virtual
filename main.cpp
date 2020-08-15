@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, true);
 #endif
 #if __APPLE__
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
 #endif
   //MyApp q_app(argc, argv);
   QSurfaceFormat::setDefaultFormat(Formato());
