@@ -1026,7 +1026,8 @@ void VboGravado::Grava(GLuint modo, const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("na ligacao com buffer 2");
   indices_ = vbo_nao_gravado.indices();
   if (usar_buffer_sub_data) {
-    gl::BufferizaSubDados(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short) * indices_.size(), indices_.data());
+    // Os indices nao mudam normalmente, exceto em caso de mudancas profundas. Mas ai trigaria o buffer todo e nao so um pedaco.
+    //gl::BufferizaSubDados(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short) * indices_.size(), indices_.data());
   } else {
     gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);
   }
