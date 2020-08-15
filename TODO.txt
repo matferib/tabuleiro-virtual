@@ -1,4 +1,3 @@
-FAZER: ta estranho as normais, voltar normal para 3x3.
 Gerar estatisticas de desenho.
 Pensar em transformar os objetos compostos em instances.
 
