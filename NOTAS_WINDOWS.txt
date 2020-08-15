@@ -55,7 +55,7 @@ ATENCAO: nao consegui nem a pau fazer o glog funcionar com gflags. Entao para pa
 OBS: criar no diretorio do win32\boost o arquivo vazio ReadMe.txt para o vs parar de encher o saco na hora de compilar.
 
 Criando estrutura de deploy (da raiz):
-$ export PATH=/c/Qt5/5.9.1/msvc2015_64/bin/:$PATH
+$ export PATH=/c/Qt/5.11.1/msvc2015_64/bin/:$PATH
 matheus@matheus-pc MINGW64 ~/Projetos/tabuleiro-virtual (qt5)
 $ windeployqt.exe tabvirt.exe
 
