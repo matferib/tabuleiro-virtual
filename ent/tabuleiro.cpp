@@ -649,6 +649,7 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
 
   gl::Retangulo(0.0f, 0.0f, largura_, altura_);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::Desabilita(GL_TEXTURE_2D);
 
   gl::UsaShader(tipo_anterior);
 }
@@ -3501,6 +3502,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
       OrdenaEntidades(parametros_desenho_);
       DesenhaEntidadesTranslucidas();
       parametros_desenho_.clear_alfa_translucidos();
+      parametros_desenho_.clear_observador_ve_invisivel();
       DesenhaAuras();
       if (parametros_desenho_.desenha_acoes()) {
         DesenhaAcoesTranslucidas();
