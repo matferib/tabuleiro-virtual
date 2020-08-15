@@ -618,11 +618,10 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   parametros_desenho_.set_desenha_info_geral(false);
 
   gl::UnidadeTextura(GL_TEXTURE0);
+  auto tipo_anterior = gl::TipoShaderCorrente();
   DesenhaCena();
 
-  auto tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_SIMPLES);
-
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
 
@@ -633,15 +632,10 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::MatrizEscopo salva_matriz_2(gl::MATRIZ_CAMERA);
   gl::CarregaIdentidade();
   gl::AtualizaMatrizes();
-  gl::MatrizEscopo salva_matriz_3(gl::MATRIZ_MODELAGEM);
-  //gl::CarregaIdentidade();
-  gl::AtualizaMatrizes();
   gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
-  gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
 
   //gl::Habilita(GL_CULL_FACE);
   //gl::FaceNula(GL_FRONT);
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   gl::DesligaEscritaProfundidadeEscopo desliga_escopo;
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::Habilita(GL_TEXTURE_2D);
@@ -650,6 +644,9 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
   gl::Escala(1.0f, -1.0f, 1.0f);  // inverte a textura.
   gl::AtualizaMatrizes();
+  gl::MatrizEscopo salva_matriz_3(gl::MATRIZ_MODELAGEM);
+  gl::CarregaIdentidade();
+
   gl::Retangulo(0.0f, 0.0f, largura_, altura_);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
 
@@ -1035,6 +1032,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_terreno(false);
     parametros_desenho_.set_desenha_grade(false);
     parametros_desenho_.set_nao_limpa_cor(true);
+    parametros_desenho_.set_desenha_acoes(false);
     DesenhaCena(/*debug=*/true);
     parametros_desenho_ = salva_pd;
   } else {
@@ -3576,6 +3574,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
 
   gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
   gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+  gl::MudaCor(1.0f, 1.0f, 1.0f, 1.0f);
 
   // Configura modo 2d.
   GLint viewport[4];
