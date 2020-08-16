@@ -84,7 +84,9 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\ifg_qt_constantes.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\ifg\qt\menuprincipal.cpp" />
-    <ClCompile Include="..\..\ifg\qt\moc_evento_util.cpp" />
+    <ClCompile Include="..\..\ifg\qt\moc_evento_util.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4996 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="..\..\ifg\qt\moc_menuprincipal.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_pericias_util.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_principal.cpp" />
