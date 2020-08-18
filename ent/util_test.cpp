@@ -33,14 +33,20 @@ class CentralColetora : public ntf::CentralNotificacoes {
   };
   EmissorFake emissor_remoto_;
 };
-CentralColetora g_central;
-Tabelas g_tabelas(&g_central);
+static CentralColetora& CentralColetoraCriando() {
+  static CentralColetora g_central;
+  return g_central;
+}
+static Tabelas& TabelasCriando() {
+  static Tabelas g_tabelas(&CentralColetoraCriando());
+  return g_tabelas;
+}
 
 class TabuleiroTeste : public Tabuleiro {
  public:
-  TabuleiroTeste() : Tabuleiro(OpcoesProto::default_instance(), g_tabelas, nullptr, nullptr, &g_central) {}
+  TabuleiroTeste() : Tabuleiro(OpcoesProto::default_instance(), TabelasCriando(), nullptr, nullptr, &CentralColetoraCriando()) {}
   TabuleiroTeste(
-      const std::vector<Entidade*>& entidades) : Tabuleiro(OpcoesProto::default_instance(), g_tabelas, nullptr, nullptr, &g_central) {
+      const std::vector<Entidade*>& entidades) : Tabuleiro(OpcoesProto::default_instance(), TabelasCriando(), nullptr, nullptr, &CentralColetoraCriando()) {
     InsereEntidades(entidades);
   }
 
@@ -128,7 +134,7 @@ TEST(TesteItemMagico, TesteItemMagicoContinuo) {
   auto* anel = proto.mutable_tesouro()->add_aneis();
   anel->set_id("protecao_1");
   anel->set_em_uso(true);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_FALSE(proto.evento().empty());
   const auto& evento = proto.evento(0);
   EXPECT_EQ(evento.id_efeito(), EFEITO_DEFLEXAO_CA);
@@ -137,7 +143,7 @@ TEST(TesteItemMagico, TesteItemMagicoContinuo) {
   EXPECT_TRUE(evento.requer_pai());
 
   proto.mutable_tesouro()->clear_aneis();
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_TRUE(proto.evento().empty());
 }
 
@@ -148,20 +154,20 @@ TEST(TesteItemMagico, TesteItemMagicoParalisia) {
   auto* luvas = proto.mutable_tesouro()->add_luvas();
   luvas->set_id("luvas_destreza_2");
   luvas->set_em_uso(true);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_FORCA, proto)));
   EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
 
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_PARALISIA);
   evento->set_rodadas(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   EXPECT_EQ(0, BonusTotal(BonusAtributo(TA_FORCA, proto)));
   EXPECT_EQ(0, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
 
   evento->set_rodadas(-1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_FORCA, proto)));
   EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
 }
@@ -174,14 +180,14 @@ TEST(TesteItemMagico, TesteItemMagicoPoeTira) {
     luvas->set_id("luvas_destreza_2");
     luvas->set_em_uso(true);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(14, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
   {
     auto* luvas = proto.mutable_tesouro()->mutable_luvas(0);
     luvas->set_id("luvas_destreza_2");
     luvas->set_em_uso(false);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(12, BonusTotal(BonusAtributo(TA_DESTREZA, proto)));
 }
 
@@ -193,28 +199,28 @@ TEST(TesteArmas, TestePistola) {
     ic->set_id("guerreiro");
   }
   {
-    std::unique_ptr<Entidade> entidade (NovaEntidadeParaTestes(proto, g_tabelas));
-    EXPECT_FALSE(TalentoComArma(g_tabelas.Arma("pistola"), entidade->Proto()));
-    EXPECT_FALSE(TalentoComArma(g_tabelas.Arma("mosquete"), entidade->Proto()));
+    std::unique_ptr<Entidade> entidade (NovaEntidadeParaTestes(proto, TabelasCriando()));
+    EXPECT_FALSE(TalentoComArma(TabelasCriando().Arma("pistola"), entidade->Proto()));
+    EXPECT_FALSE(TalentoComArma(TabelasCriando().Arma("mosquete"), entidade->Proto()));
   }
   {
     proto.mutable_info_talentos()->add_outros()->set_id("usar_arma_exotica_fogo");
-    std::unique_ptr<Entidade> entidade (NovaEntidadeParaTestes(proto, g_tabelas));
-    EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("pistola"), entidade->Proto()));
-    EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("mosquete"), entidade->Proto()));
+    std::unique_ptr<Entidade> entidade (NovaEntidadeParaTestes(proto, TabelasCriando()));
+    EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("pistola"), entidade->Proto()));
+    EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("mosquete"), entidade->Proto()));
   }
 }
 
 
 TEST(TesteArmas, TesteChicote) {
-  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  auto modelo = TabelasCriando().ModeloEntidade("Humano Plebeu 1");
   modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("tiro_longo");
   // Corpo a corpo.
   auto* da = DadosAtaquePorGrupoOuCria("chicote", modelo.mutable_entidade());
   da->set_tipo_ataque("Ataque Corpo a Corpo");
   da->set_id_arma("chicote");
   // Distancia sem pericia.
-  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("chicote", plebeu->Proto());
@@ -227,7 +233,7 @@ TEST(TesteArmas, TestePedrada) {
   EntidadeProto proto;
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Pedrada (gigante)");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->ataque_arremesso()) << "DA completo: " << da->DebugString();
@@ -240,7 +246,7 @@ TEST(TesteArmas, TesteFunda) {
   EntidadeProto proto;
   auto* da = proto.add_dados_ataque();
   da->set_id_arma("funda");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->ataque_arremesso()) << "DA completo: " << da->DebugString();
@@ -261,7 +267,7 @@ TEST(TesteArmas, TesteEspadaLaminaAfiada) {
     da->set_id_arma("espada_longa");
     da->set_rotulo("espada longa 2");
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_GE(proto.dados_ataque().size(), 2);
   EXPECT_EQ(proto.dados_ataque(0).margem_critico(), 19);
 
@@ -269,18 +275,18 @@ TEST(TesteArmas, TesteEspadaLaminaAfiada) {
   evento->set_id_efeito(EFEITO_LAMINA_AFIADA);
   evento->set_rodadas(1);
   evento->add_complementos_str("espada longa 1");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_GE(proto.dados_ataque().size(), 2);
   EXPECT_EQ(proto.dados_ataque(0).margem_critico(), 17);
   EXPECT_EQ(proto.dados_ataque(1).margem_critico(), 19);
 }
 
 TEST(TesteArmas, TesteLaminaAfiadaAutomatico) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_LAMINA_AFIADA);
   evento->set_rodadas(1);
-  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orc = NovaEntidadeParaTestes(proto, TabelasCriando());
   const auto& da = DadosAtaquePorGrupo("ataque_total_machado", orc->Proto(), 0);
   EXPECT_EQ(da.margem_critico(), 19);
 }
@@ -294,13 +300,13 @@ TEST(TesteArmas, TesteArmaAbencoadaComPorrete) {
     proto.mutable_dados_defesa()->set_id_escudo("escudo_grande");
   }
   ASSERT_EQ(proto.dados_ataque().size(), 1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_ARMA_ABENCOADA);
   evento->set_rodadas(10);
   evento->set_id_unico(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EntidadeProto protod;
   *protod.mutable_dados_ataque() = proto.dados_ataque();
   ASSERT_EQ(proto.dados_ataque().size(), 3);// << protod.DebugString();
@@ -324,14 +330,14 @@ TEST(TesteArmas, TesteArmaAbencoadaComBordao) {
     da->set_id_arma("bordao");
     da->set_empunhadura(EA_MAO_RUIM);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 3);
 
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_ARMA_ABENCOADA);
   evento->set_rodadas(10);
   evento->set_id_unico(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 5);
   EXPECT_EQ(proto.dados_ataque(0).grupo(), "shillelagh");
   EXPECT_EQ(proto.dados_ataque(0).rotulo(), "mão boa");
@@ -343,7 +349,7 @@ TEST(TesteArmas, TesteArmaAbencoadaComBordao) {
   EXPECT_EQ(proto.dados_ataque(1).dano(), "1d8+1");
 
   proto.set_tamanho(TM_MEDIO);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 5);
   EXPECT_EQ(proto.dados_ataque(0).rotulo(), "mão boa");
   EXPECT_EQ(proto.dados_ataque(0).empunhadura(), EA_MAO_BOA);
@@ -353,14 +359,14 @@ TEST(TesteArmas, TesteArmaAbencoadaComBordao) {
   EXPECT_EQ(proto.dados_ataque(1).dano(), "2d6+1");
 
   evento->set_rodadas(-1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 3);
   EXPECT_NE(proto.dados_ataque(0).grupo(), "shillelagh");
 }
 
 TEST(TesteArmas, TestePedraEncantadaComFunda) {
   EntidadeProto proto;
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 1);
   {
     auto* da = proto.add_dados_ataque();
@@ -372,7 +378,7 @@ TEST(TesteArmas, TestePedraEncantadaComFunda) {
   evento->set_id_efeito(EFEITO_PEDRA_ENCANTADA);
   evento->set_rodadas(1);
   evento->set_id_unico(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 3);
   EXPECT_EQ(proto.dados_ataque(0).rotulo(), "pedra encantada com funda");
   EXPECT_EQ(proto.dados_ataque(0).empunhadura(), EA_ARMA_ESCUDO);
@@ -380,14 +386,14 @@ TEST(TesteArmas, TestePedraEncantadaComFunda) {
 
 TEST(TesteArmas, TestePedraEncantada) {
   EntidadeProto proto;
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 1);
 
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_PEDRA_ENCANTADA);
   evento->set_rodadas(1);
   evento->set_id_unico(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 2);
   EXPECT_EQ(proto.dados_ataque(0).rotulo(), "pedra encantada");
   EXPECT_EQ(proto.dados_ataque(0).dano(), "1d6+1");
@@ -404,20 +410,20 @@ TEST(TesteArmas, TesteMetamorfoseTorrida) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("metamorfose_torrida");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->alcance_m(), 15 * QUADRADOS_PARA_METROS) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->has_acao());
   EXPECT_FALSE(da->acao().permite_ataque_vs_defesa()) << "DA completo: " << da->DebugString();
   const AcaoProto& acao = da->acao();
-  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(g_tabelas, da->tipo_ataque()), proto);
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(TabelasCriando(), da->tipo_ataque()), proto);
   ASSERT_FALSE(acao.efeitos_adicionais().empty());
   EXPECT_TRUE(da->acao().permite_salvacao()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->acao().ignora_resistencia_magia()) << "DA completo: " << da->DebugString();
 
   EntidadeProto proto_alvo;
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
   std::vector<int> ids_unicos;
   ntf::Notificacao n;
   PreencheNotificacaoEventoEfeitoAdicional(proto.id(), std::nullopt, nivel_conjurador, *alvo, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
@@ -440,14 +446,14 @@ TEST(TesteArmas, TestePalavraDoPoderCegar) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("palavra_poder_cegar");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->alcance_m(), 15 * QUADRADOS_PARA_METROS) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->has_acao());
   EXPECT_FALSE(da->acao().permite_ataque_vs_defesa()) << "DA completo: " << da->DebugString();
   const AcaoProto& acao = da->acao();
-  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(g_tabelas, da->tipo_ataque()), proto);
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(TabelasCriando(), da->tipo_ataque()), proto);
   ASSERT_FALSE(acao.efeitos_adicionais().empty());
   EXPECT_FALSE(da->acao().permite_salvacao()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->acao().ignora_resistencia_magia()) << "DA completo: " << da->DebugString();
@@ -456,7 +462,7 @@ TEST(TesteArmas, TestePalavraDoPoderCegar) {
   proto_alvo.set_max_pontos_vida(201);
   {
     proto_alvo.set_pontos_vida(50);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
@@ -469,7 +475,7 @@ TEST(TesteArmas, TestePalavraDoPoderCegar) {
   }
   {
     proto_alvo.set_pontos_vida(51);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     g_dados_teste.push(1);
     std::vector<int> ids_unicos;
@@ -485,7 +491,7 @@ TEST(TesteArmas, TestePalavraDoPoderCegar) {
   }
   {
     proto_alvo.set_pontos_vida(101);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     g_dados_teste.push(1);
     std::vector<int> ids_unicos;
@@ -501,7 +507,7 @@ TEST(TesteArmas, TestePalavraDoPoderCegar) {
   }
   {
     proto_alvo.set_pontos_vida(201);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_FALSE(AcaoAfetaAlvo(acao, *alvo)) << "acao: " << acao.DebugString();
   }
 }
@@ -516,14 +522,14 @@ TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("palavra_poder_atordoar");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->alcance_m(), 15 * QUADRADOS_PARA_METROS) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->has_acao());
   EXPECT_FALSE(da->acao().permite_ataque_vs_defesa()) << "DA completo: " << da->DebugString();
   const AcaoProto& acao = da->acao();
-  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(g_tabelas, da->tipo_ataque()), proto);
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(TabelasCriando(), da->tipo_ataque()), proto);
   ASSERT_FALSE(acao.efeitos_adicionais().empty());
   EXPECT_FALSE(da->acao().permite_salvacao()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->acao().ignora_resistencia_magia()) << "DA completo: " << da->DebugString();
@@ -532,7 +538,7 @@ TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
   proto_alvo.set_max_pontos_vida(200);
   {
     proto_alvo.set_pontos_vida(50);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     g_dados_teste.push(1);
     g_dados_teste.push(1);
@@ -551,7 +557,7 @@ TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
   }
   {
     proto_alvo.set_pontos_vida(51);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     g_dados_teste.push(1);
     g_dados_teste.push(1);
@@ -568,7 +574,7 @@ TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
   }
   {
     proto_alvo.set_pontos_vida(101);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     g_dados_teste.push(1);
     std::vector<int> ids_unicos;
@@ -584,7 +590,7 @@ TEST(TesteArmas, TestePalavraDoPoderAtordoar) {
   }
   {
     proto_alvo.set_pontos_vida(151);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_FALSE(AcaoAfetaAlvo(acao, *alvo));
   }
 }
@@ -608,12 +614,12 @@ TEST(TesteArmas, TestePoderDivino) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Clérigo");
   da->set_id_arma("poder_divino");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   const AcaoProto& acao = da->acao();
-  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(g_tabelas, da->tipo_ataque()), proto);
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(TabelasCriando(), da->tipo_ataque()), proto);
   ASSERT_FALSE(acao.efeitos_adicionais().empty());
 
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, TabelasCriando()));
   {
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
@@ -640,7 +646,7 @@ TEST(TesteArmas, TestePalavraDoPoderMatar) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("palavra_poder_matar");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->alcance_m(), 15 * QUADRADOS_PARA_METROS) << "DA completo: " << da->DebugString();
@@ -649,14 +655,14 @@ TEST(TesteArmas, TestePalavraDoPoderMatar) {
   EXPECT_FALSE(da->acao().permite_salvacao()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->acao().ignora_resistencia_magia()) << "DA completo: " << da->DebugString();
   const AcaoProto& acao = da->acao();
-  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(g_tabelas, da->tipo_ataque()), proto);
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(TabelasCriando(), da->tipo_ataque()), proto);
   ASSERT_FALSE(acao.efeitos_adicionais().empty());
 
   EntidadeProto proto_alvo;
   proto_alvo.set_max_pontos_vida(200);
   {
     proto_alvo.set_pontos_vida(100);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
@@ -669,7 +675,7 @@ TEST(TesteArmas, TestePalavraDoPoderMatar) {
   }
   {
     proto_alvo.set_pontos_vida(101);
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_FALSE(AcaoAfetaAlvo(acao, *alvo));
   }
 }
@@ -685,7 +691,7 @@ TEST(TesteArmas, TesteRaioEnfraquecimento) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("raio_enfraquecimento");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->ataque_arremesso()) << "DA completo: " << da->DebugString();
@@ -693,12 +699,12 @@ TEST(TesteArmas, TesteRaioEnfraquecimento) {
   EXPECT_TRUE(da->has_acao());
   const AcaoProto& acao = da->acao();
   EXPECT_EQ(acao.tipo(), ACAO_RAIO) << "acao: " << acao.DebugString();
-  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(g_tabelas, da->tipo_ataque()), proto);
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(TabelasCriando(), da->tipo_ataque()), proto);
   ASSERT_FALSE(acao.efeitos_adicionais().empty());
 
   EntidadeProto proto_alvo;
   AtribuiBaseAtributo(20, TA_FORCA, &proto_alvo);
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
   {
     // Primeiro ataque.
     g_dados_teste.push(3);
@@ -756,7 +762,7 @@ TEST(TesteArmas, TesteArcoLongo) {
   EntidadeProto proto;
   auto* da = proto.add_dados_ataque();
   da->set_id_arma("arco_longo");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->has_acao());
@@ -765,7 +771,7 @@ TEST(TesteArmas, TesteArcoLongo) {
 }
 
 TEST(TesteArmas, TesteEscudoComCravos) {
-  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");  // +1 forca
+  auto modelo = TabelasCriando().ModeloEntidade("Humano Plebeu 1");  // +1 forca
   modelo.mutable_entidade()->set_gerar_agarrar(false);
   modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("usar_armas_comuns");
   modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("usar_escudo");
@@ -783,7 +789,7 @@ TEST(TesteArmas, TesteEscudoComCravos) {
   da->set_empunhadura(EA_MAO_RUIM);
   // Distancia sem pericia.
   {
-    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
     const auto& da_espada = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 0);
     EXPECT_EQ(da_espada.bonus_ataque_final(), -3) << da_espada.DebugString();
     const auto& da_escudo = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 1);
@@ -793,7 +799,7 @@ TEST(TesteArmas, TesteEscudoComCravos) {
   }
   {
     modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("ataque_escudo_aprimorado");
-    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
     const auto& da_espada = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 0);
     EXPECT_EQ(da_espada.bonus_ataque_final(), -3) << da_espada.DebugString();
     const auto& da_escudo = DadosAtaquePorGrupo("espada_longa_com_escudo", plebeu->Proto(), 1);
@@ -804,14 +810,14 @@ TEST(TesteArmas, TesteEscudoComCravos) {
 }
 
 TEST(TesteArmas, TesteIdBase) {
-  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  auto modelo = TabelasCriando().ModeloEntidade("Humano Plebeu 1");
   // Corpo a corpo.
   auto* da = DadosAtaquePorGrupoOuCria("arco_longo_composto", modelo.mutable_entidade());
   da->set_tipo_ataque("Ataque a Distância");
   da->set_id_arma("arco_longo_composto");
   // Distancia sem pericia.
   {
-    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
     const auto& da = DadosAtaquePorGrupo("arco_longo_composto", plebeu->Proto());
     EXPECT_FLOAT_EQ(da.alcance_m(), 22 * QUADRADOS_PARA_METROS);
     EXPECT_EQ(da.incrementos(), 10);
@@ -824,7 +830,7 @@ TEST(TesteArmas, TesteIdBase) {
     t = modelo.mutable_entidade()->mutable_info_talentos()->add_outros();
     t->set_id("foco_em_arma");
     t->set_complemento("arco_longo");
-    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
     const auto& da = DadosAtaquePorGrupo("arco_longo_composto", plebeu->Proto());
     EXPECT_FLOAT_EQ(da.alcance_m(), 22 * QUADRADOS_PARA_METROS);
     EXPECT_EQ(da.incrementos(), 10);
@@ -836,7 +842,7 @@ TEST(TesteArmas, TesteBoleadeira) {
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();
   da->set_id_arma("boleadeira");
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->has_acao());
@@ -848,7 +854,7 @@ TEST(TesteArmas, TesteEspada) {
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();
   da->set_id_arma("espada_curta");
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
   EXPECT_FALSE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->ataque_toque()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->has_acao());
@@ -866,7 +872,7 @@ TEST(TesteArmas, TesteDanoIgnoraSalvacao) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Clérigo");
   da->set_id_arma("explosao_sonora");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(da->dano_ignora_salvacao()) << "DA completo: " << da->DebugString();
 }
 
@@ -880,7 +886,7 @@ TEST(TesteArmas, TesteMaosFlamejantes) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("maos_flamejantes");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(da->dano(), "3d4") << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->dificuldade_salvacao(), 13) << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->resultado_ao_salvar(), RS_MEIO);
@@ -902,7 +908,7 @@ TEST(TesteArmas, TesteMaosFlamejantesEspecialista) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("maos_flamejantes");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(da->dano(), "3d4") << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->dificuldade_salvacao(), 14) << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->resultado_ao_salvar(), RS_MEIO);
@@ -921,7 +927,7 @@ TEST(TesteArmas, TesteRaio) {
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("raio_ardente");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(da->dano(), "4d6") << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->acao().permite_ataque_vs_defesa()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
@@ -933,8 +939,8 @@ TEST(TesteArmas, TesteRaio) {
 
 TEST(TesteArmas, TesteVeneno) {
   Modelos modelos;
-  EntidadeProto proto = g_tabelas.ModeloEntidade("Centopéia Enorme").entidade();
-  RecomputaDependencias(g_tabelas, &proto);
+  EntidadeProto proto = TabelasCriando().ModeloEntidade("Centopéia Enorme").entidade();
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_FALSE(proto.dados_ataque().empty());
   EXPECT_TRUE(proto.dados_ataque(0).has_veneno());
 }
@@ -943,7 +949,7 @@ TEST(TesteArmas, TesteArmaTemAcao) {
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();
   da->set_id_arma("adaga");
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
   EXPECT_TRUE(da->has_acao());
   const AcaoProto& acao = da->acao();
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL);
@@ -958,7 +964,7 @@ TEST(TesteArmas, TesteProjetilAreaCompatibilidade) {
     da->set_id_arma("fogo_alquimico");
     da->set_municao(3);
   }
-  auto e = NovaEntidadeParaTestes(proto_ataque, g_tabelas);
+  auto e = NovaEntidadeParaTestes(proto_ataque, TabelasCriando());
   ASSERT_FALSE(e->Proto().dados_ataque().empty());
   const auto& da = e->Proto().dados_ataque(0);
   EXPECT_TRUE(da.ataque_toque());
@@ -983,7 +989,7 @@ TEST(TesteArmas, TesteProjetilArea) {
     proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("fogo_alquimico");
     proto_ataque.mutable_tesouro()->add_itens_mundanos()->set_id("bomba");
   }
-  auto e = NovaEntidadeParaTestes(proto_ataque, g_tabelas);
+  auto e = NovaEntidadeParaTestes(proto_ataque, TabelasCriando());
   // Dois fogos.
   {
     ASSERT_FALSE(e->Proto().dados_ataque().empty());
@@ -1034,7 +1040,7 @@ TEST(TesteCA, TesteLutaDefensiva) {
     EntidadeProto proto;
     auto* da = proto.add_dados_ataque();
     da->set_id_arma("fogo_alquimico");
-    e = NovaEntidadeParaTestes(proto, g_tabelas);
+    e = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1065,7 +1071,7 @@ TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombate) {
     auto* t = proto.mutable_info_talentos()->add_outros();
     t->set_id("especializacao_em_combate");
     t->set_complemento("4");
-    e = NovaEntidadeParaTestes(proto, g_tabelas);
+    e = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1095,7 +1101,7 @@ TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombateSemComplementos) {
     da->set_id_arma("fogo_alquimico");
     auto* t = proto.mutable_info_talentos()->add_outros();
     t->set_id("especializacao_em_combate");
-    e = NovaEntidadeParaTestes(proto, g_tabelas);
+    e = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1126,7 +1132,7 @@ TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombateComplementoMaiorQueBba) {
     auto* t = proto.mutable_info_talentos()->add_outros();
     t->set_id("especializacao_em_combate");
     t->set_complemento("4");
-    e = NovaEntidadeParaTestes(proto, g_tabelas);
+    e = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1157,7 +1163,7 @@ TEST(TesteCA, TesteLutaDefensivaEspecializacaoEmCombateComplementoMaiorQue5) {
     auto* t = proto.mutable_info_talentos()->add_outros();
     t->set_id("especializacao_em_combate");
     t->set_complemento("6");
-    e = NovaEntidadeParaTestes(proto, g_tabelas);
+    e = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1187,7 +1193,7 @@ TEST(TesteCA, TesteLutaDefensivaComAcrobacias) {
     auto* ip = proto.add_info_pericias();
     ip->set_id("acrobacias");
     ip->set_pontos(5);
-    e = NovaEntidadeParaTestes(proto, g_tabelas);
+    e = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
 
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
@@ -1209,7 +1215,7 @@ TEST(TesteCA, TesteDefesaTotal) {
   std::unique_ptr<Entidade> e;
   {
     EntidadeProto proto;
-    e = NovaEntidadeParaTestes(proto, g_tabelas);
+    e = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
   auto n = PreencheNotificacaoDefesaTotal(true, e->Proto());
@@ -1229,7 +1235,7 @@ TEST(TesteCA, TesteDefesaTotalComAcrobacia) {
     auto* ip = proto.add_info_pericias();
     ip->set_id("acrobacias");
     ip->set_pontos(5);
-    e = NovaEntidadeParaTestes(proto, g_tabelas);
+    e = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
   EXPECT_EQ(BonusTotal(e->Proto().dados_defesa().ca()), 10);
   auto n = PreencheNotificacaoDefesaTotal(true, e->Proto());
@@ -1241,16 +1247,16 @@ TEST(TesteCA, TesteDefesaTotalComAcrobacia) {
 
 TEST(TesteCA, TesteDestrezaCA) {
   EntidadeProto proto;
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(DestrezaNaCA(proto));
 
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_CEGO);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_FALSE(DestrezaNaCA(proto));
 
   proto.mutable_info_talentos()->add_gerais()->set_id("lutar_as_cegas");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(DestrezaNaCA(proto));
 
   DadosAtaque da;
@@ -1259,28 +1265,28 @@ TEST(TesteCA, TesteDestrezaCA) {
 }
 
 TEST(TesteCA, TesteDestrezaCALadinoEsquivaSobrenatural) {
-  const auto& modelo_ladino = g_tabelas.ModeloEntidade("Humano Ladino 5");
+  const auto& modelo_ladino = TabelasCriando().ModeloEntidade("Humano Ladino 5");
   EntidadeProto proto = modelo_ladino.entidade();
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(DestrezaNaCA(proto));
   EXPECT_EQ(CATotal(proto, /*escudo=*/true, Bonus()), 18);
   EXPECT_EQ(CASurpreso(proto, /*escudo=*/true, Bonus()), 18);
 
   proto.set_surpreso(true);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(DestrezaNaCA(proto));
 
   {
     auto* evento = proto.add_evento();
     evento->set_id_efeito(EFEITO_CEGO);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_TRUE(DestrezaNaCA(proto));
   }
 
   {
     auto* evento = proto.add_evento();
     evento->set_id_efeito(EFEITO_PARALISIA);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_FALSE(DestrezaNaCA(proto));
   }
 }
@@ -1299,29 +1305,29 @@ TEST(TesteResistenciaMagia, TesteResistenciaMagia) {
   }
   proto.mutable_dados_defesa()->set_resistencia_magia_racial(10);
 
-  std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, g_tabelas));
-  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, TabelasCriando()));
+  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   g_dados_teste.push(7);
   bool sucesso;
   std::string texto;
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   g_dados_teste.push(6);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_FALSE(sucesso) << texto;
 
   proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante");
-  std::unique_ptr<Entidade> eamp(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> eamp(NovaEntidadeParaTestes(proto, TabelasCriando()));
   g_dados_teste.push(5);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *eamp, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *eamp, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante_maior");
-  std::unique_ptr<Entidade> eampm(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> eampm(NovaEntidadeParaTestes(proto, TabelasCriando()));
   g_dados_teste.push(3);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *eampm, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *eampm, *ed);
   EXPECT_TRUE(sucesso) << texto;
 }
 
@@ -1339,29 +1345,29 @@ TEST(TesteResistenciaMagia, TesteResistenciaMagia2) {
   // Sera ignorada.
   proto.mutable_dados_defesa()->set_resistencia_magia_racial(3);
 
-  std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, g_tabelas));
-  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, TabelasCriando()));
+  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   g_dados_teste.push(7);
   bool sucesso;
   std::string texto;
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   g_dados_teste.push(6);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_FALSE(sucesso) << texto;
 
   proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante");
-  std::unique_ptr<Entidade> eamp(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> eamp(NovaEntidadeParaTestes(proto, TabelasCriando()));
   g_dados_teste.push(5);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *eamp, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *eamp, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   proto.mutable_info_talentos()->add_gerais()->set_id("magia_penetrante_maior");
-  std::unique_ptr<Entidade> eampm(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> eampm(NovaEntidadeParaTestes(proto, TabelasCriando()));
   g_dados_teste.push(3);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *eampm, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *eampm, *ed);
   EXPECT_TRUE(sucesso) << texto;
 }
 
@@ -1372,30 +1378,30 @@ TEST(TesteResistenciaMagia, TesteResistenciaMagiaTramaSombras) {
   ic->set_nivel(3);
   proto.mutable_dados_defesa()->set_resistencia_magia_racial(10);
 
-  std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, g_tabelas));
-  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, TabelasCriando()));
+  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   g_dados_teste.push(7);
   bool sucesso;
   std::string texto;
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   g_dados_teste.push(6);
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, DadosAtaque::default_instance(), *ea, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), DadosAtaque::default_instance(), *ea, *ed);
   EXPECT_FALSE(sucesso) << texto;
 
   proto.mutable_info_talentos()->add_gerais()->set_id("magia_trama_sombras");
-  std::unique_ptr<Entidade> eats(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> eats(NovaEntidadeParaTestes(proto, TabelasCriando()));
   g_dados_teste.push(6);
   DadosAtaque da;
   da.set_id_arma("imobilizar_pessoa");  // encantamento
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, da, *eats, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), da, *eats, *ed);
   EXPECT_TRUE(sucesso) << texto;
 
   g_dados_teste.push(7);
   da.set_id_arma("missil_magico");  // evocacao
-  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(g_tabelas, da, *eats, *ed);
+  std::tie(sucesso, texto) = AtaqueVsResistenciaMagia(TabelasCriando(), da, *eats, *ed);
   EXPECT_FALSE(sucesso) << texto;
 }
 
@@ -1410,7 +1416,7 @@ TEST(TestePergaminho, MaosFlamejantes) {
   da->set_tipo_ataque("Pergaminho Arcano");
   da->set_id_arma("maos_flamejantes");
   da->set_nivel_conjurador_pergaminho(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(da->tipo_pergaminho(), TM_ARCANA);
   EXPECT_EQ(da->dano(), "1d4") << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->dificuldade_salvacao(), 11) << "DA completo: " << da->DebugString();
@@ -1428,7 +1434,7 @@ TEST(TestePergaminho, FlechaAcida) {
   da->set_tipo_ataque("Pergaminho Arcano");
   da->set_id_arma("flecha_acida");
   da->set_nivel_conjurador_pergaminho(3);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(da->tipo_pergaminho(), TM_ARCANA);
   EXPECT_EQ(da->dano(), "2d4") << "DA completo: " << da->DebugString();
   EXPECT_EQ(da->bonus_ataque_final(), 3);  // 1 bba + 2 des.
@@ -1436,19 +1442,19 @@ TEST(TestePergaminho, FlechaAcida) {
 
 TEST(TestePergaminho, ValoresTabelados) {
   {
-    const auto& pergaminho = g_tabelas.PergaminhoArcano("identificacao");
+    const auto& pergaminho = TabelasCriando().PergaminhoArcano("identificacao");
     EXPECT_EQ(pergaminho.custo_po(), 125);
     EXPECT_EQ(pergaminho.nivel_conjurador(), 1);
     EXPECT_EQ(pergaminho.modificador_atributo(), 0);
   }
   {
-    const auto& pergaminho = g_tabelas.PergaminhoArcano("missil_magico");
+    const auto& pergaminho = TabelasCriando().PergaminhoArcano("missil_magico");
     EXPECT_EQ(pergaminho.custo_po(), 25);
     EXPECT_EQ(pergaminho.nivel_conjurador(), 1);
     EXPECT_EQ(pergaminho.modificador_atributo(), 0);
   }
   {
-    const auto& pergaminho = g_tabelas.PergaminhoArcano("nublar");
+    const auto& pergaminho = TabelasCriando().PergaminhoArcano("nublar");
     EXPECT_EQ(pergaminho.custo_po(), 150);
     EXPECT_EQ(pergaminho.nivel_conjurador(), 3);
     EXPECT_EQ(pergaminho.modificador_atributo(), 1);
@@ -1463,10 +1469,10 @@ TEST(TesteElixir, PodeUsarCuspirFogo) {
   auto* ic = proto.add_info_classes();
   ic->set_id("clerigo");
   ic->set_nivel(3);
-  auto clerigo = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto clerigo = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("cuspir fogo", clerigo->Proto());
-    auto [pode, texto] = PodeLancarItemMagico(g_tabelas, clerigo->Proto(), da);
+    auto [pode, texto] = PodeLancarItemMagico(TabelasCriando(), clerigo->Proto(), da);
     EXPECT_TRUE(pode) << texto;
   }
 }
@@ -1479,15 +1485,15 @@ TEST(TesteVarinha, PodeUsar) {
   auto* ic = proto.add_info_classes();
   ic->set_id("clerigo");
   ic->set_nivel(3);
-  auto druida = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto druida = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("Varinha curar ferimentos leves", druida->Proto());
-    auto [pode, texto] = PodeLancarItemMagico(g_tabelas, druida->Proto(), da);
+    auto [pode, texto] = PodeLancarItemMagico(TabelasCriando(), druida->Proto(), da);
     EXPECT_TRUE(pode) << texto;
   }
   {
     const auto& da = DadosAtaquePorGrupo("Varinha míssil mágico (1)", druida->Proto());
-    auto [pode, texto] = PodeLancarItemMagico(g_tabelas, druida->Proto(), da);
+    auto [pode, texto] = PodeLancarItemMagico(TabelasCriando(), druida->Proto(), da);
     EXPECT_FALSE(pode) << texto;
   }
 }
@@ -1498,10 +1504,10 @@ TEST(TesteVarinha, PodeUsarIndependenteNivelOuAtributo) {
   auto* ic = proto.add_info_classes();
   ic->set_id("mago");
   ic->set_nivel(1);
-  auto mago = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto mago = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("Varinha mísseis mágicos (2)", mago->Proto());
-    auto [pode, texto] = PodeLancarItemMagico(g_tabelas, mago->Proto(), da);
+    auto [pode, texto] = PodeLancarItemMagico(TabelasCriando(), mago->Proto(), da);
     EXPECT_TRUE(pode) << texto;
   }
 }
@@ -1541,15 +1547,15 @@ TEST(TestePergaminho, PodeLancar) {
       da->set_modificador_atributo_pergaminho(0);
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // Tipo errado.
-  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(0)).first);
   // Fora da lista.
-  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(1)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(1)).first);
   // Atributo invalido.
-  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(2)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(2)).first);
 
-  EXPECT_TRUE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(3)).first);
+  EXPECT_TRUE(PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(3)).first);
 }
 
 TEST(TestePergaminho, PodeLancarRangerCurarFerimentosLeves) {
@@ -1566,9 +1572,9 @@ TEST(TestePergaminho, PodeLancarRangerCurarFerimentosLeves) {
       da->set_id_arma("curar_ferimentos_leves");
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // Tipo errado.
-  auto [pode_lancar, texto] = PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0));
+  auto [pode_lancar, texto] = PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(0));
   EXPECT_FALSE(pode_lancar) << texto;
 }
 
@@ -1590,9 +1596,9 @@ TEST(TestePergaminho, PodeLancarRangerClerigoCurarFerimentosLeves) {
       da->set_id_arma("curar_ferimentos_leves");
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // Tipo errado.
-  auto [pode_lancar, texto] = PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0));
+  auto [pode_lancar, texto] = PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(0));
   EXPECT_TRUE(pode_lancar) << texto;
 }
 
@@ -1614,9 +1620,9 @@ TEST(TestePergaminho, PodeLancarMagoClerigoCurarFerimentosLeves) {
       da->set_id_arma("curar_ferimentos_leves");
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // Tipo errado.
-  auto [pode_lancar, texto] = PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0));
+  auto [pode_lancar, texto] = PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(0));
   EXPECT_TRUE(pode_lancar) << texto;
 }
 
@@ -1642,9 +1648,9 @@ TEST(TestePergaminho, PodeLancarDominio) {
       da->set_id_arma("aumentar_pessoa");
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_TRUE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0)).first);
-  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(1)).first);
+  RecomputaDependencias(TabelasCriando(), &proto);
+  EXPECT_TRUE(PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(0)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(1)).first);
 }
 
 TEST(TestePergaminho, PodeLancarEscolaProibida) {
@@ -1676,10 +1682,10 @@ TEST(TestePergaminho, PodeLancarEscolaProibida) {
       da->set_id_arma("enfeiticar_pessoa");
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_TRUE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(0)).first);
-  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(1)).first);
-  EXPECT_FALSE(PodeLancarItemMagico(g_tabelas, proto, proto.dados_ataque(2)).first);
+  RecomputaDependencias(TabelasCriando(), &proto);
+  EXPECT_TRUE(PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(0)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(1)).first);
+  EXPECT_FALSE(PodeLancarItemMagico(TabelasCriando(), proto, proto.dados_ataque(2)).first);
 }
 
 TEST(TestePergaminho, TesteLancarPergaminhoSemRisco) {
@@ -1696,8 +1702,8 @@ TEST(TestePergaminho, TesteLancarPergaminhoSemRisco) {
       da->set_modificador_atributo_pergaminho(0);
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_TRUE(TesteLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0)).ok);
+  RecomputaDependencias(TabelasCriando(), &proto);
+  EXPECT_TRUE(TesteLancarPergaminho(TabelasCriando(), proto, proto.dados_ataque(0)).ok);
 }
 
 TEST(TestePergaminho, TesteLancarPergaminhoSucesso) {
@@ -1714,9 +1720,9 @@ TEST(TestePergaminho, TesteLancarPergaminhoSucesso) {
       da->set_nivel_conjurador_pergaminho(2);
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   g_dados_teste.push(3);
-  auto res = TesteLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0));
+  auto res = TesteLancarPergaminho(TabelasCriando(), proto, proto.dados_ataque(0));
   EXPECT_TRUE(res.ok) << res.texto;
 }
 
@@ -1734,10 +1740,10 @@ TEST(TestePergaminho, TesteLancarPergaminhoFalhaSemFiasco) {
       da->set_nivel_conjurador_pergaminho(2);
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   g_dados_teste.push(1);  // 1 + 1 de nivel = 2 < 3 (nivel conjurador pergaminho  1);
   g_dados_teste.push(5);  // 4 + 0 de sabedoria >= 5.
-  auto res = TesteLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0));
+  auto res = TesteLancarPergaminho(TabelasCriando(), proto, proto.dados_ataque(0));
   EXPECT_FALSE(res.ok) << res.texto;
   EXPECT_FALSE(res.fiasco) << res.texto;
 }
@@ -1756,19 +1762,19 @@ TEST(TestePergaminho, TesteLancarPergaminhoFalhaComFiasco) {
       da->set_nivel_conjurador_pergaminho(2);
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   g_dados_teste.push(1);
   g_dados_teste.push(4);  // 4 + 0 sabedoria < 5.
-  auto res = TesteLancarPergaminho(g_tabelas, proto, proto.dados_ataque(0));
+  auto res = TesteLancarPergaminho(TabelasCriando(), proto, proto.dados_ataque(0));
   EXPECT_FALSE(res.ok) << res.texto;
   EXPECT_TRUE(res.fiasco) << res.texto;
 }
 
 TEST(TesteTalentoPericias, TesteVitalidade) {
-  auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto_orc = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   proto_orc.mutable_info_talentos()->add_outros()->set_id("vitalidade");
   proto_orc.mutable_info_talentos()->add_outros()->set_id("vitalidade");
-  auto orc = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  auto orc = NovaEntidadeParaTestes(proto_orc, TabelasCriando());
   // 6 vitalidade, 7 constituicao.
   EXPECT_EQ(BonusTotal(orc->Proto().bonus_dados_vida()), 13) << orc->Proto().bonus_dados_vida().DebugString() << " " << orc->NivelPersonagem();
 }
@@ -1791,7 +1797,7 @@ TEST(TesteTalentoPericias, TesteDadosVidaAutomatico) {
   proto.mutable_info_talentos()->add_outros()->set_id("elevar_magia");
   proto.mutable_info_talentos()->add_outros()->set_id("magia_silenciosa");
   proto.set_dados_vida_automatico(true);
-  auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto e = NovaEntidadeParaTestes(proto, TabelasCriando());
   EXPECT_EQ(e->Proto().dados_vida(), "4+3d4+7+3+3");
   EXPECT_TRUE(e->Proto().has_max_pontos_vida());
   EXPECT_GT(e->Proto().pontos_vida(), 0);
@@ -1805,18 +1811,18 @@ const AcaoProto::PorEntidade& PrimeiraEntidadeOuPadrao(const AcaoProto& acao) {
 }  // namespace
 
 TEST(TesteTalentoPericias, TesteIntimidacao) {
-  auto proto_vrock = g_tabelas.ModeloEntidade("Demônio Vrock").entidade();
+  auto proto_vrock = TabelasCriando().ModeloEntidade("Demônio Vrock").entidade();
   proto_vrock.set_id(1);
   proto_vrock.set_selecionavel_para_jogador(true);
-  auto* vrock = NovaEntidadeParaTestes(proto_vrock, g_tabelas).release();
-  auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto* vrock = NovaEntidadeParaTestes(proto_vrock, TabelasCriando()).release();
+  auto proto_orc = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   proto_orc.set_id(2);
   proto_orc.set_selecionavel_para_jogador(true);
   auto* evento = proto_orc.add_evento();
   evento->set_id_efeito(EFEITO_SABEDORIA_CORUJA);
   evento->set_rodadas(1);
   AtribuiBonus(5, TB_SEM_NOME, "teste", proto_orc.mutable_dados_defesa()->mutable_bonus_salvacao_medo());
-  auto* orc = NovaEntidadeParaTestes(proto_orc, g_tabelas).release();
+  auto* orc = NovaEntidadeParaTestes(proto_orc, TabelasCriando()).release();
 
   ntf::Notificacao grupo_desfazer;
   TabuleiroTeste tabuleiro({vrock, orc});
@@ -1827,7 +1833,7 @@ TEST(TesteTalentoPericias, TesteIntimidacao) {
   g_dados_teste.push(10);
   g_dados_teste.push(10);
   tabuleiro.TrataBotaoPericiaPressionadoPosPicking(2, OBJ_ENTIDADE);
-  const auto& notificacoes = g_central.NotificacoesRemotas();
+  const auto& notificacoes = CentralColetoraCriando().NotificacoesRemotas();
   ASSERT_GE(notificacoes.size(), 4ULL);
   EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 4]->acao()).texto().find("10 +16 = 26"), std::string::npos) << notificacoes[notificacoes.size() - 4]->DebugString();
   EXPECT_NE(PrimeiraEntidadeOuPadrao(notificacoes[notificacoes.size() - 3]->acao()).texto().find("10 +7 +2 +5 = 24"), std::string::npos) << notificacoes[notificacoes.size() - 3]->DebugString();
@@ -1836,15 +1842,15 @@ TEST(TesteTalentoPericias, TesteIntimidacao) {
 }
 
 TEST(TesteTalentoPericias, TesteCombateMontado) {
-  auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto_orc = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   proto_orc.set_id(1);
   proto_orc.mutable_info_talentos()->add_outros()->set_id("combate_montado");
   proto_orc.set_montado_em(2);
-  auto* montador = NovaEntidadeParaTestes(proto_orc, g_tabelas).release();
+  auto* montador = NovaEntidadeParaTestes(proto_orc, TabelasCriando()).release();
   proto_orc.set_id(2);
   proto_orc.clear_montado_em();
   proto_orc.add_entidades_montadas(1);
-  auto* montaria = NovaEntidadeParaTestes(proto_orc, g_tabelas).release();
+  auto* montaria = NovaEntidadeParaTestes(proto_orc, TabelasCriando()).release();
   ntf::Notificacao grupo_desfazer;
   TabuleiroTeste tabuleiro({montador, montaria});
   AcaoProto acao;
@@ -1852,35 +1858,35 @@ TEST(TesteTalentoPericias, TesteCombateMontado) {
   acao.add_por_entidade();
   EXPECT_EQ(
       -10, DesviaMontariaSeAplicavel(
-        g_tabelas, -10, /*total_ataque=*/12, *montaria,
+        TabelasCriando(), -10, /*total_ataque=*/12, *montaria,
         DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.mutable_por_entidade(0), &grupo_desfazer))
     << acao.por_entidade(0).DebugString();
   g_dados_teste.push(11);
   acao.add_por_entidade();
   EXPECT_EQ(
       0, DesviaMontariaSeAplicavel(
-        g_tabelas, -10, /*total_ataque=*/12, *montaria,
+        TabelasCriando(), -10, /*total_ataque=*/12, *montaria,
         DadosAtaquePorGrupo("ataque_total_machado", montador->Proto()), &tabuleiro, acao.mutable_por_entidade(1), &grupo_desfazer))
     << acao.por_entidade(1).DebugString();
 }
 
 TEST(TesteTalentoPericias, TesteTalentoMenteSobreMateriaCA) {
-  auto proto_orc = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto_orc = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   auto* talento = proto_orc.mutable_info_talentos()->add_outros();
   talento->set_id("mente_sobre_materia");
-  auto orc_sem = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  auto orc_sem = NovaEntidadeParaTestes(proto_orc, TabelasCriando());
   EXPECT_EQ(orc_sem->CA(*orc_sem, Entidade::CA_NORMAL), 19) << orc_sem->Proto().dados_defesa().ca().DebugString();
 
   auto* ic = proto_orc.add_info_classes();
   ic->set_id("mago");
   ic->set_nivel(1);
-  auto orc_com = NovaEntidadeParaTestes(proto_orc, g_tabelas);
+  auto orc_com = NovaEntidadeParaTestes(proto_orc, TabelasCriando());
   EXPECT_EQ(orc_com->CA(*orc_com, Entidade::CA_NORMAL), 20) << orc_com->Proto().dados_defesa().ca().DebugString();
 }
 
 TEST(TesteTalentoPericias, TesteAtaquePoderoso) {
-  const auto& modelo_orc = g_tabelas.ModeloEntidade("Orc Capitão");
-  auto orc = NovaEntidadeParaTestes(modelo_orc.entidade(), g_tabelas);
+  const auto& modelo_orc = TabelasCriando().ModeloEntidade("Orc Capitão");
+  auto orc = NovaEntidadeParaTestes(modelo_orc.entidade(), TabelasCriando());
   EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
   auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
   orc->AtualizaParcial(n.entidade());
@@ -1894,10 +1900,10 @@ TEST(TesteTalentoPericias, TesteAtaquePoderoso) {
 }
 
 TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplemento) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   auto* t = TalentoOuCria("ataque_poderoso", &proto);
   t->set_complemento("5");
-  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orc = NovaEntidadeParaTestes(proto, TabelasCriando());
   EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
   auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
   orc->AtualizaParcial(n.entidade());
@@ -1915,10 +1921,10 @@ TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplemento) {
 }
 
 TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplementoAcimaBba) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   auto* t = TalentoOuCria("ataque_poderoso", &proto);
   t->set_complemento("8");
-  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orc = NovaEntidadeParaTestes(proto, TabelasCriando());
   EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
   auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
   orc->AtualizaParcial(n.entidade());
@@ -1929,10 +1935,10 @@ TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplementoAcimaBba) {
 }
 
 TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplementoInvalido) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   auto* t = TalentoOuCria("ataque_poderoso", &proto);
   t->set_complemento("fooooo");
-  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orc = NovaEntidadeParaTestes(proto, TabelasCriando());
   EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
   auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
   orc->AtualizaParcial(n.entidade());
@@ -1943,13 +1949,13 @@ TEST(TesteTalentoPericias, TesteAtaquePoderosoComComplementoInvalido) {
 }
 
 TEST(TesteTalentoPericias, TesteAtaquePoderosoUmaMao) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   {
     auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
     da->set_empunhadura(EA_ARMA_APENAS);
     da->set_id_arma("espada_longa");
   }
-  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orc = NovaEntidadeParaTestes(proto, TabelasCriando());
   EXPECT_FALSE(AtacandoPoderosamente(orc->Proto()));
   auto n = PreencheNotificacaoAtacandoPoderosamente(true, *orc);
   orc->AtualizaParcial(n.entidade());
@@ -1962,11 +1968,11 @@ TEST(TesteTalentoPericias, TesteAtaquePoderosoUmaMao) {
 TEST(TesteTalentoPericias, TesteMobilidade) {
   DadosAtaque da_ataque;
   da_ataque.set_bonus_ataque_final(12);
-  const auto& modelo_orc = g_tabelas.ModeloEntidade("Orc Capitão");
-  auto orc = NovaEntidadeParaTestes(modelo_orc.entidade(), g_tabelas);
-  auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
+  const auto& modelo_orc = TabelasCriando().ModeloEntidade("Orc Capitão");
+  auto orc = NovaEntidadeParaTestes(modelo_orc.entidade(), TabelasCriando());
+  auto modelo_druida = TabelasCriando().ModeloEntidade("Halfling Druida 10");
   modelo_druida.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("mobilidade");
-  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
+  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), TabelasCriando());
   // 10 acerta na pinta.
   g_dados_teste.push(10);
   ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *druida, Posicao::default_instance(), /*ataque_oportunidade=*/false);
@@ -1997,22 +2003,22 @@ TEST(TesteTalentoPericias, TestePotencializarInvocacao) {
   ic->set_id("druida");
   ic->set_nivel(6);
   AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Clérigo");
   da->set_id_arma("invocar_aliado_natureza_i");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   AcaoProto acao = da->acao();
   ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
   ASSERT_EQ(acao.parametros_lancamento().parametros().size(), 5);
   ASSERT_EQ(acao.parametros_lancamento().parametros(0).id_modelo_entidade(), "Rato Atroz IANI");
-  const auto& modelo_rato = g_tabelas.ModeloEntidade(acao.parametros_lancamento().parametros(0).id_modelo_entidade());
+  const auto& modelo_rato = TabelasCriando().ModeloEntidade(acao.parametros_lancamento().parametros(0).id_modelo_entidade());
   EntidadeProto proto_rato = modelo_rato.entidade();
   ASSERT_TRUE(modelo_rato.has_parametros());
 
   {
-    std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
-    PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_rato.parametros(), *referencia, &proto_rato);
+    std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, TabelasCriando()));
+    PreencheModeloComParametros(TabelasCriando().Feitico(da->id_arma()), modelo_rato.parametros(), *referencia, &proto_rato);
     EXPECT_EQ(proto_rato.dados_vida(), "1d8+1");
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto_rato)), 10);
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto_rato)), 12);
@@ -2020,8 +2026,8 @@ TEST(TesteTalentoPericias, TestePotencializarInvocacao) {
 
   {
     proto.mutable_info_talentos()->add_gerais()->set_id("potencializar_invocacao");
-    std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
-    PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_rato.parametros(), *referencia, &proto_rato);
+    std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, TabelasCriando()));
+    PreencheModeloComParametros(TabelasCriando().Feitico(da->id_arma()), modelo_rato.parametros(), *referencia, &proto_rato);
     EXPECT_EQ(proto_rato.dados_vida(), "1d8+1+2");
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto_rato)), 14);
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, proto_rato)), 16);
@@ -2029,25 +2035,25 @@ TEST(TesteTalentoPericias, TestePotencializarInvocacao) {
 }
 
 TEST(TesteTalentoPericias, TesteTabeladoTalentosPericias) {
-  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+  for (const auto& modelo : TabelasCriando().TodosModelosEntidades().modelo()) {
     EntidadeProto proto = modelo.entidade();
     const int antes = proto.info_talentos().gerais().size();
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     const int depois = proto.info_talentos().gerais().size();
     EXPECT_LE(antes, depois) << "falhou para: " << modelo.id();
     for (const auto& talentos : { proto.info_talentos().gerais(), proto.info_talentos().automaticos(), proto.info_talentos().outros()}) {
       for (const auto& talento : talentos) {
-        EXPECT_FALSE(!talento.id().empty() && g_tabelas.Talento(talento.id()).id().empty())
+        EXPECT_FALSE(!talento.id().empty() && TabelasCriando().Talento(talento.id()).id().empty())
             << "talento invalido: " << talento.id() << " para modelo " << modelo.id();
       }
     }
     int total_gasto = 0;
     for (const auto& pericia : proto.info_pericias()) {
-      EXPECT_FALSE(g_tabelas.Pericia(pericia.id()).id().empty())
+      EXPECT_FALSE(TabelasCriando().Pericia(pericia.id()).id().empty())
           << "perícia inválida: " << pericia.id() << " para modelo " << modelo.id();
       total_gasto += pericia.pontos();
     }
-    int total_permitido = TotalPontosPericiaPermitidos(g_tabelas, proto);
+    int total_permitido = TotalPontosPericiaPermitidos(TabelasCriando(), proto);
     EXPECT_LE(total_gasto, total_permitido)
         << " modelo " << modelo.id() << " estourou limite de pericias. gasto " << total_gasto << ", permitido: " << total_permitido;
     if (total_gasto < total_permitido) {
@@ -2064,13 +2070,13 @@ TEST(TesteTalentoPericias, TramaDasSombras) {
     ic->set_nivel(7);
     proto.mutable_info_talentos()->add_outros()->set_id("magia_trama_sombras");
   }
-  auto mago = NovaEntidadeParaTestes(proto, g_tabelas);
-  EXPECT_EQ(NivelParaCalculoMagiasPorDia(g_tabelas, "mago", mago->Proto()), 7);
+  auto mago = NovaEntidadeParaTestes(proto, TabelasCriando());
+  EXPECT_EQ(NivelParaCalculoMagiasPorDia(TabelasCriando(), "mago", mago->Proto()), 7);
   EXPECT_EQ(mago->NivelConjurador("mago"), 7);
   EXPECT_EQ(mago->Proto().classe_feitico_ativa(), "mago");
-  EXPECT_EQ(mago->NivelConjuradorParaMagia("mago", g_tabelas.Feitico("bola_fogo")), 6);
-  EXPECT_EQ(mago->NivelConjuradorParaMagia("mago", g_tabelas.Feitico("enfeiticar_pessoa")), 8);
-  EXPECT_EQ(mago->NivelConjuradorParaMagia("mago", g_tabelas.Feitico("ler_magia")), 7);
+  EXPECT_EQ(mago->NivelConjuradorParaMagia("mago", TabelasCriando().Feitico("bola_fogo")), 6);
+  EXPECT_EQ(mago->NivelConjuradorParaMagia("mago", TabelasCriando().Feitico("enfeiticar_pessoa")), 8);
+  EXPECT_EQ(mago->NivelConjuradorParaMagia("mago", TabelasCriando().Feitico("ler_magia")), 7);
 }
 
 TEST(TesteTalentoPericias, AumentaNivelDeDruida) {
@@ -2085,10 +2091,10 @@ TEST(TesteTalentoPericias, AumentaNivelDeDruida) {
     ic->set_id("hathran");
     ic->set_nivel(2);
   }
-  RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(NivelParaCalculoMagiasPorDia(g_tabelas, "druida", proto), 9);
+  RecomputaDependencias(TabelasCriando(), &proto);
+  EXPECT_EQ(NivelParaCalculoMagiasPorDia(TabelasCriando(), "druida", proto), 9);
   EXPECT_EQ(NivelConjurador("druida", proto), 9);
-  EXPECT_EQ(NivelMaximoFeitico(g_tabelas, "druida", 9), 5);
+  EXPECT_EQ(NivelMaximoFeitico(TabelasCriando(), "druida", 9), 5);
   EXPECT_EQ(proto.classe_feitico_ativa(), "druida");
 }
 
@@ -2104,10 +2110,10 @@ TEST(TesteTalentoPericias, AumentaNivelDeRanger) {
     ic->set_id("agente_harpista");
     ic->set_nivel(2);
   }
-  RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(NivelParaCalculoMagiasPorDia(g_tabelas, "ranger", proto), 9);
+  RecomputaDependencias(TabelasCriando(), &proto);
+  EXPECT_EQ(NivelParaCalculoMagiasPorDia(TabelasCriando(), "ranger", proto), 9);
   EXPECT_EQ(NivelConjurador("ranger", proto), 4);
-  EXPECT_EQ(NivelMaximoFeitico(g_tabelas, "ranger", 9), 2);
+  EXPECT_EQ(NivelMaximoFeitico(TabelasCriando(), "ranger", 9), 2);
 }
 
 TEST(TesteTalentoPericias, AumentaNivelConjuradorDrenarForcaVital) {
@@ -2129,8 +2135,8 @@ TEST(TesteTalentoPericias, AumentaNivelConjuradorDrenarForcaVital) {
   }
   AtribuiBaseAtributo(12, TA_FORCA, &proto);
 
-  RecomputaDependencias(g_tabelas, &proto);
-  EXPECT_EQ(NivelParaCalculoMagiasPorDia(g_tabelas, "clerigo", proto), 8);
+  RecomputaDependencias(TabelasCriando(), &proto);
+  EXPECT_EQ(NivelParaCalculoMagiasPorDia(TabelasCriando(), "clerigo", proto), 8);
   EXPECT_EQ(NivelConjurador("clerigo", proto), 9);
   EXPECT_EQ(ModificadorAtributo(proto.atributos().forca()), ModificadorAtributo(14));
 }
@@ -2142,20 +2148,20 @@ TEST(TesteTalentoPericias, TesteHabilidadesEspeciais) {
 
   ic->set_nivel(1);
   proto.mutable_dados_defesa()->set_evasao_estatica(TE_EVASAO_APRIMORADA);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_FALSE(PossuiHabilidadeEspecial("evasao", proto));
   EXPECT_FALSE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
   EXPECT_TRUE(TipoEvasaoPersonagem(proto) == TE_EVASAO_APRIMORADA);
 
   ic->set_nivel(2);
   proto.mutable_dados_defesa()->clear_evasao_estatica();
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(PossuiHabilidadeEspecial("evasao", proto));
   EXPECT_FALSE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
   EXPECT_TRUE(TipoEvasaoPersonagem(proto) == TE_EVASAO);
 
   ic->set_nivel(9);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(PossuiHabilidadeEspecial("evasao", proto));
   EXPECT_TRUE(PossuiHabilidadeEspecial("evasao_aprimorada", proto));
   EXPECT_TRUE(TipoEvasaoPersonagem(proto) == TE_EVASAO_APRIMORADA);
@@ -2169,10 +2175,10 @@ TEST(TesteVazamento, TesteVazamento) {
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_CURA_ACELERADA);
   evento->add_complementos(5);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   const int tamanho = proto.ByteSize();
   for (int i = 0; i < 2; ++i) {
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_EQ(tamanho, proto.ByteSize()) << ", iteração: " << i << ", proto: " << proto.ShortDebugString();
     //break;
   }
@@ -2186,10 +2192,10 @@ TEST(TesteVazamento, TesteVazamento2) {
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_FLECHA_ACIDA);
   evento->set_rodadas(5);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   const int tamanho = proto.ByteSize();
   for (int i = 0; i < 5; ++i) {
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_EQ(tamanho, proto.ByteSize()) << ", iteração: " << i;
     //break;
   }
@@ -2204,10 +2210,10 @@ TEST(TesteVazamento, TesteVazamento3) {
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_QUEIMANDO_FOGO_ALQUIMICO);
   evento->set_rodadas(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   const int tamanho = proto.ByteSize();
   for (int i = 0; i < 5; ++i) {
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_EQ(tamanho, proto.ByteSize()) << ", iteração: " << i;
     //break;
   }
@@ -2231,7 +2237,7 @@ TEST(TesteVezes, TesteRemoveLimiteVezesExpirados) {
     da->set_limite_vezes(0);
   }
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 1);
   EXPECT_EQ(proto.dados_ataque(0).id_arma(), "espada_curta");
 }
@@ -2249,7 +2255,7 @@ TEST(TesteVezes, TesteRefrescamento) {
     da->set_limite_vezes_original(3);
     da->set_usado_rodada(true);
   }
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
   ASSERT_EQ(e->Proto().dados_ataque_size(), 1);
   auto grupo = NovoGrupoNotificacoes();
   auto grupo_desfazer = NovoGrupoNotificacoes();
@@ -2277,7 +2283,7 @@ TEST(TesteVezes, TesteRefrescamento2) {
     da->set_limite_vezes_original(3);
     da->set_usado_rodada(true);
   }
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
   ASSERT_EQ(e->Proto().dados_ataque_size(), 1);
 
   auto grupo = NovoGrupoNotificacoes();
@@ -2306,7 +2312,7 @@ TEST(TesteTalentoPericias, TesteTalentoPericias) {
     AtribuiBaseAtributo(14, TA_DESTREZA, &proto);
     proto.mutable_info_talentos()->add_gerais()->set_id("maos_leves");
     PericiaCriando("usar_cordas", &proto)->set_pontos(5);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
   }
 
   // 2 des, 2 talento, 5 pontos de classe.
@@ -2317,7 +2323,7 @@ TEST(TesteTalentoPericias, TesteTalentoPericias) {
   // Pericia deixa de ser de classe.
   ASSERT_FALSE(proto.info_classes().empty());
   proto.mutable_info_classes(0)->set_id("guerreiro");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(6, BonusTotal(Pericia("usar_cordas", proto).bonus()));
   // Sem sinergia.
   EXPECT_EQ(1, BonusTotal(Pericia("escalar", proto).bonus()));
@@ -2354,7 +2360,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
 
   EntidadeProto forma_filtrada = ProtoFormaAlternativa(forma);
 
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
   EXPECT_EQ(TM_PEQUENO, e->Proto().tamanho());
   {
     e->AtualizaParcial(forma_filtrada);
@@ -2388,12 +2394,12 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa) {
 }
 
 TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Humano Druida 5");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Humano Druida 5");
   EntidadeProto proto = modelo.entidade();
   auto* anel = proto.mutable_tesouro()->add_aneis();
   anel->set_em_uso(true);
   anel->set_id("protecao_1");
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   const int max_pv = entidade->MaximoPontosVida();
   {
     // 10 de dano.
@@ -2421,7 +2427,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
    // Vira urso.
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    PreencheNotificacaoFormaAlternativa(g_tabelas, entidade->Proto(), &n, nullptr);
+    PreencheNotificacaoFormaAlternativa(TabelasCriando(), entidade->Proto(), &n, nullptr);
     ASSERT_EQ(n.notificacao_size(), 2);
     EntidadeProto teste;
     *teste.mutable_tesouro()->mutable_itens_mundanos() = n.notificacao(0).entidade().tesouro().itens_mundanos();
@@ -2446,7 +2452,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
     // Volta humano.
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    PreencheNotificacaoFormaAlternativa(g_tabelas, entidade->Proto(), &n, nullptr);
+    PreencheNotificacaoFormaAlternativa(TabelasCriando(), entidade->Proto(), &n, nullptr);
     ASSERT_EQ(n.notificacao_size(), 1);
     entidade->AtualizaParcial(n.notificacao(0).entidade());
     const EntidadeProto& proto = entidade->Proto();
@@ -2466,9 +2472,9 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa2) {
 }
 
 TEST(TesteFormaAlternativa, TesteFormaAlternativa3) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Elfo Druida 5");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Elfo Druida 5");
   EntidadeProto proto = modelo.entidade();
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   {
     const EntidadeProto& proto = entidade->Proto();
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 16);
@@ -2478,7 +2484,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa3) {
    // Vira urso.
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    PreencheNotificacaoFormaAlternativa(g_tabelas, entidade->Proto(), &n, nullptr);
+    PreencheNotificacaoFormaAlternativa(TabelasCriando(), entidade->Proto(), &n, nullptr);
     ASSERT_EQ(n.notificacao_size(), 2);
     entidade->AtualizaParcial(n.notificacao(0).entidade());
     const EntidadeProto& proto = entidade->Proto();
@@ -2489,7 +2495,7 @@ TEST(TesteFormaAlternativa, TesteFormaAlternativa3) {
     // Volta humano.
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    PreencheNotificacaoFormaAlternativa(g_tabelas, entidade->Proto(), &n, nullptr);
+    PreencheNotificacaoFormaAlternativa(TabelasCriando(), entidade->Proto(), &n, nullptr);
     ASSERT_EQ(n.notificacao_size(), 1);
     entidade->AtualizaParcial(n.notificacao(0).entidade());
     const EntidadeProto& proto = entidade->Proto();
@@ -2504,9 +2510,9 @@ TEST(TesteDependencias, TestePericias) {
   auto* ic = proto.add_info_classes();
   ic->set_id("ladino");
   ic->set_nivel(1);
-  EXPECT_TRUE(PericiaDeClasse(g_tabelas, "observar", proto));
-  EXPECT_FALSE(PericiaDeClasse(g_tabelas, "adestrar_animais", proto));
-  EXPECT_EQ(TotalPontosPericiaPermitidos(g_tabelas, proto), 36);
+  EXPECT_TRUE(PericiaDeClasse(TabelasCriando(), "observar", proto));
+  EXPECT_FALSE(PericiaDeClasse(TabelasCriando(), "adestrar_animais", proto));
+  EXPECT_EQ(TotalPontosPericiaPermitidos(TabelasCriando(), proto), 36);
 }
 
 TEST(TesteDependencias, TesteNiveisNegativos) {
@@ -2527,7 +2533,7 @@ TEST(TesteDependencias, TesteNiveisNegativos) {
   }
   AtribuiBonus(1, TB_BASE, "base", proto.mutable_niveis_negativos_dinamicos());
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // Clerigo tem 2 de bonus.
   EXPECT_EQ(2, ic->bba());
   // Mas o ataque recebe -1 do nivel negativo.
@@ -2555,7 +2561,7 @@ TEST(TesteDependencias, TesteNiveisNegativosDrenarTemporario) {
   }
   AtribuiBonus(1, TB_BASE, "base", proto.mutable_niveis_negativos_dinamicos());
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.niveis_negativos(), 2);
 
   {
@@ -2567,27 +2573,27 @@ TEST(TesteDependencias, TesteNiveisNegativosDrenarTemporario) {
     evento->set_id_unico(2);
   }
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.niveis_negativos(), 4);
 }
 
 TEST(TesteDependencias, TesteReducaoDanoModeloAbissal) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Centopéia Enorme Abissal");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Centopéia Enorme Abissal");
   EntidadeProto proto = modelo.entidade();
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   proto = entidade->Proto();
 
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();
   da->set_id_arma("adaga");
   da->set_obra_prima(true);
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
 
   ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
   EXPECT_EQ(resultado.delta_pv, -5) << resultado.texto;
 
   da->set_bonus_magico(1);
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
   resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
   EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
 }
@@ -2597,22 +2603,22 @@ TEST(TesteDependencias, TesteReducaoDanoBarbaro) {
   auto* ic = proto.add_info_classes();
   ic->set_id("barbaro");
   ic->set_nivel(3);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(0, proto.dados_defesa().reducao_dano_barbaro());
   ic->set_nivel(7);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(1, proto.dados_defesa().reducao_dano_barbaro());
   ic->set_nivel(10);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(2, proto.dados_defesa().reducao_dano_barbaro());
   ic->set_nivel(13);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(3, proto.dados_defesa().reducao_dano_barbaro());
   ic->set_nivel(16);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(4, proto.dados_defesa().reducao_dano_barbaro());
   ic->set_nivel(19);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(5, proto.dados_defesa().reducao_dano_barbaro());
 }
 
@@ -2631,7 +2637,7 @@ TEST(TesteDependencias, TesteInvestida) {
     evento->add_complementos(2);
   }
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // 0 + 2.
   EXPECT_EQ(2, proto.dados_ataque(0).bonus_ataque_final());
   // 10 - 2.
@@ -2662,7 +2668,7 @@ TEST(TesteDependencias, TesteInspirarCoragem) {
     da->set_id_arma("maos_flamejantes");
   }
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 3);
   EXPECT_EQ(proto.dados_ataque(0).dano(), "1d8");
   EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 3);
@@ -2673,7 +2679,7 @@ TEST(TesteDependencias, TesteInspirarCoragem) {
     evento->set_id_efeito(EFEITO_INSPIRAR_CORAGEM);
     evento->add_complementos(1);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 4)
       << proto.dados_ataque(0).DebugString();
   EXPECT_EQ(proto.dados_ataque(0).dano(), "1d8+1");
@@ -2726,7 +2732,7 @@ TEST(TesteDependencias, TesteDependencias) {
   dd->set_bonus_magico_escudo(3);
   proto.mutable_tendencia()->set_simples(TD_LEAL_BOM);
   proto.set_ultimo_grupo_acao("espada_longa_escudo");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(3, ic->bba());
   // 16 da +3 de bonus.
   EXPECT_EQ(3, ModificadorAtributo(proto.atributos().forca()));
@@ -2766,8 +2772,8 @@ TEST(TesteDependencias, TesteDependencias) {
   EXPECT_GE(proto.tendencia().eixo_bem_mal(), 0.6f);
 
   proto.set_ultimo_grupo_acao("espada_longa_2_maos");
-  auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto ed = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto ea = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto ed = NovaEntidadeParaTestes(proto, TabelasCriando());
   // 16 normal +2 contra o bem.
   EXPECT_EQ(18, ed->CA(*ea, Entidade::CA_NORMAL));
   // 6 normal + 2 contra o bem.
@@ -2804,7 +2810,7 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
 
   // Fortitude maior.
   TalentoOuCria("fortitude_maior", &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // 3 + 4 con + 2 fortitude maior;
   EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
   // 1 + 3 destreza.
@@ -2814,7 +2820,7 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
 
   // Adiciona reflexos rapidos.
   TalentoOuCria("reflexos_rapidos", &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // 3 + 3 con + 2 fortitude maior;
   EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
   // 1 + 3 destreza + 2 reflexos rapidos.
@@ -2824,7 +2830,7 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
 
   // Adiciona vontade de ferro.
   TalentoOuCria("vontade_ferro", &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // 3 + 3 con + 2 fortitude maior;
   EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
   // 1 + 3 destreza + 2 reflexos rapidos.
@@ -2833,12 +2839,12 @@ TEST(TesteDependencias, TesteDependenciasTalentosSalvacoes) {
   EXPECT_EQ(5, BonusTotal(proto.dados_defesa().salvacao_vontade()));
   // Adiciona de novo (sem efeito).
   proto.mutable_info_talentos()->add_gerais()->set_id("vontade_ferro");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(9, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
 
   // Remove reflexos rapidos.
   TalentoOuCria("reflexos_rapidos", &proto)->set_id("");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // 1 + 3 destreza.
   EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
 }
@@ -2860,22 +2866,22 @@ TEST(TesteDependencias, TesteAgarrar) {
   proto.set_tamanho(TM_GRANDE);
 
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // 3 + 2 forca + 4 tamanho.
   EXPECT_EQ(9, proto.bba().agarrar());
 
   proto.mutable_info_talentos()->add_gerais()->set_id("agarrar_aprimorado");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(13, proto.bba().agarrar());
 }
 
 TEST(TesteDependencias, TesteAgarrar2) {
   DadosAtaque da_ataque;
   da_ataque.set_bonus_ataque_final(12);
-  const auto& modelo_trex = g_tabelas.ModeloEntidade("Tiranossauro");
-  auto trex = NovaEntidadeParaTestes(modelo_trex.entidade(), g_tabelas);
-  const auto& modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
-  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
+  const auto& modelo_trex = TabelasCriando().ModeloEntidade("Tiranossauro");
+  auto trex = NovaEntidadeParaTestes(modelo_trex.entidade(), TabelasCriando());
+  const auto& modelo_druida = TabelasCriando().ModeloEntidade("Halfling Druida 10");
+  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), TabelasCriando());
   g_dados_teste.push(10);
   g_dados_teste.push(10);
   ResultadoAtaqueVsDefesa resultado = AtaqueVsDefesaAgarrar(*trex, *druida);
@@ -2889,14 +2895,14 @@ TEST(TesteDependencias, TesteVirtude) {
   EntidadeProto proto;
   std::vector<int> ids_unicos;
   auto* ev = AdicionaEvento(DadosIniciativa{.iniciativa=3, .modificador=4}, /*origem*/"virtude", EFEITO_VIRTUDE, /*rodadas=*/10, /*continuo=*/false, &ids_unicos, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   auto* po = OrigemSePresente(TB_SEM_NOME, "virtude", proto.mutable_pontos_vida_temporarios_por_fonte());
   ASSERT_NE(po, nullptr) << proto.pontos_vida_temporarios_por_fonte().DebugString();
   EXPECT_EQ(proto.pontos_vida_temporarios(), 1);
 
   // Nova chamada, mantem o mesmo valor. Verifica duplicatas.
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
   ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size());
   po = OrigemSePresente(TB_SEM_NOME, "virtude", proto.mutable_pontos_vida_temporarios_por_fonte());
@@ -2905,7 +2911,7 @@ TEST(TesteDependencias, TesteVirtude) {
 
   // Termina o efeito.
   ev->set_rodadas(-1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.pontos_vida_temporarios(), 0) << proto.pontos_vida_temporarios_por_fonte().DebugString();
 }
 
@@ -2920,7 +2926,7 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
     da->set_id_arma("vitalidade_ilusoria");
   }
   CentralColetora central;
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
   std::vector<int> ids_unicos = IdsUnicosProto(e->Proto());
   auto* da = e->DadoCorrente();
   if (da == nullptr) {
@@ -2930,7 +2936,7 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
   ASSERT_NE(da, nullptr);
   ntf::Notificacao grupo_desfazer;
   g_dados_teste.push(5);  // 5 no d10.
-  AplicaEfeitosAdicionais(g_tabelas, 0.0f, /*salvou=*/false, *e, *e, TAL_DESCONHECIDO, *da, acao.add_por_entidade(), &acao, &ids_unicos, &ids_unicos, &grupo_desfazer, &central);
+  AplicaEfeitosAdicionais(TabelasCriando(), 0.0f, /*salvou=*/false, *e, *e, TAL_DESCONHECIDO, *da, acao.add_por_entidade(), &acao, &ids_unicos, &ids_unicos, &grupo_desfazer, &central);
   auto& ns = central.Notificacoes();
   ASSERT_EQ(ns.size(), 1U) << ", acao: " << acao.DebugString();
   e->AtualizaParcial(ns[0]->entidade());
@@ -2943,7 +2949,7 @@ TEST(TesteDependencias, TesteVitalidadeIlusoria) {
   const int valor = po->valor();
 
   // Nova chamada, mantem o mesmo valor. Verifica duplicatas.
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
   ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size());
   po = OrigemSePresente(TB_SEM_NOME, "vitalidade_ilusoria", proto.mutable_pontos_vida_temporarios_por_fonte());
@@ -2969,7 +2975,7 @@ TEST(TesteDependencias, TesteAjuda) {
   std::vector<int> ids_unicos;
   auto* ev = AdicionaEvento(std::nullopt, /*origem=*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(5);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   auto* po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
   ASSERT_NE(po, nullptr);
@@ -2977,7 +2983,7 @@ TEST(TesteDependencias, TesteAjuda) {
   const int valor = po->valor();
 
   // Nova chamada, mantem o mesmo valor. Verifica duplicatas.
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual().size());
   ASSERT_EQ(1, proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size());
   po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
@@ -2986,7 +2992,7 @@ TEST(TesteDependencias, TesteAjuda) {
 
   // Termina o efeito.
   ev->set_rodadas(-1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.pontos_vida_temporarios(), 0);
 }
 
@@ -2998,7 +3004,7 @@ TEST(TesteDependencias, TesteAjuda2) {
   ev = AdicionaEvento(std::nullopt, /*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(6);
   int id_segundo_evento = ev->id_unico();
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   ASSERT_EQ(proto.pontos_vida_temporarios_por_fonte().bonus_individual().size(), 1) << proto.pontos_vida_temporarios_por_fonte().DebugString();
   ASSERT_EQ(proto.pontos_vida_temporarios_por_fonte().bonus_individual(0).por_origem().size(), 1);
@@ -3010,7 +3016,7 @@ TEST(TesteDependencias, TesteAjuda2) {
   po->set_id_unico(id_segundo_evento);
   ev->set_rodadas(-1);
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.pontos_vida_temporarios(), 0);
 }
 
@@ -3020,13 +3026,13 @@ TEST(TesteDependencias, TesteAjuda3) {
   std::vector<int> ids_unicos;
   auto* ev = AdicionaEvento(std::nullopt, /*origem*/"ajuda", EFEITO_AJUDA, 10, false, &ids_unicos, &proto);
   ev->add_complementos(7);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   // Neste ponto, espera-se uma entrada em pontos de vida temporario SEM_NOME, "ajuda".
   auto* po = OrigemSePresente(TB_SEM_NOME, "ajuda", proto.mutable_pontos_vida_temporarios_por_fonte());
   ASSERT_NE(po, nullptr);
   EXPECT_EQ(proto.pontos_vida_temporarios(), 7);
   {
-    std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+    std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
     EXPECT_EQ(entidade->PontosVida(), 7);
     // Aplica 1 de dano:
     ntf::Notificacao n;
@@ -3158,8 +3164,8 @@ TEST(TesteMatriz, TesteMatriz) {
 
 TEST(TesteFurtivo, TesteFurtivo) {
   {
-    const auto& modelo = g_tabelas.ModeloEntidade("Carniçal");
-    auto ed = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    const auto& modelo = TabelasCriando().ModeloEntidade("Carniçal");
+    auto ed = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
     EXPECT_TRUE(ed->ImuneFurtivo(*ed));
   }
   {
@@ -3168,11 +3174,11 @@ TEST(TesteFurtivo, TesteFurtivo) {
     evento->set_id_efeito(EFEITO_NUBLAR);  // da camuflagem.
     evento->set_rodadas(1);
     evento->set_id_unico(1);
-    auto ed = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto ed = NovaEntidadeParaTestes(proto, TabelasCriando());
     auto* icl = proto.add_info_classes();
     icl->set_id("ladino");
     icl->set_nivel(4);
-    auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto ea = NovaEntidadeParaTestes(proto, TabelasCriando());
     EXPECT_TRUE(ed->ImuneFurtivo(*ea));
   }
   {
@@ -3180,11 +3186,11 @@ TEST(TesteFurtivo, TesteFurtivo) {
     auto* ic = proto.add_info_classes();
     ic->set_id("barbaro");
     ic->set_nivel(5);  // ganha esquiva sobrenatural aprimorada.
-    auto ed = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto ed = NovaEntidadeParaTestes(proto, TabelasCriando());
     EXPECT_TRUE(ed->ImuneFurtivo(*ed));
     ic->set_id("ladino");
     ic->set_nivel(9);
-    auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto ea = NovaEntidadeParaTestes(proto, TabelasCriando());
     EXPECT_FALSE(ed->ImuneFurtivo(*ea));
   }
   {
@@ -3195,16 +3201,16 @@ TEST(TesteFurtivo, TesteFurtivo) {
     auto* icl = proto.add_info_classes();
     icl->set_id("ladino");
     icl->set_nivel(4);  // ganha esquiva sobrenatural, converte em aprimorada.
-    auto ed = NovaEntidadeParaTestes(proto, g_tabelas);  // nivel total 6.
+    auto ed = NovaEntidadeParaTestes(proto, TabelasCriando());  // nivel total 6.
     EXPECT_TRUE(ed->ImuneFurtivo(*ed));
     {
       icl->set_nivel(9);  // nivel ladino 9.
-      auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
+      auto ea = NovaEntidadeParaTestes(proto, TabelasCriando());
       EXPECT_TRUE(ed->ImuneFurtivo(*ea));
     }
     {
       icl->set_nivel(10);  // nivel ladino 10.
-      auto ea = NovaEntidadeParaTestes(proto, g_tabelas);
+      auto ea = NovaEntidadeParaTestes(proto, TabelasCriando());
       EXPECT_FALSE(ed->ImuneFurtivo(*ea));
     }
   }
@@ -3243,7 +3249,7 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
     auto* ic = ed.add_info_classes();
     ic->set_id("barbaro");
     ic->set_nivel(5);  // ganha esquiva sobrenatural.
-    RecomputaDependencias(g_tabelas, &ed);
+    RecomputaDependencias(TabelasCriando(), &ed);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
@@ -3252,7 +3258,7 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
     auto* ic = ed.add_info_classes();
     ic->set_id("ladino");
     ic->set_nivel(8);  // ganha esquiva sobrenatural.
-    RecomputaDependencias(g_tabelas, &ed);
+    RecomputaDependencias(TabelasCriando(), &ed);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
@@ -3268,7 +3274,7 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
       ic->set_id("ladino");
       ic->set_nivel(4);  // ganha esquiva.
     }
-    RecomputaDependencias(g_tabelas, &ed);
+    RecomputaDependencias(TabelasCriando(), &ed);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 0);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
@@ -3284,7 +3290,7 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
       ic->set_id("ladino");
       ic->set_nivel(4);  // sem esquiva.
     }
-    RecomputaDependencias(g_tabelas, &ed);
+    RecomputaDependencias(TabelasCriando(), &ed);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
@@ -3300,14 +3306,14 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueFlanqueando) {
       ic->set_id("ladino");
       ic->set_nivel(3);  // sem esquiva.
     }
-    RecomputaDependencias(g_tabelas, &ed);
+    RecomputaDependencias(TabelasCriando(), &ed);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, ea, ed), 2);
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::DISTANCIA, ea, ed), 0);
   }
 }
 
 TEST(TesteModificadorAtaque, TesteModificadorAtaqueElementalTerra) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Elemental da Terra (Pequeno)");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Elemental da Terra (Pequeno)");
   auto el = modelo.entidade();
   EntidadeProto ed;
   EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, el, ed), 1);
@@ -3333,7 +3339,7 @@ TEST(TesteModificadorAtaque, TesteModificadorAtaqueElementalTerra) {
 }
 
 TEST(TesteModificadorAtaque, TesteModificadorAtaqueElementalAgua) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Elemental da Água (Pequeno)");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Elemental da Água (Pequeno)");
   ASSERT_EQ(modelo.id(), "Elemental da Água (Pequeno)");
   auto el = modelo.entidade();
   EntidadeProto ed;
@@ -3411,7 +3417,7 @@ TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Mago");
     da->set_id_arma("missil_magico");
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
 
     EXPECT_EQ(da->alcance_m(), 26 * TAMANHO_LADO_QUADRADO);
   }
@@ -3423,7 +3429,7 @@ TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Mago");
     da->set_id_arma("missil_magico");
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
 
     EXPECT_EQ(da->alcance_m(), 24 * TAMANHO_LADO_QUADRADO);
   }
@@ -3432,10 +3438,10 @@ TEST(TesteModificadorAlcance, TesteModificadorAlcance) {
 TEST(TesteRodadasDinamico, TesteRodadasDinamico) {
   ntf::Notificacao n;
   EntidadeProto proto;
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
   std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
   PreencheNotificacaoEventoEfeitoAdicional(
-      proto.id(), std::nullopt, /*nivel*/3, *e, g_tabelas.Feitico("sono").acao().efeitos_adicionais(0), &ids_unicos, &n, nullptr);
+      proto.id(), std::nullopt, /*nivel*/3, *e, TabelasCriando().Feitico("sono").acao().efeitos_adicionais(0), &ids_unicos, &n, nullptr);
   ASSERT_FALSE(n.entidade().evento().empty());
   EXPECT_EQ(n.entidade().evento(0).rodadas(), 30);
   ASSERT_EQ(ids_unicos.size(), 1ULL);
@@ -3450,13 +3456,13 @@ TEST(TesteRodadasDinamico, TesteRodadasDinamicoDependenciaAnterior) {
     ic->set_nivel(4);
     ic->set_id("mago");
   }
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, TabelasCriando()));
   {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Mago");
     da->set_id_arma("leque_cromatico");
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   std::vector<int> ids_unicos = IdsUnicosEntidade(*alvo);
   AcaoProto acao = proto.dados_ataque(0).acao();
@@ -3474,10 +3480,10 @@ TEST(TesteRodadasDinamico, TesteRodadasDinamicoDependenciaAnterior2) {
     ic->set_nivel(4);
     ic->set_id("mago");
   }
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   proto.mutable_tesouro()->add_itens_mundanos()->set_id("bolsa_cola");
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   std::vector<int> ids_unicos = IdsUnicosEntidade(*alvo);
   AcaoProto acao = DadosAtaquePorGrupo("bolsa_cola", proto).acao();
@@ -3495,11 +3501,11 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteEfeitosAdicionaisMultiplos) {
   auto* ic = proto.add_info_classes();
   ic->set_id("mago");
   ic->set_nivel(3);
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
   EXPECT_EQ(ValorFinalPericia("ouvir", e->Proto()), 0);
   ntf::Notificacao n;
   std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
-  const auto& feitico = g_tabelas.Feitico("aterrorizar");
+  const auto& feitico = TabelasCriando().Feitico("aterrorizar");
   ASSERT_EQ(feitico.acao().efeitos_adicionais().size(), 2);
   PreencheNotificacaoEventoEfeitoAdicional(
       proto.id(), std::nullopt, /*nivel=*/3, *e,
@@ -3528,10 +3534,10 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
     auto* ic = proto.add_info_classes();
     ic->set_id("mago");
     ic->set_nivel(3);
-    std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+    std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
     ntf::Notificacao n;
     std::vector<int> ids_unicos = IdsUnicosEntidade(*e);
-    const auto& feitico = g_tabelas.Feitico("toque_idiotice");
+    const auto& feitico = TabelasCriando().Feitico("toque_idiotice");
     ASSERT_EQ(feitico.acao().efeitos_adicionais().size(), 3);
     g_dados_teste.push(1);
     g_dados_teste.push(2);
@@ -3583,7 +3589,7 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
 }
 
 TEST(TesteEfeitos, TesteArmaEnvenenada) {
-  auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
   {
     auto* evento = proto.add_evento();
     evento->set_id_efeito(EFEITO_ARMA_ENVENENADA);
@@ -3592,7 +3598,7 @@ TEST(TesteEfeitos, TesteArmaEnvenenada) {
     evento->set_rodadas(1);
     evento->set_id_unico(666);
   }
-  auto ranger = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto ranger = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("2 Armas", ranger->Proto());
     EXPECT_EQ(da.veneno().id_unico_efeito(), 666);
@@ -3605,14 +3611,14 @@ TEST(TesteEfeitos, TesteArmaEnvenenada) {
 }
 
 TEST(TesteEfeitos, TesteAbencoarArma) {
-  auto proto = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Humana Ranger 9 Duas Armas").entidade();
   {
     auto* evento = proto.add_evento();
     evento->set_id_efeito(EFEITO_ABENCOAR_ARMA);
     evento->set_rodadas(1);
     evento->set_id_unico(666);
   }
-  auto ranger = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto ranger = NovaEntidadeParaTestes(proto, TabelasCriando());
   auto* evento = AchaEvento(666, ranger->Proto());
   ASSERT_NE(evento, nullptr);
   ASSERT_FALSE(evento->complementos_str().empty());
@@ -3628,11 +3634,11 @@ TEST(TesteEfeitos, TesteFuriaFadiga) {
   auto* ic = proto.add_info_classes();
   ic->set_id("barbaro");
   ic->set_nivel(3);
-  auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto e = NovaEntidadeParaTestes(proto, TabelasCriando());
 
   {
     auto grupo = NovoGrupoNotificacoes();
-    EXPECT_TRUE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+    EXPECT_TRUE(PreencheNotificacaoAlternarFuria(TabelasCriando(), *e, grupo.get(), nullptr));
     ASSERT_EQ(grupo->notificacao().size(), 1);
     e->AtualizaParcial(grupo->notificacao(0).entidade());
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 14);
@@ -3641,7 +3647,7 @@ TEST(TesteEfeitos, TesteFuriaFadiga) {
   }
   {
     auto grupo = NovoGrupoNotificacoes();
-    EXPECT_FALSE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+    EXPECT_FALSE(PreencheNotificacaoAlternarFuria(TabelasCriando(), *e, grupo.get(), nullptr));
     ASSERT_EQ(grupo->notificacao().size(), 2);
     e->AtualizaParcial(grupo->notificacao(0).entidade());
     e->AtualizaParcial(grupo->notificacao(1).entidade());
@@ -3661,11 +3667,11 @@ TEST(TesteEfeitos, TesteFuriaSemFadiga17) {
   auto* ic = proto.add_info_classes();
   ic->set_id("barbaro");
   ic->set_nivel(17);
-  auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto e = NovaEntidadeParaTestes(proto, TabelasCriando());
 
   {
     auto grupo = NovoGrupoNotificacoes();
-    EXPECT_TRUE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+    EXPECT_TRUE(PreencheNotificacaoAlternarFuria(TabelasCriando(), *e, grupo.get(), nullptr));
     ASSERT_EQ(grupo->notificacao().size(), 1);
     e->AtualizaParcial(grupo->notificacao(0).entidade());
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 16);
@@ -3674,7 +3680,7 @@ TEST(TesteEfeitos, TesteFuriaSemFadiga17) {
   }
   {
     auto grupo = NovoGrupoNotificacoes();
-    EXPECT_FALSE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+    EXPECT_FALSE(PreencheNotificacaoAlternarFuria(TabelasCriando(), *e, grupo.get(), nullptr));
     ASSERT_EQ(grupo->notificacao().size(), 1);
     e->AtualizaParcial(grupo->notificacao(0).entidade());
     EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 10);
@@ -3692,10 +3698,10 @@ TEST(TesteEfeitos, TesteFuriaFazerDesfazer) {
   auto* ic = proto.add_info_classes();
   ic->set_id("barbaro");
   ic->set_nivel(3);
-  auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto e = NovaEntidadeParaTestes(proto, TabelasCriando());
 
   auto grupo = NovoGrupoNotificacoes();
-  EXPECT_TRUE(PreencheNotificacaoAlternarFuria(g_tabelas, *e, grupo.get(), nullptr));
+  EXPECT_TRUE(PreencheNotificacaoAlternarFuria(TabelasCriando(), *e, grupo.get(), nullptr));
   ASSERT_EQ(grupo->notificacao().size(), 1);
   e->AtualizaParcial(grupo->notificacao(0).entidade());
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, e->Proto())), 14);
@@ -3708,7 +3714,7 @@ TEST(TesteEfeitos, TesteFuriaFazerDesfazer) {
 }
 
 TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMaiorGarra) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Tigre Atroz");
   EntidadeProto proto = modelo.entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_PRESA_MAGICA_MAIOR);
@@ -3716,7 +3722,7 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMaiorGarra) {
   evento->set_id_unico(2);
   evento->add_complementos_str("garra");
   proto.set_gerar_agarrar(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 8);
   // Normal;
   EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+10") << proto.dados_ataque(0).DebugString();
@@ -3739,14 +3745,14 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMaiorGarra) {
 }
 
 TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMaiorGeral) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Tigre Atroz");
   EntidadeProto proto = modelo.entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_PRESA_MAGICA_MAIOR);
   evento->set_rodadas(HORAS_EM_RODADAS * 4);
   evento->set_id_unico(2);
   proto.set_gerar_agarrar(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 8);
   // Normal;
   EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+9") << proto.dados_ataque(0).DebugString();
@@ -3769,14 +3775,14 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMaiorGeral) {
 }
 
 TEST(TesteEfeitos, TesteTigreAtrozPresaMagica) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Tigre Atroz");
   EntidadeProto proto = modelo.entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_PRESA_MAGICA);
   evento->set_rodadas(1);
   evento->set_id_unico(2);
   proto.set_gerar_agarrar(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 8);
   // Normal;
   EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+9") << proto.dados_ataque(0).DebugString();
@@ -3799,7 +3805,7 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagica) {
 }
 
 TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMordida) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Tigre Atroz");
   EntidadeProto proto = modelo.entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_PRESA_MAGICA);
@@ -3807,7 +3813,7 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMordida) {
   evento->set_id_unico(2);
   evento->add_complementos_str("mordida");
   proto.set_gerar_agarrar(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 8);
   // Normal;
   EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+8") << proto.dados_ataque(0).DebugString();
@@ -3830,7 +3836,7 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaMordida) {
 }
 
 TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaGarra) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Tigre Atroz");
   EntidadeProto proto = modelo.entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_PRESA_MAGICA);
@@ -3838,7 +3844,7 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaGarra) {
   evento->set_id_unico(2);
   evento->add_complementos_str("garra");
   proto.set_gerar_agarrar(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 8);
   // Normal;
   EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+9") << proto.dados_ataque(0).DebugString();
@@ -3861,7 +3867,7 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaGarra) {
 }
 
 TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaGarraTraseira) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Tigre Atroz");
   EntidadeProto proto = modelo.entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_PRESA_MAGICA);
@@ -3869,7 +3875,7 @@ TEST(TesteEfeitos, TesteTigreAtrozPresaMagicaGarraTraseira) {
   evento->set_id_unico(2);
   evento->add_complementos_str("garra traseira");
   proto.set_gerar_agarrar(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 8);
   // Normal;
   EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+8") << proto.dados_ataque(0).DebugString();
@@ -3902,7 +3908,7 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamicaSlotAcima) {
     da->set_tipo_ataque("Feitiço de Mago");
     da->set_id_arma("bola_fogo");
     da->set_nivel_slot(5);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
 
     EXPECT_EQ(da->dificuldade_salvacao(), 14);
   }
@@ -3918,7 +3924,7 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamicaSlotAcima) {
     da->set_tipo_ataque("Feitiço de Mago");
     da->set_id_arma("bola_fogo");
     da->set_nivel_slot(5);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
 
     EXPECT_EQ(da->dificuldade_salvacao(), 16);
   }
@@ -3934,7 +3940,7 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Mago");
     da->set_id_arma("bola_fogo");
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
 
     EXPECT_EQ(da->dificuldade_salvacao(), 14);
   }
@@ -3947,7 +3953,7 @@ TEST(TesteSalvacaoDinamica, TesteSalvacaoDinamica) {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Feiticeiro");
     da->set_id_arma("bola_fogo");
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
 
     EXPECT_EQ(da->dificuldade_salvacao(), 15);
   }
@@ -3963,7 +3969,7 @@ TEST(TesteSalvacao, TesteModificadoresPorTipoDiferente) {
   da->set_tipo_ataque("Feitiço de Feiticeiro");
   da->set_id_arma("riso_histerico");
   da->set_eh_feitico(true);
-  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, TabelasCriando()));
   {
     g_dados_teste.push(9);
     auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *referencia);
@@ -3977,7 +3983,7 @@ TEST(TesteSalvacao, TesteModificadoresPorTipoDiferente) {
 
   // Ganha +4 de bonus.
   proto.add_tipo_dnd(TIPO_BESTA_MAGICA);
-  std::unique_ptr<Entidade> besta_magica(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> besta_magica(NovaEntidadeParaTestes(proto, TabelasCriando()));
   {
     g_dados_teste.push(5);
     auto [delta, passou, texto] = AtaqueVsSalvacao(0, referencia->Proto().dados_ataque(0), *referencia, *besta_magica);
@@ -4001,7 +4007,7 @@ TEST(TesteFeiticos, TesteCurarNaoAplicaForca) {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Clérigo");
     da->set_id_arma("curar_ferimentos_minimos");
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_EQ(da->dano(), "1");
     EXPECT_TRUE(da->cura());
   }
@@ -4020,7 +4026,7 @@ TEST(TesteFeiticos, TesteBencao) {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Clérigo");
     da->set_id_arma("bencao");
-    referencia = NovaEntidadeParaTestes(proto, g_tabelas);
+    referencia = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
   CentralColetora central;
   ntf::Notificacao grupo_desfazer;
@@ -4029,7 +4035,7 @@ TEST(TesteFeiticos, TesteBencao) {
   ASSERT_NE(da, nullptr);
   AcaoProto acao = da->acao();
   AplicaEfeitosAdicionais(
-      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_DESCONHECIDO, *da, acao.add_por_entidade(),
+      TabelasCriando(), /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_DESCONHECIDO, *da, acao.add_por_entidade(),
       &acao, &ids_unicos, &ids_unicos,
       &grupo_desfazer, &central);
   ASSERT_FALSE(central.Notificacoes().empty());
@@ -4052,7 +4058,7 @@ TEST(TesteFeiticos, TesteMaldicaoMenor) {
     auto* da = proto.add_dados_ataque();
     da->set_tipo_ataque("Feitiço de Clérigo");
     da->set_id_arma("maldicao_menor");
-    referencia = NovaEntidadeParaTestes(proto, g_tabelas);
+    referencia = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
   CentralColetora central;
   ntf::Notificacao grupo_desfazer;
@@ -4061,7 +4067,7 @@ TEST(TesteFeiticos, TesteMaldicaoMenor) {
   ASSERT_NE(da, nullptr);
   AcaoProto acao = da->acao();
   AplicaEfeitosAdicionais(
-      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_INIMIGO, *da, acao.add_por_entidade(),
+      TabelasCriando(), /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_INIMIGO, *da, acao.add_por_entidade(),
       &acao, &ids_unicos, &ids_unicos,
       &grupo_desfazer, &central);
   ASSERT_FALSE(central.Notificacoes().empty());
@@ -4093,7 +4099,7 @@ TEST(TesteFeiticos, TesteOracao) {
     da->set_id_arma("espada_curta");
 
     proto.mutable_tesouro()->add_itens_mundanos()->set_id("pedra_trovao");
-    referencia = NovaEntidadeParaTestes(proto, g_tabelas);
+    referencia = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
   CentralColetora central;
   ntf::Notificacao grupo_desfazer;
@@ -4102,7 +4108,7 @@ TEST(TesteFeiticos, TesteOracao) {
   ASSERT_NE(da, nullptr);
   AcaoProto acao = da->acao();
   AplicaEfeitosAdicionais(
-      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_ALIADO, *da, acao.add_por_entidade(),
+      TabelasCriando(), /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_ALIADO, *da, acao.add_por_entidade(),
       &acao, &ids_unicos, &ids_unicos,
       &grupo_desfazer, &central);
   {
@@ -4121,7 +4127,7 @@ TEST(TesteFeiticos, TesteOracao) {
   }
 
   AplicaEfeitosAdicionais(
-      g_tabelas, /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_INIMIGO, *da, acao.add_por_entidade(),
+      TabelasCriando(), /*atraso_s=*/0, /*salvou=*/false, *referencia, *referencia, TAL_INIMIGO, *da, acao.add_por_entidade(),
       &acao, &ids_unicos, &ids_unicos,
       &grupo_desfazer, &central);
   ASSERT_EQ(central.Notificacoes().size(), 2U);
@@ -4141,7 +4147,7 @@ TEST(TesteFeiticos, TesteFeiticos) {
     ic->set_id("mago");
     ic->set_nivel(3);
     AtribuiBaseAtributo(14, TA_INTELIGENCIA, &proto);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
 
     ASSERT_EQ(proto.feiticos_classes().size(), 1);
     EXPECT_EQ(proto.feiticos_classes(0).id_classe(), "mago");
@@ -4160,7 +4166,7 @@ TEST(TesteFeiticos, TesteFeiticos) {
     ic->set_id("clerigo");
     ic->set_nivel(1);
     AtribuiBaseAtributo(12, TA_SABEDORIA, &proto);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
 
     ASSERT_EQ(proto.feiticos_classes().size(), 1);
     EXPECT_EQ(proto.feiticos_classes(0).id_classe(), "clerigo");
@@ -4177,7 +4183,7 @@ TEST(TesteFeiticos, TesteFeiticos) {
     ic->set_id("ranger");
     ic->set_nivel(10);
     AtribuiBaseAtributo(12, TA_SABEDORIA, &proto);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
 
     ASSERT_EQ(proto.feiticos_classes().size(), 1);
     EXPECT_EQ(proto.feiticos_classes(0).id_classe(), "ranger");
@@ -4197,20 +4203,20 @@ TEST(TesteFeiticos, TesteProtegerOutro) {
   ic->set_id("clerigo");
   ic->set_nivel(3);
   AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Clérigo");
   da->set_id_arma("proteger_outro");
-  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
-  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(g_tabelas, da->tipo_ataque()), proto);
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, TabelasCriando()));
+  const int nivel_conjurador = NivelConjurador(TipoAtaqueParaClasse(TabelasCriando(), da->tipo_ataque()), proto);
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   AcaoProto acao = da->acao();
 
   EntidadeProto proto_alvo;
   {
-    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, g_tabelas));
+    std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto_alvo, TabelasCriando()));
     EXPECT_TRUE(AcaoAfetaAlvo(acao, *alvo));
     std::vector<int> ids_unicos;
     ntf::Notificacao n;
@@ -4237,9 +4243,9 @@ TEST(TesteFeiticos, TesteMaosFlamejantesComoDominio) {
     auto* ifc = FeiticosClasse("clerigo", &proto);
     ifc->add_dominios("fogo");
   }
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   auto grupo = NovoGrupoNotificacoes();
-  ExecutaFeitico(g_tabelas, g_tabelas.Feitico("maos_flamejantes"), /*nivel_conjurador=*/3, "clerigo", 1, std::nullopt, *entidade, grupo.get(), nullptr);
+  ExecutaFeitico(TabelasCriando(), TabelasCriando().Feitico("maos_flamejantes"), /*nivel_conjurador=*/3, "clerigo", 1, std::nullopt, *entidade, grupo.get(), nullptr);
   for (const auto& n : grupo->notificacao()) {
     entidade->AtualizaParcial(n.entidade());
   }
@@ -4247,14 +4253,14 @@ TEST(TesteFeiticos, TesteMaosFlamejantesComoDominio) {
 }
 
 TEST(TesteFeiticos, TesteTramaDasSombras) {
-  const auto& modelo_vulto = g_tabelas.ModeloEntidade("Vulto Feiticeiro 5");
+  const auto& modelo_vulto = TabelasCriando().ModeloEntidade("Vulto Feiticeiro 5");
   auto proto_vulto = modelo_vulto.entidade();
   proto_vulto.mutable_info_talentos()->add_outros()->set_id("magia_trama_sombras");
-  auto vulto = NovaEntidadeParaTestes(proto_vulto, g_tabelas);
+  auto vulto = NovaEntidadeParaTestes(proto_vulto, TabelasCriando());
   auto grupo = NovoGrupoNotificacoes();
   ExecutaFeitico(
-      g_tabelas, g_tabelas.Feitico("missil_magico"),
-      /*nivel_conjurador=*/vulto->NivelConjuradorParaMagia("mago", g_tabelas.Feitico("missil_magico")), "mago", 1,
+      TabelasCriando(), TabelasCriando().Feitico("missil_magico"),
+      /*nivel_conjurador=*/vulto->NivelConjuradorParaMagia("mago", TabelasCriando().Feitico("missil_magico")), "mago", 1,
       std::nullopt, *vulto, grupo.get(), nullptr);
   for (const auto& n : grupo->notificacao()) {
     vulto->AtualizaParcial(n.entidade());
@@ -4268,27 +4274,27 @@ TEST(TesteFeiticos, TesteEsferaFlamejante) {
   ic->set_id("mago");
   ic->set_nivel(3);
   AtribuiBaseAtributo(14, TA_INTELIGENCIA, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Mago");
   da->set_id_arma("esfera_flamejante");
-  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   AcaoProto acao = da->acao();
   ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
   ASSERT_EQ(acao.id_modelo_entidade(), "Esfera Flamejante");
 
-  const auto& modelo_esfera = g_tabelas.ModeloEntidade(acao.id_modelo_entidade());
+  const auto& modelo_esfera = TabelasCriando().ModeloEntidade(acao.id_modelo_entidade());
   EntidadeProto proto_esfera = modelo_esfera.entidade();
   ASSERT_TRUE(modelo_esfera.has_parametros());
-  PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_esfera.parametros(), *referencia, &proto_esfera);
+  PreencheModeloComParametros(TabelasCriando().Feitico(da->id_arma()), modelo_esfera.parametros(), *referencia, &proto_esfera);
 
   ASSERT_FALSE(proto_esfera.dados_ataque().empty());
   EXPECT_EQ(proto_esfera.dados_ataque(0).dificuldade_salvacao(), 14);
 
-  RecomputaDependencias(g_tabelas, &proto_esfera);
+  RecomputaDependencias(TabelasCriando(), &proto_esfera);
   ASSERT_FALSE(proto_esfera.dados_ataque().empty());
   EXPECT_EQ(proto_esfera.dados_ataque(0).dificuldade_salvacao(), 14);
 
@@ -4297,7 +4303,7 @@ TEST(TesteFeiticos, TesteEsferaFlamejante) {
     EntidadeProto proto_esfera = modelo_esfera.entidade();
     ASSERT_TRUE(modelo_esfera.has_parametros());
     PreencheModeloComParametros(ArmaProto::default_instance(), modelo_esfera.parametros(), *referencia, &proto_esfera);
-    RecomputaDependencias(g_tabelas, &proto_esfera);
+    RecomputaDependencias(TabelasCriando(), &proto_esfera);
     ASSERT_FALSE(proto_esfera.dados_ataque().empty());
     EXPECT_EQ(proto_esfera.dados_ataque(0).dificuldade_salvacao(), 14);
   }
@@ -4309,23 +4315,23 @@ TEST(TesteFeiticos, TesteArmaEspiritual) {
   ic->set_id("clerigo");
   ic->set_nivel(6);
   AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Clérigo");
   da->set_id_arma("arma_espiritual");
-  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   AcaoProto acao = da->acao();
   ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
   ASSERT_EQ(acao.parametros_lancamento().parametros().size(), 5);
   ASSERT_EQ(acao.parametros_lancamento().parametros(3).id_modelo_entidade(), "Arma Espiritual Espada");
 
-  const auto& modelo_arma = g_tabelas.ModeloEntidade(acao.parametros_lancamento().parametros(2).id_modelo_entidade());
+  const auto& modelo_arma = TabelasCriando().ModeloEntidade(acao.parametros_lancamento().parametros(2).id_modelo_entidade());
   EntidadeProto proto_arma = modelo_arma.entidade();
   ASSERT_TRUE(modelo_arma.has_parametros());
-  PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_arma.parametros(), *referencia, &proto_arma);
+  PreencheModeloComParametros(TabelasCriando().Feitico(da->id_arma()), modelo_arma.parametros(), *referencia, &proto_arma);
 
   ASSERT_FALSE(proto_arma.dados_ataque().empty());
   EXPECT_EQ(proto_arma.dados_ataque(0).dano_basico(), "1d8+2");
@@ -4337,22 +4343,22 @@ TEST(TesteFeiticos, TesteMuralhaLaminas) {
   ic->set_id("clerigo");
   ic->set_nivel(16);
   AtribuiBaseAtributo(16, TA_SABEDORIA, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Clérigo");
   da->set_id_arma("barreira_laminas");
-  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   AcaoProto acao = da->acao();
   ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
   ASSERT_EQ(acao.parametros_lancamento().parametros_size(), 2);
   for (int i = 0; i < acao.parametros_lancamento().parametros_size(); ++i) {
-    const auto& modelo_arma = g_tabelas.ModeloEntidade(acao.parametros_lancamento().parametros(i).id_modelo_entidade());
+    const auto& modelo_arma = TabelasCriando().ModeloEntidade(acao.parametros_lancamento().parametros(i).id_modelo_entidade());
     EntidadeProto proto_arma = modelo_arma.entidade();
     ASSERT_TRUE(modelo_arma.has_parametros());
-    PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_arma.parametros(), *referencia, &proto_arma);
+    PreencheModeloComParametros(TabelasCriando().Feitico(da->id_arma()), modelo_arma.parametros(), *referencia, &proto_arma);
 
     ASSERT_FALSE(proto_arma.dados_ataque().empty());
     EXPECT_EQ(proto_arma.dados_ataque(0).dano_basico(), "15d6");
@@ -4365,37 +4371,37 @@ TEST(TesteFeiticos, TesteConstricao) {
   ic->set_id("druida");
   ic->set_nivel(3);
   AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   auto* da = proto.add_dados_ataque();
   da->set_tipo_ataque("Feitiço de Druida");
   da->set_id_arma("constricao");
-  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> referencia(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   AcaoProto acao = da->acao();
   ASSERT_EQ(acao.tipo(), ACAO_CRIACAO_ENTIDADE);
   ASSERT_EQ(acao.id_modelo_entidade(), "Constrição");
 
-  const auto& modelo_constricao = g_tabelas.ModeloEntidade(acao.id_modelo_entidade());
+  const auto& modelo_constricao = TabelasCriando().ModeloEntidade(acao.id_modelo_entidade());
   EntidadeProto proto_constricao = modelo_constricao.entidade();
   ASSERT_TRUE(modelo_constricao.has_parametros());
-  PreencheModeloComParametros(g_tabelas.Feitico(da->id_arma()), modelo_constricao.parametros(), *referencia, &proto_constricao);
+  PreencheModeloComParametros(TabelasCriando().Feitico(da->id_arma()), modelo_constricao.parametros(), *referencia, &proto_constricao);
 
   ASSERT_FALSE(proto_constricao.dados_ataque().empty());
   EXPECT_EQ(proto_constricao.dados_ataque(0).dificuldade_salvacao(), 13);
 
-  RecomputaDependencias(g_tabelas, &proto_constricao);
+  RecomputaDependencias(TabelasCriando(), &proto_constricao);
   ASSERT_FALSE(proto_constricao.dados_ataque().empty());
   EXPECT_EQ(proto_constricao.dados_ataque(0).dificuldade_salvacao(), 13);
 }
 
 TEST(TesteFeiticos, TesteConjuracoesPossuiModeloValido) {
-  for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
+  for (const auto& feitico : TabelasCriando().todas().tabela_feiticos().armas()) {
     const auto& pl = feitico.acao().parametros_lancamento();
     if (pl.consequencia() != AcaoProto::CP_ATRIBUI_MODELO_ENTIDADE) continue;
     for (const auto& p : pl.parametros()) {
-      EXPECT_FALSE(g_tabelas.ModeloEntidade(p.id_modelo_entidade()).id().empty()) << "nao achei: " << p.id_modelo_entidade();
+      EXPECT_FALSE(TabelasCriando().ModeloEntidade(p.id_modelo_entidade()).id().empty()) << "nao achei: " << p.id_modelo_entidade();
     }
   }
 }
@@ -4403,13 +4409,13 @@ TEST(TesteFeiticos, TesteConjuracoesPossuiModeloValido) {
 TEST(TesteImunidades, TesteImunidadeElemento) {
   {
     EntidadeProto proto;
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_FALSE(EntidadeImuneElemento(proto, DESC_ACIDO));
   }
   {
     EntidadeProto proto;
     proto.mutable_dados_defesa()->add_imunidades(DESC_ACIDO);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_TRUE(EntidadeImuneElemento(proto, DESC_ACIDO));
   }
 }
@@ -4418,7 +4424,7 @@ TEST(TesteImunidades, TesteImunidadePadrao) {
   {
     EntidadeProto proto;
     proto.set_naturalmente_cego(true);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_FALSE(EntidadeImuneElemento(proto, DESC_MENTAL));
     EXPECT_TRUE(EntidadeImuneElemento(proto, DESC_MENTAL_PADRAO_VISIVEL));
   }
@@ -4427,13 +4433,13 @@ TEST(TesteImunidades, TesteImunidadePadrao) {
 TEST(TesteImunidades, TesteImunidadeFeiticoNativa) {
   {
     EntidadeProto proto;
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_FALSE(EntidadeImuneFeitico(proto, "bola_fogo"));
   }
   {
     EntidadeProto proto;
     proto.mutable_dados_defesa()->add_imunidade_feiticos()->set_id_feitico("bola_fogo");
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_TRUE(EntidadeImuneFeitico(proto, "bola_fogo"));
   }
 }
@@ -4445,11 +4451,11 @@ TEST(TesteImunidades, TesteImunidadeFeiticoEfeito) {
   evento->set_rodadas(1);
   evento->add_complementos_str("bola_fogo");
   evento->set_id_unico(2);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(EntidadeImuneFeitico(proto, "bola_fogo"));
 
   evento->set_rodadas(-1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_FALSE(EntidadeImuneFeitico(proto, "bola_fogo"));
 
   evento = proto.add_evento();
@@ -4457,7 +4463,7 @@ TEST(TesteImunidades, TesteImunidadeFeiticoEfeito) {
   evento->set_rodadas(1);
   evento->add_complementos_str("maos_flamejantes");
   evento->set_id_unico(2);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(EntidadeImuneFeitico(proto, "maos_flamejantes"));
 }
 
@@ -4469,22 +4475,22 @@ TEST(TesteImunidades, TesteReducaoDanoFormaGasosa) {
   auto* dd = proto.mutable_dados_defesa();
   dd->set_id_armadura("cota_malha");
   dd->set_bonus_magico_armadura(2);
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
   proto = e->Proto();
 
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();
   da->set_id_arma("adaga");
   da->set_obra_prima(true);
-  RecomputaDependencias(g_tabelas, &proto_ataque);
-  std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, g_tabelas));
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
+  std::unique_ptr<Entidade> ea(NovaEntidadeParaTestes(proto, TabelasCriando()));
   EXPECT_EQ(e->CA(*ea, Entidade::CA_NORMAL), 10);
 
   ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
   EXPECT_EQ(resultado.delta_pv, 0) << resultado.texto;
 
   da->set_bonus_magico(1);
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
   resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, da->descritores());
   EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
 }
@@ -4494,7 +4500,7 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     google::protobuf::RepeatedField<int> descritores;
     descritores.Add(DESC_FERRO_FRIO);
     EntidadeProto proto;
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(resultado.delta_pv, -10);
   }
@@ -4504,7 +4510,7 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->add_descritores(DESC_FERRO_FRIO);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
   }
@@ -4515,7 +4521,7 @@ TEST(TesteImunidades, TesteReducaoDanoSimples) {
     auto* rd = proto.mutable_dados_defesa()->add_reducao_dano();
     rd->set_valor(6);
     rd->add_descritores(DESC_FERRO_FRIO);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
   }
@@ -4531,7 +4537,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     rd->set_tipo_combinacao(COMB_E);
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
   }
@@ -4544,7 +4550,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     rd->set_tipo_combinacao(COMB_E);
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
   }
@@ -4558,7 +4564,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoE) {
     rd->set_tipo_combinacao(COMB_E);
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
   }
@@ -4573,7 +4579,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     rd->set_tipo_combinacao(COMB_OU);
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
   }
@@ -4586,7 +4592,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     rd->set_tipo_combinacao(COMB_OU);
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
   }
@@ -4599,7 +4605,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOu) {
     rd->set_tipo_combinacao(COMB_OU);
     rd->add_descritores(DESC_FERRO_FRIO);
     rd->add_descritores(DESC_BEM);
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto, descritores);
     EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
   }
@@ -4612,12 +4618,12 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoOuProtoAtaqueSucesso) {
   rd->set_tipo_combinacao(COMB_OU);
   rd->add_descritores(DESC_FERRO_FRIO);
   rd->add_descritores(DESC_BEM);
-  RecomputaDependencias(g_tabelas, &proto_defesa);
+  RecomputaDependencias(TabelasCriando(), &proto_defesa);
 
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();
   da->set_material_arma(DESC_FERRO_FRIO);
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
 
   ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
@@ -4630,12 +4636,12 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueFalhou) {
   rd->set_tipo_combinacao(COMB_E);
   rd->add_descritores(DESC_FERRO_FRIO);
   rd->add_descritores(DESC_BEM);
-  RecomputaDependencias(g_tabelas, &proto_defesa);
+  RecomputaDependencias(TabelasCriando(), &proto_defesa);
 
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();
   da->set_material_arma(DESC_FERRO_FRIO);
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
 
   ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
@@ -4649,13 +4655,13 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueSucesso) {
   rd->add_descritores(DESC_FERRO_FRIO);
   rd->add_descritores(DESC_PERFURANTE);
   rd->add_descritores(DESC_CORTANTE);
-  RecomputaDependencias(g_tabelas, &proto_defesa);
+  RecomputaDependencias(TabelasCriando(), &proto_defesa);
 
   EntidadeProto proto_ataque;
   auto* da = proto_ataque.add_dados_ataque();
   da->set_material_arma(DESC_FERRO_FRIO);
   da->set_id_arma("adaga");  // implica DESC_PERFURANTE e DESC_CORTANTE
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
 
   ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
@@ -4668,7 +4674,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoSucesso) {
   rd->set_tipo_combinacao(COMB_E);
   rd->add_descritores(DESC_FERRO_FRIO);
   rd->add_descritores(DESC_BEM);
-  RecomputaDependencias(g_tabelas, &proto_defesa);
+  RecomputaDependencias(TabelasCriando(), &proto_defesa);
 
   EntidadeProto proto_ataque;
   auto* evento = proto_ataque.add_evento();
@@ -4678,7 +4684,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoSucesso) {
   auto* da = proto_ataque.add_dados_ataque();
   da->set_material_arma(DESC_FERRO_FRIO);
   da->set_rotulo("rotulo_teste");
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
 
   ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
@@ -4691,7 +4697,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
   rd->set_tipo_combinacao(COMB_E);
   rd->add_descritores(DESC_FERRO_FRIO);
   rd->add_descritores(DESC_BEM);
-  RecomputaDependencias(g_tabelas, &proto_defesa);
+  RecomputaDependencias(TabelasCriando(), &proto_defesa);
 
   EntidadeProto proto_ataque;
   auto* evento = proto_ataque.add_evento();
@@ -4702,7 +4708,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhado2Sucesso) {
   auto* da = proto_ataque.add_dados_ataque();
   da->set_material_arma(DESC_FERRO_FRIO);
   da->set_rotulo("rotulo_teste");
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
 
   ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(resultado.delta_pv, -10) << resultado.texto;
@@ -4715,7 +4721,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
   rd->set_tipo_combinacao(COMB_E);
   rd->add_descritores(DESC_FERRO_FRIO);
   rd->add_descritores(DESC_BEM);
-  RecomputaDependencias(g_tabelas, &proto_defesa);
+  RecomputaDependencias(TabelasCriando(), &proto_defesa);
 
   EntidadeProto proto_ataque;
   auto* evento = proto_ataque.add_evento();
@@ -4727,7 +4733,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
   da->set_tipo_ataque("Ataque Corpo a Corpo");
   da->set_material_arma(DESC_FERRO_FRIO);
   da->set_rotulo("rotulo_teste");
-  RecomputaDependencias(g_tabelas, &proto_ataque);
+  RecomputaDependencias(TabelasCriando(), &proto_ataque);
 
   ResultadoReducaoDano resultado = AlteraDeltaPontosVidaPorMelhorReducao(-10, proto_defesa, proto_ataque.dados_ataque(0).descritores());
   EXPECT_EQ(resultado.delta_pv, -4) << resultado.texto;
@@ -4735,7 +4741,7 @@ TEST(TesteImunidades, TesteReducaoDanoCombinacaoEProtoAtaqueAlinhadoFalha) {
 
 TEST(TesteImunidades, TesteImunidadesNada) {
   EntidadeProto proto;
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   std::unique_ptr<ntf::Notificacao> n_efeito;
   ntf::Notificacao grupo_desfazer;
   EXPECT_EQ(ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO, &n_efeito, &grupo_desfazer).causa, ALT_NENHUMA);
@@ -4749,7 +4755,7 @@ TEST(TesteImunidades, TesteEscudoVsMisseisMagicos) {
     evento->set_id_unico(0);
     evento->set_rodadas(1);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   DadosAtaque da;
   da.set_id_arma("missil_magico");
   std::unique_ptr<ntf::Notificacao> n_efeito;
@@ -4779,7 +4785,7 @@ TEST(TesteImunidades, TesteEscudoVsMisseisMagicosBrocheParcial) {
     evento->set_rodadas(1);
     evento->add_complementos(3);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   DadosAtaque da;
   da.set_id_arma("missil_magico");
   std::unique_ptr<ntf::Notificacao> n_efeito;
@@ -4804,7 +4810,7 @@ TEST(TesteImunidades, TesteEscudoVsMisseisMagicosBrocheTudo) {
     evento->set_rodadas(1);
     evento->add_complementos(3);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   DadosAtaque da;
   da.set_id_arma("missil_magico");
   std::unique_ptr<ntf::Notificacao> n_efeito;
@@ -4821,7 +4827,7 @@ TEST(TesteImunidades, TesteEscudoVsMisseisMagicosBrocheTudo) {
 TEST(TesteImunidades, TesteImunidade) {
   EntidadeProto proto;
   proto.mutable_dados_defesa()->add_imunidades(DESC_ACIDO);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   std::unique_ptr<ntf::Notificacao> n_efeito;
   ntf::Notificacao grupo_desfazer;
   auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO, &n_efeito, &grupo_desfazer);
@@ -4834,7 +4840,7 @@ TEST(TesteImunidades, TesteResistencia) {
   auto* resistencia = proto.mutable_dados_defesa()->add_resistencia_elementos();
   resistencia->set_valor(10);
   resistencia->set_descritor(DESC_ACIDO);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   std::unique_ptr<ntf::Notificacao> n_efeito;
   ntf::Notificacao grupo_desfazer;
   auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_ACIDO, &n_efeito, &grupo_desfazer);
@@ -4851,7 +4857,7 @@ TEST(TesteImunidades, TesteMultiplasResistencia) {
   resistencia2->set_valor(12);
   resistencia2->set_descritor(DESC_ACIDO);
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   std::unique_ptr<ntf::Notificacao> n_efeito;
   ntf::Notificacao grupo_desfazer;
   auto resultado = ImunidadeOuResistenciaParaElemento(-15, DadosAtaque::default_instance(), proto, DESC_ACIDO, &n_efeito, &grupo_desfazer);
@@ -4865,7 +4871,7 @@ TEST(TesteImunidades, TesteResistenciaNaoBate) {
   resistencia->set_valor(10);
   resistencia->set_descritor(DESC_ACIDO);
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   std::unique_ptr<ntf::Notificacao> n_efeito;
   ntf::Notificacao grupo_desfazer;
   auto resultado = ImunidadeOuResistenciaParaElemento(-10, DadosAtaque::default_instance(), proto, DESC_FOGO, &n_efeito, &grupo_desfazer);
@@ -4882,14 +4888,14 @@ TEST(TesteImunidades, TesteCelestial) {
     resistencia->set_valor(10);
     resistencia->set_descritor(DESC_ACIDO);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 0);
   EXPECT_EQ(proto.dados_defesa().resistencia_elementos().size(), 1);
 
   auto* celestial = proto.add_modelos();
   // RM: 6, resistencia frio, acido ou eletricidade: 5.
   celestial->set_id_efeito(EFEITO_MODELO_CELESTIAL);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 6);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
@@ -4904,7 +4910,7 @@ TEST(TesteImunidades, TesteCelestial) {
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).descritor(), DESC_ELETRICIDADE);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(3).id_efeito_modelo(), EFEITO_MODELO_CELESTIAL);
   // De novo pra ver se num ta quebrando nada.
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 6);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
@@ -4930,14 +4936,14 @@ TEST(TesteImunidades, TesteAbissal) {
     resistencia->set_valor(11);
     resistencia->set_descritor(DESC_FOGO);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 0);
   EXPECT_EQ(proto.dados_defesa().resistencia_elementos().size(), 2);
 
   auto* celestial = proto.add_modelos();
   // RM: 9, frio, fogo: 5, reducao: 5.
   celestial->set_id_efeito(EFEITO_MODELO_ABISSAL);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 9);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
@@ -4954,7 +4960,7 @@ TEST(TesteImunidades, TesteAbissal) {
   ASSERT_EQ(proto.dados_defesa().reducao_dano(0).id_efeito_modelo(), EFEITO_MODELO_ABISSAL);
   ASSERT_TRUE(c_any(proto.dados_defesa().reducao_dano(0).descritores(), DESC_MAGICO));
   // De novo pra ver se num ta quebrando nada.
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 9);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos().size(), 4);
   ASSERT_EQ(proto.dados_defesa().resistencia_elementos(0).valor(), 10);
@@ -4974,7 +4980,7 @@ TEST(TesteImunidades, TesteAbissal) {
 
 TEST(TesteAfetaApenas, TesteAfetaApenasNegativo) {
   EntidadeProto proto;
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   AcaoProto acao;
   acao.add_afeta_apenas(TIPO_MORTO_VIVO);
@@ -4985,7 +4991,7 @@ TEST(TesteAfetaApenas, TesteAfetaApenasNegativo) {
 TEST(TesteAfetaApenas, TesteAfetaApenasPositivo) {
   EntidadeProto proto;
   proto.add_tipo_dnd(TIPO_MORTO_VIVO);
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   AcaoProto acao;
   acao.add_afeta_apenas(TIPO_MORTO_VIVO);
@@ -4995,7 +5001,7 @@ TEST(TesteAfetaApenas, TesteAfetaApenasPositivo) {
 
 TEST(TesteAfetaApenas, TesteAfetaApenasGenerico) {
   EntidadeProto proto;
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   AcaoProto acao;
 
@@ -5016,21 +5022,21 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada) {
     evento->add_complementos(3);
     evento->set_id_unico(1);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(5, CuraAcelerada(proto));
 }
 
 TEST(TesteModelo, TesteBalestra) {
   TabuleiroTeste tabuleiro;
-  auto tenente_proto = g_tabelas.ModeloEntidade("Humano Dragão Púrpura: Tenente 5").entidade();
+  auto tenente_proto = TabelasCriando().ModeloEntidade("Humano Dragão Púrpura: Tenente 5").entidade();
   tenente_proto.set_id(2);
-  auto* tenente = NovaEntidadeParaTestes(tenente_proto, g_tabelas, &tabuleiro).release();
+  auto* tenente = NovaEntidadeParaTestes(tenente_proto, TabelasCriando(), &tabuleiro).release();
   tabuleiro.InsereEntidades({tenente});
 
-  auto balestra_proto = g_tabelas.ModeloEntidade("Balestra").entidade();
+  auto balestra_proto = TabelasCriando().ModeloEntidade("Balestra").entidade();
   balestra_proto.set_id(1);
   balestra_proto.add_entidades_montadas(2);
-  auto* balestra = NovaEntidadeParaTestes(balestra_proto, g_tabelas, &tabuleiro).release();
+  auto* balestra = NovaEntidadeParaTestes(balestra_proto, TabelasCriando(), &tabuleiro).release();
   {
     const auto& da = DadosAtaquePorGrupo("flecha", balestra->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 2);  // +6 tenente, -4 tamanho da arma.
@@ -5040,8 +5046,8 @@ TEST(TesteModelo, TesteBalestra) {
 }
 
 TEST(TesteModelo, TesteOtyugh) {
-  auto proto = g_tabelas.ModeloEntidade("Otyugh").entidade();
-  auto otyugh = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Otyugh").entidade();
+  auto otyugh = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("ataque total", otyugh->Proto(), 0);
     EXPECT_EQ(da.bonus_ataque_final(), 4);
@@ -5093,8 +5099,8 @@ TEST(TesteModelo, TesteOtyugh) {
 
 
 TEST(TesteModelo, TesteEnxameCentepeias) {
-  auto proto = g_tabelas.ModeloEntidade("Enxame (centopéias)").entidade();
-  auto enxame = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Enxame (centopéias)").entidade();
+  auto enxame = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("enxame", enxame->Proto());
     EXPECT_EQ(da.dano(), "2d6");
@@ -5107,8 +5113,8 @@ TEST(TesteModelo, TesteEnxameCentepeias) {
 }
 
 TEST(TesteModelo, TesteEnxameRatos) {
-  auto proto = g_tabelas.ModeloEntidade("Enxame (ratos)").entidade();
-  auto enxame = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Enxame (ratos)").entidade();
+  auto enxame = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("enxame", enxame->Proto());
     EXPECT_EQ(da.dano(), "1d6");
@@ -5124,8 +5130,8 @@ TEST(TesteModelo, TesteEnxameRatos) {
 }
 
 TEST(TesteModelo, TesteFungoVioleta) {
-  auto proto = g_tabelas.ModeloEntidade("Fungo Violeta").entidade();
-  auto fungo = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Fungo Violeta").entidade();
+  auto fungo = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("corpo a corpo", fungo->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 3);
@@ -5136,8 +5142,8 @@ TEST(TesteModelo, TesteFungoVioleta) {
 }
 
 TEST(TesteModelo, TesteFungoVioleta6DV) {
-  auto proto = g_tabelas.ModeloEntidade("Fungo Violeta 6 DV").entidade();
-  auto fungo = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Fungo Violeta 6 DV").entidade();
+  auto fungo = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("corpo a corpo", fungo->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 6);
@@ -5161,7 +5167,7 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   proto.set_dano_nao_letal(2);
 
   ntf::Notificacao n;
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
   PreencheNotificacaoCuraAcelerada(*e, &n);
   e->AtualizaParcial(n.entidade());
 
@@ -5171,8 +5177,8 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
 }
 
 TEST(TesteModelo, TesteEspecialista7) {
-  auto proto = g_tabelas.ModeloEntidade("Humana Especialista (Tecelã) 7").entidade();
-  auto esp = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Humana Especialista (Tecelã) 7").entidade();
+  auto esp = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("corpo a corpo", esp->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 7);
@@ -5200,8 +5206,8 @@ TEST(TesteModelo, TesteEspecialista7) {
 }
 
 TEST(TesteModelo, TesteAnaoGuerreiro1Especialista11) {
-  auto proto = g_tabelas.ModeloEntidade("Anão Guerreiro 1/Especialista (Pedreiro) 11").entidade();
-  auto esp = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Anão Guerreiro 1/Especialista (Pedreiro) 11").entidade();
+  auto esp = NovaEntidadeParaTestes(proto, TabelasCriando());
   EXPECT_EQ(esp->Proto().dados_vida(), "10+11d6+24");
   {
     const auto& da = DadosAtaquePorGrupo("corpo a corpo", esp->Proto());
@@ -5229,8 +5235,8 @@ TEST(TesteModelo, TesteAnaoGuerreiro1Especialista11) {
 }
 
 TEST(TesteModelo, TesteWorg) {
-  auto proto = g_tabelas.ModeloEntidade("Worg").entidade();
-  auto worg = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Worg").entidade();
+  auto worg = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("mordida", worg->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 7);
@@ -5246,8 +5252,8 @@ TEST(TesteModelo, TesteWorg) {
 }
 
 TEST(TesteModelo, TesteGoblin) {
-  auto proto = g_tabelas.ModeloEntidade("Goblin").entidade();
-  auto goblin = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Goblin").entidade();
+  auto goblin = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("maca_estrela", goblin->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 2);
@@ -5270,8 +5276,8 @@ TEST(TesteModelo, TesteGoblin) {
 }
 
 TEST(TesteModelo, TesteKobold) {
-  auto proto = g_tabelas.ModeloEntidade("Kobold").entidade();
-  auto kobold = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Kobold").entidade();
+  auto kobold = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("lanca", kobold->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 1);
@@ -5296,8 +5302,8 @@ TEST(TesteModelo, TesteKobold) {
 }
 
 TEST(TesteModelo, TesteLadino5) {
-  auto proto = g_tabelas.ModeloEntidade("Humano Ladino 5").entidade();
-  auto ladino = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Humano Ladino 5").entidade();
+  auto ladino = NovaEntidadeParaTestes(proto, TabelasCriando());
   EXPECT_EQ(ladino->CA(*ladino, Entidade::CA_NORMAL), 13+3+1+1) << ladino->Proto().dados_defesa().ca().DebugString();
   {
     const auto& da = DadosAtaquePorGrupo("sabre", ladino->Proto());
@@ -5333,8 +5339,8 @@ TEST(TesteModelo, TesteLadino5) {
 }
 
 TEST(TesteModelo, TesteLadino7) {
-  auto proto = g_tabelas.ModeloEntidade("Humano Ladino 7").entidade();
-  auto ladino = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Humano Ladino 7").entidade();
+  auto ladino = NovaEntidadeParaTestes(proto, TabelasCriando());
   EXPECT_EQ(ladino->Proto().dados_vida(), "6+6d6+7");
   {
     const auto& da = DadosAtaquePorGrupo("corpo a corpo", ladino->Proto());
@@ -5365,8 +5371,8 @@ TEST(TesteModelo, TesteLadino7) {
 }
 
 TEST(TesteModelo, TesteBisao) {
-  auto proto = g_tabelas.ModeloEntidade("Bisão").entidade();
-  auto bisao = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Bisão").entidade();
+  auto bisao = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("chifrada", bisao->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 8);
@@ -5378,8 +5384,8 @@ TEST(TesteModelo, TesteBisao) {
 }
 
 TEST(TesteModelo, TesteCachorro) {
-  auto proto = g_tabelas.ModeloEntidade("Cachorro").entidade();
-  auto cachorro = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Cachorro").entidade();
+  auto cachorro = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("mordida", cachorro->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 2);
@@ -5396,8 +5402,8 @@ TEST(TesteModelo, TesteCachorro) {
 }
 
 TEST(TesteModelo, TesteCachorroMontaria) {
-  auto proto = g_tabelas.ModeloEntidade("Cachorro de Montaria").entidade();
-  auto cachorro = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Cachorro de Montaria").entidade();
+  auto cachorro = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("mordida", cachorro->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 3);
@@ -5414,8 +5420,8 @@ TEST(TesteModelo, TesteCachorroMontaria) {
 }
 
 TEST(TesteModelo, TesteEscorpiao) {
-  auto proto = g_tabelas.ModeloEntidade("Escorpião Monstruoso Médio").entidade();
-  auto escorpiao = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Escorpião Monstruoso Médio").entidade();
+  auto escorpiao = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 2);
@@ -5449,8 +5455,8 @@ TEST(TesteModelo, TesteEscorpiao) {
 }
 
 TEST(TesteModelo, TesteEscorpiaoEnorme) {
-  auto proto = g_tabelas.ModeloEntidade("Escorpião Monstruoso Enorme").entidade();
-  auto escorpiao = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Escorpião Monstruoso Enorme").entidade();
+  auto escorpiao = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("Ataque Total", escorpiao->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 11);
@@ -5484,8 +5490,8 @@ TEST(TesteModelo, TesteEscorpiaoEnorme) {
 }
 
 TEST(TesteModelo, TesteArbustoErrante) {
-  auto proto = g_tabelas.ModeloEntidade("Arbusto Errante").entidade();
-  auto arbusto = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Arbusto Errante").entidade();
+  auto arbusto = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("total_com_constricao", arbusto->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 11);
@@ -5516,8 +5522,8 @@ TEST(TesteModelo, TesteArbustoErrante) {
 }
 
 TEST(TesteModelo, TesteStirge) {
-  auto proto = g_tabelas.ModeloEntidade("Stirge").entidade();
-  auto stirge = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Stirge").entidade();
+  auto stirge = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("picada", stirge->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 7);
@@ -5535,8 +5541,8 @@ TEST(TesteModelo, TesteStirge) {
 }
 
 TEST(TesteModelo, TesteCarcaju) {
-  auto proto = g_tabelas.ModeloEntidade("Carcajú").entidade();
-  auto carcaju = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Carcajú").entidade();
+  auto carcaju = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("ataque", carcaju->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 4);
@@ -5561,8 +5567,8 @@ TEST(TesteModelo, TesteCarcaju) {
 }
 
 TEST(TesteModelo, TesteCarcajuAtroz) {
-  auto proto = g_tabelas.ModeloEntidade("Carcajú Atroz").entidade();
-  auto carcaju = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Carcajú Atroz").entidade();
+  auto carcaju = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("ataque", carcaju->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 8);
@@ -5586,8 +5592,8 @@ TEST(TesteModelo, TesteCarcajuAtroz) {
   EXPECT_EQ(ValorFinalPericia("observar", carcaju->Proto()), 7);
 }
 TEST(TesteModelo, TesteArminho) {
-  auto proto = g_tabelas.ModeloEntidade("Arminho").entidade();
-  auto arminho = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Arminho").entidade();
+  auto arminho = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("ataque", arminho->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 4);
@@ -5604,8 +5610,8 @@ TEST(TesteModelo, TesteArminho) {
 }
 
 TEST(TesteModelo, TesteArminhoAtroz) {
-  auto proto = g_tabelas.ModeloEntidade("Arminho Atroz").entidade();
-  auto arminho = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Arminho Atroz").entidade();
+  auto arminho = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("ataque", arminho->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 6);
@@ -5623,8 +5629,8 @@ TEST(TesteModelo, TesteArminhoAtroz) {
 }
 
 TEST(TesteModelo, TesteCaoInfernal) {
-  auto modelo = g_tabelas.ModeloEntidade("Cão Infernal");
-  auto cao = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Cão Infernal");
+  auto cao = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   {
     const auto& da = DadosAtaquePorGrupo("mordida", cao->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 5);
@@ -5655,8 +5661,8 @@ TEST(TesteModelo, TesteCaoInfernal) {
 TEST(TesteModelo, TesteRanger9) {
   // Forca 16, +3.
   // Destreza 12, +1.
-  auto modelo = g_tabelas.ModeloEntidade("Humana Ranger 9 Duas Armas");
-  auto ranger = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Humana Ranger 9 Duas Armas");
+  auto ranger = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   ASSERT_EQ(ranger->NivelClasse("ranger"), 9);
   EXPECT_EQ(FeiticosNivel("ranger", 1, ranger->Proto()).conhecidos().size(), 1);
   for (const auto& c : FeiticosNivel("ranger", 1, ranger->Proto()).conhecidos()) {
@@ -5718,8 +5724,8 @@ TEST(TesteModelo, TesteRanger9) {
 }
 
 TEST(TesteModelo, TesteGuepardo) {
-  auto modelo = g_tabelas.ModeloEntidade("Guepardo");
-  auto guepardo = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Guepardo");
+  auto guepardo = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   EXPECT_TRUE(guepardo->TemTipoDnD(TIPO_ANIMAL));
   ASSERT_EQ(guepardo->NivelClasse("animal"), 3);
   ASSERT_EQ(guepardo->Proto().tipo_visao(), VISAO_BAIXA_LUMINOSIDADE);
@@ -5737,8 +5743,8 @@ TEST(TesteModelo, TesteGuepardo) {
 }
 
 TEST(TesteModelo, TesteAbelhaGiganteCelestial) {
-  auto modelo = g_tabelas.ModeloEntidade("Abelha Gigante Celestial");
-  auto abelha = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Abelha Gigante Celestial");
+  auto abelha = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   EXPECT_TRUE(abelha->TemTipoDnD(TIPO_BESTA_MAGICA));
   EXPECT_TRUE(abelha->TemSubTipoDnD(SUBTIPO_PLANAR));
   ASSERT_EQ(abelha->NivelClasse("besta_magica"), 3);
@@ -5748,8 +5754,8 @@ TEST(TesteModelo, TesteAbelhaGiganteCelestial) {
 }
 
 TEST(TesteModelo, TesteLoboAbissal) {
-  auto modelo = g_tabelas.ModeloEntidade("Lobo Abissal");
-  auto lobo = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Lobo Abissal");
+  auto lobo = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   EXPECT_TRUE(lobo->TemTipoDnD(TIPO_BESTA_MAGICA));
   EXPECT_TRUE(lobo->TemSubTipoDnD(SUBTIPO_PLANAR));
   ASSERT_EQ(lobo->NivelClasse("besta_magica"), 2);
@@ -5759,15 +5765,15 @@ TEST(TesteModelo, TesteLoboAbissal) {
 }
 
 TEST(TesteModelo, TesteLeaoCelestial) {
-  auto modelo = g_tabelas.ModeloEntidade("Leão Celestial");
-  auto lc = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Leão Celestial");
+  auto lc = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   ASSERT_EQ(lc->Proto().tipo_visao(), VISAO_ESCURO_E_BAIXA_LUMINOSIDADE);
   ASSERT_FLOAT_EQ(lc->Proto().alcance_visao_m(), 18.0f);
 }
 
 TEST(TesteModelo, TestePlebeu1) {
-  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
-  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Humano Plebeu 1");
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   EXPECT_FALSE(plebeu->TemTipoDnD(TIPO_BESTA_MAGICA));
   EXPECT_FALSE(plebeu->TemSubTipoDnD(SUBTIPO_PLANAR));
   {
@@ -5792,7 +5798,7 @@ TEST(TesteModelo, TestePlebeu1) {
   {
     // Distancia sem pericia com tiro longo.
     modelo.mutable_entidade()->mutable_info_talentos()->add_outros()->set_id("tiro_longo");
-    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+    auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
     const auto& da = DadosAtaquePorGrupo("adaga", plebeu->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), -4);
     EXPECT_EQ(da.dano(), "1d4+1");
@@ -5803,11 +5809,11 @@ TEST(TesteModelo, TestePlebeu1) {
 }
 
 TEST(TesteModelo, TestePlebeu1Grande) {
-  auto proto = g_tabelas.ModeloEntidade("Humano Plebeu 1").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Humano Plebeu 1").entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_AUMENTAR_PESSOA);
   evento->set_rodadas(1);
-  auto plebeu = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto plebeu = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
@@ -5830,8 +5836,8 @@ TEST(TesteModelo, TestePlebeu1Grande) {
 }
 
 TEST(TesteModelo, TestePlebeu3) {
-  auto proto = g_tabelas.ModeloEntidade("Humano Plebeu 3").entidade();
-  auto plebeu = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Humano Plebeu 3").entidade();
+  auto plebeu = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
@@ -5854,8 +5860,8 @@ TEST(TesteModelo, TestePlebeu3) {
 }
 
 TEST(TesteModelo, TestePlebeu4) {
-  auto proto = g_tabelas.ModeloEntidade("Humano Plebeu 4").entidade();
-  auto plebeu = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Humano Plebeu 4").entidade();
+  auto plebeu = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("lanca_longa", plebeu->Proto());
@@ -5878,11 +5884,11 @@ TEST(TesteModelo, TestePlebeu4) {
 }
 
 TEST(TesteModelo, TestePlebeu4Grande) {
-  auto proto = g_tabelas.ModeloEntidade("Humano Plebeu 4").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Humano Plebeu 4").entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_AUMENTAR_PESSOA);
   evento->set_rodadas(1);
-  auto plebeu = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto plebeu = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("lanca_longa", plebeu->Proto());
@@ -5905,12 +5911,12 @@ TEST(TesteModelo, TestePlebeu4Grande) {
 }
 
 TEST(TesteModelo, TestePlebeu1Invertido) {
-  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  auto modelo = TabelasCriando().ModeloEntidade("Humano Plebeu 1");
   // Corpo a corpo.
   DadosAtaquePorGrupoOuCria("clava", modelo.mutable_entidade())->set_tipo_ataque("Ataque a Distância");
   // Distancia sem pericia.
   DadosAtaquePorGrupoOuCria("adaga", modelo.mutable_entidade())->set_tipo_ataque("Ataque Corpo a Corpo");
-  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("clava", plebeu->Proto());
@@ -5932,8 +5938,8 @@ TEST(TesteModelo, TestePlebeu1Invertido) {
 }
 
 TEST(TesteModelo, TestePlebeia1) {
-  auto modelo = g_tabelas.ModeloEntidade("Humana Plebeia 1");
-  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Humana Plebeia 1");
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("adaga cac", plebeu->Proto());
@@ -5951,8 +5957,8 @@ TEST(TesteModelo, TestePlebeia1) {
 }
 
 TEST(TesteModelo, TestePlebeia3) {
-  auto modelo = g_tabelas.ModeloEntidade("Humana Plebeia 3");
-  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Humana Plebeia 3");
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("adaga cac", plebeu->Proto());
@@ -5970,8 +5976,8 @@ TEST(TesteModelo, TestePlebeia3) {
 }
 
 TEST(TesteModelo, TestePlebeia6) {
-  auto modelo = g_tabelas.ModeloEntidade("Humana Plebeia 6");
-  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Humana Plebeia 6");
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("adaga cac", plebeu->Proto());
@@ -5989,8 +5995,8 @@ TEST(TesteModelo, TestePlebeia6) {
 }
 
 TEST(TesteModelo, TesteEsqueletoLobo) {
-  auto modelo = g_tabelas.ModeloEntidade("Esqueleto (Lobo 2)");
-  auto lobo = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto modelo = TabelasCriando().ModeloEntidade("Esqueleto (Lobo 2)");
+  auto lobo = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   const auto* da = lobo->DadoCorrente();
   ASSERT_NE(da, nullptr);
   EXPECT_EQ(da->bonus_ataque_final(), 2);
@@ -5998,13 +6004,13 @@ TEST(TesteModelo, TesteEsqueletoLobo) {
 }
 
 TEST(TesteModelo, TesteHalflingDruida10) {
-  auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
+  auto modelo_druida = TabelasCriando().ModeloEntidade("Halfling Druida 10");
   auto* ev = modelo_druida.mutable_entidade()->add_evento();
   ev->set_id_efeito(EFEITO_CONVOCAR_RELAMPAGOS);
   ev->set_rodadas(10);  // para ter limite de vezes = 1
   ev->set_id_unico(666);  // para o teste considerar a entidade no alcance do tiro certeiro.
   modelo_druida.mutable_entidade()->set_id(666);
-  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
+  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), TabelasCriando());
 
   // Base 7 3 7
   // Atributos: for 10-2 (-1), des 14+2+2 (4), con 13+1 (2), int 12 (1), sab 15+1 (3), car 8 (-1)
@@ -6013,7 +6019,7 @@ TEST(TesteModelo, TesteHalflingDruida10) {
   EXPECT_EQ(BonusTotal(druida->Proto().dados_defesa().salvacao_fortitude()), 7 + 2 + 1 + 1) << druida->Proto().dados_defesa().salvacao_fortitude().DebugString();
   EXPECT_EQ(BonusTotal(druida->Proto().dados_defesa().salvacao_reflexo()), 3 + 4 + 1 + 1) << druida->Proto().dados_defesa().salvacao_reflexo().DebugString();
   EXPECT_EQ(BonusTotal(druida->Proto().dados_defesa().salvacao_vontade()), 7 + 3 + 1 + 1) << druida->Proto().dados_defesa().salvacao_vontade().DebugString();
-  EXPECT_EQ(SalvacaoFeitico(g_tabelas.Feitico("aterrorizar"), druida->Proto(), EntidadeProto::default_instance(), TS_VONTADE), 7 + 3 + 1 + 1 + 2) << druida->Proto().dados_defesa().salvacao_vontade().DebugString();
+  EXPECT_EQ(SalvacaoFeitico(TabelasCriando().Feitico("aterrorizar"), druida->Proto(), EntidadeProto::default_instance(), TS_VONTADE), 7 + 3 + 1 + 1 + 2) << druida->Proto().dados_defesa().salvacao_vontade().DebugString();
 
   {
     const auto* da = druida->DadoAtaque("relampago", 0);
@@ -6032,7 +6038,7 @@ TEST(TesteModelo, TesteHalflingDruida10) {
 }
 
 TEST(TesteModelo, CamposResetadosNaoSetados) {
-  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+  for (const auto& modelo : TabelasCriando().TodosModelosEntidades().modelo()) {
     const auto& e = modelo.entidade();
     for (const auto& da : e.dados_ataque()) {
       ASSERT_FALSE(da.has_ataque_agarrar()) << " modelo: " << modelo.id();
@@ -6046,10 +6052,10 @@ TEST(TesteModelo, CamposResetadosNaoSetados) {
 }
 
 TEST(TesteModelo, TodasAcoesTemTipo) {
-  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+  for (const auto& modelo : TabelasCriando().TodosModelosEntidades().modelo()) {
     LOG(INFO) << "modelo: " << modelo.id();
     const auto& proto = modelo.entidade();
-    auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto e = NovaEntidadeParaTestes(proto, TabelasCriando());
     for (const auto& da : e->Proto().dados_ataque()) {
       EXPECT_TRUE(da.acao().has_tipo())
         << " modelo: " << modelo.id() << ", da grupo: " << da.grupo() << ", rotulo: " << da.rotulo();
@@ -6058,10 +6064,10 @@ TEST(TesteModelo, TodasAcoesTemTipo) {
 }
 
 TEST(TesteModelo, TesteElementalFogo) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Elemental do Fogo (Pequeno)");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Elemental do Fogo (Pequeno)");
   EntidadeProto proto = modelo.entidade();
   proto.set_gerar_agarrar(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   const auto& da = DadosAtaquePorGrupo("pancada", proto);
   EXPECT_EQ(std::get<0>(StringDanoParaAcao(da, proto, proto)), "1d4");
   EXPECT_EQ(std::get<1>(StringDanoParaAcao(da, proto, proto)), "1d4");
@@ -6074,11 +6080,11 @@ TEST(TesteModelo, TesteElementalFogo) {
 }
 
 TEST(TesteModelo, TesteElementais) {
-  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
+  for (const auto& modelo : TabelasCriando().TodosModelosEntidades().modelo()) {
     if (modelo.id().find("Elemental ") != 0) continue;
     EntidadeProto proto = modelo.entidade();
     proto.set_gerar_agarrar(false);
-    std::unique_ptr<Entidade> el(NovaEntidadeParaTestes(proto, g_tabelas));
+    std::unique_ptr<Entidade> el(NovaEntidadeParaTestes(proto, TabelasCriando()));
     EXPECT_TRUE(el->ImuneEfeito(EFEITO_SONO)) << modelo.id();
     EXPECT_TRUE(el->ImuneEfeito(EFEITO_ATORDOADO)) << modelo.id();
     EXPECT_EQ(el->Proto().tipo_visao(), VISAO_ESCURO);
@@ -6087,10 +6093,10 @@ TEST(TesteModelo, TesteElementais) {
 }
 
 TEST(TesteModelo, TesteLeaoAtroz) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Leão Atroz");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Leão Atroz");
   EntidadeProto proto = modelo.entidade();
   proto.set_gerar_agarrar(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 8);
   // Normal;
   EXPECT_EQ(proto.dados_ataque(0).dano(), "1d6+7") << proto.dados_ataque(0).DebugString();
@@ -6111,10 +6117,10 @@ TEST(TesteModelo, TesteLeaoAtroz) {
 }
 
 TEST(TesteModelo, TesteUrsoAtroz) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Urso Atroz");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Urso Atroz");
   EntidadeProto proto = modelo.entidade();
   proto.set_gerar_agarrar(false);
-  std::unique_ptr<Entidade> urso(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> urso(NovaEntidadeParaTestes(proto, TabelasCriando()));
   // Normal;
   EXPECT_EQ(DadosAtaquePorGrupo("ataque", urso->Proto(), 0).dano(), "2d4+10");
   EXPECT_EQ(DadosAtaquePorGrupo("ataque", urso->Proto(), 1).dano(), "2d4+10");
@@ -6127,10 +6133,10 @@ TEST(TesteModelo, TesteUrsoAtroz) {
 }
 
 TEST(TesteModelo, TesteTigreAtroz) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Tigre Atroz");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Tigre Atroz");
   EntidadeProto proto = modelo.entidade();
   proto.set_gerar_agarrar(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_EQ(proto.dados_ataque().size(), 8);
   // Normal;
   EXPECT_EQ(proto.dados_ataque(0).dano(), "2d4+8") << proto.dados_ataque(0).DebugString();
@@ -6145,25 +6151,25 @@ TEST(TesteModelo, TesteTigreAtroz) {
 }
 
 TEST(TesteModelo, TesteVrock) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Demônio Vrock");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Demônio Vrock");
   EntidadeProto proto = modelo.entidade();
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_GT(proto.dados_ataque().size(), 5);
-  EXPECT_EQ(NivelConjurador(TipoAtaqueParaClasse(g_tabelas, proto.dados_ataque(5).tipo_ataque()), proto), 12);
+  EXPECT_EQ(NivelConjurador(TipoAtaqueParaClasse(TabelasCriando(), proto.dados_ataque(5).tipo_ataque()), proto), 12);
 }
 
 TEST(TesteModelo, TesteCentopeiaEnormeAbissal) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Centopéia Enorme Abissal");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Centopéia Enorme Abissal");
   EntidadeProto proto = modelo.entidade();
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   const auto& da = DadosAtaquePorGrupo("destruir_bem", entidade->Proto());
   EXPECT_EQ(da.grupo(), "destruir_bem");
   EXPECT_EQ(da.rotulo(), "mordida com veneno");
   EXPECT_EQ(da.taxa_refrescamento(), "14400");
   EXPECT_EQ(da.dano(), "2d6+4");
 
-  const auto& modelo_alvo = g_tabelas.ModeloEntidade("Cachorro Celestial");
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(modelo_alvo.entidade(), g_tabelas));
+  const auto& modelo_alvo = TabelasCriando().ModeloEntidade("Cachorro Celestial");
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(modelo_alvo.entidade(), TabelasCriando()));
   EXPECT_EQ(std::get<0>(StringDanoParaAcao(da, entidade->Proto(), alvo->Proto())), "2d6+4+6");
 }
 
@@ -6180,7 +6186,7 @@ TEST(TesteModelo, TesteModeloVulto) {
       da->set_id_arma("clava");
     }
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_GE(proto.dados_ataque().size(), 1);
   EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 0);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 0);
@@ -6188,22 +6194,22 @@ TEST(TesteModelo, TesteModeloVulto) {
   auto* vulto = proto.add_modelos();
   vulto->set_id_efeito(EFEITO_MODELO_VULTO);
   vulto->set_ativo(true);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_GE(proto.dados_ataque().size(), 1);
   EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 2);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 12);
 
   vulto->set_ativo(false);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_GE(proto.dados_ataque().size(), 1);
   EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 0);
   EXPECT_EQ(proto.dados_defesa().resistencia_magia(), 0);
 }
 
 TEST(TesteComposicaoEntidade, TesteComposicaoEntidade) {
-  const auto& modelo = g_tabelas.ModeloEntidade("Gigante das Pedras, Ancião");
+  const auto& modelo = TabelasCriando().ModeloEntidade("Gigante das Pedras, Ancião");
   EntidadeProto proto = modelo.entidade();
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   ASSERT_FALSE(proto.info_classes().empty());
   EXPECT_EQ(proto.info_classes(0).nivel_conjurador(), 10);
@@ -6211,16 +6217,16 @@ TEST(TesteComposicaoEntidade, TesteComposicaoEntidade) {
 }
 
 TEST(TesteComposicaoEntidade, TesteHumanaAristocrata6) {
-  const auto& modelo_ha6 = g_tabelas.ModeloEntidade("Humana Aristocrata 6");
+  const auto& modelo_ha6 = TabelasCriando().ModeloEntidade("Humana Aristocrata 6");
   EntidadeProto proto = modelo_ha6.entidade();
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 11);
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto)), 8);
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 12);
   EXPECT_TRUE(PossuiTalento("negociador", proto));
   EXPECT_TRUE(PossuiTalento("persuasivo", proto));
-  auto aris = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto aris = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("fogo_alquimico", aris->Proto());
@@ -6258,7 +6264,7 @@ TEST(TesteComposicaoEntidade, TesteHumanaAristocrata6) {
   {
     // Besta com tiro longo.
     proto.mutable_info_talentos()->add_outros()->set_id("tiro_longo");
-    auto aris = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto aris = NovaEntidadeParaTestes(proto, TabelasCriando());
     const auto& da = DadosAtaquePorGrupo("besta", aris->Proto());
     EXPECT_EQ(da.bonus_ataque_final(), 4) << da.bonus_ataque().DebugString();
     EXPECT_EQ(da.dano(), "1d8");
@@ -6270,16 +6276,16 @@ TEST(TesteComposicaoEntidade, TesteHumanaAristocrata6) {
 }
 
 TEST(TesteComposicaoEntidade, TesteHumanoAristocrata6) {
-  const auto& modelo_ha6 = g_tabelas.ModeloEntidade("Humano Aristocrata 6");
+  const auto& modelo_ha6 = TabelasCriando().ModeloEntidade("Humano Aristocrata 6");
   EntidadeProto proto = modelo_ha6.entidade();
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, proto)), 11);
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, proto)), 12);
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, proto)), 8);
   EXPECT_TRUE(PossuiTalento("negociador", proto));
   EXPECT_TRUE(PossuiTalento("persuasivo", proto));
-  auto aris = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto aris = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Corpo a corpo.
     const auto& da = DadosAtaquePorGrupo("gas_alquimico_sono", aris->Proto());
@@ -6314,10 +6320,10 @@ TEST(TesteComposicaoEntidade, TesteHumanoAristocrata6) {
 }
 
 TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
-  const auto& modelo_vb5 = g_tabelas.ModeloEntidade("Vulto Bardo 5");
+  const auto& modelo_vb5 = TabelasCriando().ModeloEntidade("Vulto Bardo 5");
   EntidadeProto proto = modelo_vb5.entidade();
-  RecomputaDependencias(g_tabelas, &proto);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  RecomputaDependencias(TabelasCriando(), &proto);
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   ASSERT_EQ(proto.dados_ataque().size(), 3 + 3 + 1);
   // Humano Bardo 5.
@@ -6343,7 +6349,7 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
   g_dados_teste.push(1);
   PreencheNotificacaoEventoEfeitoAdicional(
       proto.id(), std::nullopt,
-      NivelConjuradorParaAcao(acao, g_tabelas.Feitico(proto.dados_ataque(3).id_arma()), *entidade),
+      NivelConjuradorParaAcao(acao, TabelasCriando().Feitico(proto.dados_ataque(3).id_arma()), *entidade),
       *entidade, acao.efeitos_adicionais(0), &ids_unicos, &n, nullptr);
   const int proximo = proto.evento().size();
   entidade->AtualizaParcial(n.entidade());
@@ -6358,13 +6364,13 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
 
   EntidadeProto alvo_proto;
   alvo_proto.mutable_luz()->set_raio_m(12.0f);
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(alvo_proto, g_tabelas));
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(alvo_proto, TabelasCriando()));
   ASSERT_TRUE(alvo->TemLuz());
   {
     auto acao = proto.dados_ataque(4).acao();
     ntf::Notificacao n;
     PreencheNotificacaoReducaoLuzComConsequencia(
-        NivelConjuradorParaAcao(acao, g_tabelas.Feitico(proto.dados_ataque(4).id_arma()), *entidade), *alvo, &acao, &n, nullptr);
+        NivelConjuradorParaAcao(acao, TabelasCriando().Feitico(proto.dados_ataque(4).id_arma()), *entidade), *alvo, &acao, &n, nullptr);
     alvo->AtualizaParcial(n.entidade());
     EXPECT_EQ(alvo->Proto().luz().raio_m(), 6.0f);
     EXPECT_EQ(acao.consequencia(), TC_REDUZ_LUZ_ALVO);
@@ -6373,22 +6379,22 @@ TEST(TesteComposicaoEntidade, TesteBardoVulto5) {
 }
 
 TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
-  const auto& modelo_vb5 = g_tabelas.ModeloEntidade("Vulto Clérigo de Shar/Adepto das Sombras 5/1");
+  const auto& modelo_vb5 = TabelasCriando().ModeloEntidade("Vulto Clérigo de Shar/Adepto das Sombras 5/1");
   EntidadeProto proto = modelo_vb5.entidade();
   EXPECT_EQ(proto.raca(), "humano");
-  RecomputaDependencias(g_tabelas, &proto);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  RecomputaDependencias(TabelasCriando(), &proto);
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   EntidadeProto alvo_proto;
   alvo_proto.mutable_luz()->set_raio_m(12.0f);
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(alvo_proto, g_tabelas));
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(alvo_proto, TabelasCriando()));
   ASSERT_TRUE(alvo->TemLuz());
   {
     ASSERT_GT(proto.dados_ataque().size(), 2);
     auto acao = proto.dados_ataque(2).acao();
     ntf::Notificacao n;
     PreencheNotificacaoReducaoLuzComConsequencia(
-        NivelConjuradorParaAcao(acao, g_tabelas.Feitico(proto.dados_ataque(2).id_arma()), *entidade), *alvo, &acao, &n, nullptr);
+        NivelConjuradorParaAcao(acao, TabelasCriando().Feitico(proto.dados_ataque(2).id_arma()), *entidade), *alvo, &acao, &n, nullptr);
     alvo->AtualizaParcial(n.entidade());
     EXPECT_FLOAT_EQ(alvo->Proto().luz().raio_m(), 12 * 0.4);
     EXPECT_EQ(acao.consequencia(), TC_REDUZ_LUZ_ALVO);
@@ -6404,9 +6410,9 @@ TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
 }
 
 TEST(TesteComposicaoEntidade, TesteMonge5) {
-  const auto& modelo_m5 = g_tabelas.ModeloEntidade("Humano Monge 5");
+  const auto& modelo_m5 = TabelasCriando().ModeloEntidade("Humano Monge 5");
   EntidadeProto proto = modelo_m5.entidade();
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   // 10 + 3 sab + 1 des + 1 de monge.
   EXPECT_EQ(BonusTotal(proto.dados_defesa().ca()), 15) << proto.dados_defesa().DebugString();
@@ -6435,12 +6441,12 @@ TEST(TesteComposicaoEntidade, TesteMonge5) {
 }
 
 TEST(TesteComposicaoEntidade, TesteMonge5Grande) {
-  const auto& modelo_m5 = g_tabelas.ModeloEntidade("Humano Monge 5");
+  const auto& modelo_m5 = TabelasCriando().ModeloEntidade("Humano Monge 5");
   EntidadeProto proto = modelo_m5.entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_AUMENTAR_PESSOA);
   evento->set_rodadas(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   // 10 + 3 sab + 0 des + 1 de monge - 1 de tamanho.
   EXPECT_EQ(BonusTotal(proto.dados_defesa().ca()), 13) << proto.dados_defesa().DebugString();
@@ -6471,12 +6477,12 @@ TEST(TesteComposicaoEntidade, TesteMonge5Grande) {
 TEST(TesteConsequenciaPontosVida, Normal) {
   EntidadeProto proto;
   proto.set_max_pontos_vida(10);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
       /*pontos_vida*/ 4, /*dano_nao_letal*/ 3, proto, &n);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
@@ -6495,12 +6501,12 @@ TEST(TesteConsequenciaPontosVida, Normal) {
 TEST(TesteConsequenciaPontosVida, Nocauteado) {
   EntidadeProto proto;
   proto.set_max_pontos_vida(10);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
       /*pontos_vida*/ 4, /*dano_nao_letal*/ 4, proto, &n);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
@@ -6521,12 +6527,12 @@ TEST(TesteConsequenciaPontosVida, Nocauteado) {
 TEST(TesteConsequenciaPontosVida, Incapacitado) {
   EntidadeProto proto;
   proto.set_max_pontos_vida(10);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
       /*pontos_vida*/ 0, /*dano_nao_letal*/ 0, proto, &n);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
@@ -6548,12 +6554,12 @@ TEST(TesteConsequenciaPontosVida, Inconsciente) {
   EntidadeProto proto;
   proto.set_max_pontos_vida(10);
   AtribuiBaseAtributo(12, TA_CONSTITUICAO, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
       /*pontos_vida*/ 5, /*dano_nao_letal*/ 6, proto, &n);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
@@ -6576,12 +6582,12 @@ TEST(TesteConsequenciaPontosVida, InconscienteParaIncapacitado) {
   proto.set_inconsciente(true);
   proto.set_caida(true);
   proto.set_incapacitada(true);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
       /*pontos_vida=*/ 0, /*dano_nao_letal=*/ 0, proto, &n);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
@@ -6598,12 +6604,12 @@ TEST(TesteConsequenciaPontosVida, InconscienteParaNormal) {
   proto.set_inconsciente(true);
   proto.set_caida(true);
   proto.set_incapacitada(true);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
       /*pontos_vida=*/2, /*dano_nao_letal=*/1, proto, &n);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
@@ -6623,12 +6629,12 @@ TEST(TesteConsequenciaPontosVida, InconscienteDuroDeMatar) {
     talento->set_id("duro_de_matar");
   }
   AtribuiBaseAtributo(12, TA_CONSTITUICAO, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
       /*pontos_vida*/5, /*dano_nao_letal*/6, proto, &n);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_FALSE(proto.morta());
@@ -6650,12 +6656,12 @@ TEST(TesteConsequenciaPontosVida, Morta) {
   proto.set_max_pontos_vida(10);
   proto.set_voadora(true);
   AtribuiBaseAtributo(12, TA_CONSTITUICAO, &proto);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   ntf::Notificacao n;
   PreencheNotificacaoConsequenciaAlteracaoPontosVida(
       /*pontos_vida*/ -12, /*dano_nao_letal*/ 0, proto, &n);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
   entidade->AtualizaParcial(n.entidade());
   proto = entidade->Proto();
   EXPECT_TRUE(proto.morta());
@@ -6669,8 +6675,8 @@ TEST(TesteConsequenciaPontosVida, PontosVidaTemporarios) {
   EntidadeProto proto;
   proto.set_max_pontos_vida(10);
   AtribuiBonus(1, TB_SEM_NOME, "temp", proto.mutable_pontos_vida_temporarios_por_fonte());
-  RecomputaDependencias(g_tabelas, &proto);
-  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, g_tabelas));
+  RecomputaDependencias(TabelasCriando(), &proto);
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
 
   ntf::Notificacao n;
   PreencheNotificacaoAtualizacaoPontosVida(*entidade, /*delta_pontos_vida=*/-10, TD_LETAL, &n, nullptr);
@@ -6693,7 +6699,7 @@ TEST(TesteEscudo, TesteEscudoSemPenalidade) {
     da->set_id_arma("espada_longa");
     da->set_empunhadura(EA_ARMA_ESCUDO);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   EXPECT_EQ(1, proto.dados_ataque(0).bonus_ataque_final());
 }
@@ -6714,7 +6720,7 @@ TEST(TesteEscudo, TesteEscudoComPenalidade) {
     da->set_id_arma("azagaia");
     da->set_empunhadura(EA_ARMA_ESCUDO);
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
 
   EXPECT_EQ(-1, proto.dados_ataque(0).bonus_ataque_final());
   EXPECT_EQ(-5, proto.dados_ataque(1).bonus_ataque_final());
@@ -6725,7 +6731,7 @@ TEST(TesteEscudo, TesteEscudoTalentoGuerreiro) {
   auto* ic = proto.add_info_classes();
   ic->set_id("guerreiro");
   ic->set_nivel(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(TalentoComEscudo("leve_madeira", proto));
   EXPECT_TRUE(TalentoComEscudo("pesado_aco", proto));
   EXPECT_TRUE(TalentoComEscudo("corpo", proto));
@@ -6755,7 +6761,7 @@ TEST(TesteEscudo, TesteEscudoBesta) {
     da->set_empunhadura(EA_ARMA_ESCUDO);
   }
 
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(1, proto.dados_ataque(0).bonus_ataque_final());
   EXPECT_EQ(-1, proto.dados_ataque(1).bonus_ataque_final());
   EXPECT_EQ(-3, proto.dados_ataque(2).bonus_ataque_final());
@@ -6766,7 +6772,7 @@ TEST(TesteEscudo, TesteEscudoTalentoRanger) {
   auto* ic = proto.add_info_classes();
   ic->set_id("ranger");
   ic->set_nivel(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_TRUE(TalentoComEscudo("leve_madeira", proto));
   EXPECT_TRUE(TalentoComEscudo("pesado_aco", proto));
   EXPECT_FALSE(TalentoComEscudo("corpo", proto));
@@ -6777,7 +6783,7 @@ TEST(TesteEscudo, TesteEscudoMago) {
   auto* ic = proto.add_info_classes();
   ic->set_id("mago");
   ic->set_nivel(1);
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_FALSE(TalentoComEscudo("leve_madeira", proto));
   EXPECT_FALSE(TalentoComEscudo("pesado_aco", proto));
   EXPECT_FALSE(TalentoComEscudo("corpo", proto));
@@ -6791,7 +6797,7 @@ TEST(TesteDependencias, TesteGracaDivina) {
     ic->set_nivel(1);
     AtribuiBaseAtributo(12, TA_CARISMA, &proto);
 
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     // Carisma nao afeta ainda.
     EXPECT_EQ(2, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
     EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
@@ -6805,7 +6811,7 @@ TEST(TesteDependencias, TesteGracaDivina) {
     AtribuiBaseAtributo(12, TA_CARISMA, &proto);
 
     // Carisma adiciona 1.
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
     EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
     EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_vontade()));
@@ -6818,7 +6824,7 @@ TEST(TesteDependencias, TesteGracaDivina) {
     AtribuiBaseAtributo(8, TA_CARISMA, &proto);
 
     // Carisma negativo nao subtrai.
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_EQ(3, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
     EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
     EXPECT_EQ(0, BonusTotal(proto.dados_defesa().salvacao_vontade()));
@@ -6834,7 +6840,7 @@ TEST(TesteDependencias, TesteGracaDivina) {
     manto->set_em_uso(true);
 
     // Carisma com item.
-    RecomputaDependencias(g_tabelas, &proto);
+    RecomputaDependencias(TabelasCriando(), &proto);
     EXPECT_EQ(4, BonusTotal(proto.dados_defesa().salvacao_fortitude()));
     EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_reflexo()));
     EXPECT_EQ(1, BonusTotal(proto.dados_defesa().salvacao_vontade()));
@@ -6842,8 +6848,8 @@ TEST(TesteDependencias, TesteGracaDivina) {
 }
 
 TEST(TesteTesouro, TesteTesouroEsperado) {
-  for (const auto& modelo : g_tabelas.TodosModelosEntidades().modelo()) {
-    std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(modelo.entidade(), g_tabelas));
+  for (const auto& modelo : TabelasCriando().TodosModelosEntidades().modelo()) {
+    std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando()));
     const auto& tesouro = e->Proto().tesouro();
     if (!tesouro.has_valor_esperado_po()) continue;
     std::vector<std::pair<const google::protobuf::RepeatedPtrField<ItemMagicoProto>*, TipoItem>> itens_agrupados = {
@@ -6857,7 +6863,7 @@ TEST(TesteTesouro, TesteTesouroEsperado) {
     int soma = 0;
     for (const auto& [itens, tipo] : itens_agrupados) {
       for (const auto& item : *itens) {
-        const auto& item_tabelado = ItemTabela(g_tabelas, tipo, item.id());
+        const auto& item_tabelado = ItemTabela(TabelasCriando(), tipo, item.id());
         const int valor = PrecoItemPo(item_tabelado);
         if (valor == 0 && !item_tabelado.has_custo()) {
           LOG(INFO)
@@ -6884,7 +6890,7 @@ TEST(TesteTesouro, TesteTesouroEsperado) {
       }
     }
     for (const auto& item : tesouro.itens_mundanos()) {
-      soma += g_tabelas.ItemMundano(item.id()).has_custo_po() ? g_tabelas.ItemMundano(item.id()).custo_po() : g_tabelas.ItemMundano(item.id()).custo().po();
+      soma += TabelasCriando().ItemMundano(item.id()).has_custo_po() ? TabelasCriando().ItemMundano(item.id()).custo_po() : TabelasCriando().ItemMundano(item.id()).custo().po();
     }
 
     soma += tesouro.moedas().po();
@@ -6912,7 +6918,7 @@ TEST(TesteTesouro, TesteTransicao) {
     auto* varinha = doador_proto.mutable_tesouro()->add_varinhas();
     varinha->set_id("missil_magico_1");
   }
-  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, g_tabelas));
+  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, TabelasCriando()));
   ASSERT_FALSE(doador->Proto().evento().empty());
 
   EntidadeProto receptor_proto;
@@ -6928,12 +6934,12 @@ TEST(TesteTesouro, TesteTransicao) {
     auto* varinhas = receptor_proto.mutable_tesouro()->add_varinhas();
     varinhas->set_id("missil_magico_2");
   }
-  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, g_tabelas));
+  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, TabelasCriando()));
   ASSERT_FALSE(receptor->Proto().evento().empty());
 
   ntf::Notificacao n_grupo;
   n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  PreencheNotificacoesTransicaoTesouro(g_tabelas, *doador, *receptor, &n_grupo, nullptr);
+  PreencheNotificacoesTransicaoTesouro(TabelasCriando(), *doador, *receptor, &n_grupo, nullptr);
 
   {
     // Aplica.
@@ -7011,7 +7017,7 @@ TEST(TesteTesouro, TesteTransicaoTipoAnel) {
     arma->set_id("espada_longa");
     arma->set_em_uso(true);
   }
-  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, g_tabelas));
+  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, TabelasCriando()));
   ASSERT_FALSE(doador->Proto().evento().empty());
 
   EntidadeProto receptor_proto;
@@ -7025,12 +7031,12 @@ TEST(TesteTesouro, TesteTransicaoTipoAnel) {
     moedas->set_pe(400);
     moedas->set_pl(4000);
   }
-  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, g_tabelas));
+  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, TabelasCriando()));
   ASSERT_FALSE(receptor->Proto().evento().empty());
 
   ntf::Notificacao n_grupo;
   n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  PreencheNotificacoesTransicaoUmTipoTesouro(g_tabelas, TT_ANEL, *doador, *receptor, &n_grupo, nullptr);
+  PreencheNotificacoesTransicaoUmTipoTesouro(TabelasCriando(), TT_ANEL, *doador, *receptor, &n_grupo, nullptr);
 
   {
     // Aplica.
@@ -7095,18 +7101,18 @@ TEST(TesteTesouro, TesteTransicaoTipoArma) {
     auto* arma = doador_proto.mutable_tesouro()->add_armas();
     arma->set_id("espada_longa");
   }
-  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, g_tabelas));
+  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, TabelasCriando()));
 
   EntidadeProto receptor_proto;
   {
     auto* arma = receptor_proto.mutable_tesouro()->add_armas();
     arma->set_id("espada_curta");
   }
-  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, g_tabelas));
+  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, TabelasCriando()));
 
   ntf::Notificacao n_grupo;
   n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  PreencheNotificacoesTransicaoUmTipoTesouro(g_tabelas, TT_ARMA, *doador, *receptor, &n_grupo, nullptr);
+  PreencheNotificacoesTransicaoUmTipoTesouro(TabelasCriando(), TT_ARMA, *doador, *receptor, &n_grupo, nullptr);
 
   {
     // Aplica.
@@ -7148,7 +7154,7 @@ TEST(TesteTesouro, TesteDoacao) {
     moedas->set_pp(30);
     moedas->set_pc(300);
   }
-  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, g_tabelas));
+  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, TabelasCriando()));
   ASSERT_FALSE(doador->Proto().evento().empty());
 
   EntidadeProto receptor_proto;
@@ -7162,7 +7168,7 @@ TEST(TesteTesouro, TesteDoacao) {
     moedas->set_pe(400);
     moedas->set_pl(4000);
   }
-  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, g_tabelas));
+  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, TabelasCriando()));
   ASSERT_FALSE(receptor->Proto().evento().empty());
 
   ntf::Notificacao notificacao_doacao;
@@ -7180,7 +7186,7 @@ TEST(TesteTesouro, TesteDoacao) {
   ntf::Notificacao n_grupo;
   ntf::Notificacao n_desfazer;
   n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  PreencheNotificacoesDoacaoParcialTesouro(g_tabelas, notificacao_doacao, doador->Proto(), receptor->Proto(), &n_grupo, &n_desfazer);
+  PreencheNotificacoesDoacaoParcialTesouro(TabelasCriando(), notificacao_doacao, doador->Proto(), receptor->Proto(), &n_grupo, &n_desfazer);
 
   {
     // Aplica.
@@ -7242,7 +7248,7 @@ TEST(TestTipoAtaqueReseta, TesteTipoAtaqueReseta) {
     da->set_ataque_agarrar(true);
     da->set_grupo("teste");
   }
-  RecomputaDependencias(g_tabelas, &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);
   DadosAtaque* dat = nullptr;
   for (auto& da : *proto.mutable_dados_ataque()) {
     if (da.grupo() == "teste") {
@@ -7256,15 +7262,15 @@ TEST(TestTipoAtaqueReseta, TesteTipoAtaqueReseta) {
 }
 
 TEST(TestFeiticos, TesteFeiticosLink) {
-  for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
+  for (const auto& feitico : TabelasCriando().todas().tabela_feiticos().armas()) {
     EXPECT_FALSE(feitico.link().empty()) << "feitico: " << feitico.id();
   }
 }
 
 TEST(TestFeiticos, TesteFeiticosComSalvacaoTemSalvacao) {
-  for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
+  for (const auto& feitico : TabelasCriando().todas().tabela_feiticos().armas()) {
     if (!feitico.has_acao()) continue;
-    auto acao = g_tabelas.Acao(feitico.acao().id());
+    auto acao = TabelasCriando().Acao(feitico.acao().id());
     bool ou_nao_tem_id_ou_tem_id_valido = !feitico.acao().has_id() || acao.has_id();
     EXPECT_TRUE(ou_nao_tem_id_ou_tem_id_valido) 
         << "Feitiço tem id de acao invalido: " << feitico.nome();
@@ -7279,7 +7285,7 @@ TEST(TestFeiticos, TesteFeiticosComSalvacaoTemSalvacao) {
 
 
 TEST(TestFeiticos, RodadasBaseAnterior) {
-  for (const auto& feitico : g_tabelas.todas().tabela_feiticos().armas()) {
+  for (const auto& feitico : TabelasCriando().todas().tabela_feiticos().armas()) {
     if (!feitico.acao().efeitos_adicionais().empty()) {
       EXPECT_FALSE(feitico.acao().efeitos_adicionais(0).rodadas_base_igual_efeito_anterior())
         << "rodadas_base_igual_efeito_anterior invalido para feitico " << feitico.id();
@@ -7299,9 +7305,9 @@ TEST(TesteRacas, TesteGnomo) {
     ic->set_nivel(1);
     ic->set_id("guerreiro");
   }
-  std::unique_ptr<Entidade> gnomo(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> gnomo(NovaEntidadeParaTestes(proto, TabelasCriando()));
   EXPECT_EQ(BonusTotal(gnomo->Proto().movimento().terrestre_q()), 4);
-  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("martelo_gnomo_com_gancho"), gnomo->Proto()));
+  EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("martelo_gnomo_com_gancho"), gnomo->Proto()));
 }
 
 
@@ -7317,7 +7323,7 @@ TEST(TesteRacas, TesteElfo) {
     ic->set_nivel(1);
     ic->set_id("guerreiro");
   }
-  std::unique_ptr<Entidade> elfo(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> elfo(NovaEntidadeParaTestes(proto, TabelasCriando()));
   EXPECT_EQ(BonusTotal(elfo->Proto().movimento().terrestre_q()), 6);
   EXPECT_EQ(ValorFinalPericia("ouvir", elfo->Proto()), 2);
   EXPECT_EQ(ValorFinalPericia("procurar", elfo->Proto()), 2);
@@ -7355,7 +7361,7 @@ TEST(TesteRacas, TesteElfo) {
       da->set_modificador_atributo_pergaminho(2);
       da->set_id_arma("enfeiticar_pessoa");
     }
-    ea = NovaEntidadeParaTestes(proto, g_tabelas);
+    ea = NovaEntidadeParaTestes(proto, TabelasCriando());
     ASSERT_GE(ea->Proto().dados_ataque_size(), 3);
   }
   EXPECT_EQ(elfo->Salvacao(*ea, TS_FORTITUDE), 1);
@@ -7387,13 +7393,13 @@ TEST(TesteRacas, TesteElfo) {
       << "bonus: " << elfo->SalvacaoFeitico(*ea, ea->Proto().dados_ataque(2))
       << ", cd: " << ea->Proto().dados_ataque(2).dificuldade_salvacao();
 
-  EXPECT_FALSE(TalentoComArma(g_tabelas.Arma("machado_de_guerra_anao"), elfo->Proto()));
-  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("espada_longa"), elfo->Proto()));
-  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("espada_curta"), elfo->Proto()));
-  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("arco_longo"), elfo->Proto()));
-  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("arco_curto"), elfo->Proto()));
-  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("arco_longo_composto"), elfo->Proto()));
-  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("sabre"), elfo->Proto()));
+  EXPECT_FALSE(TalentoComArma(TabelasCriando().Arma("machado_de_guerra_anao"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("espada_longa"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("espada_curta"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("arco_longo"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("arco_curto"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("arco_longo_composto"), elfo->Proto()));
+  EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("sabre"), elfo->Proto()));
 }
 
 TEST(TesteRacas, TesteMeioElfo) {
@@ -7407,7 +7413,7 @@ TEST(TesteRacas, TesteMeioElfo) {
     ic->set_nivel(1);
     ic->set_id("guerreiro");
   }
-  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> ed(NovaEntidadeParaTestes(proto, TabelasCriando()));
   EXPECT_EQ(BonusTotal(ed->Proto().movimento().terrestre_q()), 6);
   EXPECT_EQ(ValorFinalPericia("ouvir", ed->Proto()), 1);
   EXPECT_EQ(ValorFinalPericia("procurar", ed->Proto()), 1);
@@ -7445,7 +7451,7 @@ TEST(TesteRacas, TesteMeioElfo) {
       da->set_modificador_atributo_pergaminho(2);
       da->set_id_arma("enfeiticar_pessoa");
     }
-    ea = NovaEntidadeParaTestes(proto, g_tabelas);
+    ea = NovaEntidadeParaTestes(proto, TabelasCriando());
     ASSERT_GE(ea->Proto().dados_ataque_size(), 3);
   }
   EXPECT_EQ(ed->Salvacao(*ea, TS_FORTITUDE), 2);
@@ -7491,7 +7497,7 @@ TEST(TesteRacas, TesteAnao) {
     ic->set_id("guerreiro");
     auto* da = proto.mutable_dados_ataque()->Add();
     da->set_id_arma("machado_de_batalha");
-    anao = NovaEntidadeParaTestes(proto, g_tabelas);
+    anao = NovaEntidadeParaTestes(proto, TabelasCriando());
   }
 
   std::unique_ptr<Entidade> gigante;
@@ -7523,7 +7529,7 @@ TEST(TesteRacas, TesteAnao) {
       da->set_id_arma("maos_flamejantes");
     }
 
-    gigante = NovaEntidadeParaTestes(proto, g_tabelas);
+    gigante = NovaEntidadeParaTestes(proto, TabelasCriando());
     ASSERT_GE(gigante->Proto().dados_ataque_size(), 3);
   }
 
@@ -7571,16 +7577,16 @@ TEST(TesteRacas, TesteAnao) {
     EXPECT_EQ(ModificadorAtaqueWrapper(TipoAtaque::CORPO_A_CORPO, anao->Proto(), proto), 1);
   }
 
-  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("machado_de_guerra_anao"), anao->Proto()));
-  EXPECT_TRUE(TalentoComArma(g_tabelas.Arma("urgrosh_anao"), anao->Proto()));
+  EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("machado_de_guerra_anao"), anao->Proto()));
+  EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("urgrosh_anao"), anao->Proto()));
 }
 
 TEST(TesteRacas, TesteAasimar) {
   EntidadeProto proto;
   AtribuiBaseAtributo(12, TA_SABEDORIA, &proto);  // com bonus de aasimar fica 14, +2 de bonus.
   proto.set_raca("aasimar");
-  RecomputaDependencias(g_tabelas, &proto);
-  RecomputaDependencias(g_tabelas, &proto);  // duas vezes pra ver se num gera duas vezes o ataque.
+  RecomputaDependencias(TabelasCriando(), &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);  // duas vezes pra ver se num gera duas vezes o ataque.
   int c = 0;
   for (const auto& pericia : proto.info_pericias()) {
     if (pericia.id() == "observar" || pericia.id() == "ouvir") {
@@ -7594,8 +7600,8 @@ TEST(TesteRacas, TesteAasimar) {
 
 TEST(TesteRacas, TesteFalcao) {
   Modelos modelos;
-  EntidadeProto proto = g_tabelas.ModeloEntidade("Falcão").entidade();
-  RecomputaDependencias(g_tabelas, &proto);
+  EntidadeProto proto = TabelasCriando().ModeloEntidade("Falcão").entidade();
+  RecomputaDependencias(TabelasCriando(), &proto);
   EXPECT_EQ(ValorFinalPericia("ouvir", proto), 4);
   EXPECT_EQ(ValorFinalPericia("observar", proto), 16);
 }
@@ -7611,7 +7617,7 @@ TEST(TesteDominios, TesteRenovacao) {
     auto* ifc = FeiticosClasse("clerigo", &proto);
     ifc->add_dominios("renovacao");
   }
-  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
   {
     // Nada acontece.
     ntf::Notificacao n;
@@ -7642,7 +7648,7 @@ TEST(TesteDominios, TesteRenovacao) {
 TEST(TesteDominios, TesteNobrezaMorte) {
   ntf::Notificacao n;
   EntidadeProto proto;
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, TabelasCriando()));
   AtribuiBaseAtributo(14, TA_CARISMA, &proto);  // +2
   {
     auto* ic = proto.add_info_classes();
@@ -7652,8 +7658,8 @@ TEST(TesteDominios, TesteNobrezaMorte) {
     ifc->add_dominios("nobreza");
     ifc->add_dominios("morte");
   }
-  RecomputaDependencias(g_tabelas, &proto);
-  RecomputaDependencias(g_tabelas, &proto);  // pra garantir que num vai adicionar duas vezes.
+  RecomputaDependencias(TabelasCriando(), &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);  // pra garantir que num vai adicionar duas vezes.
 
   ASSERT_EQ(proto.dados_ataque().size(), 3);
   {
@@ -7685,7 +7691,7 @@ TEST(TesteDominios, TesteProtecao) {
     auto* evento = proto.add_evento();
     evento->set_id_efeito(EFEITO_DOMINIO_PROTECAO);
   }
-  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, g_tabelas));
+  std::unique_ptr<Entidade> alvo(NovaEntidadeParaTestes(proto, TabelasCriando()));
   AtribuiBaseAtributo(14, TA_SABEDORIA, &proto);  // +2
   AtribuiBaseAtributo(14, TA_CARISMA, &proto);  // +2
   {
@@ -7695,8 +7701,8 @@ TEST(TesteDominios, TesteProtecao) {
     auto* ifc = FeiticosClasse("clerigo", &proto);
     ifc->add_dominios("protecao");
   }
-  RecomputaDependencias(g_tabelas, &proto);
-  RecomputaDependencias(g_tabelas, &proto);  // pra garantir que num vai adicionar duas vezes.
+  RecomputaDependencias(TabelasCriando(), &proto);
+  RecomputaDependencias(TabelasCriando(), &proto);  // pra garantir que num vai adicionar duas vezes.
 
   ASSERT_EQ(proto.dados_ataque().size(), 2);
   {
@@ -7734,11 +7740,11 @@ TEST(TesteDominios, TesteProtecao) {
 }
 
 TEST(TesteCondicoes, TesteIndefeso) {
-  auto modelo = g_tabelas.ModeloEntidade("Humano Plebeu 1");
+  auto modelo = TabelasCriando().ModeloEntidade("Humano Plebeu 1");
   modelo.mutable_entidade()->set_gerar_agarrar(false);
   modelo.mutable_entidade()->set_morta(true);
 
-  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), g_tabelas);
+  auto plebeu = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   EXPECT_EQ(plebeu->CA(*plebeu, Entidade::CA_NORMAL), 5);
 }
 
@@ -7749,13 +7755,13 @@ TEST(TesteTabelas, TesteFeiticoAleatorioClerigo) {
   dfa.descritores_proibidos.emplace({DESC_MAL, DESC_CAOS});
   dfa.feiticos_excluidos = {"bencao", "maldicao_menor", "infligir_ferimentos_leves"};
   for (int i = 0; i < 100; ++i) {
-    const auto& id = g_tabelas.FeiticoAleatorio(dfa);
+    const auto& id = TabelasCriando().FeiticoAleatorio(dfa);
     EXPECT_FALSE(id.empty());
     EXPECT_NE(id, "bencao");
     EXPECT_NE(id, "maldicao_menor");
     EXPECT_NE(id, "infligir_ferimentos_leves");
-    EXPECT_NE(g_tabelas.Feitico(id).acao().alinhamento_bem_mal(), DESC_MAL);
-    EXPECT_NE(g_tabelas.Feitico(id).acao().alinhamento_bem_mal(), DESC_LEAL);
+    EXPECT_NE(TabelasCriando().Feitico(id).acao().alinhamento_bem_mal(), DESC_MAL);
+    EXPECT_NE(TabelasCriando().Feitico(id).acao().alinhamento_bem_mal(), DESC_LEAL);
   }
 }
 
@@ -7766,24 +7772,24 @@ TEST(TesteTabelas, TesteFeiticoAleatorioMago) {
   dfa.escolas_proibidas.emplace(std::vector<std::string>{"encantamento", "evocacao"});
   dfa.feiticos_excluidos = {"escudo_arcano", "armadura_arcana"};
   for (int i = 0; i < 100; ++i) {
-    const auto& id = g_tabelas.FeiticoAleatorio(dfa);
+    const auto& id = TabelasCriando().FeiticoAleatorio(dfa);
     EXPECT_FALSE(id.empty());
     EXPECT_NE(id, "escudo_arcano");
     EXPECT_NE(id, "armadura_arcana");
-    EXPECT_NE(g_tabelas.Feitico(id).escola(), "encantamento");
-    EXPECT_NE(g_tabelas.Feitico(id).escola(), "evocacao");
+    EXPECT_NE(TabelasCriando().Feitico(id).escola(), "encantamento");
+    EXPECT_NE(TabelasCriando().Feitico(id).escola(), "evocacao");
   }
 }
 
 TEST(TesteAtaqueVsDefesa, TesteCritico) {
   DadosAtaque da_ataque;
   da_ataque.set_bonus_ataque_final(12);
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_ABENCOAR_ARMA);
   evento->add_complementos_str("machado_grande");
-  auto orc = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto aguia_celestial = NovaEntidadeParaTestes(g_tabelas.ModeloEntidade("Águia Celestial").entidade(), g_tabelas);
+  auto orc = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto aguia_celestial = NovaEntidadeParaTestes(TabelasCriando().ModeloEntidade("Águia Celestial").entidade(), TabelasCriando());
   {
     g_dados_teste.push(20);
     ResultadoAtaqueVsDefesa resultado =
@@ -7806,11 +7812,11 @@ TEST(TesteAtaqueVsDefesa, TesteCritico) {
 TEST(TesteAtaqueVsDefesa, TesteDesarmar) {
   DadosAtaque da_ataque;
   da_ataque.set_bonus_ataque_final(12);
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
   da->set_ataque_desarmar(true);
-  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orca = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto orcd = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Defesa primeiro.
     g_dados_teste.push(10);
@@ -7835,16 +7841,16 @@ TEST(TesteAtaqueVsDefesa, TesteDesarmar) {
 TEST(TesteAtaqueVsDefesa, TesteDesarmar2) {
   DadosAtaque da_ataque;
   da_ataque.set_bonus_ataque_final(12);
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
   da->set_ataque_desarmar(true);
-  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orca = NovaEntidadeParaTestes(proto, TabelasCriando());
 
   proto.set_tamanho(TM_GRANDE);  // +4.
   auto* dam = DadosAtaquePorGrupoOuCria("mangual_pesado", &proto);  // +2.
   dam->set_id_arma("mangual_pesado");
   proto.set_ultimo_grupo_acao("mangual_pesado");
-  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orcd = NovaEntidadeParaTestes(proto, TabelasCriando());
 
   {
     // Defesa primeiro. Nao tem foco em mangual.
@@ -7869,11 +7875,11 @@ TEST(TesteAtaqueVsDefesa, TesteDesarmar2) {
 }
 
 TEST(TesteAtaqueVsDefesa, TesteDesarmarContraAtaque) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   auto* da = DadosAtaquePorGrupoOuCria("ataque_total_machado", &proto);
   da->set_ataque_desarmar(true);
-  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orca = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto orcd = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Defesa primeiro.
     g_dados_teste.push(10);
@@ -7890,9 +7896,9 @@ TEST(TesteAtaqueVsDefesa, TesteDesarmarContraAtaque) {
 }
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarSucesso) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
-  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
+  auto orca = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto orcd = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Defesa primeiro.
     g_dados_teste.push(10);
@@ -7903,10 +7909,10 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarSucesso) {
 }
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarSucessoDerrubarAprimorado) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   proto.mutable_info_talentos()->add_outros()->set_id("derrubar_aprimorado");
-  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orca = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto orcd = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Defesa primeiro.
     g_dados_teste.push(10);
@@ -7917,10 +7923,10 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarSucessoDerrubarAprimorado) {
 }
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarAprimoradoSemContraAtaqu) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
   proto.mutable_info_talentos()->add_outros()->set_id("derrubar_aprimorado");
-  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orca = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto orcd = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Defesa primeiro.
     g_dados_teste.push(10);
@@ -7934,13 +7940,13 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarAprimoradoSemContraAtaqu) {
 }
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarComTamanho) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
-  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
+  auto orcd = NovaEntidadeParaTestes(proto, TabelasCriando());
   proto.mutable_info_talentos()->add_outros()->set_id("derrubar_aprimorado");
   auto* evento = proto.add_evento();
   evento->set_id_efeito(EFEITO_AUMENTAR_PESSOA);
   evento->set_rodadas(1);
-  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto orca = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Defesa primeiro.
     g_dados_teste.push(10);
@@ -7951,9 +7957,9 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarComTamanho) {
 }
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaNormal) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
-  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
+  auto orca = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto orcd = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Defesa primeiro.
     g_dados_teste.push(11);
@@ -7968,9 +7974,9 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaNormal) {
 }
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaContraAtaque) {
-  auto proto = g_tabelas.ModeloEntidade("Orc Capitão").entidade();
-  auto orca = NovaEntidadeParaTestes(proto, g_tabelas);
-  auto orcd = NovaEntidadeParaTestes(proto, g_tabelas);
+  auto proto = TabelasCriando().ModeloEntidade("Orc Capitão").entidade();
+  auto orca = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto orcd = NovaEntidadeParaTestes(proto, TabelasCriando());
   {
     // Defesa primeiro.
     g_dados_teste.push(11);
@@ -7985,8 +7991,8 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarFalhaContraAtaque) {
 }
 
 TEST(TesteAtaqueVsDefesa, TesteDerrubarNaoPermiteContraAtaque) {
-  auto orc = NovaEntidadeParaTestes(g_tabelas.ModeloEntidade("Orc Capitão").entidade(), g_tabelas);
-  auto guepardo = NovaEntidadeParaTestes(g_tabelas.ModeloEntidade("Guepardo").entidade(), g_tabelas);
+  auto orc = NovaEntidadeParaTestes(TabelasCriando().ModeloEntidade("Orc Capitão").entidade(), TabelasCriando());
+  auto guepardo = NovaEntidadeParaTestes(TabelasCriando().ModeloEntidade("Guepardo").entidade(), TabelasCriando());
   {
     // Defesa primeiro.
     g_dados_teste.push(19);
