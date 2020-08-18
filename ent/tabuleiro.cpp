@@ -8340,6 +8340,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
       std::vector<std::pair<int, int>> dados;
       std::tie(total, dados) = GeraPontosVida(pocao.delta_pontos_vida());
       e_depois->set_pontos_vida(std::min(entidade->MaximoPontosVida(), entidade->PontosVida() + total));
+      PreencheNotificacaoAtualizacaoPontosVida(*entidade, total, TD_LETAL, notificacao.get(), nullptr);
       AdicionaAcaoDeltaPontosVidaSemAfetar(entidade->Id(), total, 0);
     }
     if (!pocao.complementos_str().empty() && c_any_of(pocao.tipo_efeito(), [](const auto& tipo) {

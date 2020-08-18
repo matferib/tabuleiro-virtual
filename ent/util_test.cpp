@@ -33,10 +33,17 @@ class CentralColetora : public ntf::CentralNotificacoes {
   };
   EmissorFake emissor_remoto_;
 };
-static CentralColetora& CentralColetoraCriando() {
+CentralColetora& CentralColetoraCriando() {
   static CentralColetora g_central;
   return g_central;
 }
+CentralColetora& CentralColetoraCriandoZerando() {
+  auto& central = CentralColetoraCriando();
+  central.Notificacoes().clear();
+  central.NotificacoesRemotas().clear();
+  return central;
+}
+
 static Tabelas& TabelasCriando() {
   static Tabelas g_tabelas(&CentralColetoraCriando());
   return g_tabelas;
@@ -44,9 +51,9 @@ static Tabelas& TabelasCriando() {
 
 class TabuleiroTeste : public Tabuleiro {
  public:
-  TabuleiroTeste() : Tabuleiro(OpcoesProto::default_instance(), TabelasCriando(), nullptr, nullptr, &CentralColetoraCriando()) {}
+  TabuleiroTeste() : Tabuleiro(OpcoesProto::default_instance(), TabelasCriando(), nullptr, nullptr, &CentralColetoraCriandoZerando()) {}
   TabuleiroTeste(
-      const std::vector<Entidade*>& entidades) : Tabuleiro(OpcoesProto::default_instance(), TabelasCriando(), nullptr, nullptr, &CentralColetoraCriando()) {
+      const std::vector<Entidade*>& entidades) : Tabuleiro(OpcoesProto::default_instance(), TabelasCriando(), nullptr, nullptr, &CentralColetoraCriandoZerando()) {
     InsereEntidades(entidades);
   }
 
@@ -3585,6 +3592,32 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
     // Aplica de novo pra ver se nao acumula.
     e->AtualizaParcial(n.notificacao(0).entidade());
     EXPECT_EQ(11, BonusTotal(BonusAtributo(TA_INTELIGENCIA, e->Proto())));
+  }
+}
+
+TEST(TesteEfeitos, BeberPocaoDesfazInconscienteEAfins) {
+  const auto& modelo = TabelasCriando().ModeloEntidade("Orc");
+  EntidadeProto proto = modelo.entidade();
+  proto.mutable_tesouro()->add_pocoes()->set_id("curar_ferimentos_serios");  // id zoado, deveria ser graves.
+  Entidade* orc = NovaEntidadeParaTestes(proto, TabelasCriando()).release();
+  {
+    // Orc tem 1d8+1.
+    ntf::Notificacao n;
+    PreencheNotificacaoAtualizacaoPontosVida(*orc, -10, TD_LETAL, &n, nullptr);
+    orc->AtualizaParcial(n.entidade());
+    EXPECT_TRUE(orc->Proto().inconsciente());
+    EXPECT_TRUE(orc->Proto().incapacitada());
+    EXPECT_FALSE(orc->Proto().morta());
+  }
+  // Bebe uma pocao de curar ferimentos graves, 3d8+5. No pior caso, o orc tinha -8 PV, entao a pocao o trara de volta nem que seja em 0 PV. 
+  {
+    TabuleiroTeste tabuleiro({orc});
+    tabuleiro.BebePocaoNotificando(orc->Id(), /*indice_pocao=*/0);
+    ASSERT_EQ(CentralColetoraCriando().Notificacoes().size(), 1ULL);
+    CentralColetoraCriando().Notifica();
+    EXPECT_FALSE(orc->Proto().inconsciente());
+    EXPECT_FALSE(orc->Proto().incapacitada());
+    EXPECT_FALSE(orc->Proto().morta());
   }
 }
 
