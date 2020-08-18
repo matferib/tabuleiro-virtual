@@ -6173,6 +6173,14 @@ TEST(TesteModelo, TesteCentopeiaEnormeAbissal) {
   EXPECT_EQ(std::get<0>(StringDanoParaAcao(da, entidade->Proto(), alvo->Proto())), "2d6+4+6");
 }
 
+TEST(TesteModelo, TesteModeloVultoGuerreiro5) {
+  const auto& modelo_vulto = TabelasCriando().ModeloEntidade("Vulto Guerreiro 5");
+  auto proto_vulto = modelo_vulto.entidade();
+  auto vulto = NovaEntidadeParaTestes(proto_vulto, TabelasCriando());
+  EXPECT_EQ(vulto->Proto().dados_vida(), "4d10+10+10");
+  EXPECT_GT(vulto->Proto().max_pontos_vida(), 24);
+}
+
 TEST(TesteModelo, TesteModeloVulto) {
   EntidadeProto proto;
   AtribuiBaseAtributo(11, TA_SABEDORIA, &proto);

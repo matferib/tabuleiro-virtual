@@ -128,9 +128,9 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 }
 
 void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
-  // TODO outros talentos que afetam DV como mente_sobre_materia.
   // TODO nao elite.
   if (!proto->dados_vida().empty() || !proto->dados_vida_automatico()) return;
+  LOG(INFO) << "ali";
   bool elite = true;
   bool primeiro = true;
   std::string dv;
@@ -270,10 +270,13 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   }
 
   AtualizaVbo(parametros_desenho_);
+  // O recomputa vai gerar um pseudo max_dados_vida baseado em constituicao, entao temos que salvar antes.
+  const bool tinha_max_pontos_vida = proto_.has_max_pontos_vida();
   RecomputaDependencias();
   // Tem que ser depois para computar tudo com os bonus de constituicao.
   GeraDadosVidaSeAutomatico(&proto_);
-  if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
+  //LOG(INFO) << "max: " << proto_.has_max_pontos_vida();
+  if (proto_.has_dados_vida() && !tinha_max_pontos_vida) {
     // Geracao automatica de pontos de vida.
     try {
       int pv;
@@ -288,7 +291,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
     }
   } else {
     // Usa os pontos de vida que vierem.
-    if (!proto_.has_max_pontos_vida()) {
+    if (!tinha_max_pontos_vida) {
       // Entidades sempre devem ter o maximo de pontos de vida, que eh usado para acoes de dano.
       proto_.set_max_pontos_vida(0);
     }
