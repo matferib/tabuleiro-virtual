@@ -13,7 +13,10 @@ namespace ent {
 
 extern std::queue<int> g_dados_teste;
 namespace {
-Tabelas g_tabelas(nullptr);
+Tabelas& TabelasCriando() {
+  static Tabelas g_tabelas(nullptr);
+  return g_tabelas;
+}
 }  // namespace
 
 // Teste basico gera dados.
@@ -201,7 +204,7 @@ TEST(TesteAcoes, TesteEntidadesAfetadasPorAcao) {
     auto* ic = proto.add_info_classes();
     ic->set_id("guerreiro");
     ic->set_nivel(nivel);
-    auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto e = NovaEntidadeParaTestes(proto, TabelasCriando());
     entidades.push_back(e.get());
     entidades_owned.emplace_back(std::move(e));
   }
@@ -226,7 +229,7 @@ TEST(TesteAcoes, TesteEntidadesAfetadasPorAcaoMaisFracosPrimeiro) {
     auto* ic = proto.add_info_classes();
     ic->set_id("guerreiro");
     ic->set_nivel(nivel);
-    auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto e = NovaEntidadeParaTestes(proto, TabelasCriando());
     entidades.push_back(e.get());
     entidades_owned.emplace_back(std::move(e));
   }
@@ -246,7 +249,7 @@ TEST(TesteAcoes, TesteMaximoAfetados) {
   for (int id = 0; id < 3; ++id) {
     EntidadeProto proto;
     proto.set_id(id);
-    auto e = NovaEntidadeParaTestes(proto, g_tabelas);
+    auto e = NovaEntidadeParaTestes(proto, TabelasCriando());
     entidades.push_back(e.get());
     entidades_owned.emplace_back(std::move(e));
   }
@@ -264,7 +267,7 @@ TEST(TesteAcoes, TesteEfeitoAfetaApenas) {
   for (int nivel = 3; nivel <= 6; ++nivel) {
     EntidadeProto proto;
     proto.add_info_classes()->set_nivel(nivel);
-    EXPECT_EQ(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/20, *efeito, proto), esperado[nivel]) << "nivel: " << nivel;
+    EXPECT_EQ(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/20, *efeito, proto), esperado[nivel]) << "nivel: " << nivel;
   }
 }
 
@@ -275,96 +278,96 @@ TEST(TesteAcoes, TesteEfeitoNaoAfeta) {
   {
     EntidadeProto proto;
     proto.add_tipo_dnd(TIPO_HUMANOIDE);
-    EXPECT_EQ(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/20, *efeito, proto), true);
+    EXPECT_EQ(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/20, *efeito, proto), true);
   }
   {
     EntidadeProto proto;
     proto.add_tipo_dnd(TIPO_MORTO_VIVO);
-    EXPECT_EQ(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/20, *efeito, proto), false);
+    EXPECT_EQ(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/20, *efeito, proto), false);
   }
 }
 
 TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeito) {
-  auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
-  auto alvo_10 = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
-  auto modelo_clerigo_bom_5 = g_tabelas.ModeloEntidade("Humano Clérigo 5 (Leal Bom)");
-  auto alvo_5_bom = NovaEntidadeParaTestes(modelo_clerigo_bom_5.entidade(), g_tabelas);
-  const auto& feitico_tabelado = g_tabelas.Feitico("palavra_sagrada");
+  auto modelo_druida = TabelasCriando().ModeloEntidade("Halfling Druida 10");
+  auto alvo_10 = NovaEntidadeParaTestes(modelo_druida.entidade(), TabelasCriando());
+  auto modelo_clerigo_bom_5 = TabelasCriando().ModeloEntidade("Humano Clérigo 5 (Leal Bom)");
+  auto alvo_5_bom = NovaEntidadeParaTestes(modelo_clerigo_bom_5.entidade(), TabelasCriando());
+  const auto& feitico_tabelado = TabelasCriando().Feitico("palavra_sagrada");
   ASSERT_EQ(feitico_tabelado.acao().efeitos_adicionais_size(), 5);
   {
     // Surdez: nivel de conjurador.
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/11, feitico_tabelado.acao().efeitos_adicionais(0), alvo_10->Proto()));
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/10, feitico_tabelado.acao().efeitos_adicionais(0), alvo_10->Proto()));
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/9, feitico_tabelado.acao().efeitos_adicionais(0), alvo_10->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/11, feitico_tabelado.acao().efeitos_adicionais(0), alvo_10->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/10, feitico_tabelado.acao().efeitos_adicionais(0), alvo_10->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/9, feitico_tabelado.acao().efeitos_adicionais(0), alvo_10->Proto()));
     // bom nao é afetado.
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
   }
   {
     // Cegueira: nivel de conjurador -1.
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/12, feitico_tabelado.acao().efeitos_adicionais(1), alvo_10->Proto()));
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/11, feitico_tabelado.acao().efeitos_adicionais(1), alvo_10->Proto()));
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/10, feitico_tabelado.acao().efeitos_adicionais(1), alvo_10->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/12, feitico_tabelado.acao().efeitos_adicionais(1), alvo_10->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/11, feitico_tabelado.acao().efeitos_adicionais(1), alvo_10->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/10, feitico_tabelado.acao().efeitos_adicionais(1), alvo_10->Proto()));
     // bom nao é afetado.
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
   }
   {
     // Paralisia: nivel de conjurador -5.
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/16, feitico_tabelado.acao().efeitos_adicionais(2), alvo_10->Proto()));
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/15, feitico_tabelado.acao().efeitos_adicionais(2), alvo_10->Proto()));
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/14, feitico_tabelado.acao().efeitos_adicionais(2), alvo_10->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/16, feitico_tabelado.acao().efeitos_adicionais(2), alvo_10->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/15, feitico_tabelado.acao().efeitos_adicionais(2), alvo_10->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/14, feitico_tabelado.acao().efeitos_adicionais(2), alvo_10->Proto()));
     // bom nao é afetado.
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
   }
   {
     // Morte: nivel de conjurador -10.
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(3), alvo_10->Proto()));
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(3), alvo_10->Proto()));
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/19, feitico_tabelado.acao().efeitos_adicionais(3), alvo_10->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(3), alvo_10->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(3), alvo_10->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/19, feitico_tabelado.acao().efeitos_adicionais(3), alvo_10->Proto()));
     // bom nao é afetado.
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
   }
   {
     // Destruicao de morto vivo: nivel de conjurador -10.
     // Druida nao eh afetado.
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(4), alvo_10->Proto()));
-    auto modelo_morto_vivo_6 = g_tabelas.ModeloEntidade("Esqueleto (Lobo 6)");
-    auto alvo_6 = NovaEntidadeParaTestes(modelo_morto_vivo_6.entidade(), g_tabelas);
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/17, feitico_tabelado.acao().efeitos_adicionais(4), alvo_6->Proto()));
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/16, feitico_tabelado.acao().efeitos_adicionais(4), alvo_6->Proto()));
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/15, feitico_tabelado.acao().efeitos_adicionais(4), alvo_6->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(4), alvo_10->Proto()));
+    auto modelo_morto_vivo_6 = TabelasCriando().ModeloEntidade("Esqueleto (Lobo 6)");
+    auto alvo_6 = NovaEntidadeParaTestes(modelo_morto_vivo_6.entidade(), TabelasCriando());
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/17, feitico_tabelado.acao().efeitos_adicionais(4), alvo_6->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/16, feitico_tabelado.acao().efeitos_adicionais(4), alvo_6->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/15, feitico_tabelado.acao().efeitos_adicionais(4), alvo_6->Proto()));
     // bom nao é afetado.
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/20, feitico_tabelado.acao().efeitos_adicionais(0), alvo_5_bom->Proto()));
   }
 }
 
 TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeitoRisoHisterico) {
-  auto modelo_ankheg = g_tabelas.ModeloEntidade("Ankheg");
-  auto ankheg = NovaEntidadeParaTestes(modelo_ankheg.entidade(), g_tabelas);
-  auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
-  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
-  const auto& feitico_tabelado = g_tabelas.Feitico("riso_histerico");
-  auto modelo_esqueleto = g_tabelas.ModeloEntidade("Esqueleto (Humano Combatente)");
-  auto esqueleto = NovaEntidadeParaTestes(modelo_esqueleto.entidade(), g_tabelas);
- 
+  auto modelo_ankheg = TabelasCriando().ModeloEntidade("Ankheg");
+  auto ankheg = NovaEntidadeParaTestes(modelo_ankheg.entidade(), TabelasCriando());
+  auto modelo_druida = TabelasCriando().ModeloEntidade("Halfling Druida 10");
+  auto druida = NovaEntidadeParaTestes(modelo_druida.entidade(), TabelasCriando());
+  const auto& feitico_tabelado = TabelasCriando().Feitico("riso_histerico");
+  auto modelo_esqueleto = TabelasCriando().ModeloEntidade("Esqueleto (Humano Combatente)");
+  auto esqueleto = NovaEntidadeParaTestes(modelo_esqueleto.entidade(), TabelasCriando());
+
   ASSERT_EQ(feitico_tabelado.acao().efeitos_adicionais_size(), 1);
-  EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(0), ankheg->Proto()));
-  EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(0), druida->Proto()));
-  EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(0), esqueleto->Proto()));
+  EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(0), ankheg->Proto()));
+  EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(0), druida->Proto()));
+  EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/21, feitico_tabelado.acao().efeitos_adicionais(0), esqueleto->Proto()));
 }
 
 
 TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeitoBolsaCola) {
-  auto modelo_druida = g_tabelas.ModeloEntidade("Halfling Druida 10");
-  auto alvo_pequeno = NovaEntidadeParaTestes(modelo_druida.entidade(), g_tabelas);
-  auto modelo_aranha = g_tabelas.ModeloEntidade("Aranha Gigante Enorme");
-  auto alvo_enorme = NovaEntidadeParaTestes(modelo_aranha.entidade(), g_tabelas);
-  const auto& bolsa_cola = g_tabelas.Arma("bolsa_cola");
+  auto modelo_druida = TabelasCriando().ModeloEntidade("Halfling Druida 10");
+  auto alvo_pequeno = NovaEntidadeParaTestes(modelo_druida.entidade(), TabelasCriando());
+  auto modelo_aranha = TabelasCriando().ModeloEntidade("Aranha Gigante Enorme");
+  auto alvo_enorme = NovaEntidadeParaTestes(modelo_aranha.entidade(), TabelasCriando());
+  const auto& bolsa_cola = TabelasCriando().Arma("bolsa_cola");
   ASSERT_EQ(bolsa_cola.acao().efeitos_adicionais_size(), 2);
   {
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(0), alvo_pequeno->Proto()));
-    EXPECT_TRUE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(1), alvo_pequeno->Proto()));
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(0), alvo_enorme->Proto()));
-    EXPECT_FALSE(EntidadeAfetadaPorEfeito(g_tabelas, /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(1), alvo_enorme->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(0), alvo_pequeno->Proto()));
+    EXPECT_TRUE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(1), alvo_pequeno->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(0), alvo_enorme->Proto()));
+    EXPECT_FALSE(EntidadeAfetadaPorEfeito(TabelasCriando(), /*nivel_conjurador=*/0, bolsa_cola.acao().efeitos_adicionais(1), alvo_enorme->Proto()));
   }
 }
 
