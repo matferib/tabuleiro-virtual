@@ -768,7 +768,7 @@ void HabilitaAtributosVertice(
   if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor() && gl::HabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY)) {
     gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
   } else {
-    if (tem_cores && shader.atr_gltab_cor != -1) {
+    if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor() && shader.atr_gltab_cor != -1) {
       LOG(WARNING) << "nao consegui gravar cores.";
     }
     tem_cores = false;
