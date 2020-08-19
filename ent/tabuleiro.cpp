@@ -864,7 +864,7 @@ int Tabuleiro::Desenha() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   gl::TipoShader tipo_shader;
-  auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
+  auto* entidade_referencia = EntidadeCameraPresaOuSelecionada();
   if (entidade_referencia != nullptr && entidade_referencia->PossuiVisaoEscuro() && visao_escuro_ &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
