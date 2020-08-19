@@ -1748,8 +1748,15 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
 
   // Mapa do proto do personagem, porque iremos iterar nas pericias existentes na tabela.
   std::unordered_map<std::string, InfoPericia> mapa_pericias_proto;
+  std::unordered_set<std::string> remocoes;
   for (auto& ip : *proto->mutable_info_pericias()) {
+    if (!ip.substituir().empty()) {
+      remocoes.insert(ip.substituir());
+    }
     mapa_pericias_proto[ip.id()].Swap(&ip);
+  }
+  for (const auto& remocao: remocoes) {
+    mapa_pericias_proto.erase(remocao);
   }
   proto->clear_info_pericias();
 
