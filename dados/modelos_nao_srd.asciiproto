@@ -678,6 +678,19 @@ modelo {
   }
 }
 modelo {
+  id: 'Vulto Ladino 5 Montado'
+  id_entidade_base: 'Humano Ladino 5'
+  id_entidade_base: 'Vulto Base'
+  entidade {
+    rotulo_especial: 'invisibilidade a vontade, controlar luz, reflexos 3/dia'
+    info_textura { id: 'shade_rogue.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.2 g: 0.2 b: 0.2 }
+    modelos { id_efeito: EFEITO_MODELO_VULTO ativo: true complementos: 16 }
+    tendencia { simples: TD_NEUTRO_MAU }
+    info_pericias { id: 'cavalgar' pontos: 8 bonus { bonus_individual { tipo: TB_CIRCUNSTANCIA por_origem { origem: 'sela militar' valor: 2 } } } substituir: 'abrir_fechaduras' }
+  }
+}
+modelo {
   id: 'Vulto Bardo 5'
   id_entidade_base: 'Humano Bardo 5'
   id_entidade_base: 'Vulto Base'
