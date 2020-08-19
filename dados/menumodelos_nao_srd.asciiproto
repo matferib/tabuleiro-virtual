@@ -80,6 +80,9 @@ sub_menu {
     modelos {
       id_item_menu: 'Vulto Feiticeiro 5 Montado + Veserab'
     }
+    modelos {
+      id_item_menu: 'Vulto Ladino 5 Montado + Veserab'
+    }
   }
   item_menu {
     id: 'tilverton_cidade_velha_pos_orbe'
@@ -154,6 +157,12 @@ sub_menu {
     modelos { id: 'Vulto Feiticeiro 5 Montado' }
     modelos { id: 'Veserab' }
   }
+  item_menu {
+    id: 'Vulto Ladino 5 Montado + Veserab'
+    modelos { id: 'Vulto Ladino 5 Montado' }
+    modelos { id: 'Veserab' }
+  }
+
   item_menu { id: 'Vulto Bardo 5' }
   item_menu { id: 'Vulto Guerreiro 5' }
   item_menu { id: 'Vulto Feiticeiro 5' }
