@@ -832,6 +832,9 @@ message InfoPericia {
   // Monstros podem adicionar pericias_monstro em info_classes para considerar a pericia de classe.
   // Para monstros que usam tamanho diferente para computar pericia, como enxames. Esse valor é aplicado assim: (tamanho - mod) = tamanho usado.
   optional int32 modificador_tamanho = 8;
+
+  // Usado em herancas, para substituir uma pericia por essa.
+  optional string substituir = 9;
 }
 
 message RestricaoArma {
