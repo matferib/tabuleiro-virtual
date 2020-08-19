@@ -6870,7 +6870,7 @@ void Tabuleiro::DesenhaLuzes() {
   parametros_desenho_.clear_nevoa();
 
   auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
-  if (parametros_desenho_.desenha_nevoa() && parametros_desenho_.tipo_visao() == VISAO_ESCURO &&
+  if (entidade_referencia != nullptr && parametros_desenho_.desenha_nevoa() && parametros_desenho_.tipo_visao() == VISAO_ESCURO &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     gl::Habilita(GL_FOG);
     float pos[4] = { 0, 0, 0, 1 };
