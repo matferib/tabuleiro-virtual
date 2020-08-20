@@ -2990,6 +2990,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   gerador.checkbox_desativar_som->setCheckState(opcoes_proto.desativar_som() ? Qt::Checked : Qt::Unchecked);
   // Renderizacao em framebuffer fixo.
   gerador.checkbox_resolucao_fixa->setCheckState(opcoes_proto.renderizacao_em_framebuffer_fixo() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_desabilitar_retina->setCheckState(opcoes_proto.desabilitar_retina() ? Qt::Checked : Qt::Unchecked);
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
@@ -3019,6 +3020,9 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_desativar_som->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_renderizacao_em_framebuffer_fixo(
         gerador.checkbox_resolucao_fixa->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_desabilitar_retina(
+        gerador.checkbox_desabilitar_retina->checkState() == Qt::Checked ? true : false);
+
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

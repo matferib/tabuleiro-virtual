@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'opcoes.ui'
 **
-** Created by: Qt User Interface Compiler version 5.14.0
+** Created by: Qt User Interface Compiler version 5.15.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -12,8 +12,11 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QVBoxLayout>
 
 namespace ifg {
@@ -35,7 +38,13 @@ public:
     QCheckBox *checkbox_ataque_vs_defesa_posicao_real;
     QCheckBox *checkbox_tab_ativa_ataque;
     QCheckBox *checkbox_desativar_som;
+    QHBoxLayout *horizontalLayout;
     QCheckBox *checkbox_resolucao_fixa;
+    QComboBox *combo_tamanho_buffer_principal;
+    QHBoxLayout *horizontalLayout_2;
+    QLabel *label_2;
+    QComboBox *combo_tamanho_texturas;
+    QCheckBox *checkbox_desabilitar_retina;
     QDialogButtonBox *buttonBox;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
@@ -105,10 +114,58 @@ public:
 
         verticalLayout->addWidget(checkbox_desativar_som);
 
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        horizontalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
         checkbox_resolucao_fixa = new QCheckBox(ifg__qt__DialogoOpcoes);
         checkbox_resolucao_fixa->setObjectName(QString::fromUtf8("checkbox_resolucao_fixa"));
+        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(checkbox_resolucao_fixa->sizePolicy().hasHeightForWidth());
+        checkbox_resolucao_fixa->setSizePolicy(sizePolicy);
 
-        verticalLayout->addWidget(checkbox_resolucao_fixa);
+        horizontalLayout->addWidget(checkbox_resolucao_fixa);
+
+        combo_tamanho_buffer_principal = new QComboBox(ifg__qt__DialogoOpcoes);
+        combo_tamanho_buffer_principal->addItem(QString());
+        combo_tamanho_buffer_principal->addItem(QString());
+        combo_tamanho_buffer_principal->addItem(QString());
+        combo_tamanho_buffer_principal->addItem(QString());
+        combo_tamanho_buffer_principal->addItem(QString());
+        combo_tamanho_buffer_principal->addItem(QString());
+        combo_tamanho_buffer_principal->setObjectName(QString::fromUtf8("combo_tamanho_buffer_principal"));
+
+        horizontalLayout->addWidget(combo_tamanho_buffer_principal);
+
+
+        verticalLayout->addLayout(horizontalLayout);
+
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        label_2 = new QLabel(ifg__qt__DialogoOpcoes);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+
+        horizontalLayout_2->addWidget(label_2);
+
+        combo_tamanho_texturas = new QComboBox(ifg__qt__DialogoOpcoes);
+        combo_tamanho_texturas->addItem(QString());
+        combo_tamanho_texturas->addItem(QString());
+        combo_tamanho_texturas->addItem(QString());
+        combo_tamanho_texturas->addItem(QString());
+        combo_tamanho_texturas->addItem(QString());
+        combo_tamanho_texturas->addItem(QString());
+        combo_tamanho_texturas->setObjectName(QString::fromUtf8("combo_tamanho_texturas"));
+
+        horizontalLayout_2->addWidget(combo_tamanho_texturas);
+
+
+        verticalLayout->addLayout(horizontalLayout_2);
+
+        checkbox_desabilitar_retina = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_desabilitar_retina->setObjectName(QString::fromUtf8("checkbox_desabilitar_retina"));
+
+        verticalLayout->addWidget(checkbox_desabilitar_retina);
 
         buttonBox = new QDialogButtonBox(ifg__qt__DialogoOpcoes);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
@@ -140,7 +197,26 @@ public:
         checkbox_ataque_vs_defesa_posicao_real->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Ataque vs Defesa posi\303\247\303\243o Real", nullptr));
         checkbox_tab_ativa_ataque->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Tab ativa ataque", nullptr));
         checkbox_desativar_som->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Desativar som", nullptr));
-        checkbox_resolucao_fixa->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Resolu\303\247\303\243o fixa (1024)", nullptr));
+        checkbox_resolucao_fixa->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Renderizar 3d para textura", nullptr));
+        combo_tamanho_buffer_principal->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "128", nullptr));
+        combo_tamanho_buffer_principal->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "256", nullptr));
+        combo_tamanho_buffer_principal->setItemText(2, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "512", nullptr));
+        combo_tamanho_buffer_principal->setItemText(3, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "1024", nullptr));
+        combo_tamanho_buffer_principal->setItemText(4, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "2048", nullptr));
+        combo_tamanho_buffer_principal->setItemText(5, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "4096", nullptr));
+
+        label_2->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Tamanho de Texturas de Mapeamento", nullptr));
+        combo_tamanho_texturas->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "128", nullptr));
+        combo_tamanho_texturas->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "256", nullptr));
+        combo_tamanho_texturas->setItemText(2, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "512", nullptr));
+        combo_tamanho_texturas->setItemText(3, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "1024", nullptr));
+        combo_tamanho_texturas->setItemText(4, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "2048", nullptr));
+        combo_tamanho_texturas->setItemText(5, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "4096", nullptr));
+
+#if QT_CONFIG(tooltip)
+        checkbox_desabilitar_retina->setToolTip(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Se marcado, n\303\243o usar\303\241 display de retina.", nullptr));
+#endif // QT_CONFIG(tooltip)
+        checkbox_desabilitar_retina->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Desabilita Retina (requer reinializa\303\247\303\243o)", nullptr));
     } // retranslateUi
 
 };
