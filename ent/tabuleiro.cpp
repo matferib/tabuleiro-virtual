@@ -62,8 +62,6 @@
 #endif
 #endif
 
-#define TAM_MAPA_OCLUSAO 512
-
 using google::protobuf::RepeatedField;
 using google::protobuf::StringAppendF;
 
@@ -696,7 +694,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   gl::UnidadeTextura(GL_TEXTURE3);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
-  gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
+  gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento(), opcoes_.tamanho_framebuffer_texturas_mapeamento());
   parametros_desenho_.set_desenha_mapa_oclusao(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
@@ -765,7 +763,7 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
 
   gl::UnidadeTextura(GL_TEXTURE4);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
-  gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
+  gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento(), opcoes_.tamanho_framebuffer_texturas_mapeamento());
   // Face a ser desenhada. Aqui setada apenas configucao funcionar (alguma face tem que ser setada).
   parametros_desenho_.set_desenha_mapa_luzes(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
@@ -834,7 +832,7 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::Viewport(0, 0, 1024, 1024);
+  gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento(), opcoes_.tamanho_framebuffer_texturas_mapeamento());
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecaoMapeamentoSombras();
@@ -3931,7 +3929,7 @@ void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_
   if (textura_cubo) {
     for (int i = 0; i < 6; ++i) {
       gl::ImagemTextura2d(
-          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, tamanho, tamanho, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     }
   } else {
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -3981,7 +3979,7 @@ void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_
     }
     gl::GeraRenderbuffers(1, &dfb->renderbuffer);
     gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, dfb->renderbuffer);
-    gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
+    gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, tamanho, tamanho);
     gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
   } else {
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -4067,16 +4065,24 @@ void Tabuleiro::GeraFramebufferPrincipal(int tamanho, DadosFramebuffer* dfb) {
 
 void Tabuleiro::GeraFramebuffer(bool reinicia) {
   GeraFramebufferColisao(TAM_BUFFER_COLISAO, &dfb_colisao_);
-  GeraFramebufferLocal(
-      1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
-  GeraFramebufferLocal(
-      1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_oclusao_);
+  if (opcoes_.mapeamento_sombras()) {
+    GeraFramebufferLocal(
+        opcoes_.tamanho_framebuffer_texturas_mapeamento(), false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
+  }
+  if (opcoes_.mapeamento_oclusao()) {
+    GeraFramebufferLocal(
+        opcoes_.tamanho_framebuffer_texturas_mapeamento(), true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_oclusao_);
+  }
+  // TODO: por enquanto, fixo em 1.
   dfb_luzes_.resize(1);
-  GeraFramebufferLocal(
-      1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luzes_[0]);
+  if (opcoes_.mapeamento_luzes()) {
+    GeraFramebufferLocal(
+        opcoes_.tamanho_framebuffer_texturas_mapeamento(), true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luzes_[0]);
+  }
   if (opcoes_.renderizacao_em_framebuffer_fixo()) {
     GeraFramebufferPrincipal(opcoes_.tamanho_framebuffer_fixo(), &dfb_principal_);
   }
+  RequerAtualizacaoLuzesPontuais();
 }
 
 namespace {
@@ -5763,14 +5769,14 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 }
 
 void Tabuleiro::AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto) {
-  const bool render_antes = opcoes_.renderizacao_em_framebuffer_fixo();
   opcoes_.CopyFrom(novo_proto);
-  if (render_antes != opcoes_.renderizacao_em_framebuffer_fixo()) {
-    dfb_principal_.Apaga();
-    if (opcoes_.renderizacao_em_framebuffer_fixo()) {
-      GeraFramebufferPrincipal(opcoes_.tamanho_framebuffer_fixo(), &dfb_principal_);
-    }
-  }
+  dfb_principal_.Apaga();
+  dfb_oclusao_.Apaga();
+  dfb_luz_direcional_.Apaga();
+  dfb_luzes_.resize(1);
+  dfb_luzes_[0].Apaga();
+  dfb_colisao_.Apaga();
+  GeraFramebuffer(true  /*nao_usado*/);
   SalvaConfiguracoes(opcoes_);
   V_ERRO("erro deserializando GL");
 }
