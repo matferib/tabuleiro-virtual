@@ -66,6 +66,7 @@ message OpcoesProto {
   optional bool desativar_som = 22;
   optional bool renderizacao_em_framebuffer_fixo = 23;
   optional int32 tamanho_framebuffer_fixo = 24 [default = 1024];
+  optional bool desabilitar_retina = 25 [default = false];
 }
 
 // Mensagem enviada para os clientes de um jogo.

@@ -118,9 +118,10 @@ int main(int argc, char** argv) {
 #if USAR_GFLAGS
   google::ParseCommandLineFlags(&argc, &argv, true);
 #endif
-#if __APPLE__
-  //QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
-#endif
+  if (opcoes.desabilitar_retina()) {
+    QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+  }
+
   //MyApp q_app(argc, argv);
   QSurfaceFormat::setDefaultFormat(Formato());
   QApplication q_app(argc, argv);

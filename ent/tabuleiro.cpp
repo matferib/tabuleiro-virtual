@@ -7395,6 +7395,13 @@ void Tabuleiro::DesenhaTempos() {
   gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
 
+  GLint mem_total_kb = 0;
+  GLint mem_disp_kb = 0;
+//  #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+//  #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+  glGetIntegerv(0x9048, &mem_total_kb);
+  glGetIntegerv(0x9049, &mem_disp_kb);
+
   DesenhaTempo(0, "entre cenas", tempos_entre_cenas_);
   DesenhaTempo(1, "render mapa", tempos_renderizacao_mapas_);
   DesenhaTempo(2, "uma render ", tempos_uma_renderizacao_completa_);
@@ -7402,6 +7409,8 @@ void Tabuleiro::DesenhaTempos() {
   DesenhaTempo(4, "at parcial ", tempos_atualiza_parcial_);
   DesenhaTempo(5, "cont virt  ", tempos_uma_renderizacao_controle_virtual_);
   DesenhaTempo(6, "num objetos", {entidades_ordenadas_.size()});
+  DesenhaTempo(7, "mem GPU total MB", {mem_total_kb / 1024ULL});
+  DesenhaTempo(8, "mem GPU usado MB", {mem_disp_kb / 1024ULL});
   V_ERRO("tempo de renderizacao");
 }
 
