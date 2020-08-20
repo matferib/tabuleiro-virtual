@@ -613,7 +613,6 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dfb_principal_.textura, 0);
   V_ERRO("TexturaFramebufferOclusao");
   parametros_desenho_.set_desenha_controle_virtual(false);
-  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
   parametros_desenho_.set_desenha_fps(false);
   parametros_desenho_.set_desenha_info_geral(false);
 
@@ -625,6 +624,12 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
 
+#if !USAR_OPENGL_ES
+  // Multisampling pode causar problemas com pontos. Na radeon, os pontos somem pois o tamanho do ponto
+  // eh considerado no sampling e nao em pixels.
+  gl::DesabilitaEscopo salva_sampling(GL_MULTISAMPLE);
+#endif
+
   gl::MatrizEscopo salva_matriz_1(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
@@ -634,8 +639,6 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::AtualizaMatrizes();
   gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
 
-  //gl::Habilita(GL_CULL_FACE);
-  //gl::FaceNula(GL_FRONT);
   gl::DesligaEscritaProfundidadeEscopo desliga_escopo;
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::Habilita(GL_TEXTURE_2D);
@@ -1034,6 +1037,8 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_grade(false);
     parametros_desenho_.set_nao_limpa_cor(true);
     parametros_desenho_.set_desenha_acoes(false);
+    parametros_desenho_.set_desenha_pontos_rolagem(false);
+    parametros_desenho_.set_desenha_rosa_dos_ventos(false);
     DesenhaCena(/*debug=*/true);
     parametros_desenho_ = salva_pd;
   } else {
