@@ -436,6 +436,11 @@ void Visualizador3d::LiberaContexto() {
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ATUALIZAR_OPCOES: {
+      LOG(INFO) << "alterando escala para: " << notificacao.opcoes().escala();
+      gl::AlteraEscala(notificacao.opcoes().escala() == 0 ? scale_ : notificacao.opcoes().escala());
+      break;
+    }
     case ntf::TN_MUDAR_CURSOR:
       switch (notificacao.id_generico()) {
         case ent::Tabuleiro::MODO_ROTACAO:
@@ -528,6 +533,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
       n->mutable_opcoes()->Swap(opcoes.get());
       PegaContexto();
+      TrataNotificacao(*n);
       tabuleiro_->TrataNotificacao(*n);
       LiberaContexto();
       break;
@@ -3024,6 +3030,22 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   // Texturas.
   gerador.combo_tamanho_buffer_principal->setCurrentIndex(TamanhoTexturaParaIndice(opcoes_proto.tamanho_framebuffer_fixo()));
   gerador.combo_tamanho_texturas->setCurrentIndex(TamanhoTexturaParaIndice(opcoes_proto.tamanho_framebuffer_texturas_mapeamento()));
+  // Escala.
+  gerador.slider_escala->setValue(std::min(std::max(0.0f, opcoes_proto.escala()), 4.0f));
+  if (opcoes_proto.escala() > 0) {
+    gerador.label_escala->setText(StringPrintf("%.1f", opcoes_proto.escala()).c_str());
+  } else {
+    gerador.label_escala->setText("auto");
+  }
+  lambda_connect(gerador.slider_escala, SIGNAL(valueChanged(int)), [this, &gerador, proto_retornado] {
+    proto_retornado->set_escala(gerador.slider_escala->value());
+    if (proto_retornado->escala() == 0.0f) {
+      proto_retornado->clear_escala();
+      gerador.label_escala->setText("auto");
+    } else {
+      gerador.label_escala->setText(StringPrintf("%.1f", proto_retornado->escala()).c_str());
+    }
+  });
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {

@@ -644,6 +644,11 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 
 }  // namespace interno
 
+void AlteraEscala(float nova_escala) {
+  auto* c = interno::BuscaContexto();
+  c->escala = nova_escala;
+}
+
 void HabilitaMipmapAniso(GLenum alvo) {
   gl::ParametroTextura(alvo, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 #if WIN32 || MAC_OSX || (__linux__ && !ANDROID)
@@ -1444,6 +1449,9 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
   //unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
   //*escala = std::max(media_tela / 500, 1U);
   *escala = interno::BuscaContexto()->escala;
+  *largura_fonte = 8;
+  *altura = 13;
+  return;
 #elif __APPLE__
   *escala = interno::BuscaContexto()->escala;
   *largura_fonte = 8;
@@ -1455,8 +1463,6 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
   *altura = 13;
   return;
 #endif
-  *largura_fonte = 8;
-  *altura = 13;
 }
 
 bool PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
