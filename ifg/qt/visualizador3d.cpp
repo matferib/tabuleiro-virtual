@@ -1,5 +1,6 @@
 #include "ifg/qt/visualizador3d.h"
 
+#include <QPainter>
 #include <QBoxLayout>
 #include <QColorDialog>
 #include <QDesktopWidget>
@@ -337,47 +338,6 @@ void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& pr
   combo->setCurrentIndex(0);
 }
 
-void GeraFramebufferPrincipal(int tamanho, Visualizador3d::DadosFramebuffer* dfb) {
-  dfb->Apaga();
-  GLint original;
-  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
-  LOG(INFO) << "gerando framebuffer principal";
-  gl::GeraFramebuffers(1, &dfb->framebuffer);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb->framebuffer);
-  V_ERRO("LigacaoComFramebuffer");
-
-  gl::GeraTexturas(1, &dfb->textura);
-  V_ERRO("GeraTexturas");
-  gl::LigacaoComTextura(GL_TEXTURE_2D, dfb->textura);
-  V_ERRO("LigacaoComTextura");
-  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGB, tamanho, tamanho, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-  V_ERRO("ImagemTextura2d");
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  V_ERRO("ParametroTextura");
-  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dfb->textura, 0);
-  V_ERRO("TexturaFramebuffer");
-
-  gl::GeraRenderbuffers(1, &dfb->renderbuffer);
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, dfb->renderbuffer);
-  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, tamanho, tamanho);
-  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
-
-  auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
-  if (ret != GL_FRAMEBUFFER_COMPLETE) {
-    LOG(ERROR) << "Framebuffer principal incompleto: " << ret;
-  } else {
-    LOG(INFO) << "Framebuffer principal completo";
-  }
-
-  // Volta estado normal.
-  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-  V_ERRO("Fim da Geracao de framebuffer principal");
-  LOG(INFO) << "framebuffer principal gerado";
-}
-
 QSurfaceFormat Formato() {
   QSurfaceFormat formato;
   formato.setVersion(2, 1);
@@ -395,12 +355,6 @@ QSurfaceFormat Formato() {
 }
 
 }  // namespace
-
-void Visualizador3d::DadosFramebuffer::Apaga() {
-  if (framebuffer > 0) gl::ApagaFramebuffers(1, &framebuffer);
-  if (textura > 0) gl::ApagaTexturas(1, &textura);
-  if (renderbuffer > 0) gl::ApagaRenderbuffers(1, &renderbuffer);
-}
 
 Visualizador3d::Visualizador3d(
     const ent::Tabelas& tabelas,
@@ -427,18 +381,25 @@ Visualizador3d::Visualizador3d(
   std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY() << std::endl;
   //std::cerr << "screen: " << *QGuiApplication::primaryScreen();
 
-  scale_ = QApplication::desktop()->devicePixelRatio();
-  LOG(INFO) << "scale: " << scale_;
 
-  iniciaGL();
+  IniciaGL();
 }
 
 Visualizador3d::~Visualizador3d() {
   gl::FinalizaGl();
 }
 
+QOpenGLFramebufferObjectFormat FormatoFramebuffer() {
+  QOpenGLFramebufferObjectFormat formato;
+  formato.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+  formato.setInternalTextureFormat(GL_RGB);
+  //formato.setMipmap(true);
+  formato.setTextureTarget(GL_TEXTURE_2D);
+  return formato;
+}
+
 // reimplementacoes
-void Visualizador3d::iniciaGL() {
+void Visualizador3d::IniciaGL() {
   LOG(INFO) << "Inicializando GL.......................";
   try {
     contexto_.setFormat(Formato());
@@ -446,8 +407,7 @@ void Visualizador3d::iniciaGL() {
     surface_.setFormat(Formato());
     surface_.create();
     PegaContexto();
-    GeraFramebufferPrincipal(1024, &dfb_);
-    gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), scale_);
+    gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), /*escala=*/1.0f);
     tabuleiro_->IniciaGL();
     LOG(INFO) << "GL iniciado";
     LiberaContexto();
@@ -459,20 +419,51 @@ void Visualizador3d::iniciaGL() {
 }
 
 void Visualizador3d::resizeEvent(QResizeEvent *event) {
-  PegaContexto();
   int height = event->size().height();
   int width = event->size().width();
+  QWidget::resizeEvent(event);
+  RecriaFramebuffer(width, height, tabuleiro_->Opcoes());
+}
+
+void Visualizador3d::RecriaFramebuffer(int width, int height, const ent::OpcoesProto& opcoes) {
+  const bool fixo = opcoes.renderizacao_em_framebuffer_fixo();
+
+  PegaContexto();
+  if (framebuffer_ != nullptr) {
+    framebuffer_->release();
+    framebuffer_.reset();
+  }
+  if (fixo) {
+    const int tam = opcoes.tamanho_framebuffer_fixo();
+    if (width >= height) {
+      height = tam / (static_cast<float>(width) / static_cast<float>(height));
+      width = tam;
+    } else {
+      width = tam / (static_cast<float>(height) / static_cast<float>(width));
+      height = tam;
+    }
+  } else {
+    const float dpr = QApplication::desktop()->devicePixelRatio();
+    width *= dpr;
+    height *= dpr;
+  }
+  framebuffer_.reset(new QOpenGLFramebufferObject(width, height, FormatoFramebuffer()));
   LOG(INFO) << "w: " << width << ", h: " << height;
-  width *= scale_;
-  height *= scale_;
-  GeraFramebufferPrincipal(1024, &dfb_);
   tabuleiro_->TrataRedimensionaJanela(width, height);
   update();
   LiberaContexto();
 }
 
-void Visualizador3d::renderiza() {
+void Visualizador3d::paintEvent(QPaintEvent* event) {
+  PegaContexto();
+  framebuffer_->bind();
   tabuleiro_->Desenha();
+  framebuffer_->release();
+  QPainter painter(this);
+  QRect rect(0, 0, width(), height());
+  painter.drawImage(rect, framebuffer_->toImage());
+  LiberaContexto();
+  event->accept();
 }
 
 void Visualizador3d::PegaContexto() {
@@ -512,7 +503,10 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_ATUALIZAR_OPCOES: {
       LOG(INFO) << "alterando escala para: " << notificacao.opcoes().escala();
-      gl::AlteraEscala(notificacao.opcoes().escala() == 0 ? scale_ : notificacao.opcoes().escala());
+      gl::AlteraEscala(notificacao.opcoes().escala() > 0
+          ? notificacao.opcoes().escala()
+          : notificacao.opcoes().renderizacao_em_framebuffer_fixo() ? 1.0 : QApplication::desktop()->devicePixelRatio());
+      RecriaFramebuffer(width(), height(), notificacao.opcoes());
       break;
     }
     case ntf::TN_MUDAR_CURSOR:
@@ -554,7 +548,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_INICIADO: {
       // chama o resize pra iniciar a geometria e desenha a janela
-      iniciaGL();
+      //IniciaGL();
       //resizeGL(width(), height());
       break;
     }
@@ -640,6 +634,16 @@ void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
   LiberaContexto();
 }
 
+int Visualizador3d::XPara3d(int x) const {
+  float fracao = static_cast<float>(x) / width();
+  return fracao * framebuffer_->size().width();
+}
+
+int Visualizador3d::YPara3d(int y) const {
+  float fracao = static_cast<float>(y) / height();
+  return fracao * framebuffer_->size().height();
+}
+
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
@@ -647,8 +651,8 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   teclado_mouse_->TrataBotaoMousePressionado(
        BotaoMouseQtParaTratadorTecladoMouse(event->button()),
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
-       event->x() * scale_,
-       (height() - event->y()) * scale_);
+       XPara3d(event->x()),
+       YPara3d(height() - event->y()));
   event->accept();
   LiberaContexto();
 }
@@ -673,7 +677,7 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
   teclado_mouse_->TrataDuploCliqueMouse(
       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
-      event->x() * scale_, (height() - event->y()) * scale_);
+      XPara3d(event->x()), YPara3d(height() - event->y()));
   event->accept();
   LiberaContexto();
 }
@@ -682,7 +686,7 @@ void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
   PegaContexto();
   int x = event->globalX();
   int y = event->globalY();
-  if (teclado_mouse_->TrataMovimentoMouse(event->x() * scale_, (height() - event->y()) * scale_)) {
+  if (teclado_mouse_->TrataMovimentoMouse(XPara3d(event->x()), YPara3d(height() - event->y()))) {
     QCursor::setPos(x_antes_, y_antes_);
   } else {
     x_antes_ = x;

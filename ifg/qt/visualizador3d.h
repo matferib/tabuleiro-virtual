@@ -1,6 +1,7 @@
 #ifndef IFG_QT_VISUALIZADOR3D_H
 #define IFG_QT_VISUALIZADOR3D_H
 
+#include <QOpenGLFramebufferObject>
 #include <QOpenGLContext>
 #include <QOffscreenSurface>
 #include <QWidget>
@@ -57,12 +58,10 @@ class Visualizador3d :
   void LiberaContexto();
 
   // Interface QOpenGLWidget.
-  /** inicializacao dos parametros GL. */
-  void iniciaGL();
   /** redimensionamento da janela. */
-  void resizeEvent(QResizeEvent *event) override;
+  virtual void resizeEvent(QResizeEvent *event) override;
   /** funcao de desenho da janela. Aqui comeca o desenho 3d. */
-  void renderiza();
+  virtual void paintEvent(QPaintEvent* event) override;
 
   // funcoes sobrecarregadas mouse e teclado.
   void keyPressEvent(QKeyEvent* event) override;
@@ -85,17 +84,12 @@ class Visualizador3d :
   std::unique_ptr<ent::EntidadeProto> AbreDialogoTipoEntidade(
       const ntf::Notificacao& notificacao, bool forma_em_uso = true, QWidget* pai = nullptr);
 
-  struct DadosFramebuffer {
-    ~DadosFramebuffer() {
-      Apaga();
-    }
-    void Apaga();
-    GLuint framebuffer = 0;
-    GLuint textura = 0;
-    GLuint renderbuffer = 0;
-  };
-
  private:
+  void IniciaGL();
+  void RecriaFramebuffer(int w, int h, const ent::OpcoesProto& opcoes);
+  int XPara3d(int x_logico) const;
+  int YPara3d(int x_logico) const;
+
   // Dialogos.
   // TODO fazer todos unique ou do tipo mesmo sem ser pointer.
   std::unique_ptr<ent::EntidadeProto> AbreDialogoEntidade(const ntf::Notificacao& notificacao);
@@ -115,13 +109,12 @@ class Visualizador3d :
   // Para prender mouse no lugar.
   int x_antes_ = 0;
   int y_antes_ = 0;
-  float scale_ = 1.0f;
   int contexto_cref_ = 0;
   bool iniciado_ = false;
   QOffscreenSurface surface_;
   QOpenGLContext contexto_;
   //void* contexto_ = nullptr;
-  DadosFramebuffer dfb_;
+  std::unique_ptr<QOpenGLFramebufferObject> framebuffer_;
 };
 
 }  // namespace qt

@@ -1023,7 +1023,7 @@ int Tabuleiro::Desenha() {
   gl::CarregaIdentidade();
   ConfiguraProjecao();
 
-  if (opcoes_.renderizacao_em_framebuffer_fixo()) {
+  if (false && opcoes_.renderizacao_em_framebuffer_fixo()) {
     ParametrosDesenho salva_pd(parametros_desenho_);
     DesenhaFramebufferPrincipal();
     parametros_desenho_ = salva_pd;
@@ -4080,7 +4080,7 @@ void Tabuleiro::GeraFramebuffer(bool reinicia) {
     GeraFramebufferLocal(
         opcoes_.tamanho_framebuffer_texturas_mapeamento(), true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luzes_[0]);
   }
-  if (opcoes_.renderizacao_em_framebuffer_fixo()) {
+  if (false && opcoes_.renderizacao_em_framebuffer_fixo()) {
     GeraFramebufferPrincipal(opcoes_.tamanho_framebuffer_fixo(), &dfb_principal_);
   }
   RequerAtualizacaoLuzesPontuais();
