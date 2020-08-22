@@ -389,12 +389,13 @@ Visualizador3d::~Visualizador3d() {
   gl::FinalizaGl();
 }
 
-QOpenGLFramebufferObjectFormat FormatoFramebuffer() {
+QOpenGLFramebufferObjectFormat FormatoFramebuffer(bool anti_aliasing) {
   QOpenGLFramebufferObjectFormat formato;
   formato.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
   formato.setInternalTextureFormat(GL_RGB);
-  //formato.setMipmap(true);
+  formato.setMipmap(false);
   formato.setTextureTarget(GL_TEXTURE_2D);
+  formato.setSamples(anti_aliasing ? 2 : 0);
   return formato;
 }
 
@@ -447,7 +448,7 @@ void Visualizador3d::RecriaFramebuffer(int width, int height, const ent::OpcoesP
     width *= dpr;
     height *= dpr;
   }
-  framebuffer_.reset(new QOpenGLFramebufferObject(width, height, FormatoFramebuffer()));
+  framebuffer_.reset(new QOpenGLFramebufferObject(width, height, FormatoFramebuffer(opcoes.anti_aliasing())));
   LOG(INFO) << "w: " << width << ", h: " << height;
   tabuleiro_->TrataRedimensionaJanela(width, height);
   update();
