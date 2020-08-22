@@ -337,7 +337,70 @@ void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& pr
   combo->setCurrentIndex(0);
 }
 
+void GeraFramebufferPrincipal(int tamanho, Visualizador3d::DadosFramebuffer* dfb) {
+  dfb->Apaga();
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  LOG(INFO) << "gerando framebuffer principal";
+  gl::GeraFramebuffers(1, &dfb->framebuffer);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb->framebuffer);
+  V_ERRO("LigacaoComFramebuffer");
+
+  gl::GeraTexturas(1, &dfb->textura);
+  V_ERRO("GeraTexturas");
+  gl::LigacaoComTextura(GL_TEXTURE_2D, dfb->textura);
+  V_ERRO("LigacaoComTextura");
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGB, tamanho, tamanho, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+  V_ERRO("ImagemTextura2d");
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  V_ERRO("ParametroTextura");
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dfb->textura, 0);
+  V_ERRO("TexturaFramebuffer");
+
+  gl::GeraRenderbuffers(1, &dfb->renderbuffer);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, dfb->renderbuffer);
+  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, tamanho, tamanho);
+  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
+
+  auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
+  if (ret != GL_FRAMEBUFFER_COMPLETE) {
+    LOG(ERROR) << "Framebuffer principal incompleto: " << ret;
+  } else {
+    LOG(INFO) << "Framebuffer principal completo";
+  }
+
+  // Volta estado normal.
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  V_ERRO("Fim da Geracao de framebuffer principal");
+  LOG(INFO) << "framebuffer principal gerado";
+}
+
+QSurfaceFormat Formato() {
+  QSurfaceFormat formato;
+  formato.setVersion(2, 1);
+  formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+  formato.setRedBufferSize(8);
+  formato.setGreenBufferSize(8);
+  formato.setBlueBufferSize(8);
+  // Nao faca isso! Isso aqui deixara a janela transparente, quebrando a transparencia.
+  //formato.setAlphaBufferSize(8);
+  formato.setDepthBufferSize(24);
+  formato.setStencilBufferSize(1);
+  formato.setRenderableType(QSurfaceFormat::OpenGL);
+  formato.setSamples(2);
+  return formato;
+}
+
 }  // namespace
+
+void Visualizador3d::DadosFramebuffer::Apaga() {
+  if (framebuffer > 0) gl::ApagaFramebuffers(1, &framebuffer);
+  if (textura > 0) gl::ApagaTexturas(1, &textura);
+  if (renderbuffer > 0) gl::ApagaRenderbuffers(1, &renderbuffer);
+}
 
 Visualizador3d::Visualizador3d(
     const ent::Tabelas& tabelas,
@@ -345,12 +408,13 @@ Visualizador3d::Visualizador3d(
     tex::Texturas* texturas,
     TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
-    :  QOpenGLWidget(pai),
+    :  QWidget(pai),
        tabelas_(tabelas),
        m3d_(m3d),
        texturas_(texturas),
        teclado_mouse_(teclado_mouse),
-       central_(central), tabuleiro_(tabuleiro) {
+       central_(central), tabuleiro_(tabuleiro),
+       contexto_(pai) {
   //const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
   tipo_iluminacao_ = ent::OpcoesProto::TI_ESPECULAR;
   central_->RegistraReceptor(this);
@@ -365,6 +429,8 @@ Visualizador3d::Visualizador3d(
 
   scale_ = QApplication::desktop()->devicePixelRatio();
   LOG(INFO) << "scale: " << scale_;
+
+  iniciaGL();
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -372,16 +438,19 @@ Visualizador3d::~Visualizador3d() {
 }
 
 // reimplementacoes
-void Visualizador3d::initializeGL() {
+void Visualizador3d::iniciaGL() {
   LOG(INFO) << "Inicializando GL.......................";
-  static bool once = false;
   try {
-    if (!once) {
-      once = true;
-      gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), scale_);
-    }
+    contexto_.setFormat(Formato());
+    contexto_.create();
+    surface_.setFormat(Formato());
+    surface_.create();
+    PegaContexto();
+    GeraFramebufferPrincipal(1024, &dfb_);
+    gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), scale_);
     tabuleiro_->IniciaGL();
     LOG(INFO) << "GL iniciado";
+    LiberaContexto();
   } catch (const std::logic_error& erro) {
     // Este log de erro eh pro caso da aplicacao morrer e nao conseguir mostrar a mensagem.
     LOG(ERROR) << "Erro na inicializacao GL " << erro.what();
@@ -389,15 +458,20 @@ void Visualizador3d::initializeGL() {
   }
 }
 
-void Visualizador3d::resizeGL(int width, int height) {
+void Visualizador3d::resizeEvent(QResizeEvent *event) {
+  PegaContexto();
+  int height = event->size().height();
+  int width = event->size().width();
   LOG(INFO) << "w: " << width << ", h: " << height;
   width *= scale_;
   height *= scale_;
+  GeraFramebufferPrincipal(1024, &dfb_);
   tabuleiro_->TrataRedimensionaJanela(width, height);
   update();
+  LiberaContexto();
 }
 
-void Visualizador3d::paintGL() {
+void Visualizador3d::renderiza() {
   tabuleiro_->Desenha();
 }
 
@@ -416,7 +490,7 @@ void Visualizador3d::PegaContexto() {
   // Então, a chamada pai ficara sem contexto para continuar.
   // O certo mesmo seria pegar todas as aberturas de janela, liberar o contexto e pegar de novo. Mas isso é fragil e dificil de manter.
   // Esta solução assimétrica resolve o problema. Vai haver mais de um makeCurrent por doneCurrent, mas isso nao vaza memoria.
-  makeCurrent();
+  contexto_.makeCurrent(&surface_);
   ++contexto_cref_;
   //contexto_ = QOpenGLContext::currentContext();
 }
@@ -424,7 +498,7 @@ void Visualizador3d::PegaContexto() {
 void Visualizador3d::LiberaContexto() {
   if (--contexto_cref_ == 0) {
     //LOG(INFO) << "liberando contexto";
-    doneCurrent();
+    contexto_.doneCurrent();
     //contexto_ = nullptr;
   }
   if (contexto_cref_ < 0) {
@@ -480,7 +554,8 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_INICIADO: {
       // chama o resize pra iniciar a geometria e desenha a janela
-      resizeGL(width(), height());
+      iniciaGL();
+      //resizeGL(width(), height());
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {

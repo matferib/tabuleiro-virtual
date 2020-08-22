@@ -198,8 +198,6 @@ Tabuleiro::Tabuleiro(
     mapa_acoes_por_tipo_.insert(std::make_pair(a.tipo(), std::unique_ptr<AcaoProto>(new AcaoProto(*nova_acao))));
     id_acoes_.push_back(a.id());
   }
-  // Controle virtual.
-  CarregaControleVirtual();
 
   opcoes_ = opcoes;
 #if DEBUG
@@ -3137,6 +3135,9 @@ void Tabuleiro::IniciaGL(bool reinicio  /*bom pra debug de leak*/) {
   Entidade::IniciaGl(central_);
   regerar_vbos_entidades_ = true;
   RequerAtualizacaoLuzesPontuais();
+
+  // Controle virtual: tem que recarregar as texturas e VBOs.
+  CarregaControleVirtual();
 
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
   //LOG(INFO) << "Extensoes: " << ext;
