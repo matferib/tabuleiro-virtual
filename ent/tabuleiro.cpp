@@ -62,8 +62,6 @@
 #endif
 #endif
 
-#define TAM_MAPA_OCLUSAO 512
-
 using google::protobuf::RepeatedField;
 using google::protobuf::StringAppendF;
 
@@ -613,7 +611,6 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dfb_principal_.textura, 0);
   V_ERRO("TexturaFramebufferOclusao");
   parametros_desenho_.set_desenha_controle_virtual(false);
-  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
   parametros_desenho_.set_desenha_fps(false);
   parametros_desenho_.set_desenha_info_geral(false);
 
@@ -625,6 +622,12 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
 
+#if !USAR_OPENGL_ES
+  // Multisampling pode causar problemas com pontos. Na radeon, os pontos somem pois o tamanho do ponto
+  // eh considerado no sampling e nao em pixels.
+  gl::DesabilitaEscopo salva_sampling(GL_MULTISAMPLE);
+#endif
+
   gl::MatrizEscopo salva_matriz_1(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
@@ -634,8 +637,6 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::AtualizaMatrizes();
   gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
 
-  //gl::Habilita(GL_CULL_FACE);
-  //gl::FaceNula(GL_FRONT);
   gl::DesligaEscritaProfundidadeEscopo desliga_escopo;
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::Habilita(GL_TEXTURE_2D);
@@ -693,7 +694,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   gl::UnidadeTextura(GL_TEXTURE3);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
-  gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
+  gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento(), opcoes_.tamanho_framebuffer_texturas_mapeamento());
   parametros_desenho_.set_desenha_mapa_oclusao(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
@@ -762,7 +763,7 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
 
   gl::UnidadeTextura(GL_TEXTURE4);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
-  gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
+  gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento(), opcoes_.tamanho_framebuffer_texturas_mapeamento());
   // Face a ser desenhada. Aqui setada apenas configucao funcionar (alguma face tem que ser setada).
   parametros_desenho_.set_desenha_mapa_luzes(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
@@ -831,7 +832,7 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::Viewport(0, 0, 1024, 1024);
+  gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento(), opcoes_.tamanho_framebuffer_texturas_mapeamento());
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecaoMapeamentoSombras();
@@ -1034,6 +1035,8 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_grade(false);
     parametros_desenho_.set_nao_limpa_cor(true);
     parametros_desenho_.set_desenha_acoes(false);
+    parametros_desenho_.set_desenha_pontos_rolagem(false);
+    parametros_desenho_.set_desenha_rosa_dos_ventos(false);
     DesenhaCena(/*debug=*/true);
     parametros_desenho_ = salva_pd;
   } else {
@@ -3926,7 +3929,7 @@ void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_
   if (textura_cubo) {
     for (int i = 0; i < 6; ++i) {
       gl::ImagemTextura2d(
-          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, tamanho, tamanho, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     }
   } else {
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -3976,7 +3979,7 @@ void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_
     }
     gl::GeraRenderbuffers(1, &dfb->renderbuffer);
     gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, dfb->renderbuffer);
-    gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
+    gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, tamanho, tamanho);
     gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
   } else {
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -4062,16 +4065,24 @@ void Tabuleiro::GeraFramebufferPrincipal(int tamanho, DadosFramebuffer* dfb) {
 
 void Tabuleiro::GeraFramebuffer(bool reinicia) {
   GeraFramebufferColisao(TAM_BUFFER_COLISAO, &dfb_colisao_);
-  GeraFramebufferLocal(
-      1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
-  GeraFramebufferLocal(
-      1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_oclusao_);
+  if (opcoes_.mapeamento_sombras()) {
+    GeraFramebufferLocal(
+        opcoes_.tamanho_framebuffer_texturas_mapeamento(), false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
+  }
+  if (opcoes_.mapeamento_oclusao()) {
+    GeraFramebufferLocal(
+        opcoes_.tamanho_framebuffer_texturas_mapeamento(), true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_oclusao_);
+  }
+  // TODO: por enquanto, fixo em 1.
   dfb_luzes_.resize(1);
-  GeraFramebufferLocal(
-      1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luzes_[0]);
+  if (opcoes_.mapeamento_luzes()) {
+    GeraFramebufferLocal(
+        opcoes_.tamanho_framebuffer_texturas_mapeamento(), true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luzes_[0]);
+  }
   if (opcoes_.renderizacao_em_framebuffer_fixo()) {
     GeraFramebufferPrincipal(opcoes_.tamanho_framebuffer_fixo(), &dfb_principal_);
   }
+  RequerAtualizacaoLuzesPontuais();
 }
 
 namespace {
@@ -5758,14 +5769,14 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 }
 
 void Tabuleiro::AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto) {
-  const bool render_antes = opcoes_.renderizacao_em_framebuffer_fixo();
   opcoes_.CopyFrom(novo_proto);
-  if (render_antes != opcoes_.renderizacao_em_framebuffer_fixo()) {
-    dfb_principal_.Apaga();
-    if (opcoes_.renderizacao_em_framebuffer_fixo()) {
-      GeraFramebufferPrincipal(opcoes_.tamanho_framebuffer_fixo(), &dfb_principal_);
-    }
-  }
+  dfb_principal_.Apaga();
+  dfb_oclusao_.Apaga();
+  dfb_luz_direcional_.Apaga();
+  dfb_luzes_.resize(1);
+  dfb_luzes_[0].Apaga();
+  dfb_colisao_.Apaga();
+  GeraFramebuffer(true  /*nao_usado*/);
   SalvaConfiguracoes(opcoes_);
   V_ERRO("erro deserializando GL");
 }
@@ -7390,6 +7401,13 @@ void Tabuleiro::DesenhaTempos() {
   gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
 
+  GLint mem_total_kb = 0;
+  GLint mem_disp_kb = 0;
+//  #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+//  #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+  glGetIntegerv(0x9048, &mem_total_kb);
+  glGetIntegerv(0x9049, &mem_disp_kb);
+
   DesenhaTempo(0, "entre cenas", tempos_entre_cenas_);
   DesenhaTempo(1, "render mapa", tempos_renderizacao_mapas_);
   DesenhaTempo(2, "uma render ", tempos_uma_renderizacao_completa_);
@@ -7397,6 +7415,8 @@ void Tabuleiro::DesenhaTempos() {
   DesenhaTempo(4, "at parcial ", tempos_atualiza_parcial_);
   DesenhaTempo(5, "cont virt  ", tempos_uma_renderizacao_controle_virtual_);
   DesenhaTempo(6, "num objetos", {entidades_ordenadas_.size()});
+  DesenhaTempo(7, "mem GPU total MB", {mem_total_kb / 1024ULL});
+  DesenhaTempo(8, "mem GPU usado MB", {mem_disp_kb / 1024ULL});
   V_ERRO("tempo de renderizacao");
 }
 

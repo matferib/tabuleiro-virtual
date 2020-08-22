@@ -467,7 +467,6 @@ bool IniciaVariaveis(VarShader* shader) {
 }
 
 void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
-  LOG(INFO) << "Tentando iniciar com shaders, luz por pixel? " << (tipo_luz != TL_POR_VERTICE);
 
   V_ERRO("antes vertex shader");
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
@@ -479,25 +478,14 @@ void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
     VarShader* shader;
   };
   std::string nome_programa_luz;
+  // Isso aqui era para iniciar o shader de luz com outros tipos. Vou deixar que pode ser que use isso no futuro para novas features.
+  // Mas por enquanto, hard coded para luz_especular.
+  LOG(INFO) << "Tentando iniciar com shaders, luz especular HARDCODED";
   std::string nome_vert_luz;
   std::string nome_frag_luz;
-  switch (tipo_luz) {
-    case TL_POR_PIXEL:
-      nome_programa_luz = "programa_luz_pixel";
-      nome_vert_luz = "vert_luz.c";
-      nome_frag_luz = "frag_luz.c";
-      break;
-    case TL_POR_PIXEL_ESPECULAR:
-      nome_programa_luz = "programa_luz_pixel_especular";
-      nome_vert_luz = "vert_luz.c";
-      nome_frag_luz = "frag_luz_espec.c";
-      break;
-    case TL_POR_VERTICE:
-      nome_programa_luz = "programa_luz_vertice";
-      nome_vert_luz = "vert_luz_por_vertice.c";
-      nome_frag_luz = "frag_luz_por_vertice.c";
-      break;
-  }
+  nome_programa_luz = "programa_luz_pixel_especular";
+  nome_vert_luz = "vert_luz.c";
+  nome_frag_luz = "frag_luz_espec.c";
   std::vector<DadosShaders> dados_shaders = {
     { nome_programa_luz, TSH_LUZ, nome_vert_luz, nome_frag_luz, &contexto->shaders[TSH_LUZ] },
     { "programa_simples", TSH_SIMPLES, "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
@@ -655,6 +643,11 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 }
 
 }  // namespace interno
+
+void AlteraEscala(float nova_escala) {
+  auto* c = interno::BuscaContexto();
+  c->escala = nova_escala;
+}
 
 void HabilitaMipmapAniso(GLenum alvo) {
   gl::ParametroTextura(alvo, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1456,6 +1449,9 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
   //unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
   //*escala = std::max(media_tela / 500, 1U);
   *escala = interno::BuscaContexto()->escala;
+  *largura_fonte = 8;
+  *altura = 13;
+  return;
 #elif __APPLE__
   *escala = interno::BuscaContexto()->escala;
   *largura_fonte = 8;
@@ -1467,8 +1463,6 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
   *altura = 13;
   return;
 #endif
-  *largura_fonte = 8;
-  *altura = 13;
 }
 
 bool PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {

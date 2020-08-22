@@ -25,7 +25,7 @@ if sistema == 'win32':
   env['QT_LIB'] = ['QtOpenGL', 'QtGui', 'QtCore', 'QtMultimedia']
 elif sistema == 'apple':
   if 'QTDIR' not in env:
-    env['QTDIR'] = '/usr/local/Cellar/qt5/5.14.0/'
+    env['QTDIR'] = '/usr/local/Cellar/qt5/5.15.0/'
   env['FRAMEWORKPATH'] = [env['QTDIR'] + 'lib']
   frameworks = ['QtOpenGL', 'QtGui', 'QtWidgets', 'QtCore', 'QtMultimedia', 'OpenGL']
   env['FRAMEWORKS'] = frameworks

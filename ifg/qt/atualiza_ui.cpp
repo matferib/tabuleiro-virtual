@@ -1,8 +1,5 @@
 #include "ifg/qt/atualiza_ui.h"
 
-// Suprimir o QString::split até as outras versões chegarem no QT 5.15
-#pragma warning(disable : 4996)
-
 #include <QHBoxLayout>
 #include <unordered_set>
 #include "ent/entidade.pb.h"

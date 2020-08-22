@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'dialogo_bonus.ui'
 **
-** Created by: Qt User Interface Compiler version 5.11.1
+** Created by: Qt User Interface Compiler version 5.15.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -35,34 +35,34 @@ public:
     void setupUi(QDialog *ifg__qt__DialogoBonus)
     {
         if (ifg__qt__DialogoBonus->objectName().isEmpty())
-            ifg__qt__DialogoBonus->setObjectName(QStringLiteral("ifg__qt__DialogoBonus"));
+            ifg__qt__DialogoBonus->setObjectName(QString::fromUtf8("ifg__qt__DialogoBonus"));
         ifg__qt__DialogoBonus->resize(564, 371);
         gridLayout = new QGridLayout(ifg__qt__DialogoBonus);
-        gridLayout->setObjectName(QStringLiteral("gridLayout"));
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         tabela_bonus = new QTableView(ifg__qt__DialogoBonus);
-        tabela_bonus->setObjectName(QStringLiteral("tabela_bonus"));
+        tabela_bonus->setObjectName(QString::fromUtf8("tabela_bonus"));
 
         gridLayout->addWidget(tabela_bonus, 0, 0, 1, 1);
 
         verticalLayout = new QVBoxLayout();
-        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         botao_adicionar_bonus = new QPushButton(ifg__qt__DialogoBonus);
-        botao_adicionar_bonus->setObjectName(QStringLiteral("botao_adicionar_bonus"));
+        botao_adicionar_bonus->setObjectName(QString::fromUtf8("botao_adicionar_bonus"));
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(botao_adicionar_bonus->sizePolicy().hasHeightForWidth());
         botao_adicionar_bonus->setSizePolicy(sizePolicy);
-        botao_adicionar_bonus->setStyleSheet(QLatin1String("color: green;\n"
+        botao_adicionar_bonus->setStyleSheet(QString::fromUtf8("color: green;\n"
 "font: bold;"));
 
         verticalLayout->addWidget(botao_adicionar_bonus);
 
         botao_remover_bonus = new QPushButton(ifg__qt__DialogoBonus);
-        botao_remover_bonus->setObjectName(QStringLiteral("botao_remover_bonus"));
+        botao_remover_bonus->setObjectName(QString::fromUtf8("botao_remover_bonus"));
         sizePolicy.setHeightForWidth(botao_remover_bonus->sizePolicy().hasHeightForWidth());
         botao_remover_bonus->setSizePolicy(sizePolicy);
-        botao_remover_bonus->setStyleSheet(QLatin1String("color: red;\n"
+        botao_remover_bonus->setStyleSheet(QString::fromUtf8("color: red;\n"
 "font: bold;"));
 
         verticalLayout->addWidget(botao_remover_bonus);
@@ -71,7 +71,7 @@ public:
         gridLayout->addLayout(verticalLayout, 0, 1, 1, 1);
 
         botoes_ok_cancela = new QDialogButtonBox(ifg__qt__DialogoBonus);
-        botoes_ok_cancela->setObjectName(QStringLiteral("botoes_ok_cancela"));
+        botoes_ok_cancela->setObjectName(QString::fromUtf8("botoes_ok_cancela"));
         botoes_ok_cancela->setOrientation(Qt::Horizontal);
         botoes_ok_cancela->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
@@ -87,9 +87,9 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__DialogoBonus)
     {
-        ifg__qt__DialogoBonus->setWindowTitle(QApplication::translate("ifg::qt::DialogoBonus", "Dialog", nullptr));
-        botao_adicionar_bonus->setText(QApplication::translate("ifg::qt::DialogoBonus", "+", nullptr));
-        botao_remover_bonus->setText(QApplication::translate("ifg::qt::DialogoBonus", "-", nullptr));
+        ifg__qt__DialogoBonus->setWindowTitle(QCoreApplication::translate("ifg::qt::DialogoBonus", "Dialog", nullptr));
+        botao_adicionar_bonus->setText(QCoreApplication::translate("ifg::qt::DialogoBonus", "+", nullptr));
+        botao_remover_bonus->setText(QCoreApplication::translate("ifg::qt::DialogoBonus", "-", nullptr));
     } // retranslateUi
 
 };

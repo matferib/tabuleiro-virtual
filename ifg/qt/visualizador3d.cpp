@@ -436,6 +436,11 @@ void Visualizador3d::LiberaContexto() {
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ATUALIZAR_OPCOES: {
+      LOG(INFO) << "alterando escala para: " << notificacao.opcoes().escala();
+      gl::AlteraEscala(notificacao.opcoes().escala() == 0 ? scale_ : notificacao.opcoes().escala());
+      break;
+    }
     case ntf::TN_MUDAR_CURSOR:
       switch (notificacao.id_generico()) {
         case ent::Tabuleiro::MODO_ROTACAO:
@@ -528,6 +533,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
       n->mutable_opcoes()->Swap(opcoes.get());
       PegaContexto();
+      TrataNotificacao(*n);
       tabuleiro_->TrataNotificacao(*n);
       LiberaContexto();
       break;
@@ -2958,6 +2964,35 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   return proto_retornado;
 }
 
+int TamanhoTexturaParaIndice(int tam) {
+  switch (tam) {
+    case 128: return 0;
+    case 256: return 1;
+    case 512: return 2;
+    case 1024: return 3;
+    case 2048: return 4;
+    case 4096: return 5;
+    default:
+      LOG(WARNING) << "tamanho invalido: " << tam << " retornando indice 1 (256)";
+      return 1;
+  }
+}
+
+int IndiceParaTamanhoTextura(int indice) {
+  switch (indice) {
+    case 0: return 128;
+    case 1: return 256;
+    case 2: return 512;
+    case 3: return 1024;
+    case 4: return 2048;
+    case 5: return 4096;
+    default:
+      LOG(WARNING) << "indice invalido: " << indice << " retornando tamanho 256";
+      return 256;
+  }
+
+}
+
 ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::OpcoesProto(notificacao.opcoes());
@@ -2996,6 +3031,27 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   gerador.checkbox_desativar_som->setCheckState(opcoes_proto.desativar_som() ? Qt::Checked : Qt::Unchecked);
   // Renderizacao em framebuffer fixo.
   gerador.checkbox_resolucao_fixa->setCheckState(opcoes_proto.renderizacao_em_framebuffer_fixo() ? Qt::Checked : Qt::Unchecked);
+  // Retina.
+  gerador.checkbox_desabilitar_retina->setCheckState(opcoes_proto.desabilitar_retina() ? Qt::Checked : Qt::Unchecked);
+  // Texturas.
+  gerador.combo_tamanho_buffer_principal->setCurrentIndex(TamanhoTexturaParaIndice(opcoes_proto.tamanho_framebuffer_fixo()));
+  gerador.combo_tamanho_texturas->setCurrentIndex(TamanhoTexturaParaIndice(opcoes_proto.tamanho_framebuffer_texturas_mapeamento()));
+  // Escala.
+  gerador.slider_escala->setValue(std::min(std::max(0.0f, opcoes_proto.escala()), 4.0f));
+  if (opcoes_proto.escala() > 0) {
+    gerador.label_escala->setText(StringPrintf("%.1f", opcoes_proto.escala()).c_str());
+  } else {
+    gerador.label_escala->setText("auto");
+  }
+  lambda_connect(gerador.slider_escala, SIGNAL(valueChanged(int)), [this, &gerador, proto_retornado] {
+    proto_retornado->set_escala(gerador.slider_escala->value());
+    if (proto_retornado->escala() == 0.0f) {
+      proto_retornado->clear_escala();
+      gerador.label_escala->setText("auto");
+    } else {
+      gerador.label_escala->setText(StringPrintf("%.1f", proto_retornado->escala()).c_str());
+    }
+  });
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
@@ -3025,6 +3081,11 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_desativar_som->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_renderizacao_em_framebuffer_fixo(
         gerador.checkbox_resolucao_fixa->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_desabilitar_retina(
+        gerador.checkbox_desabilitar_retina->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_tamanho_framebuffer_fixo(IndiceParaTamanhoTextura(gerador.combo_tamanho_buffer_principal->currentIndex()));
+    proto_retornado->set_tamanho_framebuffer_texturas_mapeamento(IndiceParaTamanhoTextura(gerador.combo_tamanho_texturas->currentIndex()));
+
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

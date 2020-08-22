@@ -211,6 +211,8 @@
     <ClCompile Include="boost_src\libs\date_time\src\gregorian\greg_month.cpp" />
     <ClCompile Include="boost_src\libs\date_time\src\gregorian\greg_weekday.cpp" />
     <ClCompile Include="boost_src\libs\filesystem\src\codecvt_error_category.cpp" />
+    <ClCompile Include="boost_src\libs\filesystem\src\directory.cpp" />
+    <ClCompile Include="boost_src\libs\filesystem\src\exception.cpp" />
     <ClCompile Include="boost_src\libs\filesystem\src\operations.cpp" />
     <ClCompile Include="boost_src\libs\filesystem\src\path.cpp" />
     <ClCompile Include="boost_src\libs\filesystem\src\path_traits.cpp" />

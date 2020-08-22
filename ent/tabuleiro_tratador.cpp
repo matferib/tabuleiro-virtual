@@ -591,7 +591,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       float dx = nx - ultimo_x_3d_;
       float dy = ny - ultimo_y_3d_;
       int quantidade_movimento = 0;
-      bool atualizar_mapa_luzes = false;
+      bool atualizar_mapa_luzes = true;
       for (unsigned int id : IdsEntidadesSelecionadasEMontadasOuPrimeiraPessoa()) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
@@ -624,8 +624,6 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
             z_depois = std::max(ZChao(nx, ny), entidade_selecionada->Z());
             VLOG(2) << "nao mantendo apoio, z_depois " << z_depois;
           }
-        } else {
-          atualizar_mapa_luzes = true;
         }
         entidade_selecionada->MovePara(ex1, ey1, z_depois);
         Posicao pos;

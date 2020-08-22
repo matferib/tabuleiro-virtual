@@ -175,7 +175,8 @@ lowp float Visivel(samplerCube sampler, highp vec3 pos) {
   //gl_FragColor = vec4(mais_proximo, 0.0, 0.0, 1.0);
   mais_proximo *= gltab_plano_distante_oclusao;
   // Se mais_proximo menor que valor computado, retorna 0.
-  return step((length(pos) - bias), mais_proximo);
+  //return step((length(pos) - bias), mais_proximo);
+  return 1.0 - smoothstep(mais_proximo, mais_proximo + bias, length(pos));
 }
 
 void main() {
