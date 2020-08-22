@@ -36,7 +36,7 @@ elif sistema == 'apple':
   env['RPATH'] = []
 else:
   if 'QTDIR' not in env:
-    env['QTDIR'] = '../libs/Qt/5.11.1/gcc_64/'
+    env['QTDIR'] = '../libs/Qt/5.15.0/gcc_64/'
   env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/QtMultimedia', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
   env['QT_LIBPATH'] = env['QTDIR'] + '/lib'
   env['QT_LIB'] = ['Qt5Gui', 'Qt5OpenGL', 'Qt5Core', 'Qt5Widgets', 'Qt5Multimedia']

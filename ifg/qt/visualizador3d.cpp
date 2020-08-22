@@ -2443,6 +2443,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   gerador.checkbox_caida->setCheckState(entidade.caida() ? Qt::Checked : Qt::Unchecked);
   // Morta.
   gerador.checkbox_morta->setCheckState(entidade.morta() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_nocauteada->setCheckState(entidade.nocauteada() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_incapacitada->setCheckState(entidade.incapacitada() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_inconsciente->setCheckState(entidade.inconsciente() ? Qt::Checked : Qt::Unchecked);
   // Translacao em Z.
   gerador.spin_translacao_quad->setValue(entidade.pos().z() * ent::METROS_PARA_QUADRADOS);
 
@@ -2555,6 +2558,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_voadora(gerador.checkbox_voadora->checkState() == Qt::Checked);
     proto_retornado->set_caida(gerador.checkbox_caida->checkState() == Qt::Checked);
     proto_retornado->set_morta(gerador.checkbox_morta->checkState() == Qt::Checked);
+    proto_retornado->set_nocauteada(gerador.checkbox_nocauteada->checkState() == Qt::Checked);
+    proto_retornado->set_incapacitada(gerador.checkbox_incapacitada->checkState() == Qt::Checked);
+    proto_retornado->set_inconsciente(gerador.checkbox_inconsciente->checkState() == Qt::Checked);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao_quad->value() * ent::QUADRADOS_PARA_METROS);
