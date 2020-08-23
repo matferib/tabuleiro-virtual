@@ -46,17 +46,6 @@ using namespace std;
 using google::protobuf::StringPrintf;
 using google::protobuf::RepeatedPtrField;
 
-// Redimensiona o container.
-template <class T>
-void Redimensiona(int tam, RepeatedPtrField<T>* c) {
-  if (tam == c->size()) return;
-  if (tam < c->size()) {
-    c->DeleteSubrange(tam, c->size() - tam);
-    return;
-  }
-  while (c->size() < tam) c->Add();
-}
-
 class DesativadorWatchdogEscopo {
  public:
   DesativadorWatchdogEscopo(ent::Tabuleiro* tabuleiro) : tabuleiro_(tabuleiro) {
@@ -126,7 +115,6 @@ Visualizador3d::Visualizador3d(
   std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY() << std::endl;
   //std::cerr << "screen: " << *QGuiApplication::primaryScreen();
 
-
   IniciaGL();
 }
 
@@ -153,7 +141,11 @@ void Visualizador3d::IniciaGL() {
     surface_.setFormat(Formato());
     surface_.create();
     PegaContexto();
-    gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), /*escala=*/1.0f);
+    const auto& opcoes = tabuleiro_->Opcoes();
+    const float escala_fonte = opcoes.escala() > 0.0
+          ? opcoes.escala()
+          : opcoes.renderizacao_em_framebuffer_fixo() ? 1.0 : QApplication::desktop()->devicePixelRatio();
+    gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), escala_fonte);
     tabuleiro_->IniciaGL();
     LOG(INFO) << "GL iniciado";
     LiberaContexto();
