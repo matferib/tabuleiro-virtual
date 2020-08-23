@@ -337,6 +337,22 @@ void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& pr
   combo->setCurrentIndex(0);
 }
 
+QSurfaceFormat Formato() {
+  QSurfaceFormat formato;
+  formato.setVersion(2, 1);
+  formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+  formato.setRedBufferSize(8);
+  formato.setGreenBufferSize(8);
+  formato.setBlueBufferSize(8);
+  // Nao faca isso! Isso aqui deixara a janela transparente, quebrando a transparencia.
+  //formato.setAlphaBufferSize(8);
+  formato.setDepthBufferSize(24);
+  formato.setStencilBufferSize(1);
+  formato.setRenderableType(QSurfaceFormat::OpenGL);
+  formato.setSamples(2);
+  return formato;
+}
+
 }  // namespace
 
 Visualizador3d::Visualizador3d(
@@ -356,6 +372,9 @@ Visualizador3d::Visualizador3d(
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
+  setUpdateBehavior(QOpenGLWidget::PartialUpdate);
+  setTextureFormat(GL_RGB);
+  setFormat(Formato());
 
   std::cerr << "phyx: " << QGuiApplication::primaryScreen()->physicalDotsPerInchX() << std::endl;
   std::cerr << "phyy: " << QGuiApplication::primaryScreen()->physicalDotsPerInchY() << std::endl;
