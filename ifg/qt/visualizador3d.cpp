@@ -214,6 +214,7 @@ void Visualizador3d::paintEvent(QPaintEvent* event) {
   framebuffer_->bind();
   tabuleiro_->Desenha();
   framebuffer_->release();
+  contexto_.swapBuffers(&surface_);
 
   QPainter painter(this);
   QRect rect(0, 0, width(), height());
