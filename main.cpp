@@ -82,6 +82,8 @@ QSurfaceFormat Formato() {
   QSurfaceFormat formato;
   formato.setVersion(2, 1);
   formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+  //formato.setSwapBehavior(QSurfaceFormat::SingleBuffer);
+  formato.setSwapInterval(0);  // vsync off
   formato.setRedBufferSize(8);
   formato.setGreenBufferSize(8);
   formato.setBlueBufferSize(8);
@@ -90,7 +92,7 @@ QSurfaceFormat Formato() {
   formato.setDepthBufferSize(24);
   formato.setStencilBufferSize(1);
   formato.setRenderableType(QSurfaceFormat::OpenGL);
-  formato.setSamples(2);
+  formato.setSamples(0);
   return formato;
 }
 
