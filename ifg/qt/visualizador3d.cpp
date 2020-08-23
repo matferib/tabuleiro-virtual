@@ -340,7 +340,9 @@ void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& pr
 QSurfaceFormat Formato() {
   QSurfaceFormat formato;
   formato.setVersion(2, 1);
-  formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+  //formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+  formato.setSwapBehavior(QSurfaceFormat::SingleBuffer);
+  formato.setSwapInterval(0);
   formato.setRedBufferSize(8);
   formato.setGreenBufferSize(8);
   formato.setBlueBufferSize(8);
