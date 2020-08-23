@@ -86,7 +86,7 @@ QSurfaceFormat Formato() {
   formato.setDepthBufferSize(24);
   formato.setStencilBufferSize(1);
   formato.setRenderableType(QSurfaceFormat::OpenGL);
-  formato.setSamples(2);
+  //formato.setSamples(2);
   return formato;
 }
 
@@ -138,9 +138,9 @@ QOpenGLFramebufferObjectFormat FormatoFramebuffer(bool anti_aliasing) {
 void Visualizador3d::IniciaGL() {
   LOG(INFO) << "Inicializando GL.......................";
   try {
-    contexto_.setFormat(Formato());
+    //contexto_.setFormat(Formato());
     contexto_.create();
-    surface_.setFormat(Formato());
+    //surface_.setFormat(Formato());
     surface_.create();
     PegaContexto();
     const auto& opcoes = tabuleiro_->Opcoes();
@@ -216,10 +216,8 @@ void Visualizador3d::paintEvent(QPaintEvent* event) {
   framebuffer_->release();
   contexto_.swapBuffers(&surface_);
 
-  QPainter painter(this);
-  QRect rect(0, 0, width(), height());
 
-  {
+  if (0) {
     boost::timer::cpu_timer timer;
     timer.start();
     glFinish();
@@ -234,19 +232,30 @@ void Visualizador3d::paintEvent(QPaintEvent* event) {
   timer_grab.start();
   QImage image = framebuffer_->toImage();
   timer_grab.stop();
+  if (0) {
+    const ent::OpcoesProto& opcoes = tabuleiro_->Opcoes();
+    QRect source_rect(0, 0, opcoes.tamanho_framebuffer_fixo(), opcoes.tamanho_framebuffer_fixo());
+    // O QT transforma o 0 em default framebuffer.
+    QRect dest_rect(0, 0, width(), height()); // geometry();
+    QOpenGLFramebufferObject::blitFramebuffer(nullptr, dest_rect, framebuffer_.get(), source_rect, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+  }
   static unsigned long long total_grab = 0ULL;
   static int c_grab = 0;
   total_grab += TempoMs(timer_grab);
   ImprimeTempo("grab", total_grab, ++c_grab);
 
-  boost::timer::cpu_timer timer;
-  timer.start();
-  painter.drawImage(rect, image);
-  timer.stop();
-  static unsigned long long total_draw = 0ULL;
-  static int c_draw = 0;
-  total_draw += TempoMs(timer);
-  ImprimeTempo("drawImage", total_draw, ++c_draw);
+  if (1) {
+    QPainter painter(this);
+    QRect rect(0, 0, width(), height());
+    boost::timer::cpu_timer timer;
+    timer.start();
+    painter.drawImage(rect, image);
+    timer.stop();
+    static unsigned long long total_draw = 0ULL;
+    static int c_draw = 0;
+    total_draw += TempoMs(timer);
+    ImprimeTempo("drawImage", total_draw, ++c_draw);
+  }
   LiberaContexto();
   event->accept();
 }
