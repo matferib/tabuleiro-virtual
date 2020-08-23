@@ -1,22 +1,10 @@
 #include "ifg/qt/visualizador3d.h"
 
-#include <QPainter>
-#include <QBoxLayout>
-#include <QColorDialog>
 #include <QDesktopWidget>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QItemDelegate>
-#include <QMenu>
-#include <QMessageBox>
+#include <QPainter>
 #include <QMouseEvent>
 #include <QOpenGLContext>
 #include <QScreen>
-#include <QStandardItem>
-#include <QStandardItemModel>
-#include <QString>
 #include <algorithm>
 #include <cmath>
 #include <functional>
