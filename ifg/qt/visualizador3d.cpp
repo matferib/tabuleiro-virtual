@@ -348,10 +348,10 @@ QSurfaceFormat Formato() {
   formato.setBlueBufferSize(8);
   // Nao faca isso! Isso aqui deixara a janela transparente, quebrando a transparencia.
   //formato.setAlphaBufferSize(8);
-  formato.setDepthBufferSize(24);
-  formato.setStencilBufferSize(1);
-  formato.setRenderableType(QSurfaceFormat::OpenGL);
-  formato.setSamples(2);
+  //formato.setDepthBufferSize(24);
+  //formato.setStencilBufferSize(1);
+  //formato.setRenderableType(QSurfaceFormat::OpenGL);
+  //formato.setSamples(2);
   return formato;
 }
 

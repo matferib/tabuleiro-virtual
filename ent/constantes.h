@@ -43,7 +43,7 @@
 #if USAR_OPENGL_ES
 #define ATUALIZACOES_POR_SEGUNDO 30.0f
 #else
-#define ATUALIZACOES_POR_SEGUNDO 60.0f
+#define ATUALIZACOES_POR_SEGUNDO 30.0f
 #endif
 #define INTERVALO_NOTIFICACAO_MS (1000.0f / ATUALIZACOES_POR_SEGUNDO)
 // Converte a velocidade por segundo para distancia por atualizacao.
