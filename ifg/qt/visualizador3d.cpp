@@ -192,14 +192,58 @@ void Visualizador3d::RecriaFramebuffer(int width, int height, const ent::OpcoesP
   LiberaContexto();
 }
 
+namespace {
+unsigned long long TempoMs(const boost::timer::cpu_timer& timer) {
+  constexpr unsigned long long DIV_NANO_PARA_MS = 1000000ULL;
+  return timer.elapsed().wall / DIV_NANO_PARA_MS;
+}
+
+void ImprimeTempo(const std::string& label, unsigned long long &total, int &c) {
+  if (c == 10) {
+    LOG(INFO) << "media ultimos 10 frames " << label << ": " << (static_cast<float>(total) / c) << "ms";
+    total = 0;
+    c = 0;
+  }
+}
+}  // namespace
+
 void Visualizador3d::paintEvent(QPaintEvent* event) {
   PegaContexto();
   framebuffer_->bind();
   tabuleiro_->Desenha();
   framebuffer_->release();
+
   QPainter painter(this);
   QRect rect(0, 0, width(), height());
-  painter.drawImage(rect, framebuffer_->toImage());
+
+  {
+    boost::timer::cpu_timer timer;
+    timer.start();
+    glFinish();
+    timer.stop();
+    static unsigned long long total = 0ULL;
+    static int c = 0;
+    total += TempoMs(timer);
+    ImprimeTempo("finish", total, ++c);
+  }
+
+  boost::timer::cpu_timer timer_grab;
+  timer_grab.start();
+  QImage image = framebuffer_->toImage();
+  timer_grab.stop();
+  static unsigned long long total_grab = 0ULL;
+  static int c_grab = 0;
+  total_grab += TempoMs(timer_grab);
+  ImprimeTempo("grab", total_grab, ++c_grab);
+
+  boost::timer::cpu_timer timer;
+  timer.start();
+  painter.drawImage(rect, image);
+  timer.stop();
+  static unsigned long long total_draw = 0ULL;
+  static int c_draw = 0;
+  total_draw += TempoMs(timer);
+  ImprimeTempo("drawImage", total_draw, ++c_draw);
   LiberaContexto();
   event->accept();
 }
