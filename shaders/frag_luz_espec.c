@@ -169,7 +169,7 @@ lowp float VisibilidadeLuzDirecional(in lowp vec3 normal) {
 
 // Retorna quao visivel o ponto eh para a luz (mapeamento de sombras).
 lowp float Visivel(samplerCube sampler, highp vec3 pos) {
-  highp float bias = 0.5;
+  highp float bias = 5.0;
   highp vec4 texprofcor = textureCube(sampler, pos, 0.0);
   highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
   //gl_FragColor = vec4(mais_proximo, 0.0, 0.0, 1.0);
