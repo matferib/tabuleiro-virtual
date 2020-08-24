@@ -82,7 +82,6 @@ QSurfaceFormat Formato() {
   QSurfaceFormat formato;
   formato.setVersion(2, 1);
   formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-  //formato.setSwapBehavior(QSurfaceFormat::SingleBuffer);
   formato.setSwapInterval(0);  // vsync off
   formato.setRedBufferSize(8);
   formato.setGreenBufferSize(8);

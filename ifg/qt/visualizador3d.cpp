@@ -1,7 +1,6 @@
 #include "ifg/qt/visualizador3d.h"
 
 #include <QDesktopWidget>
-#include <QPainter>
 #include <QMouseEvent>
 #include <QOpenGLContext>
 #include <QScreen>
@@ -147,17 +146,12 @@ void Visualizador3d::PegaContexto() {
   // Então, a chamada pai ficara sem contexto para continuar.
   // O certo mesmo seria pegar todas as aberturas de janela, liberar o contexto e pegar de novo. Mas isso é fragil e dificil de manter.
   // Esta solução assimétrica resolve o problema. Vai haver mais de um makeCurrent por doneCurrent, mas isso nao vaza memoria.
-  //contexto_.makeCurrent(&surface_);
   makeCurrent();
   ++contexto_cref_;
-  //contexto_ = QOpenGLContext::currentContext();
 }
 
 void Visualizador3d::LiberaContexto() {
   if (--contexto_cref_ == 0) {
-    //LOG(INFO) << "liberando contexto";
-    //contexto_.doneCurrent();
-    //contexto_ = nullptr;
     doneCurrent();
   }
   if (contexto_cref_ < 0) {
@@ -174,8 +168,6 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       gl::AlteraEscala(notificacao.opcoes().escala() > 0
           ? notificacao.opcoes().escala()
           : QApplication::desktop()->devicePixelRatio());
-      PegaContexto();
-      LiberaContexto();
       break;
     }
     case ntf::TN_MUDAR_CURSOR:
@@ -216,9 +208,6 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
     }
     case ntf::TN_INICIADO: {
-      // chama o resize pra iniciar a geometria e desenha a janela
-      //IniciaGL();
-      //resizeGL(width(), height());
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {

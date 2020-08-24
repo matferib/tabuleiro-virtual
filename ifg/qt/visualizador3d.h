@@ -108,7 +108,6 @@ class Visualizador3d :
   int x_antes_ = 0;
   int y_antes_ = 0;
   int contexto_cref_ = 0;
-  bool iniciado_ = false;
 };
 
 }  // namespace qt
