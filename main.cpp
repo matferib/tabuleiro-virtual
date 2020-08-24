@@ -81,7 +81,7 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
 QSurfaceFormat Formato() {
   QSurfaceFormat formato;
   formato.setVersion(2, 1);
-  formato.setSwapBehavior(QSurfaceFormat::SingleBuffer);
+  formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
   formato.setRedBufferSize(8);
   formato.setGreenBufferSize(8);
   formato.setBlueBufferSize(8);
@@ -90,7 +90,7 @@ QSurfaceFormat Formato() {
   //formato.setDepthBufferSize(24);
   //formato.setStencilBufferSize(1);
   //formato.setRenderableType(QSurfaceFormat::OpenGL);
-  //formato.setSamples(2);
+  formato.setSamples(2);
   return formato;
 }
 
