@@ -72,24 +72,6 @@ botoesmouse_e BotaoMouseQtParaTratadorTecladoMouse(int botao_qt) {
   return static_cast<botoesmouse_e>(botao_qt);
 }
 
-QSurfaceFormat Formato() {
-  QSurfaceFormat formato;
-  formato.setVersion(2, 1);
-  formato.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-  //formato.setSwapBehavior(QSurfaceFormat::SingleBuffer);
-  formato.setSwapInterval(0);  // vsync off
-  formato.setRedBufferSize(8);
-  formato.setGreenBufferSize(8);
-  formato.setBlueBufferSize(8);
-  // Nao faca isso! Isso aqui deixara a janela transparente, quebrando a transparencia.
-  //formato.setAlphaBufferSize(8);
-  formato.setDepthBufferSize(24);
-  formato.setStencilBufferSize(1);
-  formato.setRenderableType(QSurfaceFormat::OpenGL);
-  //formato.setSamples(2);
-  return formato;
-}
-
 }  // namespace
 
 Visualizador3d::Visualizador3d(
@@ -98,13 +80,12 @@ Visualizador3d::Visualizador3d(
     tex::Texturas* texturas,
     TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
-    :  QWidget(pai),
+    :  QOpenGLWidget(pai),
        tabelas_(tabelas),
        m3d_(m3d),
        texturas_(texturas),
        teclado_mouse_(teclado_mouse),
-       central_(central), tabuleiro_(tabuleiro),
-       contexto_(pai) {
+       central_(central), tabuleiro_(tabuleiro) {
   //const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
   tipo_iluminacao_ = ent::OpcoesProto::TI_ESPECULAR;
   central_->RegistraReceptor(this);
@@ -116,41 +97,23 @@ Visualizador3d::Visualizador3d(
   std::cerr << "logx: " << QGuiApplication::primaryScreen()->logicalDotsPerInchX() << std::endl;
   std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY() << std::endl;
   //std::cerr << "screen: " << *QGuiApplication::primaryScreen();
-
-  IniciaGL();
 }
 
 Visualizador3d::~Visualizador3d() {
   gl::FinalizaGl();
 }
 
-QOpenGLFramebufferObjectFormat FormatoFramebuffer(bool anti_aliasing) {
-  QOpenGLFramebufferObjectFormat formato;
-  formato.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-  formato.setInternalTextureFormat(GL_RGB);
-  formato.setMipmap(false);
-  formato.setTextureTarget(GL_TEXTURE_2D);
-  formato.setSamples(anti_aliasing ? 2 : 0);
-  return formato;
-}
-
-// reimplementacoes
-void Visualizador3d::IniciaGL() {
+// reimplementacoes OpenGL.
+void Visualizador3d::initializeGL() {
   LOG(INFO) << "Inicializando GL.......................";
   try {
-    //contexto_.setFormat(Formato());
-    contexto_.create();
-    //surface_.setFormat(Formato());
-    surface_.create();
-    PegaContexto();
     const auto& opcoes = tabuleiro_->Opcoes();
     const float escala_fonte = opcoes.escala() > 0.0
           ? opcoes.escala()
-          : opcoes.renderizacao_em_framebuffer_fixo() ? 1.0 : QApplication::desktop()->devicePixelRatio();
+          : QApplication::desktop()->devicePixelRatio();
     gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), escala_fonte);
     tabuleiro_->IniciaGL();
     LOG(INFO) << "GL iniciado";
-    LiberaContexto();
   } catch (const std::logic_error& erro) {
     // Este log de erro eh pro caso da aplicacao morrer e nao conseguir mostrar a mensagem.
     LOG(ERROR) << "Erro na inicializacao GL " << erro.what();
@@ -158,106 +121,15 @@ void Visualizador3d::IniciaGL() {
   }
 }
 
-void Visualizador3d::resizeEvent(QResizeEvent *event) {
-  int height = event->size().height();
-  int width = event->size().width();
-  QWidget::resizeEvent(event);
-  RecriaFramebuffer(width, height, tabuleiro_->Opcoes());
+void Visualizador3d::resizeGL(int w, int h) {
+  const float dpr = QApplication::desktop()->devicePixelRatio();
+  w *= dpr;
+  h *= dpr;
+  tabuleiro_->TrataRedimensionaJanela(w, h);
 }
 
-void Visualizador3d::RecriaFramebuffer(int width, int height, const ent::OpcoesProto& opcoes) {
-  const bool fixo = opcoes.renderizacao_em_framebuffer_fixo();
-
-  PegaContexto();
-  if (framebuffer_ != nullptr) {
-    framebuffer_->release();
-    framebuffer_.reset();
-  }
-  if (fixo) {
-    const int tam = opcoes.tamanho_framebuffer_fixo();
-    if (width >= height) {
-      height = tam / (static_cast<float>(width) / static_cast<float>(height));
-      width = tam;
-    } else {
-      width = tam / (static_cast<float>(height) / static_cast<float>(width));
-      height = tam;
-    }
-  } else {
-    const float dpr = QApplication::desktop()->devicePixelRatio();
-    width *= dpr;
-    height *= dpr;
-  }
-  framebuffer_.reset(new QOpenGLFramebufferObject(width, height, FormatoFramebuffer(opcoes.anti_aliasing())));
-  LOG(INFO) << "w: " << width << ", h: " << height;
-  tabuleiro_->TrataRedimensionaJanela(width, height);
-  update();
-  LiberaContexto();
-}
-
-namespace {
-unsigned long long TempoMs(const boost::timer::cpu_timer& timer) {
-  constexpr unsigned long long DIV_NANO_PARA_MS = 1000000ULL;
-  return timer.elapsed().wall / DIV_NANO_PARA_MS;
-}
-
-void ImprimeTempo(const std::string& label, unsigned long long &total, int &c) {
-  if (c == 10) {
-    LOG(INFO) << "media ultimos 10 frames " << label << ": " << (static_cast<float>(total) / c) << "ms";
-    total = 0;
-    c = 0;
-  }
-}
-}  // namespace
-
-void Visualizador3d::paintEvent(QPaintEvent* event) {
-  PegaContexto();
-  framebuffer_->bind();
+void Visualizador3d::paintGL() {
   tabuleiro_->Desenha();
-  framebuffer_->release();
-  contexto_.swapBuffers(&surface_);
-
-
-  if (0) {
-    boost::timer::cpu_timer timer;
-    timer.start();
-    glFinish();
-    timer.stop();
-    static unsigned long long total = 0ULL;
-    static int c = 0;
-    total += TempoMs(timer);
-    ImprimeTempo("finish", total, ++c);
-  }
-
-  boost::timer::cpu_timer timer_grab;
-  timer_grab.start();
-  QImage image = framebuffer_->toImage();
-  timer_grab.stop();
-  if (0) {
-    const ent::OpcoesProto& opcoes = tabuleiro_->Opcoes();
-    QRect source_rect(0, 0, opcoes.tamanho_framebuffer_fixo(), opcoes.tamanho_framebuffer_fixo());
-    // O QT transforma o 0 em default framebuffer.
-    QRect dest_rect(0, 0, width(), height()); // geometry();
-    QOpenGLFramebufferObject::blitFramebuffer(nullptr, dest_rect, framebuffer_.get(), source_rect, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-  }
-  static unsigned long long total_grab = 0ULL;
-  static int c_grab = 0;
-  total_grab += TempoMs(timer_grab);
-  ImprimeTempo("grab", total_grab, ++c_grab);
-
-  if (1) {
-    QPainter painter(this);
-    QRect rect(0, 0, width(), height());
-    boost::timer::cpu_timer timer;
-    timer.start();
-    painter.drawImage(rect, image);
-    timer.stop();
-    static unsigned long long total_draw = 0ULL;
-    static int c_draw = 0;
-    total_draw += TempoMs(timer);
-    ImprimeTempo("drawImage", total_draw, ++c_draw);
-  }
-  LiberaContexto();
-  event->accept();
 }
 
 void Visualizador3d::PegaContexto() {
@@ -275,7 +147,8 @@ void Visualizador3d::PegaContexto() {
   // Então, a chamada pai ficara sem contexto para continuar.
   // O certo mesmo seria pegar todas as aberturas de janela, liberar o contexto e pegar de novo. Mas isso é fragil e dificil de manter.
   // Esta solução assimétrica resolve o problema. Vai haver mais de um makeCurrent por doneCurrent, mas isso nao vaza memoria.
-  contexto_.makeCurrent(&surface_);
+  //contexto_.makeCurrent(&surface_);
+  makeCurrent();
   ++contexto_cref_;
   //contexto_ = QOpenGLContext::currentContext();
 }
@@ -283,8 +156,9 @@ void Visualizador3d::PegaContexto() {
 void Visualizador3d::LiberaContexto() {
   if (--contexto_cref_ == 0) {
     //LOG(INFO) << "liberando contexto";
-    contexto_.doneCurrent();
+    //contexto_.doneCurrent();
     //contexto_ = nullptr;
+    doneCurrent();
   }
   if (contexto_cref_ < 0) {
     LOG(ERROR) << "Contador de contexto negativo";
@@ -299,8 +173,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       LOG(INFO) << "alterando escala para: " << notificacao.opcoes().escala();
       gl::AlteraEscala(notificacao.opcoes().escala() > 0
           ? notificacao.opcoes().escala()
-          : notificacao.opcoes().renderizacao_em_framebuffer_fixo() ? 1.0 : QApplication::desktop()->devicePixelRatio());
-      RecriaFramebuffer(width(), height(), notificacao.opcoes());
+          : QApplication::desktop()->devicePixelRatio());
+      PegaContexto();
+      LiberaContexto();
       break;
     }
     case ntf::TN_MUDAR_CURSOR:
@@ -429,13 +304,13 @@ void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
 }
 
 int Visualizador3d::XPara3d(int x) const {
-  float fracao = static_cast<float>(x) / width();
-  return fracao * framebuffer_->size().width();
+  const float dpr = QApplication::desktop()->devicePixelRatio();
+  return x * dpr;
 }
 
 int Visualizador3d::YPara3d(int y) const {
-  float fracao = static_cast<float>(y) / height();
-  return fracao * framebuffer_->size().height();
+  const float dpr = QApplication::desktop()->devicePixelRatio();
+  return y * dpr;
 }
 
 // mouse

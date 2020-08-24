@@ -1,8 +1,9 @@
 #ifndef IFG_QT_VISUALIZADOR3D_H
 #define IFG_QT_VISUALIZADOR3D_H
 
-#include <QOpenGLFramebufferObject>
 #include <QOpenGLContext>
+#include <QOpenGLFramebufferObject>
+#include <QOpenGLWidget>
 #include <QOffscreenSurface>
 #include <QWidget>
 #include <list>
@@ -38,7 +39,7 @@ namespace qt {
 * mouse e repassa ao contexto 3D.
 */
 class Visualizador3d :
-  public QWidget, ntf::Receptor {
+  public QOpenGLWidget, ntf::Receptor {
  public:
   /** constroi a widget do tabuleiro recebendo a widget pai.
   * Nao se torna dono de nada.
@@ -58,10 +59,9 @@ class Visualizador3d :
   void LiberaContexto();
 
   // Interface QOpenGLWidget.
-  /** redimensionamento da janela. */
-  virtual void resizeEvent(QResizeEvent *event) override;
-  /** funcao de desenho da janela. Aqui comeca o desenho 3d. */
-  virtual void paintEvent(QPaintEvent* event) override;
+  virtual void paintGL() override;
+  virtual void resizeGL(int w, int h) override;
+  virtual void initializeGL() override;
 
   // funcoes sobrecarregadas mouse e teclado.
   void keyPressEvent(QKeyEvent* event) override;
@@ -85,8 +85,6 @@ class Visualizador3d :
       const ntf::Notificacao& notificacao, bool forma_em_uso = true, QWidget* pai = nullptr);
 
  private:
-  void IniciaGL();
-  void RecriaFramebuffer(int w, int h, const ent::OpcoesProto& opcoes);
   int XPara3d(int x_logico) const;
   int YPara3d(int x_logico) const;
 
@@ -111,10 +109,6 @@ class Visualizador3d :
   int y_antes_ = 0;
   int contexto_cref_ = 0;
   bool iniciado_ = false;
-  QOffscreenSurface surface_;
-  QOpenGLContext contexto_;
-  //void* contexto_ = nullptr;
-  std::unique_ptr<QOpenGLFramebufferObject> framebuffer_;
 };
 
 }  // namespace qt
