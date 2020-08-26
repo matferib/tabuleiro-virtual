@@ -469,7 +469,8 @@ bool IniciaVariaveis(VarShader* shader) {
 void IniciaShaders(TipoLuz tipo_luz, interno::Contexto* contexto) {
 
   V_ERRO("antes vertex shader");
-  LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
+  const char* versao = (char*)glGetString(GL_VERSION);
+  LOG(INFO) << "OpenGL: " << (versao != nullptr ? versao : "nullptr");
   struct DadosShaders {
     std::string nome_programa;
     TipoShader tipo;

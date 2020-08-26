@@ -235,6 +235,7 @@ class Texturas::InfoTexturaInterna {
     if (bits_.empty()) {
       return;
     }
+    VLOG(1) << "Tentando criar textura normal para: " << imagem_.id();
     gl::GeraTexturas(1, &id_);
     V_ERRO("GeraTexturas");
     VLOG(1) << "Criando textura para: " << imagem_.id() << ", id openGL: " << id_;
@@ -266,6 +267,7 @@ class Texturas::InfoTexturaInterna {
         bits_esquerda_.empty() || bits_atras_.empty() || bits_baixo_.empty()) {
       return;
     }
+    VLOG(1) << "Tentando criar textura cubo para: " << imagem_.id();
     gl::GeraTexturas(1, &id_);
     V_ERRO("GeraTexturasCubo");
     VLOG(1) << "Criando textura cubo para: " << imagem_.id() << ", id openGL: " << id_;
