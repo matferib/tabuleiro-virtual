@@ -1,7 +1,12 @@
 #ifndef IFG_QT_VISUALIZADOR3D_H
 #define IFG_QT_VISUALIZADOR3D_H
 
+#include <QOpenGLContext>
+#include <QOpenGLFramebufferObject>
 #include <QOpenGLWidget>
+#include <QOffscreenSurface>
+#include <QWidget>
+#include <boost/timer/timer.hpp>
 #include <list>
 #include "ent/tabuleiro.h"
 #include "ntf/notificacao.h"
@@ -55,12 +60,9 @@ class Visualizador3d :
   void LiberaContexto();
 
   // Interface QOpenGLWidget.
-  /** inicializacao dos parametros GL. */
-  virtual void initializeGL() override;
-  /** redimensionamento da janela. */
-  virtual void resizeGL(int width, int height) override;
-  /** funcao de desenho da janela. Aqui comeca o desenho 3d. */
   virtual void paintGL() override;
+  virtual void resizeGL(int w, int h) override;
+  virtual void initializeGL() override;
 
   // funcoes sobrecarregadas mouse e teclado.
   void keyPressEvent(QKeyEvent* event) override;
@@ -84,9 +86,8 @@ class Visualizador3d :
       const ntf::Notificacao& notificacao, bool forma_em_uso = true, QWidget* pai = nullptr);
 
  private:
-  // Esconder isso pra fazer apenas atraves de PegaContexto e LiberaContexto.
-  using QOpenGLWidget::makeCurrent;
-  using QOpenGLWidget::doneCurrent;
+  int XPara3d(int x_logico) const;
+  int YPara3d(int x_logico) const;
 
   // Dialogos.
   // TODO fazer todos unique ou do tipo mesmo sem ser pointer.
@@ -107,9 +108,9 @@ class Visualizador3d :
   // Para prender mouse no lugar.
   int x_antes_ = 0;
   int y_antes_ = 0;
-  float scale_ = 1.0f;
   int contexto_cref_ = 0;
-  //void* contexto_ = nullptr;
+  boost::timer::cpu_timer timer_;
+  int skip_ = 0;
 };
 
 }  // namespace qt

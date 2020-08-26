@@ -137,8 +137,6 @@ public:
         combo_tamanho_buffer_principal->addItem(QString());
         combo_tamanho_buffer_principal->addItem(QString());
         combo_tamanho_buffer_principal->addItem(QString());
-        combo_tamanho_buffer_principal->addItem(QString());
-        combo_tamanho_buffer_principal->addItem(QString());
         combo_tamanho_buffer_principal->setObjectName(QString::fromUtf8("combo_tamanho_buffer_principal"));
 
         horizontalLayout->addWidget(combo_tamanho_buffer_principal);
@@ -154,8 +152,6 @@ public:
         horizontalLayout_2->addWidget(label_2);
 
         combo_tamanho_texturas = new QComboBox(ifg__qt__DialogoOpcoes);
-        combo_tamanho_texturas->addItem(QString());
-        combo_tamanho_texturas->addItem(QString());
         combo_tamanho_texturas->addItem(QString());
         combo_tamanho_texturas->addItem(QString());
         combo_tamanho_texturas->addItem(QString());
@@ -225,22 +221,27 @@ public:
         checkbox_tab_ativa_ataque->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Tab ativa ataque", nullptr));
         checkbox_desativar_som->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Desativar som", nullptr));
         checkbox_resolucao_fixa->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Renderizar 3d para textura", nullptr));
-        combo_tamanho_buffer_principal->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "128", nullptr));
-        combo_tamanho_buffer_principal->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "256", nullptr));
-        combo_tamanho_buffer_principal->setItemText(2, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "512", nullptr));
-        combo_tamanho_buffer_principal->setItemText(3, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "1024", nullptr));
-        combo_tamanho_buffer_principal->setItemText(4, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "2048", nullptr));
-        combo_tamanho_buffer_principal->setItemText(5, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "4096", nullptr));
+        combo_tamanho_buffer_principal->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "512", nullptr));
+        combo_tamanho_buffer_principal->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "1024", nullptr));
+        combo_tamanho_buffer_principal->setItemText(2, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "2048", nullptr));
+        combo_tamanho_buffer_principal->setItemText(3, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "4096", nullptr));
 
+#if QT_CONFIG(tooltip)
+        combo_tamanho_buffer_principal->setToolTip(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Se verdadeiro, tabuleiro ser\303\241 renderizado para esta resolu\303\247\303\243o ao inv\303\251s do tamanho da janela.", nullptr));
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        label_2->setToolTip(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Tamanho das texturas usadas para sombreamento e oclus\303\243o", nullptr));
+#endif // QT_CONFIG(tooltip)
         label_2->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Tamanho de Texturas de Mapeamento", nullptr));
         combo_tamanho_texturas->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "128", nullptr));
         combo_tamanho_texturas->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "256", nullptr));
         combo_tamanho_texturas->setItemText(2, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "512", nullptr));
         combo_tamanho_texturas->setItemText(3, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "1024", nullptr));
-        combo_tamanho_texturas->setItemText(4, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "2048", nullptr));
-        combo_tamanho_texturas->setItemText(5, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "4096", nullptr));
 
         label->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Escala de Fonte", nullptr));
+#if QT_CONFIG(tooltip)
+        slider_escala->setToolTip(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Escala de fontes. Em sistemas normais \303\251 1, para sistemas com unidades l\303\263gica, como retina, esse valor pode variar. Use 0 para autom\303\241tico.", nullptr));
+#endif // QT_CONFIG(tooltip)
         label_escala->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "0", nullptr));
 #if QT_CONFIG(tooltip)
         checkbox_desabilitar_retina->setToolTip(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Se marcado, n\303\243o usar\303\241 display de retina.", nullptr));
