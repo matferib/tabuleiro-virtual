@@ -136,7 +136,7 @@ unsigned long TempoMs(const boost::timer::cpu_timer& timer) {
 }  // namespace
 
 void Visualizador3d::paintGL() {
-  if (skip_-- > 0) {
+  if (tabuleiro_->Opcoes().pular_frames() && skip_-- > 0) {
     timer_.stop();
     LOG(INFO) << "skipping: one frame, still " << skip_ << " left";
     return;
