@@ -40,23 +40,6 @@
 #define ARQUIVO_MODELOS_HOMEBREW "modelos_homebrew.asciiproto"
 #define ARQUIVO_ACOES "acoes.asciiproto"
 
-#if USAR_OPENGL_ES
-#define ATUALIZACOES_POR_SEGUNDO 30.0f
-#else
-#define ATUALIZACOES_POR_SEGUNDO 30.0f
-#endif
-#define INTERVALO_NOTIFICACAO_MS (1000.0f / ATUALIZACOES_POR_SEGUNDO)
-// Converte a velocidade por segundo para distancia por atualizacao.
-//#define POR_SEGUNDO_PARA_ATUALIZACAO (1.0f / ATUALIZACOES_POR_SEGUNDO)
-
-// Taxa de envio de movimentos parciais para clientes.
-#define CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS (ATUALIZACOES_POR_SEGUNDO / 3)
-// Taxa de envio de atualizacoes de terreno para clientes.
-#define CICLOS_PARA_ATUALIZAR_TERRENO (ATUALIZACOES_POR_SEGUNDO)
-
-// Por quantos frames um botao fica pressionado. 240ms.
-#define ATUALIZACOES_BOTAO_PRESSIONADO (static_cast<int>(ATUALIZACOES_POR_SEGUNDO * 0.240f))
-
 // Constantes para picking do tabuleiro. Limite: TODO
 #define OBJ_INVALIDO 0
 #define OBJ_TABULEIRO 1

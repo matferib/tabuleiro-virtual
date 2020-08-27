@@ -72,6 +72,7 @@ message OpcoesProto {
   optional float escala = 27 [default = 0.0];  // fator de escala para texto. Se 0.0, usara automatico.
   // Se verdadeiro, pulara frames apos frames longos.
   optional bool pular_frames = 28;
+  optional float fps = 29 [default=30.0];
 }
 
 // Mensagem enviada para os clientes de um jogo.

@@ -75,8 +75,6 @@ class Principal : public QMainWindow, ntf::Receptor {
   ntf::CentralNotificacoes* central_ = nullptr;
   /** a aplicacao QT. Nao eh dono. */
   QCoreApplication* q_app_ = nullptr;
-  /** Temporizador. */
-  QTimer* q_timer_ = nullptr;
   /** O mundo virtual. */
   ent::Tabuleiro* tabuleiro_ = nullptr;
   /** visualizador 3d da aplicacao. */

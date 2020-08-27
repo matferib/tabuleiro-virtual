@@ -845,7 +845,9 @@ bool Tabuleiro::AtualizaBotaoControleVirtual(
     return false;
   }
   ++num_frames;
-  if (num_frames > ATUALIZACOES_BOTAO_PRESSIONADO) {
+  // Por quantos frames um botao fica pressionado. 240ms.
+  const auto atualizacoes_botao_pressionado = static_cast<int>(opcoes_.fps()) * 0.240f;
+  if (num_frames > atualizacoes_botao_pressionado) {
     // Ficou suficiente, volta no proximo.
     num_frames = 0;
   }

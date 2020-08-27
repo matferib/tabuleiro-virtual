@@ -70,12 +70,11 @@ Principal::Principal(const ent::Tabelas& tabelas,
                      ifg::TratadorTecladoMouse* teclado_mouse,
                      ntf::CentralNotificacoes* central,
                      QCoreApplication* q_app)
-    : QMainWindow(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
+    : QMainWindow(NULL), central_(central), q_app_(q_app),
       tabuleiro_(tabuleiro),
       v3d_(new Visualizador3d(tabelas, m3d, texturas, teclado_mouse, central, tabuleiro, this)),
       menu_principal_(new MenuPrincipal(tabelas, tabuleiro, v3d_, central, this)) {
   central->RegistraReceptor(this);
-  connect(q_timer_, SIGNAL(timeout()), this, SLOT(Temporizador()));
 }
 
 Principal::~Principal() {
@@ -194,18 +193,18 @@ void Principal::Executa() {
   dock_log_ = new MeuDock(this, central_, tabuleiro_);
   addDockWidget(Qt::BottomDockWidgetArea, dock_log_);
 
-  LOG(INFO) << "Resolucao timer: " << INTERVALO_NOTIFICACAO_MS;
-  LOG(INFO) << "FPS: " << ATUALIZACOES_POR_SEGUNDO;
-  q_timer_->start(INTERVALO_NOTIFICACAO_MS);
+  const auto& opcoes = tabuleiro_->Opcoes();
+  float intervalo_notificacao_ms = 1000.0 / opcoes.fps();
+  LOG(INFO) << "Resolucao timer: " << intervalo_notificacao_ms;
+  LOG(INFO) << "FPS: " << opcoes.fps();
+  QTimer::singleShot(intervalo_notificacao_ms, this, &Principal::Temporizador);
 
   // mostra a janela e entra no loop do QT
   show();
   q_app_->exec();
-  q_timer_->stop();
 }
 
 void Principal::closeEvent(QCloseEvent *event) {
-  q_timer_->stop();
   if (tabuleiro_->EmModoMestre()) {
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
@@ -244,6 +243,10 @@ void Principal::Temporizador() {
   v3d_->PegaContexto();
   central_->Notifica();
   v3d_->LiberaContexto();
+
+  const auto& opcoes = tabuleiro_->Opcoes();
+  float intervalo_notificacao_ms = 1000.0 / opcoes.fps();
+  QTimer::singleShot(intervalo_notificacao_ms, this, &Principal::Temporizador);
 }
 
 bool Principal::TrataNotificacao(const ntf::Notificacao& notificacao) {

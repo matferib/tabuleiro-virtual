@@ -2698,6 +2698,27 @@ int IndiceParaTamanhoTexturaPrincipal(int indice) {
 
 }
 
+int FpsParaIndiceCombo(float fps) {
+  if (fps <= 20.0f) {
+    return 0;
+  } else if (fps <= 30.0f) {
+    return 1;
+  } else if (fps <= 45.0f) {
+    return 2;
+  } else {
+    return 3;
+  }
+}
+
+float IndiceComboParaFps(int indice) { 
+  switch (indice) { 
+    case 0: return 20.0f;
+    case 1: return 30.0f;
+    case 2: return 45.0f;
+    default: return 60.0f;
+  }
+}
+
 ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::OpcoesProto(notificacao.opcoes());
@@ -2743,6 +2764,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   gerador.combo_tamanho_texturas->setCurrentIndex(TamanhoTexturaParaIndiceMapas(opcoes_proto.tamanho_framebuffer_texturas_mapeamento()));
   // Escala.
   gerador.slider_escala->setValue(std::min(std::max(0.0f, opcoes_proto.escala()), 4.0f));
+  // FPS.
+  gerador.combo_fps->setCurrentIndex(FpsParaIndiceCombo(opcoes_proto.fps()));
   if (opcoes_proto.escala() > 0) {
     gerador.label_escala->setText(StringPrintf("%.1f", opcoes_proto.escala()).c_str());
   } else {
@@ -2790,7 +2813,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_desabilitar_retina->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_tamanho_framebuffer_fixo(IndiceParaTamanhoTexturaPrincipal(gerador.combo_tamanho_buffer_principal->currentIndex()));
     proto_retornado->set_tamanho_framebuffer_texturas_mapeamento(IndiceParaTamanhoTexturaMapas(gerador.combo_tamanho_texturas->currentIndex()));
-
+    proto_retornado->set_fps(IndiceComboParaFps(gerador.combo_fps->currentIndex()));
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

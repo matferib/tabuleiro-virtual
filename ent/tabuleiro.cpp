@@ -2886,10 +2886,10 @@ void Tabuleiro::AtualizaPorTemporizacao() {
   if (ciclos_para_atualizar_ == 0) {
     if (ModoClique() == MODO_TERRENO) {
       RefrescaTerrenoParaClientes();
-      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+      ciclos_para_atualizar_ = opcoes_.fps();
     } else {
       RefrescaMovimentosParciais();
-      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+      ciclos_para_atualizar_ = opcoes_.fps() / 3;
     }
   } else if (ciclos_para_atualizar_ > 0) {
     --ciclos_para_atualizar_;

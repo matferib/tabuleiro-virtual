@@ -144,7 +144,7 @@ void Visualizador3d::paintGL() {
   timer_.stop();
   unsigned long passou_ms = TempoMs(timer_);
   //LOG(INFO) << "passou " << passou_ms;
-  skip_ = std::min(passou_ms * (static_cast<unsigned long>(ATUALIZACOES_POR_SEGUNDO)) / 1000ULL, 10ULL);
+  skip_ = std::min(passou_ms * (static_cast<unsigned long>(tabuleiro_->Opcoes().fps())) / 1000ULL, 10ULL);
   tabuleiro_->Desenha();
   timer_.start();
 }

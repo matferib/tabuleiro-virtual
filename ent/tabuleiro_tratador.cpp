@@ -322,7 +322,7 @@ void Tabuleiro::TrataInicioPinca(int x1, int y1, int x2, int y2) {
       *proto.mutable_pos() = e->Pos();
       translacoes_rotacoes_escalas_antes_.clear();
       translacoes_rotacoes_escalas_antes_[id].Swap(&proto);
-      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+      ciclos_para_atualizar_ = opcoes_.fps() / 3;
     }
   }
 }
@@ -507,7 +507,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
           return false;
         }
         // Se chegou aqui eh pq mudou de estado. Comeca a temporizar.
-        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+        ciclos_para_atualizar_ = opcoes_.fps() / 3;
       }
       // Deltas desde o ultimo movimento.
       float delta_x = (x - ultimo_x_);
@@ -718,7 +718,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
     case ETAB_QUAD_PRESSIONADO:
       if (modo_clique_ == MODO_TERRENO) {
         estado_ = ETAB_RELEVO;
-        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+        ciclos_para_atualizar_ = opcoes_.fps();
         notificacao_desfazer_.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
         auto* cenario_antes = notificacao_desfazer_.mutable_tabuleiro_antes();
         cenario_antes->set_id_cenario(proto_corrente_->id_cenario());
@@ -3293,7 +3293,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         rastros_movimento_[id].push_back(pos);
       }
       if (ha_entidades_selecionadas) {
-        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+        ciclos_para_atualizar_ = opcoes_.fps() / 3;
         estado_ = ETAB_ENTS_PRESSIONADAS;
       } else {
         MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
