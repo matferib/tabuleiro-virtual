@@ -9,7 +9,7 @@ all:
 	scons -j 2 testes=1 tabvirt teste_ent_util teste_ent_acoes teste_ent_ent teste_modelos teste_ent_util teste_arquivo #teste_net_util
 
 release:
-	scons -j 1 debug=0
+	scons -j 3 debug=0
 
 opengles:
 	scons -j 1 usar_opengl_es=1 gerar_profile=1
@@ -58,7 +58,7 @@ apple_benchmark_debug:
 	scons sistema=apple debug=1 benchmark=1 benchmark
 
 linux_profile:
-	scons gerar_profile=1 -j 1
+	scons gerar_profile=1 -j 3
 
 linux_release:
 	scons debug=0
