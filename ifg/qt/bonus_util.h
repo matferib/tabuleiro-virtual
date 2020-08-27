@@ -14,7 +14,7 @@ namespace qt {
 
 void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus);
 
-std::string NomeBonus(ent::TipoBonus tb) {
+inline std::string NomeBonus(ent::TipoBonus tb) {
   return ent::TipoBonus_Name(tb).substr(3);
 }
 

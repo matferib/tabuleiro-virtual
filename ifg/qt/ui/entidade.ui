@@ -367,57 +367,90 @@ QGroupBox::title {
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
-            <widget class="QCheckBox" name="checkbox_selecionavel">
-             <property name="toolTip">
-              <string>Se marcado, jogadores poderão ver as propriedades e controlar a entidade.</string>
-             </property>
-             <property name="text">
-              <string>Selecionável</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkbox_voadora">
-             <property name="toolTip">
-              <string>Se marcado, a entidade flutuará.</string>
-             </property>
-             <property name="text">
-              <string>Voadora</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkbox_visibilidade">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="toolTip">
-              <string>Se marcado, a entidade será vista para jogadores. Caso seja selecionável, a entidade ficará translúcida.</string>
-             </property>
-             <property name="text">
-              <string>Visível</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkbox_caida">
-             <property name="toolTip">
-              <string>Se marcado, entidade cairá.</string>
-             </property>
-             <property name="text">
-              <string>Caída</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkbox_morta">
-             <property name="toolTip">
-              <string>Se marcado, a entidade estará morta.</string>
-             </property>
-             <property name="text">
-              <string>Morta</string>
-             </property>
-            </widget>
+            <layout class="QVBoxLayout" name="verticalLayout_27">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <widget class="QCheckBox" name="checkbox_selecionavel">
+                 <property name="toolTip">
+                  <string>Se marcado, jogadores poderão ver as propriedades e controlar a entidade.</string>
+                 </property>
+                 <property name="text">
+                  <string>Selecionável</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkbox_voadora">
+                 <property name="toolTip">
+                  <string>Se marcado, a entidade flutuará.</string>
+                 </property>
+                 <property name="text">
+                  <string>Voadora</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkbox_visibilidade">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>Se marcado, a entidade será vista para jogadores. Caso seja selecionável, a entidade ficará translúcida.</string>
+                 </property>
+                 <property name="text">
+                  <string>Visível</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkbox_caida">
+                 <property name="toolTip">
+                  <string>Se marcado, entidade cairá.</string>
+                 </property>
+                 <property name="text">
+                  <string>Caída</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_17">
+               <item>
+                <widget class="QCheckBox" name="checkbox_morta">
+                 <property name="toolTip">
+                  <string>Se marcado, a entidade estará morta.</string>
+                 </property>
+                 <property name="text">
+                  <string>Morta</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkbox_nocauteada">
+                 <property name="text">
+                  <string>Nocauteada</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkbox_incapacitada">
+                 <property name="text">
+                  <string>Incapacitada</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkbox_inconsciente">
+                 <property name="text">
+                  <string>Inconsciente</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
@@ -4886,49 +4919,39 @@ QGroupBox::title {
   <tabstop>campo_id</tabstop>
   <tabstop>campo_rotulo</tabstop>
   <tabstop>lista_rotulos</tabstop>
+  <tabstop>checkbox_cor</tabstop>
+  <tabstop>botao_cor</tabstop>
+  <tabstop>slider_alfa</tabstop>
+  <tabstop>spin_raio_quad</tabstop>
+  <tabstop>botao_luz</tabstop>
   <tabstop>slider_tamanho</tabstop>
   <tabstop>spin_pontos_vida</tabstop>
   <tabstop>spin_max_pontos_vida</tabstop>
   <tabstop>botao_bonus_pv_temporario</tabstop>
   <tabstop>spin_dano_nao_letal</tabstop>
+  <tabstop>combo_textura</tabstop>
+  <tabstop>spin_tex_altura</tabstop>
+  <tabstop>spin_tex_largura</tabstop>
+  <tabstop>spin_tex_trans_x</tabstop>
+  <tabstop>spin_tex_trans_y</tabstop>
   <tabstop>checkbox_selecionavel</tabstop>
   <tabstop>checkbox_voadora</tabstop>
   <tabstop>checkbox_visibilidade</tabstop>
   <tabstop>checkbox_caida</tabstop>
   <tabstop>checkbox_morta</tabstop>
+  <tabstop>checkbox_nocauteada</tabstop>
+  <tabstop>checkbox_incapacitada</tabstop>
+  <tabstop>checkbox_inconsciente</tabstop>
   <tabstop>spin_aura_quad</tabstop>
   <tabstop>spin_translacao_quad</tabstop>
   <tabstop>combo_visao</tabstop>
   <tabstop>spin_raio_visao_escuro_quad</tabstop>
   <tabstop>checkbox_salvacao</tabstop>
   <tabstop>combo_salvacao</tabstop>
-  <tabstop>spin_tex_largura</tabstop>
-  <tabstop>spin_tex_altura</tabstop>
   <tabstop>combo_modelos_3d</tabstop>
   <tabstop>lista_formas_alternativas</tabstop>
   <tabstop>botao_adicionar_forma_alternativa</tabstop>
   <tabstop>botao_remover_forma_alternativa</tabstop>
-  <tabstop>linha_nivel</tabstop>
-  <tabstop>spin_niveis_negativos</tabstop>
-  <tabstop>linha_bba</tabstop>
-  <tabstop>spin_xp</tabstop>
-  <tabstop>slider_bem_mal</tabstop>
-  <tabstop>slider_ordem_caos</tabstop>
-  <tabstop>combo_classe</tabstop>
-  <tabstop>linha_classe</tabstop>
-  <tabstop>spin_nivel_classe</tabstop>
-  <tabstop>spin_bba</tabstop>
-  <tabstop>lista_niveis</tabstop>
-  <tabstop>botao_adicionar_nivel</tabstop>
-  <tabstop>botao_remover_nivel</tabstop>
-  <tabstop>tabela_pericias</tabstop>
-  <tabstop>tabela_talentos</tabstop>
-  <tabstop>botao_adicionar_talento</tabstop>
-  <tabstop>botao_remover_talento</tabstop>
-  <tabstop>linha_furtivo</tabstop>
-  <tabstop>tabela_inimigos_prediletos</tabstop>
-  <tabstop>botao_adicionar_inimigo_predileto</tabstop>
-  <tabstop>botao_remover_inimigo_predileto</tabstop>
   <tabstop>spin_forca</tabstop>
   <tabstop>botao_bonus_forca</tabstop>
   <tabstop>spin_destreza</tabstop>
@@ -4941,17 +4964,69 @@ QGroupBox::title {
   <tabstop>botao_bonus_sabedoria</tabstop>
   <tabstop>spin_carisma</tabstop>
   <tabstop>botao_bonus_carisma</tabstop>
-  <tabstop>botao_bonus_salvacao_fortitude</tabstop>
-  <tabstop>botao_bonus_salvacao_reflexo</tabstop>
-  <tabstop>botao_bonus_salvacao_vontade</tabstop>
-  <tabstop>checkbox_imune_critico</tabstop>
   <tabstop>botao_bonus_iniciativa</tabstop>
   <tabstop>checkbox_iniciativa</tabstop>
   <tabstop>spin_iniciativa</tabstop>
   <tabstop>combo_armadura</tabstop>
   <tabstop>combo_material_armadura</tabstop>
+  <tabstop>checkbox_armadura_obra_prima</tabstop>
   <tabstop>spin_ca_armadura_melhoria</tabstop>
   <tabstop>botao_bonus_ca</tabstop>
+  <tabstop>combo_escudo</tabstop>
+  <tabstop>combo_material_escudo</tabstop>
+  <tabstop>checkbox_escudo_obra_prima</tabstop>
+  <tabstop>spin_ca_escudo_melhoria</tabstop>
+  <tabstop>botao_bonus_salvacao_fortitude</tabstop>
+  <tabstop>botao_bonus_salvacao_reflexo</tabstop>
+  <tabstop>botao_bonus_salvacao_vontade</tabstop>
+  <tabstop>botao_resistencia_magia</tabstop>
+  <tabstop>checkbox_imune_critico</tabstop>
+  <tabstop>spin_mov_terrestre</tabstop>
+  <tabstop>botao_mov_terrestre</tabstop>
+  <tabstop>spin_mov_aereo</tabstop>
+  <tabstop>botao_mov_aereo</tabstop>
+  <tabstop>spin_mov_nadando</tabstop>
+  <tabstop>botao_mov_nadando</tabstop>
+  <tabstop>spin_mov_escavando</tabstop>
+  <tabstop>botao_mov_escavando</tabstop>
+  <tabstop>spin_mov_escalando</tabstop>
+  <tabstop>botao_mov_escalando</tabstop>
+  <tabstop>tabela_lista_eventos</tabstop>
+  <tabstop>botao_adicionar_evento</tabstop>
+  <tabstop>botao_remover_evento</tabstop>
+  <tabstop>linha_nivel</tabstop>
+  <tabstop>spin_niveis_negativos</tabstop>
+  <tabstop>linha_bba</tabstop>
+  <tabstop>spin_xp</tabstop>
+  <tabstop>slider_bem_mal</tabstop>
+  <tabstop>slider_ordem_caos</tabstop>
+  <tabstop>combo_raca</tabstop>
+  <tabstop>combo_classe</tabstop>
+  <tabstop>linha_classe</tabstop>
+  <tabstop>spin_nivel_classe</tabstop>
+  <tabstop>spin_bba</tabstop>
+  <tabstop>combo_salvacoes_fortes</tabstop>
+  <tabstop>spin_nivel_conjurador</tabstop>
+  <tabstop>combo_mod_conjuracao</tabstop>
+  <tabstop>combo_especializacao_escola</tabstop>
+  <tabstop>combo_escola_proibida_1</tabstop>
+  <tabstop>combo_escola_proibida_2</tabstop>
+  <tabstop>combo_dominio_1</tabstop>
+  <tabstop>combo_dominio_2</tabstop>
+  <tabstop>lista_niveis</tabstop>
+  <tabstop>botao_adicionar_nivel</tabstop>
+  <tabstop>botao_remover_nivel</tabstop>
+  <tabstop>tabela_pericias</tabstop>
+  <tabstop>tabela_talentos</tabstop>
+  <tabstop>botao_adicionar_talento</tabstop>
+  <tabstop>botao_remover_talento</tabstop>
+  <tabstop>linha_furtivo</tabstop>
+  <tabstop>combo_esquiva_sobrenatural</tabstop>
+  <tabstop>combo_evasao_estatica</tabstop>
+  <tabstop>combo_evasao_dinamica</tabstop>
+  <tabstop>tabela_inimigos_prediletos</tabstop>
+  <tabstop>botao_adicionar_inimigo_predileto</tabstop>
+  <tabstop>botao_remover_inimigo_predileto</tabstop>
   <tabstop>linha_grupo_ataque</tabstop>
   <tabstop>linha_rotulo_ataque</tabstop>
   <tabstop>spin_ordem_ataque</tabstop>
@@ -4967,25 +5042,112 @@ QGroupBox::title {
   <tabstop>spin_alcance_quad</tabstop>
   <tabstop>spin_incrementos</tabstop>
   <tabstop>botao_bonus_dano</tabstop>
+  <tabstop>spin_nivel_conjurador_pergaminho</tabstop>
+  <tabstop>spin_modificador_atributo_pergaminho</tabstop>
+  <tabstop>spin_limite_vezes</tabstop>
+  <tabstop>checkbox_ignora_rm</tabstop>
+  <tabstop>checkbox_permite_salvacao</tabstop>
+  <tabstop>checkbox_ataque_agarrar</tabstop>
+  <tabstop>checkbox_ataque_toque</tabstop>
+  <tabstop>lista_ataques</tabstop>
   <tabstop>botao_ataque_cima</tabstop>
   <tabstop>botao_ataque_baixo</tabstop>
+  <tabstop>botao_remover_ataque</tabstop>
+  <tabstop>botao_adicionar_ataque</tabstop>
+  <tabstop>botao_clonar_ataque</tabstop>
+  <tabstop>lista_pocoes</tabstop>
   <tabstop>botao_adicionar_pocao</tabstop>
+  <tabstop>botao_duplicar_pocao</tabstop>
   <tabstop>botao_remover_pocao</tabstop>
-  <tabstop>botao_usar_anel</tabstop>
-  <tabstop>botao_adicionar_anel</tabstop>
-  <tabstop>botao_remover_anel</tabstop>
-  <tabstop>botao_usar_manto</tabstop>
-  <tabstop>botao_adicionar_manto</tabstop>
-  <tabstop>botao_remover_manto</tabstop>
+  <tabstop>botao_ordenar_pocoes</tabstop>
+  <tabstop>botao_doar_pocao</tabstop>
+  <tabstop>lista_botas</tabstop>
+  <tabstop>botao_usar_botas</tabstop>
+  <tabstop>botao_adicionar_botas</tabstop>
+  <tabstop>botao_remover_botas</tabstop>
+  <tabstop>botao_doar_botas</tabstop>
+  <tabstop>lista_amuletos</tabstop>
+  <tabstop>botao_usar_amuleto</tabstop>
+  <tabstop>botao_adicionar_amuleto</tabstop>
+  <tabstop>botao_remover_amuleto</tabstop>
+  <tabstop>botao_doar_amuleto</tabstop>
+  <tabstop>lista_chapeus</tabstop>
+  <tabstop>botao_vestir_chapeu</tabstop>
+  <tabstop>botao_adicionar_chapeu</tabstop>
+  <tabstop>botao_remover_chapeu</tabstop>
+  <tabstop>botao_doar_chapeu</tabstop>
+  <tabstop>lista_pergaminhos_arcanos</tabstop>
+  <tabstop>botao_adicionar_pergaminho_arcano</tabstop>
+  <tabstop>botao_duplicar_pergaminho_arcano</tabstop>
+  <tabstop>botao_remover_pergaminho_arcano</tabstop>
+  <tabstop>botao_ordenar_pergaminhos_arcanos</tabstop>
+  <tabstop>botao_doar_pergaminho_arcano</tabstop>
+  <tabstop>lista_luvas</tabstop>
   <tabstop>botao_usar_luvas</tabstop>
   <tabstop>botao_adicionar_luvas</tabstop>
   <tabstop>botao_remover_luvas</tabstop>
+  <tabstop>botao_doar_luvas</tabstop>
+  <tabstop>lista_bracadeiras</tabstop>
   <tabstop>botao_usar_bracadeiras</tabstop>
   <tabstop>botao_adicionar_bracadeiras</tabstop>
   <tabstop>botao_remover_bracadeiras</tabstop>
+  <tabstop>botao_doar_bracadeiras</tabstop>
+  <tabstop>lista_mantos</tabstop>
+  <tabstop>botao_usar_manto</tabstop>
+  <tabstop>botao_adicionar_manto</tabstop>
+  <tabstop>botao_remover_manto</tabstop>
+  <tabstop>botao_doar_manto</tabstop>
+  <tabstop>lista_pergaminhos_divinos</tabstop>
+  <tabstop>botao_adicionar_pergaminho_divino</tabstop>
+  <tabstop>botao_duplicar_pergaminho_divino</tabstop>
+  <tabstop>botao_remover_pergaminho_divino</tabstop>
+  <tabstop>botao_ordenar_pergaminhos_divinos</tabstop>
+  <tabstop>botao_doar_pergaminho_divino</tabstop>
+  <tabstop>lista_itens_mundanos</tabstop>
+  <tabstop>botao_adicionar_item_mundano</tabstop>
+  <tabstop>botao_duplicar_item_mundano</tabstop>
+  <tabstop>botao_remover_item_mundano</tabstop>
+  <tabstop>botao_ordenar_item_mundano</tabstop>
+  <tabstop>botao_doar_item_mundano</tabstop>
+  <tabstop>lista_aneis</tabstop>
+  <tabstop>botao_usar_anel</tabstop>
+  <tabstop>botao_adicionar_anel</tabstop>
+  <tabstop>botao_remover_anel</tabstop>
+  <tabstop>botao_doar_anel</tabstop>
+  <tabstop>lista_varinhas</tabstop>
+  <tabstop>botao_adicionar_varinha</tabstop>
+  <tabstop>botao_duplicar_varinha</tabstop>
+  <tabstop>botao_remover_varinha</tabstop>
+  <tabstop>botao_ordenar_varinhas</tabstop>
+  <tabstop>botao_doar_varinha</tabstop>
+  <tabstop>lista_armas</tabstop>
+  <tabstop>botao_adicionar_arma</tabstop>
+  <tabstop>botao_duplicar_arma</tabstop>
+  <tabstop>botao_remover_arma</tabstop>
+  <tabstop>botao_ordenar_armas</tabstop>
+  <tabstop>botao_doar_arma</tabstop>
+  <tabstop>lista_armaduras</tabstop>
+  <tabstop>botao_adicionar_armadura</tabstop>
+  <tabstop>botao_duplicar_armadura</tabstop>
+  <tabstop>botao_remover_armadura</tabstop>
+  <tabstop>botao_ordenar_armaduras</tabstop>
+  <tabstop>botao_doar_armadura</tabstop>
+  <tabstop>lista_escudos</tabstop>
+  <tabstop>botao_adicionar_escudo</tabstop>
+  <tabstop>botao_duplicar_escudo</tabstop>
+  <tabstop>botao_remover_escudo</tabstop>
+  <tabstop>botao_ordenar_escudos</tabstop>
+  <tabstop>botao_doar_escudo</tabstop>
+  <tabstop>spin_po</tabstop>
+  <tabstop>spin_pp</tabstop>
+  <tabstop>spin_pc</tabstop>
+  <tabstop>spin_pl</tabstop>
+  <tabstop>spin_pe</tabstop>
+  <tabstop>lista_tesouro</tabstop>
   <tabstop>botao_renovar_feiticos</tabstop>
   <tabstop>arvore_feiticos</tabstop>
   <tabstop>texto_notas</tabstop>
+  <tabstop>tabs</tabstop>
  </tabstops>
  <resources/>
  <connections>

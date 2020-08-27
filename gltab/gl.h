@@ -75,6 +75,7 @@ enum TipoLuz {
   TL_POR_PIXEL_ESPECULAR = 2
 };
 void IniciaGl(TipoLuz tipo_luz, float escala = 1.0f);
+void AlteraEscala(float nova_escala);
 void FinalizaGl();
 
 // Atualiza as matrizes do shader de acordo com o modo. Apenas as necessarias serao atualizadas.

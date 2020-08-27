@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created by: Qt User Interface Compiler version 5.14.0
+** Created by: Qt User Interface Compiler version 5.15.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -69,11 +69,17 @@ public:
     QSpinBox *spin_dano_nao_letal;
     QVBoxLayout *verticalLayout_11;
     QHBoxLayout *horizontalLayout_8;
+    QVBoxLayout *verticalLayout_27;
+    QHBoxLayout *horizontalLayout_3;
     QCheckBox *checkbox_selecionavel;
     QCheckBox *checkbox_voadora;
     QCheckBox *checkbox_visibilidade;
     QCheckBox *checkbox_caida;
+    QHBoxLayout *horizontalLayout_17;
     QCheckBox *checkbox_morta;
+    QCheckBox *checkbox_nocauteada;
+    QCheckBox *checkbox_incapacitada;
+    QCheckBox *checkbox_inconsciente;
     QHBoxLayout *horizontalLayout_9;
     QHBoxLayout *horizontalLayout_10;
     QLabel *label_4;
@@ -778,31 +784,61 @@ public:
         verticalLayout_11->setObjectName(QString::fromUtf8("verticalLayout_11"));
         horizontalLayout_8 = new QHBoxLayout();
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
+        verticalLayout_27 = new QVBoxLayout();
+        verticalLayout_27->setObjectName(QString::fromUtf8("verticalLayout_27"));
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         checkbox_selecionavel = new QCheckBox(tab_geral);
         checkbox_selecionavel->setObjectName(QString::fromUtf8("checkbox_selecionavel"));
 
-        horizontalLayout_8->addWidget(checkbox_selecionavel);
+        horizontalLayout_3->addWidget(checkbox_selecionavel);
 
         checkbox_voadora = new QCheckBox(tab_geral);
         checkbox_voadora->setObjectName(QString::fromUtf8("checkbox_voadora"));
 
-        horizontalLayout_8->addWidget(checkbox_voadora);
+        horizontalLayout_3->addWidget(checkbox_voadora);
 
         checkbox_visibilidade = new QCheckBox(tab_geral);
         checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
         checkbox_visibilidade->setEnabled(true);
 
-        horizontalLayout_8->addWidget(checkbox_visibilidade);
+        horizontalLayout_3->addWidget(checkbox_visibilidade);
 
         checkbox_caida = new QCheckBox(tab_geral);
         checkbox_caida->setObjectName(QString::fromUtf8("checkbox_caida"));
 
-        horizontalLayout_8->addWidget(checkbox_caida);
+        horizontalLayout_3->addWidget(checkbox_caida);
 
+
+        verticalLayout_27->addLayout(horizontalLayout_3);
+
+        horizontalLayout_17 = new QHBoxLayout();
+        horizontalLayout_17->setObjectName(QString::fromUtf8("horizontalLayout_17"));
         checkbox_morta = new QCheckBox(tab_geral);
         checkbox_morta->setObjectName(QString::fromUtf8("checkbox_morta"));
 
-        horizontalLayout_8->addWidget(checkbox_morta);
+        horizontalLayout_17->addWidget(checkbox_morta);
+
+        checkbox_nocauteada = new QCheckBox(tab_geral);
+        checkbox_nocauteada->setObjectName(QString::fromUtf8("checkbox_nocauteada"));
+
+        horizontalLayout_17->addWidget(checkbox_nocauteada);
+
+        checkbox_incapacitada = new QCheckBox(tab_geral);
+        checkbox_incapacitada->setObjectName(QString::fromUtf8("checkbox_incapacitada"));
+
+        horizontalLayout_17->addWidget(checkbox_incapacitada);
+
+        checkbox_inconsciente = new QCheckBox(tab_geral);
+        checkbox_inconsciente->setObjectName(QString::fromUtf8("checkbox_inconsciente"));
+
+        horizontalLayout_17->addWidget(checkbox_inconsciente);
+
+
+        verticalLayout_27->addLayout(horizontalLayout_17);
+
+
+        horizontalLayout_8->addLayout(verticalLayout_27);
 
 
         verticalLayout_11->addLayout(horizontalLayout_8);
@@ -3552,50 +3588,40 @@ public:
 
         QWidget::setTabOrder(campo_id, campo_rotulo);
         QWidget::setTabOrder(campo_rotulo, lista_rotulos);
-        QWidget::setTabOrder(lista_rotulos, slider_tamanho);
+        QWidget::setTabOrder(lista_rotulos, checkbox_cor);
+        QWidget::setTabOrder(checkbox_cor, botao_cor);
+        QWidget::setTabOrder(botao_cor, slider_alfa);
+        QWidget::setTabOrder(slider_alfa, spin_raio_quad);
+        QWidget::setTabOrder(spin_raio_quad, botao_luz);
+        QWidget::setTabOrder(botao_luz, slider_tamanho);
         QWidget::setTabOrder(slider_tamanho, spin_pontos_vida);
         QWidget::setTabOrder(spin_pontos_vida, spin_max_pontos_vida);
         QWidget::setTabOrder(spin_max_pontos_vida, botao_bonus_pv_temporario);
         QWidget::setTabOrder(botao_bonus_pv_temporario, spin_dano_nao_letal);
-        QWidget::setTabOrder(spin_dano_nao_letal, checkbox_selecionavel);
+        QWidget::setTabOrder(spin_dano_nao_letal, combo_textura);
+        QWidget::setTabOrder(combo_textura, spin_tex_altura);
+        QWidget::setTabOrder(spin_tex_altura, spin_tex_largura);
+        QWidget::setTabOrder(spin_tex_largura, spin_tex_trans_x);
+        QWidget::setTabOrder(spin_tex_trans_x, spin_tex_trans_y);
+        QWidget::setTabOrder(spin_tex_trans_y, checkbox_selecionavel);
         QWidget::setTabOrder(checkbox_selecionavel, checkbox_voadora);
         QWidget::setTabOrder(checkbox_voadora, checkbox_visibilidade);
         QWidget::setTabOrder(checkbox_visibilidade, checkbox_caida);
         QWidget::setTabOrder(checkbox_caida, checkbox_morta);
-        QWidget::setTabOrder(checkbox_morta, spin_aura_quad);
+        QWidget::setTabOrder(checkbox_morta, checkbox_nocauteada);
+        QWidget::setTabOrder(checkbox_nocauteada, checkbox_incapacitada);
+        QWidget::setTabOrder(checkbox_incapacitada, checkbox_inconsciente);
+        QWidget::setTabOrder(checkbox_inconsciente, spin_aura_quad);
         QWidget::setTabOrder(spin_aura_quad, spin_translacao_quad);
         QWidget::setTabOrder(spin_translacao_quad, combo_visao);
         QWidget::setTabOrder(combo_visao, spin_raio_visao_escuro_quad);
         QWidget::setTabOrder(spin_raio_visao_escuro_quad, checkbox_salvacao);
         QWidget::setTabOrder(checkbox_salvacao, combo_salvacao);
-        QWidget::setTabOrder(combo_salvacao, spin_tex_largura);
-        QWidget::setTabOrder(spin_tex_largura, spin_tex_altura);
-        QWidget::setTabOrder(spin_tex_altura, combo_modelos_3d);
+        QWidget::setTabOrder(combo_salvacao, combo_modelos_3d);
         QWidget::setTabOrder(combo_modelos_3d, lista_formas_alternativas);
         QWidget::setTabOrder(lista_formas_alternativas, botao_adicionar_forma_alternativa);
         QWidget::setTabOrder(botao_adicionar_forma_alternativa, botao_remover_forma_alternativa);
-        QWidget::setTabOrder(botao_remover_forma_alternativa, linha_nivel);
-        QWidget::setTabOrder(linha_nivel, spin_niveis_negativos);
-        QWidget::setTabOrder(spin_niveis_negativos, linha_bba);
-        QWidget::setTabOrder(linha_bba, spin_xp);
-        QWidget::setTabOrder(spin_xp, slider_bem_mal);
-        QWidget::setTabOrder(slider_bem_mal, slider_ordem_caos);
-        QWidget::setTabOrder(slider_ordem_caos, combo_classe);
-        QWidget::setTabOrder(combo_classe, linha_classe);
-        QWidget::setTabOrder(linha_classe, spin_nivel_classe);
-        QWidget::setTabOrder(spin_nivel_classe, spin_bba);
-        QWidget::setTabOrder(spin_bba, lista_niveis);
-        QWidget::setTabOrder(lista_niveis, botao_adicionar_nivel);
-        QWidget::setTabOrder(botao_adicionar_nivel, botao_remover_nivel);
-        QWidget::setTabOrder(botao_remover_nivel, tabela_pericias);
-        QWidget::setTabOrder(tabela_pericias, tabela_talentos);
-        QWidget::setTabOrder(tabela_talentos, botao_adicionar_talento);
-        QWidget::setTabOrder(botao_adicionar_talento, botao_remover_talento);
-        QWidget::setTabOrder(botao_remover_talento, linha_furtivo);
-        QWidget::setTabOrder(linha_furtivo, tabela_inimigos_prediletos);
-        QWidget::setTabOrder(tabela_inimigos_prediletos, botao_adicionar_inimigo_predileto);
-        QWidget::setTabOrder(botao_adicionar_inimigo_predileto, botao_remover_inimigo_predileto);
-        QWidget::setTabOrder(botao_remover_inimigo_predileto, spin_forca);
+        QWidget::setTabOrder(botao_remover_forma_alternativa, spin_forca);
         QWidget::setTabOrder(spin_forca, botao_bonus_forca);
         QWidget::setTabOrder(botao_bonus_forca, spin_destreza);
         QWidget::setTabOrder(spin_destreza, botao_bonus_destreza);
@@ -3607,18 +3633,70 @@ public:
         QWidget::setTabOrder(spin_sabedoria, botao_bonus_sabedoria);
         QWidget::setTabOrder(botao_bonus_sabedoria, spin_carisma);
         QWidget::setTabOrder(spin_carisma, botao_bonus_carisma);
-        QWidget::setTabOrder(botao_bonus_carisma, botao_bonus_salvacao_fortitude);
-        QWidget::setTabOrder(botao_bonus_salvacao_fortitude, botao_bonus_salvacao_reflexo);
-        QWidget::setTabOrder(botao_bonus_salvacao_reflexo, botao_bonus_salvacao_vontade);
-        QWidget::setTabOrder(botao_bonus_salvacao_vontade, checkbox_imune_critico);
-        QWidget::setTabOrder(checkbox_imune_critico, botao_bonus_iniciativa);
+        QWidget::setTabOrder(botao_bonus_carisma, botao_bonus_iniciativa);
         QWidget::setTabOrder(botao_bonus_iniciativa, checkbox_iniciativa);
         QWidget::setTabOrder(checkbox_iniciativa, spin_iniciativa);
         QWidget::setTabOrder(spin_iniciativa, combo_armadura);
         QWidget::setTabOrder(combo_armadura, combo_material_armadura);
-        QWidget::setTabOrder(combo_material_armadura, spin_ca_armadura_melhoria);
+        QWidget::setTabOrder(combo_material_armadura, checkbox_armadura_obra_prima);
+        QWidget::setTabOrder(checkbox_armadura_obra_prima, spin_ca_armadura_melhoria);
         QWidget::setTabOrder(spin_ca_armadura_melhoria, botao_bonus_ca);
-        QWidget::setTabOrder(botao_bonus_ca, linha_grupo_ataque);
+        QWidget::setTabOrder(botao_bonus_ca, combo_escudo);
+        QWidget::setTabOrder(combo_escudo, combo_material_escudo);
+        QWidget::setTabOrder(combo_material_escudo, checkbox_escudo_obra_prima);
+        QWidget::setTabOrder(checkbox_escudo_obra_prima, spin_ca_escudo_melhoria);
+        QWidget::setTabOrder(spin_ca_escudo_melhoria, botao_bonus_salvacao_fortitude);
+        QWidget::setTabOrder(botao_bonus_salvacao_fortitude, botao_bonus_salvacao_reflexo);
+        QWidget::setTabOrder(botao_bonus_salvacao_reflexo, botao_bonus_salvacao_vontade);
+        QWidget::setTabOrder(botao_bonus_salvacao_vontade, botao_resistencia_magia);
+        QWidget::setTabOrder(botao_resistencia_magia, checkbox_imune_critico);
+        QWidget::setTabOrder(checkbox_imune_critico, spin_mov_terrestre);
+        QWidget::setTabOrder(spin_mov_terrestre, botao_mov_terrestre);
+        QWidget::setTabOrder(botao_mov_terrestre, spin_mov_aereo);
+        QWidget::setTabOrder(spin_mov_aereo, botao_mov_aereo);
+        QWidget::setTabOrder(botao_mov_aereo, spin_mov_nadando);
+        QWidget::setTabOrder(spin_mov_nadando, botao_mov_nadando);
+        QWidget::setTabOrder(botao_mov_nadando, spin_mov_escavando);
+        QWidget::setTabOrder(spin_mov_escavando, botao_mov_escavando);
+        QWidget::setTabOrder(botao_mov_escavando, spin_mov_escalando);
+        QWidget::setTabOrder(spin_mov_escalando, botao_mov_escalando);
+        QWidget::setTabOrder(botao_mov_escalando, tabela_lista_eventos);
+        QWidget::setTabOrder(tabela_lista_eventos, botao_adicionar_evento);
+        QWidget::setTabOrder(botao_adicionar_evento, botao_remover_evento);
+        QWidget::setTabOrder(botao_remover_evento, linha_nivel);
+        QWidget::setTabOrder(linha_nivel, spin_niveis_negativos);
+        QWidget::setTabOrder(spin_niveis_negativos, linha_bba);
+        QWidget::setTabOrder(linha_bba, spin_xp);
+        QWidget::setTabOrder(spin_xp, slider_bem_mal);
+        QWidget::setTabOrder(slider_bem_mal, slider_ordem_caos);
+        QWidget::setTabOrder(slider_ordem_caos, combo_raca);
+        QWidget::setTabOrder(combo_raca, combo_classe);
+        QWidget::setTabOrder(combo_classe, linha_classe);
+        QWidget::setTabOrder(linha_classe, spin_nivel_classe);
+        QWidget::setTabOrder(spin_nivel_classe, spin_bba);
+        QWidget::setTabOrder(spin_bba, combo_salvacoes_fortes);
+        QWidget::setTabOrder(combo_salvacoes_fortes, spin_nivel_conjurador);
+        QWidget::setTabOrder(spin_nivel_conjurador, combo_mod_conjuracao);
+        QWidget::setTabOrder(combo_mod_conjuracao, combo_especializacao_escola);
+        QWidget::setTabOrder(combo_especializacao_escola, combo_escola_proibida_1);
+        QWidget::setTabOrder(combo_escola_proibida_1, combo_escola_proibida_2);
+        QWidget::setTabOrder(combo_escola_proibida_2, combo_dominio_1);
+        QWidget::setTabOrder(combo_dominio_1, combo_dominio_2);
+        QWidget::setTabOrder(combo_dominio_2, lista_niveis);
+        QWidget::setTabOrder(lista_niveis, botao_adicionar_nivel);
+        QWidget::setTabOrder(botao_adicionar_nivel, botao_remover_nivel);
+        QWidget::setTabOrder(botao_remover_nivel, tabela_pericias);
+        QWidget::setTabOrder(tabela_pericias, tabela_talentos);
+        QWidget::setTabOrder(tabela_talentos, botao_adicionar_talento);
+        QWidget::setTabOrder(botao_adicionar_talento, botao_remover_talento);
+        QWidget::setTabOrder(botao_remover_talento, linha_furtivo);
+        QWidget::setTabOrder(linha_furtivo, combo_esquiva_sobrenatural);
+        QWidget::setTabOrder(combo_esquiva_sobrenatural, combo_evasao_estatica);
+        QWidget::setTabOrder(combo_evasao_estatica, combo_evasao_dinamica);
+        QWidget::setTabOrder(combo_evasao_dinamica, tabela_inimigos_prediletos);
+        QWidget::setTabOrder(tabela_inimigos_prediletos, botao_adicionar_inimigo_predileto);
+        QWidget::setTabOrder(botao_adicionar_inimigo_predileto, botao_remover_inimigo_predileto);
+        QWidget::setTabOrder(botao_remover_inimigo_predileto, linha_grupo_ataque);
         QWidget::setTabOrder(linha_grupo_ataque, linha_rotulo_ataque);
         QWidget::setTabOrder(linha_rotulo_ataque, spin_ordem_ataque);
         QWidget::setTabOrder(spin_ordem_ataque, combo_empunhadura);
@@ -3633,25 +3711,112 @@ public:
         QWidget::setTabOrder(spin_municao, spin_alcance_quad);
         QWidget::setTabOrder(spin_alcance_quad, spin_incrementos);
         QWidget::setTabOrder(spin_incrementos, botao_bonus_dano);
-        QWidget::setTabOrder(botao_bonus_dano, botao_ataque_cima);
+        QWidget::setTabOrder(botao_bonus_dano, spin_nivel_conjurador_pergaminho);
+        QWidget::setTabOrder(spin_nivel_conjurador_pergaminho, spin_modificador_atributo_pergaminho);
+        QWidget::setTabOrder(spin_modificador_atributo_pergaminho, spin_limite_vezes);
+        QWidget::setTabOrder(spin_limite_vezes, checkbox_ignora_rm);
+        QWidget::setTabOrder(checkbox_ignora_rm, checkbox_permite_salvacao);
+        QWidget::setTabOrder(checkbox_permite_salvacao, checkbox_ataque_agarrar);
+        QWidget::setTabOrder(checkbox_ataque_agarrar, checkbox_ataque_toque);
+        QWidget::setTabOrder(checkbox_ataque_toque, lista_ataques);
+        QWidget::setTabOrder(lista_ataques, botao_ataque_cima);
         QWidget::setTabOrder(botao_ataque_cima, botao_ataque_baixo);
-        QWidget::setTabOrder(botao_ataque_baixo, botao_adicionar_pocao);
-        QWidget::setTabOrder(botao_adicionar_pocao, botao_remover_pocao);
-        QWidget::setTabOrder(botao_remover_pocao, botao_usar_anel);
-        QWidget::setTabOrder(botao_usar_anel, botao_adicionar_anel);
-        QWidget::setTabOrder(botao_adicionar_anel, botao_remover_anel);
-        QWidget::setTabOrder(botao_remover_anel, botao_usar_manto);
-        QWidget::setTabOrder(botao_usar_manto, botao_adicionar_manto);
-        QWidget::setTabOrder(botao_adicionar_manto, botao_remover_manto);
-        QWidget::setTabOrder(botao_remover_manto, botao_usar_luvas);
+        QWidget::setTabOrder(botao_ataque_baixo, botao_remover_ataque);
+        QWidget::setTabOrder(botao_remover_ataque, botao_adicionar_ataque);
+        QWidget::setTabOrder(botao_adicionar_ataque, botao_clonar_ataque);
+        QWidget::setTabOrder(botao_clonar_ataque, lista_pocoes);
+        QWidget::setTabOrder(lista_pocoes, botao_adicionar_pocao);
+        QWidget::setTabOrder(botao_adicionar_pocao, botao_duplicar_pocao);
+        QWidget::setTabOrder(botao_duplicar_pocao, botao_remover_pocao);
+        QWidget::setTabOrder(botao_remover_pocao, botao_ordenar_pocoes);
+        QWidget::setTabOrder(botao_ordenar_pocoes, botao_doar_pocao);
+        QWidget::setTabOrder(botao_doar_pocao, lista_botas);
+        QWidget::setTabOrder(lista_botas, botao_usar_botas);
+        QWidget::setTabOrder(botao_usar_botas, botao_adicionar_botas);
+        QWidget::setTabOrder(botao_adicionar_botas, botao_remover_botas);
+        QWidget::setTabOrder(botao_remover_botas, botao_doar_botas);
+        QWidget::setTabOrder(botao_doar_botas, lista_amuletos);
+        QWidget::setTabOrder(lista_amuletos, botao_usar_amuleto);
+        QWidget::setTabOrder(botao_usar_amuleto, botao_adicionar_amuleto);
+        QWidget::setTabOrder(botao_adicionar_amuleto, botao_remover_amuleto);
+        QWidget::setTabOrder(botao_remover_amuleto, botao_doar_amuleto);
+        QWidget::setTabOrder(botao_doar_amuleto, lista_chapeus);
+        QWidget::setTabOrder(lista_chapeus, botao_vestir_chapeu);
+        QWidget::setTabOrder(botao_vestir_chapeu, botao_adicionar_chapeu);
+        QWidget::setTabOrder(botao_adicionar_chapeu, botao_remover_chapeu);
+        QWidget::setTabOrder(botao_remover_chapeu, botao_doar_chapeu);
+        QWidget::setTabOrder(botao_doar_chapeu, lista_pergaminhos_arcanos);
+        QWidget::setTabOrder(lista_pergaminhos_arcanos, botao_adicionar_pergaminho_arcano);
+        QWidget::setTabOrder(botao_adicionar_pergaminho_arcano, botao_duplicar_pergaminho_arcano);
+        QWidget::setTabOrder(botao_duplicar_pergaminho_arcano, botao_remover_pergaminho_arcano);
+        QWidget::setTabOrder(botao_remover_pergaminho_arcano, botao_ordenar_pergaminhos_arcanos);
+        QWidget::setTabOrder(botao_ordenar_pergaminhos_arcanos, botao_doar_pergaminho_arcano);
+        QWidget::setTabOrder(botao_doar_pergaminho_arcano, lista_luvas);
+        QWidget::setTabOrder(lista_luvas, botao_usar_luvas);
         QWidget::setTabOrder(botao_usar_luvas, botao_adicionar_luvas);
         QWidget::setTabOrder(botao_adicionar_luvas, botao_remover_luvas);
-        QWidget::setTabOrder(botao_remover_luvas, botao_usar_bracadeiras);
+        QWidget::setTabOrder(botao_remover_luvas, botao_doar_luvas);
+        QWidget::setTabOrder(botao_doar_luvas, lista_bracadeiras);
+        QWidget::setTabOrder(lista_bracadeiras, botao_usar_bracadeiras);
         QWidget::setTabOrder(botao_usar_bracadeiras, botao_adicionar_bracadeiras);
         QWidget::setTabOrder(botao_adicionar_bracadeiras, botao_remover_bracadeiras);
-        QWidget::setTabOrder(botao_remover_bracadeiras, botao_renovar_feiticos);
+        QWidget::setTabOrder(botao_remover_bracadeiras, botao_doar_bracadeiras);
+        QWidget::setTabOrder(botao_doar_bracadeiras, lista_mantos);
+        QWidget::setTabOrder(lista_mantos, botao_usar_manto);
+        QWidget::setTabOrder(botao_usar_manto, botao_adicionar_manto);
+        QWidget::setTabOrder(botao_adicionar_manto, botao_remover_manto);
+        QWidget::setTabOrder(botao_remover_manto, botao_doar_manto);
+        QWidget::setTabOrder(botao_doar_manto, lista_pergaminhos_divinos);
+        QWidget::setTabOrder(lista_pergaminhos_divinos, botao_adicionar_pergaminho_divino);
+        QWidget::setTabOrder(botao_adicionar_pergaminho_divino, botao_duplicar_pergaminho_divino);
+        QWidget::setTabOrder(botao_duplicar_pergaminho_divino, botao_remover_pergaminho_divino);
+        QWidget::setTabOrder(botao_remover_pergaminho_divino, botao_ordenar_pergaminhos_divinos);
+        QWidget::setTabOrder(botao_ordenar_pergaminhos_divinos, botao_doar_pergaminho_divino);
+        QWidget::setTabOrder(botao_doar_pergaminho_divino, lista_itens_mundanos);
+        QWidget::setTabOrder(lista_itens_mundanos, botao_adicionar_item_mundano);
+        QWidget::setTabOrder(botao_adicionar_item_mundano, botao_duplicar_item_mundano);
+        QWidget::setTabOrder(botao_duplicar_item_mundano, botao_remover_item_mundano);
+        QWidget::setTabOrder(botao_remover_item_mundano, botao_ordenar_item_mundano);
+        QWidget::setTabOrder(botao_ordenar_item_mundano, botao_doar_item_mundano);
+        QWidget::setTabOrder(botao_doar_item_mundano, lista_aneis);
+        QWidget::setTabOrder(lista_aneis, botao_usar_anel);
+        QWidget::setTabOrder(botao_usar_anel, botao_adicionar_anel);
+        QWidget::setTabOrder(botao_adicionar_anel, botao_remover_anel);
+        QWidget::setTabOrder(botao_remover_anel, botao_doar_anel);
+        QWidget::setTabOrder(botao_doar_anel, lista_varinhas);
+        QWidget::setTabOrder(lista_varinhas, botao_adicionar_varinha);
+        QWidget::setTabOrder(botao_adicionar_varinha, botao_duplicar_varinha);
+        QWidget::setTabOrder(botao_duplicar_varinha, botao_remover_varinha);
+        QWidget::setTabOrder(botao_remover_varinha, botao_ordenar_varinhas);
+        QWidget::setTabOrder(botao_ordenar_varinhas, botao_doar_varinha);
+        QWidget::setTabOrder(botao_doar_varinha, lista_armas);
+        QWidget::setTabOrder(lista_armas, botao_adicionar_arma);
+        QWidget::setTabOrder(botao_adicionar_arma, botao_duplicar_arma);
+        QWidget::setTabOrder(botao_duplicar_arma, botao_remover_arma);
+        QWidget::setTabOrder(botao_remover_arma, botao_ordenar_armas);
+        QWidget::setTabOrder(botao_ordenar_armas, botao_doar_arma);
+        QWidget::setTabOrder(botao_doar_arma, lista_armaduras);
+        QWidget::setTabOrder(lista_armaduras, botao_adicionar_armadura);
+        QWidget::setTabOrder(botao_adicionar_armadura, botao_duplicar_armadura);
+        QWidget::setTabOrder(botao_duplicar_armadura, botao_remover_armadura);
+        QWidget::setTabOrder(botao_remover_armadura, botao_ordenar_armaduras);
+        QWidget::setTabOrder(botao_ordenar_armaduras, botao_doar_armadura);
+        QWidget::setTabOrder(botao_doar_armadura, lista_escudos);
+        QWidget::setTabOrder(lista_escudos, botao_adicionar_escudo);
+        QWidget::setTabOrder(botao_adicionar_escudo, botao_duplicar_escudo);
+        QWidget::setTabOrder(botao_duplicar_escudo, botao_remover_escudo);
+        QWidget::setTabOrder(botao_remover_escudo, botao_ordenar_escudos);
+        QWidget::setTabOrder(botao_ordenar_escudos, botao_doar_escudo);
+        QWidget::setTabOrder(botao_doar_escudo, spin_po);
+        QWidget::setTabOrder(spin_po, spin_pp);
+        QWidget::setTabOrder(spin_pp, spin_pc);
+        QWidget::setTabOrder(spin_pc, spin_pl);
+        QWidget::setTabOrder(spin_pl, spin_pe);
+        QWidget::setTabOrder(spin_pe, lista_tesouro);
+        QWidget::setTabOrder(lista_tesouro, botao_renovar_feiticos);
         QWidget::setTabOrder(botao_renovar_feiticos, arvore_feiticos);
         QWidget::setTabOrder(arvore_feiticos, texto_notas);
+        QWidget::setTabOrder(texto_notas, tabs);
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
@@ -3717,6 +3882,9 @@ public:
         checkbox_morta->setToolTip(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, a entidade estar\303\241 morta.", nullptr));
 #endif // QT_CONFIG(tooltip)
         checkbox_morta->setText(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Morta", nullptr));
+        checkbox_nocauteada->setText(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Nocauteada", nullptr));
+        checkbox_incapacitada->setText(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Incapacitada", nullptr));
+        checkbox_inconsciente->setText(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Inconsciente", nullptr));
         label_4->setText(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Aura:", nullptr));
 #if QT_CONFIG(tooltip)
         spin_aura_quad->setToolTip(QCoreApplication::translate("ifg::qt::DialogoEntidade", "Aura da entidade.", nullptr));

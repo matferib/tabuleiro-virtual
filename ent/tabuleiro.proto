@@ -44,6 +44,7 @@ message OpcoesProto {
   optional bool mostra_lista_jogadores = 10 [default=false];
 
   // Estas opcoes nao podem ser alteradas durante o jogo. ie deve-se reiniciar.
+  // TODO mudar para mapeamento_luz_direcional.
   optional bool mapeamento_sombras = 11 [default=true];
   optional bool iluminacao_por_pixel = 12 [default=false, deprecated=true];
   enum TipoIluminacao {
@@ -66,6 +67,11 @@ message OpcoesProto {
   optional bool desativar_som = 22;
   optional bool renderizacao_em_framebuffer_fixo = 23;
   optional int32 tamanho_framebuffer_fixo = 24 [default = 1024];
+  optional bool desabilitar_retina = 25 [default = false];
+  optional int32 tamanho_framebuffer_texturas_mapeamento = 26 [default = 512];
+  optional float escala = 27 [default = 0.0];  // fator de escala para texto. Se 0.0, usara automatico.
+  // Se verdadeiro, pulara frames apos frames longos.
+  optional bool pular_frames = 28;
 }
 
 // Mensagem enviada para os clientes de um jogo.

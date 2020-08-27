@@ -3320,13 +3320,13 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::DadosAtaque& da)
   std::string string_nome_arma = da.id_arma().empty()
       ? ""
       : StringPrintf("%s, ", tabelas.Arma(da.id_arma()).nome().c_str());
-  char string_alcance[40] = { '\0' };
+  std::string string_alcance;
   if (da.has_alcance_m()) {
     char string_incrementos[40] = { '\0' };
     if (da.has_incrementos()) {
       snprintf(string_incrementos, 39, ", inc %d", da.incrementos());
     }
-    snprintf(string_alcance, 39, "alcance: %0.0f q%s, ", da.alcance_m() * METROS_PARA_QUADRADOS, string_incrementos);
+    string_alcance = StringPrintf("alcance: %0.0f q%s, ", da.alcance_m() * METROS_PARA_QUADRADOS, string_incrementos);
   }
 
   std::string texto_municao;
@@ -3351,7 +3351,7 @@ std::string StringResumoArma(const Tabelas& tabelas, const ent::DadosAtaque& da)
   return StringPrintf(
       "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
       string_rotulo.c_str(), string_nome_arma.c_str(), da.tipo_ataque().c_str(),
-      string_alcance,
+      string_alcance.c_str(),
       da.bonus_ataque_final(),
       da.dano().c_str(), StringCritico(da).c_str(), texto_elementos.c_str(), texto_municao.c_str(), texto_descarregada.c_str(), texto_limite_vezes.c_str(), texto_veneno.c_str(),
       string_salvacao.c_str(),

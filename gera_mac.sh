@@ -29,7 +29,7 @@ echo "Escrevendo em ${BUNDLEDIR}"
 RESOURCESDIR=${BUNDLEDIR}/Contents/Resources
 XDIR=${BUNDLEDIR}/Contents/MacOS
 FRAMEWORKSDIR=${BUNDLEDIR}/Contents/Frameworks
-MACDEPLOYQT=/usr/local/Cellar/qt5/5.14.0/bin/macdeployqt
+MACDEPLOYQT=/usr/local/Cellar/qt5/5.15.0/bin/macdeployqt
 
 make apple && \
 mkdir -p ${XDIR} ${RESOURCESDIR}/tabuleiros_salvos ${RESOURCESDIR}/dados ${RESOURCESDIR}/shaders ${RESOURCESDIR}/texturas ${RESOURCESDIR}/modelos3d ${RESOURCESDIR}/sons && \
