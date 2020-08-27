@@ -782,7 +782,7 @@ void Entidade::AtualizaMatrizes() {
   if (atualiza_matriz_vbo) {
     AtualizaMatrizesVbo(parametros_desenho_);
   }
-  if (proto_.tipo() == TE_COMPOSTA) return; 
+  if (proto_.tipo() == TE_COMPOSTA) return;
   vd_.matriz_modelagem_tijolo_base = md.tijolo_base;
   vd_.matriz_modelagem_tijolo_tela = md.tijolo_tela;
   vd_.matriz_modelagem_tela_textura = md.tela_textura;
@@ -857,6 +857,10 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
   return md;
 }
 
+void Entidade::AtualizaEmParalelo(int intervalo_ms) {
+  AtualizaMatrizes();
+}
+
 void Entidade::Atualiza(int intervalo_ms) {
 #if DEBUG
   glFinish();
@@ -876,7 +880,6 @@ void Entidade::Atualiza(int intervalo_ms) {
   struct AtualizaEscopo {
     AtualizaEscopo(Entidade* e) : e(e) {}
     ~AtualizaEscopo() {
-      e->AtualizaMatrizes();
       if (atualizar) {
         e->AtualizaVbo(e->parametros_desenho_);
       }
