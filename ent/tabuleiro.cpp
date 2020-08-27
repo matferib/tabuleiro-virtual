@@ -4945,10 +4945,11 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   std::for_each(entidades_.begin(), entidades_.end(),
                 [intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) { id_ent.second->AtualizaEmParalelo(intervalo_ms); });
 #else
-  std::for_each(std::execution_policy::par_unseq,
+  std::for_each(std::execution::par,
                 entidades_.begin(), entidades_.end(),
-                [intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) { it->second->AtualizaEmParalelo(intervalo_ms); });
+                [intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) { id_ent.second->AtualizaEmParalelo(intervalo_ms); });
 #endif
+
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     auto* entidade = id_ent.second.get();
@@ -4959,6 +4960,7 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
     entidade->Atualiza(intervalo_ms);
     parametros_desenho_.clear_entidade_selecionada();
   }
+
   timer_todas.stop();
   VLOG(3) << "Atualizei: " << entidades_.size() << " entidades";
   EnfileiraTempo(timer_todas, &tempos_atualiza_parcial_);

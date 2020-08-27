@@ -58,7 +58,7 @@ class Entidade {
   /** Atualiza a entidade usando apenas alguns campos do proto passado. Nao atualiza posicao. */
   void AtualizaProto(const EntidadeProto& novo_proto);
 
-  /** Realiza a atualizacao da entidade desde o ultimo frame, parse sincrona. */
+  /** Realiza a atualizacao da entidade desde o ultimo frame, parse sincrona. Retorna se o grafico deve ser atualizado. */
   void Atualiza(int intervalo_ms);
   /** Realiza a parte de atualizacao da entidade independente de outras. Esta funcao nao pode depender de outras entidades nem realizar operações OpenGL. */
   void AtualizaEmParalelo(int intervalo_ms);

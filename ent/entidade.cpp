@@ -858,10 +858,6 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
 }
 
 void Entidade::AtualizaEmParalelo(int intervalo_ms) {
-  AtualizaMatrizes();
-}
-
-void Entidade::Atualiza(int intervalo_ms) {
 #if DEBUG
   glFinish();
   boost::timer::cpu_timer timer;
@@ -871,39 +867,19 @@ void Entidade::Atualiza(int intervalo_ms) {
       timer.stop();
       auto passou_micro = timer.elapsed().wall / 1000ULL;
       if (passou_micro >= 50) {
-        LOG_EVERY_N(WARNING, 60) << "entidade cara: " << RotuloEntidade(proto_) << " passou_micro: " << passou_micro;
+        LOG_EVERY_N(WARNING, 60) << "entidade cara (paralelo): " << RotuloEntidade(proto_) << " passou_micro: " << passou_micro;
       }
   });
 #endif
-
-  // Ao retornar, atualiza o vbo se necessario.
-  struct AtualizaEscopo {
-    AtualizaEscopo(Entidade* e) : e(e) {}
-    ~AtualizaEscopo() {
-      if (atualizar) {
-        e->AtualizaVbo(e->parametros_desenho_);
-      }
-    }
-    Entidade* e;
-    bool atualizar = false;
-  } vbo_escopo(this);
-
-  if (parametros_desenho_->regera_vbo()) {
-    vbo_escopo.atualizar = true;
-  }
-  if (parametros_desenho_->entidade_selecionada() && Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d()) {
-    vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
-  }
-
-  if (atualizacao_pendente_.has_value()) {
-    AtualizaParcial(*atualizacao_pendente_);
-    atualizacao_pendente_.reset();
-  }
 
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
   AtualizaBolhas(intervalo_ms);
   AtualizaLuzAcao(intervalo_ms);
+
+  if (parametros_desenho_->entidade_selecionada() && Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d()) {
+    vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
+  }
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
     const float DELTA_ANGULO_INICIATIVA = 2.0f * M_PI * intervalo_ms / DURACAO_OSCILACAO_MS;
@@ -1031,9 +1007,7 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
   }
 
-  if (proto_.has_modelo_3d() && vd_.vbos_nao_gravados.Vazio()) {
-    vbo_escopo.atualizar = true;
-  }
+  AtualizaMatrizes();
 
   // Daqui pra baixo, tratamento de destino.
   if (!proto_.has_destino()) {
@@ -1075,6 +1049,47 @@ void Entidade::Atualiza(int intervalo_ms) {
 
   if (chegou) {
     proto_.clear_destino();
+  }
+}
+
+void Entidade::Atualiza(int intervalo_ms) {
+#if DEBUG
+  glFinish();
+  boost::timer::cpu_timer timer;
+  timer.start();
+  RodaNoRetorno r([this, &timer]() {
+      glFinish();
+      timer.stop();
+      auto passou_micro = timer.elapsed().wall / 1000ULL;
+      if (passou_micro >= 50) {
+        LOG_EVERY_N(WARNING, 60) << "entidade cara: " << RotuloEntidade(proto_) << " passou_micro: " << passou_micro;
+      }
+  });
+#endif
+
+  // Ao retornar, atualiza o vbo se necessario.
+  struct AtualizaEscopo {
+    AtualizaEscopo(Entidade* e) : e(e) {}
+    ~AtualizaEscopo() {
+      if (atualizar) {
+        e->AtualizaVbo(e->parametros_desenho_);
+      }
+    }
+    Entidade* e;
+    bool atualizar = false;
+  } vbo_escopo(this);
+
+  if (parametros_desenho_->regera_vbo()) {
+    vbo_escopo.atualizar = true;
+  }
+
+  if (atualizacao_pendente_.has_value()) {
+    AtualizaParcial(*atualizacao_pendente_);
+    atualizacao_pendente_.reset();
+  }
+
+  if (proto_.has_modelo_3d() && vd_.vbos_nao_gravados.Vazio()) {
+    vbo_escopo.atualizar = true;
   }
 }
 
