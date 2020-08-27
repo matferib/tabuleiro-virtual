@@ -4,6 +4,9 @@
 #else
 #endif
 #include <algorithm>
+#ifndef __APPLE__
+#include <execution>
+#endif
 #include <memory>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
@@ -4938,6 +4941,14 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   boost::timer::cpu_timer timer_todas;
   timer_todas.start();
   boost::timer::cpu_timer timer_uma_entidade;
+#if __APPLE__
+  std::for_each(entidades_.begin(), entidades_.end(),
+                [intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) { id_ent.second->AtualizaEmParalelo(intervalo_ms); });
+#else
+  std::for_each(std::execution_policy::par_unseq,
+                entidades_.begin(), entidades_.end(),
+                [intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) { it->second->AtualizaEmParalelo(intervalo_ms); });
+#endif
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     auto* entidade = id_ent.second.get();

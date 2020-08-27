@@ -58,8 +58,10 @@ class Entidade {
   /** Atualiza a entidade usando apenas alguns campos do proto passado. Nao atualiza posicao. */
   void AtualizaProto(const EntidadeProto& novo_proto);
 
-  /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
+  /** Realiza a atualizacao da entidade desde o ultimo frame, parse sincrona. */
   void Atualiza(int intervalo_ms);
+  /** Realiza a parte de atualizacao da entidade independente de outras. Esta funcao nao pode depender de outras entidades nem realizar operações OpenGL. */
+  void AtualizaEmParalelo(int intervalo_ms);
 
   /** Retorna os dados de iniciativa da entidade, se houver. Note o prefixo Le para difereciar do tipo retornado. */
   std::optional<DadosIniciativa> LeDadosIniciativa() const;
