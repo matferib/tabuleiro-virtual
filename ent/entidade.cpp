@@ -778,10 +778,9 @@ void Entidade::AtualizaBolhas(int intervalo_ms) {
 void Entidade::AtualizaMatrizes() {
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
   bool atualiza_matriz_vbo = vd_.matriz_modelagem != md.modelagem;
+  vd_.atualiza_matriz_vbo = vd_.matriz_modelagem != md.modelagem;
   vd_.matriz_modelagem = md.modelagem;
-  if (atualiza_matriz_vbo) {
-    AtualizaMatrizesVbo(parametros_desenho_);
-  }
+
   if (proto_.tipo() == TE_COMPOSTA) return;
   vd_.matriz_modelagem_tijolo_base = md.tijolo_base;
   vd_.matriz_modelagem_tijolo_tela = md.tijolo_tela;
@@ -1090,6 +1089,10 @@ void Entidade::Atualiza(int intervalo_ms) {
 
   if (proto_.has_modelo_3d() && vd_.vbos_nao_gravados.Vazio()) {
     vbo_escopo.atualizar = true;
+  }
+
+  if (vd_.atualiza_matriz_vbo) {
+    AtualizaMatrizesVbo(parametros_desenho_);
   }
 }
 
