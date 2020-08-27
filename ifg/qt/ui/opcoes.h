@@ -49,6 +49,9 @@ public:
     QLabel *label;
     QSlider *slider_escala;
     QLabel *label_escala;
+    QHBoxLayout *horizontalLayout_4;
+    QLabel *label_3;
+    QComboBox *comboBox;
     QCheckBox *checkbox_desabilitar_retina;
     QDialogButtonBox *buttonBox;
 
@@ -185,6 +188,25 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_3);
 
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        label_3 = new QLabel(ifg__qt__DialogoOpcoes);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+
+        horizontalLayout_4->addWidget(label_3);
+
+        comboBox = new QComboBox(ifg__qt__DialogoOpcoes);
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+
+        horizontalLayout_4->addWidget(comboBox);
+
+
+        verticalLayout->addLayout(horizontalLayout_4);
+
         checkbox_desabilitar_retina = new QCheckBox(ifg__qt__DialogoOpcoes);
         checkbox_desabilitar_retina->setObjectName(QString::fromUtf8("checkbox_desabilitar_retina"));
 
@@ -243,6 +265,12 @@ public:
         slider_escala->setToolTip(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Escala de fontes. Em sistemas normais \303\251 1, para sistemas com unidades l\303\263gica, como retina, esse valor pode variar. Use 0 para autom\303\241tico.", nullptr));
 #endif // QT_CONFIG(tooltip)
         label_escala->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "0", nullptr));
+        label_3->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Taxa de Atualiza\303\247\303\243o de Quadros (FPS)", nullptr));
+        comboBox->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "20", nullptr));
+        comboBox->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "30", nullptr));
+        comboBox->setItemText(2, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "45", nullptr));
+        comboBox->setItemText(3, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "60", nullptr));
+
 #if QT_CONFIG(tooltip)
         checkbox_desabilitar_retina->setToolTip(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Se marcado, n\303\243o usar\303\241 display de retina.", nullptr));
 #endif // QT_CONFIG(tooltip)
