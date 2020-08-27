@@ -218,6 +218,9 @@
     <ClCompile Include="..\..\ifg\qt\moc_talentos_util.cpp">
       <Filter>ifg</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\visualizador3d_dialogos.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gltab\gl.h">

@@ -101,6 +101,7 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\ifg_qt_util.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\ifg\qt\visualizador3d.cpp" />
+    <ClCompile Include="..\..\ifg\qt\visualizador3d_dialogos.cpp" />
     <ClCompile Include="..\..\ifg\tecladomouse.cpp" />
     <ClCompile Include="..\..\m3d\m3d.cpp" />
     <ClCompile Include="..\..\main.cpp">
