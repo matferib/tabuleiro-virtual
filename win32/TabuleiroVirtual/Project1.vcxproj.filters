@@ -301,5 +301,8 @@
     <ClInclude Include="..\..\goog\strutil.h">
       <Filter>goog</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\ent\entidade.h">
+      <Filter>ent\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

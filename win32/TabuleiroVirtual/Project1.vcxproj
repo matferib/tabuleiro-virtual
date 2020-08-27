@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\arq\arquivo.h" />
     <ClInclude Include="..\..\ent\constantes.h" />
+    <ClInclude Include="..\..\ent\entidade.h" />
     <ClInclude Include="..\..\ent\recomputa.h" />
     <ClInclude Include="..\..\ent\tabelas.h" />
     <ClInclude Include="..\..\ent\tabuleiro.h" />
