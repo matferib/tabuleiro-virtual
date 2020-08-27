@@ -2202,7 +2202,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
     }
-    QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
+    QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", Qt::SkipEmptyParts);
     proto_retornado->clear_rotulo_especial();
     for (const auto& rotulo : lista_rotulos) {
       proto_retornado->add_rotulo_especial(rotulo.toStdString());
@@ -3086,7 +3086,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       proto_retornado->clear_max_pontos_vida();
       proto_retornado->clear_pontos_vida();
     }
-    QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
+    QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", Qt::SkipEmptyParts);
     proto_retornado->clear_rotulo_especial();
     for (const auto& rotulo : lista_rotulos) {
       proto_retornado->add_rotulo_especial(rotulo.toStdString());

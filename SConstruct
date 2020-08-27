@@ -12,7 +12,7 @@ if sistema == 'win32':
   env.Tool('mingw')
 else:
   env.Tool('default')
-  #env['CXX'] = 'clang'
+  #env['CXX'] = 'clang++-10'
 
 # qt
 env.SConscript('localqt.SConscript', exports = 'env')
@@ -36,7 +36,7 @@ elif sistema == 'apple':
   env['RPATH'] = []
 else:
   if 'QTDIR' not in env:
-    env['QTDIR'] = '../libs/Qt/5.11.1/gcc_64/'
+    env['QTDIR'] = '../libs/Qt/5.15.0/gcc_64/'
   env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/QtMultimedia', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
   env['QT_LIBPATH'] = env['QTDIR'] + '/lib'
   env['QT_LIB'] = ['Qt5Gui', 'Qt5OpenGL', 'Qt5Core', 'Qt5Widgets', 'Qt5Multimedia']
@@ -69,10 +69,13 @@ elif sistema == 'apple':
   env['LINKFLAGS'] = ['-headerpad_max_install_names']
 else:
   # linux.
-  env['CPPPATH'] += ['./'] + env['QT_CPPPATH']
+  env['CPPPATH'] += ['./', '../libs/tbb/include'] + env['QT_CPPPATH']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++17', '-Wfatal-errors', '-fPIC']
-  env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_timer', 'boost_chrono', 'boost_filesystem', 'boost_system', 'boost_date_time', 'pthread']
+  env['LIBPATH'] += [ '../libs/tbb/build/linux_intel64_gcc_cc9.3.0_libc2.27_kernel4.15.0_release/' ]
+  env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_timer', 'boost_chrono', 'boost_filesystem', 'boost_system', 'boost_date_time', 'pthread', 'tbb']
+  #env['LINKFLAGS'] += ['-stdlib=libc++']
+
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')
 

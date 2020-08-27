@@ -101,6 +101,7 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\ifg_qt_util.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\ifg\qt\visualizador3d.cpp" />
+    <ClCompile Include="..\..\ifg\qt\visualizador3d_dialogos.cpp" />
     <ClCompile Include="..\..\ifg\tecladomouse.cpp" />
     <ClCompile Include="..\..\m3d\m3d.cpp" />
     <ClCompile Include="..\..\main.cpp">
@@ -128,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\arq\arquivo.h" />
     <ClInclude Include="..\..\ent\constantes.h" />
+    <ClInclude Include="..\..\ent\entidade.h" />
     <ClInclude Include="..\..\ent\recomputa.h" />
     <ClInclude Include="..\..\ent\tabelas.h" />
     <ClInclude Include="..\..\ent\tabuleiro.h" />

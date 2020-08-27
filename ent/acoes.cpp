@@ -1898,7 +1898,8 @@ void CombinaEfeitos(AcaoProto* acao) {
         LOG(WARNING) << "combinado por posicao: " << acao->efeitos_adicionais(ea->combinar_com()).DebugString();
       } else {
         LOG(ERROR) << "Combina com invalido: " << ea->combinar_com()
-                   << ", i: " << i << ", tamanho: " << acao->efeitos_adicionais_size();
+                   << ", i: " << i << ", tamanho: " << acao->efeitos_adicionais_size()
+                   << ", acao: " << acao->DebugString();
       }
       a_remover.insert(i);
     } else if (ea->has_efeito()) {

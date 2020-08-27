@@ -130,7 +130,7 @@ class MeuDock : public QDockWidget {
     title_bar->setLayout(layout);
     setTitleBarWidget(title_bar);
 
-    lambda_connect(this, SIGNAL(visibilityChanged(bool)), [this, tabuleiro]() {
+    lambda_connect(this, SIGNAL(visibilityChanged(bool)), [this]() {
       if (isVisible()) {
         BotaoProprio();
       } else {

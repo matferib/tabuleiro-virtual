@@ -1,5 +1,7 @@
-Gerar estatisticas de desenho.
-Pensar em transformar os objetos compostos em instances.
+Jogar a aventura do outro lado.
+Pontos de vida do grupo ficou zoado.
+Gerar estatisticas de desenho (stats).
+Pensar em transformar os objetos compostos em instances para comparar.
 
 Dados de vida automatico: nao elite!
 Fazer modelo para ruinas de casas.
