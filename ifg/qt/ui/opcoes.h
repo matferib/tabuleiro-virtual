@@ -51,7 +51,7 @@ public:
     QLabel *label_escala;
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_3;
-    QComboBox *comboBox;
+    QComboBox *combo_fps;
     QCheckBox *checkbox_desabilitar_retina;
     QDialogButtonBox *buttonBox;
 
@@ -195,14 +195,14 @@ public:
 
         horizontalLayout_4->addWidget(label_3);
 
-        comboBox = new QComboBox(ifg__qt__DialogoOpcoes);
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->addItem(QString());
-        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+        combo_fps = new QComboBox(ifg__qt__DialogoOpcoes);
+        combo_fps->addItem(QString());
+        combo_fps->addItem(QString());
+        combo_fps->addItem(QString());
+        combo_fps->addItem(QString());
+        combo_fps->setObjectName(QString::fromUtf8("combo_fps"));
 
-        horizontalLayout_4->addWidget(comboBox);
+        horizontalLayout_4->addWidget(combo_fps);
 
 
         verticalLayout->addLayout(horizontalLayout_4);
@@ -266,10 +266,10 @@ public:
 #endif // QT_CONFIG(tooltip)
         label_escala->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "0", nullptr));
         label_3->setText(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Taxa de Atualiza\303\247\303\243o de Quadros (FPS)", nullptr));
-        comboBox->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "20", nullptr));
-        comboBox->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "30", nullptr));
-        comboBox->setItemText(2, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "45", nullptr));
-        comboBox->setItemText(3, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "60", nullptr));
+        combo_fps->setItemText(0, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "20", nullptr));
+        combo_fps->setItemText(1, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "30", nullptr));
+        combo_fps->setItemText(2, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "45", nullptr));
+        combo_fps->setItemText(3, QCoreApplication::translate("ifg::qt::DialogoOpcoes", "60", nullptr));
 
 #if QT_CONFIG(tooltip)
         checkbox_desabilitar_retina->setToolTip(QCoreApplication::translate("ifg::qt::DialogoOpcoes", "Se marcado, n\303\243o usar\303\241 display de retina.", nullptr));
