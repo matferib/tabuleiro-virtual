@@ -224,7 +224,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="combo_fps">
        <item>
         <property name="text">
          <string>20</string>
