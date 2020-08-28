@@ -62,8 +62,8 @@ elif sistema == 'apple':
   env['CPPPATH'] += ['./', '/usr/local/include'],
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, "_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR": 1 }
   #env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0}
-  #env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-stdlib=libc++', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
-  env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-stdlib=libstdc++', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
+  env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-stdlib=libc++', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
+  #env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-stdlib=libstdc++', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
   env['LIBPATH'] += [ '/usr/local/lib' ]
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_date_time', 'pthread']
   env['LINKFLAGS'] = ['-headerpad_max_install_names']
