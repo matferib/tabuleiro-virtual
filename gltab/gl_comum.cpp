@@ -1361,11 +1361,11 @@ namespace {
 void AtualizaMatrizNormal() {
   auto shader = interno::BuscaShader();
   if (shader.atr_gltab_matriz_normal != -1) {
-    // Matriz normal: inverso da transposta da MV ( V * M na verdade).
+    // Matriz normal: transposta do inverso da MV ( V * M na verdade).
     // Porem, sabemos que V é ortognal, portanto seu inverso é sua transposta.
     // Alem disso, o inverso do produto (V * M)^1 = M^1 * V^1.
-    // O tranposto disso (M^1 * V^1)^t = V^1^t * M^1^t.
-    // Como V^1 = V^t, V^1^t = V.
+    // O transposto disso (M^1 * V^1)^t = V^1^t * M^1^t.
+    // Como V^1 = V^t, V^1^t = V^t^t = V.
     // Portanto, so vamos salvar a parte de model e fazer o resto no shader, assim nao precisamo recomputar
     // a normal quando a camera mexer.
     Matrix3 matriz_normal = interno::ExtraiMatrizNormal(interno::BuscaContexto()->pilha_model.top());
