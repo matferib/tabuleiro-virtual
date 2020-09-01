@@ -4482,15 +4482,7 @@ bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   return false;
 }
 
-bool MaisLongeOlho(const Vector3& olho_pos, int cenario_olho, const Entidade* lhs, const Entidade* rhs) {
-  // Na pratica faz pouca diferenca em termos 3d pq essas entidades nao vao ser desenhadas.
-  // Mas evita computacao cara de CPU.
-  if (lhs->IdCenario() != cenario_olho) {
-    return true;
-  }
-  if (rhs->IdCenario() != cenario_olho) {
-    return false;
-  }
+bool MaisLongeOlho(const Vector3& olho_pos, const Entidade* lhs, const Entidade* rhs) {
   Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
   Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
   Vector3 olho_lhs = olho_pos - lhs_pos;
@@ -4501,13 +4493,8 @@ bool MaisLongeOlho(const Vector3& olho_pos, int cenario_olho, const Entidade* lh
   return lhs_l > rhs_l || (lhs_l == rhs_l && lhs->Id() > rhs->Id());
 }
 
-bool MaisPertoOlho(const Vector3& olho_pos, int cenario_olho, const Entidade* lhs, const Entidade* rhs) {
-  if (lhs->IdCenario() != cenario_olho) {
-    return false;
-  }
-  if (rhs->IdCenario() != cenario_olho) {
-    return true;
-  }
+// Assume todos no cenario correto.
+bool MaisPertoOlho(const Vector3& olho_pos, const Entidade* lhs, const Entidade* rhs) {
   Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
   Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
   Vector3 olho_lhs = olho_pos - lhs_pos;
@@ -4525,7 +4512,7 @@ Tabuleiro::IdCenarioComFuncaoOrdenacao(const ParametrosDesenho& pd) const {
   int id_cenario = olho_.pos().id_cenario();
   std::function<bool(const Entidade* lhs, const Entidade* rhs)> funcao;
   if (pd.has_alfa_translucidos()) {
-    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisLongeOlho(posicao, id_cenario, lhs, rhs); };
+    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisLongeOlho(posicao, lhs, rhs); };
   } else if (pd.has_desenha_mapa_oclusao()) {
     const auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
     if (entidade_referencia == nullptr) {
@@ -4536,12 +4523,12 @@ Tabuleiro::IdCenarioComFuncaoOrdenacao(const ParametrosDesenho& pd) const {
       posicao.z = entidade_referencia->ZOlho();
       id_cenario = entidade_referencia->IdCenario();
     }
-    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+    funcao = [posicao](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, lhs, rhs); };
   } else if (pd.has_desenha_mapa_luzes()) {
     // TODO aqui teria que ver qual luz esta sendo desenhada.
     posicao = PosParaVector3(luzes_pontuais_[0].pos);
     id_cenario = luzes_pontuais_[0].pos.id_cenario();
-    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+    funcao = [posicao](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, lhs, rhs); };
   } else if (pd.desenha_mapa_sombras()) {
     const auto& cenario_luz = CenarioIluminacao(*proto_corrente_);
     Matrix4 mr;
@@ -4554,26 +4541,23 @@ Tabuleiro::IdCenarioComFuncaoOrdenacao(const ParametrosDesenho& pd) const {
     posicao.y = vl.y;
     posicao.z = vl.z;
     id_cenario = IdCenario();
-    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+    funcao = [posicao](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, lhs, rhs); };
   } else {
-    funcao = [posicao, id_cenario](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, id_cenario, lhs, rhs); };
+    funcao = [posicao](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, lhs, rhs); };
   }
   return {id_cenario, funcao};
 }
 
 void Tabuleiro::OrdenaEntidades(const ParametrosDesenho& pd) {
   const auto& [id_cenario, funcao] = IdCenarioComFuncaoOrdenacao(pd);
-  std::set<Entidade*, std::function<bool(const Entidade*, const Entidade*)>> set_entidades(funcao);
+  entidades_ordenadas_.clear();
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* entidade = it->second.get();
     if (entidade->IdCenario() == id_cenario) {
-      set_entidades.insert(entidade);
+      entidades_ordenadas_.push_back(entidade);
     }
   }
-  entidades_ordenadas_.clear();
-  for (auto* entidade : set_entidades) {
-    entidades_ordenadas_.push_back(entidade);
-  }
+  std::sort(entidades_ordenadas_.begin(), entidades_ordenadas_.end(), funcao);
 }
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
@@ -4941,7 +4925,6 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   boost::timer::cpu_timer timer_todas;
   timer_todas.start();
-  boost::timer::cpu_timer timer_uma_entidade;
 #if __APPLE__
   std::for_each(entidades_.begin(), entidades_.end(),
                 [intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) { id_ent.second->AtualizaEmParalelo(intervalo_ms); });
@@ -4957,7 +4940,6 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
 #if DEBUG
     glFinish();
 #endif
-    timer_uma_entidade.start();
     entidade->Atualiza(intervalo_ms);
     parametros_desenho_.clear_entidade_selecionada();
   }

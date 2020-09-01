@@ -542,7 +542,7 @@ class Entidade {
     DadosLuzAcao luz_acao;
 
     // Alguns tipos de entidade possuem VBOs.
-    bool atualiza_matriz_vbo = false;
+    bool atualiza_matriz_vbo = true;
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
     gl::VbosGravados vbos_gravados;
     Matrix4 matriz_modelagem;

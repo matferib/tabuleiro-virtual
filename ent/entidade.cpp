@@ -484,6 +484,7 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
 }
 
 void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
+  vd_.atualiza_matriz_vbo = true;
   VLOG(1) << "Proto antes: " << proto_.ShortDebugString();
   AtualizaTexturas(novo_proto);
   AtualizaModelo3d(novo_proto);
@@ -776,8 +777,9 @@ void Entidade::AtualizaBolhas(int intervalo_ms) {
 }
 
 void Entidade::AtualizaMatrizes() {
+  // As entidades normais normalmente vao ter partes moveis.
+  if (proto_.tipo() != TE_ENTIDADE && !vd_.atualiza_matriz_vbo) return;
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
-  bool atualiza_matriz_vbo = vd_.matriz_modelagem != md.modelagem;
   vd_.atualiza_matriz_vbo = vd_.matriz_modelagem != md.modelagem;
   vd_.matriz_modelagem = md.modelagem;
 
@@ -1012,6 +1014,7 @@ void Entidade::AtualizaEmParalelo(int intervalo_ms) {
   if (!proto_.has_destino()) {
     return;
   }
+  vd_.atualiza_matriz_vbo = true;
   auto* po = proto_.mutable_pos();
   const auto& pd = proto_.destino();
   if (proto_.destino().has_id_cenario()) {
@@ -1103,6 +1106,7 @@ void Entidade::MovePara(float x, float y, float z) {
   p->set_y(y);
   p->set_z(z /*std::max(ZChao(x, y), z)*/);
   proto_.clear_destino();
+  vd_.atualiza_matriz_vbo = true;
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
 }
 
@@ -1118,20 +1122,23 @@ void Entidade::MoveDelta(float dx, float dy, float dz) {
 }
 
 void Entidade::Destino(const Posicao& pos) {
-  proto_.mutable_destino()->CopyFrom(pos);
+  *proto_.mutable_destino() = pos;
 }
 
 void Entidade::IncrementaZ(float delta) {
   //proto_.set_translacao_z(proto_.translacao_z() + delta);
   proto_.mutable_pos()->set_z(proto_.pos().z() + delta);
+  vd_.atualiza_matriz_vbo = true;
 }
 
 void Entidade::IncrementaRotacaoZGraus(float delta) {
   proto_.set_rotacao_z_graus(proto_.rotacao_z_graus() + delta);
+  vd_.atualiza_matriz_vbo = true;
 }
 
 void Entidade::AlteraRotacaoZGraus(float rotacao_graus) {
   proto_.set_rotacao_z_graus(rotacao_graus);
+  vd_.atualiza_matriz_vbo = true;
 }
 
 EntidadeProto::TipoTransicao Entidade::TipoTransicao() const {
@@ -1214,7 +1221,7 @@ float Entidade::ZOlho() const {
 
 float Entidade::AlturaOlho() const {
   if (Tipo() != TE_ENTIDADE) {
-    return 0.0f; 
+    return 0.0f;
   }
   Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
   return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, false  /*z*/, proto_, vd_) * ponto).z);
@@ -1314,6 +1321,7 @@ void AtualizaParcialInfoFeiticosClasse(const EntidadeProto::InfoFeiticosClasse& 
 }  // namespace
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
+  vd_.atualiza_matriz_vbo = true;
   EntidadeProto proto_parcial(proto_parcial_orig);
   VLOG(1) << "Atualizacao parcial: " << proto_parcial.ShortDebugString();
   bool atualizar_vbo = false;
