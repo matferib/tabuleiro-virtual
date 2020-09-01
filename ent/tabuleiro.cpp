@@ -4070,8 +4070,9 @@ void Tabuleiro::GeraFramebufferPrincipal(int tamanho, DadosFramebuffer* dfb) {
 void Tabuleiro::GeraFramebuffer(bool reinicia) {
   GeraFramebufferColisao(TAM_BUFFER_COLISAO, &dfb_colisao_);
   if (opcoes_.mapeamento_sombras()) {
+    // Por nao ser cubica, pode ter o dobro do tamanho.
     GeraFramebufferLocal(
-        opcoes_.tamanho_framebuffer_texturas_mapeamento(), false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
+        opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2, false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
   }
   if (opcoes_.mapeamento_oclusao()) {
     GeraFramebufferLocal(
