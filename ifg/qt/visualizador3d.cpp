@@ -141,12 +141,14 @@ void Visualizador3d::paintGL() {
     LOG(INFO) << "skipping: one frame, still " << skip_ << " left";
     return;
   }
+  glFinish();
   timer_.stop();
   unsigned long passou_ms = TempoMs(timer_);
+  timer_.start();
   //LOG(INFO) << "passou " << passou_ms;
   skip_ = std::min(passou_ms * (static_cast<unsigned long>(tabuleiro_->Opcoes().fps())) / 1000ULL, 10ULL);
   tabuleiro_->Desenha();
-  timer_.start();
+  glFlush();
 }
 
 void Visualizador3d::PegaContexto() {
