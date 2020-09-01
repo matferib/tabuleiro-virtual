@@ -1368,6 +1368,8 @@ void AtualizaMatrizNormal() {
     // Como V^1 = V^t, V^1^t = V^t^t = V.
     // Portanto, so vamos salvar a parte de model e fazer o resto no shader, assim nao precisamo recomputar
     // a normal quando a camera mexer.
+    // NOTE que isso so funciona pq a ultima linha é sempre 0 0 0 1, anulando qq contribuição do 4o elemento da view.
+    // Ou seja, mat3(V * M) == mat3(V) * mat3(M).
     Matrix3 matriz_normal = interno::ExtraiMatrizNormal(interno::BuscaContexto()->pilha_model.top());
     const float* me = matriz_normal.get();
     AtributoVertice(shader.atr_gltab_matriz_normal,     me[0],  me[1],  me[2]);
