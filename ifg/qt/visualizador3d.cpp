@@ -133,6 +133,7 @@ namespace {
 unsigned long TempoMs(const boost::timer::cpu_timer& timer) {
   return timer.elapsed().wall / ent::DIV_NANO_PARA_MS;
 }
+
 }  // namespace
 
 void Visualizador3d::paintGL() {

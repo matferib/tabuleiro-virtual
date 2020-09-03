@@ -46,5 +46,5 @@ for i in libprotobuf.9.dylib libboost_system.dylib libboost_timer.dylib libboost
   install_name_tool -change /usr/local/lib/${i} @executable_path/../Frameworks/${i} ${XDIR}/tabvirt;
   set +x
 done && \
-${MACDEPLOYQT} macqt5bundle && \
+${MACDEPLOYQT} macqt5bundle -always-overwrite && \
 pkgbuild --identifier com.matferib.TabuleiroVirtual --version ${VERSAO} --install-location=/Applications/TabuleiroVirtual.app --root ./${BUNDLEDIR} TabuleiroVirtual-${VERSAO}.pkg
