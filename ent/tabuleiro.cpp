@@ -6938,7 +6938,7 @@ void Tabuleiro::DesenhaLuzes() {
   if (UsaNevoa()) {
     const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
     gl::Habilita(GL_FOG);
-    float pos[4] = { olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), 1 };
+    float pos[4] = { olho_.alvo().x(), olho_.alvo().y(), olho_.alvo().z(), 1 };
     if (entidade_referencia != nullptr) {
       const Posicao& epos = entidade_referencia->Pos();
       pos[0] = epos.x();

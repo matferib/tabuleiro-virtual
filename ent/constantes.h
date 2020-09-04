@@ -108,7 +108,7 @@ constexpr double SENSIBILIDADE_ROTACAO_Y = 0.08;
 /** altura inicial do olho. */
 constexpr double OLHO_ALTURA_INICIAL = 10.0;
 /** altura maxima do olho. */
-constexpr double OLHO_ALTURA_MAXIMA = 45.0;
+constexpr double OLHO_ALTURA_MAXIMA = 90.0;
 /** altura minima do olho. */
 constexpr double OLHO_ALTURA_MINIMA = 0.3;
 
