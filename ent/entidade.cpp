@@ -95,7 +95,7 @@ void CorrigeDadosAtaqueDeprecated(EntidadeProto* proto) {
   for (const auto& im : proto->tesouro().itens_mundanos()) {
     ++mapa_tipo_quantidade[im.id()];
   }
- 
+
   for (const auto& da : proto->dados_ataque()) {
     if (AtaqueDeItemMundano(da)) {
       // Para protos antigos que nao tinham isso nos mundanos.
@@ -776,9 +776,15 @@ void Entidade::AtualizaBolhas(int intervalo_ms) {
   RecriaVboEmissoes([this] () { return VboBolha(MultiplicadorTamanho()); }, &b);
 }
 
+namespace {
+bool TexturasMoveis(const EntidadeProto& proto) {
+  return proto.info_textura().periodo_s() > 0;
+}
+}  // namespace
+
 void Entidade::AtualizaMatrizes() {
   // As entidades normais normalmente vao ter partes moveis.
-  if (proto_.tipo() != TE_ENTIDADE && !vd_.atualiza_matriz_vbo) return;
+  if (proto_.tipo() != TE_ENTIDADE && !vd_.atualiza_matriz_vbo && !TexturasMoveis(proto_)) return;
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
   vd_.atualiza_matriz_vbo = vd_.matriz_modelagem != md.modelagem;
   vd_.matriz_modelagem = md.modelagem;

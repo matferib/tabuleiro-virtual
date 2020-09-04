@@ -4927,11 +4927,19 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   timer_todas.start();
 #if __APPLE__
   std::for_each(entidades_.begin(), entidades_.end(),
-                [intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) { id_ent.second->AtualizaEmParalelo(intervalo_ms); });
+                [this, intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) {
+                  parametros_desenho_.set_entidade_selecionada(
+                      estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
+                  id_ent.second->AtualizaEmParalelo(intervalo_ms);
+                });
 #else
   std::for_each(std::execution::par,
                 entidades_.begin(), entidades_.end(),
-                [intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) { id_ent.second->AtualizaEmParalelo(intervalo_ms); });
+                [this, intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) {
+                  parametros_desenho_.set_entidade_selecionada(
+                      estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
+                  id_ent.second->AtualizaEmParalelo(intervalo_ms);
+                });
 #endif
 
   for (auto& id_ent : entidades_) {
