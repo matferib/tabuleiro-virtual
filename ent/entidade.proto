@@ -395,6 +395,8 @@ message EntidadeProto {
   optional string ultima_pericia = 116;
   // Familiar da entidade.
   optional uint32 familiar = 118;
+  // Times representam aliados. Usado para feiticoes que afetam apenas aliados e controles automaticos.
+  optional string time = 119;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.
