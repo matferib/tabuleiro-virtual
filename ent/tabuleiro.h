@@ -649,6 +649,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Restaura o contexto grafico. Deve ser chamado apenas por quem tem o contexto. */
   void ResetGrafico();
 
+  void RemoverEntidadesDeTimeNotificando();
+  void AdicionarEntidadesAoTimeNotificando();
+
  private:
   struct DadosIniciativa {
     unsigned int id;  // entidade.
