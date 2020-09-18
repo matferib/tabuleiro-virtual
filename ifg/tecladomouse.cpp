@@ -366,6 +366,10 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       //central_->AdicionaNotificacao(n);
       return;
     }
+    case Tecla_R:
+      MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
+      teclas_.push_back(tecla);
+      return;
     case Tecla_S:
       if ((modificadores & Modificador_Ctrl) != 0) {
         bool versionar = (modificadores & Modificador_Shift) != 0;
@@ -378,9 +382,12 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       }
       tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
       return;
-    case Tecla_R:
-      MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
-      teclas_.push_back(tecla);
+    case Tecla_T:
+      if ((modificadores & Modificador_Shift) != 0) {
+        tabuleiro_->RemoverEntidadesDeTimeNotificando();
+      } else {
+        tabuleiro_->AdicionarEntidadesAoTimeNotificando();
+      }
       return;
     case Tecla_Tab:
       if (modificadores == Modificador_Shift) {
