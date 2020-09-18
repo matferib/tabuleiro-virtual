@@ -8735,4 +8735,10 @@ void Tabuleiro::SelecionaModelosEntidades(const std::string& id_item_selecionado
   item_selecionado_ = std::move(item_selecionado);
 }
 
+void Tabuleiro::RemoverEntidadesDeTimeNotificando() {
+}
+
+void Tabuleiro::AdicionarEntidadesAoTimeNotificando() {
+}
+
 }  // namespace ent
