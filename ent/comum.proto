@@ -2,6 +2,12 @@ syntax = "proto2";
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
+enum NivelIluminacao {
+  NI_NORMAL = 0;    // normal, nade diferente.
+  NI_PENUMBRA = 1;  // Ataques tem 20% de chance de falha.
+  NI_ESCURIDAO = 2;  // Ataques tem 50% de chance de falha.
+}
+
 message Moedas {
   optional int32 po = 1;
   optional int32 pp = 2;
