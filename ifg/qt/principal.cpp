@@ -93,7 +93,7 @@ using google::protobuf::StringAppendF;
 std::string MontaStringLog(const std::list<std::string>& log) {
   std::string str;
   for (const auto& linha : log) {
-    StringAppendF(&str, "%s\n", linha.c_str());
+    StringAppendF(&str, "%s\n-----------------------------------------------\n", linha.c_str());
   }
   return str;
 }
