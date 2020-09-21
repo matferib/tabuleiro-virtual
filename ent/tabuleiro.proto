@@ -145,6 +145,11 @@ message TabuleiroProto {
   optional int32 herdar_nevoa_de = 29;
   // Para poderes que dependem de luz e chances de falha.
   optional NivelIluminacao nivel_iluminacao = 31;
+  // Informacao sobre times.
+  message InfoTime {
+    repeated uint32 id = 1;
+  }
+  map<string, InfoTime> times = 32;
 }
 
 // Para copiar e colar.
