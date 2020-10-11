@@ -147,9 +147,10 @@ message TabuleiroProto {
   optional NivelIluminacao nivel_iluminacao = 31;
   // Informacao sobre times.
   message InfoTime {
-    repeated uint32 id = 1;
+    optional string descricao = 1;
+    repeated uint32 ids_entidades = 2;
   }
-  map<string, InfoTime> times = 32;
+  map<uint32, InfoTime> times = 32;
 }
 
 // Para copiar e colar.
