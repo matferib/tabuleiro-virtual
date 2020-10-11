@@ -434,6 +434,8 @@ class Entidade {
   void SalvaUltimaPericia(const std::string& ultima_pericia) { proto_.set_ultima_pericia(ultima_pericia); }
   const std::string& UltimaPericia() const { return proto_.ultima_pericia(); }
 
+  std::vector<unsigned int> Times() const { return std::vector<unsigned int>(proto_.times().begin(), proto_.times().end()); }
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
   // Valor de ataque ou ca invalido.
