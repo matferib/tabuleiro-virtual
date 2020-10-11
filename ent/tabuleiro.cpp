@@ -8735,10 +8735,18 @@ void Tabuleiro::SelecionaModelosEntidades(const std::string& id_item_selecionado
   item_selecionado_ = std::move(item_selecionado);
 }
 
-void Tabuleiro::RemoverEntidadesDeTimeNotificando() {
+void Tabuleiro::AdicionarEntidadesAoTimeNotificando() {
+  std::vector<unsigned int> ids = IdsEntidadesSelecionadasEMontadas();
+  if (ids.empty()) return;
+  // Se ninguem tem time ou ha mais de um time na selecao, cria um novo.
+  //for () {
+  //}
+  // Caso haja apenas algum time no grupo, todos ficarao no mesmo.
 }
 
-void Tabuleiro::AdicionarEntidadesAoTimeNotificando() {
+void Tabuleiro::RemoverEntidadesDeTimeNotificando() {
+  std::vector<unsigned int> ids = IdsEntidadesSelecionadasEMontadas();
+  if (ids.empty()) return;
 }
 
 }  // namespace ent
