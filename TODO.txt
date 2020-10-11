@@ -1,3 +1,5 @@
+Miss de iluminacao automatico.
+
 Jogar a aventura do outro lado.
 Pontos de vida do grupo ficou zoado.
 Gerar estatisticas de desenho (stats).
