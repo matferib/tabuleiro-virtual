@@ -268,7 +268,7 @@ void main() {
         visibilidades_2[3] * CorLuzPontualDifusa(atenuacoes_2[3], normal, gltab_luzes[6]));
 
     // Cor difusa e ambiente aplicada.
-    cor_final.rgb *= (gltab_luz_ambiente + cor_luzes_difusas_1 * uns + cor_luzes_difusas_2 * uns).rgb;
+    cor_final.rgb *= clamp(gltab_luz_ambiente + cor_luzes_difusas_1 * uns + cor_luzes_difusas_2 * uns, 0.0, 1.0).rgb;
 
     // Aplica especularidade.
     if (gltab_especularidade_ligada) {
