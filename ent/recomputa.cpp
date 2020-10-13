@@ -914,10 +914,21 @@ void AplicaFimEfeitosProcessados(const EntidadeProto::Evento& evento, const Cons
   }
 }
 
-void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade) {
+// Alguns eventos podem ser adicionados como consequencia do fim de outros, especialmente ao desfazer.
+void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEvento& consequencia, EntidadeProto* proto, Entidade* entidade, RepeatedPtrField<EntidadeProto::Evento>* eventos_a_adicionar) {
+  bool evento_desfeito = evento.rodadas() == EVENTO_DESFEITO;
   AplicaEfeitoComum(consequencia, proto);
   AplicaFimEfeitosProcessados(evento, consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_NEUTRALIZAR_VENENO:
+      if (evento_desfeito) {
+        EntidadeProto eventos_a_restaurar;
+        eventos_a_restaurar.ParseFromString(evento.estado_anterior());
+        for (const auto& evento_veneno : eventos_a_restaurar.evento()) {
+          *eventos_a_adicionar->Add() = evento_veneno;
+        }
+      }
+      break;
     case EFEITO_ARMA_ENVENENADA: {
       for (auto& da : *proto->mutable_dados_ataque()) {
         if (da.veneno().has_id_unico_efeito() && da.veneno().id_unico_efeito() == evento.id_unico()) {
@@ -940,7 +951,7 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       break;
     }
     case EFEITO_INCONSCIENTE: {
-      if (!evento.has_estado_anterior()) break;
+      if (!evento.has_estado_anterior() || !evento_desfeito) break;
       EntidadeProto proto_salvo;
       proto_salvo.ParseFromString(evento.estado_anterior());
       proto->set_caida(proto_salvo.caida());
@@ -974,14 +985,14 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
     }
     break;
     case EFEITO_RISO_HISTERICO: {
-      if (!evento.has_estado_anterior()) break;
+      if (!evento.has_estado_anterior() || !evento_desfeito) break;
       EntidadeProto proto_salvo;
       proto_salvo.ParseFromString(evento.estado_anterior());
       proto->set_caida(proto_salvo.caida());
       break;
     }
     case EFEITO_MORTE: {
-      if (!evento.has_estado_anterior()) break;
+      if (!evento.has_estado_anterior() || !evento_desfeito) break;
       EntidadeProto proto_salvo;
       proto_salvo.ParseFromString(evento.estado_anterior());
       proto->set_caida(proto_salvo.caida());
@@ -2634,6 +2645,36 @@ bool EventoOrfao(const Tabelas& tabelas, const EntidadeProto::Evento& evento, co
   return ret;
 }
 
+
+// Indica quais efeitos serao anulados e permite salvar estado para desfazer.
+void EfeitosAnulados(const EntidadeProto& proto, EntidadeProto::Evento* evento, std::vector<int>* efeitos_anulados) {
+  switch (evento->id_efeito()) {
+    case EFEITO_NEUTRALIZAR_VENENO: {
+      efeitos_anulados->push_back(EFEITO_VENENO);
+      if (!evento->estado_anterior().empty()) break;
+      EntidadeProto efeitos_veneno;
+      for (const auto& evento_proto : proto.evento()) {
+        if (evento_proto.id_efeito() != EFEITO_VENENO) continue;
+        *efeitos_veneno.add_evento() = evento_proto;
+      }
+      *evento->mutable_estado_anterior() = efeitos_veneno.SerializeAsString();
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+bool EventoEncerrado(const EntidadeProto::Evento& evento, const std::vector<int>& efeitos_anulados, const EntidadeProto& proto) {
+  if (evento.rodadas() < 0) {
+    return true;
+  }
+  if (c_any(efeitos_anulados, static_cast<int>(evento.id_efeito()))) {
+    return true;
+  }
+  return false;
+}
+
 void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, Entidade* entidade) {
   //LOG(INFO) << "-----------------------------";
   std::set<int, std::greater<int>> eventos_a_remover;
@@ -2641,18 +2682,24 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
   int i = 0;
   // Verifica eventos acabados.
   const int total_constituicao_antes = BonusTotal(proto->atributos().constituicao());
+  // O fim de alguns eventos pode causar a criação de outros, especialmente ao desfazer (neutralizar veneno por exemplo).
+  std::vector<int> efeitos_anulados;
+  for (auto& evento : *proto->mutable_evento()) {
+    EfeitosAnulados(*proto, &evento, &efeitos_anulados);
+  }
+  RepeatedPtrField<EntidadeProto::Evento> eventos_a_adicionar;
   for (const auto& evento : proto->evento()) {
     //LOG(INFO) << "evento: " << evento.ShortDebugString();
-    const bool encerrado = evento.rodadas() < 0;
+    const bool encerrado = EventoEncerrado(evento, efeitos_anulados, *proto);
     const bool orfao = EventoOrfao(tabelas, evento, ids_itens, *proto);
     if (encerrado || orfao) {
       const auto& efeito = tabelas.Efeito(evento.id_efeito());
       // Usa id_efeito do evento porque efeito pode nao ser tabelado.
       VLOG(1) << "removendo efeito: " << TipoEfeito_Name(evento.id_efeito()) << " (" << evento.id_efeito() << "), " << (encerrado ? "encerrado" : "orfão");
       if (efeito.has_consequencia_fim()) {
-        AplicaFimEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia_fim()), proto, entidade);
+        AplicaFimEfeito(evento, PreencheConsequencia(evento.origem(), evento.complementos(), efeito.consequencia_fim()), proto, entidade, &eventos_a_adicionar);
       } else {
-        AplicaFimEfeito(evento, PreencheConsequenciaFim(evento.origem(), efeito.consequencia()), proto, entidade);
+        AplicaFimEfeito(evento, PreencheConsequenciaFim(evento.origem(), efeito.consequencia()), proto, entidade, &eventos_a_adicionar);
       }
       eventos_a_remover.insert(i);
     }
@@ -2668,6 +2715,15 @@ void RecomputaDependenciasEfeitos(const Tabelas& tabelas, EntidadeProto* proto, 
 
   for (int i : eventos_a_remover) {
     proto->mutable_evento()->DeleteSubrange(i, 1);
+  }
+  std::vector<int> ids_unicos = IdsUnicosProto(*proto);
+  for (const auto& evento_a_adicionar : eventos_a_adicionar) {
+    bool gerar_novo_id = c_any(ids_unicos, evento_a_adicionar.id_unico());
+    auto* novo_evento = proto->mutable_evento()->Add();
+    *novo_evento = evento_a_adicionar;
+    if (gerar_novo_id) {
+      novo_evento->set_id_unico(AchaIdUnicoEvento(proto->evento()));
+    }
   }
   // Computa os eventos ainda ativos. Os que nao se acumulam sao ignorados.
   std::unordered_set<int> efeitos_computados;

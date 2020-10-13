@@ -1877,7 +1877,7 @@ void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notif
   }
   auto* entidade = BuscaEntidade(notificacao.entidade().id());
   if (entidade == nullptr) {
-    VLOG(1) << "Entidade '" << notificacao.entidade().id() << "' invalida para notificacao de atualizacao parcial";
+    LOG(INFO) << "Entidade '" << notificacao.entidade().id() << "' invalida para notificacao de atualizacao parcial";
     return;
   }
   if (notificacao.local()) {
@@ -8385,7 +8385,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
     if (!e_depois->evento().empty()) {
       *e_antes->mutable_evento() = e_depois->evento();
       for (auto& ev : *e_antes->mutable_evento()) {
-        ev.set_rodadas(-1);
+        ev.set_rodadas(EVENTO_DESFEITO);
       }
     }
     if (pocao.has_delta_pontos_vida() && entidade->Proto().has_pontos_vida()) {
@@ -8407,8 +8407,8 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
     c.set_b(1.0f);
     c.set_a(0.5f);
     n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
+    // Aqui enviara para os clientes tb.
     TrataNotificacao(*n_efeito);
-    central_->AdicionaNotificacaoRemota(n_efeito.release());
   }
 }
 
