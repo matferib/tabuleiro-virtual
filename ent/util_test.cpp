@@ -3595,9 +3595,39 @@ TEST(TesteEfeitosAdicionaisMultiplos, TesteToqueIdiotice) {
   }
 }
 
+TEST(TesteEfeitos, NeutralizarVeneno) {
+  const auto& modelo = TabelasCriando().ModeloEntidade("Orc");
+  EntidadeProto proto = modelo.entidade();
+  proto.set_id(1);
+  proto.mutable_tesouro()->add_pocoes()->set_id("neutralizar_venenos");
+  {
+    auto* evento_veneno = proto.mutable_evento()->Add();
+    evento_veneno->set_id_efeito(EFEITO_VENENO);
+    evento_veneno->set_rodadas(5);
+    evento_veneno->set_id_unico(666);
+  }
+  Entidade* orc = NovaEntidadeParaTestes(proto, TabelasCriando()).release();
+  TabuleiroTeste tabuleiro({orc});  // dono de orc agora.
+  {
+    tabuleiro.BebePocaoNotificando(orc->Id(), /*indice_pocao=*/0);
+    EXPECT_FALSE(PossuiEvento(EFEITO_VENENO, orc->Proto()));
+    EXPECT_TRUE(PossuiEvento(EFEITO_NEUTRALIZAR_VENENO, orc->Proto()));
+  }
+
+  // Desfazer.
+  {
+    ASSERT_GE(CentralColetoraCriando().NotificacoesRemotas().size(), 1ULL);
+    orc->AtualizaParcial(CentralColetoraCriando().NotificacoesRemotas()[0]->entidade_antes());
+    EXPECT_TRUE(PossuiEvento(EFEITO_VENENO, orc->Proto()));
+    EXPECT_FALSE(PossuiEvento(EFEITO_NEUTRALIZAR_VENENO, orc->Proto()));
+  }
+  // TODO pq ha duas notificacoes de acao de beber pocao.
+}
+
 TEST(TesteEfeitos, BeberPocaoDesfazInconscienteEAfins) {
   const auto& modelo = TabelasCriando().ModeloEntidade("Orc");
   EntidadeProto proto = modelo.entidade();
+  proto.set_id(1);
   proto.mutable_tesouro()->add_pocoes()->set_id("curar_ferimentos_serios");  // id zoado, deveria ser graves.
   Entidade* orc = NovaEntidadeParaTestes(proto, TabelasCriando()).release();
   {
@@ -3609,14 +3639,23 @@ TEST(TesteEfeitos, BeberPocaoDesfazInconscienteEAfins) {
     EXPECT_TRUE(orc->Proto().incapacitada());
     EXPECT_FALSE(orc->Proto().morta());
   }
+  TabuleiroTeste tabuleiro({orc});
   // Bebe uma pocao de curar ferimentos graves, 3d8+5. No pior caso, o orc tinha -8 PV, entao a pocao o trara de volta nem que seja em 0 PV. 
   {
-    TabuleiroTeste tabuleiro({orc});
     tabuleiro.BebePocaoNotificando(orc->Id(), /*indice_pocao=*/0);
-    ASSERT_EQ(CentralColetoraCriando().Notificacoes().size(), 1ULL);
-    CentralColetoraCriando().Notifica();
     EXPECT_FALSE(orc->Proto().inconsciente());
     EXPECT_FALSE(orc->Proto().incapacitada());
+    EXPECT_FALSE(orc->Proto().morta());
+  }
+  // Desfazer;
+  {
+    ASSERT_GE(CentralColetoraCriando().NotificacoesRemotas().size(), 2ULL);
+    for (const auto& n : CentralColetoraCriando().NotificacoesRemotas()) {
+      LOG(INFO) << n->DebugString();
+    }
+    orc->AtualizaParcial(CentralColetoraCriando().NotificacoesRemotas()[1]->entidade_antes());
+    EXPECT_TRUE(orc->Proto().inconsciente());
+    EXPECT_TRUE(orc->Proto().incapacitada());
     EXPECT_FALSE(orc->Proto().morta());
   }
 }
