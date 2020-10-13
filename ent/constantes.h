@@ -53,6 +53,10 @@
 #define CENARIO_PRINCIPAL -1
 #define CENARIO_INVALIDO -2
 
+// Ambos os casos matam o evento, mas o -2 indica que foi um resultado de desfazer.
+#define EVENTO_EXPIRADO -1
+#define EVENTO_DESFEITO -2
+
 #define INICIATIVA_INVALIDA (-1000)
 
 // Nao ha um ENTIDADE_ID_INVALIDO pq a constante esta no proto: Entidade::IdInvalido.
