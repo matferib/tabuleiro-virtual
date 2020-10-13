@@ -3533,6 +3533,8 @@ tabela_pocoes {
   pocoes {
     id: 'neutralizar_venenos'
     nome: 'Neutralizar Venenos'
+    duracao_rodadas: 500
+    tipo_efeito: EFEITO_NEUTRALIZAR_VENENO
     custo_po: 750
   }
   pocoes {
