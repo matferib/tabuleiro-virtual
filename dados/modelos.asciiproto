@@ -4217,6 +4217,33 @@ modelo {
         dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
       }
     }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
@@ -4240,6 +4267,33 @@ modelo {
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     dados_defesa {
       ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_basico_medio_natural: '1d6' alcance_q: 2
+      veneno {
+        tipo: TV_FERIMENTO
+        dano_inicial: '1d4' tipo_dano: TDV_FORCA tipo_dano: TDV_CONSTITUICAO
+        dano_secundario: '1d4' tipo_dano_secundario: TDV_FORCA tipo_dano_secundario: TDV_CONSTITUICAO
+      }
     }
     dados_ataque {
       grupo: 'corpo a corpo' tipo_ataque: 'Ataque Corpo a Corpo' rotulo: 'tentaculo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
