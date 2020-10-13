@@ -1,7 +1,7 @@
+(aventura) Esgotos: qual doença transmite?
+Modificador de invisibilidade por tamanho (regra especial).
 Miss de iluminacao automatico.
 
-Jogar a aventura do outro lado.
-Pontos de vida do grupo ficou zoado.
 Gerar estatisticas de desenho (stats).
 Pensar em transformar os objetos compostos em instances para comparar.
 
