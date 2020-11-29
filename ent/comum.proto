@@ -67,7 +67,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 155.
+// Proximo id: 156.
 enum TipoEfeito {
   EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
@@ -243,6 +243,7 @@ enum TipoEfeito {
   // disguise self.
   EFEITO_TRANSFORMACAO_MOMENTANEA = 153;
   EFEITO_BROCHE_ESCUDO = 154;
+  EFEITO_REMOVER_DOENCA = 155;
 }
 
 enum TipoEfeitoModelo {
@@ -1272,7 +1273,6 @@ message DoencaProto {
   optional bool dano_permanente = 7;
   // Classe de dificuldade.
   optional int32 cd = 8;
-  optional bool primario_aplicado = 9;
   optional bool nao_recupera_com_duas_salvacoes = 10;  // mummy rot
   optional bool passou_incubacao = 11;
 }
