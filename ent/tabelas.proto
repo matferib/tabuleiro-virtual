@@ -330,6 +330,10 @@ message TabelaVenenos {
   repeated VenenoProto venenos = 1;
 }
 
+message TabelaDoencas {
+  repeated DoencaProto doencas = 1;
+}
+
 message TabelaRacas {
   repeated RacaProto racas = 1;
 }
@@ -367,6 +371,7 @@ message TodasTabelas {
   optional TabelaAmuletos tabela_amuletos = 58;
   optional TabelaChapeus tabela_chapeus = 59;
   optional TabelaVenenos tabela_venenos = 57;
+  optional TabelaDoencas tabela_doencas = 65;
   optional TabelaDominios tabela_dominios = 60;
   optional TabelaMunicoes tabela_municoes = 62;
   optional TabelaItensMundanos tabela_itens_mundanos = 63;
