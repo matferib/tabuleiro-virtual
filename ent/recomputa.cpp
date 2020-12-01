@@ -289,6 +289,7 @@ DescritorAtaque StringParaDescritorElemento(const std::string& elemento_str) {
   if (normalizado == "sonico") return DESC_SONICO;
   if (normalizado == "eletricidade") return DESC_ELETRICIDADE;
   if (normalizado == "veneno") return DESC_VENENO;
+  if (normalizado == "doenca") return DESC_DOENCA;
   return DESC_NENHUM;
 }
 
@@ -920,6 +921,15 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
   AplicaEfeitoComum(consequencia, proto);
   AplicaFimEfeitosProcessados(evento, consequencia, proto);
   switch (evento.id_efeito()) {
+    case EFEITO_REMOVER_DOENCA:
+      if (evento_desfeito) {
+        EntidadeProto eventos_a_restaurar;
+        eventos_a_restaurar.ParseFromString(evento.estado_anterior());
+        for (const auto& evento_doenca: eventos_a_restaurar.evento()) {
+          *eventos_a_adicionar->Add() = evento_doenca;
+        }
+      }
+      break;
     case EFEITO_NEUTRALIZAR_VENENO:
       if (evento_desfeito) {
         EntidadeProto eventos_a_restaurar;
@@ -2649,6 +2659,17 @@ bool EventoOrfao(const Tabelas& tabelas, const EntidadeProto::Evento& evento, co
 // Indica quais efeitos serao anulados e permite salvar estado para desfazer.
 void EfeitosAnulados(const EntidadeProto& proto, EntidadeProto::Evento* evento, std::vector<int>* efeitos_anulados) {
   switch (evento->id_efeito()) {
+    case EFEITO_REMOVER_DOENCA: {
+      efeitos_anulados->push_back(EFEITO_DOENCA);
+      if (!evento->estado_anterior().empty()) break;
+      EntidadeProto efeitos_doenca;
+      for (const auto& evento_proto : proto.evento()) {
+        if (evento_proto.id_efeito() != EFEITO_DOENCA) continue;
+        *efeitos_doenca.add_evento() = evento_proto;
+      }
+      *evento->mutable_estado_anterior() = efeitos_doenca.SerializeAsString();
+      break;
+    }
     case EFEITO_NEUTRALIZAR_VENENO: {
       efeitos_anulados->push_back(EFEITO_VENENO);
       if (!evento->estado_anterior().empty()) break;
