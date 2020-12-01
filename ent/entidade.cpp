@@ -757,7 +757,8 @@ void Entidade::AtualizaBolhas(int intervalo_ms) {
   bool fim = (b.duracao_ms == 0);
   const bool nauseado = PossuiEvento(EFEITO_NAUSEA, proto_);
   const bool envenenado = PossuiEvento(EFEITO_VENENO, proto_);
-  if (fim && (nauseado || envenenado)) {
+  const bool doente = PossuiEvento(EFEITO_DOENCA, proto_);
+  if (fim && (nauseado || envenenado || doente)) {
     AtivaBolhas(/*duracao_ms=*/1000, envenenado ? COR_VERDE : COR_LARANJA);
     // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
     // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
