@@ -1,3 +1,5 @@
+Sombra de luz direcional parou de funcionar. Ultima que funcionou 5.0.0
+
 (aventura) Esgotos: qual doença transmite?
 Modificador de invisibilidade por tamanho (regra especial).
 Miss de iluminacao automatico.
