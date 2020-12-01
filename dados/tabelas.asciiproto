@@ -3540,6 +3540,7 @@ tabela_pocoes {
   pocoes {
     id: 'remover_doenca'
     nome: 'Remover Doença'
+    tipo_efeito: EFEITO_REMOVER_DOENCA
     custo_po: 750
   }
   pocoes {
@@ -15489,6 +15490,20 @@ tabela_efeitos_modelos {
   }
 
 }  # tabela efeito de modelos.
+
+tabela_doencas {
+  doencas {
+    id: 'febre_esgotos'
+    nome: 'Febre dos Esgotos'
+    tipo: TV_INGESTAO
+    incubacao_dias: '1d3'
+    dano: '1d3'
+    dano: '1d3'
+    tipo_dano: TDV_DESTREZA
+    tipo_dano: TDV_CONSTITUICAO
+    cd: 12
+  }
+}
 
 tabela_venenos {
   venenos {
