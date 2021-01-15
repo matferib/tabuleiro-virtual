@@ -858,7 +858,7 @@ const std::vector<const ArmaProto*> Tabelas::Feiticos(const std::string& id_clas
   // TODO usar o mapa de feiticos_por_classe_por_nivel.
   std::vector<const ArmaProto*> feiticos;
   for (const auto& feitico : tabelas_.tabela_feiticos().armas()) {
-    for (const auto ic : feitico.info_classes()) {
+    for (const auto& ic : feitico.info_classes()) {
       if (ic.nivel() == nivel && ic.id() == id_classe) {
         feiticos.push_back(&feitico);
         break;
