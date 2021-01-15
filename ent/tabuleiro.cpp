@@ -833,7 +833,7 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento(), opcoes_.tamanho_framebuffer_texturas_mapeamento());
+  gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2, opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecaoMapeamentoSombras();
