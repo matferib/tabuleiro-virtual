@@ -463,15 +463,25 @@ void DesenhaCaractere(char c) {
   BitmapCharacter((int)c);
 }
 
-VboNaoGravado VboCaractere(int character) {
-  VboNaoGravado vbo_char;
-  if (!(character >= 1) && (character < 256)) {
-    character = ' ';
+namespace {
+
+std::vector<VboNaoGravado> VbosTabelados() {
+  std::vector<VboNaoGravado> tabela(256);
+  for (int i = 0; i < 256; ++i) {
+    VboNaoGravado& vbo_char = tabela[i];
+		int character = (i >= 1) && (i < 256) ? i : ' ';
+    const auto& face_info = g_face_infos[character - 1];
+    vbo_char.AtribuiCoordenadas(/*num_dimensoes=*/2, face_info.points);
+    vbo_char.AtribuiIndices(face_info.indices, face_info.nbpoints);
   }
-  const auto& face_info = g_face_infos[character - 1];
-  vbo_char.AtribuiCoordenadas(/*num_dimensoes=*/2, face_info.points);
-  vbo_char.AtribuiIndices(face_info.indices, face_info.nbpoints);
-  return vbo_char;
+  return tabela;
+}
+
+}  // namespace
+
+const VboNaoGravado& VboCaractere(int character) {
+  static std::vector<VboNaoGravado> vbos_tabelados = VbosTabelados();
+  return vbos_tabelados[character];
 }
 
 #else  // USAR_FREETYPE

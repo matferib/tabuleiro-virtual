@@ -365,7 +365,7 @@ inline void Livre(const std::vector<std::pair<float, float>>& pontos, float larg
 }
 
 // Retorna o VBO do caractere.
-VboNaoGravado VboCaractere(int c);
+const VboNaoGravado& VboCaractere(int c);
 
 }  // namespace gl
 
