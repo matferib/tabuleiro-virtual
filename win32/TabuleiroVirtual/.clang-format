@@ -1,0 +1,4 @@
+# Arquivo .clang-format gerado pelo Visual Studio
+
+BasedOnStyle: Google
+UseTab: Never
