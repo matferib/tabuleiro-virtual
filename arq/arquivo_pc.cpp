@@ -11,6 +11,14 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>
 #include <stdexcept>
+#if WIN32
+#include <codecvt>
+#include <stdio.h>
+#include <shlobj.h>
+#include <objbase.h>
+#include <locale>
+#endif
+
 #include "arq/arquivo.h"
 
 #include "log/log.h"
@@ -36,10 +44,20 @@ const std::string DiretorioAppsUsuario() {
   std::string home(home_ptr);
   return home + "/Library/Application Support/TabuleiroVirtual/";
 #elif WIN32
+  PWSTR path = nullptr;
+  HRESULT r = SHGetKnownFolderPath(FOLDERID_SavedGames, KF_FLAG_CREATE, NULL, &path);
+  if (path != nullptr) {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		std::string path_str = converter.to_bytes(path);
+    CoTaskMemFree(path);
+    return path_str + "/TabuleiroVirtual/";
+  }
+	// Fallback para localappdata.
   std::string appdata(getenv("localappdata"));
   if (appdata.empty()) {
     return "";
   }
+	// Fallback para diretorio local.
   return appdata + "/TabuleiroVirtual/";
 #else
   std::string home;
