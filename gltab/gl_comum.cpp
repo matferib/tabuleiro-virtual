@@ -1359,7 +1359,7 @@ void PonteiroMatrizNormal(const void* matriz_normal) {
 
 namespace {
 void AtualizaMatrizNormal() {
-  auto shader = interno::BuscaShader();
+  const auto& shader = interno::BuscaShader();
   if (shader.atr_gltab_matriz_normal != -1) {
     // Matriz normal: transposta do inverso da MV ( V * M na verdade).
     // Porem, sabemos que V é ortognal, portanto seu inverso é sua transposta.
@@ -1379,7 +1379,7 @@ void AtualizaMatrizNormal() {
 }
 
 void AtualizaMatrizModelagemNormal() {
-  auto shader = interno::BuscaShader();
+  const auto& shader = interno::BuscaShader();
   if (shader.atr_gltab_matriz_modelagem != -1) {
     auto* c = interno::BuscaContexto();
     const auto& m = c->pilha_model.top();
