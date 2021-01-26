@@ -1716,7 +1716,7 @@ void PreencheConfiguraCombosDominio(
     for (const auto& dominio : tabelas.todas().tabela_dominios().dominios()) {
       dominios_ordenados[combo->tr(dominio.nome().c_str())] = dominio.id();
     }
-    for (const auto it : dominios_ordenados) {
+    for (const auto& it : dominios_ordenados) {
       combo->addItem(it.first, QVariant(QString::fromStdString(it.second)));
     }
     ExpandeComboBox(combo);
