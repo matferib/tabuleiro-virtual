@@ -6,7 +6,7 @@ env = Environment(ENV=os.environ, toolpath=['tools'], tools=['protoc'])
 sistema = ARGUMENTS.get('sistema', 'linux')
 if sistema not in ['win32', 'linux', 'apple']:
   sys.exit('Sistema invalido: ' + sistema)
-print 'Usando sistema: ' + sistema
+print('Usando sistema: ' + sistema)
 
 if sistema == 'win32':
   env.Tool('mingw')
@@ -50,7 +50,7 @@ env['PROTOCPYTHONOUTDIR'] = None
 
 # c++
 debug = ARGUMENTS.get('debug', '1')
-print 'Usando debug: %r' % debug
+print('Usando debug: %r' % debug)
 if sistema == 'win32':
   env['CPPPATH'] += ['./', 'win32/include']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'WIN32_LEAN_AND_MEAN': 1, 'WIN32': 1, '_WINDOWS': 1, '_CRT_SECURE_NO_WARNINGS': 1, '_WIN32_WINNT': 0x0601, 'WINVER': 0x0601, 'QT_STATIC_BUILD': 1 }
@@ -72,7 +72,7 @@ else:
   env['CPPPATH'] += ['./', '../libs/tbb/include'] + env['QT_CPPPATH']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++17', '-Wfatal-errors', '-fPIC']
-  env['LIBPATH'] += [ '../libs/tbb/build/linux_intel64_gcc_cc9.3.0_libc2.27_kernel4.15.0_release/' ]
+  env['LIBPATH'] += [ '../libs/tbb/build/linux_intel64_gcc_cc9.3.0_libc2.31_kernel5.4.0_release/' ]
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_timer', 'boost_chrono', 'boost_filesystem', 'boost_system', 'boost_date_time', 'pthread', 'tbb']
   #env['LINKFLAGS'] += ['-stdlib=libc++']
 
@@ -90,7 +90,7 @@ else:
 #print env.Dump()
 
 usar_opengl_es = (ARGUMENTS.get('usar_opengl_es', '0') == '1')
-print 'usar_opengl_es : %r' % usar_opengl_es
+print('usar_opengl_es : %r' % usar_opengl_es)
 if usar_opengl_es:
   env['CPPPATH'] += ['./opengl_es/']
   env['CPPDEFINES']['USAR_OPENGL_ES'] = 1
@@ -239,7 +239,7 @@ env.Default(env.Program(
 ))
 
 compilar_testes = (ARGUMENTS.get('testes', '0') == '1')
-print 'compilar_testes : %r' % compilar_testes
+print('compilar_testes : %r' % compilar_testes)
 if compilar_testes:
   env['CPPPATH'] += ['./googletest/googletest/googletest/include', './googletest/googletest/googlemock/include']
   if sistema == 'apple':
@@ -269,7 +269,7 @@ if compilar_testes:
       source = ['net/util_test.cpp' ] + objetos)
 
 rodar_benchmark = (ARGUMENTS.get('benchmark', '0') == '1')
-print 'benchmark : %r' % rodar_benchmark
+print('benchmark : %r' % rodar_benchmark)
 if rodar_benchmark:
   env['CPPDEFINES']['BENCHMARK'] = '1'
   env['CPPDEFINES']['USAR_WATCHDOG'] = '0'
