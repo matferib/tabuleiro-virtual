@@ -1,3 +1,7 @@
+Rotação da base não esta funcionando: criar uma entidade com modelo, uma com textura, outra com modelo. A rotacao da entidade com textura falhará.
+Crash no windows ao abrir menu.
+Linux travadinha ao abrir menu.
+
 (aventura) Esgotos: qual doença transmite?
 Modificador de invisibilidade por tamanho (regra especial).
 Miss de iluminacao automatico.
