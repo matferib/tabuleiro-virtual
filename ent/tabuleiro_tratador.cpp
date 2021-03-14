@@ -3293,7 +3293,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         rastros_movimento_[id].push_back(pos);
       }
       if (ha_entidades_selecionadas) {
-        ciclos_para_atualizar_ = opcoes_.fps() / 3;
+        ciclos_para_atualizar_ = static_cast<int>(opcoes_.fps() / 3);
         estado_ = ETAB_ENTS_PRESSIONADAS;
       } else {
         MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
@@ -3769,7 +3769,7 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
         AcaoProto acao_proto;
         acao_proto.set_id("Agarrar");
         acao_proto.set_tipo(ACAO_AGARRAR);
-        resultado = AtaqueVsDefesa(0.1/*distancia*/, acao_proto, *e, *e->DadoAgarrar(), *ealvo, ealvo->Pos());
+        resultado = AtaqueVsDefesa(0.1f/*distancia*/, acao_proto, *e, *e->DadoAgarrar(), *ealvo, ealvo->Pos());
         resultado.texto = "desagarrar: " + resultado.texto;
         AdicionaAcaoTextoLogado(e->Id(), resultado.texto, 0.0f  /*atraso*/);
         if (!resultado.Sucesso()) continue;

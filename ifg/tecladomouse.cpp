@@ -461,7 +461,7 @@ bool TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
   ultimo_x_ = x;
   ultimo_y_ = y;
   VLOG(2) << "Movimento: " << x << ", " << y << ", ultimo_x " << ultimo_x_ << ", ultimo_y: " << ultimo_y_;
-  temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE_S * tabuleiro_->Opcoes().fps();
+  temporizador_mouse_ = static_cast<int>(MAX_TEMPORIZADOR_MOUSE_S * tabuleiro_->Opcoes().fps());
   if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
     tabuleiro_->TrataMovimentoMouse();
     return false;
@@ -486,10 +486,10 @@ void TratadorTecladoMouse::TrataInicioPinca(int x1, int y1, int x2, int y2) {
 
 void TratadorTecladoMouse::MudaEstado(estado_e novo_estado) {
   if (novo_estado == ESTADO_TEMPORIZANDO_MOUSE) {
-    temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE_S * tabuleiro_->Opcoes().fps();
+    temporizador_mouse_ = static_cast<int>(MAX_TEMPORIZADOR_MOUSE_S * tabuleiro_->Opcoes().fps());
   } else if (novo_estado == ESTADO_TEMPORIZANDO_TECLADO) {
     teclas_.clear();
-    temporizador_teclado_ = MAX_TEMPORIZADOR_TECLADO_S * tabuleiro_->Opcoes().fps();
+    temporizador_teclado_ = static_cast<int>(MAX_TEMPORIZADOR_TECLADO_S * tabuleiro_->Opcoes().fps());
   }
   VLOG(2) << "Mudando para estado: " << novo_estado;
   estado_ = novo_estado;
