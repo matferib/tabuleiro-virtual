@@ -4,13 +4,13 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{A9966132-260A-4314-9480-BBCA4BCA5C8F}
 AppName=Instalador Tabuleiro Virtual
-AppVerName=Tabuleiro Virtual 5.4.0
+AppVerName=Tabuleiro Virtual 5.5.0
 AppPublisher=Matferib
 OutputDir=output
-OutputBaseFilename=TabuleiroVirtual-5.4.0
+OutputBaseFilename=TabuleiroVirtual-5.5.0
 Compression=lzma
 SolidCompression=yes
-DefaultDirName={pf32}\TabuleiroVirtual
+DefaultDirName={commonpf64}\TabuleiroVirtual
 DirExistsWarning=no
 DisableDirPage=no
 DefaultGroupName=TabuleiroVirtual
@@ -27,8 +27,8 @@ Name: {localappdata}\TabuleiroVirtual
 [Files]
 Source: ..\tabvirt.exe; Destdir: {app}; Flags: ignoreversion;
 Source: ..\icon.ico; Destdir: {app}; Flags: ignoreversion;
-Source: ..\win32\vcpkg\installed\x64-windows\bin\libprotobuf.dll; Destdir: {app}; Flags: ignoreversion;
-Source: ..\win32\vcpkg\installed\x64-windows\bin\libprotobuf-lite.dll; Destdir: {app}; Flags: ignoreversion;
+Source: ..\libprotobuf.dll; Destdir: {app}; Flags: ignoreversion;
+Source: ..\libprotobuf-lite.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\Qt5*.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\texturas\*.png; Destdir: {app}\texturas; Flags: ignoreversion;
 Source: ..\sons\*.wav; Destdir: {app}\sons; Flags: ignoreversion;
