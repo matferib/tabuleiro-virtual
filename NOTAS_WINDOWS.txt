@@ -40,11 +40,9 @@ $MOC -I. -oifg/qt/moc_pericias_util.cpp ifg/qt/pericias_util.h
 $MOC -I. -oifg/qt/moc_evento_util.cpp ifg/qt/evento_util.h
 $MOC -I. -oifg/qt/moc_talentos_util.cpp ifg/qt/talentos_util.h
 
-Colocar no diretorio win32:
-- qt-everywhere-opensource-src-4.8.6
-- boost/boost_src (o ultimo eh o boost descompactado e renomeado sem versao)
-- protobuf-2.6.1
-- glog-0.3.4
+Proto:
+usar vcpkg para instalar.
+https://github.com/Microsoft/vcpkg#getting-started
 
 Baixar o glext.h.
 
