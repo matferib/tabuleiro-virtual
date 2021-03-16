@@ -71,7 +71,7 @@ class VboNaoGravado {
                                      unsigned int* deslocamento_matriz_normal) const;
 
   unsigned int NumVertices() const {
-    return indices_.size();
+    return static_cast<unsigned int>(indices_.size());
   }
 
   unsigned short NumDimensoes() const {
@@ -132,7 +132,7 @@ class VboGravado {
 
   GLenum Modo() const { return modo_; }
 
-  unsigned int NumVertices() const { return indices_.size(); }
+  unsigned int NumVertices() const { return static_cast<unsigned int>(indices_.size()); }
 
   unsigned short NumDimensoes() const { return num_dimensoes_; }
 
