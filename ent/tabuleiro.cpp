@@ -1146,7 +1146,7 @@ namespace {
 int QuantidadeSorteios(const Tabuleiro::ItemSelecionado& item_selecionado) {
   if (!item_selecionado.aleatorio) {
     LOG(INFO) << "quantidade nao aleatoria a adicionar, retornando: " << item_selecionado.ids_com_peso.size();
-    return item_selecionado.ids_com_peso.size();
+    return static_cast<int>(item_selecionado.ids_com_peso.size());
   }
   if (item_selecionado.quantidade.empty()) {
     LOG(ERROR) << "quantidade aleatoria invalida a adicionar: " << item_selecionado.quantidade;
@@ -4925,7 +4925,7 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   boost::timer::cpu_timer timer_todas;
   timer_todas.start();
-#if __APPLE__
+#if 1 || __APPLE__
   std::for_each(entidades_.begin(), entidades_.end(),
                 [this, intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) {
                   parametros_desenho_.set_entidade_selecionada(
@@ -7066,7 +7066,7 @@ void Tabuleiro::DesenhaListaGenerica(
     int nome_cima, int nome_baixo, int nome_esquerda, int nome_direita, int tipo_lista,
     const std::vector<std::string>& lista, const float* cor_lista, const float* cor_lista_fundo,
     std::function<int(int)> f_id) {
-  const int n_objetos = lista.size();
+  const int n_objetos = static_cast<int>(lista.size());
   const int objs_por_pagina = 10;
   const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
   if (num_paginas == 0) return;
