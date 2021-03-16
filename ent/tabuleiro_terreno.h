@@ -209,7 +209,7 @@ class Terreno {
     dp.z = altura;
     dp.s = x_quad * inc_s_;
     dp.t = 1.0f - (y_quad * inc_t_);
-    dp.indice = pontos_.size();
+    dp.indice = static_cast<int>(pontos_.size());
     mapa_pontos_[xy] = std::move(dp);
     pontos_.push_back(&mapa_pontos_[xy]);
   }
