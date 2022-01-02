@@ -1,5 +1,5 @@
 Caminho curto:
-sh gera_mac.sh -v 5.4.0
+sh gera_mac.sh -v 5.5.1
 
 1- Colocar no diretorio mac as coisas da instalação:
 Os executaveis:
