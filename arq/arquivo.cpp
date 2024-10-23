@@ -172,20 +172,20 @@ void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados)
 }
 
 // Esse log handler imprime filename como o fonte que esta processando o arquivo e nao o arquivo sendo lido :(
-void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message);
+//void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message);
 
 struct ScopedLogHandler {
  public:
   ScopedLogHandler(const std::string& nome_arquivo) {
-    old = google::protobuf::SetLogHandler(&LogHandler);
-    g_nome_arquivo = nome_arquivo;
+    //old = google::protobuf::SetLogHandler(&LogHandler);
+    //g_nome_arquivo = nome_arquivo;
   }
   ~ScopedLogHandler() {
-    google::protobuf::SetLogHandler(old);
+    //google::protobuf::SetLogHandler(old);
   }
 
   static std::string g_nome_arquivo;
-  google::protobuf::LogHandler* old;
+  //google::protobuf::LogHandler* old;
 };
 std::string ScopedLogHandler::g_nome_arquivo;
 
@@ -205,15 +205,15 @@ void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::pro
   mensagem->ParseFromString(dados);
 }
 
-void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message) {
-  if (level >= google::protobuf::LOGLEVEL_ERROR) {
-    LOG(ERROR) << "erro arquivo: " << ScopedLogHandler::g_nome_arquivo << ": " << message;
-    throw ParseProtoException(google::protobuf::StringPrintf("%s", message.c_str()));
-  } else if (level == google::protobuf::LOGLEVEL_WARNING) {
-    LOG(WARNING) << "erro arquivo: " << ScopedLogHandler::g_nome_arquivo << ": " << message;
-  } else if (level == google::protobuf::LOGLEVEL_INFO) {
-    LOG(INFO) << "erro arquivo: " << ScopedLogHandler::g_nome_arquivo << ": " << message;
-  }
-}
+//void LogHandler(google::protobuf::LogLevel level, const char* filename, int line, const std::string& message) {
+//  if (level >= google::protobuf::LOGLEVEL_ERROR) {
+//    LOG(ERROR) << "erro arquivo: " << ScopedLogHandler::g_nome_arquivo << ": " << message;
+//    throw ParseProtoException(google::protobuf::StringPrintf("%s", message.c_str()));
+//  } else if (level == google::protobuf::LOGLEVEL_WARNING) {
+//    LOG(WARNING) << "erro arquivo: " << ScopedLogHandler::g_nome_arquivo << ": " << message;
+//  } else if (level == google::protobuf::LOGLEVEL_INFO) {
+//    LOG(INFO) << "erro arquivo: " << ScopedLogHandler::g_nome_arquivo << ": " << message;
+//  }
+//}
 
 }  // namespace arq
