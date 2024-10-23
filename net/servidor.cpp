@@ -1,3 +1,4 @@
+#include <absl/strings/str_format.h>
 #include <algorithm>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -13,7 +14,6 @@
 
 namespace net {
 namespace {
-using ::google::protobuf::StringPrintf;
 }  // namespace
 
 Servidor::Servidor(Sincronizador* sincronizador, ntf::CentralNotificacoes* central) {
@@ -296,9 +296,9 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
       std::string erro_str;
       if (erro.ConexaoFechada()) {
-        erro_str = StringPrintf("Conexão fechada por cliente '%s'.", cliente->id.c_str());
+        erro_str = absl::StrFormat("Conexão fechada por cliente '%s'.", cliente->id.c_str());
       } else {
-        erro_str = StringPrintf("Erro recebendo mensagem de cliente: '%s'. Erro: %s. Esperava: %d, recebi: %d",
+        erro_str = absl::StrFormat("Erro recebendo mensagem de cliente: '%s'. Erro: %s. Esperava: %d, recebi: %d",
             cliente->id.c_str(), erro.mensagem().c_str(), (int)cliente->buffer_recepcao.size(), (int)bytes_recebidos);
       }
       LOG(ERROR) << erro_str << ", msg: " << erro.mensagem().c_str();
@@ -366,9 +366,9 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
     if (erro || (bytes_recebidos < 4)) {
       std::string erro_str(std::string("Erro recebendo tamanho de dados do cliente '") + cliente->id + "': ");
       if (erro.ConexaoFechada()) {
-        erro_str += StringPrintf("conexao fechada, msg: %s.", erro.mensagem().c_str());
+        erro_str += absl::StrFormat("conexao fechada, msg: %s.", erro.mensagem().c_str());
       } else {
-        erro_str += StringPrintf("msg menor que 4. msg: %s.", erro.mensagem().c_str());
+        erro_str += absl::StrFormat("msg menor que 4. msg: %s.", erro.mensagem().c_str());
       }
       LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
       auto n = ntf::NovaNotificacao(ntf::TN_ERRO);

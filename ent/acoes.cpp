@@ -24,7 +24,6 @@ namespace ent {
 namespace {
 
 using std::placeholders::_1;
-using google::protobuf::StringPrintf;
 
 void MudaCorProto(const Cor& cor) {
   const GLfloat corgl[3] = { cor.r(), cor.g(), cor.b() };
@@ -282,7 +281,7 @@ class AcaoDeltaPontosVida : public Acao {
     // Monta a string de delta.
     if (TemDeltaAcao(acao_proto_)) {
       if (TemTextoAcao(acao_proto_)) {
-        string_texto_ = StringPrintf("\n%s", TextoAcao(acao_proto_).c_str());
+        string_texto_ = absl::StrFormat("\n%s", TextoAcao(acao_proto_).c_str());
       }
       delta_acao_ = DeltaAcao(acao_proto_);
       const int delta_abs = abs(delta_acao_);
@@ -292,7 +291,7 @@ class AcaoDeltaPontosVida : public Acao {
         return;
       }
       string_delta_ = delta_abs != 0
-        ? StringPrintf("%d", delta_abs)
+        ? absl::StrFormat("%d", delta_abs)
         : (string_texto_.empty() ? "X" : "");
     } else if (TemTextoAcao(acao_proto_)) {
       string_texto_ = TextoAcao(acao_proto_);

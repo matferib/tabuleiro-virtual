@@ -9,5 +9,5 @@ lldb ./tabvirt -- $@
 elif [ "$1" == "perf" ]; then
 perf stat -d ./tabvirt -- $@
 else
-./tabvirt --logtostderr $@
+./tabvirt $@
 fi

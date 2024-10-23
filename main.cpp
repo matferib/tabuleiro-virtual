@@ -4,6 +4,7 @@
 #include <android_native_app_glue.h>
 #endif
 
+#include <absl/strings/str_format.h>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -174,7 +175,7 @@ int main(int argc, char** argv) {
   // As vezes o carregamento falha por diretorios errados. Conferir se tabela carregou (pois nao da erro apos construcao).
   if (tabelas.todas().tabela_classes().info_classes().empty()) {
     central.AdicionaNotificacao(ntf::NovaNotificacaoErro(
-          google::protobuf::StringPrintf(
+          absl::StrFormat(
             "%s: %s", "Erro carregando tabelas, caminho: ", dir.absolutePath().toStdString().c_str())));
   }
 

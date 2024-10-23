@@ -23,7 +23,6 @@ namespace ifg {
 namespace qt {
 
 namespace {
-using google::protobuf::StringPrintf;
 }
 
 void InterfaceGraficaQt::MostraMensagem(

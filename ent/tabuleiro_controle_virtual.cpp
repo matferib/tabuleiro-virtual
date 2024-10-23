@@ -35,8 +35,6 @@ namespace ent {
 
 namespace {
 
-using google::protobuf::StringPrintf;
-
 const char* ROTULO_PADRAO = "-";
 const char* TEXTURA_VAZIA = "";
 const char* TEXTURAS_DIFEREM = "~";
@@ -1292,7 +1290,7 @@ void Tabuleiro::DesenhaIniciativas() {
   const unsigned int indice_corrigido = static_cast<unsigned int>(indice_iniciativa_) < iniciativas_.size() ? indice_iniciativa_ : iniciativas_.size() - 1;
   MudaCor(COR_AMARELA);
   std::string titulo = iniciativa_valida_
-    ? StringPrintf("Iniciativa: %d/%d", iniciativas_[indice_corrigido].iniciativa, iniciativas_[indice_corrigido].modificador)
+    ? absl::StrFormat("Iniciativa: %d/%d", iniciativas_[indice_corrigido].iniciativa, iniciativas_[indice_corrigido].modificador)
     : "Iniciativa INVÁLIDA (passar para próxima)";
   gl::DesenhaStringAlinhadoEsquerda(StringSemUtf8(titulo));
   MudaCor(COR_BRANCA);

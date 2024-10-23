@@ -24,7 +24,6 @@ bool ImprimeSeErro();
 namespace ent {
 namespace {
 using google::protobuf::RepeatedPtrField;
-using google::protobuf::StringPrintf;
 }  // namespace
 
 const Entidade& EntidadeFalsa() {
@@ -138,15 +137,15 @@ void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
     const auto& classe_tabelada = Tabelas::Unica().Classe(ic.id());
     if (primeiro) {
       if (elite) {
-        dv = StringPrintf("%d", classe_tabelada.dv());
+        dv = absl::StrFormat("%d", classe_tabelada.dv());
         if (ic.nivel() > 1) {
-          dv += StringPrintf("+%dd%d", (ic.nivel()-1), classe_tabelada.dv());
+          dv += absl::StrFormat("+%dd%d", (ic.nivel()-1), classe_tabelada.dv());
         }
       } else {
-        dv += StringPrintf("%dd%d", ic.nivel(), classe_tabelada.dv());
+        dv += absl::StrFormat("%dd%d", ic.nivel(), classe_tabelada.dv());
       }
     } else {
-      dv += StringPrintf("+%dd%d", ic.nivel(), classe_tabelada.dv());
+      dv += absl::StrFormat("+%dd%d", ic.nivel(), classe_tabelada.dv());
     }
     primeiro = false;
   }
@@ -162,15 +161,15 @@ void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
   if (possui_mente_sobre_materia) {
     const int mod_int = ModificadorAtributoOriginal(TA_INTELIGENCIA, *proto);
     const int mod_car = ModificadorAtributoOriginal(TA_CARISMA, *proto);
-    dv += StringPrintf("+%d", std::max(mod_int, mod_car) + num_metamagicos);
+    dv += absl::StrFormat("+%d", std::max(mod_int, mod_car) + num_metamagicos);
     nivel_para_mod_con = std::max(0, nivel_para_mod_con - 1);
   }
   const int mod_con = ModificadorAtributo(TA_CONSTITUICAO, *proto) * nivel_para_mod_con;
   if (mod_con != 0) {
-    dv += StringPrintf("%+d", mod_con);
+    dv += absl::StrFormat("%+d", mod_con);
   }
   if (num_vitalidades > 0) {
-    dv += StringPrintf("+%d", num_vitalidades * 3);
+    dv += absl::StrFormat("+%d", num_vitalidades * 3);
   }
   if (dv.empty()) {
     LOG(WARNING) << "dv vazio para dados de vida automatico de " << RotuloEntidade(*proto);
@@ -2061,10 +2060,10 @@ std::tuple<int, std::string> TuplaValorString(const std::string& string_dano) {
       valor = 1;
     }
     return std::make_tuple(
-        valor, StringPrintf("%s, total: %d (dados: %s)", string_dano.c_str(), valor, texto_dados.c_str()));
+        valor, absl::StrFormat("%s, total: %d (dados: %s)", string_dano.c_str(), valor, texto_dados.c_str()));
   } catch (...) {
   }
-  return std::make_tuple(0, StringPrintf("string de dano malformada: %s", string_dano.c_str()));
+  return std::make_tuple(0, absl::StrFormat("string de dano malformada: %s", string_dano.c_str()));
 }
 
 std::pair<std::tuple<int, std::string>, std::optional<std::tuple<int, std::string>>>
@@ -2086,7 +2085,7 @@ std::string Entidade::DetalhesAcao() const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {
     std::string sca = StringCAParaAcao();
-    return sca.empty() ? "" : StringPrintf("CA: %s", sca.c_str());
+    return sca.empty() ? "" : absl::StrFormat("CA: %s", sca.c_str());
   }
   return StringAtaque(*da, proto_);
 }

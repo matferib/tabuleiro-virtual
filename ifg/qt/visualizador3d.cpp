@@ -42,7 +42,6 @@ namespace qt {
 namespace {
 
 using namespace std;
-using google::protobuf::StringPrintf;
 using google::protobuf::RepeatedPtrField;
 
 class DesativadorWatchdogEscopo {
