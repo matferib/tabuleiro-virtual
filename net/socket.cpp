@@ -1,3 +1,4 @@
+#include <absl/strings/str_format.h>
 #include <functional>
 #include <boost/asio.hpp>
 #include <boost/asio/error.hpp>
@@ -9,7 +10,6 @@
 
 namespace net {
 namespace {
-using google::protobuf::StringPrintf;
 }  // namespace
 
 //-----
@@ -162,7 +162,7 @@ void Socket::PortaLocal(int porta_local) {
   boost::system::error_code ec;
   interno_->socket->bind(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v6(), porta_local), ec);
   if (ec) {
-    throw std::logic_error(StringPrintf("Erro no bind do cliente na porta %d", porta_local));
+    throw std::logic_error(absl::StrFormat("Erro no bind do cliente na porta %d", porta_local));
   }
 }
 

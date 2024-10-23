@@ -66,13 +66,10 @@
 #endif
 
 using google::protobuf::RepeatedField;
-using google::protobuf::StringAppendF;
 
 namespace ent {
 
 namespace {
-
-using google::protobuf::StringPrintf;
 
 /** expessura da linha da grade do tabuleiro. */
 const float EXPESSURA_LINHA = 0.1f;
@@ -773,7 +770,7 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
   // Neste caso eh melhor deixar o bind pro original do lado de fora, pq teoricamente isso tem que ser um loop.
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_luzes_[indice_luz].framebuffer);
 
-  V_ERRO(StringPrintf("LigacaoComFramebuffer dfb_luzes_[%d].framebuffer, valor framebuffer %d", indice_luz, dfb_luzes_[indice_luz].framebuffer));
+  V_ERRO(absl::StrFormat("LigacaoComFramebuffer dfb_luzes_[%d].framebuffer, valor framebuffer %d", indice_luz, dfb_luzes_[indice_luz].framebuffer));
   //LOG(INFO) << "desenhando mapa de luzes";
 
   parametros_desenho_.set_desenha_mapa_luzes(0);
@@ -1146,7 +1143,7 @@ namespace {
 int QuantidadeSorteios(const Tabuleiro::ItemSelecionado& item_selecionado) {
   if (!item_selecionado.aleatorio) {
     LOG(INFO) << "quantidade nao aleatoria a adicionar, retornando: " << item_selecionado.ids_com_peso.size();
-    return item_selecionado.ids_com_peso.size();
+    return static_cast<int>(item_selecionado.ids_com_peso.size());
   }
   if (item_selecionado.quantidade.empty()) {
     LOG(ERROR) << "quantidade aleatoria invalida a adicionar: " << item_selecionado.quantidade;
@@ -2035,11 +2032,11 @@ std::pair<int, int> Tabuleiro::LeValorListaPontosVida(
       int delta_adicional = -std::get<0>(*valor_adicional_opt);
       AdicionaLogEvento(
           entidade->Id(),
-          StringPrintf("Valor para ação: %s e %s", texto_pontos_vida.c_str(), std::get<1>(*valor_adicional_opt).c_str()));
+          absl::StrFormat("Valor para ação: %s e %s", texto_pontos_vida.c_str(), std::get<1>(*valor_adicional_opt).c_str()));
       VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
       return {delta_pontos_vida, delta_adicional};
     } else if (delta_pontos_vida != 0) {
-      AdicionaLogEvento(entidade->Id(), StringPrintf("Valor para ação: %s", texto_pontos_vida.c_str()));
+      AdicionaLogEvento(entidade->Id(), absl::StrFormat("Valor para ação: %s", texto_pontos_vida.c_str()));
     }
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
     return {delta_pontos_vida, 0 };
@@ -2106,7 +2103,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // Cliente recebendo recebendo requisicao de log.
       std::string log_str;
       for (const auto& linha : log_eventos_) {
-        StringAppendF(&log_str, "%s\n", linha.c_str());
+        absl::StrAppendFormat(&log_str, "%s\n", linha.c_str());
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ENVIAR_LOG_EVENTOS);
       n->set_servidor_apenas(true);
@@ -2379,7 +2376,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           return true;
         }
         central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(ntf::TN_INFO,
-              google::protobuf::StringPrintf("%s salvo em %s",
+              absl::StrFormat("%s salvo em %s",
                   notificacao.entidade().has_modelo_3d() ? "Modelo 3d" : "Tabuleiro", caminho_str.c_str())));
       } else {
         // Enviar remotamente.
@@ -2430,7 +2427,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           nt_tabuleiro.mutable_tabuleiro()->set_nome(nome_arquivo);
         } catch (const arq::ParseProtoException& e) {
           central_->AdicionaNotificacao(
-            ntf::NovaNotificacaoErro(StringPrintf("Erro lendo arquivo: %s: %s", notificacao.endereco().c_str(), e.what())));
+            ntf::NovaNotificacaoErro(absl::StrFormat("Erro lendo arquivo: %s: %s", notificacao.endereco().c_str(), e.what())));
           return true;
         } catch (std::logic_error&) {
           central_->AdicionaNotificacao(
@@ -4925,7 +4922,7 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   boost::timer::cpu_timer timer_todas;
   timer_todas.start();
-#if __APPLE__
+#if 1 || __APPLE__
   std::for_each(entidades_.begin(), entidades_.end(),
                 [this, intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) {
                   parametros_desenho_.set_entidade_selecionada(
@@ -5562,7 +5559,6 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   // Recebe as entidades.
   entidades_mantidas.insert(entidades_mantidas.end(), novo_tabuleiro.entidade().begin(), novo_tabuleiro.entidade().end());
 
-  int i = 0;
   for (EntidadeProto ep : entidades_mantidas) {
     if (BuscaEntidade(ep.id()) != nullptr) {
       // Para manter as entidades, os ids tem que ser regerados para as entidades do tabuleiro,
@@ -5573,7 +5569,6 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     if (!entidades_.insert(std::make_pair(entidade->Id(), std::move(entidade))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }
-    ++i;
   }
   VLOG(1) << "Foram adicionadas " << novo_tabuleiro.entidade_size() << " entidades";
 }
@@ -6281,7 +6276,7 @@ void Tabuleiro::AdicionaLogEvento(unsigned int id, const std::string& texto) {
     return;
   }
   auto* entidade_destino = BuscaEntidade(id);
-  AdicionaLogEvento(google::protobuf::StringPrintf(
+  AdicionaLogEvento(absl::StrFormat(
           "entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto.c_str()));
 }
 
@@ -6451,7 +6446,7 @@ void Tabuleiro::TrataComandoDesfazer() {
   const ntf::Notificacao& n_original = *evento_corrente_;
   ntf::Notificacao n_inversa = InverteNotificacao(n_original);
   if (n_inversa.tipo() != ntf::TN_ERRO) {
-    AdicionaLogEvento(StringPrintf("desfazendo: %s", ResumoNotificacao(*this, n_inversa).c_str()));
+    AdicionaLogEvento(absl::StrFormat("desfazendo: %s", ResumoNotificacao(*this, n_inversa).c_str()));
     TrataNotificacao(n_inversa);
   } else {
     LOG(ERROR) << "Nao consegui desfazer notificacao: " << n_original.ShortDebugString();
@@ -6476,7 +6471,7 @@ void Tabuleiro::TrataComandoRefazer() {
   }
   ignorar_lista_eventos_ = true;
   const ntf::Notificacao& n_original = *evento_corrente_;
-  AdicionaLogEvento(google::protobuf::StringPrintf("refazendo: %s", ResumoNotificacao(*this, n_original).c_str()));
+  AdicionaLogEvento(absl::StrFormat("refazendo: %s", ResumoNotificacao(*this, n_original).c_str()));
   TrataNotificacao(n_original);
   ignorar_lista_eventos_ = false;
   ++evento_corrente_;
@@ -7066,7 +7061,7 @@ void Tabuleiro::DesenhaListaGenerica(
     int nome_cima, int nome_baixo, int nome_esquerda, int nome_direita, int tipo_lista,
     const std::vector<std::string>& lista, const float* cor_lista, const float* cor_lista_fundo,
     std::function<int(int)> f_id) {
-  const int n_objetos = lista.size();
+  const int n_objetos = static_cast<int>(lista.size());
   const int objs_por_pagina = 10;
   const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
   if (num_paginas == 0) return;
@@ -7243,10 +7238,10 @@ void Tabuleiro::DesenhaListaObjetos() {
       continue;
     }
     mapa_indice_ids.push_back(e->Id());
-    std::string rotulo = google::protobuf::StringPrintf(
+    std::string rotulo = absl::StrFormat(
         "%d%s->%s:%s",
         e->Id(),
-        google::protobuf::StringPrintf("%s%s", e->Proto().has_rotulo() ? ":" : "", e->Proto().rotulo().c_str()).c_str(),
+        absl::StrFormat("%s%s", e->Proto().has_rotulo() ? ":" : "", e->Proto().rotulo().c_str()).c_str(),
         TipoEntidade_Name(e->Proto().tipo()).c_str(),
         e->Proto().tipo() == TE_FORMA ? TipoForma_Name(e->Proto().sub_tipo()).c_str() : "-");
     lista.push_back(rotulo);
@@ -7661,7 +7656,7 @@ std::string PreencheNotificacaoFimConjuracao(
     tabelas, feitico_tabelado, ep.info_classes(0).nivel_conjurador(), ep.info_classes(0).id(), ep.dados_ataque(0).nivel_slot(),
     ep.has_iniciativa() ? std::make_optional(DadosIniciativa{ep.iniciativa(), ep.modificador_iniciativa()}) : std::nullopt, entidade,
     grupo, grupo_desfazer);
-  return StringPrintf("conjuração de %s terminada", feitico_tabelado.nome().c_str());
+  return absl::StrFormat("conjuração de %s terminada", feitico_tabelado.nome().c_str());
 }
 
 std::string AtualizaVenenoAposZerarDuracao(const Entidade& entidade, EntidadeProto::Evento* evento_depois, std::vector<int>* ids_unicos, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
@@ -7683,15 +7678,15 @@ std::string AtualizaVenenoAposZerarDuracao(const Entidade& entidade, EntidadePro
     veneno_str = "imune a veneno";
   } else if (total >= veneno.cd()) {
     // salvou.
-    veneno_str = StringPrintf("salvou veneno %s (%d + %d >= %d)", veneno.primario_aplicado() ? "secundário" : "primário", d20, bonus, veneno.cd());
+    veneno_str = absl::StrFormat("salvou veneno %s (%d + %d >= %d)", veneno.primario_aplicado() ? "secundário" : "primário", d20, bonus, veneno.cd());
   } else {
     // nao salvou: criar o efeito do dano primario ou secundario.
     if (!veneno.primario_aplicado()) {
-      veneno_str = StringPrintf("não salvou veneno primario (%d + %d < %d)", d20, bonus, veneno.cd());
+      veneno_str = absl::StrFormat("não salvou veneno primario (%d + %d < %d)", d20, bonus, veneno.cd());
       PreencheNotificacaoEventoParaVenenoPrimario(
           entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
     } else {
-      veneno_str = StringPrintf("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
+      veneno_str = absl::StrFormat("não salvou veneno secundario (%d + %d < %d)", d20, bonus, veneno.cd());
       PreencheNotificacaoEventoParaVenenoSecundario(
           entidade.Id(), DadosIniciativaEvento(*evento_depois), veneno, ids_unicos, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
     }
@@ -7719,10 +7714,10 @@ std::tuple<int, std::string> AtualizaFogoAlquimicoAposZerarDuracao(const Entidad
   }
   if (resultado.causa == ALT_RESISTENCIA) {
     dano += resultado.resistido;
-    if (dano == 0) return {0,  StringPrintf("fogo alquimico: resistido %d", resultado.resistido)};
+    if (dano == 0) return {0,  absl::StrFormat("fogo alquimico: resistido %d", resultado.resistido)};
   }
   PreencheNotificacaoAtualizacaoPontosVida(entidade, dano, TD_LETAL, grupo->add_notificacao(), grupo_desfazer != nullptr ? grupo_desfazer->add_notificacao() : nullptr);
-  return {dano, StringPrintf("fogo alquimico: %d", dano)};
+  return {dano, absl::StrFormat("fogo alquimico: %d", dano)};
 }
 
 std::tuple<int, std::string> AtualizaFlechaAcidaAposPassarRodada(const Entidade& entidade, EntidadeProto::Evento* evento_depois, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
@@ -7738,7 +7733,7 @@ std::tuple<int, std::string> AtualizaFlechaAcidaAposPassarRodada(const Entidade&
   std::string texto;
   if (resultado.causa == ALT_RESISTENCIA) {
     dano += resultado.resistido;
-    texto = StringPrintf("flecha ácida: resistido %d", resultado.resistido);
+    texto = absl::StrFormat("flecha ácida: resistido %d", resultado.resistido);
     if (dano == 0) {
       return {0, texto};
     }
@@ -7762,9 +7757,9 @@ std::string AtualizaParalisiaAposPassarRodada(const Tabelas& tabelas, const Enti
   std::tie(nao_usado, salvou, texto) = AtaqueVsSalvacao(0, da, *dummy, entidade);
   if (salvou) {
     evento_depois->set_rodadas(-1);
-    return StringPrintf("paralisia quebrada: %s", texto.c_str());
+    return absl::StrFormat("paralisia quebrada: %s", texto.c_str());
   } else {
-    return StringPrintf("paralisia permanece: %s", texto.c_str());
+    return absl::StrFormat("paralisia permanece: %s", texto.c_str());
   }
 }
 
@@ -7816,7 +7811,7 @@ void Tabuleiro::AtualizaEventosAoPassarRodada(
         AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s);
         atraso_s += 0.5f;
       }
-      AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, StringPrintf("flecha ácida: %d", dano), atraso_s);
+      AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), dano, absl::StrFormat("flecha ácida: %d", dano), atraso_s);
       atraso_s += 0.5f;
     } else if (evento->id_efeito() == EFEITO_PARALISIA) {
       const std::string& texto = AtualizaParalisiaAposPassarRodada(tabelas_, entidade, evento_depois);
@@ -8309,7 +8304,7 @@ std::string PreencheEventosAutoEnvenenamento(
   bool primario_aplicado = false;
   if (total < veneno.cd()) {
     // nao salvou: criar o efeito do dano.
-    veneno_str = StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
+    veneno_str = absl::StrFormat("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
     if (!PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade.Proto())) {
       primario_aplicado = true;
       ntf::Notificacao n;
@@ -8320,7 +8315,7 @@ std::string PreencheEventosAutoEnvenenamento(
       }
     }
   } else {
-    veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
+    veneno_str = absl::StrFormat("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
     primario_aplicado = true;
   }
   // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
@@ -8330,7 +8325,7 @@ std::string PreencheEventosAutoEnvenenamento(
     auto copia_veneno = veneno;
     copia_veneno.set_primario_aplicado(primario_aplicado);
     google::protobuf::TextFormat::PrintToString(copia_veneno, &veneno_proto_str);
-    std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos));
+    std::string origem = absl::StrFormat("%d", AchaIdUnicoEvento(*ids_unicos));
     ntf::Notificacao n;
     PreencheNotificacaoEventoComComplementoStr(
         entidade.Id(), DadosIniciativaEntidade(entidade), origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
@@ -8375,7 +8370,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
         // auto envenenamento.
         auto veneno_str =
             PreencheEventosAutoEnvenenamento(tabelas_.Veneno(pocao.complementos_str(0)), *entidade, e_depois, &ids_unicos);
-        AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("auto-envenenamento d100 = %d < 5, %s", d100, veneno_str.c_str()), 0.0f);
+        AdicionaAcaoTextoLogado(entidade->Id(), absl::StrFormat("auto-envenenamento d100 = %d < 5, %s", d100, veneno_str.c_str()), 0.0f);
       }
     }
   }
@@ -8464,12 +8459,12 @@ void Tabuleiro::UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tip
     *e_antes->mutable_dados_ataque() = entidade->Proto().dados_ataque();
     *e_depois->mutable_dados_ataque() = entidade->Proto().dados_ataque();
 
-    std::string grupo = StringPrintf("%s|%s", tipo_ataque.c_str(), feitico_tabelado.nome().c_str());
+    std::string grupo = absl::StrFormat("%s|%s", tipo_ataque.c_str(), feitico_tabelado.nome().c_str());
     auto* da = e_depois->add_dados_ataque();
     *da = da_teste;
     int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), pergaminho.nivel_conjurador());
     da->set_grupo(grupo);
-    da->set_rotulo(StringPrintf("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
+    da->set_rotulo(absl::StrFormat("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
     da->set_limite_vezes(limite_vezes);
 
     e_depois->set_ultima_acao(tipo_ataque);
@@ -8718,7 +8713,7 @@ void Tabuleiro::SelecionaModelosEntidades(const std::string& id_item_selecionado
         for (const auto& item_modelo : item_referenciado.modelos()) {
           ids_modelos.emplace_back(item_modelo.id());
         }
-        item_selecionado.ids_com_peso.emplace_back(StringPrintf("ref:%s->%s", item_menu.id().c_str(), item.id().c_str()), ids_modelos, peso, quantidade_str);
+        item_selecionado.ids_com_peso.emplace_back(absl::StrFormat("ref:%s->%s", item_menu.id().c_str(), item.id().c_str()), ids_modelos, peso, quantidade_str);
       } else if (item.modelos().empty()) {
         // O item é um modelo.
         item_selecionado.ids_com_peso.emplace_back(item.id(), peso, quantidade_str);

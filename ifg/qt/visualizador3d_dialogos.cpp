@@ -1,5 +1,6 @@
 #include "ifg/qt/visualizador3d.h"
 
+#include <absl/strings/str_format.h>
 #include <QPainter>
 #include <QBoxLayout>
 #include <QColorDialog>
@@ -55,7 +56,6 @@ namespace qt {
 namespace {
 
 using namespace std;
-using google::protobuf::StringPrintf;
 using google::protobuf::RepeatedPtrField;
 
 // Redimensiona o container.
@@ -264,9 +264,9 @@ void PreencheComboCenarioPai(const ent::TabuleiroProto& tabuleiro, QComboBox* co
   for (const auto& sub_cenario : tabuleiro.sub_cenario()) {
     std::string descricao;
     if (sub_cenario.descricao_cenario().empty()) {
-      descricao = StringPrintf("Sub Cenário: %d", sub_cenario.id_cenario());
+      descricao = absl::StrFormat("Sub Cenário: %d", sub_cenario.id_cenario());
     } else {
-      descricao = StringPrintf("%s (%d)", sub_cenario.descricao_cenario().c_str(), sub_cenario.id_cenario());
+      descricao = absl::StrFormat("%s (%d)", sub_cenario.descricao_cenario().c_str(), sub_cenario.id_cenario());
     }
     combo->addItem(QString::fromUtf8(descricao.c_str()), QVariant(sub_cenario.id_cenario()));
   }
@@ -279,9 +279,9 @@ void PreencheComboCenarios(const ent::TabuleiroProto& tabuleiro, QComboBox* comb
   for (const auto& sub_cenario : tabuleiro.sub_cenario()) {
     std::string descricao;
     if (sub_cenario.descricao_cenario().empty()) {
-      descricao = StringPrintf("Sub Cenário: %d", sub_cenario.id_cenario());
+      descricao = absl::StrFormat("Sub Cenário: %d", sub_cenario.id_cenario());
     } else {
-      descricao = StringPrintf("%s (%d)", sub_cenario.descricao_cenario().c_str(), sub_cenario.id_cenario());
+      descricao = absl::StrFormat("%s (%d)", sub_cenario.descricao_cenario().c_str(), sub_cenario.id_cenario());
     }
     combo->addItem(QString::fromUtf8(descricao.c_str()), QVariant(sub_cenario.id_cenario()));
   }
@@ -466,16 +466,16 @@ void PreencheConfiguraComboArmaduraEscudo(
   }
   for (const auto& armadura_tesouro : proto_retornado->tesouro().armaduras()) {
     combo_armadura->addItem(
-        StringPrintf(" do equipamento: %s", armadura_tesouro.id().c_str()).c_str(),
-        QVariant(StringPrintf("equipamento:%s", armadura_tesouro.id().c_str()).c_str()));
+        absl::StrFormat(" do equipamento: %s", armadura_tesouro.id().c_str()).c_str(),
+        QVariant(absl::StrFormat("equipamento:%s", armadura_tesouro.id().c_str()).c_str()));
   }
   for (const auto& escudo : tabelas.todas().tabela_escudos().escudos()) {
     combo_escudo->addItem((escudo.nome().c_str()), QVariant(escudo.id().c_str()));
   }
   for (const auto& escudo_tesouro : proto_retornado->tesouro().escudos()) {
     combo_escudo->addItem(
-        StringPrintf(" do equipamento: %s", escudo_tesouro.id().c_str()).c_str(),
-        QVariant(StringPrintf("equipamento:%s", escudo_tesouro.id().c_str()).c_str()));
+        absl::StrFormat(" do equipamento: %s", escudo_tesouro.id().c_str()).c_str(),
+        QVariant(absl::StrFormat("equipamento:%s", escudo_tesouro.id().c_str()).c_str()));
   }
   lambda_connect(combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_armadura] () {
     QVariant idvar = combo_armadura->itemData(combo_armadura->currentIndex());
@@ -934,7 +934,7 @@ void ConfiguraListaItensMagicos(
         if (num_em_uso >= MaximoEmUso(tipo)) {
           QMessageBox::information(
               lista, QObject::tr("Informação"),
-              QObject::tr(google::protobuf::StringPrintf("Apenas %d item(s) permitido(s).", MaximoEmUso(tipo)).c_str()));
+              QObject::tr(absl::StrFormat("Apenas %d item(s) permitido(s).", MaximoEmUso(tipo)).c_str()));
           return;
         }
         item->set_em_uso(true);
@@ -1017,7 +1017,7 @@ void DuplicaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, Gerador& gerador, 
   }
   auto* item = itens->Add();
   *item = itens->Get(indice_antes);
-  item->set_id(StringPrintf("%s_", item->id().c_str()));  // para num ficar com mesmo id.
+  item->set_id(absl::StrFormat("%s_", item->id().c_str()));  // para num ficar com mesmo id.
   AtualizaUITesouro(tabelas, gerador, *proto_retornado);
 }
 
@@ -2767,7 +2767,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   // FPS.
   gerador.combo_fps->setCurrentIndex(FpsParaIndiceCombo(opcoes_proto.fps()));
   if (opcoes_proto.escala() > 0) {
-    gerador.label_escala->setText(StringPrintf("%.1f", opcoes_proto.escala()).c_str());
+    gerador.label_escala->setText(absl::StrFormat("%.1f", opcoes_proto.escala()).c_str());
   } else {
     gerador.label_escala->setText("auto");
   }
@@ -2777,7 +2777,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
       proto_retornado->clear_escala();
       gerador.label_escala->setText("auto");
     } else {
-      gerador.label_escala->setText(StringPrintf("%.1f", proto_retornado->escala()).c_str());
+      gerador.label_escala->setText(absl::StrFormat("%.1f", proto_retornado->escala()).c_str());
     }
   });
 

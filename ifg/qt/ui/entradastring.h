@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entradastring.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.0
+** Created by: Qt User Interface Compiler version 5.15.15
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/

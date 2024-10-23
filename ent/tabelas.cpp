@@ -1,3 +1,7 @@
+#include <absl/log/log.h>
+#include <absl/strings/str_format.h>
+#include <absl/strings/str_join.h>
+#include <absl/strings/str_split.h>
 #include <algorithm>
 #include <unordered_map>
 #include "arq/arquivo.h"
@@ -6,16 +10,11 @@
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
-#include "goog/stringprintf.h"
-#include "goog/strutil.h"
 #include "log/log.h"
 
 namespace ent {
 
 namespace {
-using google::protobuf::JoinStrings;
-using google::protobuf::StringPrintf;
-using google::protobuf::SplitStringUsing;
 
 void ConverteDano(ArmaProto* arma) {
   if (PossuiCategoria(CAT_PROJETIL_AREA, *arma) && arma->dano().invariavel().empty()) {
@@ -67,14 +66,14 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
       LOG(WARNING) << "Erro lendo tabela: " << arquivo << ": " << e.what();
       if (central_ != nullptr) {
         central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-            StringPrintf("Erro lendo tabela: %s: %s", arquivo, e.what())));
+            absl::StrFormat("Erro lendo tabela: %s: %s", arquivo, e.what())));
       }
     } catch (const std::exception& e) {
       LOG(ERROR) << "Erro lendo tabela: " << arquivo << ": " << e.what();
       if (central_ != nullptr) {
         central_->AdicionaNotificacao(
             ntf::NovaNotificacaoErro(
-              StringPrintf("Erro lendo tabela: %s: %s", arquivo, e.what())));
+              absl::StrFormat("Erro lendo tabela: %s: %s", arquivo, e.what())));
       }
     }
   }
@@ -86,14 +85,14 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
     if (central_ != nullptr) {
       central_->AdicionaNotificacao(
           ntf::NovaNotificacaoErro(
-            StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", ppe.what())));
+            absl::StrFormat("Erro lendo tabela de acoes: acoes.asciiproto: %s", ppe.what())));
     }
   } catch (const std::exception& e) {
     LOG(ERROR) << "Erro lendo tabela de acoes: acoes.asciiproto";
     if (central_ != nullptr) {
       central_->AdicionaNotificacao(
           ntf::NovaNotificacaoErro(
-            StringPrintf("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
+            absl::StrFormat("Erro lendo tabela de acoes: acoes.asciiproto: %s", e.what())));
     }
   }
   // Modelos de entidades.
@@ -108,14 +107,14 @@ Tabelas::Tabelas(ntf::CentralNotificacoes* central) : central_(central) {
       LOG(WARNING) << "Erro lendo modelo: " << arquivo << ": " << e.what();
       if (central_ != nullptr) {
         central_->AdicionaNotificacao(ntf::NovaNotificacaoErro(
-            StringPrintf("Erro lendo modelo: %s: %s", arquivo, e.what())));
+            absl::StrFormat("Erro lendo modelo: %s: %s", arquivo, e.what())));
       }
     } catch (const std::exception& e) {
       LOG(ERROR) << "Erro lendo modelo: " << arquivo << ": " << e.what();
       if (central_ != nullptr) {
         central_->AdicionaNotificacao(
             ntf::NovaNotificacaoErro(
-              StringPrintf("Erro lendo modelo: %s: %s", arquivo, e.what())));
+              absl::StrFormat("Erro lendo modelo: %s: %s", arquivo, e.what())));
       }
     }
   }
@@ -211,7 +210,7 @@ int NivelConjuradorMinimoParaFeiticoNivel(const std::string& id_classe, int nive
 namespace {
 
 const ArmaProto& FeiticoInvocarNivelAbaixo(const Tabelas& tabelas, const ArmaProto& feitico, int niveis_abaixo) {
-  std::string chave = StringPrintf("%s_%d", feitico.id().c_str(), niveis_abaixo);
+  std::string chave = absl::StrFormat("%s_%d", feitico.id().c_str(), niveis_abaixo);
   static std::unordered_map<std::string, std::string> mapa = {
     {"invocar_aliado_natureza_ii_1", "invocar_aliado_natureza_i"},
     {"invocar_aliado_natureza_iii_1", "invocar_aliado_natureza_ii"},
@@ -259,7 +258,7 @@ void PreencheNiveisInferioresInvocarCriaturasOuAliadosDaNatureza(const Tabelas& 
     auto p = feitico->mutable_acao()->mutable_parametros_lancamento()->add_parametros();
     *p = pabaixo;
     p->set_quantidade("1d3");
-    p->set_texto(StringPrintf("%s (1d3)", p->texto().c_str()));
+    p->set_texto(absl::StrFormat("%s (1d3)", p->texto().c_str()));
   }
   const auto& feitico_2_abaixo = FeiticoInvocarNivelAbaixo(tabelas, *feitico, 2);
   VLOG(1) << "preenchendo " << feitico->id() << " com " << feitico_2_abaixo.id();
@@ -268,7 +267,7 @@ void PreencheNiveisInferioresInvocarCriaturasOuAliadosDaNatureza(const Tabelas& 
     auto p = feitico->mutable_acao()->mutable_parametros_lancamento()->add_parametros();
     *p = p2abaixo;
     p->set_quantidade("1d4+1");
-    p->set_texto(StringPrintf("%s (1d4+1)", p->texto().c_str()));
+    p->set_texto(absl::StrFormat("%s (1d4+1)", p->texto().c_str()));
   }
 }
 
@@ -397,8 +396,7 @@ void Tabelas::RecarregaMapas() {
       }
     }
     if (feitico.link().empty() && !feitico.nome_ingles().empty()) {
-      std::vector<std::string> res;
-      SplitStringUsing(feitico.nome_ingles(), " ,-'/", &res);
+      std::vector<std::string> res = absl::StrSplit(feitico.nome_ingles(), " ,-'/");
       for (unsigned int i = 1; i < res.size(); ++i) {
         if (!res[i].empty() && (res[i][0] >= 'a') && (res[i][0] <= 'z')) {
           // Pega o caso do 's.
@@ -407,9 +405,8 @@ void Tabelas::RecarregaMapas() {
           }
         }
       }
-      std::string joined;
-      JoinStrings(res, "", &joined);
-      feitico.set_link(StringPrintf("https://www.d20srd.org/srd/spells/%s.htm", joined.c_str()));
+      std::string joined = absl::StrJoin(res, "");
+      feitico.set_link(absl::StrFormat("https://www.d20srd.org/srd/spells/%s.htm", joined.c_str()));
     }
     if (feitico.has_acao()) {
       for (auto& ea : *feitico.mutable_acao()->mutable_efeitos_adicionais()) {
@@ -456,9 +453,9 @@ void Tabelas::RecarregaMapas() {
   auto CriaArcoComposto = [this] (int i, int preco, const ArmaProto& arco_base) {
     auto* novo_arco = tabelas_.mutable_tabela_armas()->add_armas();
     *novo_arco = arco_base;
-    novo_arco->set_id(google::protobuf::StringPrintf("%s_%d", arco_base.id().c_str(), i));
-    novo_arco->set_nome(google::protobuf::StringPrintf("%s (%d)", arco_base.nome().c_str(), i));
-    novo_arco->set_preco(google::protobuf::StringPrintf("%d PO", (i * preco) + preco));
+    novo_arco->set_id(absl::StrFormat("%s_%d", arco_base.id().c_str(), i));
+    novo_arco->set_nome(absl::StrFormat("%s (%d)", arco_base.nome().c_str(), i));
+    novo_arco->set_preco(absl::StrFormat("%d PO", (i * preco) + preco));
     novo_arco->set_max_forca(i);
     armas_[novo_arco->id()] = novo_arco;
   };
@@ -540,8 +537,7 @@ void Tabelas::RecarregaMapas() {
   for (auto& talento : *tabelas_.mutable_tabela_talentos()->mutable_talentos()) {
     talentos_[talento.id()] = &talento;
     if (!talento.link().empty()) continue;
-    std::vector<std::string> res;
-    SplitStringUsing(talento.nome_ingles(), " ,-'/", &res);
+    std::vector<std::string> res = absl::StrSplit(talento.nome_ingles(), " ,-'/");
     for (unsigned int i = 1; i < res.size(); ++i) {
       if (!res[i].empty() && (res[i][0] >= 'a') && (res[i][0] <= 'z')) {
         // Pega o caso do 's.
@@ -550,12 +546,11 @@ void Tabelas::RecarregaMapas() {
         }
       }
     }
-    std::string joined;
-    JoinStrings(res, "", &joined);
+    std::string joined = absl::StrJoin(res, "");
     if (talento.monstro()) {
-      talento.set_link(StringPrintf("https://www.d20srd.org/srd/monsterFeats.htm#%s", joined.c_str()));
+      talento.set_link(absl::StrFormat("https://www.d20srd.org/srd/monsterFeats.htm#%s", joined.c_str()));
     } else {
-      talento.set_link(StringPrintf("https://www.d20srd.org/srd/feats.htm#%s", joined.c_str()));
+      talento.set_link(absl::StrFormat("https://www.d20srd.org/srd/feats.htm#%s", joined.c_str()));
     }
   }
 

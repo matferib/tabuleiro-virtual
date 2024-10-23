@@ -25,23 +25,27 @@ if sistema == 'win32':
   env['QT_LIB'] = ['QtOpenGL', 'QtGui', 'QtCore', 'QtMultimedia']
 elif sistema == 'apple':
   if 'QTDIR' not in env:
-    env['QTDIR'] = '/usr/local/Cellar/qt5/5.15.0/'
-  env['FRAMEWORKPATH'] = [env['QTDIR'] + 'lib']
+    env['QTDIR'] = '/opt/homebrew/opt/qt@5/'
+  if 'QT5DIR' not in env:
+    env['QT5DIR'] = '/opt/homebrew/opt/qt@5/'
+  env['QT5FRAMEWORKPATH'] = env['QT5DIR'] + 'Frameworks/'
+  env['FRAMEWORKPATH'] = [env['QT5FRAMEWORKPATH']]
   frameworks = ['QtOpenGL', 'QtGui', 'QtWidgets', 'QtCore', 'QtMultimedia', 'OpenGL']
   env['FRAMEWORKS'] = frameworks
-  env['QT_CPPPATH'] = (map(lambda x: env['QTDIR'] + 'lib/' + x + '.framework/Headers/', frameworks) +
-                       map(lambda x: env['QTDIR'] + 'include/' + x + '/', frameworks) +
-                       [env['QTDIR'] + 'include/'])
+  #env['QT5_CPPPATH'] = [env['QT5FRAMEWORKPATH'] + '/QtWidgets.framework/Headers', ]
+  env['QT5_CPPPATH'] = list(map(lambda x: env['QT5FRAMEWORKPATH'] + x + '.framework/Headers', frameworks))
+  print(env['QT5_CPPPATH'])
+  #env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/QtMultimedi    a', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
   env['QT_LIB'] = []
   env['RPATH'] = []
 else:
   if 'QTDIR' not in env:
     env['QTDIR'] = '../libs/Qt/5.15.0/gcc_64/'
-  env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/QtMultimedia', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
+  env['QT5_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include/QtMultimedia', env['QTDIR'] + '/include/', env['QTDIR'] + '/include/QtOpenGL', env['QTDIR'] + '/include/QtWidgets']
   env['QT_LIBPATH'] = env['QTDIR'] + '/lib'
   env['QT_LIB'] = ['Qt5Gui', 'Qt5OpenGL', 'Qt5Core', 'Qt5Widgets', 'Qt5Multimedia']
   env['RPATH'] = [env['QT_LIBPATH']]
-qt = Tool('qt')
+qt = Tool('qt5')
 qt(env)
 
 # protobuffer.
@@ -59,13 +63,13 @@ if sistema == 'win32':
   env['LIBPATH'] += [ 'win32/lib' ]
   env['LINKFLAGS'] = ['-Wl,--subsystem,windows']
 elif sistema == 'apple':
-  env['CPPPATH'] += ['./', '/usr/local/include'],
-  env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, "_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR": 1 }
+  env['CPPPATH'] = ['./', '/usr/local/include'] + env['QT5_CPPPATH'] + ['/opt/homebrew/include']
+  env['CPPDEFINES'] = {'USAR_GLOG': 1, 'USAR_GFLAGS': 0, "_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR": 1 }
   #env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0}
   env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-stdlib=libc++', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
   #env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-stdlib=libstdc++', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
-  env['LIBPATH'] += [ '/usr/local/lib' ]
-  env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_date_time', 'pthread']
+  env['LIBPATH'] = [ '/usr/local/lib', '/opt/homebrew/lib' ]
+  env['LIBS'] = ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'boost_date_time', 'pthread', 'absl_strings', 'absl_log_entry', 'absl_log_sink', 'absl_log_initialize', 'absl_log_globals', 'absl_log_severity', 'absl_log_internal_log_sink_set', 'absl_log_internal_message', 'absl_log_internal_format', 'absl_log_internal_globals', 'absl_log_internal_fnmatch', 'absl_log_internal_nullguard', 'absl_log_entry', 'absl_log_flags', 'absl_log_globals', 'absl_log_initialize', 'absl_log_internal_check_op', 'absl_log_internal_conditions', 'absl_log_internal_fnmatch', 'absl_log_internal_format', 'absl_log_internal_globals', 'absl_log_internal_log_sink_set', 'absl_log_internal_message', 'absl_log_internal_nullguard', 'absl_log_internal_proto', 'absl_log_severity', 'absl_log_sink', 'absl_vlog_config_internal', 'absl_hash', 'absl_str_format_internal', 'absl_log_initialize', 'absl_flags_parse']
   env['LINKFLAGS'] = ['-headerpad_max_install_names']
 else:
   # linux.
@@ -140,9 +144,9 @@ cAtualizaUI = env.Object('ifg/qt/atualiza_ui.cpp')
 
 cQtInterface = env.Object('ifg/qt/qt_interface.cpp')
 
-cQtPericiasUtil = env.Moc('ifg/qt/pericias_util.h')
-cQtEventoUtil = env.Moc('ifg/qt/evento_util.h')
-cQtTalentosUtil = env.Moc('ifg/qt/talentos_util.h')
+cQtPericiasUtil = env.Moc5('ifg/qt/pericias_util.h')
+cQtEventoUtil = env.Moc5('ifg/qt/evento_util.h')
+cQtTalentosUtil = env.Moc5('ifg/qt/talentos_util.h')
 
 # Implementacao das texturas.
 #cTexturas = env.Object('ifg/qt/texturas.cpp')
