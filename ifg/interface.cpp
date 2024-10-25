@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <functional>
 
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.pb.h"
 #include "ent/tabelas.h"
@@ -16,7 +17,6 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 using std::placeholders::_4;
 using std::placeholders::_5;
-using google::protobuf::StringPrintf;
 
 namespace ifg {
 
@@ -64,13 +64,13 @@ std::string StringArea(const ent::AcaoProto& acao) {
   std::string str_geo;
   switch (acao.geometria()) {
     case ent::ACAO_GEO_CONE:
-      str_geo = StringPrintf("cone %.1f (q)", acao.distancia_quadrados());
+      str_geo = absl::StrFormat("cone %.1f (q)", acao.distancia_quadrados());
       break;
     case ent::ACAO_GEO_CILINDRO:
-      str_geo = StringPrintf("cilindro raio %.1f (q)", acao.raio_quadrados());
+      str_geo = absl::StrFormat("cilindro raio %.1f (q)", acao.raio_quadrados());
       break;
     case ent::ACAO_GEO_ESFERA:
-      str_geo = StringPrintf("esfera raio %.1f (q)", acao.raio_quadrados());
+      str_geo = absl::StrFormat("esfera raio %.1f (q)", acao.raio_quadrados());
       break;
     case ent::ACAO_GEO_CUBO:
       // Isso é mais para modelar objetos geometricos, como flecha acida.
@@ -151,7 +151,7 @@ std::string NomeTesouro(ent::TipoTesouro tipo) {
     case ent::TT_ARMA: return "Arma";
     case ent::TT_ARMADURA: return "Armadura";
     case ent::TT_ESCUDO: return "Escudo";
-    default: return StringPrintf("Inválido: %d", tipo);
+    default: return absl::StrFormat("Inválido: %d", tipo);
   }
 }
 
@@ -231,12 +231,12 @@ void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao)
     if (notificacao.notificacao().size() == 1) {
       for (const auto& [atributo, nome, id] : atributos) {
         mapa_nomes.insert(std::make_pair(
-            StringPrintf("%s: %+d", nome.c_str(), ModificadorAtributo(atributo, notificacao.notificacao(0).entidade())),
+            absl::StrFormat("%s: %+d", nome.c_str(), ModificadorAtributo(atributo, notificacao.notificacao(0).entidade())),
             id));
       }
       if (PodeUsarPericia(tabelas_, pericia.id(), notificacao.notificacao(0).entidade())) {
         const auto& p = Pericia(pericia.id(), notificacao.notificacao(0).entidade());
-        mapa_nomes.insert(std::make_pair(StringPrintf("%s: %+d", pericia.nome().c_str(), BonusTotal(p.bonus())), pericia.id()));
+        mapa_nomes.insert(std::make_pair(absl::StrFormat("%s: %+d", pericia.nome().c_str(), BonusTotal(p.bonus())), pericia.id()));
       }
     } else {
       for (const auto& [atributo, nome, id] : atributos) {
@@ -321,13 +321,13 @@ PreencheNomesEMapaIndices(const std::map<std::string, IndiceQuantidadeNivel>& ma
     const std::string& link = it.second.link;
     int quantidade =  it.second.quantidade;
     int nivel = it.second.nivel;
-    std::string texto = StringPrintf(
+    std::string texto = absl::StrFormat(
         "%s%s, nivel: %d, duração: %s%s",
         nome.c_str(),
-        quantidade > 1 ? StringPrintf(" (x%d)", quantidade).c_str() : "",
+        quantidade > 1 ? absl::StrFormat(" (x%d)", quantidade).c_str() : "",
         nivel,
         it.second.duracao.c_str(),
-        link.empty() ? "" : StringPrintf(", <a href='%s'>link</a>", link.c_str()).c_str());
+        link.empty() ? "" : absl::StrFormat(", <a href='%s'>link</a>", link.c_str()).c_str());
     nomes.push_back(texto);
     int indice = it.second.indice;
     mapa_indices.push_back(indice);
@@ -613,7 +613,7 @@ void InterfaceGrafica::TrataEscolherVersaoParaRemocao() {
 //-----------------
 std::string StringAlcance(const ent::Tabelas& tabelas, const ent::ArmaProto& feitico) {
   if (feitico.alcance_quadrados() > 0) {
-    return StringPrintf("alcance %d q%s", feitico.alcance_quadrados(), feitico.ataque_toque() ? " [toque]" : "");
+    return absl::StrFormat("alcance %d q%s", feitico.alcance_quadrados(), feitico.ataque_toque() ? " [toque]" : "");
   } else if (FeiticoPessoalDispersao(tabelas, feitico)) {
     return "feitiço pessoal dispersão";
   } else if (FeiticoPessoal(tabelas, feitico)) {
@@ -633,15 +633,15 @@ std::string NomeFeitico(const ent::Tabelas& tabelas, const ent::EntidadeProto::I
       std::string str_duracao;
       if (feitico.has_acao()) {
         const auto& acao = feitico.acao();
-        str_area = acao.efeito_area() ? StringPrintf(", %s", StringArea(acao).c_str()) : "";
+        str_area = acao.efeito_area() ? absl::StrFormat(", %s", StringArea(acao).c_str()) : "";
         if (acao.efeitos_adicionais().size() == 1) {
           const auto& ed = acao.efeitos_adicionais(0);
           str_duracao = ed.has_modificador_rodadas()
-              ? StringPrintf(", %s", StringDuracao(ed.modificador_rodadas()).c_str())
+              ? absl::StrFormat(", %s", StringDuracao(ed.modificador_rodadas()).c_str())
               : "";
         }
       }
-      return StringPrintf("%s, %s%s%s",
+      return absl::StrFormat("%s, %s%s%s",
           feitico.nome().c_str(),
           StringAlcance(tabelas, feitico).c_str(),
           str_area.c_str(),
@@ -811,9 +811,9 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       const auto& c = ent::FeiticoConhecido(
           id_classe, pl.nivel_conhecido(), pl.indice_conhecido(), notificacao.entidade());
       const auto& feitico = tabelas_.Feitico(c.id());
-      std::string link = feitico.link().empty() ? "" : StringPrintf("<a href='%s'>link</a>", feitico.link().c_str());
+      std::string link = feitico.link().empty() ? "" : absl::StrFormat("<a href='%s'>link</a>", feitico.link().c_str());
       lista.push_back(
-          StringPrintf("nivel %d[%d]: %s%s, duração: %s, %s",
+          absl::StrFormat("nivel %d[%d]: %s%s, duração: %s, %s",
             nivel_gasto, indice,
             NomeFeitico(tabelas_, c).c_str(), pl.restrito() ? "" : "",
             StringDuracao(tabelas_, feitico).c_str(),
@@ -822,7 +822,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     }
     if (lista.empty()) {
       central_->AdicionaNotificacao(
-          ntf::NovaNotificacaoErro(StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
+          ntf::NovaNotificacaoErro(absl::StrFormat("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
   } else {
@@ -835,7 +835,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     int indice_gasto = IndiceFeiticoDisponivel(id_classe, nivel_gasto, entidade->Proto());
     if (indice_gasto == -1) {
       central_->AdicionaNotificacao(
-          ntf::NovaNotificacaoErro(StringPrintf("Nao ha magia de nivel %d para gastar", nivel_gasto)));
+          ntf::NovaNotificacaoErro(absl::StrFormat("Nao ha magia de nivel %d para gastar", nivel_gasto)));
       return;
     }
     for (int nivel = nivel_gasto; nivel >= 0; --nivel) {
@@ -843,8 +843,8 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
       for (int indice = 0; indice < fn.conhecidos().size(); ++indice) {
         const auto& c = fn.conhecidos(indice);
         const auto& feitico = tabelas_.Feitico(c.id());
-        std::string link = feitico.link().empty() ? "" : StringPrintf("<a href='%s'>link</a>", feitico.link().c_str());
-        lista.push_back(StringPrintf("nivel %d[%d]: %s %s", nivel, indice, NomeFeitico(tabelas_, c).c_str(), link.c_str()));
+        std::string link = feitico.link().empty() ? "" : absl::StrFormat("<a href='%s'>link</a>", feitico.link().c_str());
+        lista.push_back(absl::StrFormat("nivel %d[%d]: %s %s", nivel, indice, NomeFeitico(tabelas_, c).c_str(), link.c_str()));
         // Gasta do nivel certo.
         items.emplace_back(c.id(), nivel, indice, indice_gasto);
       }
@@ -893,7 +893,7 @@ void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::fu
   for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
     const std::string& descricao = tabuleiro_->Proto().versoes(i).descricao();
     if (descricao.empty()) {
-      items.push_back(StringPrintf("versão %d", i + 1));
+      items.push_back(absl::StrFormat("versão %d", i + 1));
     } else {
       items.push_back(descricao);
     }
@@ -912,7 +912,7 @@ void InterfaceGrafica::EscolheVersoesTabuleiro(const std::string& titulo, std::f
   for (int i = 0; i < tabuleiro_->Proto().versoes().size(); ++i) {
     const std::string& descricao = tabuleiro_->Proto().versoes(i).descricao();
     if (descricao.empty()) {
-      items.push_back(StringPrintf("versão %d", i + 1));
+      items.push_back(absl::StrFormat("versão %d", i + 1));
     } else {
       items.push_back(descricao);
     }

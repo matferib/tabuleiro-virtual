@@ -2,11 +2,11 @@
 
 #include <QHBoxLayout>
 #include <unordered_set>
+#include "absl/strings/str_format.h"
 #include "ent/entidade.pb.h"
 #include "ent/constantes.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
-#include "goog/stringprintf.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
 #include "ifg/qt/feiticos_util.h"
@@ -20,8 +20,6 @@ namespace ifg {
 namespace qt {
 
 using google::protobuf::RepeatedPtrField;
-using google::protobuf::StringPrintf;
-using google::protobuf::StringAppendF;
 
 void AtualizaUIEventos(
     const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
@@ -161,19 +159,19 @@ void AtualizaUINiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.lista_niveis->clear();
   for (const auto& ic : proto.info_classes()) {
     std::string string_nivel;
-    StringAppendF(&string_nivel, "classe: %s, nível: %d", ic.id().c_str(), ic.nivel());
+    absl::StrAppendFormat(&string_nivel, "classe: %s, nível: %d", ic.id().c_str(), ic.nivel());
     if (ic.nivel_conjurador() > 0) {
-      StringAppendF(
+      absl::StrAppendFormat(
           &string_nivel, ", conjurador: %d, mod (%s): %d",
           ic.nivel_conjurador(), TipoAtributo_Name(ic.atributo_conjuracao()).substr(3, 3).c_str(),
           ic.modificador_atributo_conjuracao());
     }
-    StringAppendF(&string_nivel, ", BBA: %d, Salv Fortes: %s", ic.bba(), StringSalvacoesFortes(ic).c_str());
+    absl::StrAppendFormat(&string_nivel, ", BBA: %d, Salv Fortes: %s", ic.bba(), StringSalvacoesFortes(ic).c_str());
     const auto& classe_tabelada = tabelas.Classe(ic.id());
     if (classe_tabelada.possui_dominio()) {
       const auto& fc = ent::FeiticosClasse(ic.id(), proto);
       if (fc.dominios_size() == 2) {
-        StringAppendF(&string_nivel, ", dominios: %s, %s", tabelas.Dominio(fc.dominios(0)).nome().c_str(), tabelas.Dominio(fc.dominios(1)).nome().c_str());
+        absl::StrAppendFormat(&string_nivel, ", dominios: %s, %s", tabelas.Dominio(fc.dominios(0)).nome().c_str(), tabelas.Dominio(fc.dominios(1)).nome().c_str());
       } else {
         LOG(ERROR) << "dominios de tamanho errado";
       }
@@ -181,14 +179,14 @@ void AtualizaUINiveis(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
     if (classe_tabelada.id() == "mago") {
       const auto& fc = ent::FeiticosClasse(ic.id(), proto);
       if (!fc.especializacao().empty()) {
-        StringAppendF(
+        absl::StrAppendFormat(
             &string_nivel, ", especialização: %s, %s",
             fc.especializacao().c_str(),
             fc.escolas_proibidas().size() != 2
               ? "faltando escolas proibidas"
-              : StringPrintf("escolas proibidas: %s, %s", fc.escolas_proibidas(0).c_str(), fc.escolas_proibidas(1).c_str()).c_str());
+              : absl::StrFormat("escolas proibidas: %s, %s", fc.escolas_proibidas(0).c_str(), fc.escolas_proibidas(1).c_str()).c_str());
       } else {
-        StringAppendF(&string_nivel, ", sem especialização");
+        absl::StrAppendFormat(&string_nivel, ", sem especialização");
       }
     }
     gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
@@ -374,7 +372,7 @@ void PreencheComboArma(
       if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma_tabelada)) ||
           (projetil_area && arma_projetil_area) ||
           (distancia && !arma_projetil_area && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma_tabelada))) {
-        nome_id_map[StringPrintf(" do equipamento: %s", arma_tesouro.id().c_str())] = StringPrintf("equipamento:%s", arma_tesouro.id().c_str());
+        nome_id_map[absl::StrFormat(" do equipamento: %s", arma_tesouro.id().c_str())] = absl::StrFormat("equipamento:%s", arma_tesouro.id().c_str());
       }
     }
     for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
@@ -441,7 +439,7 @@ std::string DadoArma(const ent::DadosAtaque& da) {
   if (da.id_arma_tesouro().empty()) {
     return da.id_arma();
   } else {
-    return StringPrintf("equipamento:%s", da.id_arma_tesouro().c_str());
+    return absl::StrFormat("equipamento:%s", da.id_arma_tesouro().c_str());
   }
 }
 
@@ -548,7 +546,7 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   for (int i = 0; i < gerador.combo_armadura->count(); ++i) {
     QVariant dados_armadura = gerador.combo_armadura->itemData(i);
     if ((dd.id_armadura_tesouro().empty() && dados_armadura.toString().toStdString() == dd.id_armadura()) ||
-        dados_armadura.toString().toStdString() == StringPrintf("equipamento:%s", dd.id_armadura_tesouro().c_str())) {
+        dados_armadura.toString().toStdString() == absl::StrFormat("equipamento:%s", dd.id_armadura_tesouro().c_str())) {
       gerador.combo_armadura->blockSignals(true);
       gerador.combo_armadura->setCurrentIndex(i);
       gerador.combo_armadura->blockSignals(false);
@@ -560,7 +558,7 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   for (int i = 0; dd.has_id_escudo() && i < gerador.combo_escudo->count(); ++i) {
     QVariant dados_escudo = gerador.combo_escudo->itemData(i);
     if ((dd.id_escudo_tesouro().empty() && dados_escudo.toString().toStdString() == dd.id_escudo()) ||
-        dados_escudo.toString().toStdString() == StringPrintf("equipamento:%s", dd.id_escudo_tesouro().c_str())) {
+        dados_escudo.toString().toStdString() == absl::StrFormat("equipamento:%s", dd.id_escudo_tesouro().c_str())) {
       gerador.combo_escudo->blockSignals(true);
       gerador.combo_escudo->setCurrentIndex(i);
       gerador.combo_escudo->blockSignals(false);
@@ -618,8 +616,8 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
   for (const auto& fa : proto.formas_alternativas()) {
     gerador.lista_formas_alternativas->addItem(QString::fromUtf8(
           i == proto.forma_alternativa_corrente()
-          ? google::protobuf::StringPrintf("%s (corrente)", fa.rotulo().c_str()).c_str()
-          : google::protobuf::StringPrintf("%s (secundária)", fa.rotulo().c_str()).c_str()));
+          ? absl::StrFormat("%s (corrente)", fa.rotulo().c_str()).c_str()
+          : absl::StrFormat("%s (secundária)", fa.rotulo().c_str()).c_str()));
     ++i;
   }
   gerador.lista_formas_alternativas->setCurrentRow(indice_antes);

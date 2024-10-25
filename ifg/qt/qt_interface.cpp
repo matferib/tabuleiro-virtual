@@ -11,7 +11,6 @@
 #include <QString>
 
 #include "arq/arquivo.h"
-#include "goog/stringprintf.h"
 #include "ifg/modelos.pb.h"
 #include "ifg/qt/qt_interface.h"
 #include "ifg/qt/ui/entradastring.h"
@@ -23,7 +22,6 @@ namespace ifg {
 namespace qt {
 
 namespace {
-using google::protobuf::StringPrintf;
 }
 
 void InterfaceGraficaQt::MostraMensagem(

@@ -1,6 +1,19 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
+  name = "gltab_headers",
+  hdrs = [
+    "gl.h",
+    "gl_interno.h",
+    "glues.h",
+    "gl_vbo.h",
+  ],
+  defines = ["GL_GLEXT_PROTOTYPES=1"],
+  deps = [
+  ]
+)
+
+cc_library(
   name = "gltab",
   hdrs = [
     "gl.h",
@@ -17,8 +30,10 @@ cc_library(
   ],
   defines = ["GL_GLEXT_PROTOTYPES=1"],
   deps = [
-    "//arq",
-    "//log",
-    "//matrix",
+      "@abseil-cpp//absl/strings",
+      "@abseil-cpp//absl/strings:str_format",
+      "//arq",
+      "//log",
+      "//matrix",
   ]
 )

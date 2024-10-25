@@ -4,8 +4,8 @@
 #include <QComboBox>
 #include <QItemDelegate>
 #include <QToolTip>
+#include "absl/strings/str_format.h"
 #include "ent/tabelas.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "ifg/qt/util.h"
 
@@ -189,10 +189,10 @@ inline std::string NomeParaLista(
     const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
   const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
   const std::string cargas = item_pc.has_cargas()
-      ? google::protobuf::StringPrintf(", com %d cargas", item_pc.cargas()) : "";
+      ? absl::StrFormat(", com %d cargas", item_pc.cargas()) : "";
   const std::string nivel = item_tabela.has_nivel_conjurador()
-      ? google::protobuf::StringPrintf(", nv conj: %d", item_tabela.nivel_conjurador()) : "";
-  std::string nome = google::protobuf::StringPrintf(
+      ? absl::StrFormat(", nv conj: %d", item_tabela.nivel_conjurador()) : "";
+  std::string nome = absl::StrFormat(
       "%s%s%s [%s]",
       item_tabela.nome().c_str(),
       nivel.c_str(),
@@ -201,7 +201,7 @@ inline std::string NomeParaLista(
   if (item_tabela.nome().empty()) { nome = "---"; }
   return tipo == ent::TipoItem::TIPO_PERGAMINHO_ARCANO || tipo == ent::TipoItem::TIPO_PERGAMINHO_DIVINO  || tipo == ent::TipoItem::TIPO_POCAO || tipo == ent::TipoItem::TIPO_ITEM_MUNDANO || tipo == ent::TipoItem::TIPO_VARINHA
       ? nome
-      : google::protobuf::StringPrintf(
+      : absl::StrFormat(
           "%s%s",
           nome.c_str(),
           item_pc.em_uso() ? " (em uso)" : " (não usado)");

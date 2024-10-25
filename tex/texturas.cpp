@@ -15,7 +15,6 @@
 #include "log/log.h"
 
 #include "arq/arquivo.h"
-//#include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "gltab/gl.h"
 #include "ntf/notificacao.pb.h"

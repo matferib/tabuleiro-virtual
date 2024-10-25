@@ -6,7 +6,7 @@ Não tem antitoxina em itens mundanos.
 Watchdog sempre ativando no final do windows?
 Rotação da base não esta funcionando: criar uma entidade com modelo, uma com textura, outra com modelo. A rotacao da entidade com textura falhará.
 Crash no windows ao abrir menu.
-Linux travadinha ao abrir menu.
+Linux travadinha ao abrir menu: so ocorre em modo debug. Suspeita: devido ao tempo parado na UI, a atualização de bolhas e animações pode estar pesada.
 
 (aventura) Esgotos: qual doença transmite?
 Modificador de invisibilidade por tamanho (regra especial).

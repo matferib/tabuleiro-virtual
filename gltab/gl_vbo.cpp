@@ -1,6 +1,8 @@
 #include <cstdio>
 #include <cstring>
 #include <limits>
+
+#include "absl/strings/str_format.h"
 #include "gltab/gl_interno.h"
 #include "gltab/gl_vbo.h"
 #include "goog/stringprintf.h"
@@ -11,7 +13,6 @@ extern bool g_hack;
 namespace gl {
 
 namespace {
-using google::protobuf::StringPrintf;
 }  // namespace
 
 bool ImprimeSeErro(const char* mais = nullptr);
@@ -241,7 +242,7 @@ std::string VbosNaoGravados::ParaString(bool completo) const {
   std::string ret;
   int i = 0;
   for (const auto& vbo : vbos_) {
-    ret += StringPrintf("%d) %s\n", i++, vbo.ParaString(completo).c_str());
+    ret += absl::StrFormat("%d) %s\n", i++, vbo.ParaString(completo).c_str());
   }
   return ret;
 }
@@ -278,7 +279,7 @@ void VbosGravados::Nomeia(const std::string& nome) {
   nome_ = nome;
   int i = 0;
   for (auto& vbo : vbos_) {
-    vbo.Nomeia(StringPrintf("%s %i", nome.c_str(), i));
+    vbo.Nomeia(absl::StrFormat("%s %i", nome.c_str(), i));
     ++i;
   }
 }
@@ -703,7 +704,7 @@ std::string VboNaoGravado::ParaString(bool completo) const {
   std::string coords;
   if (completo) {
     for (unsigned int i = 0; i < coordenadas_.size(); ++i) {
-      coords += StringPrintf("%f", coordenadas_[i]);
+      coords += absl::StrFormat("%f", coordenadas_[i]);
       if ((i > 0) && i % NumDimensoes() == 0) {
         coords += ";";
       }
@@ -797,7 +798,7 @@ void HabilitaAtributosVertice(
   }
 
   V_ERRO("HabilitaAtributosVertice: meio");
-  V_ERRO(StringPrintf("DesenhaVBO: mei ponteiro vertices num dimensoes: %d", num_dimensoes));
+  V_ERRO(absl::StrFormat("DesenhaVBO: mei ponteiro vertices num dimensoes: %d", num_dimensoes));
 
   if (atualiza_matrizes) {
     gl::AtualizaMatrizes();

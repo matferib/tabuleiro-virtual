@@ -22,6 +22,7 @@
 #include <QTimer>
 #include <QTranslator>
 
+#include "absl/strings/str_format.h"
 #include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"
@@ -89,11 +90,10 @@ void Principal::LogAlternado() {
 }
 
 namespace {
-using google::protobuf::StringAppendF;
 std::string MontaStringLog(const std::list<std::string>& log) {
   std::string str;
   for (const auto& linha : log) {
-    StringAppendF(&str, "%s\n-----------------------------------------------\n", linha.c_str());
+    absl::StrAppendFormat(&str, "%s\n-----------------------------------------------\n", linha.c_str());
   }
   return str;
 }

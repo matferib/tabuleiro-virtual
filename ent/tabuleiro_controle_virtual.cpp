@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
@@ -25,7 +26,6 @@
 #include "ent/controle_virtual.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "net/util.h"  // hack to_string
 #include "ntf/notificacao.pb.h"
@@ -34,8 +34,6 @@
 namespace ent {
 
 namespace {
-
-using google::protobuf::StringPrintf;
 
 const char* ROTULO_PADRAO = "-";
 const char* TEXTURA_VAZIA = "";
@@ -1292,7 +1290,7 @@ void Tabuleiro::DesenhaIniciativas() {
   const unsigned int indice_corrigido = static_cast<unsigned int>(indice_iniciativa_) < iniciativas_.size() ? indice_iniciativa_ : iniciativas_.size() - 1;
   MudaCor(COR_AMARELA);
   std::string titulo = iniciativa_valida_
-    ? StringPrintf("Iniciativa: %d/%d", iniciativas_[indice_corrigido].iniciativa, iniciativas_[indice_corrigido].modificador)
+    ? absl::StrFormat("Iniciativa: %d/%d", iniciativas_[indice_corrigido].iniciativa, iniciativas_[indice_corrigido].modificador)
     : "Iniciativa INVÁLIDA (passar para próxima)";
   gl::DesenhaStringAlinhadoEsquerda(StringSemUtf8(titulo));
   MudaCor(COR_BRANCA);

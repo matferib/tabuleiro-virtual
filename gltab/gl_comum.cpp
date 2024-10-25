@@ -15,6 +15,7 @@
   #endif
 #endif
 
+#include "absl/strings/str_format.h"
 //#define VLOG_NIVEL 2
 #include "log/log.h"
 
@@ -29,7 +30,6 @@
 namespace gl {
 
 namespace {
-using google::protobuf::StringPrintf;
 }  // namespace
 
 bool ImprimeSeErro(const char* mais) {
@@ -78,7 +78,7 @@ void UniformeSeValido(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloa
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   auto* c = BuscaContexto();
   if (c->proximo_id > IdMaximoEntidade()) {
-    throw std::logic_error(StringPrintf("Limite de ids alcancado: %d", (int)c->proximo_id));
+    throw std::logic_error(absl::StrFormat("Limite de ids alcancado: %d", (int)c->proximo_id));
   }
   unsigned int id_mapeado = c->proximo_id | (c->bit_pilha << DeslocamentoPilha() );
   c->ids.insert(std::make_pair(id_mapeado, id));
@@ -383,7 +383,7 @@ bool IniciaVariaveis(VarShader* shader) {
 
   for (auto& [dv, indice_forcado] : datribs) {
     LocalAtributo(shader->programa, indice_forcado, dv.nome);
-    V_ERRO_RET(StringPrintf("shader: %s atribuindo local de atributo %s", shader->nome.c_str(), dv.nome).c_str());
+    V_ERRO_RET(absl::StrFormat("shader: %s atribuindo local de atributo %s", shader->nome.c_str(), dv.nome).c_str());
     LOG(INFO) << "Tentando atribuir" << dv.nome << " na posicao " << *dv.var;
   }
 

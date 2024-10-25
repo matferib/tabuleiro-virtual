@@ -2,8 +2,6 @@
 // teclado e mouse do tabuleiro.
 
 #include <algorithm>
-#include <boost/algorithm/string/join.hpp>
-#include <boost/filesystem.hpp>
 #include <tuple>
 #include <cassert>
 #include <climits>
@@ -18,6 +16,7 @@
 #include <google/protobuf/text_format.h>
 
 //#define VLOG_NIVEL 1
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
@@ -41,8 +40,6 @@
 namespace ent {
 
 namespace {
-
-using google::protobuf::StringPrintf;
 
 std::string StringTipoCarregamento(TipoCarregamento tc) {
   switch (tc) {
@@ -1158,7 +1155,7 @@ float Tabuleiro::TrataAcaoExpulsarFascinarMortosVivos(
   }
   VLOG(2) << "Acao de expulsao: " << acao_proto->ShortDebugString();
   AdicionaLogEvento(entidade->Id(),
-      StringPrintf("Teste de expulsao: d20 (%d) + mod carisma (%d) + bonus religiao (%d) = %d; "
+      absl::StrFormat("Teste de expulsao: d20 (%d) + mod carisma (%d) + bonus religiao (%d) = %d; "
                    "Maior DV: nivel expulsao (%d) + modificador expulsao (%d) = %d; "
                    "maximo DV afetados: %d; destroi DV <= %d",
                    d20, modificador_carisma, bonus_graduacao, total_teste,
@@ -1396,7 +1393,7 @@ float Tabuleiro::TrataAcaoEfeitoArea(
         << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
         << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
     if (distancia_m > alcance_m) {
-      AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("Fora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
+      AdicionaAcaoTextoLogado(entidade_origem->Id(), absl::StrFormat("Fora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
       return atraso_s;
     }
   }
@@ -1618,7 +1615,7 @@ float Tabuleiro::TrataAcaoCriacao(
         << "distancia: " << distancia_m << ", em quadrados: " << (distancia_m * METROS_PARA_QUADRADOS)
         << ", alcance maximo_m: " << alcance_m << ", em quadrados: " << (alcance_m * METROS_PARA_QUADRADOS);
     if (distancia_m > alcance_m) {
-      AdicionaAcaoTextoLogado(entidade->Id(), StringPrintf("Fora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
+      AdicionaAcaoTextoLogado(entidade->Id(), absl::StrFormat("Fora de alcance: %0.1f m, maximo: %0.1f m", distancia_m, alcance_m));
       return atraso_s;
     }
   }
@@ -1755,14 +1752,14 @@ std::string TrataVeneno(
   bool primario_aplicado = false;
   if (total < veneno.cd()) {
     // nao salvou: criar o efeito do dano.
-    veneno_str = StringPrintf("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
+    veneno_str = absl::StrFormat("não salvou veneno (%d + %d < %d)", d20, bonus, veneno.cd());
     if (!PossuiEvento(EFEITO_RETARDAR_ENVENENAMENTO, entidade_destino->Proto())) {
       primario_aplicado = true;
       PreencheNotificacaoEventoParaVenenoPrimario(
           entidade_destino->Id(), dados_iniciativa, veneno, ids_unicos_entidade_destino, n_veneno.get(), nullptr);
     }
   } else {
-    veneno_str = StringPrintf("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
+    veneno_str = absl::StrFormat("salvou veneno (%d + %d >= %d)", d20, bonus, veneno.cd());
     primario_aplicado = true;
   }
   // Aplica efeito de veneno: independente de salvacao. Apenas para marcar a entidade como envenenada.
@@ -1772,7 +1769,7 @@ std::string TrataVeneno(
     auto copia_veneno = veneno;
     copia_veneno.set_primario_aplicado(primario_aplicado);
     google::protobuf::TextFormat::PrintToString(copia_veneno, &veneno_proto_str);
-    std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos_entidade_destino));
+    std::string origem = absl::StrFormat("%d", AchaIdUnicoEvento(*ids_unicos_entidade_destino));
     PreencheNotificacaoEventoComComplementoStr(
         entidade_destino->Id(), dados_iniciativa, origem, EFEITO_VENENO, veneno_proto_str, /*rodadas=*/primario_aplicado ? 10 : 1,
         ids_unicos_entidade_destino, n_veneno.get(), grupo_desfazer->add_notificacao());
@@ -1795,16 +1792,16 @@ std::string TrataDoenca(
   int bonus = entidade_destino->Salvacao(entidade_origem, TS_FORTITUDE);
   int total = d20 + bonus;
   if (total < doenca.cd()) {
-    return StringPrintf("salvou doenca (%d + %d >= %d)", d20, bonus, doenca.cd());
+    return absl::StrFormat("salvou doenca (%d + %d >= %d)", d20, bonus, doenca.cd());
   }
-  std::string doenca_str = StringPrintf("não salvou doenca (%d + %d < %d)", d20, bonus, doenca.cd());
+  std::string doenca_str = absl::StrFormat("não salvou doenca (%d + %d < %d)", d20, bonus, doenca.cd());
   // Aplica efeito de doenca: independente de salvacao. Apenas para marcar a entidade como doente.
   // O doenca vai serializado para quando acabar periodo de incubacao, aplicar o efeito.
   auto copia_doenca = doenca;
   copia_doenca.set_passou_incubacao(false);
   std::string doenca_proto_str;
   google::protobuf::TextFormat::PrintToString(copia_doenca, &doenca_proto_str);
-  std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos_entidade_destino));
+  std::string origem = absl::StrFormat("%d", AchaIdUnicoEvento(*ids_unicos_entidade_destino));
   int rodadas = -1;
   try {
     rodadas = RolaValor(doenca.incubacao_dias()) * DIA_EM_RODADAS;
@@ -1863,7 +1860,7 @@ float Tabuleiro::TrataAcaoIndividual(
       PreencheNotificacaoRecarregamento(*entidade_origem, da, n_carregamento.get(), grupo_desfazer->add_notificacao());
       AdicionaAcaoTextoLogado(
           entidade_origem->Id(),
-          StringPrintf("recarregando (%s)", StringTipoCarregamento(arma.carregamento().tipo_carregamento()).c_str()));
+          absl::StrFormat("recarregando (%s)", StringTipoCarregamento(arma.carregamento().tipo_carregamento()).c_str()));
       central_->AdicionaNotificacao(n_carregamento.release());
       return atraso_s;
     }
@@ -1897,13 +1894,13 @@ float Tabuleiro::TrataAcaoIndividual(
     if (resultado.resultado == RA_FALHA_CRITICA && da.veneno().has_id_unico_efeito()) {
       int valor = entidade_origem->Salvacao(EntidadeFalsa(), TS_REFLEXO);
       if (valor < 15) {
-        AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("auto-envenenamento não salvou: %d >= 15", valor), atraso_s);
+        AdicionaAcaoTextoLogado(entidade_origem->Id(), absl::StrFormat("auto-envenenamento não salvou: %d >= 15", valor), atraso_s);
         std::string veneno_str = TrataVeneno(da, DadosIniciativaEntidade(*entidade_origem), entidade_origem, &ids_unicos_entidade_origem, grupo_desfazer, central_);
         ConcatenaString(veneno_str, por_entidade->mutable_texto());
         AdicionaLogEvento(entidade_destino->Id(), veneno_str);
         atraso_s += 2.0f;
       } else {
-        AdicionaAcaoTextoLogado(entidade_origem->Id(), StringPrintf("auto-envenenamento salvou: %d >= 15", valor), atraso_s);
+        AdicionaAcaoTextoLogado(entidade_origem->Id(), absl::StrFormat("auto-envenenamento salvou: %d >= 15", valor), atraso_s);
         atraso_s += 0.5f;
       }
     }
@@ -1973,8 +1970,8 @@ float Tabuleiro::TrataAcaoIndividual(
         }
         if (max_predileto > 0) {
           max_predileto *= resultado.vezes;
-          ConcatenaString(StringPrintf("inimigo predileto: %+d", max_predileto), por_entidade->mutable_texto());
-          AdicionaLogEvento(entidade_origem->Id(), StringPrintf("acertou inimigo predileto: %+d de dano", max_predileto));
+          ConcatenaString(absl::StrFormat("inimigo predileto: %+d", max_predileto), por_entidade->mutable_texto());
+          AdicionaLogEvento(entidade_origem->Id(), absl::StrFormat("acertou inimigo predileto: %+d de dano", max_predileto));
         }
         delta_pv -= max_predileto;
       }
@@ -1984,7 +1981,7 @@ float Tabuleiro::TrataAcaoIndividual(
             && distancia_m <= (6 * QUADRADOS_PARA_METROS)) {
           int delta_furtivo = LeValorAtaqueFurtivo(entidade_origem);
           if (delta_furtivo < 0) {
-            ConcatenaString(StringPrintf("furtivo: %+d", -delta_furtivo), por_entidade->mutable_texto());
+            ConcatenaString(absl::StrFormat("furtivo: %+d", -delta_furtivo), por_entidade->mutable_texto());
             delta_pv += delta_furtivo;
           }
         }
@@ -2040,8 +2037,8 @@ float Tabuleiro::TrataAcaoIndividual(
       }
       // Corrige o valor.
       por_entidade->set_delta(delta_pv);
-      ConcatenaString(StringPrintf("salvação desacreditar: %s", resultado_salvacao.c_str()), por_entidade->mutable_texto());
-      AdicionaLogEvento(entidade_destino->Id(), StringPrintf("salvação desacreditar: %s", resultado_salvacao.c_str()));
+      ConcatenaString(absl::StrFormat("salvação desacreditar: %s", resultado_salvacao.c_str()), por_entidade->mutable_texto());
+      AdicionaLogEvento(entidade_destino->Id(), absl::StrFormat("salvação desacreditar: %s", resultado_salvacao.c_str()));
       if (salvou) {
         resultado.resultado = RA_FALHA_NORMAL;
       }
@@ -2176,7 +2173,7 @@ float Tabuleiro::TrataAcaoIndividual(
           if (agarrar_aprimorado && da.constricao()) {
             int dano_constricao = RolaValor(da.dano_constricao().empty() ? da.dano() : da.dano_constricao());
             std::string texto_constricao =
-                StringPrintf("%s, constrição: %d", resultado_agarrar.texto.c_str(), dano_constricao);
+                absl::StrFormat("%s, constrição: %d", resultado_agarrar.texto.c_str(), dano_constricao);
             AdicionaLogEvento(entidade_destino->Id(), texto_constricao);
             delta_pv -= dano_constricao;
             ConcatenaString(texto_constricao, por_entidade->mutable_texto());
@@ -2253,7 +2250,7 @@ float Tabuleiro::TrataAcaoIndividual(
     delta_pv = CompartilhaDanoSeAplicavel(
         delta_pv, entidade_destino->Proto(), *this, nao_letal ? TD_NAO_LETAL : TD_LETAL,
         por_entidade, acao_proto, grupo_desfazer);
-    AdicionaLogEvento(StringPrintf(
+    AdicionaLogEvento(absl::StrFormat(
           "entidade %s %s %d em entidade %s. Texto: '%s'",
           RotuloEntidade(entidade_origem).c_str(),
           delta_pv <= 0 ? "causou dano" : "curou",
@@ -2267,7 +2264,7 @@ float Tabuleiro::TrataAcaoIndividual(
       delta_pv = delta_pos_renovacao;
       if (!texto_renovacao.empty()) {
         ConcatenaString(texto_renovacao, por_entidade->mutable_texto());
-        AdicionaLogEvento(StringPrintf("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
+        AdicionaLogEvento(absl::StrFormat("entidade %s: %s", RotuloEntidade(entidade_destino).c_str(), texto_renovacao.c_str()));
         central_->AdicionaNotificacao(n_uso_poder.release());
       }
     }
@@ -2336,7 +2333,7 @@ void Tabuleiro::AtualizaEsquivaAoAtacar(const Entidade& entidade_origem, unsigne
   if (entidade_destino != nullptr && entidade_destino->Tipo() == TE_ENTIDADE) {
     ntf::Notificacao n;
     PreencheNotificacaoEsquiva(id_entidade_destino, entidade_origem, &n, grupo_desfazer == nullptr ? nullptr : grupo_desfazer->add_notificacao());
-    AdicionaLogEvento(entidade_origem.Id(), StringPrintf("esquivando de %s", RotuloEntidade(entidade_destino->Proto()).c_str()));
+    AdicionaLogEvento(entidade_origem.Id(), absl::StrFormat("esquivando de %s", RotuloEntidade(entidade_destino->Proto()).c_str()));
     TrataNotificacao(n);
   }
 }
@@ -2349,7 +2346,7 @@ float Tabuleiro::TrataPreAcaoComum(
   }
   auto [pode_agir, razao] = entidade_origem.PodeAgir();
   if (!pode_agir) {
-    AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Entidade nao pode agir: %s", razao.c_str()), atraso_s);
+    AdicionaAcaoTextoLogado(entidade_origem.Id(), absl::StrFormat("Entidade nao pode agir: %s", razao.c_str()), atraso_s);
     acao_proto->set_bem_sucedida(false);
     return atraso_s;
   }
@@ -2362,7 +2359,7 @@ float Tabuleiro::TrataPreAcaoComum(
   const auto& da = entidade_origem.DadoCorrenteNaoNull();
   // Acao com cool down.
   if (da.disponivel_em() > 0) {
-      AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Ação disponível em %d rodadas", da.disponivel_em()), atraso_s);
+      AdicionaAcaoTextoLogado(entidade_origem.Id(), absl::StrFormat("Ação disponível em %d rodadas", da.disponivel_em()), atraso_s);
       acao_proto->set_bem_sucedida(false);
       return atraso_s;
   }
@@ -2382,7 +2379,7 @@ float Tabuleiro::TrataPreAcaoComum(
     return atraso_s;
   }
   if (da.requer_modelo_ativo() && !PossuiModeloAtivo(da.requer_modelo_ativo(), entidade_origem.Proto())) {
-    AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Ação requer %s", tabelas_.EfeitoModelo(da.requer_modelo_ativo()).nome().c_str()), atraso_s);
+    AdicionaAcaoTextoLogado(entidade_origem.Id(), absl::StrFormat("Ação requer %s", tabelas_.EfeitoModelo(da.requer_modelo_ativo()).nome().c_str()), atraso_s);
     acao_proto->set_bem_sucedida(false);
     return atraso_s;
   }
@@ -2408,7 +2405,7 @@ float Tabuleiro::TrataPreAcaoComum(
         razao = "contra a ordem";
       }
       if (barrado) {
-        AdicionaAcaoTextoLogado(entidade_origem.Id(), StringPrintf("Ação barrada por %s", razao.c_str()), atraso_s);
+        AdicionaAcaoTextoLogado(entidade_origem.Id(), absl::StrFormat("Ação barrada por %s", razao.c_str()), atraso_s);
         acao_proto->set_bem_sucedida(false);
         return atraso_s;
       }
@@ -3799,7 +3796,7 @@ void Tabuleiro::DesligaEsquivaNotificando() {
   }
   ntf::Notificacao n;
   PreencheNotificacaoEsquiva(Entidade::IdInvalido, *e, &n, nullptr);
-  AdicionaLogEvento(e->Id(), StringPrintf("desligando esquiva"));
+  AdicionaLogEvento(e->Id(), absl::StrFormat("desligando esquiva"));
   TrataNotificacao(n);
   AdicionaNotificacaoListaEventos(n);
 }
@@ -3981,11 +3978,11 @@ void Tabuleiro::TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros
   const int d20 = RolaDado(20);
   const int outros_bonus_int = BonusTotal(outros_bonus);
   const int total = d20 + da->bonus_ataque_final() + outros_bonus_int;
-  const std::string texto = StringPrintf(
+  const std::string texto = absl::StrFormat(
       "Agarrar: %d + %d%s = %d",
       d20,
       da->bonus_ataque_final(),
-      (outros_bonus_int != 0 ? StringPrintf(" %+d", outros_bonus_int) : std::string("")).c_str(),
+      (outros_bonus_int != 0 ? absl::StrFormat(" %+d", outros_bonus_int) : std::string("")).c_str(),
       total);
   AdicionaAcaoTextoLogado(entidade.Id(), texto, atraso_s, /*local_apenas=*/false);
 }
@@ -4004,12 +4001,12 @@ void Tabuleiro::TrataRolarContraIntimidacaoNotificando(
   const int bonus_contra_medo = BonusTotal(entidade_destino.Proto().dados_defesa().bonus_salvacao_medo());
   const int modificadores_contra = entidade_destino.NivelPersonagem() + modificador_sabedoria + bonus_contra_medo;
   const int total_contra = d20 + modificadores_contra;
-  const std::string texto = StringPrintf(
+  const std::string texto = absl::StrFormat(
       "Contra-intimidação: %d %+d %+d%s = %d",
       d20,
       entidade_destino.NivelPersonagem(),
       modificador_sabedoria,
-      (bonus_contra_medo != 0 ? StringPrintf(" %+d", bonus_contra_medo).c_str() : ""),
+      (bonus_contra_medo != 0 ? absl::StrFormat(" %+d", bonus_contra_medo).c_str() : ""),
       total_contra);
   AdicionaAcaoTextoLogado(entidade_destino.Id(), texto, atraso_s, /*local_apenas=*/false);
 

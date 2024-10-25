@@ -1,6 +1,7 @@
 #include "ent/recomputa.h"
 
 #include <unordered_set>
+#include "absl/strings/str_format.h"
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"
@@ -11,12 +12,11 @@
 namespace ent {
 namespace {
 
-using google::protobuf::StringPrintf;
 using google::protobuf::RepeatedPtrField;
 using google::protobuf::Map;
 
 std::string Origem(const std::string& origem, int id_unico) {
-  return StringPrintf("%s (id: %d)", origem.c_str(), id_unico);
+  return absl::StrFormat("%s (id: %d)", origem.c_str(), id_unico);
 }
 
 // Redimensiona o container.
@@ -74,7 +74,7 @@ std::string CalculaDanoParaAtaque(const DadosAtaque& da, const EntidadeProto& pr
   // Acoes sem dano nao podem causar dano nem com modificadores adicionais.
   if (da.dano_basico().empty()) return "";
   const int mod_final = BonusTotal(da.bonus_dano());
-  return da.dano_basico().c_str() + (mod_final != 0 ? StringPrintf("%+d", mod_final) : "");
+  return da.dano_basico().c_str() + (mod_final != 0 ? absl::StrFormat("%+d", mod_final) : "");
 }
 
 std::string CalculaDanoConstricaoParaAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
@@ -84,7 +84,7 @@ std::string CalculaDanoConstricaoParaAtaque(const DadosAtaque& da, const Entidad
   if (dano_basico_constricao.empty()) return "";
   int mod_forca = ModificadorAtributo(TA_FORCA, proto);
   const int mod_final = da.agarrar_aprimorado_se_acertou_anterior() ? mod_forca * 1.5f : mod_forca;
-  return dano_basico_constricao.c_str() + (mod_final != 0 ? StringPrintf("%+d", mod_final) : "");
+  return dano_basico_constricao.c_str() + (mod_final != 0 ? absl::StrFormat("%+d", mod_final) : "");
 }
 
 std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho& dano) {
@@ -704,7 +704,7 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
           // Como a magia tem duracao de 10 rodadas por nivel, da pra inferir.
           int nivel_conjurador = evento->rodadas() / 10;
           int mod = std::min(5, nivel_conjurador);
-          da.set_dano_basico_fixo(StringPrintf("%s+%d", da.dano_basico_fixo().c_str(), mod));
+          da.set_dano_basico_fixo(absl::StrFormat("%s+%d", da.dano_basico_fixo().c_str(), mod));
           da.set_limite_vezes(std::max(1, nivel_conjurador));
           break;
         }
@@ -730,7 +730,7 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
           // Como a magia tem duracao de 10 rodadas por nivel, da pra inferir.
           int nivel_conjurador = evento->rodadas() / 10;
           int mod = std::min(10, nivel_conjurador / 2);
-          da.set_dano_basico_fixo(StringPrintf("%s+%d", da.dano_basico_fixo().c_str(), mod));
+          da.set_dano_basico_fixo(absl::StrFormat("%s+%d", da.dano_basico_fixo().c_str(), mod));
           break;
         }
       }
@@ -1137,7 +1137,7 @@ void PreencheOrigemValor(
       if (po.origem().empty() && !origem.empty()) {
         po.set_origem(origem);
       } else if (!po.origem().empty() && !origem.empty()) {
-        po.set_origem(StringPrintf("%s, %s", po.origem().c_str(), origem.c_str()));
+        po.set_origem(absl::StrFormat("%s, %s", po.origem().c_str(), origem.c_str()));
       }
       if (po.has_indice_complemento() && po.indice_complemento() >= 0 && po.indice_complemento() < complementos.size()) {
         po.set_valor(complementos.Get(po.indice_complemento()));
@@ -1153,7 +1153,7 @@ void PreencheOrigemZeraValor(const std::string& origem, Bonus* bonus) {
       if (po.origem().empty() && !origem.empty()) {
         po.set_origem(origem);
       } else if (!po.origem().empty() && !origem.empty()) {
-        po.set_origem(StringPrintf("%s, %s", po.origem().c_str(), origem.c_str()));
+        po.set_origem(absl::StrFormat("%s, %s", po.origem().c_str(), origem.c_str()));
       }
       po.set_valor(0);
     }
@@ -1818,7 +1818,7 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
       auto& pericia_alvo = mapa_pericias_proto[s.id()];
       AtribuiOuRemoveBonus(
           graduacoes >= 5 ? 2 : 0, TB_SINERGIA,
-          StringPrintf("sinergia_%s", pt.id().c_str()),
+          absl::StrFormat("sinergia_%s", pt.id().c_str()),
           pericia_alvo.mutable_bonus());
     }
 
@@ -3139,7 +3139,7 @@ std::string DanoBasicoMonge(int nivel) {
     mult = 2;
     dado = 10;
   }
-  return StringPrintf("%dd%d", mult, dado);
+  return absl::StrFormat("%dd%d", mult, dado);
 }
 
 DadosAtaque* DadosAtaquePorIdArmaCriando(const std::string& id_arma, EntidadeProto* proto) {
@@ -3162,7 +3162,7 @@ DadosAtaque* DadosAtaqueVarinhaCriando(const ItemMagicoProto& varinha_tabelada, 
   auto* da = proto->add_dados_ataque();
   da->set_varinha(varinha_tabelada.id());
   da->set_tipo_ataque("Varinha");
-  da->set_grupo(StringPrintf("Varinha %s", varinha_tabelada.nome().c_str()));
+  da->set_grupo(absl::StrFormat("Varinha %s", varinha_tabelada.nome().c_str()));
   da->set_nivel_conjurador_pergaminho(varinha_tabelada.nivel_conjurador());
   da->set_empunhadura(EA_ARMA_ESCUDO);
   da->set_id_arma(varinha_tabelada.id_feitico());
@@ -3269,7 +3269,7 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
         da.set_rotulo("ataque atordoante");
         da.set_id_arma("desarmado");
         da.set_limite_vezes(limite_vezes);
-        da.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
+        da.set_taxa_refrescamento(absl::StrFormat("%d", DIA_EM_RODADAS));
         da.set_mantem_com_limite_zerado(true);
         da.set_dano_ignora_salvacao(true);
         auto* acao = da.mutable_acao_fixa();
@@ -3289,7 +3289,7 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
       case EFEITO_MODELO_CELESTIAL: {
         const int nivel = Nivel(*proto);
         auto copia_principal = DadosAtaquePrimarioMonstroOuPadrao(*proto);
-        copia_principal.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
+        copia_principal.set_taxa_refrescamento(absl::StrFormat("%d", DIA_EM_RODADAS));
         auto* dm = DadosAtaquePorGrupoCriando("destruir_mal", proto);
         copia_principal.set_grupo(dm->grupo());
         copia_principal.set_disponivel_em(dm->disponivel_em());
@@ -3300,7 +3300,7 @@ void RecomputaCriaRemoveDadosAtaque(const Tabelas& tabelas, EntidadeProto* proto
       case EFEITO_MODELO_ABISSAL: {
         const int nivel = Nivel(*proto);
         auto copia_principal = DadosAtaquePrimarioMonstroOuPadrao(*proto);
-        copia_principal.set_taxa_refrescamento(StringPrintf("%d", DIA_EM_RODADAS));
+        copia_principal.set_taxa_refrescamento(absl::StrFormat("%d", DIA_EM_RODADAS));
         auto* dm = DadosAtaquePorGrupoCriando("destruir_bem", proto);
         copia_principal.set_disponivel_em(dm->disponivel_em());
         copia_principal.set_grupo(dm->grupo());
@@ -3663,7 +3663,7 @@ void RecomputaDependenciasUmDadoAtaque(
 
   if (da->constricao()) da->set_dano_constricao(CalculaDanoConstricaoParaAtaque(*da, proto));
 
-  if (da->grupo().empty()) da->set_grupo(StringPrintf("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
+  if (da->grupo().empty()) da->set_grupo(absl::StrFormat("%s|%s", da->tipo_ataque().c_str(), da->rotulo().c_str()));
 
   // CA do ataque.
   Bonus ca = ca_base;

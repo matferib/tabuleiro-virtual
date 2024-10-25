@@ -2,10 +2,10 @@
 #define IFG_QT_DIALOGO_FEITICOS_UTIL_H
 
 #include <QTreeWidgetItem>
+#include "absl/strings/str_format.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
-#include "goog/stringprintf.h"
 #include "ifg/qt/util.h"
 #include "log/log.h"
 
@@ -72,7 +72,7 @@ class ItemFeiticoConhecido : public QTreeWidgetItem {
     }
     for (const auto& dominio : FeiticosClasse(id_classe, proto_).dominios()) {
       for (const auto& feitico : tabelas.Feiticos(dominio, nivel)) {
-        feiticos_ordenados[QString::fromStdString(google::protobuf::StringPrintf("%s (D)", feitico->nome().c_str()))] = feitico->id();
+        feiticos_ordenados[QString::fromStdString(absl::StrFormat("%s (D)", feitico->nome().c_str()))] = feitico->id();
       }
     }
 

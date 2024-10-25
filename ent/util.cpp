@@ -18,6 +18,8 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
+
+#include "absl/strings/str_format.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
 #include "ent/comum.pb.h"
@@ -37,8 +39,6 @@ namespace ent {
 
 namespace {
 using EfeitoAdicional = ent::AcaoProto::EfeitoAdicional;
-using google::protobuf::StringPrintf;
-using google::protobuf::StringAppendF;
 using google::protobuf::RepeatedPtrField;
 
 const std::map<std::string, std::string> g_mapa_utf8 = {
@@ -123,8 +123,8 @@ void Histograma::Imprime() const {
     const int porcentagem = valor * 50 / maximo;
     const std::string str_porcentagem = std::string(porcentagem, '#');
     std::string s = intervalo.max == std::numeric_limits<float>::max()
-        ? StringPrintf("[%f, max) -> %d: %s", intervalo.min, valor, str_porcentagem.c_str())
-        : StringPrintf("[%f, %f) -> %d: %s", intervalo.min, intervalo.max, valor, str_porcentagem.c_str());
+        ? absl::StrFormat("[%f, max) -> %d: %s", intervalo.min, valor, str_porcentagem.c_str())
+        : absl::StrFormat("[%f, %f) -> %d: %s", intervalo.min, intervalo.max, valor, str_porcentagem.c_str());
     std::cout << s << std::endl;
   }
 }
@@ -836,7 +836,7 @@ DanoArma LeDanoArma(const std::string& dano_arma) {
 
 std::string DadosParaString(int total, std::vector<std::pair<int, int>>& dados) {
   std::string s("rolado total: ");
-  s += StringPrintf("%d, ", total);
+  s += absl::StrFormat("%d, ", total);
   for (const auto& dado_valor : dados) {
     char ds[100];
     snprintf(ds, 99, "d%d=%d, ", dado_valor.first, dado_valor.second);
@@ -1364,13 +1364,13 @@ std::tuple<std::string, bool, float> VerificaAlcanceMunicao(
     int total_incrementos = distancia_m / alcance_m;
     if (total_incrementos > da.incrementos()) {
       return std::make_tuple(
-          StringPrintf("Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, da.incrementos()), false, distancia_m);
+          absl::StrFormat("Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, da.incrementos()), false, distancia_m);
     }
   }
   // Se houver alcance minimo, verifica com a menor distancia.
   const float alcance_minimo_m = ea.AlcanceMinimoAtaqueMetros();
   if (float distancia_para_alcance_minimo_m = DistanciaMaximaAcaoAlvoMetros(ea, pos_clique); alcance_minimo_m > 0 && distancia_para_alcance_minimo_m < alcance_minimo_m) {
-    return std::make_tuple(StringPrintf("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f", alcance_minimo_m, distancia_para_alcance_minimo_m), false, distancia_para_alcance_minimo_m);
+    return std::make_tuple(absl::StrFormat("Alvo muito perto: alcance mínimo: %0.1fm, distância: %0.1f", alcance_minimo_m, distancia_para_alcance_minimo_m), false, distancia_para_alcance_minimo_m);
   }
   return std::make_tuple("", true, distancia_m);
 }
@@ -1413,7 +1413,7 @@ std::tuple<std::string, bool> AtaqueVsChanceFalha(
     const int d100 = RolaDado(100);
     VLOG(1) << "Chance de falha: " << chance_falha << ", tirou: " << d100;
     if (d100 < chance_falha) {
-      return std::make_tuple(google::protobuf::StringPrintf("Falhou, chance %d, tirou %d", chance_falha, d100), false);
+      return std::make_tuple(absl::StrFormat("Falhou, chance %d, tirou %d", chance_falha, d100), false);
     }
   }
   return std::make_pair("", true);
@@ -1422,7 +1422,7 @@ std::tuple<std::string, bool> AtaqueVsChanceFalha(
 // Retorna o texto sinalizado para o modificador se diferente de zero, ou "".
 std::string TextoOuNada(int modificador) {
   if (modificador != 0) {
-    return google::protobuf::StringPrintf("%+d", modificador);
+    return absl::StrFormat("%+d", modificador);
   }
   return "";
 }
@@ -1456,13 +1456,13 @@ std::tuple<int, std::string> AplicaCriticoSeDentroMargem(
     int total_critico = ataque_origem + d20_critico + modificador_incrementos + outros_modificadores;
     if (total_critico < ca_destino) {
       return std::make_tuple(
-          1, StringPrintf(", critico falhou: %d+%d%s%s= %d < %d",
+          1, absl::StrFormat(", critico falhou: %d+%d%s%s= %d < %d",
                           d20_critico, ataque_origem,
                           TextoOuNada(modificador_incrementos).c_str(),
                           TextoOuNada(outros_modificadores).c_str(),
                           total_critico, ca_destino));
     }
-    texto_critico = google::protobuf::StringPrintf(
+    texto_critico = absl::StrFormat(
         ", critico %d+%d%s%s= %d",
         d20_critico, ataque_origem, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total_critico);
   }
@@ -1491,15 +1491,15 @@ std::tuple<resultado_ataque_e, int, std::string, bool> ComputaAcertoOuErro(
             /*confirmacao=*/true);
       VLOG(1) << "Confirmacao de falha critica: resultado: " << resultadoc << ", total: " << totalc << ", texto: " << textoc << ", acertou: " << acertouc;
       if (acertouc) {
-        return std::make_tuple(RA_FALHA_AUTOMATICA, 1, StringPrintf("falha critica nao confirmada: %s", textoc.c_str()), false);
+        return std::make_tuple(RA_FALHA_AUTOMATICA, 1, absl::StrFormat("falha critica nao confirmada: %s", textoc.c_str()), false);
       } else {
-        return std::make_tuple(RA_FALHA_CRITICA, 1, StringPrintf("falha critica confirmada: %s", textoc.c_str()), false);
+        return std::make_tuple(RA_FALHA_CRITICA, 1, absl::StrFormat("falha critica confirmada: %s", textoc.c_str()), false);
       }
     }
   }
 
   if ((d20_ataque != 20 || (tipo_ataque == TipoAtaque::AGARRAR || tipo_ataque == TipoAtaque::DESARMAR)) && total < valor_defesa) {
-    std::string texto = StringPrintf(
+    std::string texto = absl::StrFormat(
         "falhou: %d%+d%s%s= %d < %d", d20_ataque, ataque_origem,
         TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, valor_defesa);
     return std::make_tuple(RA_FALHA_NORMAL, total, texto, false);
@@ -1507,20 +1507,20 @@ std::tuple<resultado_ataque_e, int, std::string, bool> ComputaAcertoOuErro(
     // Maior modificador ganha.
     if (pea.bba().agarrar() < ped.bba().agarrar()) {
       // TODO em case de empate, deveria rolar de novo. Mas vou considerar vantagem da defesa.
-      return std::make_tuple(RA_FALHA_NORMAL, total, StringPrintf("falhou: mod defesa %d > %d ataque", ped.bba().agarrar(), pea.bba().agarrar()).c_str(), false);
+      return std::make_tuple(RA_FALHA_NORMAL, total, absl::StrFormat("falhou: mod defesa %d > %d ataque", ped.bba().agarrar(), pea.bba().agarrar()).c_str(), false);
     }
   } else if (tipo_ataque == TipoAtaque::DESARMAR) {
     if (total == valor_defesa) {
       // Maior modificador ganha.
       if (modificadores_defesa >= ataque_origem) {
-        return std::make_tuple(RA_FALHA_NORMAL, total, StringPrintf("falhou: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), false);
+        return std::make_tuple(RA_FALHA_NORMAL, total, absl::StrFormat("falhou: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), false);
       }
     } else {
       // Acertou agarrar.
-      return std::make_tuple(RA_SUCESSO, total, StringPrintf("sucesso: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), true);
+      return std::make_tuple(RA_SUCESSO, total, absl::StrFormat("sucesso: mod defesa %d >= %d ataque", modificadores_defesa, ataque_origem).c_str(), true);
     }
   }
-  return std::make_tuple(RA_SUCESSO, total, StringPrintf(
+  return std::make_tuple(RA_SUCESSO, total, absl::StrFormat(
         "sucesso: %d%+d%s%s= %d >= %d", d20_ataque, ataque_origem,
         TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(outros_modificadores).c_str(), total, valor_defesa), true);
 }
@@ -1540,10 +1540,10 @@ std::tuple<std::string, bool> AtaqueToquePreAgarrar(int outros_modificadores, co
   std::tie(std::ignore, std::ignore, texto_erro, acertou) =
       ComputaAcertoOuErro(d20_toque, ataque_toque, 0, outros_modificadores, /*d20_defesa=*/0, ca_destino_toque, TipoAtaque::CORPO_A_CORPO, ea.Proto(), ed.Proto());
   if (!acertou) {
-    std::string texto_falha_toque = google::protobuf::StringPrintf("Ataque de toque falhou: %s", texto_erro.c_str());
+    std::string texto_falha_toque = absl::StrFormat("Ataque de toque falhou: %s", texto_erro.c_str());
     return std::make_tuple(texto_falha_toque, false);
   }
-  std::string texto = google::protobuf::StringPrintf(", toque ok: %d%+d < %d", d20_toque, ataque_toque, ca_destino_toque);
+  std::string texto = absl::StrFormat(", toque ok: %d%+d < %d", d20_toque, ataque_toque, ca_destino_toque);
   return std::make_tuple(texto, true);
 }
 
@@ -1600,9 +1600,9 @@ std::string StringValorDestino(TipoAtaque tipo_ataque, int d20_defesa, int valor
   switch (tipo_ataque) {
     case TipoAtaque::AGARRAR:
     case TipoAtaque::DESARMAR:
-      return StringPrintf("%d=%d+%d", d20_defesa + valor_defesa, d20_defesa, valor_defesa);
+      return absl::StrFormat("%d=%d+%d", d20_defesa + valor_defesa, d20_defesa, valor_defesa);
     default:
-      return StringPrintf("%d", valor_defesa);
+      return absl::StrFormat("%d", valor_defesa);
   }
 }
 
@@ -1639,12 +1639,12 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     if (numero_reflexos > 0) {
       int num_total = numero_reflexos + 1;
       int dref = RolaDado(num_total);
-      VLOG(1) << StringPrintf("dado ref: %d em d%d", dref, num_total);
+      VLOG(1) << absl::StrFormat("dado ref: %d em d%d", dref, num_total);
       if (dref != 1) {
         VLOG(1) << "Ataque no reflexo";
         // Ataque no reflexo.
         auto [texto_reflexo, rar] = AtaqueToqueReflexos(modificadores_ataque, da, ea, ed);
-        resultado.texto = StringPrintf("%s, %d de %d", texto_reflexo.c_str(), dref - 1, num_total - 1);
+        resultado.texto = absl::StrFormat("%s, %d de %d", texto_reflexo.c_str(), dref - 1, num_total - 1);
         if (rar == RAR_ACERTOU) {
           resultado.resultado = RA_FALHA_REFLEXO;
         } else {
@@ -1696,7 +1696,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
         if (acertou_contra) {
           resultado.resultado = RA_FALHA_CONTRA_ATAQUE;
         }
-        resultado.texto = StringPrintf("%s, contra ataque: %s", resultado.texto.c_str(), texto_contra.c_str());
+        resultado.texto = absl::StrFormat("%s, contra ataque: %s", resultado.texto.c_str(), texto_contra.c_str());
       }
       return resultado;
     }
@@ -1715,7 +1715,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
   // Imunidade: nao testa resistencia porque aqui eh so pra ver se acertou e como..
   if (EntidadeImuneElemento(ed.Proto(), ap.elemento())) {
     resultado.resultado = RA_FALHA_IMUNE;
-    resultado.texto = StringPrintf("defensor imune a %s", TextoDescritor(ap.elemento()));
+    resultado.texto = absl::StrFormat("defensor imune a %s", TextoDescritor(ap.elemento()));
     return resultado;
   }
 
@@ -1738,7 +1738,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
 
   if (ap.permite_ataque_vs_defesa()) {
     resultado.texto =
-        StringPrintf("acertou: %d+%d%s%s= %d%s vs %s%s",
+        absl::StrFormat("acertou: %d+%d%s%s= %d%s vs %s%s",
              d20, bonus_ataque, TextoOuNada(modificador_incrementos).c_str(), TextoOuNada(modificadores_ataque).c_str(), total,
              texto_critico.c_str(), StringValorDestino(DaParaTipoAtaque(da), d20_defesa, modificadores_defesa).c_str(),
              TextoOuNada(texto_toque_agarrar).c_str());
@@ -1771,7 +1771,7 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaAgarrar(const Entidade& ea, const Entidade
   resultado.resultado =
       total_ataque >= total_defesa
       ? RA_SUCESSO : RA_FALHA_NORMAL;
-  resultado.texto = StringPrintf("agarrar %s: %d%+d %s %d%+d",
+  resultado.texto = absl::StrFormat("agarrar %s: %d%+d %s %d%+d",
       resultado.Sucesso() ? "sucesso" : "falhou",
       d20_ataque, da_ataque->bonus_ataque_final(),
       resultado.Sucesso() ? ">=" : "<",
@@ -1797,24 +1797,24 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubarInterno(const Entidade& ea, const 
   const int dado_ataque = RolaDado(20);
   if (dado_ataque + modificadores_ataque >= dado_defesa + modificadores_defesa) {
     resultado.resultado = RA_SUCESSO;
-    resultado.texto = StringPrintf("%s sucesso: %d%+d >= %d%+d",
+    resultado.texto = absl::StrFormat("%s sucesso: %d%+d >= %d%+d",
         (eh_contra_ataque ? "contra ataque" : "derrubar"), dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
   } else {
     if (eh_contra_ataque) {
       // Retorna o resultado do contra ataque.
       resultado.resultado = RA_FALHA_NORMAL;
-      resultado.texto = StringPrintf("contra ataque falhou: %d%+d < %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
+      resultado.texto = absl::StrFormat("contra ataque falhou: %d%+d < %d%+d", dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
     } else if (permite_contra_ataque) {
       // Realiza o contra ataque
       ResultadoAtaqueVsDefesa resultado_contra_ataque = AtaqueVsDefesaDerrubarInterno(ed, ea, /*permite_contra_ataque=*/false, /*eh_contra_ataque=*/true);
       resultado.resultado = resultado_contra_ataque.Sucesso() ? RA_FALHA_CONTRA_ATAQUE : RA_FALHA_NORMAL;
-      resultado.texto = StringPrintf(
+      resultado.texto = absl::StrFormat(
            "derrubar falhou: %d%+d < %d%+d, %s",
            dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa, resultado_contra_ataque.texto.c_str());
     } else {
       // Falha normal.
       resultado.resultado = RA_FALHA_NORMAL;
-      resultado.texto = StringPrintf(
+      resultado.texto = absl::StrFormat(
            "derrubar falhou: %d%+d < %d%+d sem contra ataque",
            dado_ataque, modificadores_ataque, dado_defesa, modificadores_defesa);
 
@@ -1848,11 +1848,11 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
   if (ed.TemProximaSalvacao()) {
     if (ed.ProximaSalvacao() == RS_MEIO) {
       delta_pontos_vida = delta_pontos_vida == -1 ? -1 : delta_pontos_vida / 2;
-      descricao_resultado = StringPrintf("salvacao manual 1/2: dano %d", -delta_pontos_vida);
+      descricao_resultado = absl::StrFormat("salvacao manual 1/2: dano %d", -delta_pontos_vida);
       salvou = true;
     } else if (ed.ProximaSalvacao() == RS_QUARTO) {
       delta_pontos_vida /= 4;
-      descricao_resultado = StringPrintf("salvacao manual 1/4: dano %d", -delta_pontos_vida);
+      descricao_resultado = absl::StrFormat("salvacao manual 1/4: dano %d", -delta_pontos_vida);
       salvou = true;
     } else if (ed.ProximaSalvacao() == RS_ANULOU) {
       delta_pontos_vida = 0;
@@ -1882,7 +1882,7 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
       } else {
         delta_pontos_vida = 0;
       }
-      descricao_resultado = StringPrintf(
+      descricao_resultado = absl::StrFormat(
           "salvacao %s sucesso: %d%+d >= %d, dano: %d%s", NomeSalvacao(da.tipo_salvacao()), d20, bonus, da.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     } else {
       // Nao salvou.
@@ -1890,18 +1890,18 @@ std::tuple<int, bool, std::string> AtaqueVsSalvacao(
         delta_pontos_vida = delta_pontos_vida == -1 ? -1 : delta_pontos_vida / 2;
         str_evasao = " (evasão aprimorada)";
       }
-      descricao_resultado = StringPrintf(
+      descricao_resultado = absl::StrFormat(
           "salvacao %s falhou: %d%+d < %d, dano: %d%s", NomeSalvacao(da.tipo_salvacao()), d20, bonus, da.dificuldade_salvacao(), -delta_pontos_vida, str_evasao.c_str());
     }
   } else {
     salvou = true;
-    descricao_resultado = StringPrintf("salvacao: acao sem dificuldade, dano: %d", -delta_pontos_vida);
+    descricao_resultado = absl::StrFormat("salvacao: acao sem dificuldade, dano: %d", -delta_pontos_vida);
   }
 
   // A gente ainda precisa de fazer tudo acima por causa dos efeitos. Mas o dano pode ser aplicado normalmente.
   if (da.dano_ignora_salvacao()) {
     delta_pontos_vida = delta_pontos_vida_entrada;
-    descricao_resultado = StringPrintf("%s; dano ignora salvacao: %d", descricao_resultado.c_str(), delta_pontos_vida);
+    descricao_resultado = absl::StrFormat("%s; dano ignora salvacao: %d", descricao_resultado.c_str(), delta_pontos_vida);
   }
   return std::make_tuple(delta_pontos_vida, salvou, descricao_resultado);
 }
@@ -1930,10 +1930,10 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
   }
   const int total = d20 + mod;
   if (total < rm) {
-    return std::make_tuple(false, StringPrintf("RM: ataque anulado; %d < %d (d20=%d, mod=%d)", total, rm, d20, mod));
+    return std::make_tuple(false, absl::StrFormat("RM: ataque anulado; %d < %d (d20=%d, mod=%d)", total, rm, d20, mod));
   }
   return std::make_tuple(
-      true, StringPrintf("RM: ataque bem sucedido; %d >= %d (d20=%d, mod=%d)", total, rm, d20, mod));
+      true, absl::StrFormat("RM: ataque bem sucedido; %d >= %d (d20=%d, mod=%d)", total, rm, d20, mod));
 }
 
 namespace {
@@ -1956,7 +1956,7 @@ std::string RotuloEntidade(const EntidadeProto& proto) {
   if (!proto.rotulo().empty()) {
     return proto.rotulo();
   }
-  return StringPrintf("%s%s, id: %d%s",
+  return absl::StrFormat("%s%s, id: %d%s",
       !proto.modelo_3d().id().empty() ? proto.modelo_3d().id().c_str() : "",
       proto.modelo_3d().id().empty() && !proto.info_textura().id().empty() ? proto.info_textura().id().c_str() : "",
       proto.id(),
@@ -2514,7 +2514,7 @@ bool PreencheNotificacaoEventoParaVenenoComum(
     unsigned int id_entidade, const std::optional<DadosIniciativa>& dados_iniciativa, const VenenoProto& veneno, int rodadas,
     std::vector<int>* ids_unicos, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
   // A origem ficara veneno: %d, pois veneno é cumulativo.
-  std::string origem = StringPrintf("%d", AchaIdUnicoEvento(*ids_unicos));
+  std::string origem = absl::StrFormat("%d", AchaIdUnicoEvento(*ids_unicos));
   if (veneno.sono()) {
     PreencheNotificacaoEventoSemComplemento(id_entidade, dados_iniciativa, origem, EFEITO_SONO, DIA_EM_RODADAS, ids_unicos, n, n_desfazer);
   } else {
@@ -2669,9 +2669,9 @@ void CombinaAtributos(const Atributos& atributos_novos, Atributos* atributos) {
 
 std::string ChaveMapaPorOrigem(const BonusIndividual::PorOrigem& por_origem) {
   if (por_origem.valor() >= 0) {
-    return StringPrintf("%s:positivo", por_origem.origem().c_str());
+    return absl::StrFormat("%s:positivo", por_origem.origem().c_str());
   } else {
-    return StringPrintf("%s:negativo", por_origem.origem().c_str());
+    return absl::StrFormat("%s:negativo", por_origem.origem().c_str());
   }
 }
 
@@ -3049,7 +3049,7 @@ std::string ConverteDanoBasicoMedioParaTamanho(const std::string& dano_basico_me
   auto it = mapa_danos.find(dano_basico_medio);
   if (it == mapa_danos.end()) {
     if (!dano_basico_medio.empty()) {
-      LOG(ERROR) << StringPrintf("Dano basico medio nao tabelado: %s", dano_basico_medio.c_str());
+      LOG(ERROR) << absl::StrFormat("Dano basico medio nao tabelado: %s", dano_basico_medio.c_str());
     }
     return "";
   }
@@ -3250,13 +3250,13 @@ std::string StringCritico(const DadosAtaque& da) {
   if (da.multiplicador_critico() == 2 && da.margem_critico() == 20) return "";
   std::string critico = "(";
   if (da.margem_critico() < 20) {
-    critico += StringPrintf("%d", da.margem_critico()) + "-20";
+    critico += absl::StrFormat("%d", da.margem_critico()) + "-20";
     if (da.multiplicador_critico() > 2) {
       critico += "/";
     }
   }
   if (da.multiplicador_critico() > 2) {
-    critico += "x" + StringPrintf("%d", da.multiplicador_critico());
+    critico += "x" + absl::StrFormat("%d", da.multiplicador_critico());
   }
   critico += ")";
   return critico;
@@ -3265,20 +3265,20 @@ std::string StringCritico(const DadosAtaque& da) {
 std::string StringAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
   int modificador = ModificadorAtaque(da, proto, EntidadeProto());
   std::string texto_modificador;
-  if (modificador != 0) texto_modificador = StringPrintf("%+d", modificador);
+  if (modificador != 0) texto_modificador = absl::StrFormat("%+d", modificador);
 
   std::string texto_furtivo;
   if (proto.dados_ataque_global().furtivo() && !proto.dados_ataque_global().dano_furtivo().empty()) {
-    texto_furtivo = StringPrintf("+%s", proto.dados_ataque_global().dano_furtivo().c_str());
+    texto_furtivo = absl::StrFormat("+%s", proto.dados_ataque_global().dano_furtivo().c_str());
   }
 
   std::string critico = StringCritico(da);
   auto [dano_normal, dano_adicional_opt] = StringDanoParaAcao(da, proto, EntidadeProto());
   std::string dano_adicional;
   if (dano_adicional_opt.has_value()) {
-    dano_adicional = StringPrintf("+%s[%s]", dano_adicional_opt->c_str(), TextoDescritor(da.elemento_dano_adicional()));
+    dano_adicional = absl::StrFormat("+%s[%s]", dano_adicional_opt->c_str(), TextoDescritor(da.elemento_dano_adicional()));
   }
-  return StringPrintf(
+  return absl::StrFormat(
       "%s (%s)%s%s: %+d%s, %s%s%s%s, CA: %s",
       da.grupo().c_str(), da.rotulo().c_str(),
       da.descarregada() ? " [descarregado]" : "", da.ataque_toque() ? " (T)" : "",
@@ -3299,57 +3299,57 @@ std::string StringCAParaAcao(const DadosAtaque& da, const EntidadeProto& proto) 
     normal = proto.surpreso() ? da.ca_surpreso() : da.ca_normal();
     toque = da.ca_toque();
   }
-  return google::protobuf::StringPrintf("%s%d, tq: %d", info.c_str(), normal, toque);
+  return absl::StrFormat("%s%d, tq: %d", info.c_str(), normal, toque);
 }
 
 std::string StringDescritores(const google::protobuf::RepeatedField<int>& descritores) {
   if (descritores.empty()) return "";
-  if (descritores.size() == 1) return StringPrintf(" [%s] ", TextoDescritor(descritores.Get(0)));
+  if (descritores.size() == 1) return absl::StrFormat(" [%s] ", TextoDescritor(descritores.Get(0)));
   std::string ret;
   for (int descritor : descritores) {
     ret += TextoDescritor(descritores.Get(descritor));
     ret += ", ";
   }
   ret.resize(ret.size() - 2);
-  return google::protobuf::StringPrintf(" [%s] ", ret.c_str());
+  return absl::StrFormat(" [%s] ", ret.c_str());
 }
 
 std::string StringResumoArma(const Tabelas& tabelas, const ent::DadosAtaque& da) {
   // Monta a string.
-  std::string string_rotulo = StringPrintf("%s (%s), ", da.grupo().c_str(), da.rotulo().c_str());
+  std::string string_rotulo = absl::StrFormat("%s (%s), ", da.grupo().c_str(), da.rotulo().c_str());
 
   std::string string_nome_arma = da.id_arma().empty()
       ? ""
-      : StringPrintf("%s, ", tabelas.Arma(da.id_arma()).nome().c_str());
+      : absl::StrFormat("%s, ", tabelas.Arma(da.id_arma()).nome().c_str());
   std::string string_alcance;
   if (da.has_alcance_m()) {
     char string_incrementos[40] = { '\0' };
     if (da.has_incrementos()) {
       snprintf(string_incrementos, 39, ", inc %d", da.incrementos());
     }
-    string_alcance = StringPrintf("alcance: %0.0f q%s, ", da.alcance_m() * METROS_PARA_QUADRADOS, string_incrementos);
+    string_alcance = absl::StrFormat("alcance: %0.0f q%s, ", da.alcance_m() * METROS_PARA_QUADRADOS, string_incrementos);
   }
 
   std::string texto_municao;
-  if (da.has_municao()) texto_municao = StringPrintf(", municao: %d", da.municao());
+  if (da.has_municao()) texto_municao = absl::StrFormat(", municao: %d", da.municao());
   std::string texto_limite_vezes;
-  if (da.has_limite_vezes()) texto_limite_vezes = StringPrintf(", limite vezes: %d", da.limite_vezes());
+  if (da.has_limite_vezes()) texto_limite_vezes = absl::StrFormat(", limite vezes: %d", da.limite_vezes());
   std::string texto_descarregada;
   if (da.descarregada()) texto_descarregada = " [descarregada]";
 
   std::string texto_elementos;
-  if (da.has_elemento()) texto_elementos = StringPrintf(" [%s] ", TextoDescritor(da.elemento()));
+  if (da.has_elemento()) texto_elementos = absl::StrFormat(" [%s] ", TextoDescritor(da.elemento()));
 
   std::string string_escudo = da.empunhadura() == ent::EA_ARMA_ESCUDO ? "(escudo)" : "";
   std::string string_salvacao;
   if (da.has_dificuldade_salvacao()) {
-    string_salvacao = StringPrintf(", CD: %d", da.dificuldade_salvacao());
+    string_salvacao = absl::StrFormat(", CD: %d", da.dificuldade_salvacao());
   }
   std::string texto_veneno;
   if (da.has_veneno()) {
-    texto_veneno = StringPrintf(", veneno CD %d", da.veneno().cd());
+    texto_veneno = absl::StrFormat(", veneno CD %d", da.veneno().cd());
   }
-  return StringPrintf(
+  return absl::StrFormat(
       "id: %s%s%s, %sbonus: %d, dano: %s%s%s%s%s%s%s%s, ca%s: %d toque: %d surpresa%s: %d",
       string_rotulo.c_str(), string_nome_arma.c_str(), da.tipo_ataque().c_str(),
       string_alcance.c_str(),
@@ -3393,14 +3393,14 @@ std::pair<std::string, std::optional<std::string>> StringDanoParaAcao(
     }
   }
   int dapt = CalculaDanoAdicionalPorTendencia(da, alvo);
-  const std::string dano_normal = StringPrintf(
+  const std::string dano_normal = absl::StrFormat(
       "%s%s%s",
       dano->c_str(),
-      !dano->empty() &&  modificador_dano != 0 ? StringPrintf("%+d", modificador_dano).c_str() : "",
-      dapt > 0 ? StringPrintf("+%d", dapt).c_str() : "");
+      !dano->empty() &&  modificador_dano != 0 ? absl::StrFormat("%+d", modificador_dano).c_str() : "",
+      dapt > 0 ? absl::StrFormat("+%d", dapt).c_str() : "");
   std::optional<std::string> dano_adicional_opt;
   if (da.has_dano_adicional()) {
-    dano_adicional_opt = StringPrintf("%s", da.dano_adicional().c_str());
+    dano_adicional_opt = absl::StrFormat("%s", da.dano_adicional().c_str());
   }
   return { dano_normal, dano_adicional_opt };
 }
@@ -3408,7 +3408,7 @@ std::pair<std::string, std::optional<std::string>> StringDanoParaAcao(
 // Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
 std::string StringDanoBasicoComCritico(const ent::DadosAtaque& da) {
   std::string critico = StringCritico(da);
-  return google::protobuf::StringPrintf("%s%s", da.dano_basico().c_str(), critico.empty() ? "" : critico.c_str());
+  return absl::StrFormat("%s%s", da.dano_basico().c_str(), critico.empty() ? "" : critico.c_str());
 }
 
 std::string StringEfeito(TipoEfeito efeito) {
@@ -4041,7 +4041,7 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
     }
     case MC_1D6_MAIS_1_CADA_2_NIVEIS_MAX_5_NEGATIVO: {
       int adicionais = std::min(5, nivel_conjurador / 2);
-      evento->add_complementos(-RolaValor(StringPrintf("1d6+%d", adicionais)));
+      evento->add_complementos(-RolaValor(absl::StrFormat("1d6+%d", adicionais)));
       break;
     }
     case MC_1_POR_NIVEL: {
@@ -4067,7 +4067,7 @@ void PreencheComplementos(unsigned int id_origem, int nivel_conjurador, const Ef
 
     case MC_1D4_MAIS_1_CADA_TRES_MAX_8: {
       int adicionais = std::min(4, nivel_conjurador / 3);
-      evento->add_complementos(RolaValor(StringPrintf("1d4+%d", adicionais)));
+      evento->add_complementos(RolaValor(absl::StrFormat("1d4+%d", adicionais)));
       break;
     }
     case MC_1_CADA_3_MAX_3: {
@@ -4484,7 +4484,7 @@ int ComputaTotalDadosVida(ArmaProto::ModeloTotalDadosVida modelo_total_dv,
     }
     break;
     case ArmaProto::TDV_1D4_POR_NIVEL_MAX_20D4: {
-      return RolaValor(StringPrintf("%dd4", std::min(20, nivel_conjurador)));
+      return RolaValor(absl::StrFormat("%dd4", std::min(20, nivel_conjurador)));
     }
     break;
 
@@ -4497,11 +4497,11 @@ int ComputaTotalDadosVida(ArmaProto::ModeloTotalDadosVida modelo_total_dv,
 void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosAtaque* da) {
   switch (modelo_dano) {
     case ArmaProto::DANO_3D6_MAIS_1_POR_NIVEL: {
-      da->set_dano_basico_fixo(StringPrintf("3d6+%d", nivel_conjurador));
+      da->set_dano_basico_fixo(absl::StrFormat("3d6+%d", nivel_conjurador));
       return;
     }
     case ArmaProto::DANO_1D4_POR_NIVEL_MAX_5D4: {
-      da->set_dano_basico_fixo(StringPrintf("%dd4", std::min(5, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("%dd4", std::min(5, nivel_conjurador)));
       return;
     }
     case ArmaProto::CURA_1: {
@@ -4514,77 +4514,77 @@ void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosA
       return;
     }
     case ArmaProto::CURA_1D8_MAIS_1_POR_NIVEL_MAX_5: {
-      da->set_dano_basico_fixo(StringPrintf("1d8+%d", std::min(5, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("1d8+%d", std::min(5, nivel_conjurador)));
       da->set_cura(true);
       return;
     }
     case ArmaProto::CURA_2D8_MAIS_1_POR_NIVEL_MAX_10: {
-      da->set_dano_basico_fixo(StringPrintf("2d8+%d", std::min(10, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("2d8+%d", std::min(10, nivel_conjurador)));
       da->set_cura(true);
       return;
     }
     case ArmaProto::CURA_3D8_MAIS_1_POR_NIVEL_MAX_15: {
-      da->set_dano_basico_fixo(StringPrintf("3d8+%d", std::min(15, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("3d8+%d", std::min(15, nivel_conjurador)));
       da->set_cura(true);
       return;
     }
     case ArmaProto::CURA_4D8_MAIS_1_POR_NIVEL_MAX_20: {
       da->set_dano_basico_fixo(
-          StringPrintf("4d8+%d", std::min(20, nivel_conjurador)));
+          absl::StrFormat("4d8+%d", std::min(20, nivel_conjurador)));
       da->set_cura(true);
       return;
     }
     case ArmaProto::DANO_1D8_MAIS_1_POR_NIVEL_MAX_5: {
-      da->set_dano_basico_fixo(StringPrintf("1d8+%d", std::min(5, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("1d8+%d", std::min(5, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_2D8_MAIS_1_POR_NIVEL_MAX_10: {
-      da->set_dano_basico_fixo(StringPrintf("2d8+%d", std::min(10, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("2d8+%d", std::min(10, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_3D8_MAIS_1_POR_NIVEL_MAX_15: {
-      da->set_dano_basico_fixo(StringPrintf("3d8+%d", std::min(15, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("3d8+%d", std::min(15, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_4D8_MAIS_1_POR_NIVEL_MAX_20: {
-      da->set_dano_basico_fixo(StringPrintf("4d8+%d", std::min(20, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("4d8+%d", std::min(20, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_1D6_POR_NIVEL_MAX_10D6: {
-      da->set_dano_basico_fixo(StringPrintf("%dd6", std::min(10, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("%dd6", std::min(10, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_1D6_POR_NIVEL_MAX_15D6: {
-      da->set_dano_basico_fixo(StringPrintf("%dd6", std::min(15, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("%dd6", std::min(15, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_1D6_POR_NIVEL_MAX_20D6: {
-      da->set_dano_basico_fixo(StringPrintf("%dd6", std::min(20, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("%dd6", std::min(20, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_1D8_CADA_2_NIVEIS_MAX_5D8: {
-      da->set_dano_basico_fixo(StringPrintf("%dd8", std::min(5, nivel_conjurador / 2)));
+      da->set_dano_basico_fixo(absl::StrFormat("%dd8", std::min(5, nivel_conjurador / 2)));
       return;
     }
     case ArmaProto::DANO_1D8_CADA_2_NIVEIS_MAX_10D8: {
-      da->set_dano_basico_fixo(StringPrintf("%dd8", std::min(10, nivel_conjurador / 2)));
+      da->set_dano_basico_fixo(absl::StrFormat("%dd8", std::min(10, nivel_conjurador / 2)));
       return;
     }
     case ArmaProto::DANO_1D8_POR_NIVEL_MAX_10D8: {
-      da->set_dano_basico_fixo(StringPrintf("%dd8", std::min(10, nivel_conjurador)));
+      da->set_dano_basico_fixo(absl::StrFormat("%dd8", std::min(10, nivel_conjurador)));
       return;
     }
     case ArmaProto::DANO_1D6_CADA_2_NIVEIS_MAX_5D6: {
-      da->set_dano_basico_fixo(StringPrintf("%dd6", std::min(5, nivel_conjurador / 2)));
+      da->set_dano_basico_fixo(absl::StrFormat("%dd6", std::min(5, nivel_conjurador / 2)));
       return;
     }
     case ArmaProto::CURA_10_POR_NIVEL_MAX_150: {
-      da->set_dano_basico_fixo(StringPrintf("%d", std::min(150, nivel_conjurador * 10)));
+      da->set_dano_basico_fixo(absl::StrFormat("%d", std::min(150, nivel_conjurador * 10)));
       da->set_cura(true);
       return;
     }
     case ArmaProto::DANO_10_POR_NIVEL_MAX_150: {
-      da->set_dano_basico_fixo(StringPrintf("%d", std::min(150, nivel_conjurador * 10)));
+      da->set_dano_basico_fixo(absl::StrFormat("%d", std::min(150, nivel_conjurador * 10)));
       da->set_cura(false);
       return;
     }
@@ -4620,7 +4620,7 @@ void CriaNovoAtaqueComFeitico(
     da->set_grupo(grupo_str);
     const int nivel_conjurador = NivelConjuradorParaMagia(id_classe, feitico_tabelado, proto);
     int limite_vezes = ComputaLimiteVezes(feitico_tabelado.modelo_limite_vezes(), nivel_conjurador);
-    da->set_rotulo(StringPrintf("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
+    da->set_rotulo(absl::StrFormat("%s x%d", feitico_tabelado.nome().c_str(), limite_vezes));
     da->set_id_arma(feitico_tabelado.id());
     da->set_limite_vezes(limite_vezes);
     da->set_nivel_slot(nivel_slot);
@@ -4700,7 +4700,7 @@ bool ExecutaFeitico(
     for (const auto& efeito_adicional : feitico_tabelado.acao().efeitos_adicionais()) {
        PreencheNotificacaoEventoEfeitoAdicional(
            entidade.Id(), dados_iniciativa, nivel_conjurador, entidade, efeito_adicional, &ids_unicos, grupo->add_notificacao(), nullptr);
-       string_efeitos += StringPrintf("%s, ", tabelas.Efeito(efeito_adicional.efeito()).nome().c_str());
+       string_efeitos += absl::StrFormat("%s, ", tabelas.Efeito(efeito_adicional.efeito()).nome().c_str());
     }
     if (!string_efeitos.empty()) {
       string_efeitos.pop_back();
@@ -4734,7 +4734,7 @@ std::optional<std::pair<bool, std::string>> TestaConcentracao(const Tabelas& tab
   }
   const bool passou = valor >= cd;
   VLOG(1) << "compilador feliz: valor " << valor << ", modificadores: " << modificadores;
-  return std::make_pair(passou, StringPrintf("%s: %s", passou ? "passou" : "falhou", texto.c_str()));
+  return std::make_pair(passou, absl::StrFormat("%s: %s", passou ? "passou" : "falhou", texto.c_str()));
 }
 
 std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const Tabelas& tabelas, int delta_pv, const EntidadeProto& proto) {
@@ -4759,9 +4759,9 @@ std::pair<bool, std::string> VerificaChancesDeFalha(const Tabelas& tabelas, cons
   if (PossuiEvento(EFEITO_ENSURDECIDO, proto) && feitico_tabelado.componente().verbal()) {
     int d100 = RolaDado(100);
     if (d100 <= 20) {
-      return std::make_pair(false, StringPrintf("falha por surdez%s%s", texto.empty() ? "" : ", ", texto.c_str()));
+      return std::make_pair(false, absl::StrFormat("falha por surdez%s%s", texto.empty() ? "" : ", ", texto.c_str()));
     }
-    texto = StringPrintf("passou em falha por surdez%s%s", texto.empty() ? "" : ", ", texto.c_str());
+    texto = absl::StrFormat("passou em falha por surdez%s%s", texto.empty() ? "" : ", ", texto.c_str());
   }
   return std::make_pair(true, texto);
 }
@@ -4823,7 +4823,7 @@ bool NotificacaoConsequenciaFeitico(
     PreencheNotificacaoEventoComComplementoStr(
         entidade.Id(), std::nullopt, /*origem=*/feitico_tabelado.nome(), EFEITO_CONJURANDO, entidade_str,
         feitico_tabelado.tempo_execucao_rodadas(), &ids_unicos, grupo->add_notificacao(), nullptr);
-    grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTextoLogada(StringPrintf(
+    grupo->add_notificacao()->Swap(NovaNotificacaoAcaoTextoLogada(absl::StrFormat(
           "conjurando por %d rodada%s",
           feitico_tabelado.tempo_execucao_rodadas(), feitico_tabelado.tempo_execucao_rodadas() > 1 ? "s" : ""), proto, atraso_s).get());
     return false;
@@ -4858,7 +4858,7 @@ std::unique_ptr<ntf::Notificacao> NotificacaoEscolherFeitico(
   std::unique_ptr<ntf::Notificacao> n(new ntf::Notificacao);
   if (fc.id_classe().empty()) {
     n->set_tipo(ntf::TN_ERRO);
-    n->set_erro(google::protobuf::StringPrintf("Classe '%s' nao encontrada no proto", id_classe.c_str()));
+    n->set_erro(absl::StrFormat("Classe '%s' nao encontrada no proto", id_classe.c_str()));
     return n;
   }
   n->set_tipo(ntf::TN_ABRIR_DIALOGO_ESCOLHER_FEITICO);
@@ -4974,7 +4974,7 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(
   }
   if (EntidadeImuneElemento(proto, elemento)) {
     resultado.resistido = std::abs(delta_pv);
-    resultado.texto = StringPrintf("imunidade: %s", TextoDescritor(elemento));
+    resultado.texto = absl::StrFormat("imunidade: %s", TextoDescritor(elemento));
     resultado.causa = ALT_IMUNIDADE;
     return resultado;
   }
@@ -5018,7 +5018,7 @@ ResultadoImunidadeOuResistencia ImunidadeOuResistenciaParaElemento(
   resultado.causa = ALT_RESISTENCIA;
   const int valor_efetivo = resistencia->valor();
   resultado.resistido = valor_efetivo > std::abs(delta_pv) ? std::abs(delta_pv) : valor_efetivo;
-  resultado.texto = StringPrintf("resistência: %s: %d", TextoDescritor(elemento), valor_efetivo);
+  resultado.texto = absl::StrFormat("resistência: %s: %d", TextoDescritor(elemento), valor_efetivo);
   resultado.resistencia = resistencia;
   return resultado;
 }
@@ -5034,7 +5034,7 @@ std::optional<std::pair<int, std::string>> VulnerabilidadeParaElemento(
   std::pair<int, std::string> resultado;
   if (EntidadeVulneravelElemento(proto, elemento)) {
     int novo_delta = delta_pv * 0.5;
-    return std::make_pair(delta_pv * 0.5, StringPrintf("vulnerável a: %s, aumentando em %d", TextoDescritor(elemento), std::abs(novo_delta)));
+    return std::make_pair(delta_pv * 0.5, absl::StrFormat("vulnerável a: %s, aumentando em %d", TextoDescritor(elemento), std::abs(novo_delta)));
   }
   return std::nullopt;
 }
@@ -5049,7 +5049,7 @@ std::tuple<int, std::string, int> AlteraDeltaPontosVidaPorUmaReducao(
     for (const auto& descritor_defesa : rd.descritores()) {
       if (c_none(descritores, descritor_defesa)) {
         delta_pv += rd.valor();
-        return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()), rd.has_id_unico() ? rd.id_unico() : -1);
+        return std::make_tuple(std::min(0, delta_pv), absl::StrFormat("redução de dano: %d", rd.valor()), rd.has_id_unico() ? rd.id_unico() : -1);
       } else {
         VLOG(1) << "descritor defesa: " << TextoDescritor(descritor_defesa) << " bateu";
       }
@@ -5062,7 +5062,7 @@ std::tuple<int, std::string, int> AlteraDeltaPontosVidaPorUmaReducao(
       }
     }
     delta_pv += rd.valor();
-    return std::make_tuple(std::min(0, delta_pv), StringPrintf("redução de dano: %d", rd.valor()), rd.has_id_unico() ? rd.id_unico() : -1);
+    return std::make_tuple(std::min(0, delta_pv), absl::StrFormat("redução de dano: %d", rd.valor()), rd.has_id_unico() ? rd.id_unico() : -1);
   }
 }
 
@@ -5088,7 +5088,7 @@ std::tuple<int, std::string, int> AlteraDeltaPontosVidaPorReducao(
 std::tuple<int, std::string> AlteraDeltaPontosVidaPorReducaoBarbaro(int delta_pv, const EntidadeProto& proto) {
   if (proto.dados_defesa().reducao_dano_barbaro() == 0) return std::make_tuple(delta_pv, "");
   return std::make_tuple(std::min(0, delta_pv + proto.dados_defesa().reducao_dano_barbaro()),
-      google::protobuf::StringPrintf("redução de dano de bárbaro: %d", proto.dados_defesa().reducao_dano_barbaro()));
+      absl::StrFormat("redução de dano de bárbaro: %d", proto.dados_defesa().reducao_dano_barbaro()));
 }
 
 ResultadoReducaoDano AlteraDeltaPontosVidaPorMelhorReducao(
@@ -5140,13 +5140,13 @@ bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::s
   }
   if (acao_proto.has_dv_mais_alto() && Nivel(entidade.Proto()) > acao_proto.dv_mais_alto()) {
     if (texto != nullptr) {
-      *texto = StringPrintf("alvo tem mais dv que %d", acao_proto.dv_mais_alto());
+      *texto = absl::StrFormat("alvo tem mais dv que %d", acao_proto.dv_mais_alto());
     }
     return false;
   }
   if (acao_proto.has_pv_mais_alto() && entidade.PontosVida() > acao_proto.pv_mais_alto()) {
     if (texto != nullptr) {
-      *texto = StringPrintf("criatura tem mais pv que %d", acao_proto.pv_mais_alto());
+      *texto = absl::StrFormat("criatura tem mais pv que %d", acao_proto.pv_mais_alto());
     }
     return false;
   }
@@ -5491,7 +5491,7 @@ std::string BonusParaString(const Bonus& bonus) {
   for (const auto& bi : bonus.bonus_individual()) {
     for (const auto& po : bi.por_origem()) {
       if (po.valor() == 0) continue;
-      resumo += StringPrintf("%s (%s): %d\n", NomeTipoBonus(bi.tipo()).c_str(), po.origem().c_str(), po.valor());
+      resumo += absl::StrFormat("%s (%s): %d\n", NomeTipoBonus(bi.tipo()).c_str(), po.origem().c_str(), po.valor());
     }
   }
   if (!resumo.empty()) {
@@ -5605,7 +5605,7 @@ void PassaAtributosReferencia(const ArmaProto& feitico, const Entidade& referenc
   if (referencia.TemIniciativa()) {
     modelo->set_iniciativa(referencia.Iniciativa());
   }
-  modelo->set_rotulo(StringPrintf("%s (conjurado por %s)", modelo->rotulo().c_str(), RotuloEntidade(referencia).c_str()));
+  modelo->set_rotulo(absl::StrFormat("%s (conjurado por %s)", modelo->rotulo().c_str(), RotuloEntidade(referencia).c_str()));
   if (referencia.Proto().has_cor()) {
     Cor cor_destino = !modelo->has_cor() ? CorParaProto(COR_BRANCA) : modelo->cor();
     CombinaCorComPeso(0.3, referencia.Proto().cor(), &cor_destino);
@@ -5618,7 +5618,7 @@ void PassaAtributosReferencia(const ArmaProto& feitico, const Entidade& referenc
       AtribuiBonus(4, TB_MELHORIA, "potencializar_invocacao", BonusAtributo(TA_CONSTITUICAO, modelo));
       if (!modelo->dados_vida().empty()) {
         const int bonus_pv = NivelPersonagem(*modelo) * 2;
-        modelo->set_dados_vida(StringPrintf("%s+%d", modelo->dados_vida().c_str(), bonus_pv));
+        modelo->set_dados_vida(absl::StrFormat("%s+%d", modelo->dados_vida().c_str(), bonus_pv));
       }
     }
   }
@@ -5676,9 +5676,9 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
     }
     std::string dano_str;
     if (!parametros.dano_fixo().empty()) {
-      dano_str = StringPrintf("%s%+d", parametros.dano_fixo().c_str(), modificador);
+      dano_str = absl::StrFormat("%s%+d", parametros.dano_fixo().c_str(), modificador);
     } else {
-      dano_str = StringPrintf("%dd%d", modificador, parametros.dado_dano_por_nivel());
+      dano_str = absl::StrFormat("%dd%d", modificador, parametros.dado_dano_por_nivel());
     }
     for (auto& da : *modelo->mutable_dados_ataque()) {
       da.set_dano_basico(dano_str);
@@ -5802,7 +5802,7 @@ ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const Entidade
     // TODO pericia usar itens magicos.
     return
         ResultadoPergaminho(/*ok=*/false, /*fiasco=*/false,
-        StringPrintf("não pode ler pergaminho do tipo %s", da.tipo_pergaminho() == TM_ARCANA ? "arcano" : "divino"));
+        absl::StrFormat("não pode ler pergaminho do tipo %s", da.tipo_pergaminho() == TM_ARCANA ? "arcano" : "divino"));
   }
   if (nc >= da.nivel_conjurador_pergaminho()) {
     return ResultadoPergaminho(/*ok=*/true);
@@ -5811,7 +5811,7 @@ ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const Entidade
   const int dc = da.nivel_conjurador_pergaminho() + 1;
   const int d20 = RolaDado(20);
   if (d20 + nc >= dc) {
-    return ResultadoPergaminho(/*ok=*/true, false, StringPrintf("Teste conjuração ok: %d >= %d", d20 + nc, dc));
+    return ResultadoPergaminho(/*ok=*/true, false, absl::StrFormat("Teste conjuração ok: %d >= %d", d20 + nc, dc));
   }
   // Fiascos com pergaminho (scroll mishaps).
   const int d20_sab = RolaDado(20);
@@ -5819,11 +5819,11 @@ ResultadoPergaminho TesteLancarPergaminho(const Tabelas& tabelas, const Entidade
   if (d20_sab + modificador_sabedoria >= 5) {
     return ResultadoPergaminho(
         /*ok=*/false, false,
-        StringPrintf("Teste conjuração falhou: %d < %d, sem fiasco %d >= 5", d20 + nc, dc, d20_sab + modificador_sabedoria));
+        absl::StrFormat("Teste conjuração falhou: %d < %d, sem fiasco %d >= 5", d20 + nc, dc, d20_sab + modificador_sabedoria));
   }
   return ResultadoPergaminho(
       /*ok=*/false, /*fiasco=*/true,
-      StringPrintf("FIASCO! Teste conjuração: %d < %d, teste sabedoria: %d < 5", d20 + nc, dc, d20_sab + modificador_sabedoria));
+      absl::StrFormat("FIASCO! Teste conjuração: %d < %d, teste sabedoria: %d < 5", d20 + nc, dc, d20_sab + modificador_sabedoria));
 }
 
 std::pair<bool, std::string> PodeLancarItemMagico(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da) {
@@ -5839,7 +5839,7 @@ std::pair<bool, std::string> PodeLancarItemMagico(const Tabelas& tabelas, const 
       }
     }
     if (!tipo_correto) {
-      return std::make_pair(false, StringPrintf("incapaz de lançar magias %s", tipo_magia == TM_DIVINA ? "divina" : "arcana"));
+      return std::make_pair(false, absl::StrFormat("incapaz de lançar magias %s", tipo_magia == TM_DIVINA ? "divina" : "arcana"));
     }
   }
   // Caso nao precise de estar na lista, o resto nao faz sentido.
@@ -5848,13 +5848,13 @@ std::pair<bool, std::string> PodeLancarItemMagico(const Tabelas& tabelas, const 
   // Esta na lista de feiticos.
   const auto& ic = ClasseParaLancarPergaminho(tabelas, tipo_magia, da.id_arma(), proto);
   if (!ic.has_nivel_conjurador()) {
-    return std::make_pair(false, StringPrintf("feitiço %s não está na lista do personagem", feitico.nome().c_str()));
+    return std::make_pair(false, absl::StrFormat("feitiço %s não está na lista do personagem", feitico.nome().c_str()));
   }
   // Se tem especializacao, é de escola permitida.
   const auto& fc = FeiticosClasse(ic.id(), proto);
   if (!fc.especializacao().empty()) {
     if (c_any(fc.escolas_proibidas(), feitico.escola())) {
-      return std::make_pair(false, StringPrintf("feitiço %s é de escola não permitida (%s).", da.id_arma().c_str(), feitico.escola().c_str()));
+      return std::make_pair(false, absl::StrFormat("feitiço %s é de escola não permitida (%s).", da.id_arma().c_str(), feitico.escola().c_str()));
     }
   }
   // Atributo minimo de conjuracao.
@@ -5863,7 +5863,7 @@ std::pair<bool, std::string> PodeLancarItemMagico(const Tabelas& tabelas, const 
         ModificadorAtributoConjuracao(ic.id(), proto) < da.modificador_atributo_pergaminho()) {
       return std::make_pair(
           false,
-          StringPrintf(
+          absl::StrFormat(
             "modificador atributo de conjuração do personagem abaixo do minimo: %d < %d",
             ModificadorAtributoConjuracao(ic.id(), proto),
             da.modificador_atributo_pergaminho()));
@@ -5871,7 +5871,7 @@ std::pair<bool, std::string> PodeLancarItemMagico(const Tabelas& tabelas, const 
     if (const Bonus& bonus = BonusAtributo(ic.atributo_conjuracao(), proto); BonusTotal(bonus) < 10 + NivelFeiticoParaClasse(ic.id(), feitico)) {
       return std::make_pair(
           false,
-          StringPrintf(
+          absl::StrFormat(
             "atributo de conjuração abaixo do mínimo: %d < %d",
             BonusTotal(bonus), 10 + NivelFeiticoParaClasse(ic.id(), feitico)));
     }
@@ -5933,7 +5933,7 @@ bool Indefeso(const EntidadeProto& proto) {
 void ConcatenaString(const std::string& s, std::string* alvo) {
   if (alvo == nullptr) return;
   if (alvo->empty()) *alvo = s;
-  else *alvo = StringPrintf("%s\n%s", alvo->c_str(), s.c_str());
+  else *alvo = absl::StrFormat("%s\n%s", alvo->c_str(), s.c_str());
 }
 
 int DesviaObjetoSeAplicavel(
@@ -5971,11 +5971,11 @@ int DesviaMontariaSeAplicavel(
   auto [rolou, pericia_cavalgar, modificadores_cavalgar, texto] = *pericia_cavalgar_opt;
   VLOG(1) << "compilador feliz: rolou pericia: " << rolou << ", total: " << pericia_cavalgar << ", modificadores: " << modificadores_cavalgar << ", " << texto;
   if (pericia_cavalgar <= total_ataque) {
-    ConcatenaString(StringPrintf("cavalgar %d <= %d ataque", pericia_cavalgar, total_ataque), por_entidade->mutable_texto());
+    ConcatenaString(absl::StrFormat("cavalgar %d <= %d ataque", pericia_cavalgar, total_ataque), por_entidade->mutable_texto());
     return delta_pontos_vida;
   }
   ConcatenaString(
-      StringPrintf("ataque na montaria desviado: cavalgar %d > %d ataque", pericia_cavalgar, total_ataque), por_entidade->mutable_texto());
+      absl::StrFormat("ataque na montaria desviado: cavalgar %d > %d ataque", pericia_cavalgar, total_ataque), por_entidade->mutable_texto());
   ntf::Notificacao n;
   PreencheNotificacaoMontariaDesviada(true, *montador, &n, grupo_desfazer->add_notificacao());
   tabuleiro->TrataNotificacao(n);
@@ -6023,7 +6023,7 @@ std::pair<int, std::string> RenovaSeTiverDominioRenovacao(
     }
     return std::make_pair(
         delta_pv + total,
-        StringPrintf("dominio renovação %d = 1d8 + mod carisma = %d %+d", total, d8, mod_carisma));
+        absl::StrFormat("dominio renovação %d = 1d8 + mod carisma = %d %+d", total, d8, mod_carisma));
   }
   return std::make_pair(delta_pv, "");
 }
@@ -6375,11 +6375,11 @@ void MergeMensagemArmaArmaduraOuEscudo(
 void MergeMensagemMoedas(const Moedas& moedas, std::string* texto) {
   if (moedas.po() <= 0 && moedas.pp() <= 0 && moedas.pc() <= 0 && moedas.pe() <= 0 && moedas.pl() <= 0) return;
   texto->append("\n");
-  if (moedas.po() > 0) { texto->append(StringPrintf("%d PO, ", moedas.pl())); }
-  if (moedas.pl() > 0) { texto->append(StringPrintf("%d PL, ", moedas.pl())); }
-  if (moedas.pp() > 0) { texto->append(StringPrintf("%d PP, ", moedas.pp())); }
-  if (moedas.pc() > 0) { texto->append(StringPrintf("%d PC, ", moedas.pc())); }
-  if (moedas.pe() > 0) { texto->append(StringPrintf("%d PE, ", moedas.pe())); }
+  if (moedas.po() > 0) { texto->append(absl::StrFormat("%d PO, ", moedas.pl())); }
+  if (moedas.pl() > 0) { texto->append(absl::StrFormat("%d PL, ", moedas.pl())); }
+  if (moedas.pp() > 0) { texto->append(absl::StrFormat("%d PP, ", moedas.pp())); }
+  if (moedas.pc() > 0) { texto->append(absl::StrFormat("%d PC, ", moedas.pc())); }
+  if (moedas.pe() > 0) { texto->append(absl::StrFormat("%d PE, ", moedas.pe())); }
   texto->resize(texto->size() - 2);
 }
 
@@ -6717,7 +6717,7 @@ float AplicaEfeitosAdicionais(
       continue;
     }
     if (!EntidadeAfetadaPorEfeito(tabelas, nivel_conjurador, efeito_adicional, entidade_destino.Proto())) {
-      ConcatenaString(StringPrintf("imune ou não afetada por %s", EfeitoParaString(efeito_adicional.efeito()).c_str()), por_entidade->mutable_texto());
+      ConcatenaString(absl::StrFormat("imune ou não afetada por %s", EfeitoParaString(efeito_adicional.efeito()).c_str()), por_entidade->mutable_texto());
       continue;
     }
     std::unique_ptr<ntf::Notificacao> n_efeito(new ntf::Notificacao);
@@ -6937,8 +6937,8 @@ std::optional<std::tuple<bool, int, int, std::string>> RolaTesteAtributo(
   const int dado = RolaDado(20);
   const int total_modificadores = bonus + outros_bonus_int;
   const int total = dado + total_modificadores;
-  std::string outros_bonus_str = outros_bonus_int != 0 ? StringPrintf(" %+d", outros_bonus_int) : std::string("");
-  return std::make_tuple(true, total, total_modificadores, StringPrintf("%s: %d %+d%s = %d", nomes[atributo].c_str(), dado, bonus, outros_bonus_str.c_str(), total));
+  std::string outros_bonus_str = outros_bonus_int != 0 ? absl::StrFormat(" %+d", outros_bonus_int) : std::string("");
+  return std::make_tuple(true, total, total_modificadores, absl::StrFormat("%s: %d %+d%s = %d", nomes[atributo].c_str(), dado, bonus, outros_bonus_str.c_str(), total));
 }
 
 std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(
@@ -6962,10 +6962,10 @@ std::optional<std::tuple<bool, int, int, std::string>> RolaPericia(
     const int dado = RolaDado(20);
     const int total_modificadores = bonus + outros_bonus_int;
     const int total = dado + total_modificadores;
-    std::string outros_bonus_str = outros_bonus_int != 0 ? StringPrintf(" %+d", outros_bonus_int) : std::string("");
-    return std::make_tuple(true, total, total_modificadores, StringPrintf("%s: %d %+d%s = %d", pericia_tabelada.nome().c_str(), dado, bonus, outros_bonus_str.c_str(), total));
+    std::string outros_bonus_str = outros_bonus_int != 0 ? absl::StrFormat(" %+d", outros_bonus_int) : std::string("");
+    return std::make_tuple(true, total, total_modificadores, absl::StrFormat("%s: %d %+d%s = %d", pericia_tabelada.nome().c_str(), dado, bonus, outros_bonus_str.c_str(), total));
   } else {
-    return std::make_tuple(false, 0, 0, StringPrintf("Pericia %s requer treinamento", pericia_tabelada.nome().c_str()));
+    return std::make_tuple(false, 0, 0, absl::StrFormat("Pericia %s requer treinamento", pericia_tabelada.nome().c_str()));
   }
 }
 
@@ -6976,19 +6976,19 @@ bool EhFeitico(const ArmaProto& arma) {
 std::string PrecoString(const Moedas& moedas) {
   std::string preco;
   if (moedas.po() > 0) {
-    StringAppendF(&preco, "%d PO, ", moedas.po());
+    absl::StrAppendFormat(&preco, "%d PO, ", moedas.po());
   }
   if (moedas.pp() > 0) {
-    StringAppendF(&preco, "%d PP, ", moedas.pp());
+    absl::StrAppendFormat(&preco, "%d PP, ", moedas.pp());
   }
   if (moedas.pc() > 0) {
-    StringAppendF(&preco, "%d PC, ", moedas.pc());
+    absl::StrAppendFormat(&preco, "%d PC, ", moedas.pc());
   }
   if (moedas.pl() > 0) {
-    StringAppendF(&preco, "%d PP, ", moedas.pl());
+    absl::StrAppendFormat(&preco, "%d PP, ", moedas.pl());
   }
   if (moedas.pe() > 0) {
-    StringAppendF(&preco, "%d PE, ", moedas.pp());
+    absl::StrAppendFormat(&preco, "%d PE, ", moedas.pp());
   }
   if (preco.size() >= 2) {
     preco = preco.substr(0, preco.size() - 2);
@@ -7005,7 +7005,7 @@ int PrecoItemPo(const ItemMagicoProto& item_tabelado) {
 
 std::string PrecoItem(const ItemMagicoProto& item_tabelado) {
   if (item_tabelado.custo_po() > 0) {
-    return StringPrintf("%d PO", item_tabelado.custo_po());
+    return absl::StrFormat("%d PO", item_tabelado.custo_po());
   }
   return PrecoString(item_tabelado.custo());
 }

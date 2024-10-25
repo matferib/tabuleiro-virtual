@@ -3,12 +3,11 @@
 #include <QThread>
 #include <list>
 #include <memory>
+
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "som/som.h"
-
-using google::protobuf::StringPrintf;
 
 namespace som {
 namespace {
@@ -22,7 +21,7 @@ void Inicia(const ent::OpcoesProto& opcoes) {
   std::vector<std::string> sons = arq::ConteudoDiretorio(arq::TIPO_SOM);
   for (const std::string& som : sons) {
     auto fx = std::make_unique<QSoundEffect>();
-    QString qs = QFileInfo(QString::fromStdString(StringPrintf("%s/%s", arq::Diretorio(arq::TIPO_SOM).c_str(), som.c_str()))).absoluteFilePath();
+    QString qs = QFileInfo(QString::fromStdString(absl::StrFormat("%s/%s", arq::Diretorio(arq::TIPO_SOM).c_str(), som.c_str()))).absoluteFilePath();
     fx->setSource(QUrl::fromLocalFile(qs));
     fx->setLoopCount(1);
     g_fxs[som] = std::move(fx);
