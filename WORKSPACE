@@ -18,7 +18,7 @@ git_repository(
     branch = "master",
 )
 
-load("@com_justbuchanan_rules_qt//:qt_configure.bzl", "qt_configure")
+load("//:qt_configure.bzl", "qt_configure")
 
 qt_configure()
 
