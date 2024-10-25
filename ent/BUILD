@@ -1,0 +1,197 @@
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+proto_library(
+    name = "acoes_proto",
+    srcs = ["acoes.proto"],
+    deps = [":comum_proto"],
+)
+
+proto_library(
+    name = "comum_proto",
+    srcs = ["comum.proto"],
+)
+
+proto_library(
+    name = "controle_virtual_proto",
+    srcs = ["controle_virtual.proto"],
+    deps = [":comum_proto"],
+)
+
+proto_library(
+    name = "entidade_proto",
+    srcs = ["entidade.proto"],
+    deps = [
+        ":acoes_proto",
+        ":comum_proto",
+    ],
+)
+
+proto_library(
+    name = "geracao_proto",
+    srcs = ["geraco.proto"],
+)
+
+proto_library(
+    name = "tabelas_proto",
+    srcs = ["tabelas.proto"],
+    deps = [
+        ":acoes_proto",
+        ":comum_proto",
+    ],
+)
+
+proto_library(
+    name = "tabuleiro_proto",
+    srcs = ["tabuleiro.proto"],
+    deps = [
+        ":comum_proto",
+        ":entidade_proto",
+    ],
+)
+
+proto_library(
+    name = "tabuleiro_interface_proto",
+    srcs = ["tabuleiro_interface.proto"],
+)
+
+cc_proto_library(
+    name = "acoes_cc_proto",
+    deps = ["acoes_proto"],
+)
+
+cc_proto_library(
+    name = "comum_cc_proto",
+    deps = ["comum_proto"],
+)
+
+cc_proto_library(
+    name = "controle_virtual_cc_proto",
+    deps = ["controle_virtual_proto"],
+)
+
+cc_proto_library(
+    name = "entidade_cc_proto",
+    deps = ["entidade_proto"],
+)
+
+cc_proto_library(
+    name = "geracao_cc_proto",
+    deps = ["geraco_proto"],
+)
+
+cc_proto_library(
+    name = "tabelas_cc_proto",
+    deps = ["tabelas_proto"],
+)
+
+cc_proto_library(
+    name = "tabuleiro_cc_proto",
+    deps = ["tabuleiro_proto"],
+)
+
+cc_proto_library(
+    name = "tabuleiro_interface_cc_proto",
+    deps = ["tabuleiro_interface_proto"],
+)
+
+cc_library(
+    name = "ent_headers",
+    hdrs = [
+        "acoes.h",
+        "constantes.h",
+        "entidade.h",
+        "recomputa.h",
+        "tabelas.h",
+        "tabuleiro.h",
+        "tabuleiro_interface.h",
+        "tabuleiro_terreno.h",
+        "util.h",
+        "watchdog.h",
+    ],
+    deps = [
+        ":acoes_cc_proto",
+        ":controle_virtual_cc_proto",
+        ":entidade_cc_proto",
+        ":tabelas_cc_proto",
+        ":tabuleiro_cc_proto",
+        "//gltab:gltab_headers",
+        "//ifg:ifg_headers",
+        "//matrix",
+        "//ntf:ntf_headers",
+    ],
+)
+
+cc_library(
+    name = "ent",
+    srcs = [
+        "acoes.cpp",
+        "constantes.cpp",
+        "entidade.cpp",
+        "entidade_composta.cpp",
+        "entidade_desenho.cpp",
+        "entidade_forma.cpp",
+        "recomputa.cpp",
+        "tabelas.cpp",
+        "tabuleiro.cpp",
+        "tabuleiro_controle_virtual.cpp",
+        "tabuleiro_interface.cpp",
+        "tabuleiro_picking.cpp",
+        "tabuleiro_tratador.cpp",
+        "util.cpp",
+        "watchdog.cpp",
+    ],
+    hdrs = [
+        "acoes.h",
+        "constantes.h",
+        "entidade.h",
+        "recomputa.h",
+        "tabelas.h",
+        "tabuleiro.h",
+        "tabuleiro_interface.h",
+        "tabuleiro_terreno.h",
+        "util.h",
+        "watchdog.h",
+    ],
+    deps = [
+        ":acoes_cc_proto",
+        ":controle_virtual_cc_proto",
+        ":entidade_cc_proto",
+        ":tabelas_cc_proto",
+        ":tabuleiro_cc_proto",
+        "//arq",
+        "//gltab",
+        "//ifg",
+        "//ifg:ifg_cc_proto",
+        "//m3d",
+        "//matrix",
+        "//net",
+        "//ntf",
+        "//som",
+        "//tex",
+        "@abseil-cpp//absl/log",
+        "@abseil-cpp//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "ent_test",
+    srcs = ["ent_test.cpp"],
+    deps = [
+        ":ent",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+    linkopts = [
+      '-lGLU',
+      '-lGL',
+      '-lboost_timer',
+      '-lboost_chrono',
+      '-lboost_filesystem',
+      '-lboost_system',
+      '-lboost_date_time',
+      '-lpthread',
+    ],
+)
