@@ -2,8 +2,6 @@
 // teclado e mouse do tabuleiro.
 
 #include <algorithm>
-#include <boost/algorithm/string/join.hpp>
-#include <boost/filesystem.hpp>
 #include <tuple>
 #include <cassert>
 #include <climits>
@@ -18,6 +16,7 @@
 #include <google/protobuf/text_format.h>
 
 //#define VLOG_NIVEL 1
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
+#include "absl/strings/str_format.h"
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/tabelas.h"

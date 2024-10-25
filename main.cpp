@@ -4,7 +4,6 @@
 #include <android_native_app_glue.h>
 #endif
 
-#include <absl/strings/str_format.h>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -18,13 +17,13 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 #include <boost/asio.hpp>
+
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro_interface.h"
 #include "ent/util.h"
-#include "goog/stringprintf.h"
-//#include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/tecladomouse.h"
 #include "ifg/qt/qt_interface.h"
@@ -116,7 +115,6 @@ int main(int argc, char** argv) {
 
 #if USAR_GLOG
   meulog::Inicializa(&argc, &argv);
-  //google::ParseCommandLineFlags(&argc, &argv, true);
 #endif
 #if USAR_GFLAGS
   google::ParseCommandLineFlags(&argc, &argv, true);

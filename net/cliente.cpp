@@ -1,12 +1,10 @@
-#include <absl/strings/str_format.h>
 #include <algorithm>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <vector>
 #include <string>
 
-//#include "ent/constantes.h"
-#include "goog/stringprintf.h"
+#include "absl/strings/str_format.h"
 // para depurar android e ios.
 //#define VLOG_NIVEL 1
 #include "log/log.h"

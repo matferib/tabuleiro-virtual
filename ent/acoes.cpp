@@ -3,6 +3,7 @@
 #include <functional>
 
 //#define VLOG_NIVEL 2
+#include "absl/strings/str_format.h"
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"

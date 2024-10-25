@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <functional>
 
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.pb.h"
 #include "ent/tabelas.h"

@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
@@ -25,7 +26,6 @@
 #include "ent/controle_virtual.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "net/util.h"  // hack to_string
 #include "ntf/notificacao.pb.h"

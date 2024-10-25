@@ -1,6 +1,5 @@
 /** @file ifg/Principal.cpp implementacao da classe principal. */
 
-#include <absl/strings/str_format.h>
 #include <stdexcept>
 #include <stdlib.h>
 
@@ -23,6 +22,7 @@
 #include <QTimer>
 #include <QTranslator>
 
+#include "absl/strings/str_format.h"
 #include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"

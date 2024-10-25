@@ -18,6 +18,8 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
+
+#include "absl/strings/str_format.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
 #include "ent/comum.pb.h"

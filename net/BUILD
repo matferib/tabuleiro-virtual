@@ -16,9 +16,11 @@ cc_library(
   ],
   copts = [],
   deps = [
-    "//goog",
-    "//log",
-    "//ntf",
-    "//ntf:ntf_cc_proto",
+      "@abseil-cpp//absl/strings",
+      "@abseil-cpp//absl/strings:str_format",
+      "//goog",
+      "//log",
+      "//ntf",
+      "//ntf:ntf_cc_proto",
   ]
 )

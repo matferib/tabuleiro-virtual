@@ -1,6 +1,5 @@
 #include "ifg/qt/visualizador3d.h"
 
-#include <absl/strings/str_format.h>
 #include <QPainter>
 #include <QBoxLayout>
 #include <QColorDialog>
@@ -24,6 +23,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
 #include "ent/recomputa.h"

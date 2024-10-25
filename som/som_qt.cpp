@@ -1,11 +1,11 @@
-#include <absl/strings/str_format.h>
 #include <QFileInfo>
 #include <QSoundEffect>
 #include <QThread>
 #include <list>
 #include <memory>
+
+#include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "som/som.h"
 

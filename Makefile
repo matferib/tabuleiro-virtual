@@ -1,6 +1,7 @@
 .PHONY: all all_sem_testes opengles windows apple linux_profile linux_release clean benchmark benchmark_debug
 all_sem_testes:
-	scons -j 2
+	bazel build :tabvirt --verbose_failures
+	#scons -j 2
 
 util_test:
 	 scons -j 2 testes=1 teste_ent_util
@@ -64,4 +65,5 @@ linux_release:
 	scons debug=0
 
 clean:
-	scons -c
+	bazel clean
+	#scons -c

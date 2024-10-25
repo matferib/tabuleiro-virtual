@@ -1,6 +1,7 @@
 #include "ent/recomputa.h"
 
 #include <unordered_set>
+#include "absl/strings/str_format.h"
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"

@@ -1,13 +1,12 @@
 #include "ifg/qt/atualiza_ui.h"
 
-#include <absl/strings/str_format.h>
 #include <QHBoxLayout>
 #include <unordered_set>
+#include "absl/strings/str_format.h"
 #include "ent/entidade.pb.h"
 #include "ent/constantes.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
-#include "goog/stringprintf.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/evento_util.h"
 #include "ifg/qt/feiticos_util.h"

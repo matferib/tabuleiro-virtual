@@ -10,8 +10,7 @@ cc_library(
   ],
   copts = [],
   deps = [
-    "//arq",
-    "//ent:acoes",
+    "//arq:arq",
     "//ent:ent_headers",
   ]
 )

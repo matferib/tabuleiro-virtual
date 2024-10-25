@@ -1,12 +1,11 @@
 #ifndef IFG_QT_DIALOGO_FEITICOS_UTIL_H
 #define IFG_QT_DIALOGO_FEITICOS_UTIL_H
 
-#include <absl/strings/str_format.h>
 #include <QTreeWidgetItem>
+#include "absl/strings/str_format.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"
-#include "goog/stringprintf.h"
 #include "ifg/qt/util.h"
 #include "log/log.h"
 
