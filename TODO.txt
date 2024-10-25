@@ -1,3 +1,8 @@
+Armadura sem talento: brieth tanalar.
+Finalizar os tesouros: armas e armaduras aparece apenas teste ao adicionar.
+Não tem antitoxina em itens mundanos.
+
+
 Watchdog sempre ativando no final do windows?
 Rotação da base não esta funcionando: criar uma entidade com modelo, uma com textura, outra com modelo. A rotacao da entidade com textura falhará.
 Crash no windows ao abrir menu.
