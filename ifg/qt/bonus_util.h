@@ -23,7 +23,7 @@ class ModeloBonus : public QAbstractTableModel {
  public:
   ModeloBonus(const ent::Bonus& bonus, QTableView* tabela)
       : QAbstractTableModel(tabela), modelo_(BonusParaModelo(bonus)), tabela_(tabela) {}
-  ~ModeloBonus() override {}
+  ~ModeloBonus() override;
 
   // Numero de linhas da tabela.
   int rowCount(const QModelIndex& parent =  QModelIndex()) const override {
@@ -177,7 +177,7 @@ class TipoBonusDelegate : public QItemDelegate {
   TipoBonusDelegate(QTableView* tabela, ModeloBonus* modelo, QObject* parent)
       : QItemDelegate(), tabela_(tabela), modelo_(modelo) {
   }
-  ~TipoBonusDelegate() override {}
+  ~TipoBonusDelegate() override;
 
   QWidget* createEditor(
       QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {

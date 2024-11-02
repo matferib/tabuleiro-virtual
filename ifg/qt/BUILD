@@ -6,6 +6,7 @@ qt_cc_library(
   name = "ifg_qt",
   srcs = [
     "atualiza_ui.cpp",
+    "bonus_util.cpp",
     "constantes.cpp",
     "menuprincipal.cpp",
     "principal.cpp",
