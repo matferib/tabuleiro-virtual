@@ -1,0 +1,3 @@
+# Usar bazel build --config=linux
+build:linux --cxxopt=-std=c++20 --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5 --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5/QtCore --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5/QtGui --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5/QtWidgets --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia --cxxopt=-DUSAR_GLOG=1 --cxxopt=-DUSAR_GFLAGS=0
+ 
