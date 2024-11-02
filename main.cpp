@@ -11,11 +11,11 @@
 #include <gflags/gflags.h>
 #endif
 
-#include <QDir>
-#include <QLocale>
-#include <Qt>
-#include <QApplication>
-#include <QSurfaceFormat>
+#include <QtCore/QDir>
+#include <QtCore/QLocale>
+#include <QtCore/Qt>
+#include <QtGui/QSurfaceFormat>
+#include <QtWidgets/QApplication>
 #include <boost/asio.hpp>
 
 #include "absl/strings/str_format.h"
