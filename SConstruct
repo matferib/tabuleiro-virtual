@@ -141,7 +141,8 @@ cVisualizador3dDialogos = env.Object('ifg/qt/visualizador3d_dialogos.cpp')
 
 # Atualizacao de UI de entidade.
 cAtualizaUI = env.Object('ifg/qt/atualiza_ui.cpp')
-cAtualizaUI = env.Object('ifg/qt/bonus_util.cpp')
+
+cBonus = env.Object('ifg/qt/bonus_util.cpp')
 
 cQtInterface = env.Object('ifg/qt/qt_interface.cpp')
 
@@ -219,7 +220,7 @@ objetos = [
     # interface.
     cTecladoMouse, cInterface, ifg_proto[0],
     # interface QT
-    cPrincipal, cMenuPrincipal, cVisualizador3d, cVisualizador3dDialogos, cUtil, cQtInterface, cQtPericiasUtil, cQtEventoUtil, cQtTalentosUtil, cAtualizaUI,
+    cPrincipal, cMenuPrincipal, cVisualizador3d, cVisualizador3dDialogos, cUtil, cQtInterface, cQtPericiasUtil, cQtEventoUtil, cQtTalentosUtil, cAtualizaUI, cBonus,
     # Texturas
     cTexturas, cTexturasLode,
     # Modelos3d.
