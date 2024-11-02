@@ -20,10 +20,10 @@ inline std::string NomeBonus(ent::TipoBonus tb) {
 
 // Modelo de bonus para ser usado pelos views de tabela.
 class ModeloBonus : public QAbstractTableModel {
-Q_OBJECT
  public:
   ModeloBonus(const ent::Bonus& bonus, QTableView* tabela)
       : QAbstractTableModel(tabela), modelo_(BonusParaModelo(bonus)), tabela_(tabela) {}
+  ~ModeloBonus() override {}
 
   // Numero de linhas da tabela.
   int rowCount(const QModelIndex& parent =  QModelIndex()) const override {
@@ -173,11 +173,11 @@ Q_OBJECT
 
 // Responsavel por tratar a edicao do tipo de bonus.
 class TipoBonusDelegate : public QItemDelegate {
-Q_OBJECT
  public:
   TipoBonusDelegate(QTableView* tabela, ModeloBonus* modelo, QObject* parent)
       : QItemDelegate(), tabela_(tabela), modelo_(modelo) {
   }
+  ~TipoBonusDelegate() override {}
 
   QWidget* createEditor(
       QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
