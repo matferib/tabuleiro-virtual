@@ -1,6 +1,4 @@
 load("@com_justbuchanan_rules_qt//:qt.bzl", "qt_cc_library", "qt_ui_library")
-load("@rules_cc//cc:defs.bzl", "cc_proto_library")
-load("@rules_proto//proto:defs.bzl", "proto_library")
 
 cc_binary(
     name = "tabvirt",
@@ -10,7 +8,14 @@ cc_binary(
     ],
     deps = [
       "@abseil-cpp//absl/strings",
+      "@boost//:chrono",
+      "@boost//:filesystem",
+      "@boost//:system",
+      "@boost//:date_time",
+      "@boost//:timer",
       "@qt//:qt_core",
+      "@qt//:qt_opengl",
+      "@qt//:qt_network",
       "@qt//:qt_widgets",
       "//ent:ent",
       "//ifg:ifg",
@@ -21,16 +26,5 @@ cc_binary(
       "//ntf:ntf",
       "//som:som",
       "//tex:tex",
-    ],
-    linkopts = [
-      '-lGLU',
-      '-lGL',
-      '-lboost_timer',
-      '-lboost_chrono',
-      '-lboost_filesystem',
-      '-lboost_system',
-      '-lboost_date_time',
-      '-lpthread',
-      #'-ltbb',
     ],
 )
