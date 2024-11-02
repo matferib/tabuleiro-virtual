@@ -1,4 +1,6 @@
 # Usar bazel build --config=windows
 build:windows --cxxopt=/std:c++20 --cxxopt=/DUSAR_GLOG=1 --cxxopt=/DUSAR_GFLAGS=0 --cxxopt=/DWIN32_LEAN_AND_MEAN=1 --cxxopt=/DWIN32=1 --cxxopt=/D_WINDOWS=1 --cxxopt=/D_WIN32_WINNT=0x0601 --cxxopt=/DWINVER=0x0601 --linkopt=glu32.lib --linkopt=opengl32.lib --linkopt=Ole32.lib
-#build:windows --cxxopt=/std:c++20 --cxxopt=/DUSAR_GLOG=1 --cxxopt=/DUSAR_GFLAGS=0 --cxxopt=/DWIN32_LEAN_AND_MEAN=1 --cxxopt=/DWIN32=1 --cxxopt=/D_WINDOWS=1 --cxxopt=/D_WIN32_WINNT=0x0601 --cxxopt=/DWINVER=0x0601
 
+# Usar bazel build --config=linux
+build:linux --cxxopt=-std=c++20 --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5 --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5/QtCore --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5/QtGui --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5/QtWidgets --cxxopt=-I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia --cxxopt=-DUSAR_GLOG=1 --cxxopt=-DUSAR_GFLAGS=0
+ 

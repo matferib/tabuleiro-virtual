@@ -20,6 +20,7 @@ inline std::string NomeBonus(ent::TipoBonus tb) {
 
 // Modelo de bonus para ser usado pelos views de tabela.
 class ModeloBonus : public QAbstractTableModel {
+  Q_OBJECT
  public:
   ModeloBonus(const ent::Bonus& bonus, QTableView* tabela)
       : QAbstractTableModel(tabela), modelo_(BonusParaModelo(bonus)), tabela_(tabela) {}
@@ -173,6 +174,7 @@ class ModeloBonus : public QAbstractTableModel {
 
 // Responsavel por tratar a edicao do tipo de bonus.
 class TipoBonusDelegate : public QItemDelegate {
+  Q_OBJECT
  public:
   TipoBonusDelegate(QTableView* tabela, ModeloBonus* modelo, QObject* parent)
       : QItemDelegate(), tabela_(tabela), modelo_(modelo) {
