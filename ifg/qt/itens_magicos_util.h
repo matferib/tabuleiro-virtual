@@ -1,9 +1,9 @@
 #ifndef IFG_QT_ITEMS_MAGICOS_UTIL_H
 #define IFG_QT_ITEMS_MAGICOS_UTIL_H
 
-#include <QComboBox>
-#include <QItemDelegate>
-#include <QToolTip>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QItemDelegate>
+#include <QtWidgets/QToolTip>
 #include "absl/strings/str_format.h"
 #include "ent/tabelas.h"
 #include "log/log.h"

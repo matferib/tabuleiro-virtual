@@ -1,6 +1,3 @@
-load("@rules_cc//cc:defs.bzl", "cc_proto_library")
-load("@rules_proto//proto:defs.bzl", "proto_library")
-
 package(default_visibility = ["//visibility:public"])
 
 proto_library(
@@ -112,6 +109,13 @@ cc_library(
         "watchdog.h",
     ],
     deps = [
+        "@abseil-cpp//absl/log",
+        "@abseil-cpp//absl/strings",
+        "@boost//:chrono",
+        "@boost//:filesystem",
+        "@boost//:system",
+        "@boost//:date_time",
+        "@boost//:timer",
         ":acoes_cc_proto",
         ":controle_virtual_cc_proto",
         ":entidade_cc_proto",
@@ -173,6 +177,11 @@ cc_library(
         "//tex",
         "@abseil-cpp//absl/log",
         "@abseil-cpp//absl/strings",
+        "@boost//:chrono",
+        "@boost//:filesystem",
+        "@boost//:system",
+        "@boost//:date_time",
+        "@boost//:timer",
     ],
 )
 
@@ -187,11 +196,6 @@ cc_test(
     linkopts = [
       '-lGLU',
       '-lGL',
-      '-lboost_timer',
-      '-lboost_chrono',
-      '-lboost_filesystem',
-      '-lboost_system',
-      '-lboost_date_time',
       '-lpthread',
     ],
 )

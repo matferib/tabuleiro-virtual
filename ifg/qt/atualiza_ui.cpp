@@ -1,6 +1,6 @@
 #include "ifg/qt/atualiza_ui.h"
 
-#include <QHBoxLayout>
+#include <QtWidgets/QHBoxLayout>
 #include <unordered_set>
 #include "absl/strings/str_format.h"
 #include "ent/entidade.pb.h"

@@ -1,7 +1,7 @@
 #ifndef IFG_QT_INTERFACE_H
 #define IFG_QT_INTERFACE_H
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 #include <memory>
 #include <string>
 #include <vector>

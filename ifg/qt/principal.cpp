@@ -5,22 +5,22 @@
 
 // QT
 #include <boost/timer/timer.hpp>
-#include <QApplication>
-#include <QCloseEvent>
-#include <QDesktopWidget>
-#include <QDockWidget>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QLabel>
-#include <QLayout>
-#include <QLibraryInfo>
-#include <QLocale>
-#include <QPushButton>
-#include <QSpacerItem>
-#include <QTextCodec>
-#include <QTextEdit>
-#include <QTimer>
-#include <QTranslator>
+#include <QtCore/QLibraryInfo>
+#include <QtCore/QLocale>
+#include <QtCore/QTextCodec>
+#include <QtCore/QTimer>
+#include <QtCore/QTranslator>
+#include <QtGui/QCloseEvent>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QDesktopWidget>
+#include <QtWidgets/QDockWidget>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLayout>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QTextEdit>
 
 #include "absl/strings/str_format.h"
 #include "gltab/gl.h"
@@ -30,7 +30,6 @@
 #include "ifg/qt/visualizador3d.h"
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"

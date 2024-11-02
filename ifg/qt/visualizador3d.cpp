@@ -1,9 +1,9 @@
 #include "ifg/qt/visualizador3d.h"
 
-#include <QDesktopWidget>
-#include <QMouseEvent>
-#include <QOpenGLContext>
-#include <QScreen>
+#include <QtWidgets/QDesktopWidget>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QOpenGLContext>
+#include <QtGui/QScreen>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -17,7 +17,6 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
-#include "goog/stringprintf.h"
 #include "ifg/qt/atualiza_ui.h"
 #include "ifg/qt/bonus_util.h"
 #include "ifg/qt/constantes.h"

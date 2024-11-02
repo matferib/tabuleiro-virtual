@@ -6,9 +6,9 @@
 * Compilar com moc para gerar o fonte do qt.
 */
 
-#include <QActionGroup>
-#include <QMenuBar>
-#include <QMenu>
+#include <QtWidgets/QActionGroup>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QMenu>
 #include <map>
 #include <memory>
 #include <vector>

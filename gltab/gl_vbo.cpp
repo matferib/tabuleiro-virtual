@@ -5,7 +5,6 @@
 #include "absl/strings/str_format.h"
 #include "gltab/gl_interno.h"
 #include "gltab/gl_vbo.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 
 extern bool g_hack;

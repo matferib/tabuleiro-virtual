@@ -30,7 +30,6 @@
 #include "ent/tabuleiro.h"
 #include "gltab/gl.h"      // TODO remover e passar desenhos para para gl
 #include "gltab/gl_vbo.h"  // TODO remover e passar desenhos para para gl
-#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "tex/texturas.h"
 
@@ -726,13 +725,13 @@ int RolaDado(unsigned int nfaces, bool ignora_forcado) {
 }
 
 void ImprimeDadosRolados() {
-  for (auto& [nfaces, valores] : g_dados_rolados) {
+  for (const auto& [nfaces, valores] : g_dados_rolados) {
     if (c_none<std::vector<int>>({3, 4, 6, 8, 10, 12, 20, 100}, nfaces)) {
       LOG(INFO) << "ignorando d" << nfaces;
       continue;
     }
     LOG(INFO) << "Imprimindo valores de d" << nfaces;
-    for (auto& [valor, vezes] : valores) {
+    for (const auto& [valor, vezes] : valores) {
       LOG(INFO) << "  Valor '" << valor << "' rolado '" << vezes << "' vezes";
     }
   }
@@ -3766,8 +3765,8 @@ int NivelParaFeitico(const Tabelas& tabelas, const DadosAtaque& da, const Entida
 
 void RenovaFeiticos(EntidadeProto* proto) {
   for (auto& fc : *proto->mutable_feiticos_classes()) {
-    for (auto& [nivel, fn] : *fc.mutable_mapa_feiticos_por_nivel()) {
-      VLOG(1) << "compilador feliz: " << nivel;
+    for (auto& nivel_fn : *fc.mutable_mapa_feiticos_por_nivel()) {
+      auto& fn = nivel_fn.second;
       for (auto& pl : *fn.mutable_para_lancar()) {
         pl.set_usado(false);
       }

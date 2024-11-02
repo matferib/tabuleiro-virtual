@@ -40,7 +40,6 @@
 #include "ent/tabuleiro_terreno.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "matrix/vectors.h"
 #include "net/util.h"  // hack to_string
@@ -232,7 +231,7 @@ Tabuleiro::~Tabuleiro() {
   LiberaControleVirtual();
   LOG(INFO) << "timers por entidade";
   ParaTimersPorEntidade();
-  for (auto& [rotulo, histograma] : histograma_por_entidade_) {
+  for (const auto& [rotulo, histograma] : histograma_por_entidade_) {
     std::cout << "-------------------------------------------" << std::endl;
     std::cout << "Histograma de tempo para '" << rotulo << "'" << std::endl;
     histograma.Imprime();
@@ -2646,7 +2645,9 @@ void Tabuleiro::RefrescaTerrenoParaClientes() {
 
 void Tabuleiro::ParaTimersPorEntidade() {
   if (!EmModoMestre()) return;
-  for (auto& [rotulo, timer] : timer_por_entidade_) {
+  for (auto& rotulo_timer : timer_por_entidade_) {
+    const std::string& rotulo = rotulo_timer.first;
+    auto& timer = rotulo_timer.second;
     if (!timer.is_stopped()) {
       LOG(INFO) << "Parando timer de " << rotulo;
       auto passou_ms = timer.elapsed().wall / DIV_NANO_PARA_MS;
@@ -4968,7 +4969,9 @@ void Tabuleiro::AtualizaIniciativas() {
 
   // Adicao e modificacao.
   std::vector<const Entidade*> entidades_adicionar;
-  for (auto& [id, entidade] : entidades_) {
+  for (auto& id_entidade : entidades_) {
+    const auto& id = id_entidade.first;
+    auto& entidade = id_entidade.second;
     if (!entidade->TemIniciativa()) {
       VLOG(3) << "Entidade sem iniciativa: " << id;  // esse id aqui é so pro compilador ficar feliz.
       continue;

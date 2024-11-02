@@ -1,6 +1,8 @@
 package(default_visibility = ["//visibility:public"])
 
-cc_library(
+load("@com_justbuchanan_rules_qt//:qt.bzl", "qt_cc_library", "qt_ui_library")
+
+qt_cc_library(
   name = "ifg_qt",
   srcs = [
     "atualiza_ui.cpp",
@@ -30,12 +32,16 @@ cc_library(
     "util.h",
     "visualizador3d.h",
   ],
-  copts = [
-    "-DUSAR_QT5=1",
+  defines = [
+    "USAR_QT5=1",
   ],
   deps = [
       "@abseil-cpp//absl/strings",
       "@abseil-cpp//absl/strings:str_format",
+      "@qt//:qt_core",
+      "@qt//:qt_gui",
+      "@qt//:qt_opengl",
+      "@qt//:qt_widgets",
       "//arq:arq_headers",
       "//ifg:ifg_cc_proto",
       "//ifg/qt/ui:ifg_qt_ui",

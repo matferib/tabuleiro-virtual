@@ -19,7 +19,8 @@ cc_library(
   ],
   copts = [],
   deps = [
-    "//goog:goog",
+    "@protobuf//:protobuf",
+    "@boost//:filesystem",
     "//log:log",
   ]
 )

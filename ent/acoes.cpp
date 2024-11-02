@@ -11,7 +11,6 @@
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "gltab/gl_vbo.h"
-#include "goog/stringprintf.h"
 #include "matrix/vectors.h"
 #include "m3d/m3d.h"
 #include "ntf/notificacao.h"

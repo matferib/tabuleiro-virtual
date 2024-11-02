@@ -23,7 +23,6 @@
 #include "gltab/glues.h"
 #include "gltab/gl_vbo.h"
 #include "arq/arquivo.h"
-#include "goog/stringprintf.h"
 #include "matrix/matrices.h"
 
 // Comum.

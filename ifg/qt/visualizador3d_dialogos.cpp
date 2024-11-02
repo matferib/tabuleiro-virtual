@@ -1,22 +1,23 @@
 #include "ifg/qt/visualizador3d.h"
 
-#include <QPainter>
-#include <QBoxLayout>
-#include <QColorDialog>
-#include <QDesktopWidget>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QItemDelegate>
-#include <QMenu>
-#include <QMessageBox>
-#include <QMouseEvent>
-#include <QOpenGLContext>
-#include <QScreen>
-#include <QStandardItem>
-#include <QStandardItemModel>
-#include <QString>
+#include <QtCore/QFileInfo>
+#include <QtCore/QString>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QOpenGLContext>
+#include <QtGui/QScreen>
+#include <QtGui/QPainter>
+#include <QtGui/QStandardItem>
+#include <QtWidgets/QBoxLayout>
+#include <QtWidgets/QColorDialog>
+#include <QtWidgets/QDesktopWidget>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QItemDelegate>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMessageBox>
+
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -31,7 +32,6 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
-#include "goog/stringprintf.h"
 #include "ifg/qt/atualiza_ui.h"
 #include "ifg/qt/bonus_util.h"
 #include "ifg/qt/constantes.h"
@@ -772,9 +772,11 @@ void PreencheConfiguraFeiticos(
           // aqui tem que corrigir todos para lancar que apontavam para feiticos do mesmo nivel:
           // 1- indice do removido: resetar para primeiro indice.
           // 2- indice > removido: diminuir o indice em 1.
-          if (auto* fc = ent::FeiticosClasse(id_classe, proto_retornado);
+          if (ent::EntidadeProto::InfoFeiticosClasse* fc = ent::FeiticosClasse(id_classe, proto_retornado);
               fc != nullptr && ent::ClassePrecisaMemorizar(this_->tabelas(), id_classe)) {
-            for (auto& [nivel, fn_correcao] : *fc->mutable_mapa_feiticos_por_nivel()) {
+            for (auto& nivel_fn_correcao : *fc->mutable_mapa_feiticos_por_nivel()) {
+	      int nivel = nivel_fn_correcao.first;
+	      auto& fn_correcao = nivel_fn_correcao.second;
               for (auto& pl : *fn_correcao.mutable_para_lancar()) {
                 if (pl.nivel_conhecido() != nivel ||
                     !pl.has_indice_conhecido() || pl.indice_conhecido() < indice) continue;

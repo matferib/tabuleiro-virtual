@@ -20,6 +20,8 @@ cc_library(
     "gl_interno.h",
     "glues.h",
     "gl_vbo.h",
+    "ext/GL/glext.h",
+    "ext/KHR/khrplatform.h",
   ],
   srcs = [
       "gl_char.cpp",
@@ -29,6 +31,7 @@ cc_library(
       "glues.cpp",
   ],
   defines = ["GL_GLEXT_PROTOTYPES=1"],
+  includes = ["ext"],
   deps = [
       "@abseil-cpp//absl/strings",
       "@abseil-cpp//absl/strings:str_format",

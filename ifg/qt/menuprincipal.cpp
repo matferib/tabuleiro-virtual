@@ -7,18 +7,18 @@ Necessary for lupdate.
 
 #include <stack>
 #include <set>
-#include <QActionGroup>
-#include <QBoxLayout>
-#include <QColor>
-#include <QColorDialog>
-#include <QDialogButtonBox>
-#include <QFileDialog>
-#include <QLabel>
-#include <QLineEdit>
-#include <QMenu>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QVariant>
+#include <QtCore/QVariant>
+#include <QtWidgets/QActionGroup>
+#include <QtWidgets/QBoxLayout>
+#include <QtGui/QColor>
+#include <QtWidgets/QColorDialog>
+#include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QPushButton>
 #include <boost/asio/ip/host_name.hpp>
 
 #include "arq/arquivo.h"

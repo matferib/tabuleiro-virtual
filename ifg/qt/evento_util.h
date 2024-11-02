@@ -2,9 +2,9 @@
 #define IFG_QT_DIALOGO_EVENTO_UTIL_H
 
 #include <algorithm>
-#include <QComboBox>
-#include <Qt>
-#include <QTableView>
+#include <QtCore/Qt>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QTableView>
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "ifg/qt/util.h"

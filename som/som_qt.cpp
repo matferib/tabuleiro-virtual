@@ -1,6 +1,6 @@
-#include <QFileInfo>
-#include <QSoundEffect>
-#include <QThread>
+#include <QtCore/QFileInfo>
+#include <QtMultimedia/QSoundEffect>
+#include <QtCore/QThread>
 #include <list>
 #include <memory>
 

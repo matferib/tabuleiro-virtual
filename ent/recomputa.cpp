@@ -6,7 +6,6 @@
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 
 namespace ent {

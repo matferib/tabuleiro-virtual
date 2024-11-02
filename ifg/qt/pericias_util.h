@@ -1,9 +1,9 @@
 #ifndef IFG_QT_DIALOGO_PERICIAS_UTIL_H
 #define IFG_QT_DIALOGO_PERICIAS_UTIL_H
 
-#include <QHeaderView>
-#include <QScrollBar>
-#include <QTableView>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QScrollBar>
+#include <QtWidgets/QTableView>
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
 #include "ent/util.h"

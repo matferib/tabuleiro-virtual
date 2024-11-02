@@ -1,12 +1,12 @@
 #ifndef IFG_QT_DIALOGO_TALENTOS_UTIL_H
 #define IFG_QT_DIALOGO_TALENTOS_UTIL_H
 
-#include <QLabel>
-#include <QItemDelegate>
-#include <QHeaderView>
-#include <QComboBox>
-#include <QTableView>
-#include <QScrollBar>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QItemDelegate>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QTableView>
+#include <QtWidgets/QScrollBar>
 #include "ent/entidade.pb.h"
 #include "ent/tabelas.h"
 #include "ifg/qt/util.h"

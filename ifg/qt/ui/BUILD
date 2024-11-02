@@ -15,6 +15,9 @@ cc_library(
   ],
   copts = [],
   deps = [
+      "@qt//:qt_core",
+      "@qt//:qt_widgets",
+      "@qt//:qt_opengl",
   ]
 )
 

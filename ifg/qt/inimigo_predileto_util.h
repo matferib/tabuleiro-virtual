@@ -1,8 +1,8 @@
 #ifndef IFG_QT_DIALOGO_INIMIGO_PREDILETO_UTIL_H
 #define IFG_QT_DIALOGO_INIMIGO_PREDILETO_UTIL_H
 
-#include <QHeaderView>
-#include <QComboBox>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QComboBox>
 #include "ent/comum.pb.h"
 #include "ent/entidade.pb.h"
 #include "ifg/qt/util.h"

@@ -6,7 +6,6 @@
 #include "ent/acoes.pb.h"
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
-#include "goog/stringprintf.h"
 #include "ifg/interface.h"
 #include "ifg/modelos.pb.h"
 #include "ifg/tecladomouse.h"

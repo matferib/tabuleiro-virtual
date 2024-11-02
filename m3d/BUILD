@@ -12,5 +12,13 @@ cc_library(
   deps = [
     "//arq:arq",
     "//ent:ent_headers",
+    "//ent:acoes_cc_proto",
+    "//ent:controle_virtual_cc_proto",
+    "//ent:entidade_cc_proto",
+    "//ent:tabelas_cc_proto",
+    "//ent:tabuleiro_cc_proto",
+    "//gltab:gltab",
+    "//log:log",
+    "//ntf:ntf_cc_proto",
   ]
 )

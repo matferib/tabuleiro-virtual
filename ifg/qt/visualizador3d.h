@@ -1,11 +1,11 @@
 #ifndef IFG_QT_VISUALIZADOR3D_H
 #define IFG_QT_VISUALIZADOR3D_H
 
-#include <QOpenGLContext>
-#include <QOpenGLFramebufferObject>
-#include <QOpenGLWidget>
-#include <QOffscreenSurface>
-#include <QWidget>
+#include <QtGui/QOffscreenSurface>
+#include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLFramebufferObject>
+#include <QtWidgets/QOpenGLWidget>
+#include <QtWidgets/QWidget>
 #include <boost/timer/timer.hpp>
 #include <list>
 #include "ent/tabuleiro.h"

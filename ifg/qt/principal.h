@@ -1,10 +1,10 @@
 #ifndef PRINCIPAL_H
 #define PRINCIPAL_H
 
-#include <QApplication>
-#include <QCursor>
-#include <QWidget>
-#include <QMainWindow>
+#include <QtGui/QCursor>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QWidget>
+#include <QtWidgets/QMainWindow>
 #include "ntf/notificacao.h"
 
 /** @file ifg/qt/principal.h declaracao da interface grafica principal baseada em QT. */

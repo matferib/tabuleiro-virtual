@@ -27,6 +27,7 @@ cc_library(
   copts = [],
   deps = [
       "@abseil-cpp//absl/strings",
+      "@boost//:timer",
       ":ifg_cc_proto",
       "//arq:arq",
       "//ent:ent_headers",

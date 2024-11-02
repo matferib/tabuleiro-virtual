@@ -4,11 +4,11 @@
 #include <functional>
 #include <map>
 #include <string>
-#include <QColor>
-#include <QItemDelegate>
-#include <QObject>
-#include <QComboBox>
-#include <QTreeWidgetItem>
+#include <QtCore/QObject>
+#include <QtGui/QColor>
+#include <QtWidgets/QItemDelegate>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QTreeWidgetItem>
 #include "ent/entidade.pb.h"
 #include "log/log.h"
 

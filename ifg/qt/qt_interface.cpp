@@ -1,14 +1,14 @@
 #include <set>
 #include <stack>
 
-#include <QBoxLayout>
-#include <QColorDialog>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QListWidgetItem>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QString>
+#include <QtCore/QString>
+#include <QtWidgets/QBoxLayout>
+#include <QtWidgets/QColorDialog>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QListWidgetItem>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QPushButton>
 
 #include "arq/arquivo.h"
 #include "ifg/modelos.pb.h"

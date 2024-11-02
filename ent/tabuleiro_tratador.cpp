@@ -30,7 +30,6 @@
 #include "ent/tabuleiro_terreno.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
-#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "matrix/vectors.h"
 #include "net/util.h"  // hack to_string
