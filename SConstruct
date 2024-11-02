@@ -141,6 +141,7 @@ cVisualizador3dDialogos = env.Object('ifg/qt/visualizador3d_dialogos.cpp')
 
 # Atualizacao de UI de entidade.
 cAtualizaUI = env.Object('ifg/qt/atualiza_ui.cpp')
+cAtualizaUI = env.Object('ifg/qt/bonus_util.cpp')
 
 cQtInterface = env.Object('ifg/qt/qt_interface.cpp')
 
