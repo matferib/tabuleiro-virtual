@@ -18,9 +18,11 @@ cc_library(
   deps = [
       "@abseil-cpp//absl/strings",
       "@abseil-cpp//absl/strings:str_format",
-      "//goog",
-      "//log",
-      "//ntf",
+      "@boost//:algorithm",
+      "@boost//:asio",
+      "@boost//:timer",
+      "//log:log",
+      "//ntf:ntf",
       "//ntf:ntf_cc_proto",
   ]
 )
