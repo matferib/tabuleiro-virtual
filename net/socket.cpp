@@ -132,7 +132,7 @@ Socket::Socket(Sincronizador* sincronizador)
     interno_->socket->set_option(option);
     LOG(INFO) << "No delay setado com sucesso";
   } catch (const std::exception& e) {
-    LOG(WARNING) << "Nao consegui setar no_delay, realtime pode ser comprometido";
+    LOG(WARNING) << "Nao consegui setar no_delay, realtime pode ser comprometido: " << e.what();
   }
 }
 

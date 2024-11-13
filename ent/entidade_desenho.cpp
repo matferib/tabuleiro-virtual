@@ -557,9 +557,9 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       // Desenha a entidade maior e translucida.
       gl::MatrizEscopo salva_matriz;
       auto* escala_efeito = pd->mutable_escala_efeito();
-      escala_efeito->set_x(1.2);
-      escala_efeito->set_y(1.2);
-      escala_efeito->set_z(1.2);
+      escala_efeito->set_x(1.2f);
+      escala_efeito->set_y(1.2f);
+      escala_efeito->set_z(1.2f);
       MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, pd);
       DesenhaObjetoEntidadeProtoComMatrizes(proto_, vd_, pd, md.modelagem, md.tijolo_base, md.tijolo_tela, md.tela_textura, md.deslocamento_textura);
       pd->clear_escala_efeito();
@@ -667,8 +667,10 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     } else if (vd_.luz_acao.inicio.raio_m() > raio) {
       raio = vd_.luz_acao.inicio.raio_m();
     }
-    if (raio == 0) raio = 6.0f;
-    raio += sinf(vd_.angulo_disco_luz_rad) * 0.02;
+    if (raio == 0.0f) {
+      raio = 6.0f;
+    }
+    raio += sinf(vd_.angulo_disco_luz_rad) * 0.02f;
 
     float multiplicador_cor = 1.0f;
     if (pd->tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {

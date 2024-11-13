@@ -82,7 +82,7 @@ std::string CalculaDanoConstricaoParaAtaque(const DadosAtaque& da, const Entidad
   std::string dano_basico_constricao = da.dano_basico_constricao().empty() ? da.dano_basico() : da.dano_basico_constricao();
   if (dano_basico_constricao.empty()) return "";
   int mod_forca = ModificadorAtributo(TA_FORCA, proto);
-  const int mod_final = da.agarrar_aprimorado_se_acertou_anterior() ? mod_forca * 1.5f : mod_forca;
+  const int mod_final = da.agarrar_aprimorado_se_acertou_anterior() ? static_cast<int>(mod_forca * 1.5f) : mod_forca;
   return dano_basico_constricao.c_str() + (mod_final != 0 ? absl::StrFormat("%+d", mod_final) : "");
 }
 
@@ -2531,8 +2531,8 @@ void RecomputaDependenciasTendencia(EntidadeProto* proto) {
     // Se tem tendencia dinamica, recalcula simplificada.
     const float bem_mal = proto->tendencia().eixo_bem_mal();
     const float ordem_caos = proto->tendencia().eixo_ordem_caos();
-    const float kLimiteCima = 0.66;
-    const float kLimiteBaixo = 0.33;
+    const float kLimiteCima = 0.66f;
+    const float kLimiteBaixo = 0.33f;
     if (bem_mal >= kLimiteCima) {
       if (ordem_caos >= kLimiteCima) {
         proto->mutable_tendencia()->set_simples(TD_LEAL_BOM);

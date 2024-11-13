@@ -946,7 +946,7 @@ class AcaoCorpoCorpo : public Acao {
     if (da != nullptr) {
       dados_ataque_ = *da;
     }
-    duracao_ms_ = acao_proto.has_duracao_s() ? acao_proto.duracao_s() * 1000 : DURACAO_MS;
+    duracao_ms_ = acao_proto.has_duracao_s() ? static_cast<int>(acao_proto.duracao_s() * 1000) : DURACAO_MS;
 
     AtualizaDeltas();
     finalizado_ = false;
