@@ -1,4 +1,4 @@
-Esta configuração usa vcpkg pra gerenciar as dependencias (abseil, boost e proto). Ver vcpkg.json.
+Esta configuração usa vcpkg pra gerenciar as dependencias (abseil, boost e proto). Ver vcpkg.json. Não consegui fazer funcionar com bazel.
 
 
 Vcpkg
@@ -42,14 +42,16 @@ da raiz:
 export QTDEPLOY=/c/Qt/5.15.2/msvc2019_64/bin/windeployqt.exe
 $QTDEPLOY tabvirt.exe
 
-Cria um monte de diretorios para deploy.
+Gerando a estrutura de deploy do tabuleiro
+------------------------------------------
+drive: https://drive.google.com/drive/folders/0B7clSIFMH9R-VmhPckR5OHAzbFE?resourcekey=0-VfGP8WdGy4eAsWuPln0b3w&usp=drive_link
 
-copiar as texturas.
+Baixar texturas e modelos.
 
-Usar o instalador para instalar.
+Baixar o icon.ico também.
 
-Versao 32 bits: instalar o redistributable 32 bits do VS 2015;
-Versao 64 bits: instalar o redistributable 64 bits do VS 2015;
+Colocar as DLLs do abseil, boost, libprotobuf e libprotobuf-lite, msvcp140, Qt5.
 
+Usar o inno pra gerar o instalador.
 
 
