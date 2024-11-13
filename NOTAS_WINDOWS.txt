@@ -1,7 +1,48 @@
-instalar o git com git bash, para ter o terminal posix.
+Esta configuração usa vcpkg pra gerenciar as dependencias (abseil, boost e proto). Ver vcpkg.json.
 
-colocar em win32/lib as dlls (de acordo com a plataforma):
-concrt140.dll  msvcp140.dll  QtCore4.dll  QtGui4.dll  QtOpenGL4.dll  vccorlib140.dll  vcruntime140.dll
+
+Vcpkg
+-----
+
+Baixar do github em algum lugar. No projeto, esta configurado como ligado e com manifest (Configuration properties->vcpkg).
+
+Ao alterar o vcpkg.json, rodar vcpkg install.
+
+export VCPKG=/n/Projetos/vcpkg/vcpkg.exe
+$VCPKG install
+
+Gerando os protos
+-----------------
+
+dll bichada do sistema: msvcp140.dll: https://developercommunity.visualstudio.com/t/Access-violation-in-_Thrd_yield-after-up/10664660#T-N10668856
+Copiar do VS2022: VisualStudio/2022/Community/VC/Redist/MSVC/14.40.33807/x64/Microsoft.VC143.CRT/msvcp140.dll 
+e colocar junto com o binario do protoc vcpkg_installed/x64-windows/tools/protobuf/!
+
+Gerando os proto pb.cc pb.h a partir da raiz do codigo:
+win32/vcpkg_installed/x64-windows/tools/protobuf/protoc.exe  -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
+
+Gerando os MOCs
+---------------
+
+export MOC=/c/Qt/5.15.2/msvc2019_64/bin/moc.exe
+
+$MOC -I. -oifg/qt/moc_menuprincipal.cpp ifg/qt/menuprincipal.h
+$MOC -I. -oifg/qt/moc_principal.cpp ifg/qt/principal.h
+$MOC -I. -oifg/qt/moc_util.cpp ifg/qt/util.h
+$MOC -I. -oifg/qt/moc_pericias_util.cpp ifg/qt/pericias_util.h
+$MOC -I. -oifg/qt/moc_evento_util.cpp ifg/qt/evento_util.h
+$MOC -I. -oifg/qt/moc_talentos_util.cpp ifg/qt/talentos_util.h
+$MOC -I. -oifg/qt/moc_bonus_util.cpp ifg/qt/bonus_util.h
+
+Gerando a estrutura de deploy do QT
+-----------------------------------
+
+da raiz:
+
+export QTDEPLOY=/c/Qt/5.15.2/msvc2019_64/bin/windeployqt.exe
+$QTDEPLOY tabvirt.exe
+
+Cria um monte de diretorios para deploy.
 
 copiar as texturas.
 
@@ -10,51 +51,5 @@ Usar o instalador para instalar.
 Versao 32 bits: instalar o redistributable 32 bits do VS 2015;
 Versao 64 bits: instalar o redistributable 64 bits do VS 2015;
 
-Compilando QT:
-- Baixar qt-everywhere-opensource-src-4.8.6 e colocar no diretorio win32.
-- Abrir o prompt de comando do visual studio 64 bits (no menu iniciar. Atencao ha varios prompts, use o native x64))
-- Do diretorio (lista de plataformas encontrada no diretorio mkspecs do qt).
-  configure -opengl desktop -release -platform win32-msvs2013
-
-- Sera criado um projeto de QT no diretorio, chamado projects.sln.
--- Sera necessario remover generated files duplicados e o resource de cada um dos projetos (
--- Compilar QtOpengl, QtGui e QtCore apenas.
--- Nos Generated Files de cada um dos projetos acima, tirei os res do build pq tava dando conflito.
--- Tive que mudar o caminho de linkagem deles tambem para usar da versao 64 bits que ele gera em x64/Release.
-
-Compilando glog:
-- Baixar o glog-0.3.4.zip e colocar no diretorio win32.
-- Abrir a solucao e compilar (pode ser necessario comentar o snprintf).
-- O projeto ja esta adicionado na Solucao do Tabuleiro.
 
 
-Gerando os proto pb.cc pb.h:
-protoc.exe -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
-
-Gerando os moc:
-export MOC=/c/Qt/5.11.1/msvc2015_64/bin/moc.exe
-$MOC -I. -oifg/qt/moc_menuprincipal.cpp ifg/qt/menuprincipal.h
-$MOC -I. -oifg/qt/moc_principal.cpp ifg/qt/principal.h
-$MOC -I. -oifg/qt/moc_util.cpp ifg/qt/util.h
-$MOC -I. -oifg/qt/moc_pericias_util.cpp ifg/qt/pericias_util.h
-$MOC -I. -oifg/qt/moc_evento_util.cpp ifg/qt/evento_util.h
-$MOC -I. -oifg/qt/moc_talentos_util.cpp ifg/qt/talentos_util.h
-
-Proto:
-usar vcpkg para instalar.
-https://github.com/Microsoft/vcpkg#getting-started
-
-Baixar o glext.h.
-
-
-ATENCAO: nao consegui nem a pau fazer o glog funcionar com gflags. Entao para passar as coisas para stderr tem que ser por variavel de ambiente:
-# GLOG_logtostderr=1 TabuleiroVirtual.exe
-
-OBS: criar no diretorio do win32\boost o arquivo vazio ReadMe.txt para o vs parar de encher o saco na hora de compilar.
-
-Criando estrutura de deploy (da raiz):
-$ export PATH=/c/Qt/5.11.1/msvc2015_64/bin/:$PATH
-matheus@matheus-pc MINGW64 ~/Projetos/tabuleiro-virtual (qt5)
-$ windeployqt.exe tabvirt.exe
-
-Cria um monte de diretorios para deploy.
