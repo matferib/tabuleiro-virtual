@@ -78,12 +78,14 @@
     <ClCompile Include="..\..\ifg\interface.cpp" />
     <ClCompile Include="..\..\ifg\modelos.pb.cc" />
     <ClCompile Include="..\..\ifg\qt\atualiza_ui.cpp" />
+    <ClCompile Include="..\..\ifg\qt\bonus_util.cpp" />
     <ClCompile Include="..\..\ifg\qt\constantes.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\ifg_qt_constantes.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\ifg_qt_constantes.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\ifg_qt_constantes.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\ifg\qt\menuprincipal.cpp" />
+    <ClCompile Include="..\..\ifg\qt\moc_bonus_util.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_evento_util.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4996 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -135,8 +137,6 @@
     <ClInclude Include="..\..\ent\tabuleiro.h" />
     <ClInclude Include="..\..\ent\util.h" />
     <ClInclude Include="..\..\gltab\gl.h" />
-    <ClInclude Include="..\..\goog\stringprintf.h" />
-    <ClInclude Include="..\..\goog\strutil.h" />
     <ClInclude Include="..\..\ifg\interface.h" />
     <ClInclude Include="..\..\ifg\qt\atualiza_ui.h" />
     <ClInclude Include="..\..\ifg\qt\bonus_util.h" />
@@ -159,46 +159,46 @@
     <ProjectGuid>{5F7B8616-7D8D-41E0-B7B9-910BFB1F589E}</ProjectGuid>
     <RootNamespace>Project1</RootNamespace>
     <ProjectName>TabuleiroVirtual</ProjectName>
-    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -237,10 +237,14 @@
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -387,23 +391,25 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)glog-0.3.4\src\windows;$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(QTDIR)\msvc2019_64\include;$(QTDIR)\msvc2019_64\include\QtOpenGL;$(QTDIR)\msvc2019_64\include\QtCore;$(QTDIR)\msvc2019_64\include\QtWidgets;$(QTDIR)\msvc2019_64\include\QtMultimedia;$(QTDIR)\msvc2019_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=1;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;_HAS_AUTO_PTR_ETC=1;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)..\;$(QTDIR)\msvc2019_64\include;$(QTDIR)\msvc2019_64\include\QtOpenGL;$(QTDIR)\msvc2019_64\include\QtCore;$(QTDIR)\msvc2019_64\include\QtWidgets;$(QTDIR)\msvc2019_64\include\QtMultimedia;$(QTDIR)\msvc2019_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=1;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;_HAS_AUTO_PTR_ETC=1;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING=1;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4996;4251;4267</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Qt5Widgets.lib;Qt5Opengl.lib;Qt5Gui.lib;Qt5Core.lib;Qt5Multimedia.lib;Boost.lib;glu32.lib;opengl32.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;$(QTDIR)\msvc2015_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Qt5Widgets.lib;Qt5Opengl.lib;Qt5Gui.lib;Qt5Core.lib;Qt5Multimedia.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;$(QTDIR)\msvc2019_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PreBuildEvent>
-      <Command>"$(SolutionDir)..\bin\protoc3.exe"  -I$(SolutionDir).. --cpp_out=$(SolutionDir).. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto</Command>
+      <Command>$(SolutionDir)vcpkg_installed\x64-windows\tools\protobuf\protoc.exe  -I$(SolutionDir).. --cpp_out=$(SolutionDir).. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto</Command>
     </PreBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
@@ -414,6 +420,7 @@
     <PostBuildEvent>
       <Message>Copia a saida para o tabuleiro</Message>
     </PostBuildEvent>
+    <CustomBuildStep />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">
     <ClCompile>

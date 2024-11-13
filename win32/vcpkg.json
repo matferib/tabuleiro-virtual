@@ -1,0 +1,16 @@
+{
+  "dependencies": [
+    "abseil",
+    "boost",
+		"protobuf"
+	],
+  "overrides": [
+		{
+			"name": "boost", "version": "1.86.0#0"
+		},
+		{
+			"name": "protobuf", "version": "3.21.12"
+		}
+  ],
+  "builtin-baseline": "89f00b3b8611028566a5264afce725cdfdfddbb4"
+}
