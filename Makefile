@@ -34,8 +34,8 @@ windows_debug:
 	scons sistema=win32 debug=1 -j 1
 
 apple:
-	# bazel build --config=mac :tabvirt --verbose_failures
-	scons sistema=apple debug=0 -j 2
+	bazel build --config=mac :tabvirt --verbose_failures
+	#scons sistema=apple debug=0 -j 2
 
 apple_profile:
 	scons sistema=apple debug=1 gerar_profile=1 -j 1

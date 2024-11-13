@@ -52,14 +52,23 @@ QT_LIBRARIES = [
 ]
 
 [
+    filegroup(
+      name = "qt_%s_framework_osx" % framework,
+      srcs = glob(["lib/%s.framework/**" % framework], allow_empty = False),
+    )
+    for _, framework, _, _ in QT_LIBRARIES
+]
+[
     cc_library(
         name = "qt_%s_osx" % name,
         # When being on Windows or Linux this glob will be empty
-        hdrs = glob(["%s/**" % include_folder], allow_empty = True),
-        includes = ["."],
-        linkopts = ["-F/usr/local/opt/qt5/lib"] + [
-            "-framework %s" % library_name.replace("5", "") # macOS qt libs do not contain a 5 - e.g. instead of Qt5Core the lib is called QtCore
+        hdrs = glob(["include/%s/**" % include_folder], allow_empty = True),
+        includes = ["include", "."],
+        linkopts = [
+            "-framework %s" % library_name.replace("5", ""), # macOS qt libs do not contain a 5 - e.g. instead of Qt5Core the lib is called QtCore
+            #"-l%s" % library_name.replace("5", "")
             ],
+        data = ["qt_%s_framework_osx" % name]
         # Available from Bazel 4.0.0
         # target_compatible_with = ["@platforms//os:osx"],
     )

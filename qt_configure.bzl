@@ -21,7 +21,7 @@ def qt_autoconf_impl(repository_ctx):
         if not repository_ctx.path(default_qt_path).exists:
             win_path_env = _get_env_var(repository_ctx, "PATH")
             start_index = win_path_env.index("C:\\Qt\\5.")
-            end_index = win_path_env.index("msvc2017_64\\", start_index) + len("msvc2017_64")
+            end_index = win_path_env.index("msvc2019_64\\", start_index) + len("msvc2017_64")
             default_qt_path = win_path_env[start_index:end_index+1]
             default_qt_path = default_qt_path.replace('\\', "\\\\")
     elif os_name.find("linux") != -1:
@@ -35,7 +35,7 @@ def qt_autoconf_impl(repository_ctx):
             default_qt_path = "/usr/include/qt"
     elif os_name.find("mac") != -1:
         # assume Qt was installed using `brew install qt@5`
-        default_qt_path = "/usr/local/opt/qt5"
+        default_qt_path = "/opt/homebrew/Cellar/qt@5/5.15.15/"
     else:
         fail("Unsupported OS: %s" % os_name)
 
