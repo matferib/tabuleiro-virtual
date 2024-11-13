@@ -14,6 +14,7 @@ cc_binary(
       "@boost//:date_time",
       "@boost//:timer",
       "@qt//:qt_core",
+      "@qt//:qt_gui",
       "@qt//:qt_opengl",
       "@qt//:qt_network",
       "@qt//:qt_widgets",
@@ -27,4 +28,7 @@ cc_binary(
       "//som:som",
       "//tex:tex",
     ],
+    linkopts = [
+      "-framework OpenGL"
+    ]
 )
