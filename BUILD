@@ -28,7 +28,21 @@ cc_binary(
       "//som:som",
       "//tex:tex",
     ],
-    linkopts = [
-      "-framework OpenGL"
-    ]
+    linkopts = select({
+      "@platforms//os:osx": [
+        "-framework OpenGL",
+        "-F /opt/homebrew/Cellar/qt@5/5.15.15/Frameworks/",
+        "-framework QtCore",
+        "-framework QtGui",
+        "-framework QtNetwork",
+        "-framework QtOpenGL",
+        "-framework QtMultimedia",
+        "-framework QtWidgets",
+      ],
+      "@platforms//os:linux": [
+        "-lGLU",
+        "-lGL",
+      ],
+      "//conditions:default": [":generic_lib"],
+    })
 )

@@ -22,7 +22,6 @@ git_repository(
 )
 
 load("//:qt_configure.bzl", "qt_configure")
-
 qt_configure()
 
 load("@local_config_qt//:local_qt.bzl", "local_qt_path")
