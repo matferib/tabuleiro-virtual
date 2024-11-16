@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entradastring.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.15
+** Created by: Qt User Interface Compiler version 6.7.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,6 +10,7 @@
 #define ENTRADASTRING_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
@@ -29,24 +30,24 @@ public:
     void setupUi(QDialog *ifg__qt__EntradaString)
     {
         if (ifg__qt__EntradaString->objectName().isEmpty())
-            ifg__qt__EntradaString->setObjectName(QString::fromUtf8("ifg__qt__EntradaString"));
+            ifg__qt__EntradaString->setObjectName("ifg__qt__EntradaString");
         ifg__qt__EntradaString->resize(317, 118);
         botoes = new QDialogButtonBox(ifg__qt__EntradaString);
-        botoes->setObjectName(QString::fromUtf8("botoes"));
+        botoes->setObjectName("botoes");
         botoes->setGeometry(QRect(30, 70, 221, 41));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         nome = new QLineEdit(ifg__qt__EntradaString);
-        nome->setObjectName(QString::fromUtf8("nome"));
+        nome->setObjectName("nome");
         nome->setGeometry(QRect(10, 30, 291, 27));
         label_titulo = new QLabel(ifg__qt__EntradaString);
-        label_titulo->setObjectName(QString::fromUtf8("label_titulo"));
+        label_titulo->setObjectName("label_titulo");
         label_titulo->setGeometry(QRect(16, 10, 281, 20));
         label_titulo->setAlignment(Qt::AlignCenter);
 
         retranslateUi(ifg__qt__EntradaString);
-        QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__EntradaString, SLOT(accept()));
-        QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__EntradaString, SLOT(reject()));
+        QObject::connect(botoes, &QDialogButtonBox::accepted, ifg__qt__EntradaString, qOverload<>(&QDialog::accept));
+        QObject::connect(botoes, &QDialogButtonBox::rejected, ifg__qt__EntradaString, qOverload<>(&QDialog::reject));
 
         QMetaObject::connectSlotsByName(ifg__qt__EntradaString);
     } // setupUi

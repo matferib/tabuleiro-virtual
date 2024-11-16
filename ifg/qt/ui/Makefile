@@ -1,6 +1,4 @@
-QTDIR=../../../../libs/Qt/5.15.0/gcc_64/bin
-#QTDIR=/usr/local/google/home/mribeiro/Qt5/5.15.0/gcc_64/bin
-QTDIR=/opt/homebrew/Cellar/qt@5/5.15.15/bin/
+QTDIR=/opt/homebrew/Cellar/qt/6.7.2_2/share/qt/libexec/
 
 all:
 	${QTDIR}/uic entidade.ui -o entidade.h

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'opcoes.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.15
+** Created by: Qt User Interface Compiler version 6.7.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,6 +10,7 @@
 #define OPCOES_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
@@ -58,76 +59,76 @@ public:
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
         if (ifg__qt__DialogoOpcoes->objectName().isEmpty())
-            ifg__qt__DialogoOpcoes->setObjectName(QString::fromUtf8("ifg__qt__DialogoOpcoes"));
+            ifg__qt__DialogoOpcoes->setObjectName("ifg__qt__DialogoOpcoes");
         ifg__qt__DialogoOpcoes->resize(452, 496);
         verticalLayout = new QVBoxLayout(ifg__qt__DialogoOpcoes);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setObjectName("verticalLayout");
         checkbox_mostrar_fps = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_mostrar_fps->setObjectName(QString::fromUtf8("checkbox_mostrar_fps"));
+        checkbox_mostrar_fps->setObjectName("checkbox_mostrar_fps");
 
         verticalLayout->addWidget(checkbox_mostrar_fps);
 
         checkbox_texturas_sempre_de_frente = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_texturas_sempre_de_frente->setObjectName(QString::fromUtf8("checkbox_texturas_sempre_de_frente"));
+        checkbox_texturas_sempre_de_frente->setObjectName("checkbox_texturas_sempre_de_frente");
 
         verticalLayout->addWidget(checkbox_texturas_sempre_de_frente);
 
         checkbox_iluminacao_mestre = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_iluminacao_mestre->setObjectName(QString::fromUtf8("checkbox_iluminacao_mestre"));
+        checkbox_iluminacao_mestre->setObjectName("checkbox_iluminacao_mestre");
 
         verticalLayout->addWidget(checkbox_iluminacao_mestre);
 
         checkbox_rosa_dos_ventos = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_rosa_dos_ventos->setObjectName(QString::fromUtf8("checkbox_rosa_dos_ventos"));
+        checkbox_rosa_dos_ventos->setObjectName("checkbox_rosa_dos_ventos");
 
         verticalLayout->addWidget(checkbox_rosa_dos_ventos);
 
         checkbox_anti_aliasing = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_anti_aliasing->setObjectName(QString::fromUtf8("checkbox_anti_aliasing"));
+        checkbox_anti_aliasing->setObjectName("checkbox_anti_aliasing");
 
         verticalLayout->addWidget(checkbox_anti_aliasing);
 
         checkbox_grade = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_grade->setObjectName(QString::fromUtf8("checkbox_grade"));
+        checkbox_grade->setObjectName("checkbox_grade");
 
         verticalLayout->addWidget(checkbox_grade);
 
         checkbox_controle = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_controle->setObjectName(QString::fromUtf8("checkbox_controle"));
+        checkbox_controle->setObjectName("checkbox_controle");
 
         verticalLayout->addWidget(checkbox_controle);
 
         checkbox_mapeamento_oclusao = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_mapeamento_oclusao->setObjectName(QString::fromUtf8("checkbox_mapeamento_oclusao"));
+        checkbox_mapeamento_oclusao->setObjectName("checkbox_mapeamento_oclusao");
 
         verticalLayout->addWidget(checkbox_mapeamento_oclusao);
 
         checkbox_mapeamento_de_sombras = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_mapeamento_de_sombras->setObjectName(QString::fromUtf8("checkbox_mapeamento_de_sombras"));
+        checkbox_mapeamento_de_sombras->setObjectName("checkbox_mapeamento_de_sombras");
 
         verticalLayout->addWidget(checkbox_mapeamento_de_sombras);
 
         checkbox_ataque_vs_defesa_posicao_real = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_ataque_vs_defesa_posicao_real->setObjectName(QString::fromUtf8("checkbox_ataque_vs_defesa_posicao_real"));
+        checkbox_ataque_vs_defesa_posicao_real->setObjectName("checkbox_ataque_vs_defesa_posicao_real");
 
         verticalLayout->addWidget(checkbox_ataque_vs_defesa_posicao_real);
 
         checkbox_tab_ativa_ataque = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_tab_ativa_ataque->setObjectName(QString::fromUtf8("checkbox_tab_ativa_ataque"));
+        checkbox_tab_ativa_ataque->setObjectName("checkbox_tab_ativa_ataque");
 
         verticalLayout->addWidget(checkbox_tab_ativa_ataque);
 
         checkbox_desativar_som = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_desativar_som->setObjectName(QString::fromUtf8("checkbox_desativar_som"));
+        checkbox_desativar_som->setObjectName("checkbox_desativar_som");
 
         verticalLayout->addWidget(checkbox_desativar_som);
 
         horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        horizontalLayout->setObjectName("horizontalLayout");
         horizontalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
         checkbox_resolucao_fixa = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_resolucao_fixa->setObjectName(QString::fromUtf8("checkbox_resolucao_fixa"));
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        checkbox_resolucao_fixa->setObjectName("checkbox_resolucao_fixa");
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(checkbox_resolucao_fixa->sizePolicy().hasHeightForWidth());
@@ -140,7 +141,7 @@ public:
         combo_tamanho_buffer_principal->addItem(QString());
         combo_tamanho_buffer_principal->addItem(QString());
         combo_tamanho_buffer_principal->addItem(QString());
-        combo_tamanho_buffer_principal->setObjectName(QString::fromUtf8("combo_tamanho_buffer_principal"));
+        combo_tamanho_buffer_principal->setObjectName("combo_tamanho_buffer_principal");
 
         horizontalLayout->addWidget(combo_tamanho_buffer_principal);
 
@@ -148,9 +149,9 @@ public:
         verticalLayout->addLayout(horizontalLayout);
 
         horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_2->setObjectName("horizontalLayout_2");
         label_2 = new QLabel(ifg__qt__DialogoOpcoes);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setObjectName("label_2");
 
         horizontalLayout_2->addWidget(label_2);
 
@@ -159,7 +160,7 @@ public:
         combo_tamanho_texturas->addItem(QString());
         combo_tamanho_texturas->addItem(QString());
         combo_tamanho_texturas->addItem(QString());
-        combo_tamanho_texturas->setObjectName(QString::fromUtf8("combo_tamanho_texturas"));
+        combo_tamanho_texturas->setObjectName("combo_tamanho_texturas");
 
         horizontalLayout_2->addWidget(combo_tamanho_texturas);
 
@@ -167,21 +168,21 @@ public:
         verticalLayout->addLayout(horizontalLayout_2);
 
         horizontalLayout_3 = new QHBoxLayout();
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_3->setObjectName("horizontalLayout_3");
         label = new QLabel(ifg__qt__DialogoOpcoes);
-        label->setObjectName(QString::fromUtf8("label"));
+        label->setObjectName("label");
 
         horizontalLayout_3->addWidget(label);
 
         slider_escala = new QSlider(ifg__qt__DialogoOpcoes);
-        slider_escala->setObjectName(QString::fromUtf8("slider_escala"));
+        slider_escala->setObjectName("slider_escala");
         slider_escala->setMaximum(4);
         slider_escala->setOrientation(Qt::Horizontal);
 
         horizontalLayout_3->addWidget(slider_escala);
 
         label_escala = new QLabel(ifg__qt__DialogoOpcoes);
-        label_escala->setObjectName(QString::fromUtf8("label_escala"));
+        label_escala->setObjectName("label_escala");
 
         horizontalLayout_3->addWidget(label_escala);
 
@@ -189,9 +190,9 @@ public:
         verticalLayout->addLayout(horizontalLayout_3);
 
         horizontalLayout_4 = new QHBoxLayout();
-        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        horizontalLayout_4->setObjectName("horizontalLayout_4");
         label_3 = new QLabel(ifg__qt__DialogoOpcoes);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setObjectName("label_3");
 
         horizontalLayout_4->addWidget(label_3);
 
@@ -200,7 +201,7 @@ public:
         combo_fps->addItem(QString());
         combo_fps->addItem(QString());
         combo_fps->addItem(QString());
-        combo_fps->setObjectName(QString::fromUtf8("combo_fps"));
+        combo_fps->setObjectName("combo_fps");
 
         horizontalLayout_4->addWidget(combo_fps);
 
@@ -208,12 +209,12 @@ public:
         verticalLayout->addLayout(horizontalLayout_4);
 
         checkbox_desabilitar_retina = new QCheckBox(ifg__qt__DialogoOpcoes);
-        checkbox_desabilitar_retina->setObjectName(QString::fromUtf8("checkbox_desabilitar_retina"));
+        checkbox_desabilitar_retina->setObjectName("checkbox_desabilitar_retina");
 
         verticalLayout->addWidget(checkbox_desabilitar_retina);
 
         buttonBox = new QDialogButtonBox(ifg__qt__DialogoOpcoes);
-        buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        buttonBox->setObjectName("buttonBox");
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
@@ -221,8 +222,8 @@ public:
 
 
         retranslateUi(ifg__qt__DialogoOpcoes);
-        QObject::connect(buttonBox, SIGNAL(accepted()), ifg__qt__DialogoOpcoes, SLOT(accept()));
-        QObject::connect(buttonBox, SIGNAL(rejected()), ifg__qt__DialogoOpcoes, SLOT(reject()));
+        QObject::connect(buttonBox, &QDialogButtonBox::accepted, ifg__qt__DialogoOpcoes, qOverload<>(&QDialog::accept));
+        QObject::connect(buttonBox, &QDialogButtonBox::rejected, ifg__qt__DialogoOpcoes, qOverload<>(&QDialog::reject));
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoOpcoes);
     } // setupUi

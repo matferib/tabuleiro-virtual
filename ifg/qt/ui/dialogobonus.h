@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'dialogo_bonus.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.15
+** Created by: Qt User Interface Compiler version 6.7.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,6 +10,7 @@
 #define DIALOGOBONUS_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
@@ -35,20 +36,20 @@ public:
     void setupUi(QDialog *ifg__qt__DialogoBonus)
     {
         if (ifg__qt__DialogoBonus->objectName().isEmpty())
-            ifg__qt__DialogoBonus->setObjectName(QString::fromUtf8("ifg__qt__DialogoBonus"));
+            ifg__qt__DialogoBonus->setObjectName("ifg__qt__DialogoBonus");
         ifg__qt__DialogoBonus->resize(564, 371);
         gridLayout = new QGridLayout(ifg__qt__DialogoBonus);
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         tabela_bonus = new QTableView(ifg__qt__DialogoBonus);
-        tabela_bonus->setObjectName(QString::fromUtf8("tabela_bonus"));
+        tabela_bonus->setObjectName("tabela_bonus");
 
         gridLayout->addWidget(tabela_bonus, 0, 0, 1, 1);
 
         verticalLayout = new QVBoxLayout();
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setObjectName("verticalLayout");
         botao_adicionar_bonus = new QPushButton(ifg__qt__DialogoBonus);
-        botao_adicionar_bonus->setObjectName(QString::fromUtf8("botao_adicionar_bonus"));
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        botao_adicionar_bonus->setObjectName("botao_adicionar_bonus");
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(botao_adicionar_bonus->sizePolicy().hasHeightForWidth());
@@ -59,7 +60,7 @@ public:
         verticalLayout->addWidget(botao_adicionar_bonus);
 
         botao_remover_bonus = new QPushButton(ifg__qt__DialogoBonus);
-        botao_remover_bonus->setObjectName(QString::fromUtf8("botao_remover_bonus"));
+        botao_remover_bonus->setObjectName("botao_remover_bonus");
         sizePolicy.setHeightForWidth(botao_remover_bonus->sizePolicy().hasHeightForWidth());
         botao_remover_bonus->setSizePolicy(sizePolicy);
         botao_remover_bonus->setStyleSheet(QString::fromUtf8("color: red;\n"
@@ -71,7 +72,7 @@ public:
         gridLayout->addLayout(verticalLayout, 0, 1, 1, 1);
 
         botoes_ok_cancela = new QDialogButtonBox(ifg__qt__DialogoBonus);
-        botoes_ok_cancela->setObjectName(QString::fromUtf8("botoes_ok_cancela"));
+        botoes_ok_cancela->setObjectName("botoes_ok_cancela");
         botoes_ok_cancela->setOrientation(Qt::Horizontal);
         botoes_ok_cancela->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
@@ -79,8 +80,8 @@ public:
 
 
         retranslateUi(ifg__qt__DialogoBonus);
-        QObject::connect(botoes_ok_cancela, SIGNAL(accepted()), ifg__qt__DialogoBonus, SLOT(accept()));
-        QObject::connect(botoes_ok_cancela, SIGNAL(rejected()), ifg__qt__DialogoBonus, SLOT(reject()));
+        QObject::connect(botoes_ok_cancela, &QDialogButtonBox::accepted, ifg__qt__DialogoBonus, qOverload<>(&QDialog::accept));
+        QObject::connect(botoes_ok_cancela, &QDialogButtonBox::rejected, ifg__qt__DialogoBonus, qOverload<>(&QDialog::reject));
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoBonus);
     } // setupUi
