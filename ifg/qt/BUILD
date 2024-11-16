@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@com_justbuchanan_rules_qt//:qt.bzl", "qt_cc_library", "qt_ui_library")
+load("//:qt.bzl", "qt_cc_library", "qt_ui_library")
 
 qt_cc_library(
   name = "ifg_qt",
@@ -42,6 +42,7 @@ qt_cc_library(
       "@qt//:qt_core",
       "@qt//:qt_gui",
       "@qt//:qt_opengl",
+      "@qt//:qt_openglwidgets",
       "@qt//:qt_widgets",
       "//arq:arq_headers",
       "//ifg:ifg_cc_proto",

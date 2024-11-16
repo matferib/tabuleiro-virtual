@@ -7,12 +7,13 @@
 #include <boost/timer/timer.hpp>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QLocale>
+#if !USAR_QT5
 #include <QtCore/QTextCodec>
+#endif
 #include <QtCore/QTimer>
 #include <QtCore/QTranslator>
 #include <QtGui/QCloseEvent>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QDesktopWidget>
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QMessageBox>

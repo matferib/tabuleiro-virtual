@@ -2,15 +2,14 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QString>
-#include <QtGui/QStandardItemModel>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QScreen>
 #include <QtGui/QPainter>
 #include <QtGui/QStandardItem>
+#include <QtGui/QStandardItemModel>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QColorDialog>
-#include <QtWidgets/QDesktopWidget>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QFileDialog>

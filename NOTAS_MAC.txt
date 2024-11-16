@@ -1,8 +1,7 @@
-Interessante: https://bazel.build/docs/configurable-attributes
-select é a função do Bazel pra selecionar entre plataformas diferentes.
+Caminho curto (faz tudo):
+sh gera_mac.sh -v 5.6.0
 
-Caminho curto:
-sh gera_mac.sh -v 5.5.1
+Explicação do script:
 
 1- Colocar no diretorio mac as coisas da instalação:
 Os executaveis:
@@ -10,6 +9,7 @@ tabvirt
 tabvirt.command
 
 Texturas e dados:
+icon.ico -> iconfile.icns
 texturas/*.png
 dados/*.asciiproto
 shaders/*.c
@@ -55,3 +55,6 @@ Gerando Icone do Tabvirt.command
 - Clique no icone (em cima a esquerda)
 - Cole.
 https://support.apple.com/kb/PH13922?locale=pt_BR
+
+Problema do segfault do package: o macdeployqt ta fazendo alguma bobagem. O install_name_tool, ao linkar QtCore da problema ao criar QApplication. Ao linkaer o QtGui da segfault. Aparentemente, algo a ver com plugins.
+

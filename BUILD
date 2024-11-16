@@ -1,4 +1,4 @@
-load("@com_justbuchanan_rules_qt//:qt.bzl", "qt_cc_library", "qt_ui_library")
+load("@//:qt.bzl", "qt_cc_library", "qt_ui_library")
 
 cc_binary(
     name = "tabvirt",
@@ -31,12 +31,13 @@ cc_binary(
     linkopts = select({
       "@platforms//os:osx": [
         "-framework OpenGL",
-        "-F /opt/homebrew/Cellar/qt@5/5.15.15/Frameworks/",
+        "-F /opt/homebrew/Cellar/qt/6.7.2_2/Frameworks/",
         "-framework QtCore",
         "-framework QtGui",
+        "-framework QtMultimedia",
         "-framework QtNetwork",
         "-framework QtOpenGL",
-        "-framework QtMultimedia",
+        "-framework QtOpenGLWidgets",
         "-framework QtWidgets",
       ],
       "@platforms//os:linux": [

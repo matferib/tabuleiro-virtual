@@ -8,9 +8,9 @@ Necessary for lupdate.
 #include <stack>
 #include <set>
 #include <QtCore/QVariant>
-#include <QtWidgets/QActionGroup>
-#include <QtWidgets/QBoxLayout>
+#include <QtGui/QActionGroup>
 #include <QtGui/QColor>
+#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QColorDialog>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QFileDialog>
@@ -572,7 +572,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 5.5.1\n"
+        tr("Tabuleiro virtual versão 5.6.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"

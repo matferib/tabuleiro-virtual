@@ -1,3 +1,7 @@
+Interessante: https://bazel.build/docs/configurable-attributes
+select é a função do Bazel pra selecionar entre plataformas diferentes.
+
+
 Armadura sem talento: brieth tanalar.
 Finalizar os tesouros: armas e armaduras aparece apenas teste ao adicionar.
 Não tem antitoxina em itens mundanos.

@@ -3,8 +3,8 @@
 
 #include <QtGui/QOffscreenSurface>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLFramebufferObject>
-#include <QtWidgets/QOpenGLWidget>
+#include <QtOpenGL/QOpenGLFramebufferObject>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QtWidgets/QWidget>
 #include <boost/timer/timer.hpp>
 #include <list>

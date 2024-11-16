@@ -1,15 +1,16 @@
 load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
 
 QT_LIBRARIES = [
-    ("core", "QtCore", "Qt5Core", []),
-    ("network", "QtNetwork", "Qt5Network", []),
-    ("widgets", "QtWidgets", "Qt5Widgets", [":qt_core", ":qt_gui"]),
-    ("quick", "QtQuick", "Qt5Quick", [":qt_gui", ":qt_qml"]),
-    ("qml", "QtQml", "Qt5Qml", [":qt_core", ":qt_network"]),
-    ("qml_models", "QtQmlModels", "Qt5QmlModels", []),
-    ("gui", "QtGui", "Qt5Gui", [":qt_core"]),
-    ("opengl", "QtOpenGL", "Qt5OpenGL", []),
-    ("multimedia", "QtMultimedia", "Qt5Multimedia", []),
+    ("core", "QtCore", "Qt6Core", []),
+    ("network", "QtNetwork", "Qt6Network", []),
+    ("widgets", "QtWidgets", "Qt6Widgets", [":qt_core", ":qt_gui"]),
+    ("quick", "QtQuick", "Qt6Quick", [":qt_gui", ":qt_qml"]),
+    ("qml", "QtQml", "Qt6Qml", [":qt_core", ":qt_network"]),
+    ("qml_models", "QtQmlModels", "Qt6QmlModels", []),
+    ("gui", "QtGui", "Qt6Gui", [":qt_core"]),
+    ("opengl", "QtOpenGL", "Qt6OpenGL", []),
+    ("openglwidgets", "QtOpenGLWidgets", "Qt6OpenGLWidgets", []),
+    ("multimedia", "QtMultimedia", "Qt6Multimedia", []),
 ]
 
 [
@@ -58,8 +59,7 @@ QT_LIBRARIES = [
         hdrs = glob(["include/%s/**" % include_folder], allow_empty = True),
         includes = ["include", "."],
         linkopts = [
-            #"-framework %s" % library_name.replace("5", ""), # macOS qt libs do not contain a 5 - e.g. instead of Qt5Core the lib is called QtCore
-            #"-l%s" % library_name.replace("5", "")
+            "-framework %s" % library_name.replace("6", ""), # macOS qt libs do not contain a 6 - e.g. instead of Qt6Core the lib is called QtCore
             ],
         # Available from Bazel 4.0.0
         # target_compatible_with = ["@platforms//os:osx"],
@@ -100,18 +100,18 @@ cc_library(
     ], allow_empty = True),
     includes = ["."],
     linkopts = [
-        "-lQt53DAnimation",
-        "-lQt53DCore",
-        "-lQt53DExtras",
-        "-lQt53DInput",
-        "-lQt53DLogic",
-        "-lQt53DQuick",
-        "-lQt53DQuickAnimation",
-        "-lQt53DQuickExtras",
-        "-lQt53DQuickInput",
-        "-lQt53DQuickRender",
-        "-lQt53DQuickScene2D",
-        "-lQt53DRender",
+        "-lQt63DAnimation",
+        "-lQt63DCore",
+        "-lQt63DExtras",
+        "-lQt63DInput",
+        "-lQt63DLogic",
+        "-lQt63DQuick",
+        "-lQt63DQuickAnimation",
+        "-lQt63DQuickExtras",
+        "-lQt63DQuickInput",
+        "-lQt63DQuickRender",
+        "-lQt63DQuickScene2D",
+        "-lQt63DRender",
     ],
     # Available from Bazel 4.0.0
     # target_compatible_with = ["@platforms//os:linux"],

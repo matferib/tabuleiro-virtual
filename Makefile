@@ -37,6 +37,9 @@ apple:
 	bazel build --config=mac :tabvirt --verbose_failures
 	#scons sistema=apple debug=0 -j 2
 
+apple_clean:
+	bazel clean --config=mac --verbose_failures
+
 apple_profile:
 	scons sistema=apple debug=1 gerar_profile=1 -j 1
 

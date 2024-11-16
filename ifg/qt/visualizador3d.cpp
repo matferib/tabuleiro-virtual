@@ -1,6 +1,5 @@
 #include "ifg/qt/visualizador3d.h"
 
-#include <QtWidgets/QDesktopWidget>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QScreen>
@@ -108,7 +107,7 @@ void Visualizador3d::initializeGL() {
     const auto& opcoes = tabuleiro_->Opcoes();
     const float escala_fonte = opcoes.escala() > 0.0
           ? opcoes.escala()
-          : QApplication::desktop()->devicePixelRatio();
+          : QGuiApplication::primaryScreen()->devicePixelRatio();
     gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), escala_fonte);
     tabuleiro_->IniciaGL();
     LOG(INFO) << "GL iniciado";
@@ -120,7 +119,7 @@ void Visualizador3d::initializeGL() {
 }
 
 void Visualizador3d::resizeGL(int w, int h) {
-  const float dpr = QApplication::desktop()->devicePixelRatio();
+  const float dpr = QGuiApplication::primaryScreen()->devicePixelRatio();
   w *= dpr;
   h *= dpr;
   //LOG(INFO) << "w x h: " << w << "x" << h;
@@ -186,7 +185,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       LOG(INFO) << "alterando escala para: " << notificacao.opcoes().escala();
       gl::AlteraEscala(notificacao.opcoes().escala() > 0
           ? notificacao.opcoes().escala()
-          : QApplication::desktop()->devicePixelRatio());
+          : QGuiApplication::primaryScreen()->devicePixelRatio());
       break;
     }
     case ntf::TN_MUDAR_CURSOR:
@@ -312,12 +311,12 @@ void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
 }
 
 int Visualizador3d::XPara3d(int x) const {
-  const float dpr = QApplication::desktop()->devicePixelRatio();
+  const float dpr = QGuiApplication::primaryScreen()->devicePixelRatio();
   return x * dpr;
 }
 
 int Visualizador3d::YPara3d(int y) const {
-  const float dpr = QApplication::desktop()->devicePixelRatio();
+  const float dpr = QGuiApplication::primaryScreen()->devicePixelRatio();
   return y * dpr;
 }
 
@@ -328,8 +327,8 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   teclado_mouse_->TrataBotaoMousePressionado(
        BotaoMouseQtParaTratadorTecladoMouse(event->button()),
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
-       XPara3d(event->x()),
-       YPara3d(height() - event->y()));
+       XPara3d(event->position().x()),
+       YPara3d(height() - event->position().y()));
   event->accept();
   LiberaContexto();
 }
@@ -344,7 +343,7 @@ void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
 void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
   if (event->modifiers() != 0) {
     // Com modificadores chama o mouse press duas vezes.
-    auto* event2 = new QMouseEvent(*event);
+    auto* event2 = event->clone();
     mousePressEvent(event);
     mousePressEvent(event2);
     delete event2;
@@ -354,16 +353,16 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
   teclado_mouse_->TrataDuploCliqueMouse(
       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
-      XPara3d(event->x()), YPara3d(height() - event->y()));
+      XPara3d(event->position().x()), YPara3d(height() - event->position().y()));
   event->accept();
   LiberaContexto();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
   PegaContexto();
-  int x = event->globalX();
-  int y = event->globalY();
-  if (teclado_mouse_->TrataMovimentoMouse(XPara3d(event->x()), YPara3d(height() - event->y()))) {
+  int x = event->globalPosition().x();
+  int y = event->globalPosition().y();
+  if (teclado_mouse_->TrataMovimentoMouse(XPara3d(event->position().x()), YPara3d(height() - event->position().y()))) {
     QCursor::setPos(x_antes_, y_antes_);
   } else {
     x_antes_ = x;
@@ -375,7 +374,7 @@ void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
   PegaContexto();
-  teclado_mouse_->TrataRodela(event->delta());
+  teclado_mouse_->TrataRodela(event->angleDelta().y());
   event->accept();
   LiberaContexto();
 }

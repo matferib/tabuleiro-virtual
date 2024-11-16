@@ -24,6 +24,6 @@
   <string>tabvirt</string>
 
   <key>CFBundleIconFile</key>
-  <string>icons.icns</string>
+  <string>iconfile.icns</string>
 </dict>
 </plist>
