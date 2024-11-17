@@ -15,36 +15,16 @@ dados/*.asciiproto
 shaders/*.c
 modelos3d/*.binproto
 
-Os 3 frameworks do Qt, sem headers:
-O esqueleto pode ser encontrado em https://drive.google.com/file/d/0B7clSIFMH9R-NWMzaGJVS1RXd3M/view?usp=sharing (mac_skeleton.tgz).
+O script gera_mac vai copiar tudo pro Contents do bundle. Ao rodar o MACDEPLOYQT ele vai atualizar as dependencias todas pra apontar pro lugar certo (install_name_tool). So pra completar, o install_name_tool faz o binario apontar pras libs que vão no pacote, ao invés das do sistema.
 
-QtGui
-QtCore
-QtOpenGL
+O arquivo tem que ser assinado. Como não tenho uma conta valida, faço assinatura local mesmo, ver o codesign. Sem isso, o executável morre com signal 9 (killed).
 
-As bibliotecas compartilhadas:
-libSystem.B.dylib
-libboost_system.dylib
-libc++.1.dylib
-libglog.0.dylib
-Libboost_filesystem.dylib
-libboost_timer.dylib
-libgflags.2.dylib
-libprotobuf.9.dylib
-libboost_chrono.dylib
-
-1.5- Mudar as dependencias do executavel na pasta do mac (do diretorio pai):
-for i in libprotobuf.9.dylib libboost_system.dylib libboost_timer.dylib libboost_filesystem.dylib libgflags.2.dylib libglog.0.dylib QtOpenGL.framework/Versions/5/QtOpenGL QtGui.framework/Versions/5/QtGui QtCore.framework/Versions/5/QtCore QtWidgets.framework/Versions/5/QtWidgets; do install_name_tool -change /usr/local/lib/${i} @executable_path/lib/${i} mac/tabvirt; done
-
-2- Usar o pkgbuild para gerar o pacote (rodar do diretorio do tabuleiro).
-pkgbuild --identifier com.matferib.TabuleiroVirtual --version 2.0.0 --install-location=/Applications/TabuleiroVirtual --root ./mac TabuleiroVirtual-2.0.0.pkg
+No final, o pacote é contruido com o comando pkgbuild.
 
 OBS:
 Nao vi utilidade em usar o plist. De qualquer forma, a versao para criar o arquivo padrao:
 pkgbuild --analyze --root ./mac TabuleiroVirtual.plist
 Depois adicionar --component-plist TabuleiroVirtual.plist.
-
-?? nao precisa de usar install_name_tool para mudar os caminhos linkados.
 
 Gerando Icone do Tabvirt.command
 - Abra a imagem do icone no preview.
@@ -55,6 +35,3 @@ Gerando Icone do Tabvirt.command
 - Clique no icone (em cima a esquerda)
 - Cole.
 https://support.apple.com/kb/PH13922?locale=pt_BR
-
-Problema do segfault do package: o macdeployqt ta fazendo alguma bobagem. O install_name_tool, ao linkar QtCore da problema ao criar QApplication. Ao linkaer o QtGui da segfault. Aparentemente, algo a ver com plugins.
-
