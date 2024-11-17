@@ -69,5 +69,5 @@ linux_release:
 	scons debug=0
 
 clean:
-	bazel clean
+	bazel clean --config=linux
 	#scons -c
