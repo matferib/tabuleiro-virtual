@@ -7,9 +7,6 @@
 #include <boost/timer/timer.hpp>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QLocale>
-#if !USAR_QT5
-#include <QtCore/QTextCodec>
-#endif
 #include <QtCore/QTimer>
 #include <QtCore/QTranslator>
 #include <QtGui/QCloseEvent>
@@ -58,9 +55,6 @@ Principal* Principal::Cria(
   LOG(INFO) << "Arquivo: tabuleiro." << QLocale::system().name().toUtf8().constData();
   q_app->installTranslator(tradutor_meu);
 
-#if !USAR_QT5
-  QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-#endif
   return new Principal(tabelas, tabuleiro, m3d, texturas, teclado_mouse, central, q_app);
 }
 
