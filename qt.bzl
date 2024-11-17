@@ -64,7 +64,7 @@ def qt_ui_library(name, ui, deps, **kwargs):
     )
 
 def _gencpp(ctx):
-    info = ctx.toolchains["@com_justbuchanan_rules_qt//tools:toolchain_type"].qtinfo
+    #info = ctx.toolchains["@com_justbuchanan_rules_qt//tools:toolchain_type"].qtinfo
 
     resource_files = [(f, ctx.actions.declare_file(f.path)) for f in ctx.files.files]
     for target_file, output in resource_files:
@@ -78,7 +78,7 @@ def _gencpp(ctx):
         inputs = [resource for _, resource in resource_files] + [ctx.file.qrc],
         outputs = [ctx.outputs.cpp],
         arguments = args,
-        executable = info.rcc_path,
+        executable = ctx.attr.rcc #info.rcc_path,
     )
     return [OutputGroupInfo(cpp = depset([ctx.outputs.cpp]))]
 
@@ -89,8 +89,9 @@ gencpp = rule(
         "files": attr.label_list(allow_files = True, mandatory = False),
         "qrc": attr.label(allow_single_file = True, mandatory = True),
         "cpp": attr.output(),
+        "rcc": attr.string(),
     },
-    toolchains = ["@com_justbuchanan_rules_qt//tools:toolchain_type"],
+    #toolchains = ["@com_justbuchanan_rules_qt//tools:toolchain_type"],
 )
 
 # generate a qrc file that lists each of the input files.
@@ -137,6 +138,12 @@ def qt_resource(name, files, **kwargs):
         files = files,
         qrc = qrc_file,
         cpp = outfile,
+        rcc = select({
+            "@platforms//os:linux": "/usr/lib/qt6/libexec/rcc",
+            "@platforms//os:windows": "$(location @qt//:rcc)",
+            "@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/rcc",
+        }),
+
     )
     cc_library(
         name = name,

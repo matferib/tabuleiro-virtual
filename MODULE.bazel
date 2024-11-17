@@ -4,10 +4,18 @@ bazel_dep(name = "abseil-cpp", version = "20240722.0")
 # Choose the most recent version available at
 # https://registry.bazel.build/modules/googletest
 bazel_dep(name = "googletest", version = "1.15.2")
-
 # Choose the most recent version available at
 # https://registry.bazel.build/modules/protobuf
 bazel_dep(name = "protobuf", version = "28.3")
+
+# Qt rules from git.
+#bazel_dep(name = "com_justbuchanan_rules_qt")
+#git_override(
+#  module_name = "com_justbuchanan_rules_qt",
+#  remote = "https://github.com/justbuchanan/bazel_rules_qt.git",
+#  commit = "89290cc7962d697c31b361a0f62141ca13d062d2",
+#  #branch = "master"
+#)
 
 # Boost
 # Famous C++ library that has given rise to many new additions to the C++ Standard Library
