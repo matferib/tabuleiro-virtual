@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created by: Qt User Interface Compiler version 6.2.4
+** Created by: Qt User Interface Compiler version 5.15.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,7 +10,6 @@
 #define ENTIDADE_H
 
 #include <QtCore/QVariant>
-#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
@@ -1282,8 +1281,9 @@ public:
         sizePolicy8.setHeightForWidth(label_70->sizePolicy().hasHeightForWidth());
         label_70->setSizePolicy(sizePolicy8);
         QFont font;
-        font.setFamilies({QString::fromUtf8("Noto Sans [unknown]")});
+        font.setFamily(QString::fromUtf8("Noto Sans [unknown]"));
         font.setBold(true);
+        font.setWeight(75);
         label_70->setFont(font);
         label_70->setAlignment(Qt::AlignCenter);
 
@@ -1759,6 +1759,7 @@ public:
         label_37->setObjectName(QString::fromUtf8("label_37"));
         QFont font1;
         font1.setBold(true);
+        font1.setWeight(75);
         label_37->setFont(font1);
         label_37->setAlignment(Qt::AlignCenter);
 
@@ -2415,6 +2416,7 @@ public:
         QFont font2;
         font2.setPointSize(11);
         font2.setBold(true);
+        font2.setWeight(75);
         label_94->setFont(font2);
 
         verticalLayout_17->addWidget(label_94);
@@ -3817,8 +3819,8 @@ public:
         QWidget::setTabOrder(texto_notas, tabs);
 
         retranslateUi(ifg__qt__DialogoEntidade);
-        QObject::connect(botoes, &QDialogButtonBox::accepted, ifg__qt__DialogoEntidade, qOverload<>(&QDialog::accept));
-        QObject::connect(botoes, &QDialogButtonBox::rejected, ifg__qt__DialogoEntidade, qOverload<>(&QDialog::reject));
+        QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
+        QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
 
         tabs->setCurrentIndex(0);
 
