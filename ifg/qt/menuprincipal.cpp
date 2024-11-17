@@ -8,7 +8,11 @@ Necessary for lupdate.
 #include <stack>
 #include <set>
 #include <QtCore/QVariant>
+#if USAR_QT5
+#include <QtWidgets/QActionGroup>
+#else
 #include <QtGui/QActionGroup>
+#endif
 #include <QtGui/QColor>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QColorDialog>

@@ -53,7 +53,7 @@ def qt_ui_library(name, ui, deps, **kwargs):
         uic = select({
             "@platforms//os:linux": "/usr/lib/qt6/libexec/uic",
             "@platforms//os:windows": "$(location @qt//:uic)",
-            "@platforms//os:osx": "/opt/homebrew/Cellar/qt/6.7.2_2/share/qt/libexec/uic",
+            "@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/uic",
         }),
     )
     cc_library(
@@ -167,7 +167,7 @@ def qt_cc_library(name, srcs, hdrs, normal_hdrs = [], deps = None, **kwargs):
             cmd = select({
                 "@platforms//os:linux": "/usr/lib/qt6/libexec/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
                 "@platforms//os:windows": "$(location @qt//:moc) $(locations %s) -o $@ -f'%s'" % (hdr, header_path),
-                "@platforms//os:osx": "/opt/homebrew/Cellar/qt/6.7.2_2/share/qt/libexec/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
+                "@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
             }),
             tools = select({
                 "@platforms//os:linux": [],

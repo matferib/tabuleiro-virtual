@@ -35,6 +35,18 @@
 #include "net/util.h"
 #include "ntf/notificacao.pb.h"
 
+#if USAR_QT5
+#define EVENT_X(event) event->x()
+#define EVENT_Y(event) event->y()
+#define EVENT_GLOBAL_X(event) event->globalX()
+#define EVENT_GLOBAL_Y(event) event->globalY()
+#else
+#define EVENT_X(event) event->position().x()
+#define EVENT_Y(event) event->position().y()
+#define EVENT_GLOBAL_X(event) event->globalPosition().x()
+#define EVENT_GLOBAL_Y(event) event->globalPosition().y()
+#endif
+
 namespace ifg {
 namespace qt {
 namespace {
@@ -327,8 +339,8 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   teclado_mouse_->TrataBotaoMousePressionado(
        BotaoMouseQtParaTratadorTecladoMouse(event->button()),
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
-       XPara3d(event->position().x()),
-       YPara3d(height() - event->position().y()));
+       XPara3d(EVENT_X(event)),
+       YPara3d(height() - EVENT_Y(event)));
   event->accept();
   LiberaContexto();
 }
@@ -343,7 +355,13 @@ void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
 void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
   if (event->modifiers() != 0) {
     // Com modificadores chama o mouse press duas vezes.
-    auto* event2 = event->clone();
+    auto* event2 =
+#if USAR_QT5
+      new QMouseEvent(*event)
+#else
+      event->clone()
+#endif
+    ;
     mousePressEvent(event);
     mousePressEvent(event2);
     delete event2;
@@ -353,16 +371,16 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
   teclado_mouse_->TrataDuploCliqueMouse(
       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
-      XPara3d(event->position().x()), YPara3d(height() - event->position().y()));
+      XPara3d(EVENT_X(event)), YPara3d(height() - EVENT_Y(event)));
   event->accept();
   LiberaContexto();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
   PegaContexto();
-  int x = event->globalPosition().x();
-  int y = event->globalPosition().y();
-  if (teclado_mouse_->TrataMovimentoMouse(XPara3d(event->position().x()), YPara3d(height() - event->position().y()))) {
+  int x = EVENT_GLOBAL_X(event);
+  int y = EVENT_GLOBAL_Y(event);
+  if (teclado_mouse_->TrataMovimentoMouse(XPara3d(EVENT_X(event)), YPara3d(height() - EVENT_Y(event)))) {
     QCursor::setPos(x_antes_, y_antes_);
   } else {
     x_antes_ = x;

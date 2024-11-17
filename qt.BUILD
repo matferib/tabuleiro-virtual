@@ -58,8 +58,10 @@ QT_LIBRARIES = [
         # When being on Windows or Linux this glob will be empty
         hdrs = glob(["include/%s/**" % include_folder], allow_empty = True),
         includes = ["include", "."],
+        # macOS qt libs do not contain a 6 - e.g. instead of Qt6Core the lib is called QtCore
+        # Qt5 does not have OpenGLWidgets
         linkopts = [
-            "-framework %s" % library_name.replace("6", ""), # macOS qt libs do not contain a 6 - e.g. instead of Qt6Core the lib is called QtCore
+            "-framework %s" % library_name.replace("6", "") if library_name != "Qt6OpenGLWidgets" else "",
             ],
         # Available from Bazel 4.0.0
         # target_compatible_with = ["@platforms//os:osx"],
