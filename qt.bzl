@@ -24,7 +24,7 @@ def _gen_ui_header(ctx):
         inputs = [ctx.file.ui_file],
         outputs = [ctx.outputs.ui_header],
         arguments = args,
-        executable = info.uic_path,
+        executable = ctx.attr.uic, #info.uic_path,
     )
     return [OutputGroupInfo(ui_header = depset([ctx.outputs.ui_header]))]
 
@@ -33,7 +33,8 @@ gen_ui_header = rule(
     attrs = {
         "ui_file": attr.label(allow_single_file = True, mandatory = True),
         "ui_header": attr.output(),
-    },
+        "uic": attr.string(),
+   },
     toolchains = ["@com_justbuchanan_rules_qt//tools:toolchain_type"],
 )
 
@@ -42,13 +43,18 @@ def qt_ui_library(name, ui, deps, **kwargs):
 
     Args:
       name: A name for the rule.
-      src: The ui file to compile.
+      ui: The ui file to compile.
       deps: cc_library dependencies for the library.
     """
     gen_ui_header(
         name = "%s_uic" % name,
         ui_file = ui,
-        ui_header = "ui_%s.h" % ui.split(".")[0],
+        ui_header = "%s.h" % ui.split(".")[0],
+        uic = select({
+            "@platforms//os:linux": "/usr/lib/qt6/libexec/uic",
+            "@platforms//os:windows": "$(location @qt//:uic)",
+            "@platforms//os:osx": "/opt/homebrew/Cellar/qt/6.7.2_2/share/qt/libexec/moc",
+        })
     )
     cc_library(
         name = name,
@@ -159,7 +165,7 @@ def qt_cc_library(name, srcs, hdrs, normal_hdrs = [], deps = None, **kwargs):
             srcs = [hdr],
             outs = [moc_name + ".cc"],
             cmd = select({
-                "@platforms//os:linux": "moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
+                "@platforms//os:linux": "/usr/lib/qt6/libexec/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
                 "@platforms//os:windows": "$(location @qt//:moc) $(locations %s) -o $@ -f'%s'" % (hdr, header_path),
                 "@platforms//os:osx": "/opt/homebrew/Cellar/qt/6.7.2_2/share/qt/libexec/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
             }),

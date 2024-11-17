@@ -15,7 +15,8 @@ qt_cc_library(
     "util.cpp",
     "visualizador3d.cpp",
     "visualizador3d_dialogos.cpp",
-  ] + glob(["moc*.cpp"]),
+  ],
+  normal_hdrs = [],
   hdrs = [
     "atualiza_ui.h",
     "bonus_util.h",

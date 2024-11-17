@@ -2,7 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 load("//:qt.bzl", "qt_cc_library", "qt_ui_library")
 
-qt_cc_library(
+cc_library(
   name = "som",
   srcs = [
     "som_qt.cpp",

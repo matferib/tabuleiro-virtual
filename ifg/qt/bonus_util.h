@@ -3,7 +3,7 @@
 
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QItemDelegate>
-#include "ifg/qt/ui/dialogobonus.h"
+#include "ifg/qt/ui/dialogo_bonus.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "ifg/qt/util.h"
