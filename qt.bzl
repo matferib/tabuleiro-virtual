@@ -18,7 +18,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 def _gen_ui_header(ctx):
-    info = ctx.toolchains["@com_justbuchanan_rules_qt//tools:toolchain_type"].qtinfo
+    #info = ctx.toolchains["@com_justbuchanan_rules_qt//tools:toolchain_type"].qtinfo
     args = [ctx.file.ui_file.path, "-o", ctx.outputs.ui_header.path]
     ctx.actions.run(
         inputs = [ctx.file.ui_file],
@@ -34,8 +34,8 @@ gen_ui_header = rule(
         "ui_file": attr.label(allow_single_file = True, mandatory = True),
         "ui_header": attr.output(),
         "uic": attr.string(),
-   },
-    toolchains = ["@com_justbuchanan_rules_qt//tools:toolchain_type"],
+    },
+    #toolchains = ["@com_justbuchanan_rules_qt//tools:toolchain_type"],
 )
 
 def qt_ui_library(name, ui, deps, **kwargs):
@@ -53,8 +53,8 @@ def qt_ui_library(name, ui, deps, **kwargs):
         uic = select({
             "@platforms//os:linux": "/usr/lib/qt6/libexec/uic",
             "@platforms//os:windows": "$(location @qt//:uic)",
-            "@platforms//os:osx": "/opt/homebrew/Cellar/qt/6.7.2_2/share/qt/libexec/moc",
-        })
+            "@platforms//os:osx": "/opt/homebrew/Cellar/qt/6.7.2_2/share/qt/libexec/uic",
+        }),
     )
     cc_library(
         name = name,
