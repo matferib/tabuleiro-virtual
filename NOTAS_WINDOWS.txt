@@ -11,6 +11,12 @@ Ao alterar o vcpkg.json, rodar vcpkg install.
 export VCPKG=/n/Projetos/vcpkg/vcpkg.exe
 $VCPKG install
 
+Usando Pre Build Events
+-----------------------
+
+Deixei configurado os pre build events do projeto para gerar os protos e o moc antes de rodar. Caso não funcione, abaixo tem mais detalhes de como gerar manualmente (neste caso, desabilitar o pre build events do projeto).
+
+
 Gerando os protos
 -----------------
 
