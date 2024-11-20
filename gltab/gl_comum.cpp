@@ -646,7 +646,7 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 
 void AlteraEscala(float nova_escala) {
   auto* c = interno::BuscaContexto();
-  c->escala = nova_escala;
+  c->escala_fonte = nova_escala;
 }
 
 void HabilitaMipmapAniso(GLenum alvo) {
@@ -1450,17 +1450,17 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
 #elif ANDROID || (__APPLE__ && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR))
   //unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
   //*escala = std::max(media_tela / 500, 1U);
-  *escala = interno::BuscaContexto()->escala;
+  *escala = interno::BuscaContexto()->escala_fonte;
   *largura_fonte = 8;
   *altura = 13;
   return;
 #elif __APPLE__
-  *escala = interno::BuscaContexto()->escala;
+  *escala = interno::BuscaContexto()->escala_fonte;
   *largura_fonte = 8;
   *altura = 13;
   return;
 #else
-  *escala = 1;
+  *escala = interno::BuscaContexto()->escala_fonte;
   *largura_fonte = 8;
   *altura = 13;
   return;

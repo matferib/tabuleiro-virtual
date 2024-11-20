@@ -90,10 +90,10 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]);
 // Contexto comum.
 class Contexto {
  public:
-  explicit Contexto(float escala, ContextoDependente* cd) : escala(escala), shaders(TSH_NUM), interno(cd) {}
+  explicit Contexto(float escala, ContextoDependente* cd) : escala_fonte(escala), shaders(TSH_NUM), interno(cd) {}
   ~Contexto() {}
 
-  float escala;
+  float escala_fonte;
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
   float raster_x = 0.0f;
   float raster_y = 0.0f;
