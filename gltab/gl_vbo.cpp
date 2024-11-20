@@ -2087,7 +2087,7 @@ VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
   return vbo;
 }
 
-VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
+VboNaoGravado VboDisco(GLfloat raio, GLint num_faces) {
   const unsigned short num_coordenadas = 3 + (num_faces + 1) * 3;
   std::vector<float> coordenadas(num_coordenadas);
   std::vector<float> normais(num_coordenadas);
@@ -2130,7 +2130,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   for (unsigned int i = 0; i < coordenadas_texel.size(); ++i) {
     coordenadas_texel[i] = (coordenadas_texel[i] + 1.0f) / 2.0f;
   }
-  for (unsigned int i = 0; i < num_faces; ++i) {
+  for (int i = 0; i < num_faces; ++i) {
     int ind = i * 3;
     indices[ind] = 0;
     indices[ind + 1] = i;

@@ -344,8 +344,8 @@ inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
   DesenhaVboNaoGravado(VboRetangulo(x1, y1, x2, y2));
 }
 
-VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces);
-inline void Disco(GLfloat raio, GLfloat num_faces) {
+VboNaoGravado VboDisco(GLfloat raio, GLint num_faces);
+inline void Disco(GLfloat raio, GLint num_faces) {
   DesenhaVboNaoGravado(VboDisco(raio, num_faces));
 }
 // Disco de raio 0,5 (1 diametro) com 12 lados. Eficiente, usa VBO gravado.
