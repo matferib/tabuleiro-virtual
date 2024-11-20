@@ -389,7 +389,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       MudaCor(COR_BRANCA);
       gl::MatrizEscopo salva_matriz;
       MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-      float escala = 1.0f + sinf(vd_.angulo_disco_iniciativa_rad) * 0.05;
+      float escala = 1.0f + sinf(vd_.angulo_disco_iniciativa_rad) * 0.05f;
       gl::Escala(escala, escala, escala);
       gl::Translada(0.0f, 0.0f, pd->desenha_barra_vida() ? ALTURA * 1.5f + TAMANHO_BARRA_VIDA * 1.2f: ALTURA * 1.5f);
       gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
@@ -590,7 +590,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       gl::MatrizEscopo salva_matriz;
       // TODO colocar o numero certo por complemento.
       const int num_imagens = !efeito_proto.complementos().empty() ? efeito_proto.complementos(0) : 3;
-      const float inc_angulo_graus = 360.0 / num_imagens;
+      const float inc_angulo_graus = 360.0f / num_imagens;
       for (int i = 0; i < num_imagens; ++i) {
         pd->mutable_rotacao_efeito()->set_z(i * inc_angulo_graus);
         pd->mutable_translacao_efeito()->set_x(1.0f);
