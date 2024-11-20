@@ -1277,7 +1277,8 @@ void Tabuleiro::DesenhaIniciativas() {
     //LOG(INFO) << "Nao " << indice_iniciativa_ << ", iniciativas_.size " << iniciativas_.size();
     return;
   }
-  int largura_fonte, altura_fonte, escala;
+  int largura_fonte, altura_fonte;
+  float escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
 
   int raster_x = 0, raster_y = 0;
@@ -1344,7 +1345,8 @@ void Tabuleiro::DesenhaListaPontosVida() {
   if (lista_pontos_vida_.empty() && !modo_dano_automatico_) {
     return;
   }
-  int largura_fonte, altura_fonte, escala;
+  int largura_fonte, altura_fonte;
+  float escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
   const float largura_botao = static_cast<float>(largura_fonte) * MULTIPLICADOR_LARGURA * escala;
 
@@ -1391,7 +1393,8 @@ void Tabuleiro::DesenhaListaPontosVida() {
 }
 
 void Tabuleiro::DesenhaControleVirtual() {
-  int fonte_x_int, fonte_y_int, escala;
+  int fonte_x_int, fonte_y_int;
+  float escala;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
   fonte_x_int *= escala;
   fonte_y_int *= escala;
@@ -1705,7 +1708,8 @@ void Tabuleiro::DesenhaInfoCameraPresa() {
   gl::TipoEscopo tipo_escopo(OBJ_ENTIDADE_LISTA);
   gl::CarregaNome(entidade->Id());
 
-  int fonte_x_int, fonte_y_int, escala;
+  int fonte_x_int, fonte_y_int;
+  float escala;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
   fonte_x_int *= escala;
   fonte_y_int *= escala;

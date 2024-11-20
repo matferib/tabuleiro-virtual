@@ -500,14 +500,14 @@ void TamanhoPonto(float tam);
 /** Retorna o tamanho base da fonte (hoje fixa em 8x13). A escala indica qual deve ser aplicada para ficar legal na tela.
 * Ela sera usada por DesenhaString tanto como escala quanto no tamanho do ponto.
 */
-void TamanhoFonte(int* largura, int* altura, int* escala);
+void TamanhoFonte(int* largura, int* altura, float* escala);
 inline void TamanhoFonteComEscala(int* largura, int* altura) {
-  int escala;
+  float escala;
   TamanhoFonte(largura, altura, &escala);
   *largura *= escala;
   *altura *= escala;
 }
-void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura, int* escala);
+void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura, float* escala);
 
 // Posiciona o raster, usando coordenadas 3d. Caso a projecao falhe ou fique atras, retorna false.
 bool PosicaoRaster(GLfloat x, GLfloat y, GLfloat z);

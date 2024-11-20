@@ -138,7 +138,8 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   gl::MatrizEscopo salva_matriz_modelagem(MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
 
-  int largura_fonte, altura_fonte, escala;
+  int largura_fonte, altura_fonte;
+  float escala;
   TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
 
   auto* contexto = BuscaContexto();
@@ -1438,13 +1439,13 @@ void DebugaMatrizes() {
   //                       << ", NM: \n" << normal;
 }
 
-void TamanhoFonte(int* largura, int* altura, int* escala) {
+void TamanhoFonte(int* largura, int* altura, float* escala) {
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   TamanhoFonte(viewport[2], viewport[3], largura, altura, escala);
 }
 
-void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura, int* escala) {
+void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura, float* escala) {
 #if 0
   *escala = 2;
 #elif ANDROID || (__APPLE__ && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR))

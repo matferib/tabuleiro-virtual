@@ -4671,7 +4671,8 @@ void Tabuleiro::DesenhaRosaDosVentos() {
   gl::MatrizEscopo salva_matriz_mv;
   const float kRaioRosa = 20.0f;
   // Deixa espaco para o N.
-  int fonte_x_int, fonte_y_int, escala;
+  int fonte_x_int, fonte_y_int;
+  float escala;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
   fonte_x_int *= escala;
   fonte_y_int *= escala;
@@ -7078,7 +7079,8 @@ void Tabuleiro::DesenhaListaGenerica(
 
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  int largura_fonte, altura_fonte, escala;
+  int largura_fonte, altura_fonte;
+  float escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
   largura_fonte *= escala;
   altura_fonte *= escala;
@@ -7190,7 +7192,8 @@ void Tabuleiro::DesenhaListaJogadores() {
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   int raster_x = 0, raster_y = 0;
-  int largura_fonte, altura_fonte, escala;
+  int largura_fonte, altura_fonte;
+  float escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
   largura_fonte *= escala;
   altura_fonte *= escala;
@@ -7325,7 +7328,8 @@ void Tabuleiro::DesenhaInfoGeral() {
   gl::AtualizaMatrizes();
   gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
-  int largura_fonte, altura_fonte, escala;
+  int largura_fonte, altura_fonte;
+  float escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
   largura_fonte *= escala;
   altura_fonte *= escala;
@@ -7359,7 +7363,8 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
     }
   }
 
-  int largura_fonte, altura_fonte, escala;
+  int largura_fonte, altura_fonte;
+  float escala;
   gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte, &escala);
   largura_fonte *= escala;
   altura_fonte *= escala;

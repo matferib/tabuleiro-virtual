@@ -2764,7 +2764,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   gerador.combo_tamanho_buffer_principal->setCurrentIndex(TamanhoTexturaParaIndicePrincipal(opcoes_proto.tamanho_framebuffer_fixo()));
   gerador.combo_tamanho_texturas->setCurrentIndex(TamanhoTexturaParaIndiceMapas(opcoes_proto.tamanho_framebuffer_texturas_mapeamento()));
   // Escala.
-  gerador.slider_escala->setValue(std::min(std::max(0.0f, opcoes_proto.escala()), 4.0f));
+  gerador.slider_escala->setValue(std::clamp<int>(opcoes_proto.escala() * 100, 0, 400));
   // FPS.
   gerador.combo_fps->setCurrentIndex(FpsParaIndiceCombo(opcoes_proto.fps()));
   if (opcoes_proto.escala() > 0) {
@@ -2773,7 +2773,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     gerador.label_escala->setText("auto");
   }
   lambda_connect(gerador.slider_escala, SIGNAL(valueChanged(int)), [this, &gerador, proto_retornado] {
-    proto_retornado->set_escala(gerador.slider_escala->value());
+    float nova_escala = std::clamp(gerador.slider_escala->value() / 100.0f, 0.0f, 4.0f);
+    proto_retornado->set_escala(nova_escala);
     if (proto_retornado->escala() == 0.0f) {
       proto_retornado->clear_escala();
       gerador.label_escala->setText("auto");

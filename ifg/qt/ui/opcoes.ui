@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>452</width>
-    <height>496</height>
+    <height>500</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -101,7 +101,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+      <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
      </property>
      <item>
       <widget class="QCheckBox" name="checkbox_resolucao_fixa">
@@ -197,11 +197,23 @@
        <property name="toolTip">
         <string>Escala de fontes. Em sistemas normais é 1, para sistemas com unidades lógica, como retina, esse valor pode variar. Use 0 para automático.</string>
        </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
        <property name="maximum">
-        <number>4</number>
+        <number>400</number>
+       </property>
+       <property name="singleStep">
+        <number>25</number>
+       </property>
+       <property name="pageStep">
+        <number>25</number>
+       </property>
+       <property name="value">
+        <number>100</number>
        </property>
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -262,10 +274,10 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>
