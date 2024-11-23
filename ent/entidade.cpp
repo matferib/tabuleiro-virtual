@@ -336,8 +336,8 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, cons
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   //const auto& pos = proto.pos();
   if (proto.info_textura().id().empty()) {
-    gl::VboNaoGravado vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
-    gl::VboNaoGravado vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
+    gl::VboNaoGravado vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2f, ALTURA, NUM_FACES, NUM_LINHAS);
+    gl::VboNaoGravado vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4f, NUM_FACES, NUM_FACES / 2);
     // Translada todos os Z da esfera em ALTURA.
     for (unsigned int i = 2; i < vbo_esfera.coordenadas().size(); i += vbo_esfera.NumDimensoes()) {
       vbo_esfera.coordenadas()[i] += ALTURA;
@@ -885,7 +885,7 @@ void Entidade::AtualizaEmParalelo(int intervalo_ms) {
   AtualizaLuzAcao(intervalo_ms);
 
   if (parametros_desenho_->entidade_selecionada() && Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d()) {
-    vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
+    vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0f, 360.0);
   }
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;

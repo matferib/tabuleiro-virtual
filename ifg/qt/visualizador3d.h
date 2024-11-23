@@ -55,7 +55,7 @@ class Visualizador3d :
       m3d::Modelos3d* m3d,
       tex::Texturas* texturas,
       ifg::TratadorTecladoMouse* teclado_mouse,
-      ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai);
+      ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai, bool imgui);
 
   /** destroi as entidades do tabuleiro e libera os recursos. */
   virtual ~Visualizador3d();
@@ -116,6 +116,7 @@ class Visualizador3d :
   int contexto_cref_ = 0;
   boost::timer::cpu_timer timer_;
   int skip_ = 0;
+  bool imgui_ = false;
 };
 
 }  // namespace qt

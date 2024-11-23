@@ -46,6 +46,9 @@
     <Filter Include="som\Headers">
       <UniqueIdentifier>{030d42b9-6cd4-48be-9175-2beb7778f945}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ifg\imgui">
+      <UniqueIdentifier>{9a794229-1694-489a-8360-f6e6b5667109}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ent\acoes.cpp">
@@ -224,6 +227,9 @@
     <ClCompile Include="..\..\ifg\qt\moc_bonus_util.cpp">
       <Filter>ifg</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ifg\imgui\interface_imgui.cpp">
+      <Filter>ifg\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gltab\gl.h">
@@ -300,6 +306,9 @@
     </ClInclude>
     <ClInclude Include="..\..\ent\entidade.h">
       <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\imgui\interface_imgui.h">
+      <Filter>ifg\Headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

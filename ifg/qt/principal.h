@@ -46,7 +46,7 @@ class Principal : public QMainWindow, ntf::Receptor {
                          m3d::Modelos3d* m3d,
                          tex::Texturas* texturas,
                          ifg::TratadorTecladoMouse* teclado_mouse,
-                         ntf::CentralNotificacoes* central);
+                         ntf::CentralNotificacoes* central, bool imgui);
   ~Principal();
 
   /** executa a classe principal ate que o evento de finalizacao seja executado.
@@ -69,7 +69,7 @@ class Principal : public QMainWindow, ntf::Receptor {
 
  private:
   Principal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, m3d::Modelos3d* m3d, tex::Texturas* texturas,
-            ifg::TratadorTecladoMouse* teclado_mouse, ntf::CentralNotificacoes* central, QCoreApplication* q_app);
+            ifg::TratadorTecladoMouse* teclado_mouse, ntf::CentralNotificacoes* central, QCoreApplication* q_app, bool imgui);
 
   /** central de notificacoes da interface. */
   ntf::CentralNotificacoes* central_ = nullptr;

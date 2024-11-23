@@ -1,5 +1,7 @@
 /** @file main.cpp o inicio de tudo. Responsavel por instanciar a interface grafica principal. */
 
+#define USAR_IMGUI 1
+
 #if ANDROID
 #include <android_native_app_glue.h>
 #endif
@@ -24,6 +26,9 @@
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro_interface.h"
 #include "ent/util.h"
+#if USAR_IMGUI
+#include "ifg/imgui/interface_imgui.h"
+#endif
 #include "ifg/qt/principal.h"
 #include "ifg/tecladomouse.h"
 #include "ifg/qt/qt_interface.h"
@@ -106,12 +111,13 @@ class SomEscopo {
 
 #if ANDROID
 extern "C" {
-void android_main(struct android_app* state) {
+void android_main(struct android_app* state)
   int argc = 0;
   char* argv[] = {};
 #else
-int main(int argc, char** argv) {
+int main(int argc, char** argv) 
 #endif
+{
 
 #if USAR_GLOG
   meulog::Inicializa(&argc, &argv);
@@ -152,9 +158,13 @@ int main(int argc, char** argv) {
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
   SomEscopo som(tabuleiro.Opcoes());
 
+#if USAR_IMGUI
+  auto p = std::make_unique<ifg::imgui::InterfaceImgui>(tabelas, &teclado_mouse, &tabuleiro, &central);
+#else
   std::unique_ptr<ifg::qt::Principal> p(
-      ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &modelos3d, &texturas, &teclado_mouse, &central));
+      ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &modelos3d, &texturas, &teclado_mouse, &central, USAR_IMGUI));
   ifg::qt::InterfaceGraficaQt igqt(tabelas, p.get(), &teclado_mouse, &tabuleiro, &central);
+#endif
 #if USAR_GFLAGS
   if (!FLAGS_tabuleiro.empty()) {
     // Carrega o tabuleiro.

@@ -1,5 +1,7 @@
 #include "ifg/qt/visualizador3d.h"
 
+#include <QtCore/QAbstractNativeEventFilter>
+#include <QtGui/QWindow>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QScreen>
@@ -8,6 +10,9 @@
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <imgui.h>
+#include <imgui_impl_opengl2.h>
+#include <imgui_impl_win32.h>
 
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
@@ -46,6 +51,8 @@
 #define EVENT_GLOBAL_X(event) event->globalPosition().x()
 #define EVENT_GLOBAL_Y(event) event->globalPosition().y()
 #endif
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace ifg {
 namespace qt {
@@ -87,13 +94,14 @@ Visualizador3d::Visualizador3d(
     m3d::Modelos3d* m3d,
     tex::Texturas* texturas,
     TratadorTecladoMouse* teclado_mouse,
-    ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
+    ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai, bool imgui)
     :  QOpenGLWidget(pai),
        tabelas_(tabelas),
        m3d_(m3d),
        texturas_(texturas),
        teclado_mouse_(teclado_mouse),
-       central_(central), tabuleiro_(tabuleiro) {
+       central_(central), tabuleiro_(tabuleiro),
+       imgui_(imgui) {
   //const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
   tipo_iluminacao_ = ent::OpcoesProto::TI_ESPECULAR;
   central_->RegistraReceptor(this);
@@ -108,12 +116,76 @@ Visualizador3d::Visualizador3d(
   //std::cerr << "screen: " << *QGuiApplication::primaryScreen();
 }
 
+namespace {
+
+void FinalizaImGui() {
+  ImGui_ImplOpenGL2_Shutdown();
+  ImGui_ImplWin32_Shutdown();
+  ImGui::DestroyContext();
+}
+
+}  // namespace
+
 Visualizador3d::~Visualizador3d() {
+  FinalizaImGui();
   gl::FinalizaGl();
 }
 
+namespace {
+
+class ImguiEventFilter : public QAbstractNativeEventFilter {
+public:
+  ImguiEventFilter(Visualizador3d& v3d, HWND hwnd) : hwnd_(hwnd), v3d_(v3d) {}
+  ~ImguiEventFilter() override {}
+  // Doc QT:
+  // If you want to filter the message out, i.e. stop it being handled further, return true; otherwise return false.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override
+#else
+  bool nativeEventFilter(const QByteArray& eventType, void* message, long* result) override
+#endif
+  {
+    MSG* msg = static_cast<MSG*>(message);
+    LRESULT dummy;
+    if ((dummy = ImGui_ImplWin32_WndProcHandler(hwnd_, msg->message, msg->wParam, msg->lParam)) != 0) {
+      if (result != nullptr) {
+        *result = dummy;
+      }
+      //v3d_.setAttribute(Qt::WA_TransparentForMouseEvents, true);
+      return true;
+    }
+    //v3d_.setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    return false;
+  }
+
+private:
+  HWND hwnd_ = nullptr;
+  Visualizador3d& v3d_;
+};
+
+void IniciaImGui(Visualizador3d& v3d, HWND hwnd) {
+    QApplication::instance()->installNativeEventFilter(new ImguiEventFilter(v3d, hwnd));
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    ImGui::StyleColorsClassic();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplWin32_InitForOpenGL(hwnd);
+    ImGui_ImplOpenGL2_Init();
+}
+
+}  // namespace
+
 // reimplementacoes OpenGL.
-void Visualizador3d::initializeGL() {
+void Visualizador3d::initializeGL() {   
   LOG(INFO) << "Inicializando GL.......................";
   try {
     const auto& opcoes = tabuleiro_->Opcoes();
@@ -122,6 +194,10 @@ void Visualizador3d::initializeGL() {
           : QGuiApplication::primaryScreen()->devicePixelRatio();
     gl::IniciaGl(static_cast<gl::TipoLuz>(tipo_iluminacao_), escala_fonte);
     tabuleiro_->IniciaGL();
+    if (imgui_) {
+      IniciaImGui(*this, HWND(this->effectiveWinId()));
+    }
+
     LOG(INFO) << "GL iniciado";
   } catch (const std::logic_error& erro) {
     // Este log de erro eh pro caso da aplicacao morrer e nao conseguir mostrar a mensagem.
@@ -145,6 +221,25 @@ unsigned long TempoMs(const boost::timer::cpu_timer& timer) {
 
 }  // namespace
 
+
+namespace {
+
+void DesenhaImgui(void* hwnd) {
+  ImGui_ImplOpenGL2_NewFrame();
+  ImGui_ImplWin32_NewFrame();
+  ImGui::NewFrame();
+  static bool show_demo_window = true;
+  if (show_demo_window) {
+    ImGui::ShowDemoWindow(&show_demo_window);
+  }
+  ImGui::End();
+  gl::UsaPrograma(0);  // fala pro imgui usar o shader proprio.
+  ImGui::Render();
+  ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+}
+
+}  // namespace
+
 void Visualizador3d::paintGL() {
   if (tabuleiro_->Opcoes().pular_frames() && skip_-- > 0) {
     timer_.stop();
@@ -158,6 +253,10 @@ void Visualizador3d::paintGL() {
   //LOG(INFO) << "passou " << passou_ms;
   skip_ = std::min(passou_ms * (static_cast<unsigned long>(tabuleiro_->Opcoes().fps())) / 1000ULL, 10ULL);
   tabuleiro_->Desenha();
+  if (imgui_) {
+    DesenhaImgui(HWND(this->effectiveWinId()));
+  }
+
   glFlush();
 }
 

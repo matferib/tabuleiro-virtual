@@ -1,4 +1,7 @@
 // Coisas relacionadas a controle virtual.
+#include <imgui.h>
+#include <imgui_impl_opengl2.h>
+#include <imgui_impl_win32.h>
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <cassert>
@@ -923,11 +926,11 @@ namespace {
 int TranslacaoX(const DadosBotao& db, const GLint* viewport, float unidade_largura) {
   int coluna = db.coluna();
   if (db.alinhamento_horizontal() == ALINHAMENTO_DIREITA) {
-    return viewport[2] + coluna * unidade_largura;
+    return static_cast<int>(viewport[2] + coluna * unidade_largura);
   } else if (db.alinhamento_horizontal() == ALINHAMENTO_CENTRO) {
-    return (viewport[2] / 2) + coluna * unidade_largura;
+    return static_cast<int>((viewport[2] / 2) + coluna * unidade_largura);
   } else {
-    return coluna * unidade_largura;
+    return static_cast<int>(coluna * unidade_largura);
   }
 }
 

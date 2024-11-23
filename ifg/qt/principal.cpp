@@ -43,7 +43,7 @@ Principal* Principal::Cria(
     QCoreApplication* q_app,
     const ent::Tabelas& tabelas,
     ent::Tabuleiro* tabuleiro, m3d::Modelos3d* m3d, tex::Texturas* texturas, ifg::TratadorTecladoMouse* teclado_mouse,
-    ntf::CentralNotificacoes* central) {
+    ntf::CentralNotificacoes* central, bool imgui) {
   static QTranslator* tradutor_qt = new QTranslator();
   bool carregou = tradutor_qt->load("qt_" + QLocale::system().name(),
                                     QLibraryInfo::location(QLibraryInfo::TranslationsPath));
@@ -55,7 +55,7 @@ Principal* Principal::Cria(
   LOG(INFO) << "Arquivo: tabuleiro." << QLocale::system().name().toUtf8().constData();
   q_app->installTranslator(tradutor_meu);
 
-  return new Principal(tabelas, tabuleiro, m3d, texturas, teclado_mouse, central, q_app);
+  return new Principal(tabelas, tabuleiro, m3d, texturas, teclado_mouse, central, q_app, imgui);
 }
 
 Principal::Principal(const ent::Tabelas& tabelas,
@@ -64,10 +64,11 @@ Principal::Principal(const ent::Tabelas& tabelas,
                      tex::Texturas* texturas,
                      ifg::TratadorTecladoMouse* teclado_mouse,
                      ntf::CentralNotificacoes* central,
-                     QCoreApplication* q_app)
+                     QCoreApplication* q_app,
+                     bool imgui)
     : QMainWindow(NULL), central_(central), q_app_(q_app),
       tabuleiro_(tabuleiro),
-      v3d_(new Visualizador3d(tabelas, m3d, texturas, teclado_mouse, central, tabuleiro, this)),
+      v3d_(new Visualizador3d(tabelas, m3d, texturas, teclado_mouse, central, tabuleiro, this, imgui)),
       menu_principal_(new MenuPrincipal(tabelas, tabuleiro, v3d_, central, this)) {
   central->RegistraReceptor(this);
 }

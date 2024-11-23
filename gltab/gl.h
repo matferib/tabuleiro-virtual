@@ -501,11 +501,12 @@ void TamanhoPonto(float tam);
 * Ela sera usada por DesenhaString tanto como escala quanto no tamanho do ponto.
 */
 void TamanhoFonte(int* largura, int* altura, float* escala);
+
 inline void TamanhoFonteComEscala(int* largura, int* altura) {
   float escala;
   TamanhoFonte(largura, altura, &escala);
-  *largura *= escala;
-  *altura *= escala;
+  *largura = static_cast<int>(*largura * escala);
+  *altura = static_cast<int>(*altura * escala);
 }
 void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura, float* escala);
 
