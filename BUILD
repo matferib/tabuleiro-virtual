@@ -20,6 +20,7 @@ cc_binary(
       "@qt//:qt_widgets",
       "//ent:ent",
       "//ifg:ifg",
+      "//ifg/imgui:ifg_imgui",
       "//ifg/qt:ifg_qt",
       "//log:log",
       "//m3d:m3d",

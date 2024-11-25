@@ -1,7 +1,4 @@
 // Coisas relacionadas a controle virtual.
-#include <imgui.h>
-#include <imgui_impl_opengl2.h>
-#include <imgui_impl_win32.h>
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <cassert>

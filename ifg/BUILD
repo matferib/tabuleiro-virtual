@@ -10,6 +10,7 @@ cc_library(
   deps = [
     ":ifg_cc_proto",
     "//arq:arq_headers",
+    "//tex:tex_headers",
   ]
 )
 
