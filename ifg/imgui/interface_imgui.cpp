@@ -1,215 +1,70 @@
 #include "ifg/imgui/interface_imgui.h"
 
 #include <imgui.h>
+#include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl2.h>
-#include <imgui_impl_win32.h>
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
+#include <stdio.h>
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
 #endif
-#include <windows.h>
-#include <Windowsx.h>
-#include <WinUser.h>
-#include <GL/GL.h>
-#include <tchar.h>
+#include <GLFW/glfw3.h>
+
+// [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
+// To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
+// Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
+#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
+#pragma comment(lib, "legacy_stdio_definitions")
+#endif
 
 #include "ent/tabuleiro.h"
 #include "ifg/tecladomouse.h"
 
-// Forward declare message handler from imgui_impl_win32.cpp
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static void glfw_error_callback(int error, const char* description) {
+  fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
 
 namespace ifg::imgui {
 
 // Estado da interface. Colocando aqui pq é tudo singleton.
 namespace {
-HWND hwnd_ = nullptr;
-WNDCLASSEXW wc_;
-bool done_ = false;
-bool show_demo_window_ = true;
-unsigned long long last_update_ = 0;
 
-// Data stored per platform window
-struct WGL_WindowData { HDC hDC; };
-// Data
-static HGLRC            hrc_;
-static WGL_WindowData   main_window_;
-static int              vp_width_;
-static int              vp_height_;
-ifg::TratadorTecladoMouse* g_teclado_mouse_ = nullptr;
-ent::Tabuleiro* g_tabuleiro_ = nullptr;
-
-// Helper functions
-bool CreateDeviceWGL(HWND hWnd, WGL_WindowData* data) {
-  HDC hDc = ::GetDC(hWnd);
-  PIXELFORMATDESCRIPTOR pfd = { 0 };
-  pfd.nSize = sizeof(pfd);
-  pfd.nVersion = 1;
-  pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-  pfd.iPixelType = PFD_TYPE_RGBA;
-  pfd.cColorBits = 32;
-
-  const int pf = ::ChoosePixelFormat(hDc, &pfd);
-  if (pf == 0)
-    return false;
-  if (::SetPixelFormat(hDc, pf, &pfd) == FALSE) {
-    return false;
-  }
-  ::ReleaseDC(hWnd, hDc);
-
-  data->hDC = ::GetDC(hWnd);
-  if (!hrc_) {
-    hrc_ = wglCreateContext(data->hDC);
-  }
-  return true;
-}
-
-void CleanupDeviceWGL(HWND hWnd, WGL_WindowData* data) {
-  wglMakeCurrent(nullptr, nullptr);
-  ::ReleaseDC(hWnd, data->hDC);
-}
-
-unsigned int Modificadores() {
-  unsigned int modificadores = 0;
-  if (GetKeyState(VK_MENU) != 0) {
-    modificadores |= ifg::Modificador_Alt;
-  }
-  if (GetKeyState(VK_SHIFT) != 0) {
-    modificadores |= ifg::Modificador_Shift;
-  }
-  if (GetKeyState(VK_CONTROL) != 0) {
-    modificadores |= ifg::Modificador_Ctrl;
-  }
-  return modificadores;
-}
-
-// Win32 message handler
-// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  if (LRESULT res = ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam); res != 0) return res;
-
-  switch (msg) {
-  case WM_SIZE:
-    if (wParam != SIZE_MINIMIZED) {
-      vp_width_ = LOWORD(lParam);
-      vp_height_ = HIWORD(lParam);
-    }
-    return 0;
-  case WM_SYSCOMMAND:
-    if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
-      return 0;
-  case WM_DESTROY:
-    ::PostQuitMessage(0);
-    return 0;
-  //---------------
-  // Mouse commands
-  //---------------
-  case WM_MOUSEWHEEL: {
-    if (ImGui::GetIO().WantCaptureMouse) return 0;
-    g_teclado_mouse_->TrataRodela(GET_WHEEL_DELTA_WPARAM(wParam));
-    return 0;
-  }
-  case WM_LBUTTONDOWN: {
-    if (ImGui::GetIO().WantCaptureMouse) return 0;
-    g_teclado_mouse_->TrataBotaoMousePressionado(ifg::Botao_Esquerdo, Modificadores(), GET_X_LPARAM(lParam), vp_height_ - GET_Y_LPARAM(lParam));
-    return 0;
-  }
-  case WM_LBUTTONDBLCLK: {
-    if (ImGui::GetIO().WantCaptureMouse) return 0;
-    g_teclado_mouse_->TrataDuploCliqueMouse(ifg::Botao_Esquerdo, Modificadores(), GET_X_LPARAM(lParam), vp_height_ - GET_Y_LPARAM(lParam));
-    return 0;
-  }
-  case WM_RBUTTONDBLCLK: {
-    if (ImGui::GetIO().WantCaptureMouse) return 0;
-    g_teclado_mouse_->TrataDuploCliqueMouse(ifg::Botao_Direito, Modificadores(), GET_X_LPARAM(lParam), vp_height_ - GET_Y_LPARAM(lParam));
-    return 0;
-  }
-  case WM_MOUSEMOVE: {
-    if (ImGui::GetIO().WantCaptureMouse) return 0;
-    g_teclado_mouse_->TrataMovimentoMouse(GET_X_LPARAM(lParam), vp_height_ - GET_Y_LPARAM(lParam));
-    return 0;
-  }
-  case WM_MBUTTONDOWN: {
-    if (ImGui::GetIO().WantCaptureMouse) return 0;
-    g_teclado_mouse_->TrataBotaoMousePressionado(ifg::Botao_Meio, Modificadores(), GET_X_LPARAM(lParam), vp_height_ - GET_Y_LPARAM(lParam));
-    return 0;
-  }
-  case WM_RBUTTONDOWN: {
-    if (ImGui::GetIO().WantCaptureMouse) return 0;
-    g_teclado_mouse_->TrataBotaoMousePressionado(ifg::Botao_Direito, Modificadores(), GET_X_LPARAM(lParam), vp_height_ - GET_Y_LPARAM(lParam));
-    return 0;
-  }
-  case WM_LBUTTONUP:
-  case WM_MBUTTONUP:
-  case WM_RBUTTONUP:
-    if (ImGui::GetIO().WantCaptureMouse) return 0;
-    g_teclado_mouse_->TrataBotaoMouseLiberado();
-    return 0;
-
-  //---------
-  // Keyboard
-  //---------
-  case WM_KEYDOWN: {
-    if (ImGui::GetIO().WantCaptureKeyboard) return 0;
-    g_teclado_mouse_->TrataTeclaPressionada(static_cast<ifg::teclas_e>(wParam), static_cast<modificadores_e>(Modificadores()));
-    return 0;
-  }
-  }
-
-  return ::DefWindowProcW(hWnd, msg, wParam, lParam);
-}
+GLFWwindow* g_window = nullptr;
+bool g_show_demo_window = true;
+int g_vp_width = 1280;
+int g_vp_height = 720;
 
 }  // namespace
 
 InterfaceImgui::InterfaceImgui(const ent::Tabelas& tabelas, TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central)
     : ifg::InterfaceGrafica(tabelas, teclado_mouse, tabuleiro, central) {
-
-  // Create application window
-  //ImGui_ImplWin32_EnableDpiAwareness();
-  wc_ = { sizeof(wc_), CS_OWNDC | CS_DBLCLKS, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"Tabileiro Virtual", nullptr };
-  ::RegisterClassExW(&wc_);
-  hwnd_ = ::CreateWindowW(wc_.lpszClassName, L"Tabuleiro Virtual", WS_OVERLAPPEDWINDOW, 100, 100, kWindowWidth, kWindowHeight, nullptr, nullptr, wc_.hInstance, nullptr);
-
-  // Initialize OpenGL
-  if (!CreateDeviceWGL(hwnd_, &main_window_)) {
-    CleanupDeviceWGL(hwnd_, &main_window_);
-    ::DestroyWindow(hwnd_);
-    ::UnregisterClassW(wc_.lpszClassName, wc_.hInstance);
-    throw std::logic_error("failed to initialize OpenGL");
+  glfwSetErrorCallback(glfw_error_callback);
+  if (!glfwInit()) {
+    throw std::logic_error("Falha ao iniciar GLFW");
   }
-  wglMakeCurrent(main_window_.hDC, hrc_);
-
-  // Show the window
-  ::ShowWindow(hwnd_, SW_SHOWDEFAULT);
-  ::UpdateWindow(hwnd_);
+  // Create window with graphics context
+  g_window = glfwCreateWindow(g_vp_width, g_vp_height, "Dear ImGui GLFW+OpenGL2 example", nullptr, nullptr);
+  if (g_window == nullptr) {
+    throw std::logic_error("Falha ao iniciar GLFW");
+  }
+  glfwMakeContextCurrent(g_window);
+  glfwSwapInterval(1); // Enable vsync
 
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
-  //ImGui::StyleColorsClassic();
+  //ImGui::StyleColorsLight();
 
   // Setup Platform/Renderer backends
-  ImGui_ImplWin32_InitForOpenGL(hwnd_);
+  ImGui_ImplGlfw_InitForOpenGL(g_window, true);
   ImGui_ImplOpenGL2_Init();
 
-  // TODO como reconfigurar? Usar KillTimer ao receber notificacao de opcoes proto.
-  g_tabuleiro_ = tabuleiro;
-  g_teclado_mouse_ = teclado_mouse;
-  const auto& opcoes = tabuleiro_->Opcoes();
-  float intervalo_notificacao_ms = 1000.0f / opcoes.fps();
-  SetTimer(hwnd_,
-           0,  // timer identifier (wparam)
-           static_cast<unsigned int>(intervalo_notificacao_ms),
-           (TIMERPROC)NULL);     // no timer callback 
-
+  const auto& opcoes = tabuleiro->Opcoes();
   const float escala_fonte = opcoes.escala() > 0.0
     ? opcoes.escala()
     : 1.0f;
@@ -218,23 +73,19 @@ InterfaceImgui::InterfaceImgui(const ent::Tabelas& tabelas, TratadorTecladoMouse
 }
 
 InterfaceImgui::~InterfaceImgui() {
-  KillTimer(hwnd_, 0);
-  gl::FinalizaGl();
+  // Cleanup
   ImGui_ImplOpenGL2_Shutdown();
-  ImGui_ImplWin32_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
 
-  CleanupDeviceWGL(hwnd_, &main_window_);
-  wglDeleteContext(hrc_);
-  ::DestroyWindow(hwnd_);
-  ::UnregisterClassW(wc_.lpszClassName, wc_.hInstance);
+  glfwDestroyWindow(g_window);
+  glfwTerminate();
 }
 
 // Para testes...
 void DesenhaImgui() {
-  // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-  if (show_demo_window_) {
-    ImGui::ShowDemoWindow(&show_demo_window_);
+  if (g_show_demo_window) {
+    ImGui::ShowDemoWindow(&g_show_demo_window);
   }
 }
 
@@ -255,58 +106,62 @@ void InterfaceImgui::Executa() {
   //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
   //IM_ASSERT(font != nullptr);
 
+  // Our state
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+  ImGuiIO& io = ImGui::GetIO();
+
   // Main loop
-  while (!done_) {
-    // Poll and handle messages (inputs, window resize, etc.)
-    // See the WndProc() function below for our to dispatch events to the Win32 backend.
-    MSG msg;
-    while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
-      ::TranslateMessage(&msg);
-      ::DispatchMessage(&msg);
-      switch (msg.message) {
-      case WM_QUIT: 
-        done_ = true;
-        break;
-      case WM_TIMER:
-        // Realiza a notificação de todos.
-        auto* notificacao = new ntf::Notificacao;
-        notificacao->set_tipo(ntf::TN_TEMPORIZADOR);
-        central_->AdicionaNotificacao(notificacao);
-        central_->Notifica();
-        break;
-      }
-    }
-    if (done_) break;
-    if (::IsIconic(hwnd_)) {
-      ::Sleep(10);
+  while (!glfwWindowShouldClose(g_window))
+  {
+    // Poll and handle events (inputs, window resize, etc.)
+    // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+    // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
+    // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
+    // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+    glfwPollEvents();
+    if (glfwGetWindowAttrib(g_window, GLFW_ICONIFIED) != 0) {
+      const unsigned int kSleepSecs = 10;
+#ifdef _WIN32
+      ::Sleep(kSleepSecs);
+#else
+      usleep(kSleepSecs * 1000);
+#endif
       continue;
     }
 
-    tabuleiro_->TrataRedimensionaJanela(vp_width_, vp_height_);
+    glfwGetFramebufferSize(g_window, &g_vp_width, &g_vp_height);
+    tabuleiro_->TrataRedimensionaJanela(g_vp_width, g_vp_height);
     tabuleiro_->Desenha();
+
 
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL2_NewFrame();
-    ImGui_ImplWin32_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
     DesenhaImgui();
 
     // Rendering
-    gl::UsaPrograma(0);  // Fala pro imgui usar o shader 0, senão ele tenta os do tabuleiro e da errado.
     ImGui::Render();
-    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+    glViewport(0, 0, g_vp_width, g_vp_height);
 
-    // Present
-    ::SwapBuffers(main_window_.hDC);
+    // If you are using this code with non-legacy OpenGL header/contexts (which you should not, prefer using imgui_impl_opengl3.cpp!!),
+    // you may need to backup/reset/restore other state, e.g. for current shader using the commented lines below.
+    GLint last_program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+    gl::UsaPrograma(0);   // Fala pro imgui usar o shader 0, senão ele tenta os do tabuleiro e da errado.
+    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+    gl::UsaPrograma(last_program);
+
+    glfwMakeContextCurrent(g_window);
+    glfwSwapBuffers(g_window);
   }
 }
-
 
 bool InterfaceImgui::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
   case ntf::TN_SAIR:
-      done_ = true;
+      //done_ = true;
       return true;
   case ntf::TN_INICIAR: {
       auto* notificacao_iniciado = new ntf::Notificacao;

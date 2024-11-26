@@ -3,8 +3,9 @@
     "abseil",
     "boost",
     "protobuf",
+    "glfw3",
     {
-      "name": "imgui", "features": ["opengl2-binding", "win32-binding"]
+      "name": "imgui", "features": ["opengl2-binding", "glfw-binding", "win32-binding"]
     }
   ],
   "overrides": [
