@@ -380,7 +380,8 @@ void Tabuleiro::ConfiguraOlhar() {
   // Desenho normal, tem que configurar as matrizes de sombra e oclusao.
   if (!parametros_desenho_.desenha_mapa_sombras() &&
       !parametros_desenho_.has_desenha_mapa_oclusao() &&
-      !parametros_desenho_.has_desenha_mapa_luzes()) {
+      !parametros_desenho_.has_desenha_mapa_luzes() &&
+      !parametros_desenho_.has_desenha_imagem()) {
     // Mapa de sombras.
     if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
@@ -430,6 +431,10 @@ void Tabuleiro::ConfiguraOlhar() {
     return;
   }
 
+  if (parametros_desenho_.has_desenha_imagem()) {
+    ConfiguraOlharModoScreenshot();
+    return;
+  }
   if (MapeamentoSombras() && parametros_desenho_.desenha_mapa_sombras()) {
     ConfiguraOlharMapeamentoSombrasLuzDirecional();
     return;
@@ -442,6 +447,16 @@ void Tabuleiro::ConfiguraOlhar() {
     ConfiguraOlharMapeamentoLuzes();
     return;
   }
+}
+
+void Tabuleiro::ConfiguraOlharModoScreenshot() {
+  gl::OlharPara(
+    // from.
+    0.0f, 0.0f, 0.0f,
+    // to.
+    0.0f, 0.0f, -1.0f,
+    // up
+    0.0f, 1.0f, 0.0f);
 }
 
 void Tabuleiro::ConfiguraOlharMapeamentoSombrasLuzDirecional() {
@@ -844,6 +859,50 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   DesenhaCena();
 }
 
+int Tabuleiro::DesenhaModoScreenshot() {
+  parametros_desenho_.Clear();
+  // Não desenha nada alem do screenshot.
+  parametros_desenho_.set_limpa_fundo(true);
+  parametros_desenho_.set_usar_transparencias(false);
+  parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_iniciativas(false);
+  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_info_geral(false);
+  parametros_desenho_.set_desenha_detalhes(false);
+  parametros_desenho_.set_desenha_eventos_entidades(false);
+  parametros_desenho_.set_desenha_efeitos_entidades(false);
+  parametros_desenho_.set_desenha_lista_objetos(false);
+  parametros_desenho_.set_desenha_lista_jogadores(false);
+  parametros_desenho_.set_desenha_fps(false);
+  parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
+  parametros_desenho_.set_iluminacao(false);
+  parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_desenha_aura(false);
+  parametros_desenho_.set_desenha_quadrado_selecao(false);
+  parametros_desenho_.set_desenha_rastro_movimento(false);
+  parametros_desenho_.set_desenha_forma_selecionada(false);
+  parametros_desenho_.set_desenha_nevoa(false);
+  parametros_desenho_.set_desenha_mapa_sombras(false);
+  parametros_desenho_.set_desenha_sombras(false);
+  parametros_desenho_.set_modo_mestre(VisaoMestre());
+  parametros_desenho_.set_desenha_controle_virtual(false);
+  parametros_desenho_.set_desenha_pontos_rolagem(false);
+  parametros_desenho_.set_desenha_entidades(false);
+  parametros_desenho_.set_desenha_terreno(false);
+  parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
+  parametros_desenho_.mutable_desenha_imagem()->CopyFrom(imagem_mostrada_);
+  parametros_desenho_.set_desenha_texturas(true);  // para o desenho do screenshot.
+
+  gl::UsaShader(gl::TSH_SIMPLES);
+  gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::CarregaIdentidade();
+  ConfiguraProjecao();
+
+  DesenhaCena();
+  return 0;
+}
+
 int Tabuleiro::Desenha() {
 #if DEBUG
   glFinish();
@@ -856,6 +915,10 @@ int Tabuleiro::Desenha() {
   GLint buffer_original;
   gl::Le(GL_DRAW_BUFFER, &buffer_original);
 #endif
+
+  if (EmModoMostrarImagem()) {
+    return DesenhaModoScreenshot();
+  }
 
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
@@ -2404,6 +2467,15 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
+    case ntf::TN_MOSTRAR_IMAGEM_CLIENTES: {
+      if (notificacao.info_textura().empty()) return true;
+      auto notificacao_carregar = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+      notificacao_carregar->add_info_textura()->CopyFrom(notificacao.info_textura(0));
+      notificacao_carregar->mutable_info_textura(0)->set_id(std::to_string(id_cliente_) + ":" + notificacao.info_textura(0).id());
+      central_->AdicionaNotificacao(notificacao_carregar.release());
+      EntraModoMostrarImagem(notificacao);
+      return true;
+    }
     case ntf::TN_DESERIALIZAR_TABULEIRO: {
       if (notificacao.has_endereco()) {
         // Deserializar de arquivo.
@@ -3599,6 +3671,23 @@ void Tabuleiro::DesenhaCena(bool debug) {
   gl::AtualizaMatrizes();
   gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM);
   gl::CarregaIdentidade();
+
+  if (parametros_desenho_.has_desenha_imagem()) {
+    unsigned int id_textura = texturas_->Textura(parametros_desenho_.desenha_imagem().id());
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    gl::MatrizEscopo salva;
+    Matrix4 m;
+    float menor = std::min(largura_, altura_);
+    m.scale(menor, menor, 1.0f);
+    m.translate(largura_ / 2, altura_ / 2, 0.0f);
+
+    gl::MultiplicaMatriz(m.get());
+    gl::AtualizaMatrizes();
+    gl::RetanguloUnitario();
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::Desabilita(GL_TEXTURE_2D);
+  }
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
@@ -8037,6 +8126,15 @@ void Tabuleiro::AlternaModoMinecraft() {
   } else {
     EntraModoClique(MODO_MINECRAFT);
   }
+}
+
+void Tabuleiro::EntraModoMostrarImagem(const ntf::Notificacao& notificacao) {
+  if (notificacao.info_textura().empty()) {
+    return;
+  }
+  imagem_mostrada_ = notificacao.info_textura(0);
+  imagem_mostrada_.set_id(std::to_string(id_cliente_) + ":" + notificacao.info_textura(0).id());
+  EntraModoClique(MODO_MOSTRAR_IMAGEM);
 }
 
 void Tabuleiro::EntraModoClique(modo_clique_e modo) {

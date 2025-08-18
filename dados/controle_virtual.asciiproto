@@ -1110,7 +1110,7 @@ fixo {
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_send_screenshot.png"
     rotulo: "Sc"
-    id: CONTROLE_MODO_SCREENSHOT
+    id: CONTROLE_MODO_MOSTRAR_IMAGEM
     forma: FORMA_RETANGULO
     mestre_apenas: true
     dica: "Enviar screenshot."

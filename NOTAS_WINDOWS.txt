@@ -25,6 +25,8 @@ Copiar do VS2022: VisualStudio/2022/Community/VC/Redist/MSVC/14.40.33807/x64/Mic
 e colocar junto com o binario do protoc vcpkg_installed/x64-windows/tools/protobuf/!
 
 Gerando os proto pb.cc pb.h a partir da raiz do codigo:
+Na solução do visual studio, tem o Pre build event, mas fica desabilitado pra não ficar compilando tudo toda hora. Para fazer na mão:
+
 win32/vcpkg_installed/x64-windows/tools/protobuf/protoc.exe  -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
 
 Gerando os MOCs
