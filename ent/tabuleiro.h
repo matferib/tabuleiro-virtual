@@ -249,7 +249,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaFramebufferPrincipal();
 
   /** Desenha um screenshot na tela e nada mais. Retorna o tempo em ms. */
-  int DesenhaModoScreenshot();
+  int DesenhaModoMostrarImagem();
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;

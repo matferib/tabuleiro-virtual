@@ -845,7 +845,7 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   DesenhaCena();
 }
 
-int Tabuleiro::DesenhaModoScreenshot() {
+int Tabuleiro::DesenhaModoMostrarImagem() {
   parametros_desenho_.Clear();
   // Não desenha nada alem do screenshot.
   parametros_desenho_.set_limpa_fundo(true);
@@ -903,7 +903,7 @@ int Tabuleiro::Desenha() {
 #endif
 
   if (EmModoMostrarImagem()) {
-    return DesenhaModoScreenshot();
+    return DesenhaModoMostrarImagem();
   }
 
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
