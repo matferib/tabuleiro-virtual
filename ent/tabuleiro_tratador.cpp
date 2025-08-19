@@ -3200,10 +3200,8 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         break;
       case MODO_MOSTRAR_IMAGEM:
         if (EmModoMestreIncluindoSecundario()) {
-          auto notificacao_descarregar = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-          notificacao_descarregar->add_info_textura()->set_id(imagem_mostrada_.id());
-          EntraModoClique(MODO_NORMAL);
-          imagem_mostrada_.Clear();
+          central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
+          central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
         }
         return;
       case MODO_PERICIA:

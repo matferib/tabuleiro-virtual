@@ -2462,6 +2462,14 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       EntraModoMostrarImagem(notificacao);
       return true;
     }
+    case ntf::TN_FECHAR_IMAGEM_CLIENTES: {
+      auto notificacao_descarregar = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+      notificacao_descarregar->add_info_textura()->set_id(imagem_mostrada_.id());
+      central_->AdicionaNotificacao(notificacao_descarregar.release());
+      imagem_mostrada_.Clear();
+      EntraModoClique(MODO_NORMAL);
+      return true;
+    }
     case ntf::TN_DESERIALIZAR_TABULEIRO: {
       if (notificacao.has_endereco()) {
         // Deserializar de arquivo.
