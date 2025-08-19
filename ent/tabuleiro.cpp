@@ -431,10 +431,6 @@ void Tabuleiro::ConfiguraOlhar() {
     return;
   }
 
-  if (parametros_desenho_.has_desenha_imagem()) {
-    ConfiguraOlharModoScreenshot();
-    return;
-  }
   if (MapeamentoSombras() && parametros_desenho_.desenha_mapa_sombras()) {
     ConfiguraOlharMapeamentoSombrasLuzDirecional();
     return;
@@ -447,16 +443,6 @@ void Tabuleiro::ConfiguraOlhar() {
     ConfiguraOlharMapeamentoLuzes();
     return;
   }
-}
-
-void Tabuleiro::ConfiguraOlharModoScreenshot() {
-  gl::OlharPara(
-    // from.
-    0.0f, 0.0f, 0.0f,
-    // to.
-    0.0f, 0.0f, -1.0f,
-    // up
-    0.0f, 1.0f, 0.0f);
 }
 
 void Tabuleiro::ConfiguraOlharMapeamentoSombrasLuzDirecional() {

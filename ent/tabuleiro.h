@@ -1184,7 +1184,6 @@ class Tabuleiro : public ntf::Receptor {
   void ConfiguraOlharMapeamentoSombrasLuzDirecional();
   void ConfiguraOlharMapeamentoOclusao();
   void ConfiguraOlharMapeamentoLuzes();
-  void ConfiguraOlharModoScreenshot();
 
   /** Similar ao modo mestre, mas leva em consideracao se o mestre quer ver como jogador tambem. */
   bool VisaoMestre() const { return EmModoMestreIncluindoSecundario() && visao_jogador_ == 0; }
