@@ -2460,6 +2460,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       notificacao_carregar->mutable_info_textura(0)->set_id(std::to_string(id_cliente_) + ":" + notificacao.info_textura(0).id());
       central_->AdicionaNotificacao(notificacao_carregar.release());
       EntraModoMostrarImagem(notificacao);
+      if (notificacao.local()) {
+        central_->AdicionaNotificacaoRemota(std::make_unique<ntf::Notificacao>(notificacao));
+      }
       return true;
     }
     case ntf::TN_FECHAR_IMAGEM_CLIENTES: {
