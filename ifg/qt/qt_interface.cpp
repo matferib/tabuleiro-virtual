@@ -149,6 +149,35 @@ void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
   delete dialogo;
 }
 
+void InterfaceGraficaQt::EscolheArquivoAbrirImagem(
+  const std::vector<std::string>& imagens, std::function<void(const std::string& nome)> funcao_volta) {
+  // Popula.
+  ifg::qt::Ui::ListaPaginada gerador;
+  auto* dialogo = new QDialog(pai_);
+  gerador.setupUi(dialogo);
+  for (const auto& imagem : imagens) {
+    new QListWidgetItem(imagem.c_str(), gerador.lista);
+  }
+  gerador.lista->setFocus();
+  auto lambda_aceito = [this, &gerador, dialogo, imagens, funcao_volta]() {
+    int indice = gerador.lista->currentRow();
+    int tamanho_total = imagens.size();
+    if (indice >= 0 && indice < tamanho_total) {
+      funcao_volta(imagens[indice]);
+      dialogo->accept();
+    }
+    };
+  auto lambda_rejeitado = [this, &gerador, dialogo, imagens, funcao_volta]() {
+    funcao_volta("");
+    dialogo->reject();
+    };
+  lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
+  lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
+  dialogo->exec();
+  delete dialogo;
+}
+
 void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
     std::function<void(const std::string& nome)> funcao_volta) {
   ifg::qt::Ui::EntradaString gerador;

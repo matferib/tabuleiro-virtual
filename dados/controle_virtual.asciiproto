@@ -1101,6 +1101,20 @@ fixo {
     mestre_apenas: true
     dica: "Iluminação para o mestre."
   }
+  # Screenshot 
+  dados_botoes {
+    tamanho: 1
+    linha: -4
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    textura: "icon_send_image.png"
+    rotulo: "Si"
+    id: CONTROLE_MODO_MOSTRAR_IMAGEM
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    dica: "Enviar imagem."
+  }
   # Terreno.
   dados_botoes {
     tamanho: 1

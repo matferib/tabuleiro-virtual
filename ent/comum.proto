@@ -1214,6 +1214,8 @@ message ParametrosDesenho {
   optional bool nao_desenha_caixa_ceu = 65;
   // Se verdadeiro, nao chamara gl::Limpa para limpar o buffer de cores.
   optional bool nao_limpa_cor = 66;
+  // Desenha o screenshot especificado.
+  optional InfoTextura desenha_imagem = 67;
 }
 
 enum TipoVeneno {

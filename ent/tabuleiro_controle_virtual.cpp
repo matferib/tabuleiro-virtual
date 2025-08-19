@@ -803,6 +803,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO));
       break;
     }
+    case CONTROLE_MODO_MOSTRAR_IMAGEM: {
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_IMAGEM));
+      // Para teste.
+      // EntraModoMostrarImagem();
+      break;
+    }
     default:
       if (id >= CONTROLE_JOGADORES) {
         // Isso acontece pela UI. O mestre aperta a tecla J, que mostra todos os jogadores como
@@ -884,6 +890,7 @@ IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) c
     case Tabuleiro::MODO_AGUARDANDO:  return CONTROLE_MODO_AGUARDANDO;
     case Tabuleiro::MODO_PERICIA:     return CONTROLE_ROLAR_PERICIA;
     case Tabuleiro::MODO_ADICAO_ENTIDADE: return CONTROLE_ADICIONA_ENTIDADE;
+    case Tabuleiro::MODO_MOSTRAR_IMAGEM: return CONTROLE_MODO_MOSTRAR_IMAGEM;
     default:                          return CONTROLE_AJUDA;
   }
 }
@@ -1487,6 +1494,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_MODO_MONTAR,        [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().has_montado_em();
+    } },
+    { CONTROLE_MODO_MOSTRAR_IMAGEM,        [this](const Entidade* entidade) {
+      return false;  // este botão só é desenhado se não estiver no modo screenshot, então ele sempre está inativo.
     } },
     { CONTROLE_ALTERNAR_MODELOS_DESLIGAVEIS_ENTIDADE, [this] (const Entidade* entidade) {
       return entidade != nullptr && EntidadeTemModeloDesligavelLigado(tabelas_, entidade->Proto());

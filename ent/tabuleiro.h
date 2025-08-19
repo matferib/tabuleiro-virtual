@@ -248,6 +248,9 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaMapaLuz(unsigned int indice_luz);
   void DesenhaFramebufferPrincipal();
 
+  /** Desenha um screenshot na tela e nada mais. Retorna o tempo em ms. */
+  int DesenhaModoMostrarImagem();
+
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
@@ -522,6 +525,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna para o modo minecraft, onde cada clique adiciona um cubo alinhado a grade. */
   void AlternaModoMinecraft();
 
+  /** Alterna para o modo screenshot, mostrando uma imagem. O clique do mestre sai do modo e volta para o anterior. */
+  void EntraModoMostrarImagem(const ntf::Notificacao& notificacao);
+
   // Controle virtual.
   // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
   // No MODO_TRANSICAO, o clique executara uma transicao de cenario.
@@ -548,6 +554,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_PERICIA,           // O clique rolará a perícia do personagem.
     MODO_ADICAO_ENTIDADE,   // O clique adicionara as entidades escolhidas ao redor do ponto 3d do clique.
     MODO_MINECRAFT,         // O clique adicionara um cubo de 1 quadrado alinhado ao grid.
+    MODO_MOSTRAR_IMAGEM,    // O clique saírá do modo.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -564,6 +571,11 @@ class Tabuleiro : public ntf::Receptor {
   bool EmModoMestreIncluindoSecundario() const {
     return EmModoMestre() || modo_mestre_secundario_;
   }
+
+  bool EmModoMostrarImagem() const {
+    return modo_clique_ == MODO_MOSTRAR_IMAGEM;
+  }
+
   // Debug.
   void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
   void AlternaModoMestreSecundario() { modo_mestre_secundario_ = !modo_mestre_secundario_; }
@@ -1536,6 +1548,9 @@ class Tabuleiro : public ntf::Receptor {
 
   // Usado para recuperacao de contexto IOS e android.
   bool regerar_vbos_entidades_ = false;
+
+  // A imagem mostrada pelo mestre.
+  InfoTextura imagem_mostrada_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
