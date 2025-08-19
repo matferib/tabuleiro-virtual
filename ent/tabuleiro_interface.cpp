@@ -655,12 +655,12 @@ void InterfaceGraficaOpengl::EscolheArquivoSalvarTabuleiro(
 
 void InterfaceGraficaOpengl::EscolheArquivoAbrirImagem(
     const std::vector<std::string>& imagens,
-    std::function<void(const std::string& nome)> funcao_volta) override {
+    std::function<void(const std::string& nome)> funcao_volta) {
   if (elemento_.get() != nullptr) {
     LOG(WARNING) << "So pode haver um elemento por vez.";
     return;
   }
-  elemento_.reset(new ElementoAbrirImagem(this, funcao_volta));
+  elemento_.reset(new ElementoAbrirImagem(this, imagens, funcao_volta));
 }
 
 
