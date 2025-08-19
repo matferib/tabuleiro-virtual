@@ -1108,12 +1108,12 @@ fixo {
     coluna: -3
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
-    textura: "icon_send_screenshot.png"
-    rotulo: "Sc"
+    textura: "icon_send_image.png"
+    rotulo: "Si"
     id: CONTROLE_MODO_MOSTRAR_IMAGEM
     forma: FORMA_RETANGULO
     mestre_apenas: true
-    dica: "Enviar screenshot."
+    dica: "Enviar imagem."
   }
   # Terreno.
   dados_botoes {
