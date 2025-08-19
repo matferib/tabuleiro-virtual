@@ -93,6 +93,10 @@ class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
   void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) override;
 
+  void EscolheArquivoAbrirImagem(
+    const std::vector<std::string>& imagens,
+    std::function<void(const std::string& nome)> funcao_volta) override;
+
  private:
   // So pode haver um elemento raiz por vez.
   std::unique_ptr<ElementoInterface> elemento_;
