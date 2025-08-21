@@ -91,7 +91,7 @@ std::optional<DadosIniciativa> DadosIniciativaEvento(const EntidadeProto::Evento
 class RodaNoRetorno {
  public:
   explicit RodaNoRetorno(std::function<void()> f) : f(f) {}
-  ~RodaNoRetorno() { f(); }
+  ~RodaNoRetorno() { if (f) { f(); } }
   void Cancela() { f = std::function<void()>(); }
 
   std::function<void()> f;

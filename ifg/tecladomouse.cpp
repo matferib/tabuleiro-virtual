@@ -158,6 +158,10 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
 }
 
 void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+    return;
+  }
+
   //if (estado_ == ESTADO_MOSTRANDO_DIALOGO) {
   //  return;
   //}
@@ -407,6 +411,10 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
 }
 
 void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e modificadores) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+    return;
+  }
+
   switch (tecla) {
     case Tecla_AltEsquerdo:
       tabuleiro_->DetalharTodasEntidades(false);
@@ -423,6 +431,9 @@ void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e mo
 }
 
 void TratadorTecladoMouse::TrataBotaoMousePressionado(botoesmouse_e botao, unsigned int modificadores, int x, int y) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM && botao != Botao_Esquerdo) {
+    return;
+  }
   MudaEstado(ESTADO_OUTRO);
   if (modificadores == Modificador_Alt) {
     VLOG(1) << "Pressionado e: " << (botao==Botao_Esquerdo) << " com alt, pos " << x << ", " << y;
@@ -458,6 +469,9 @@ void TratadorTecladoMouse::TrataBotaoMousePressionado(botoesmouse_e botao, unsig
 }
 
 bool TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+    return false;  // não restaura mouse.
+  }
   ultimo_x_ = x;
   ultimo_y_ = y;
   VLOG(2) << "Movimento: " << x << ", " << y << ", ultimo_x " << ultimo_x_ << ", ultimo_y: " << ultimo_y_;
@@ -470,16 +484,25 @@ bool TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
 }
 
 void TratadorTecladoMouse::TrataRodela(int delta) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+    return;
+  }
   VLOG(1) << "Rodela: " << delta;
   tabuleiro_->TrataEscalaPorDelta(delta);
 }
 
 void TratadorTecladoMouse::TrataPincaEscala(float fator) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+    return;
+  }
   VLOG(1) << "Pinca: " << fator;
   tabuleiro_->TrataEscalaPorFator(fator);
 }
 
 void TratadorTecladoMouse::TrataInicioPinca(int x1, int y1, int x2, int y2) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+    return;
+  }
   VLOG(1) << "Inicio Pinca: " << x1 << " " << y1 << "; " << x2 << " " << y2;
   tabuleiro_->TrataInicioPinca(x1, y1, x2, y2);
 }
