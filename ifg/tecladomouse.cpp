@@ -158,7 +158,7 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
 }
 
 void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM && tecla != Tecla_Esc) {
     return;
   }
 
@@ -404,6 +404,9 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     case Tecla_TabInvertido:
       // No qt, shift tab vira uma tecla.
       tabuleiro_->AcaoAnterior();
+      return;
+    case Tecla_Esc:
+      tabuleiro_->TrataTeclaPressionada(Tecla_Esc);
       return;
     default:
       LOG(INFO) << "Tecla nao reconhecida: " << (void*)tecla;

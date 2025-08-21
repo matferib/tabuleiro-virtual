@@ -30,6 +30,7 @@
 #include "ent/tabuleiro_terreno.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "ifg/tecladomouse.h"
 #include "log/log.h"
 #include "matrix/vectors.h"
 #include "net/util.h"  // hack to_string
@@ -206,13 +207,11 @@ void PreencheNotificacaoEsquiva(
 }  // namespace
 
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
-  return;
-#if 0
-  switch (tecla) {
-    default:
-      ;
+  if (EmModoMestreIncluindoSecundario() && tecla == ifg::Tecla_Esc) {
+    central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
+    central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
   }
-#endif
+  return;
 }
 
 void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, float z3d) {
