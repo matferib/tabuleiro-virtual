@@ -206,7 +206,7 @@ sub_menu {
     modelos { id: 'Gnoma Druida 1' }
     modelos { id: 'Cobra, Víbora Pequena' }
   }
-  item_menu { id: 'Gnoma Ranger 3' }
+  item_menu { id: 'Gnoma Ranger (Duas Armas) 3' }
   item_menu { id: 'Gnomo Ilusionista 3' }
   item_menu { id: 'Gnomo Ilusionista 4' }
 }

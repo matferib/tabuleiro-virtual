@@ -9210,17 +9210,39 @@ modelo {
 }
 
 modelo {
-  id: 'Gnoma Ranger 3'
+  id: 'Gnoma Ranger (Duas Armas) 3'
   entidade {
-    dados_vida: '3d8+6' raca: 'gnomo'
-    modelo_3d { id: 'gnome_ranger' }
+    dados_vida: '3d8+3' raca: 'gnomo'
     info_classes { id: 'ranger' nivel: 3 }
+    dados_defesa {
+      id_armadura: 'couro_batido' armadura_obra_prima: true
+    }
+    lista_acoes: "Ataque Corpo a Corpo"
     dados_ataque {
-      id_arma: 'martelo_gnomo_com_gancho' obra_prima: true empunhadura: EA_ARMA_APENAS
+      tipo_ataque: "Ataque Corpo a Corpo"
+      rotulo: "martelo"
+      obra_prima: true
+      empunhadura: EA_MAO_BOA
+      id_arma: "martelo_gnomo_com_gancho"
+      grupo: "martelo gnomo com gancho"
+      id_arma_tesouro: "martelo gnomo"
     }
     dados_ataque {
-      id_arma: 'arco' obra_prima: true empunhadura: EA_ARMA_APENAS
-      municao: 10
+      tipo_ataque: "Ataque Corpo a Corpo"
+      rotulo: "gancho"
+      obra_prima: true
+      empunhadura: EA_MAO_RUIM
+      acuidade: true
+      id_arma: "martelo_gnomo_com_gancho"
+      grupo: "martelo gnomo com gancho"
+      id_arma_tesouro: "martelo gnomo"
+    }
+    dados_ataque {
+      tipo_ataque: "Ataque a Dist\303\242ncia"
+      rotulo: "arco curto"
+      obra_prima: true
+      empunhadura: EA_ARMA_APENAS
+      id_arma: "equipamento:arco curto pequeno"
     }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
@@ -9236,9 +9258,10 @@ modelo {
     info_talentos {
       gerais { id: 'acuidade_arma' }
       gerais { id: 'bloqueio_ambidestro' }
-      outros { id: 'combater_duas_armas' origem: 'ranger' }  # estilo de combate.
+      # ranger.
       outros { id: 'rastrear' origem: 'ranger' }
       outros { id: 'tolerancia' origem: 'ranger' }
+      outros { id: 'combater_duas_armas' origem: 'ranger' }  # estilo de combate.
     }
     # 5 pericias com 6.
     info_pericias { id: 'sobrevivencia' pontos: 6 }
@@ -9250,12 +9273,22 @@ modelo {
       inimigos_prediletos { classe: 'ranger' vezes: 2 tipo: TIPO_HUMANOIDE sub_tipo: SUBTIPO_GOBLINOIDE }
     }
     tesouro {
-      moedas { po: 1700 }
+      armas { id: 'martelo gnomo' id_tabela: 'martelo_gnomo_com_gancho' obra_prima: true }
+      armas { id: 'arco curto pequeno' id_tabela: 'arco_curto' obra_prima: true }
+      municoes { id: 'flecha' nome: 'flecha' quantidade: 20 }
+      armaduras { id: 'couro batido' id_tabela: 'couro_batido' obra_prima: true }
+      pocoes { id: 'ajuda' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'nublar' }
+      pocoes { id: 'agilidade_gato' }
+      pocoes { id: 'forca_touro' }
+      moedas { po: 300 }
     }
   }
 }
-
-
 
 modelo {
   id: 'Humano Bardo 5'
