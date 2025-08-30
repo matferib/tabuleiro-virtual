@@ -3,6 +3,7 @@
     "abseil",
     "boost",
     "protobuf",
+    "gtest",
     {
       "name": "imgui", "features": ["opengl2-binding", "win32-binding"]
     }
@@ -13,7 +14,11 @@
     },
     {
       "name": "protobuf", "version": "3.21.12"
+    },
+    {
+      "name": "gtest", "version": "1.17.0#1"
     }
+
   ],
   "builtin-baseline": "89f00b3b8611028566a5264afce725cdfdfddbb4"
 }
