@@ -2984,6 +2984,21 @@ modelo {
   }
 }
 modelo {
+  id: 'Globos de Luz'
+  entidade {
+    modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
+    cor { r: 1 g: 1 b: 1 a: 1 }
+    luz { cor { r: 0.55 g: 0 b: 1 a: 1 } raio_m: 6 }
+    pode_ser_afetada_por_acao: false
+    gerar_agarrar: false
+    ignora_luz: true
+    evento {
+      rodadas: 10
+      descricao: 'duração'
+    }
+  }
+}
+modelo {
   id: 'Tentáculos Negros'
   entidade {
     modelo_3d { id: 'black_tentacles' }
