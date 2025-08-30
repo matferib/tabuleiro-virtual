@@ -504,8 +504,8 @@ void TamanhoFonte(int* largura, int* altura, float* escala);
 inline void TamanhoFonteComEscala(int* largura, int* altura) {
   float escala;
   TamanhoFonte(largura, altura, &escala);
-  *largura *= escala;
-  *altura *= escala;
+  *largura *= static_cast<int>(escala);
+  *altura *= static_cast<int>(escala);
 }
 void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura, float* escala);
 
