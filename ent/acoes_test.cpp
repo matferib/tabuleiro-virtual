@@ -1,3 +1,5 @@
+#include <utility>
+#include <tuple>
 #include <memory>
 #include <queue>
 #include "ent/entidade.h"
