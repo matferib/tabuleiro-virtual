@@ -9209,6 +9209,53 @@ modelo {
   }
 }
 
+modelo {
+  id: 'Gnoma Ranger 3'
+  entidade {
+    dados_vida: '3d8+6' raca: 'gnomo'
+    modelo_3d { id: 'gnome_ranger' }
+    info_classes { id: 'ranger' nivel: 3 }
+    dados_ataque {
+      id_arma: 'martelo_gnomo_com_gancho' obra_prima: true empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      id_arma: 'arco' obra_prima: true empunhadura: EA_ARMA_APENAS
+      municao: 10
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      # Vai pra 11 com racial.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      # vai para 12 com racial.
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+    }
+    info_talentos {
+      gerais { id: 'acuidade_arma' }
+      gerais { id: 'bloqueio_ambidestro' }
+      outros { id: 'combater_duas_armas' origem: 'ranger' }  # estilo de combate.
+      outros { id: 'rastrear' origem: 'ranger' }
+      outros { id: 'tolerancia' origem: 'ranger' }
+    }
+    # 5 pericias com 6.
+    info_pericias { id: 'sobrevivencia' pontos: 6 }
+    info_pericias { id: 'ouvir' pontos: 6 }
+    info_pericias { id: 'adrestrar_animais' pontos: 6 }
+    info_pericias { id: 'procurar' pontos: 6 }
+    info_pericias { id: 'observar' pontos: 6 }
+    dados_ataque_global {
+      inimigos_prediletos { classe: 'ranger' vezes: 2 tipo: TIPO_HUMANOIDE sub_tipo: SUBTIPO_GOBLINOIDE }
+    }
+    tesouro {
+      moedas { po: 1700 }
+    }
+  }
+}
+
+
 
 modelo {
   id: 'Humano Bardo 5'
