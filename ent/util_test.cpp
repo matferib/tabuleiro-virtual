@@ -154,6 +154,16 @@ TEST(TesteItemMagico, TesteItemMagicoContinuo) {
   ASSERT_TRUE(proto.evento().empty());
 }
 
+TEST(TesteAtaqueVsDefesa, TesteAcuidadeArmaDuplaMaoRuim) {
+  auto gnoma = NovaEntidadeParaTestes(TabelasCriando().ModeloEntidade("Gnoma Ranger (Duas Armas) 3").entidade(), TabelasCriando());
+  RecomputaDependencias(TabelasCriando(), gnoma.get());
+  ASSERT_GE(proto.dados_ataque().size(), 3);
+  // 3 base, 1 tamanho, 1 obraprima, -2 empunhadura com talento.
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 3);
+  // 3 base, 1 tamanho, 1 obraprima, -2 empunhadura com talento, 2 destreza por acuidade.
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 5);
+}
+
 TEST(TesteItemMagico, TesteItemMagicoParalisia) {
   EntidadeProto proto;
   AtribuiBaseAtributo(12, TA_FORCA, &proto);
@@ -8085,7 +8095,6 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarNaoPermiteContraAtaque) {
     EXPECT_NE(resultado.resultado, RA_FALHA_CONTRA_ATAQUE) << resultado.texto;
   }
 }
-
 
 }  // namespace ent.
 
