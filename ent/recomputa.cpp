@@ -1744,7 +1744,7 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
   }
   if (raca_tabelada.has_tipo_visao() && !proto->has_tipo_visao()) {
     proto->set_tipo_visao(raca_tabelada.tipo_visao());
-    if (raca_tabelada.alcance_visao_m() > proto->has_alcance_visao_m()) {
+    if (raca_tabelada.alcance_visao_m() > proto->alcance_visao_m()) {
       proto->set_alcance_visao_m(raca_tabelada.alcance_visao_m());
     }
   }
@@ -3461,6 +3461,7 @@ void RecomputaDependenciasUmDadoAtaque(
     if (PossuiTalento("acuidade_arma", proto) &&
         bba_distancia > bba_cac &&
         (PossuiCategoria(CAT_LEVE, arma) || PossuiCategoria(CAT_ARMA_NATURAL, arma) ||
+        (PossuiCategoria(CAT_ARMA_DUPLA, arma) && da->empunhadura() == EA_MAO_RUIM) ||
          arma.id() == "sabre" || arma.id() == "chicote" || arma.id() == "corrente_com_cravos")) {
       da->set_acuidade(true);
       AtribuiBonus(-penalidade_ataque_escudo, TB_PENALIDADE_ESCUDO, "escudo", bonus_ataque);
@@ -3638,7 +3639,7 @@ void RecomputaDependenciasUmDadoAtaque(
     if (modificador_forca_dano < 0) {
       dano_forca = modificador_forca;
     } else if (ea == EA_2_MAOS) {
-      dano_forca = floorf(modificador_forca_dano * 1.5f);
+      dano_forca = static_cast<int>(floorf(modificador_forca_dano * 1.5f));
     } else if (ea == EA_MAO_RUIM || ea == EA_MONSTRO_ATAQUE_SECUNDARIO) {
       dano_forca = modificador_forca_dano / 2;
     } else {
