@@ -6313,6 +6313,30 @@ tabela_pericias {
 }
 tabela_feiticos {
   armas {
+    id: 'globos_luz'
+    nome: 'globos de luz'
+    nome_ingles: 'dancing_lights'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    componente {
+      material: false
+    }
+    info_classes {
+      id: 'bardo'
+      nivel: 0
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 0
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Esfera Flamejante'
+    }
+    escola: 'encantamento'
+  }
+ 
+  armas {
     id: 'acalmar_emocoes'
     nome: 'acalmar emoções'
     nome_ingles: 'calm emotions'
@@ -14115,7 +14139,7 @@ tabela_feiticos {
       info_textura { id: 'rainbow.png' }
       raio_quadrados: 4  # quadrados.
       efeito_area: true
-      permite_salvacao: false 
+      permite_salvacao: false
       duracao_s: 0.350
       ignora_luz: false
       alinhamento_ordem_caos: DESC_CAOS
@@ -15203,6 +15227,46 @@ tabela_racas {
     }
     dados_defesa {
       bonus_salvacao_ilusao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
+      bonus_ca_por_tipo {
+        key: 11 # TIPO_GIGANTE
+        value { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 4 origem: 'racial' } } }
+      }
+    }
+    dados_ataque {
+      rotulo: 'habilidade 1/dia'
+      grupo: 'falar com animais cavadores'
+      tipo_ataque: 'Feitiço à Distância'
+      id_arma: 'falar_com_animais'
+      limite_vezes: 1
+      taxa_refrescamento: "14400"  # 1 dia
+      mantem_com_limite_zerado: true
+    }
+    dados_ataque {
+      rotulo: 'habilidade 1/dia'
+      grupo: 'globos de luz'
+      tipo_ataque: 'Feitiço à Distância'
+      id_arma: 'globos_luz'
+      limite_vezes: 1
+      taxa_refrescamento: "14400"  # 1 dia
+      mantem_com_limite_zerado: true
+    }
+    dados_ataque {
+      rotulo: 'habilidade 1/dia'
+      grupo: 'som fantasma'
+      tipo_ataque: 'Feitiço à Distância'
+      id_arma: 'som_fantasma'
+      limite_vezes: 1
+      taxa_refrescamento: "14400"  # 1 dia
+      mantem_com_limite_zerado: true
+    }
+    dados_ataque {
+      rotulo: 'habilidade 1/dia'
+      grupo: 'prestigidação'
+      tipo_ataque: 'Feitiço à Distância'
+      id_arma: 'prestigidacao'
+      limite_vezes: 1
+      taxa_refrescamento: "14400"  # 1 dia
+      mantem_com_limite_zerado: true
     }
     dados_ataque_global {
       bonus_ataque_por_sub_tipo {
@@ -15214,6 +15278,7 @@ tabela_racas {
         value: 1
       }
     }
+    # Falta: +1 CD em ataques ilusões
     familiaridade_com_arma: 'martelo_gnomo_com_gancho'
     tamanho: TM_PEQUENO
   }
@@ -15378,7 +15443,7 @@ tabela_dominios {
       acao_fixa {
         id: 'Feitiço de Toque'
         cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-        permite_ataque_vs_defesa: false 
+        permite_ataque_vs_defesa: false
         permite_salvacao: false
         ignora_resistencia_magia: true
         efeitos_adicionais {
