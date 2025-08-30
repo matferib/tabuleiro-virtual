@@ -162,6 +162,7 @@ TEST(TesteAtaqueVsDefesa, TesteAcuidadeArmaDuplaMaoRuim) {
   EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 3);
   // 3 base, 1 tamanho, 1 obraprima, -2 empunhadura com talento, 2 destreza por acuidade.
   EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 5);
+  // Verificar: CA vs gigante +4.
 }
 
 TEST(TesteItemMagico, TesteItemMagicoParalisia) {
