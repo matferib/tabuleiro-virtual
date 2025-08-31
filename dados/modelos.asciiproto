@@ -9281,7 +9281,7 @@ modelo {
     # 5 pericias com 6.
     info_pericias { id: 'sobrevivencia' pontos: 6 }
     info_pericias { id: 'ouvir' pontos: 6 }
-    info_pericias { id: 'adrestrar_animais' pontos: 6 }
+    info_pericias { id: 'adestrar_animais' pontos: 6 }
     info_pericias { id: 'procurar' pontos: 6 }
     info_pericias { id: 'observar' pontos: 6 }
     dados_ataque_global {
