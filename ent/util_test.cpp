@@ -156,7 +156,9 @@ TEST(TesteItemMagico, TesteItemMagicoContinuo) {
 
 TEST(TesteAtaqueVsDefesa, TesteAcuidadeArmaDuplaMaoRuim) {
   auto gnoma = NovaEntidadeParaTestes(TabelasCriando().ModeloEntidade("Gnoma Ranger (Duas Armas) 3").entidade(), TabelasCriando());
-  RecomputaDependencias(TabelasCriando(), gnoma.get());
+  // Copia.
+  ent::EntidadeProto proto = gnoma->Proto();
+  RecomputaDependencias(TabelasCriando(), &proto);
   ASSERT_GE(proto.dados_ataque().size(), 3);
   // 3 base, 1 tamanho, 1 obraprima, -2 empunhadura com talento.
   EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 3);
@@ -2194,10 +2196,10 @@ TEST(TesteVazamento, TesteVazamento) {
   evento->set_id_efeito(EFEITO_CURA_ACELERADA);
   evento->add_complementos(5);
   RecomputaDependencias(TabelasCriando(), &proto);
-  const int tamanho = proto.ByteSize();
+  const int tamanho = proto.ByteSizeLong();
   for (int i = 0; i < 2; ++i) {
     RecomputaDependencias(TabelasCriando(), &proto);
-    EXPECT_EQ(tamanho, proto.ByteSize()) << ", iteração: " << i << ", proto: " << proto.ShortDebugString();
+    EXPECT_EQ(tamanho, proto.ByteSizeLong()) << ", iteração: " << i << ", proto: " << proto.ShortDebugString();
     //break;
   }
 }
@@ -2211,10 +2213,10 @@ TEST(TesteVazamento, TesteVazamento2) {
   evento->set_id_efeito(EFEITO_FLECHA_ACIDA);
   evento->set_rodadas(5);
   RecomputaDependencias(TabelasCriando(), &proto);
-  const int tamanho = proto.ByteSize();
+  const int tamanho = proto.ByteSizeLong();
   for (int i = 0; i < 5; ++i) {
     RecomputaDependencias(TabelasCriando(), &proto);
-    EXPECT_EQ(tamanho, proto.ByteSize()) << ", iteração: " << i;
+    EXPECT_EQ(tamanho, proto.ByteSizeLong()) << ", iteração: " << i;
     //break;
   }
 }
@@ -2229,10 +2231,10 @@ TEST(TesteVazamento, TesteVazamento3) {
   evento->set_id_efeito(EFEITO_QUEIMANDO_FOGO_ALQUIMICO);
   evento->set_rodadas(1);
   RecomputaDependencias(TabelasCriando(), &proto);
-  const int tamanho = proto.ByteSize();
+  const int tamanho = proto.ByteSizeLong();
   for (int i = 0; i < 5; ++i) {
     RecomputaDependencias(TabelasCriando(), &proto);
-    EXPECT_EQ(tamanho, proto.ByteSize()) << ", iteração: " << i;
+    EXPECT_EQ(tamanho, proto.ByteSizeLong()) << ", iteração: " << i;
     //break;
   }
 }
