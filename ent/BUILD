@@ -193,9 +193,57 @@ cc_test(
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
-    linkopts = [
-      '-lGLU',
-      '-lGL',
-      '-lpthread',
+    linkopts = select({
+      "@platforms//os:osx": [
+        "-framework OpenGL",
+        "-F /opt/homebrew/Cellar/qt@5/5.15.15/Frameworks",
+      ],
+      "@platforms//os:linux": [
+        "-lGLU",
+        "-lGL",
+      ],
+       "//conditions:default": [":generic_lib"],
+    })
+)
+
+cc_test(
+    name = "acoes_test",
+    srcs = ["acoes_test.cpp"],
+    deps = [
+        ":ent",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
     ],
+    linkopts = select({
+      "@platforms//os:osx": [
+        "-framework OpenGL",
+        "-F /opt/homebrew/Cellar/qt@5/5.15.15/Frameworks",
+      ],
+      "@platforms//os:linux": [
+        "-lGLU",
+        "-lGL",
+      ],
+       "//conditions:default": [":generic_lib"],
+    })
+)
+
+cc_test(
+    name = "util_test",
+    srcs = ["util_test.cpp"],
+    deps = [
+        ":ent",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+    linkopts = select({
+      "@platforms//os:osx": [
+        "-framework OpenGL",
+        "-F /opt/homebrew/Cellar/qt@5/5.15.15/Frameworks",
+      ],
+      "@platforms//os:linux": [
+        "-lGLU",
+        "-lGL",
+      ],
+       "//conditions:default": [":generic_lib"],
+    })
 )
