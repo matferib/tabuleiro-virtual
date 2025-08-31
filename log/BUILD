@@ -5,7 +5,7 @@ cc_library(
   hdrs = [
     "log.h",
   ],
-  copts = [],
+  defines= ['USAR_GLOG'],
   deps = [
       "@abseil-cpp//absl/flags:parse",
       "@abseil-cpp//absl/log",
