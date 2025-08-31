@@ -250,7 +250,7 @@ std::string VbosNaoGravados::ParaString(bool completo) const {
 // VbosGravados
 //-------------
 void VbosGravados::Grava(const VbosNaoGravados& vbos_nao_gravados) {
-  //LOG(INFO) << "gravando vbos de " << nome_ << " atualmente com " << vbos_.size() << " vbos";
+  //LOG(ERROR) << "gravando vbos de nome '" << nome_ << "' atualmente com " << vbos_.size() << " vbos, recebendo " << vbos_nao_gravados.vbos_.size() << " vbos";
   vbos_.resize(vbos_nao_gravados.vbos_.size());
   for (unsigned int i = 0; i < vbos_nao_gravados.vbos_.size(); ++i) {
     //vbos_[i].Desgrava();
