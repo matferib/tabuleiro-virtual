@@ -789,7 +789,10 @@ void Entidade::AtualizaMatrizes() {
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
   vd_.atualiza_matriz_vbo = vd_.matriz_modelagem != md.modelagem;
   vd_.matriz_modelagem = md.modelagem;
-  AtualizaVbo(parametros_desenho_);
+  if (proto_.sub_tipo() == TF_LIVRE) {
+    // Desenhos livres tem que atualizar o VBO pq eles nao se atualizam por matriz, e sim os pontos são alterados.
+    AtualizaVbo(parametros_desenho_);
+  }
 
   if (proto_.tipo() == TE_COMPOSTA) return;
   vd_.matriz_modelagem_tijolo_base = md.tijolo_base;
