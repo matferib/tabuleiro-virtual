@@ -268,6 +268,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
     InicializaComposta(proto_, &vd_);
   }
 
+  AtualizaMatrizes();
   AtualizaVbo(parametros_desenho_);
   // O recomputa vai gerar um pseudo max_dados_vida baseado em constituicao, entao temos que salvar antes.
   const bool tinha_max_pontos_vida = proto_.has_max_pontos_vida();
@@ -1113,6 +1114,8 @@ void Entidade::MovePara(float x, float y, float z) {
   p->set_z(z /*std::max(ZChao(x, y), z)*/);
   proto_.clear_destino();
   vd_.atualiza_matriz_vbo = true;
+  //AtualizaMatrizesVbo(parametros_desenho_);
+  //AtualizaVbo(parametros_desenho_);
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
 }
 
@@ -1120,6 +1123,9 @@ void Entidade::MovePara(const Posicao& pos) {
   VLOG(1) << "Entidade antes de mover: " << proto_.pos().ShortDebugString();
   *proto_.mutable_pos() = pos;
   proto_.clear_destino();
+  vd_.atualiza_matriz_vbo = true;
+  //AtualizaMatrizesVbo(parametros_desenho_);
+  //AtualizaVbo(parametros_desenho_);
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
 }
 
