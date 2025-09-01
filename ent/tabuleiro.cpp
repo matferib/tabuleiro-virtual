@@ -71,9 +71,6 @@ namespace ent {
 
 namespace {
 
-/** expessura da linha da grade do tabuleiro. */
-const float EXPESSURA_LINHA = 0.1f;
-const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 
@@ -3889,11 +3886,13 @@ void Tabuleiro::RegeraVboTabuleiro() {
   float deslocamento_x = -TamanhoX() * TAMANHO_LADO_QUADRADO_2;
   float deslocamento_y = -TamanhoY() * TAMANHO_LADO_QUADRADO_2;
   gl::VbosNaoGravados grade_nao_gravada;
+  const float expessura_linha = opcoes_.expessura_grade_m();
+  const float expessura_linha_2 = expessura_linha / 2.0f;
   // Linhas verticais (S-N).
   {
     for (int xcorrente = 0; xcorrente <= TamanhoX(); ++xcorrente) {
-      float x_inicial = (xcorrente * TAMANHO_LADO_QUADRADO) - EXPESSURA_LINHA_2 + deslocamento_x;
-      float x_final = x_inicial + EXPESSURA_LINHA;
+      float x_inicial = (xcorrente * TAMANHO_LADO_QUADRADO) - expessura_linha_2 + deslocamento_x;
+      float x_final = x_inicial + expessura_linha;
       for (int ycorrente = 0; ycorrente < TamanhoY(); ++ycorrente) {
         float y_inicial = ycorrente * TAMANHO_LADO_QUADRADO + deslocamento_y;
         float y_final = y_inicial + TAMANHO_LADO_QUADRADO;
@@ -3926,8 +3925,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
   indice = 0;
   {
     for (int ycorrente = 0; ycorrente <= TamanhoY(); ++ycorrente) {
-      float y_inicial = (ycorrente * TAMANHO_LADO_QUADRADO) - EXPESSURA_LINHA_2 + deslocamento_y;
-      float y_final = y_inicial + EXPESSURA_LINHA;
+      float y_inicial = (ycorrente * TAMANHO_LADO_QUADRADO) - expessura_linha_2 + deslocamento_y;
+      float y_final = y_inicial + expessura_linha;
       for (int xcorrente = 0; xcorrente < TamanhoX(); ++xcorrente) {
         float x_inicial = xcorrente * TAMANHO_LADO_QUADRADO + deslocamento_x;
         float x_final = x_inicial + TAMANHO_LADO_QUADRADO;

@@ -152,6 +152,7 @@ message TabuleiroProto {
     repeated uint32 ids_entidades = 2;
   }
   map<uint32, InfoTime> times = 32;
+  optional float expessura_grade_m = 33 [default=0.1];
 }
 
 // Para copiar e colar.
