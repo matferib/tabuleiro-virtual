@@ -5010,20 +5010,21 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   boost::timer::cpu_timer timer_todas;
   timer_todas.start();
+  std::atomic<int> atualiza_sombras = 0;
 #if 1 || __APPLE__
   std::for_each(entidades_.begin(), entidades_.end(),
-                [this, intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) {
+                [this, intervalo_ms, &atualiza_sombras](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) {
                   parametros_desenho_.set_entidade_selecionada(
                       estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
-                  id_ent.second->AtualizaEmParalelo(intervalo_ms);
+                  atualiza_sombras += id_ent.second->AtualizaEmParalelo(intervalo_ms) ? 1 : 0;
                 });
 #else
   std::for_each(std::execution::par,
                 entidades_.begin(), entidades_.end(),
-                [this, intervalo_ms](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) {
+                [this, intervalo_ms, &atualiza_sombras](std::pair<const unsigned int, std::unique_ptr<Entidade>>& id_ent) {
                   parametros_desenho_.set_entidade_selecionada(
                       estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
-                  id_ent.second->AtualizaEmParalelo(intervalo_ms);
+                  atualiza_sombras += id_ent.second->AtualizaEmParalelo(intervalo_ms) ? 1 : 0;
                 });
 #endif
 
@@ -5035,6 +5036,9 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
 #endif
     entidade->Atualiza(intervalo_ms);
     parametros_desenho_.clear_entidade_selecionada();
+  }
+  if (atualiza_sombras > 0) {
+    RequerAtualizacaoLuzesPontuais();
   }
 
   timer_todas.stop();

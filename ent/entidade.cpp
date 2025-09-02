@@ -869,7 +869,7 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
   return md;
 }
 
-void Entidade::AtualizaEmParalelo(int intervalo_ms) {
+bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
 #if DEBUG
   glFinish();
   boost::timer::cpu_timer timer;
@@ -883,7 +883,6 @@ void Entidade::AtualizaEmParalelo(int intervalo_ms) {
       }
   });
 #endif
-
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
   AtualizaBolhas(intervalo_ms);
@@ -1023,8 +1022,9 @@ void Entidade::AtualizaEmParalelo(int intervalo_ms) {
 
   // Daqui pra baixo, tratamento de destino.
   if (!proto_.has_destino()) {
-    return;
+    return false;  // sem atualização de sombras.
   }
+
   vd_.atualiza_matriz_vbo = true;
   auto* po = proto_.mutable_pos();
   const auto& pd = proto_.destino();
@@ -1036,7 +1036,7 @@ void Entidade::AtualizaEmParalelo(int intervalo_ms) {
       po->set_y(pd.y());
       po->set_z(pd.z());
       proto_.clear_destino();
-      return;
+      return true;
     }
   }
   bool chegou = true;
@@ -1063,6 +1063,7 @@ void Entidade::AtualizaEmParalelo(int intervalo_ms) {
   if (chegou) {
     proto_.clear_destino();
   }
+  return true;
 }
 
 void Entidade::Atualiza(int intervalo_ms) {
