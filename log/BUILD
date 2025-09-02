@@ -7,9 +7,10 @@ cc_library(
   ],
   defines= ['USAR_GLOG'],
   deps = [
-      "@abseil-cpp//absl/flags:parse",
-      "@abseil-cpp//absl/log",
-      "@abseil-cpp//absl/log:initialize",
-      "@abseil-cpp//absl/strings",
+    "@abseil-cpp//absl/flags:flag",
+    "@abseil-cpp//absl/flags:parse",
+    "@abseil-cpp//absl/log",
+    "@abseil-cpp//absl/log:initialize",
+    "@abseil-cpp//absl/strings",
   ]
 )
