@@ -407,7 +407,8 @@ item_menu { id: 'Uivante' }
 sub_menu {
   id: 'Vermes'
   item_menu { id: 'Abelha Gigante' }
-  item_menu { id: 'Aranha Gigante Enorme' }
+  item_menu { id: 'Aranha Monstruosa Grande (Tecelã)' }
+  item_menu { id: 'Aranha Monstruosa Enorme (Tecelã)' }
   item_menu { id: 'Vaga-lume Gigante' }  # Besouro do fogo.
   item_menu { id: 'Centopéia Média' }
   item_menu { id: 'Centopéia Grande' }
@@ -428,6 +429,7 @@ sub_menu {
   item_menu { id: 'Carroça' }
   item_menu { id: 'Casa (8x7)' }
   item_menu { id: 'Cavalo' }
+  item_menu { id: 'Cogumelo' }
   item_menu { id: 'Moedas' }
   item_menu { id: 'Baú (madeira)' }
   item_menu { id: 'Barras' }

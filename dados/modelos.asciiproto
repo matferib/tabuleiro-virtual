@@ -1218,9 +1218,68 @@ modelo {
   }
 }
 modelo {
-  id: 'Aranha Gigante Enorme'
+  id: 'Aranha Monstruosa Grande (Tecelã)'
   entidade {
-    dados_vida: '8d8+16' tamanho: TM_ENORME info_textura { id: 'giantspider.png' } cor { r: 0 g: 0 b: 0 }
+    rotulo_especial: 'sentido sismico 12 quadrados ou em contato com teia'
+    dados_vida: '4d8+4' tamanho: TM_GRANDE info_textura { id: 'monstrousspider.png' } cor { r: 0 g: 0 b: 0 }
+    info_classes { id: 'verme' nivel: 4 }
+    modificador_iniciativa: 3
+    tendencia { simples: TD_NEUTRO }
+    tipo_dnd: TIPO_VERME
+    dados_ataque {
+      rotulo: 'mordida com veneno' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_2_MAOS
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d3' tipo_dano: TDV_FORCA dano_secundario: '1d3' tipo_dano_secundario: TDV_FORCA cd: 13 }
+      dano_basico: '1d8'
+      alcance_q: 1  # segundo livro.
+    }
+    dados_ataque {
+      rotulo: 'mordida com veneno agarrando' tipo_ataque: 'Agarrar' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      veneno { tipo: TV_FERIMENTO dano_inicial: '1d6' tipo_dano: TDV_FORCA dano_secundario: '1d6' tipo_dano_secundario: TDV_FORCA cd: 13 }
+      dano_basico: '1d8'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'natural agarrando' valor: -4 } } }
+    }
+    dados_ataque {
+      grupo: 'teia' rotulo: 'teia' tipo_ataque: 'Ataque a Distância'
+      municao: 4
+      alcance_m: 3  # 2 quadrados
+      incrementos: 5  # maximo 10 qudrados.
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano: ''
+      acao_fixa {
+        icone: 'icon_web.png'
+        ataque_toque: true
+        efeitos_adicionais {
+          efeito: EFEITO_ENREDADO
+        }
+      }
+    }
+    dados_defesa {
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } } }
+    }
+    mais_de_duas_pernas: true
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 12
+    movimento {
+      escalando_basico_q: 4
+      terrestre_basico_q: 6
+    }
+    # o bonus racial é 8, mas como ela pode usar a destreza para escalar, vamos adicionar +3 que com -1 da forca da 10 no final.
+    info_pericias { id: 'escalar' atributo: TA_DESTREZA pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'esconderse' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 0 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 0 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+  }
+}
+modelo {
+  id: 'Aranha Monstruosa Enorme (Tecelã)'
+  entidade {
+    dados_vida: '8d8+16' tamanho: TM_ENORME info_textura { id: 'monstrousspider.png' } cor { r: 0 g: 0 b: 0 }
     modificador_iniciativa: 3
     rotulo_especial: 'ini: +3\nca 16/11/13 agarrar 18 mordida: +9 dano 2d6+6+veneno\nveneno cd 16 1d8 força'
   }
@@ -12281,8 +12340,22 @@ modelo {
     rotacao_y_graus: 53
   }
 }
-
 }
+modelo {
+  id: 'Cogumelo'
+  entidade {
+    tipo: TE_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.9  g: 0.9  b: 0.85  a: 1 } sub_tipo: TF_CILINDRO
+      escala { x: 0.15 y: 0.14 z: 0.13 }
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.7 g: 0.7 b: 0.5  a: 1 } sub_tipo: TF_HEMISFERIO
+      escala { x: 0.35 y: 0.38 z: 0.15 } pos { z: 0.13 }
+    }
+  }
+}
+
 modelo {
   id: 'Casa (8x7)'
   entidade {
