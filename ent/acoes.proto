@@ -453,7 +453,7 @@ message DadosAtaque {
   optional string dano_basico = 23;
   // Gera o dano basico independente de tamanho ou qualquer outra coisa.
   optional string dano_basico_fixo = 37;
-  // Gera o dano basico para ser modificador por tamanho. Util para ataques naturais (dano nao vem da arma).
+  // Gera o dano basico para ser modificado por tamanho. Util para ataques naturais (dano nao vem da arma).
   // Esse valor pode ser alterado pelo tamanho.
   // Atencao: este valor é para tamanho medio e sera convertido para o tamanho da criatura.
   optional string dano_basico_medio_natural = 89;

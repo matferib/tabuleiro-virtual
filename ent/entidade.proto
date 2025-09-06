@@ -254,6 +254,7 @@ message EntidadeProto {
     optional OperacaoCombinacao operacao = 100;
     // Apenas para conferencia.
     optional int32 valor_esperado_po = 26;
+    repeated ItemMagicoProto itens_maravilhosos = 27;
   }
   optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.

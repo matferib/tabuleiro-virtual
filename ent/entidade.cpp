@@ -830,7 +830,7 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
   // tijolo base. Usada para disco de peao tambem.
   if (DesenhaBase(proto) || (!proto.has_info_textura() && !proto.has_modelo_3d())) {
     Matrix4 m;
-    if (pd->entidade_selecionada()) {
+    if (pd != nullptr && pd->entidade_selecionada()) {
       m.rotateZ(vd.angulo_disco_selecao_graus);
     }
     md.tijolo_base = MontaMatrizModelagem(true  /*queda*/, TZ_SEM_VOO  /*z*/, proto, vd, pd) * m;

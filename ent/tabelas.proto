@@ -310,6 +310,10 @@ message TabelaItensMundanos {
   repeated ItemMagicoProto itens = 1;
 }
 
+message TabelaItensMaravilhosos {
+  repeated ItemMagicoProto itens = 1;
+}
+
 message TabelaBracadeiras {
   repeated ItemMagicoProto bracadeiras = 1;
 }
@@ -376,4 +380,5 @@ message TodasTabelas {
   optional TabelaMunicoes tabela_municoes = 62;
   optional TabelaItensMundanos tabela_itens_mundanos = 63;
   optional TabelaVarinhas tabela_varinhas = 64;
+  optional TabelaItensMaravilhosos tabela_itens_maravilhosos = 66;
 }
