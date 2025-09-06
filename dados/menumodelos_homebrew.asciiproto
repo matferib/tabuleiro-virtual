@@ -9,6 +9,44 @@ sub_menu {
 sub_menu {
   id: 'Encontros'
   item_menu {
+    id: 'floresta_yeven'
+    texto: 'Floresta de Yeven'
+    quantidade: '1'
+    aleatorio: true
+    # 90% de nao dar nada.
+    modelos { id: 'NADA' peso: 90 }
+    modelos {
+      id: 'Coelho'
+      quantidade: '1d2'
+      peso: 2
+    }
+    modelos {
+      id: 'Enxame (aranhas)'
+      quantidade: '1'
+      peso: 2
+    }
+    modelos {
+      id: 'Carcajú'
+      quantidade: '1d2'
+      peso: 2
+    }
+    modelos {
+      id: 'Texugo'
+      quantidade: '1d2'
+      peso: 2
+    }
+    modelos {
+      id: 'Urso Negro'
+      quantidade: '1'
+      peso: 1
+    }
+    modelos {
+      id: 'Lobo'
+      quantidade: '1d2'
+      peso: 1
+    }
+  }
+  item_menu {
     id: 'bosque_andalara'
     texto: 'Bosque de Andalara'
     quantidade: '1'

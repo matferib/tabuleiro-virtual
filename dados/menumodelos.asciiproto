@@ -129,6 +129,7 @@ sub_menu {
     modelos { id: 'Halfling Druida 10' }
     modelos { id: 'Leão Atroz' }
   }
+  item_menu { id: 'Halfling Ladino 3' }
 }
 sub_menu {
   id: 'Armas de Cerco'

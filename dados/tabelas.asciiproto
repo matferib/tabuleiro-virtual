@@ -2795,6 +2795,13 @@ tabela_varinhas {
     custo_po: 750
   }
 }
+tabela_itens_maravilhosos {
+  itens {
+    id: 'amuleto_quaal_chicote'
+    nome: 'amuleto de quaal (chicote)'
+    custo { po: 500 }
+  }
+}
 tabela_itens_mundanos {
   itens {
     id: 'simbolo_sagrado_madeira'

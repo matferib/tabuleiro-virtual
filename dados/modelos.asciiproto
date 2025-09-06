@@ -1464,6 +1464,25 @@ modelo {
   }
 }
 modelo {
+  id: 'Chicote de Quaal'
+  entidade {
+    tamanho: TM_IMENSO
+    modelo_3d { id: 'whip' }
+    dados_ataque {
+      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 10 dano_basico_fixo: '1d6' bonus_magico: 1
+    }
+    dados_ataque {
+      # na verdade, esse é livre quando acerta.
+      rotulo: 'Agarrar' tipo_ataque: 'Agarrar' bonus_ataque_final: 15 dano_basico_fixo: '1d6' bonus_magico: 1
+    }
+    desenha_base: false  # muito grande o objeto.
+    voadora: true
+    rotulo_especial: ''
+    evento { rodadas: 600 descricao: 'duração' } # 1 hora.
+  }
+}
+
+modelo {
   id: 'Barghest'
   entidade {
     dados_vida: '6d8+6' modelo_3d { id: 'barghest' } tipo_visao: VISAO_ESCURO alcance_visao_m: 12
@@ -8563,6 +8582,87 @@ modelo {
     info_pericias { id: 'conhecimento_natureza' pontos: 8 }
     info_talentos {
       outros { id: 'vitalidade' origem: 'humano' }
+    }
+  }
+}
+modelo {
+  id: 'Halfling Ladino 3'
+  entidade {
+    dados_vida: '3d6+3' raca: 'halfling'
+    info_classes { id: 'ladino' nivel: 3 }
+    dados_defesa {
+      id_armadura: 'couro_batido' armadura_obra_prima: true
+    }
+    lista_acoes: "Ataque Corpo a Corpo"
+    dados_ataque {
+      tipo_ataque: "Ataque Corpo a Corpo"
+      rotulo: "sabre"
+      obra_prima: true
+      empunhadura: EA_ARMA_ESCUDO
+      id_arma: "sabre"
+      grupo: "sabre"
+    }
+    dados_ataque {
+      tipo_ataque: "Ataque a Distância"
+      rotulo: "funda"
+      obra_prima: true
+      empunhadura: EA_ARMA_ESCUDO
+      grupo: "funda"
+      id_arma: "funda"
+    }
+    dados_ataque {
+      tipo_ataque: "Criação de Entidade"
+      rotulo: "Chicote de quaal"
+      empunhadura: EA_ARMA_ESCUDO
+      grupo: "quaal"
+      alcance_q: 20
+      acao_fixa {
+        id: 'Criação de Entidade'
+        id_modelo_entidade: 'Chicote de Quaal'
+      }
+      limite_vezes: 1
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    info_talentos {
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'acuidade_arma' }
+    }
+    # 10 pericias com 6 pontos.
+    info_pericias { id: 'abrir_fechaduras' pontos: 4 }
+    info_pericias { id: 'acrobacias' pontos: 4 }
+    info_pericias { id: 'arte_da_fuga' pontos: 4 }
+    info_pericias { id: 'blefar' pontos: 3 }
+    info_pericias { id: 'decifrar_escritas' pontos: 3 }
+    info_pericias { id: 'esconderse' pontos: 5 }
+    info_pericias { id: 'furtividade' pontos: 5 }
+    info_pericias { id: 'intimidacao' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 5 }
+    info_pericias { id: 'operar_mecanismos' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'procurar' pontos: 4 }
+    info_pericias { id: 'sentir_motivacao' pontos: 3 }
+    info_pericias { id: 'usar_instrumento_magico' pontos: 6 }
+    tesouro {
+      armas { id: 'sabre' id_tabela: 'sabre' obra_prima: true }
+      armas { id: 'funda' id_tabela: 'funda' obra_prima: true }
+      municoes { id: 'pedra' nome: 'pedra' quantidade: 20 }
+      armaduras { id: 'couro batido' id_tabela: 'couro_batido' obra_prima: true }
+      escudos { id: 'broquel' id_tabela: 'broquel' obra_prima: true }
+      moedas { po: 50 }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'forca_touro' }
+      itens_maravilhosos { id: 'amuleto_quaal_chicote' }
     }
   }
 }
