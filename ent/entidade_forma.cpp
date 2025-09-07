@@ -249,12 +249,15 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
       if (vd.matriz_deslocamento_textura != Matrix4()) {
         gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
+      } else {
+        gl::CarregaIdentidade();
       }
       gl::AtualizaMatrizes();
     } else {
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+      gl::CarregaIdentidade();
       gl::AtualizaMatrizes();
     }
   }

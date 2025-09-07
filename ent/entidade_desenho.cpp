@@ -194,6 +194,10 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
       gl::MultiplicaMatriz(deslocamento_textura.get());
       gl::AtualizaMatrizes();
+    } else {
+      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+      gl::CarregaIdentidade();
+      gl::AtualizaMatrizes();
     }
 
     gl::Habilita(GL_TEXTURE_2D);
@@ -344,13 +348,11 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (pd->desenha_eventos_entidades()) {
     bool ha_evento = false;
     std::string descricao;
-    int num_descricoes = 0;
     for (auto& e : *proto_.mutable_evento()) {
       if (e.rodadas() == 0) {
         ha_evento = true;
         if (!e.descricao().empty()) {
           descricao += e.descricao() + "\n";
-          ++num_descricoes;
         } else {
           descricao += StringEfeito(e.id_efeito()) + "\n";
         }
