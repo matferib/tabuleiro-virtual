@@ -1229,16 +1229,18 @@ std::vector<InfoSelecao> MontaVetorInfosSelecao(const Tabuleiro::ItemSelecionado
   return infos;
 }
 
-std::vector<Modelo> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const std::vector<InfoSelecao>& infos, bool aleatorio) {
+std::vector<Modelo> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const std::vector<InfoSelecao>& infos, bool aleatorio, std::vector<std::string>& texto_log) {
   int sorteio = aleatorio ? RolaDado(infos.size()) - 1 : i;
   if (sorteio < 0 || sorteio >= (int)infos.size()) {
     LOG(ERROR) << "sorteio ou indice invalido: " << sorteio << ", tamanho: " << infos.size();
+    absl::StrAppend(&texto_log.emplace_back(), absl::StrFormat("    sorteio ou indice invalido %d, tamanho: %d", sorteio, static_cast<int>(infos.size())));
     return {};
   }
   const auto& [id_tudo, ids, quantidade_str] = infos[sorteio];
   int valor = RolaValor(quantidade_str);
   if (valor <= 0) {
-    LOG(INFO) << "valor negativo para " << quantidade_str << ", valor: " << valor << ", retornando vazio";
+    // Quando for algo tipo 1d4-2.
+    absl::StrAppend(&texto_log.emplace_back(), absl::StrFormat("  Valor negativo para %s, valor: %d, retornando vazio", quantidade_str.c_str(), valor));
     return {};
   }
   if (valor > 100) {
@@ -1247,12 +1249,15 @@ std::vector<Modelo> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const 
     return {};
   }
   LOG(INFO) << "numero sorteado: " << (sorteio + 1) << " de " << infos.size() << "; id sorteado: " << id_tudo << ", vezes: " << quantidade_str << " = " << valor;
+  absl::StrAppend(&texto_log.emplace_back(), absl::StrFormat("  numero sorteado: %d de %d; id sorteado: %s, vezes: %s = %d",
+                                    sorteio + 1, static_cast<int>(infos.size()), id_tudo.c_str(), quantidade_str.c_str(), valor));
   std::vector<Modelo> modelos;
   for (int i = 0; i < valor; ++i) {
     for (const auto& id : ids) {
       const auto& modelo_com_parametros = tabelas.ModeloEntidade(id);
       if (!modelo_com_parametros.has_id()) {
         LOG(INFO) << "modelo invalido, ignorando";
+        absl::StrAppend(&texto_log.emplace_back(), absl::StrFormat("  modelo invalido, ignorando"));
         continue;
       }
       modelos.push_back(modelo_com_parametros);
@@ -1314,17 +1319,18 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
       }
 
       std::vector<std::unique_ptr<Entidade>> entidades_adicionadas;
+      std::vector<std::string> texto_log;
       if (notificacao.has_entidade()) {
-        VLOG(1) << "gerando entidade ja pronta";
+        texto_log.emplace_back("Gerando entidades ja pronta");
         auto entidade = CriaUmaEntidadePorNotificacao(notificacao, referencia, Modelo(), x, y, z);
         AdicionaIdAtualizaMapa(*entidade, notificacao.entidade(), &ids_adicionados_, &mapa_ids_adicionados_);
         entidades_adicionadas.emplace_back(std::move(entidade));
       } else {
-        VLOG(1) << "gerando " << quantidade << " sorteios";
+        absl::StrAppend(&texto_log.emplace_back(), absl::StrFormat("Gerando %d sorteios", quantidade));
         std::vector<InfoSelecao> infos = MontaVetorInfosSelecao(item_selecionado_);
         int indice_offset = 0;
         for (int i = 0; i < quantidade; ++i) {
-          const auto& modelos_com_parametros = SorteiaOuEscolheModelo(tabelas_, i, infos, item_selecionado_.aleatorio);
+          const auto& modelos_com_parametros = SorteiaOuEscolheModelo(tabelas_, i, infos, item_selecionado_.aleatorio, texto_log);
           if (modelos_com_parametros.empty()) {
             continue;
           }
@@ -1343,7 +1349,10 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
         AdicionaUmaEntidadeNotificando(std::move(entidade), notificacao, grupo_desfazer.add_notificacao());
       }
 
-      VLOG(1) << "tamanho de entidades adicionadas: " << ids_adicionados_.size();
+      absl::StrAppend(&texto_log.emplace_back(), absl::StrFormat("  => Numero de entidades adicionadas: %d", static_cast<int>(ids_adicionados_.size())));
+      for (auto rit = texto_log.rbegin(); rit != texto_log.rend(); ++rit) {
+        AdicionaLogEvento(*rit);
+      }
       SelecionaEntidadesAdicionadas();
       if (!Desfazendo() && !grupo_desfazer.notificacao().empty()) {
         AdicionaNotificacaoListaEventos(grupo_desfazer);
