@@ -6,12 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1403</width>
-    <height>978</height>
+    <width>2000</width>
+    <height>2000</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Propriedades da Forma</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="7" column="2">
