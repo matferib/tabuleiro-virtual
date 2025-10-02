@@ -51,7 +51,7 @@ apple_opengles:
 
 apple_debug:
 	bazel build --config=mac -c dbg :tabvirt --verbose_failures
-	bazel build --config=mac -c dbg//ent:acoes_test --verbose_failures
+	bazel build --config=mac -c dbg //ent:acoes_test --verbose_failures
 	bazel build --config=mac -c dbg //ent:ent_test --verbose_failures
 	bazel build --config=mac -c dbg //ent:util_test --verbose_failures
 	
