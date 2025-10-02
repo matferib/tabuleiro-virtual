@@ -361,7 +361,7 @@ TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeitoRisoHisterico) {
 TEST(TesteAcoes, TesteEntidadeAfetadaPorEfeitoBolsaCola) {
   auto modelo_druida = TabelasCriando().ModeloEntidade("Halfling Druida 10");
   auto alvo_pequeno = NovaEntidadeParaTestes(modelo_druida.entidade(), TabelasCriando());
-  auto modelo_aranha = TabelasCriando().ModeloEntidade("Aranha Gigante Enorme");
+  auto modelo_aranha = TabelasCriando().ModeloEntidade("Aranha Monstruosa Enorme (Tecelã)");
   auto alvo_enorme = NovaEntidadeParaTestes(modelo_aranha.entidade(), TabelasCriando());
   const auto& bolsa_cola = TabelasCriando().Arma("bolsa_cola");
   ASSERT_EQ(bolsa_cola.acao().efeitos_adicionais_size(), 2);
