@@ -114,7 +114,7 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
             VLOG(1) << "Lido: " << texto << ", mais_menos: " << mais_menos;
             ent::AcumulaDado(valor);
           } else {
-            LOG(INFO) << "d20 forcado invalido: " << texto << ", mais_menos: " << mais_menos;
+            LOG(INFO) << "Dado forcado invalido: " << texto << ", mais_menos: " << mais_menos;
           }
         }
       }
