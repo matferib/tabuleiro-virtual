@@ -656,7 +656,7 @@ class Entidade {
 
   /** @return true se a entidade deve ser achatada. */
   static bool Achatar(const EntidadeProto& proto, const ParametrosDesenho* pd) {
-    return !proto.has_modelo_3d() && !proto.info_textura().id().empty() && (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
+    return !proto.has_modelo_3d() && !proto.info_textura().id().empty() && ((pd != nullptr && pd->desenha_texturas_para_cima()) || proto.achatado()) && !proto.caida();
   }
 
   /** Retorna se a peca de base deve ser desenhada. */
