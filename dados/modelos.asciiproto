@@ -8640,12 +8640,12 @@ modelo {
     info_pericias { id: 'acrobacias' pontos: 4 }
     info_pericias { id: 'arte_da_fuga' pontos: 4 }
     info_pericias { id: 'blefar' pontos: 3 }
-    info_pericias { id: 'decifrar_escritas' pontos: 3 }
+    info_pericias { id: 'decifrar_escrita' pontos: 3 }
     info_pericias { id: 'esconderse' pontos: 5 }
     info_pericias { id: 'furtividade' pontos: 5 }
     info_pericias { id: 'intimidacao' pontos: 4 }
     info_pericias { id: 'observar' pontos: 5 }
-    info_pericias { id: 'operar_mecanismos' pontos: 5 }
+    info_pericias { id: 'operar_mecanismo' pontos: 5 }
     info_pericias { id: 'ouvir' pontos: 5 }
     info_pericias { id: 'procurar' pontos: 4 }
     info_pericias { id: 'sentir_motivacao' pontos: 3 }
