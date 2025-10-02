@@ -540,6 +540,118 @@ fixo {
     tamanho: 1
     linha: 11
     coluna: 5
+    rotulo: "df"
+    id: CONTROLE_DADOS_FORCADOS
+    textura: "icon_forced_dices.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    dica: "Força um dado."
+  }
+  # dados filho de CONTROLE_DADOS_FORCADOS.
+    dados_botoes {
+      tamanho: 1
+      linha: 11
+      coluna: 6
+      rotulo: "d4"
+      id: CONTROLE_FORCAR_D4
+      textura: "icon_d4.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d4."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS_FORCADOS tipo: VIS_IGUAL_A }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 11
+      coluna: 7
+      rotulo: "d6"
+      id: CONTROLE_FORCAR_D6
+      textura: "icon_d6.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d6."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS_FORCADOS tipo: VIS_IGUAL_A }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 11
+      coluna: 8
+      rotulo: "d8"
+      id: CONTROLE_FORCAR_D8
+      textura: "icon_d8.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d8."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS_FORCADOS tipo: VIS_IGUAL_A }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 11
+      coluna: 9
+      rotulo: "d10"
+      id: CONTROLE_FORCAR_D10
+      textura: "icon_d10.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d10."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS_FORCADOS tipo: VIS_IGUAL_A }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 11
+      coluna: 10
+      rotulo: "d12"
+      id: CONTROLE_FORCAR_D12
+      textura: "icon_d12.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Força um d12."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS_FORCADOS tipo: VIS_IGUAL_A }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 11
+      coluna: 11
+      rotulo: "20"
+      id: CONTROLE_FORCAR_D20
+      textura: "icon_d20.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: true
+      dica: "Força um d20."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS_FORCADOS tipo: VIS_IGUAL_A }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 11
+      coluna: 12
+      rotulo: "d%"
+      id: CONTROLE_FORCAR_D100
+      textura: "icon_d100.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: true
+      dica: "Força um d100."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS_FORCADOS tipo: VIS_IGUAL_A }
+      }
+    }
+  # fim dados forçados.
+
+  dados_botoes {
+    tamanho: 1
+    linha: 11
+    coluna: 5
     rotulo: "Pc"
     cor_rotulo {}
     textura: "icon_potion.png"
