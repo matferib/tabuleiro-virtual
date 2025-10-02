@@ -50,8 +50,11 @@ apple_opengles:
 	scons sistema=apple debug=0 usar_opengl_es=1 -j 1
 
 apple_debug:
-	scons sistema=apple debug=1 -j 2
-
+	bazel build --config=mac -c dbg :tabvirt --verbose_failures
+	bazel build --config=mac -c dbg//ent:acoes_test --verbose_failures
+	bazel build --config=mac -c dbg //ent:ent_test --verbose_failures
+	bazel build --config=mac -c dbg //ent:util_test --verbose_failures
+	
 apple_debug_opengles:
 	scons sistema=apple debug=1 usar_opengl_es=1 -j 1
 
