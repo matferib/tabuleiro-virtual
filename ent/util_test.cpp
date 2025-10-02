@@ -16,6 +16,8 @@
 namespace ent {
 
 extern std::queue<int> g_dados_teste;
+extern std::unordered_map<int, std::queue<int>> g_dados_forcados;
+
 namespace {
 
 class CentralColetora : public ntf::CentralNotificacoes {
@@ -3100,6 +3102,52 @@ TEST(TesteDados, Dados) {
   float max_min = static_cast<float>(max) / min;
   LOG(INFO) << "max / min: " << max_min;
   EXPECT_LT(max_min, 1.04);
+}
+
+TEST(TesteDados, DadosForcados) {
+  ent::AcumulaDado(ent::Face::D100, 50);
+  ent::AcumulaDado(ent::Face::D100, 51);
+  ent::AcumulaDado(ent::Face::D20, 13);
+  ent::AcumulaDado(ent::Face::D20, 12);
+  ent::AcumulaDado(ent::Face::D12, 10);
+  ent::AcumulaDado(ent::Face::D12, 9);
+  ent::AcumulaDado(ent::Face::D10, 5);
+  ent::AcumulaDado(ent::Face::D10, 8);
+  ent::AcumulaDado(ent::Face::D8, 7);
+  ent::AcumulaDado(ent::Face::D8, 8);
+  ent::AcumulaDado(ent::Face::D6, 5);
+  ent::AcumulaDado(ent::Face::D6, 6);
+  ent::AcumulaDado(ent::Face::D4, 4);
+  ent::AcumulaDado(ent::Face::D4, 1);
+  ent::AcumulaDado(ent::Face::D3, 3);
+  ent::AcumulaDado(ent::Face::D3, 2);
+  ent::AcumulaDado(ent::Face::D2, 1);
+  ent::AcumulaDado(ent::Face::D2, 2);
+  EXPECT_EQ(RolaDado(100), 50);
+  EXPECT_EQ(RolaDado(100), 51);
+  EXPECT_EQ(RolaDado(20), 13);
+  EXPECT_EQ(RolaDado(20), 12);
+  EXPECT_EQ(RolaDado(12), 10);
+  EXPECT_EQ(RolaDado(12), 9);
+  EXPECT_EQ(RolaDado(10), 5);
+  EXPECT_EQ(RolaDado(10), 8);
+  EXPECT_EQ(RolaDado(8), 7);
+  EXPECT_EQ(RolaDado(8), 8);
+  EXPECT_EQ(RolaDado(6), 5);
+  EXPECT_EQ(RolaDado(6), 6);
+  EXPECT_EQ(RolaDado(4), 4);
+  EXPECT_EQ(RolaDado(4), 1);
+  EXPECT_EQ(RolaDado(3), 3);
+  EXPECT_EQ(RolaDado(3), 2);
+  EXPECT_EQ(RolaDado(2), 1);
+  EXPECT_EQ(RolaDado(2), 2);
+}
+
+TEST(TesteDados, DadosForcadosErrados) {
+  ent::AcumulaDado(ent::Face::D100, 101);
+  ent::AcumulaDado(ent::Face::D2, 0);
+  EXPECT_TRUE(g_dados_forcados[100].empty());
+  EXPECT_TRUE(g_dados_forcados[2].empty());
 }
 
 TEST(TesteDanoArma, TesteDanoArma) {

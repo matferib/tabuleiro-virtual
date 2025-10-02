@@ -692,6 +692,7 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
 
 // Apenas para testes e dados forçados.
 std::queue<int> g_dados_teste;
+std::unordered_map<int, std::queue<int>> g_dados_forcados;
 // Primeira dimensao: numero de faces do dado.
 // Segunda: numero rolado.
 // Terceira: quantidade.
@@ -702,19 +703,80 @@ void AcumulaDado(int valor) {
   g_dados_teste.push(valor);
 }
 
+int FaceParaNum(Face face) {
+  switch (face) {
+    case Face::D100: return 100;
+    case Face::D20: return 20;
+    case Face::D12: return 12;
+    case Face::D10: return 10;
+    case Face::D8: return 8;
+    case Face::D6: return 6;
+    case Face::D4: return 4;
+    case Face::D3: return 3;
+    case Face::D2: return 2;
+  }
+  LOG(ERROR) << "face invalida: "  << static_cast<int>(face);
+  return 0;
+}
+
+std::optional<Face> NumParaFace(int num) {
+  switch (num) {
+    case 100: return Face::D100;
+    case 20: return Face::D20;
+    case 12: return Face::D12;
+    case 10: return Face::D10;
+    case 8: return Face::D8;
+    case 6: return Face::D6;
+    case 4: return Face::D4;
+    case 3: return Face::D3;
+    case 2: return Face::D2;
+  }
+  LOG(ERROR) << "num invalido para face: " << num;
+  return std::nullopt;
+}
+
+void AcumulaDado(Face face, int valor) {
+  int nfaces = FaceParaNum(face);
+  if (nfaces == 0) return;
+  if (valor < 1 || valor > nfaces) {
+    LOG(ERROR) << "Não pode acumular " << valor << " para " << nfaces;
+    return;
+  }
+  VLOG(1) << "acumulando: " << valor << " para d" << nfaces;
+  g_dados_forcados[nfaces].push(valor);
+}
+
+
 void LimpaDadosAcumulados() {
   while (!g_dados_teste.empty()) g_dados_teste.pop();
+  g_dados_forcados.clear();
+}
+
+std::optional<DadoTesteOuForcado> TemDadoDeTesteOuForcado(int nfaces) {
+  std::optional<Face> face = NumParaFace(nfaces);
+  if (!face.has_value()) return std::nullopt;
+  auto it = g_dados_forcados.find(nfaces);
+  if (it != g_dados_forcados.end() && !it->second.empty()) return DadoTesteOuForcado::FORCADO;
+  return g_dados_teste.empty() ? std::nullopt : std::make_optional(DadoTesteOuForcado::TESTE);
 }
 
 // Rola um dado de nfaces.
 int RolaDado(unsigned int nfaces, bool ignora_forcado) {
   // TODO inicializacao do motor de baseada no timestamp.
   static std::default_random_engine motor(std::chrono::system_clock::now().time_since_epoch().count());
-  if (!g_dados_teste.empty() && !ignora_forcado) {
-    int valor = g_dados_teste.front();
-    g_dados_teste.pop();
-    VLOG(1) << "retornando valor forcado: " << valor;
-    return valor;
+  if (std::optional<DadoTesteOuForcado> tof = TemDadoDeTesteOuForcado(nfaces);
+      tof.has_value() && !ignora_forcado) {
+    if (*tof == DadoTesteOuForcado::TESTE) {
+      int valor = g_dados_teste.front();
+      g_dados_teste.pop();
+      VLOG(1) << "retornando valor forcado: " << valor;
+      return valor;
+    } else {
+      int valor = g_dados_forcados[nfaces].front();
+      g_dados_forcados[nfaces].pop();
+      VLOG(1) << "retornando valor forcado: " << valor;
+      return valor;
+    }
   }
   std::uniform_int_distribution<int> distribution(1, nfaces);
   //static int min = motor_aleatorio.min();
@@ -726,7 +788,7 @@ int RolaDado(unsigned int nfaces, bool ignora_forcado) {
 
 void ImprimeDadosRolados() {
   for (const auto& [nfaces, valores] : g_dados_rolados) {
-    if (c_none<std::vector<int>>({3, 4, 6, 8, 10, 12, 20, 100}, nfaces)) {
+    if (c_none<std::vector<int>>({2, 3, 4, 6, 8, 10, 12, 20, 100}, nfaces)) {
       LOG(INFO) << "ignorando d" << nfaces;
       continue;
     }

@@ -218,6 +218,25 @@ void DesenhaStencil3d(float xi, float yi, float xs, float ys, const float* cor =
 // Funcoes de controle de dado, para forcar valores.
 // Isso influenciara diretamente o valor de RolaDado, que retornara o primeiro valor da fila e o descartará.
 void AcumulaDado(int valor);
+enum class Face {
+  D100,
+  D20,
+  D12,
+  D10,
+  D8,
+  D6,
+  D4,
+  D3,
+  D2,
+};
+enum class DadoTesteOuForcado {
+  TESTE,
+  FORCADO
+};
+std::optional<DadoTesteOuForcado> TemDadoDeTesteOuForcado(int nfaces);
+int FaceParaNum(Face face);
+std::optional<Face> NumParaFace(int nfaces);
+void AcumulaDado(Face face, int valor);
 void LimpaDadosAcumulados();
 
 /** Gera um aleatorio de 1 a nfaces. */
