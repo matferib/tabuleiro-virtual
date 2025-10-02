@@ -663,6 +663,16 @@ void InterfaceGraficaOpengl::EscolheArquivoAbrirImagem(
   elemento_.reset(new ElementoAbrirImagem(this, imagens, funcao_volta));
 }
 
+void InterfaceGraficaOpengl::EscolheValorDadoForcado(
+    const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) {
+  if (elemento_.get() != nullptr) {
+    LOG(WARNING) << "So pode haver um elemento por vez.";
+    return;
+  }
+  // TODO.
+  LOG(ERROR) << "nao implementado InterfaceGraficaOpengl::EscolheValorDadoForcado";
+  funcao_volta(0);
+}
 
 bool InterfaceGraficaOpengl::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {

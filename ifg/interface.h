@@ -73,6 +73,9 @@ class InterfaceGrafica : public ntf::Receptor {
   void EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int)> funcao_volta);
   void EscolheVersoesTabuleiro(const std::string& titulo, std::function<void(const std::vector<int>&)> funcao_volta);
 
+  // Dialogo com o valor do dado.
+  virtual void EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) = 0;
+
   // Mostra o dialogo para escolher um modelo de entidade.
   virtual void EscolheModeloEntidade(
       const MenuModelos& modelos,
@@ -135,6 +138,8 @@ class InterfaceGrafica : public ntf::Receptor {
 
   void TrataEscolherVersao();
   void TrataEscolherVersaoParaRemocao();
+
+  void TrataForcarDado(const ntf::Notificacao& notificacao);
 };
 
 }  // namespace ifg

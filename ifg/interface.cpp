@@ -140,6 +140,9 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       TrataEscolherVersaoParaRemocao();
       break;
     }
+    case ntf::TN_ABRIR_DIALOGO_FORCAR_DADO:
+      TrataForcarDado(notificacao);
+      return true;
     default:
       break;
   }
@@ -967,6 +970,29 @@ void InterfaceGrafica::EscolheVersoesTabuleiro(const std::string& titulo, std::f
     } else {
       funcao_volta({});
     }
+  });
+}
+
+//------------
+// Forcar Dado
+//------------
+void InterfaceGrafica::TrataForcarDado(const ntf::Notificacao& notificacao) {
+  if (!notificacao.has_id_generico()) {
+    return;
+  }
+  int nfaces = notificacao.id_generico();
+  tabuleiro_->DesativaWatchdogSeMestre();
+  EscolheValorDadoForcado(absl::StrFormat("Escolha o valor do d%d", nfaces), nfaces, [this, nfaces](int valor_forcado) {
+    if (valor_forcado < 1 || valor_forcado > nfaces) {
+      LOG(ERROR) << "Valor invalido " << valor_forcado << " para dado de " << nfaces;
+      return;
+    }
+    std::optional<ent::Face> face = ent::NumParaFace(nfaces);
+    if (!face.has_value()) {
+      LOG(ERROR) << "Numero de faces invalido: " << nfaces;
+      return;
+    }
+    ent::AcumulaDado(*face, valor_forcado);
   });
 }
 

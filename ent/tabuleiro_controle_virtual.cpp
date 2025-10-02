@@ -200,6 +200,12 @@ void Tabuleiro::LiberaControleVirtual() {
   central_->AdicionaNotificacao(n.release());
 }
 
+void AbreDialogoForcarDado(int nfaces, ntf::CentralNotificacoes& central) {
+  auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_FORCAR_DADO));
+  n->set_id_generico(nfaces);
+  central.AdicionaNotificacao(n.release());
+}
+
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id) {
   VLOG(1) << "picking id: " << id << ", duplo: " << duplo << ", alterna selecao: " << alterna_selecao;
   contador_pressao_por_controle_[IdBotao(id)]++;
@@ -234,23 +240,47 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_ROLAR_D6:
       AlternaModoDado(6);
       break;
-     case CONTROLE_ROLAR_D8:
+    case CONTROLE_ROLAR_D8:
       AlternaModoDado(8);
       break;
-     case CONTROLE_ROLAR_D10:
+    case CONTROLE_ROLAR_D10:
       AlternaModoDado(10);
       break;
-     case CONTROLE_ROLAR_D12:
+    case CONTROLE_ROLAR_D12:
       AlternaModoDado(12);
       break;
-     case CONTROLE_ROLAR_D20:
+    case CONTROLE_ROLAR_D20:
       AlternaModoDado(20);
+      break;
+    case CONTROLE_ROLAR_D100:
+      AlternaModoDado(100);
       break;
     case CONTROLE_DADOS:
       mostrar_dados_ = !mostrar_dados_;
       break;
-    case CONTROLE_ROLAR_D100:
-      AlternaModoDado(100);
+    case CONTROLE_FORCAR_D4:
+      AbreDialogoForcarDado(4, *central_);
+      break;
+    case CONTROLE_FORCAR_D6:
+      AbreDialogoForcarDado(6, *central_);
+      break;
+    case CONTROLE_FORCAR_D8:
+      AbreDialogoForcarDado(8, *central_);
+      break;
+    case CONTROLE_FORCAR_D10:
+      AbreDialogoForcarDado(10, *central_);
+      break;
+    case CONTROLE_FORCAR_D12:
+      AbreDialogoForcarDado(12, *central_);
+      break;
+    case CONTROLE_FORCAR_D20:
+      AbreDialogoForcarDado(20, *central_);
+      break;
+    case CONTROLE_FORCAR_D100:
+      AbreDialogoForcarDado(100, *central_);
+      break;
+    case CONTROLE_DADOS_FORCADOS:
+      mostrar_dados_forcados_ = !mostrar_dados_forcados_;
       break;
     case CONTROLE_ROLAR_PERICIA: {
       auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERICIA));
@@ -1024,6 +1054,8 @@ bool Tabuleiro::EstadoBotao(IdBotao id) const {
       return bonus_dano_negativo_;
     case CONTROLE_DADOS:
       return mostrar_dados_;
+    case CONTROLE_DADOS_FORCADOS:
+      return mostrar_dados_forcados_;
     default:
       return false;
   }
@@ -1387,6 +1419,27 @@ void Tabuleiro::DesenhaListaPontosVida() {
       valor += ": NENHUM";
     }
     gl::DesenhaStringAlinhadoDireita(valor);
+    std::vector<int> faces = {2, 3, 4, 6, 8, 10, 12, 20, 100};
+    bool tem_forcado = false;
+    for (int nfaces : faces) {
+      std::optional<DadoTesteOuForcado> tof = TemDadoDeTesteOuForcado(nfaces);
+      if (tof.has_value() && *tof == DadoTesteOuForcado::FORCADO) {
+        tem_forcado = true;
+        break;
+      }
+    }
+    if (tem_forcado) {
+      raster_y -= (altura_fonte + 2);
+      PosicionaRaster2d(raster_x, raster_y);
+      gl::DesenhaStringAlinhadoDireita("Dados forcados");
+      for (int nfaces : faces) {
+        std::optional<int> valor = DadoAcumulado(nfaces);
+        if (valor == std::nullopt) continue;
+        raster_y -= (altura_fonte + 2);
+        PosicionaRaster2d(raster_x, raster_y);
+        gl::DesenhaStringAlinhadoDireita(absl::StrFormat("D%d: %d", nfaces, *valor));
+      }
+    }
   } else {
     for (const auto& sinal_valor : lista_pontos_vida_) {
       PosicionaRaster2d(raster_x, raster_y);

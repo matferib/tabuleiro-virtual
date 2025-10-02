@@ -7121,4 +7121,18 @@ int PrecoArmaduraOuEscudoPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem&
   return valor;
 }
 
+std::optional<int> DadoAcumulado(Face face) {
+  int nfaces = FaceParaNum(face);
+  if (nfaces == 0) return std::nullopt;
+  auto it = g_dados_forcados.find(nfaces);
+  if (it == g_dados_forcados.end() || it->second.empty()) return std::nullopt;
+  return it->second.front();
+}
+
+std::optional<int> DadoAcumulado(int nfaces) {
+  if (nfaces == 0) return std::nullopt;
+  auto it = g_dados_forcados.find(nfaces);
+  if (it == g_dados_forcados.end() || it->second.empty()) return std::nullopt;
+  return it->second.front();
+}
 }  // namespace ent

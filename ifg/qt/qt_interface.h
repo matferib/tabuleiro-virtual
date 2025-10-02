@@ -57,6 +57,8 @@ class InterfaceGraficaQt : public ifg::InterfaceGrafica {
 
   void EscolheModeloEntidade(const MenuModelos& modelos, std::function<void(const std::string& nome)> funcao_volta) override;
 
+  void EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) override;
+
  private:
   QWidget* pai_ = nullptr;
 };

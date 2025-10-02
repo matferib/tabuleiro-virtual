@@ -97,6 +97,8 @@ class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
     const std::vector<std::string>& imagens,
     std::function<void(const std::string& nome)> funcao_volta) override;
 
+  void EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) override;
+
  private:
   // So pode haver um elemento raiz por vez.
   std::unique_ptr<ElementoInterface> elemento_;

@@ -6,6 +6,7 @@
 #include <QtWidgets/QColorDialog>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QInputDialog>
 #include <QtWidgets/QListWidgetItem>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QPushButton>
@@ -260,6 +261,13 @@ void InterfaceGraficaQt::EscolheCor(
   } else {
     funcao_volta(true, cor.redF(), cor.greenF(), cor.blueF(), cor.alphaF());
   }
+}
+
+void InterfaceGraficaQt::EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) {
+  bool ok;
+  int val = QInputDialog::getInt(pai_, pai_->tr("Escolha o valor"),
+                                       pai_->tr("D%1:").arg(nfaces), /*value=*/1, /*min=*/1, /*max=*/nfaces, /*step=*/1, &ok);
+  funcao_volta(ok ? val : 0);
 }
 
 }  // namespace qt

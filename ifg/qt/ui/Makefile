@@ -1,7 +1,7 @@
 # mac
 QTDIR=/opt/homebrew/Cellar/qt/6.7.2_2/share/qt/libexec/
 # linux
-QTDIR=/usr/lib/qt6/libexec/
+#QTDIR=/usr/lib/qt6/libexec/
 
 all:
 	${QTDIR}/uic entidade.ui -o entidade.h

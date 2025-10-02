@@ -237,6 +237,8 @@ std::optional<DadoTesteOuForcado> TemDadoDeTesteOuForcado(int nfaces);
 int FaceParaNum(Face face);
 std::optional<Face> NumParaFace(int nfaces);
 void AcumulaDado(Face face, int valor);
+std::optional<int> DadoAcumulado(Face face);
+std::optional<int> DadoAcumulado(int nfaces);
 void LimpaDadosAcumulados();
 
 /** Gera um aleatorio de 1 a nfaces. */
