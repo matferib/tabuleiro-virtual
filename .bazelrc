@@ -1,3 +1,8 @@
+# https://bazel.build/external/migration
+# common --enable_bzlmod
+common --enable_workspace
+
+
 # Usar bazel build --config=windows
 build:windows --cxxopt=/std:c++20 --cxxopt=/DUSAR_GLOG=1 --cxxopt=/DUSAR_GFLAGS=0 --cxxopt=/DWIN32_LEAN_AND_MEAN=1 --cxxopt=/DWIN32=1 --cxxopt=/D_WINDOWS=1 --cxxopt=/D_WIN32_WINNT=0x0601 --cxxopt=/DWINVER=0x0601 --linkopt=glu32.lib --linkopt=opengl32.lib --linkopt=Ole32.lib
 
