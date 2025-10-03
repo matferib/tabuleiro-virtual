@@ -650,7 +650,7 @@ fixo {
 
   dados_botoes {
     tamanho: 1
-    linha: 11
+    linha: 12
     coluna: 5
     rotulo: "Pc"
     cor_rotulo {}
@@ -662,7 +662,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: 12
+    linha: 13
     coluna: 5
     rotulo: "Pg"
     cor_rotulo {}
@@ -674,7 +674,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: 13
+    linha: 14
     coluna: 5
     rotulo: "Pg"
     cor_rotulo {}

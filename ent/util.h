@@ -235,7 +235,7 @@ enum class DadoTesteOuForcado {
 };
 std::optional<DadoTesteOuForcado> TemDadoDeTesteOuForcado(int nfaces);
 int FaceParaNum(Face face);
-std::optional<Face> NumParaFace(int nfaces);
+std::optional<Face> NumParaFace(int nfaces, bool logar_erro);
 void AcumulaDado(Face face, int valor);
 std::optional<int> DadoAcumulado(Face face);
 std::optional<int> DadoAcumulado(int nfaces);

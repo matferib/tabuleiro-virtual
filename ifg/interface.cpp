@@ -987,7 +987,7 @@ void InterfaceGrafica::TrataForcarDado(const ntf::Notificacao& notificacao) {
       LOG(ERROR) << "Valor invalido " << valor_forcado << " para dado de " << nfaces;
       return;
     }
-    std::optional<ent::Face> face = ent::NumParaFace(nfaces);
+    std::optional<ent::Face> face = ent::NumParaFace(nfaces, /*logar_erro=*/true);
     if (!face.has_value()) {
       LOG(ERROR) << "Numero de faces invalido: " << nfaces;
       return;
