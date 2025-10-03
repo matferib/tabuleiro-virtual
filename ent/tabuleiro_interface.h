@@ -85,6 +85,11 @@ class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
       const std::vector<std::string>& lista,
       std::function<void(bool, int)> funcao_volta) override;
 
+  void EscolheItemsLista(
+      const std::string& titulo,
+      const std::vector<std::string>& lista,
+      std::function<void(bool, std::vector<int>)> funcao_volta) override;
+
   void EscolheArquivoAbrirTabuleiro(
       const std::vector<std::string>& tab_estaticos,
       const std::vector<std::string>& tab_dinamicos,
@@ -98,6 +103,13 @@ class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
     std::function<void(const std::string& nome)> funcao_volta) override;
 
   void EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) override;
+
+  void EscolheModeloEntidade(
+      const ifg::MenuModelos& modelos,
+      std::function<void(const std::string& nome)> funcao_volta) override;
+
+  // Mostra um dialogo de erro ou informacao.
+  void MostraMensagem(bool erro, const std::string& mensagem, std::function<void()> funcao_volta) override;
 
  private:
   // So pode haver um elemento raiz por vez.
