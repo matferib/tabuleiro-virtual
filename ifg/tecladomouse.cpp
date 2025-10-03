@@ -15,6 +15,8 @@ namespace {
 // Temporizadores * 10ms.
 const float MAX_TEMPORIZADOR_TECLADO_S = 3;
 const float MAX_TEMPORIZADOR_MOUSE_S = 1;
+// Deltas aplicados por rotacoes e escalas com alt gr.
+const int ALTGR_DELTA = 50;
 
 std::string CalculaDanoSimples(const std::vector<teclas_e>::const_iterator& inicio_teclas_normal,
                                const std::vector<teclas_e>::const_iterator& fim_teclas_normal) {
@@ -217,6 +219,8 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       float incremento = ((modificadores & Modificador_Shift) != 0) ? 0.1f : 1.0f;
       if ((modificadores & Modificador_Ctrl) != 0) {
         tabuleiro_->TrataTranslacaoZ(incremento);
+      } else if ((modificadores & Modificador_AltGr) != 0) {
+        tabuleiro_->TrataEscalaPorDelta(ALTGR_DELTA);
       } else {
         tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(true, incremento);
       }
@@ -226,6 +230,8 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       float incremento = ((modificadores & Modificador_Shift) != 0) ? -0.1f : -1.0f;
       if ((modificadores & Modificador_Ctrl) != 0) {
         tabuleiro_->TrataTranslacaoZ(incremento);
+      } else if ((modificadores & Modificador_AltGr) != 0) {
+        tabuleiro_->TrataEscalaPorDelta(ALTGR_DELTA);
       } else {
         tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(true, incremento);
       }
@@ -236,8 +242,12 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         tabuleiro_->TrataEspiada(-1);
         return;
       }
-      float incremento = ((modificadores & Modificador_Shift) != 0) ? -0.1f : -1.0f;
-      tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(false, incremento);
+      if ((modificadores & Modificador_AltGr) != 0) {
+        tabuleiro_->TrataRotacaoPorDelta(ALTGR_DELTA);
+      } else {
+        float incremento = ((modificadores & Modificador_Shift) != 0) ? -0.1f : -1.0f;
+        tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(false, incremento);
+      }
       return;
     }
     case Tecla_Direita: {
@@ -245,8 +255,12 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         tabuleiro_->TrataEspiada(1);
         return;
       }
-      float incremento = ((modificadores & Modificador_Shift) != 0) ? 0.1f : 1.0f;
-      tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(false, incremento);
+      if ((modificadores & Modificador_AltGr) != 0) {
+        tabuleiro_->TrataRotacaoPorDelta(ALTGR_DELTA);
+      } else {
+        float incremento = ((modificadores & Modificador_Shift) != 0) ? 0.1f : 1.0f;
+        tabuleiro_->TrataMovimentoEntidadesSelecionadasOuCamera(false, incremento);
+      }
       return;
     }
     case Tecla_F:
@@ -500,6 +514,14 @@ void TratadorTecladoMouse::TrataPincaEscala(float fator) {
   }
   VLOG(1) << "Pinca: " << fator;
   tabuleiro_->TrataEscalaPorFator(fator);
+}
+
+void TratadorTecladoMouse::TrataRotacaoPorDeltaRad(float delta_rad) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+    return;
+  }
+  VLOG(1) << "RotacaoPorDeltaRad: " << delta_rad;
+  tabuleiro_->TrataRotacaoPorDelta(delta_rad);
 }
 
 void TratadorTecladoMouse::TrataInicioPinca(int x1, int y1, int x2, int y2) {

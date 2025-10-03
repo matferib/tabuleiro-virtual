@@ -109,6 +109,7 @@ class TratadorTecladoMouse : public ntf::Receptor {
   void TrataBotaoMouseLiberado();
   void TrataRodela(int delta);
   void TrataPincaEscala(float fator);
+  void TrataRotacaoPorDeltaRad(float delta_rad);
   // Inicio de pinca.
   void TrataInicioPinca(int x1, int y1, int x2, int y2);
 
