@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
   m3d::Modelos3d modelos3d(&central);
   ent::Tabuleiro tabuleiro(opcoes, tabelas, &texturas, &modelos3d, &central);
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
-  //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
+  //ent::InterfaceGraficaOpengl guiopengl(tabelas, &teclado_mouse, &tabuleiro, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
   SomEscopo som(tabuleiro.Opcoes());
 
