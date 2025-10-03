@@ -10,6 +10,7 @@
 #include <QtOpenGL/QOpenGLFramebufferObject>
 #include <QtOpenGLWidgets/QOpenGLWidget>
 #endif
+#include <QtWidgets/QGestureEvent>
 #include <QtWidgets/QWidget>
 #include <boost/timer/timer.hpp>
 #include <list>
@@ -77,6 +78,10 @@ class Visualizador3d :
   void mouseReleaseEvent(QMouseEvent* event) override;
   void mouseDoubleClickEvent(QMouseEvent* event) override;
   void wheelEvent(QWheelEvent* event) override;
+  // Handler principal para tratar gestos.
+  bool event(QEvent *event) override;
+  // https://stackoverflow.com/questions/34010085/qt-gesture-grabbing-only-pinch-works-reliably
+  bool gestureEvent(QGestureEvent* event);
 
   // Interface ntf::Receptor.
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -116,6 +121,7 @@ class Visualizador3d :
   int contexto_cref_ = 0;
   boost::timer::cpu_timer timer_;
   int skip_ = 0;
+  bool processando_gesto_ = false;
 };
 
 }  // namespace qt

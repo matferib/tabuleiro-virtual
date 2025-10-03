@@ -3,6 +3,7 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QScreen>
+#include <QtWidgets/QGestureEvent>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -106,6 +107,8 @@ Visualizador3d::Visualizador3d(
   std::cerr << "logx: " << QGuiApplication::primaryScreen()->logicalDotsPerInchX() << std::endl;
   std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY() << std::endl;
   //std::cerr << "screen: " << *QGuiApplication::primaryScreen();
+
+  grabGesture(Qt::PinchGesture, /*flags=*/static_cast<Qt::GestureFlag>(0));
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -395,6 +398,33 @@ void Visualizador3d::wheelEvent(QWheelEvent* event) {
   teclado_mouse_->TrataRodela(event->angleDelta().y());
   event->accept();
   LiberaContexto();
+}
+
+bool Visualizador3d::gestureEvent(QGestureEvent* event) {
+  if (auto *pinch = static_cast<QPinchGesture*>(event->gesture(Qt::PinchGesture)); pinch != nullptr) {
+    if (pinch->state() == Qt::GestureStarted) {
+      processando_gesto_ = true;
+      //auto centro = pinch->centerPoint();
+      //teclado_mouse_->TrataInicioPinca(centro.x(), centro.y(), centro.x(), centro.y());
+    } else if (pinch->state() == Qt::GestureFinished) {
+      processando_gesto_ = false;
+    } else {
+      teclado_mouse_->TrataPincaEscala(pinch->scaleFactor());
+      teclado_mouse_->TrataRotacaoPorDeltaRad((pinch->rotationAngle() - pinch->lastRotationAngle()) * GRAUS_PARA_RAD);
+    }
+  }
+  event->accept();
+  return true;
+}
+
+bool Visualizador3d::event(QEvent* event) {
+  if (event->type() == QEvent::Gesture) {
+    return gestureEvent(static_cast<QGestureEvent*>(event));
+  }
+  //if (processando_gesto_) {
+  //  return false;
+  //}
+  return QOpenGLWidget::event(event);
 }
 
 }  // namespace qt
