@@ -719,7 +719,7 @@ int FaceParaNum(Face face) {
   return 0;
 }
 
-std::optional<Face> NumParaFace(int num) {
+std::optional<Face> NumParaFace(int num, bool logar_erro) {
   switch (num) {
     case 100: return Face::D100;
     case 20: return Face::D20;
@@ -731,7 +731,9 @@ std::optional<Face> NumParaFace(int num) {
     case 3: return Face::D3;
     case 2: return Face::D2;
   }
-  LOG(ERROR) << "num invalido para face: " << num;
+  if (logar_erro) {
+    LOG(ERROR) << "num invalido para face: " << num;
+  }
   return std::nullopt;
 }
 
@@ -753,7 +755,7 @@ void LimpaDadosAcumulados() {
 }
 
 std::optional<DadoTesteOuForcado> TemDadoDeTesteOuForcado(int nfaces) {
-  std::optional<Face> face = NumParaFace(nfaces);
+  std::optional<Face> face = NumParaFace(nfaces, /*logar_erro=*/false);
   if (!face.has_value()) return std::nullopt;
   auto it = g_dados_forcados.find(nfaces);
   if (it != g_dados_forcados.end() && !it->second.empty()) return DadoTesteOuForcado::FORCADO;
