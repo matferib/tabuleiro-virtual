@@ -26,6 +26,7 @@
 #include <google/protobuf/text_format.h>
 
 //#define VLOG_NIVEL 1
+#include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.h"
