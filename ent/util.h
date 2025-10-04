@@ -523,6 +523,9 @@ void PreencheNotificacaoAtualizacaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n);
 
+void PreencheNotificacaoAtualizacaoXp(
+    const Entidade& entidade, int delta_xp, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
+
 // Preenche uma notificacao consumir o dado de ataque e/ou municao.
 void PreencheNotificacaoConsumoAtaque(
     const Entidade& entidade, const DadosAtaque& da, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);

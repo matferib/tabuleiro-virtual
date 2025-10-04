@@ -2275,11 +2275,29 @@ void PreencheNotificacaoAtualizacaoPontosVida(
 
   if (n_desfazer != nullptr) {
     n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
-    *n_desfazer->mutable_entidade() = *e_depois;
-    *n_desfazer->mutable_entidade_antes() = *e_antes;
     e_antes->set_pontos_vida(proto.pontos_vida());
     e_antes->set_dano_nao_letal(proto.dano_nao_letal());
     *e_antes->mutable_pontos_vida_temporarios_por_fonte() = proto.pontos_vida_temporarios_por_fonte();
+    *n_desfazer->mutable_entidade() = *e_depois;
+    *n_desfazer->mutable_entidade_antes() = *e_antes;
+  }
+}
+
+// O delta de pontos de vida afeta outros bits tambem.
+void PreencheNotificacaoAtualizacaoXp(
+    const Entidade& entidade, int delta_xp, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  EntidadeProto *e_antes, *e_depois;
+  const EntidadeProto& proto = entidade.Proto();
+  std::tie(e_antes, e_depois) = PreencheNotificacaoEntidadeProto(
+      ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, proto, n);
+
+  const int xp = std::max(0, proto.experiencia() + delta_xp);
+  e_depois->set_experiencia(xp);
+  if (n_desfazer != nullptr) {
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL);
+    e_antes->set_experiencia(proto.experiencia());
+    *n_desfazer->mutable_entidade() = *e_depois;
+    *n_desfazer->mutable_entidade_antes() = *e_antes;
   }
 }
 
