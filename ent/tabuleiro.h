@@ -200,8 +200,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Altera a forma da entidade selecionada, notificando. */
   void AlteraFormaEntidadeNotificando();
 
-  /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
+  /** Adiciona delta_pontos_vida aos pontos de vida das entidades selecionadas. */
   void TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida);
+
+  /** Adiciona delta_xp aos pontos de experiencia das entidades selecionadas. */
+  void TrataAcaoAtualizarXpEntidades(int delta_xp);
 
   /** Atualiza os pontos de vida de uma entidade, notificando clientes. */
   void AtualizaPontosVidaEntidadeNotificando(const ntf::Notificacao& notificacao);

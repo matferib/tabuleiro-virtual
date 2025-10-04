@@ -1923,6 +1923,40 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
   AdicionaNotificacaoListaEventos(grupo_desfazer);
 }
 
+void Tabuleiro::TrataAcaoAtualizarXpEntidades(int delta_xp) {
+  if (estado_ != ETAB_ENTS_SELECIONADAS) {
+    VLOG(1) << "Não há entidade selecionada.";
+    return;
+  }
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  // Para desfazer.
+  ntf::Notificacao grupo_desfazer;
+  grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) {
+      continue;
+    }
+    // Atualizacao.
+    PreencheNotificacaoAtualizacaoXp(*entidade_selecionada,
+                                     delta_xp,
+                                     grupo_notificacoes.add_notificacao(),
+                                     grupo_desfazer.add_notificacao());
+    // Acao.
+    auto* na = grupo_notificacoes.add_notificacao();
+    na->set_tipo(ntf::TN_ADICIONAR_ACAO);
+    auto* a = na->mutable_acao();
+    a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+    auto* por_entidade = a->add_por_entidade();
+    por_entidade->set_id(entidade_selecionada->Id());
+    a->set_texto(absl::StrFormat("xp: %+d", delta_xp));
+  }
+  TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_desfazer);
+}
+
 void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notificacao) {
   if (!notificacao.entidade().has_id()) {
     LOG(ERROR) << "Notificacao de atualizacao parcial sem id: " << notificacao.ShortDebugString();
