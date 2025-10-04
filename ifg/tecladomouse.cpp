@@ -18,6 +18,23 @@ const float MAX_TEMPORIZADOR_MOUSE_S = 1;
 // Deltas aplicados por rotacoes e escalas com alt gr.
 const int ALTGR_DELTA = 50;
 
+std::string CalculaXp(const std::vector<teclas_e>::const_iterator& inicio_teclas_normal,
+                               const std::vector<teclas_e>::const_iterator& fim_teclas_normal) {
+  std::string s;
+  for (auto it = inicio_teclas_normal; it < fim_teclas_normal; ++it) {
+    if (*it >= Tecla_0 && *it <= Tecla_9) {
+      s.push_back('0' + *it - Tecla_0);
+      continue;
+    }
+    if (*it == Tecla_Menos) {
+      s.push_back('-');
+      continue;
+    }
+  }
+  return s;
+}
+
+
 std::string CalculaDanoSimples(const std::vector<teclas_e>::const_iterator& inicio_teclas_normal,
                                const std::vector<teclas_e>::const_iterator& fim_teclas_normal) {
   std::string s;
@@ -152,6 +169,14 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
         rs = ent::RS_ANULOU;
       }
       tabuleiro_->AtualizaSalvacaoEntidadesSelecionadas(rs);
+    }
+    break;
+    case Tecla_X: {
+      int xp = atoi(CalculaXp(teclas_.begin() + 1, teclas_.end()).c_str());
+      if (xp == 0) {
+        break;
+      }
+      tabuleiro_->TrataAcaoAtualizarXpEntidades(xp);
     }
     break;
     default:
@@ -333,6 +358,10 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         tabuleiro_->SelecionaTudo(false  /*fixas*/);
         return;
       }
+      MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
+      teclas_.push_back(tecla);
+      return;
+    case Tecla_X:
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(tecla);
       return;
