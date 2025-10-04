@@ -66,6 +66,7 @@ enum teclas_e {
   Tecla_S = 0x53,
   Tecla_T = 0x54,
   Tecla_V = 0x56,
+  Tecla_X = 0x58,
   Tecla_Y = 0x59,
   Tecla_Z = 0x5a,
   Tecla_Igual = 0x3d, // usada como mais tb durante parsing.
