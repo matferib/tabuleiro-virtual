@@ -4,7 +4,7 @@ modelo {
     tipo_dnd: TIPO_ANIMAL
     tendencia { simples: TD_NEUTRO }
     dados_vida: '1d2' tamanho: TM_MIUDO
-    info_textura { id: 'rabbit.png' altura: 0.6 translacao_y: 0.4 }
+    info_textura { id: 'rabbit.png' altura: 0.8 translacao_y: 0.1 largura: 0.6 translacao_x: 0.2 }
     info_classes {
       id: 'animal' nivel: 1
       pericias_monstro: 'equilibrio'
