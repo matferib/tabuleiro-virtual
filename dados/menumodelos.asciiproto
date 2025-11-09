@@ -49,6 +49,7 @@ sub_menu {
   item_menu { id: 'Arminho Atroz' }
   item_menu { id: 'Cachorro' }
   item_menu { id: 'Cachorro de Montaria' }
+  item_menu { id: 'Coelho' }
   item_menu { id: 'Carcajú' }
   item_menu { id: 'Carcajú Atroz' }
   item_menu { id: 'Coruja' }
