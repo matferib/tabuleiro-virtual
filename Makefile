@@ -43,6 +43,10 @@ apple:
 apple_clean:
 	bazel clean --config=mac --verbose_failures
 
+apple_superclean:
+	bazel clean --expunge --config=mac --verbose_failures
+
+
 apple_profile:
 	scons sistema=apple debug=1 gerar_profile=1 -j 1
 
