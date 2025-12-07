@@ -1,3 +1,5 @@
+Bonus raciais por terreno (exemplo: gnomo da floresta na floresta).
+
 Interessante: https://bazel.build/docs/configurable-attributes
 select é a função do Bazel pra selecionar entre plataformas diferentes.
 
