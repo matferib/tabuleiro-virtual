@@ -7594,6 +7594,7 @@ tabela_feiticos {
     escola: 'necromancia'
   }
   armas {
+    link: 'https://www.d20srd.org/srd/spells/hypnoticPattern.htm'
     id: 'padrao_hipnotico'
     nome_ingles: 'hypnotic pattern'
     nome: 'padrão hipnótico'
@@ -15289,6 +15290,87 @@ tabela_racas {
     familiaridade_com_arma: 'martelo_gnomo_com_gancho'
     tamanho: TM_PEQUENO
   }
+  racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_GNOMO
+    id: 'gnomo_floresta'
+    nome: 'Gnomo da Floresta'
+    descricao: 'Os menores gnomos (menos de 1m), com cor marrom cinza esverdeado com olhos marrons, verdes ou at[e azuis.'
+    bonus_atributos {
+      constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+    bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'oficios_alquimia' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
+    bonus_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 4 origem: 'racial'} } } }
+    movimento {
+      terrestre_basico_q: 4
+    }
+    dados_defesa {
+      bonus_salvacao_ilusao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial' } } }
+      bonus_ca_por_tipo {
+        key: 11 # TIPO_GIGANTE
+        value { bonus_individual { tipo: TB_ESQUIVA por_origem { valor: 4 origem: 'racial' } } }
+      }
+    }
+    dados_ataque {
+      rotulo: 'habilidade sobrenatural'
+      grupo: 'passo sem pegada'
+      tipo_ataque: 'Feitiço Pessoal'
+      id_arma: 'passos_sem_pegadas'
+      mantem_com_limite_zerado: true
+    }
+    dados_ataque {
+      rotulo: 'habilidade 1/dia'
+      grupo: 'globos de luz'
+      tipo_ataque: 'Feitiço à Distância'
+      id_arma: 'globos_luz'
+      limite_vezes: 1
+      taxa_refrescamento: "14400"  # 1 dia
+      mantem_com_limite_zerado: true
+    }
+    dados_ataque {
+      rotulo: 'habilidade 1/dia'
+      grupo: 'som fantasma'
+      tipo_ataque: 'Feitiço à Distância'
+      id_arma: 'som_fantasma'
+      limite_vezes: 1
+      taxa_refrescamento: "14400"  # 1 dia
+      mantem_com_limite_zerado: true
+    }
+    dados_ataque {
+      rotulo: 'habilidade 1/dia'
+      grupo: 'prestigidação'
+      tipo_ataque: 'Feitiço à Distância'
+      id_arma: 'prestigidacao'
+      limite_vezes: 1
+      taxa_refrescamento: "14400"  # 1 dia
+      mantem_com_limite_zerado: true
+    }
+    dados_ataque_global {
+      bonus_ataque_por_sub_tipo {
+        key: 3 # SUBTIPO_GOBLINOIDE
+        value: 1
+      }
+      bonus_ataque_por_sub_tipo {
+        key: 23 # SUBTIPO_KOBOLD
+        value: 1
+      }
+      bonus_ataque_por_sub_tipo {
+        key: 8 # SUBTIPO_ORC
+        value: 1
+      }
+      bonus_ataque_por_sub_tipo {
+        key: 9 # SUBTIPO_REPTILIANO
+        value: 1
+      }
+    }
+    # Falta: +1 CD em ataques ilusões
+    #        +4 de esconderse em mata.
+    familiaridade_com_arma: 'martelo_gnomo_com_gancho'
+    tamanho: TM_PEQUENO
+  }
+
   racas {
     tipo: TIPO_HUMANOIDE
     sub_tipo: SUBTIPO_ELFO
