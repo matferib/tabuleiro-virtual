@@ -9620,7 +9620,7 @@ modelo {
       pergaminhos_arcanos { id: 'aterrorizar' }
       pergaminhos_arcanos { id: 'aterrorizar' }
       pergaminhos_arcanos { id: 'padrao_hipnotico' }
-      pergaminhos_arcanos { id: 'ver_invisibilidade' }  # 150
+      pergaminhos_arcanos { id: 'ver_invisivel' }  # 150
 
       bracadeiras { id: 'bracadeira_armadura_1' em_uso: true }
       tesouro: 'besta obra prima'
@@ -9744,7 +9744,7 @@ modelo {
       pergaminhos_arcanos { id: 'padrao_hipnotico' }
       pergaminhos_arcanos { id: 'invisibilidade' }
       pergaminhos_arcanos { id: 'reflexos' }
-      pergaminhos_arcanos { id: 'ver_invisibilidade' }  # 150
+      pergaminhos_arcanos { id: 'ver_invisivel' }  # 150
 
       tesouro: 'besta obra prima'
       moedas { po: 10 }
