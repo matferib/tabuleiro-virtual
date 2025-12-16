@@ -6,7 +6,7 @@ bazel_dep(name = "abseil-cpp", version = "20250127.1")
 bazel_dep(name = "googletest", version = "1.15.2")
 # Choose the most recent version available at
 # https://registry.bazel.build/modules/protobuf
-bazel_dep(name = "protobuf", version = "28.3")
+bazel_dep(name = "protobuf", version = "33.1")
 
 # Qt rules from git.
 #bazel_dep(name = "com_justbuchanan_rules_qt")
