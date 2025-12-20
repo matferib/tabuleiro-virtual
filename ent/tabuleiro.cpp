@@ -5460,6 +5460,7 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
   if (proto_corrente_->has_cor_piso()) {
     *tabuleiro->mutable_cor_piso() = proto_corrente_->cor_piso();
   }
+  tabuleiro->set_tipo_terreno(proto_corrente_->tipo_terreno());
   return notificacao;
 }
 
@@ -5591,6 +5592,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     *proto_a_atualizar->mutable_luz_direcional() = novo_proto.luz_direcional();
     proto_a_atualizar->set_aplicar_luz_ambiente_textura_ceu(novo_proto.aplicar_luz_ambiente_textura_ceu());
   }
+  proto_a_atualizar->set_tipo_terreno(novo_proto.tipo_terreno());
 
   AtualizaPisoCeuCenario(novo_proto);
   CorrigeTopologiaAposMudancaTamanho(
