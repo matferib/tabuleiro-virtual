@@ -1,3 +1,5 @@
+Apos atualizar cenario, tem que recomputar dependencias de todas entidade por causa do tipo de terreno.
+
 Bonus raciais por terreno (exemplo: gnomo da floresta na floresta).
 
 Interessante: https://bazel.build/docs/configurable-attributes
