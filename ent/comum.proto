@@ -656,9 +656,9 @@ message DadosDefesa {
 
 // Tipo de terrenos, para bonus condicionais por terreno.
 enum TipoTerreno {
-  TT_NENHUM = 1;
-  TT_SUBTERRANEO = 2;
-  TT_FLORESTA = 3;
+  TT_NENHUM = 0;
+  TT_SUBTERRANEO = 1;
+  TT_FLORESTA = 2;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
