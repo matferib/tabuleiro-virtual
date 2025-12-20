@@ -1680,7 +1680,7 @@ void ResetComputados(EntidadeProto* proto) {
   *proto->mutable_dados_defesa()->mutable_imunidade_efeitos() = proto->mutable_dados_defesa()->imunidade_efeitos_fixas();
 }
 
-void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto, TipoTerreno tipo_terreno) {
+void RecomputaDependenciasRaciais(const Tabelas& tabelas, TipoTerreno tipo_terreno, EntidadeProto* proto) {
   const auto& raca_tabelada = tabelas.Raca(proto->raca());
   if (raca_tabelada.has_tamanho()) {
     AtribuiBonus(raca_tabelada.tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
@@ -3771,7 +3771,7 @@ void RecomputaDependencias(
   PreencheCamposVindosDeTesouro(tabelas, proto);
   RecomputaComplementosModelos(tabelas, proto);
   RecomputaCriaRemoveDadosAtaque(tabelas, proto);
-  RecomputaDependenciasRaciais(tabelas, proto, tipo_terreno);
+  RecomputaDependenciasRaciais(tabelas, tipo_terreno, proto);
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto, entidade);
