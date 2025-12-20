@@ -7460,8 +7460,14 @@ TEST(TesteRacas, TesteGnomoDaFlorestaNaFloresta) {
     ic->set_id("guerreiro");
   }
   std::unique_ptr<Entidade> gnomo(NovaEntidadeParaTestes(proto, TabelasCriando()));
-  EXPECT_EQ(ValorFinalPericia("esconderse", gnomo->Proto()), 4) << BonusPericia("esconderse", gnomo->Proto()).DebugString();
-  //RecomputaDependencias(TabelasCriando(), TT_FLORESTA, &proto);
+  // 4 racial, 4 tamanho.
+  EXPECT_EQ(ValorFinalPericia("esconderse", gnomo->Proto()), 8) << BonusPericia("esconderse", gnomo->Proto()).DebugString();
+  // +4 da floresta.
+  proto = gnomo->Proto();
+  RecomputaDependencias(TabelasCriando(), TT_FLORESTA, &proto);
+  EXPECT_EQ(ValorFinalPericia("esconderse", proto), 12) << BonusPericia("esconderse", gnomo->Proto()).DebugString();
+  RecomputaDependencias(TabelasCriando(), TT_SUBTERRANEO, &proto);
+  EXPECT_EQ(ValorFinalPericia("esconderse", proto), 8) << BonusPericia("esconderse", gnomo->Proto()).DebugString();
 }
 
 
