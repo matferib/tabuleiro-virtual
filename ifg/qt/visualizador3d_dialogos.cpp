@@ -331,7 +331,7 @@ ent::EmpunhaduraArma ComboParaEmpunhadura(const QComboBox* combo) {
 // Se houver selecionada, ira atualizar o dado de ataque. Caso contrario, criara um novo dado de ataque com os dados
 // lidos dos controles da UI. No final, recomputara dependencias e atualizara a UI.
 void AdicionaOuAtualizaAtaqueEntidade(
-    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+    const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   int indice = gerador.lista_ataques->currentRow();
   bool indice_valido = (indice >= 0 && indice < proto_retornado->dados_ataque().size());
   ent::DadosAtaque da = indice_valido ? proto_retornado->dados_ataque(indice) : ent::DadosAtaque::default_instance();
@@ -410,27 +410,30 @@ void AdicionaOuAtualizaAtaqueEntidade(
   } else {
     proto_retornado->add_dados_ataque()->Swap(&da);
   }
-  ent::RecomputaDependencias(tabelas, proto_retornado);
+  ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
 void PreencheConfiguraPontosVida(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
-  lambda_connect(gerador.botao_bonus_pv_temporario, SIGNAL(clicked()), [this_, &gerador, proto_retornado] () {
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  lambda_connect(gerador.botao_bonus_pv_temporario, SIGNAL(clicked()), [this_, &gerador, proto_retornado, tipo_terreno] () {
     AbreDialogoBonus(this_, proto_retornado->mutable_pontos_vida_temporarios_por_fonte());
-    ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+    ent::RecomputaDependencias(this_->tabelas(), tipo_terreno, proto_retornado);
     AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
   });
   AtualizaUIPontosVida(gerador, proto);
 }
 
 void PreencheConfiguraTendencia(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
-  lambda_connect(gerador.slider_bem_mal, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador,
+    ent::EntidadeProto* proto_retornado) {
+  lambda_connect(gerador.slider_bem_mal, SIGNAL(valueChanged(int)), [this_, &gerador, proto_retornado, tipo_terreno] () {
     proto_retornado->mutable_tendencia()->set_eixo_bem_mal(gerador.slider_bem_mal->value() / 8.0f);
+    ent::RecomputaDependencias(this_->tabelas(), tipo_terreno, proto_retornado);
   });
-  lambda_connect(gerador.slider_ordem_caos, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+  lambda_connect(gerador.slider_ordem_caos, SIGNAL(valueChanged(int)), [this_, &gerador, proto_retornado, tipo_terreno] () {
     proto_retornado->mutable_tendencia()->set_eixo_ordem_caos(gerador.slider_ordem_caos->value() / 8.0f);
+    ent::RecomputaDependencias(this_->tabelas(), tipo_terreno, proto_retornado);
   });
   AtualizaUITendencia(this_->tabelas(), gerador, *proto_retornado);
 }
@@ -456,7 +459,8 @@ ent::DescritorAtaque IndiceParaMaterialEscudo(int indice) {
 
 
 void PreencheConfiguraComboArmaduraEscudo(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador,
+    ent::EntidadeProto* proto_retornado) {
   QComboBox* combo_armadura = gerador.combo_armadura;
   QComboBox* combo_escudo = gerador.combo_escudo;
   const ent::Tabelas& tabelas = this_->tabelas();
@@ -476,7 +480,7 @@ void PreencheConfiguraComboArmaduraEscudo(
         absl::StrFormat(" do equipamento: %s", escudo_tesouro.id().c_str()).c_str(),
         QVariant(absl::StrFormat("equipamento:%s", escudo_tesouro.id().c_str()).c_str()));
   }
-  lambda_connect(combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_armadura] () {
+  lambda_connect(combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_armadura, tipo_terreno] () {
     QVariant idvar = combo_armadura->itemData(combo_armadura->currentIndex());
     std::string id = idvar.toString().toStdString();
     if (id.find("equipamento:") == 0) {
@@ -484,21 +488,21 @@ void PreencheConfiguraComboArmaduraEscudo(
     } else {
       proto_retornado->mutable_dados_defesa()->set_id_armadura(id);
     }
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
     AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
   });
   auto* combo_material_armadura = gerador.combo_material_armadura;
-  lambda_connect(combo_material_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material_armadura] () {
+  lambda_connect(combo_material_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material_armadura, tipo_terreno] () {
     proto_retornado->mutable_dados_defesa()->set_material_armadura(IndiceParaMaterialArmadura(combo_material_armadura->currentIndex()));
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
     AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
   });
 
-  lambda_connect(combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_escudo] () {
+  lambda_connect(combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_escudo, tipo_terreno] () {
     QVariant idvar = combo_escudo->itemData(combo_escudo->currentIndex());
     std::string id = idvar.toString().toStdString();
     if (id.find("equipamento:") == 0) {
@@ -506,15 +510,15 @@ void PreencheConfiguraComboArmaduraEscudo(
     } else {
       proto_retornado->mutable_dados_defesa()->set_id_escudo(id);
     }
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
     AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
   });
   auto* combo_material_escudo = gerador.combo_material_escudo;
-  lambda_connect(combo_material_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material_escudo] () {
+  lambda_connect(combo_material_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material_escudo, tipo_terreno] () {
     proto_retornado->mutable_dados_defesa()->set_material_escudo(IndiceParaMaterialEscudo(combo_material_escudo->currentIndex()));
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
     AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
@@ -525,7 +529,8 @@ void PreencheConfiguraComboArmaduraEscudo(
 }
 
 void PreencheConfiguraEventos(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
   *proto_retornado->mutable_evento() = proto.evento();
   auto* modelo(new ModeloEvento(proto_retornado->evento(), gerador.tabela_lista_eventos));
   std::unique_ptr<QItemSelectionModel> delete_old(gerador.tabela_lista_eventos->selectionModel());
@@ -554,9 +559,9 @@ void PreencheConfiguraEventos(
   delegado->deleteLater();
   gerador.tabela_lista_eventos->resizeColumnsToContents();
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-                 [this_, proto_retornado, &gerador, modelo] () {
+                 [this_, proto_retornado, &gerador, modelo, tipo_terreno] () {
     *proto_retornado->mutable_evento() = modelo->LeEventos();
-    ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+    ent::RecomputaDependencias(this_->tabelas(), tipo_terreno, proto_retornado);
     AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
   });
 }
@@ -569,7 +574,7 @@ void TrocaDelegateColuna(unsigned int coluna, QAbstractItemDelegate* delegado, Q
 }
 
 void PreencheConfiguraPericias(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
     ent::EntidadeProto* proto_retornado) {
   const ent::Tabelas& tabelas = this_->tabelas();
   auto* modelo(new ModeloPericias(tabelas, *proto_retornado, gerador.tabela_pericias));
@@ -587,15 +592,15 @@ void PreencheConfiguraPericias(
   gerador.tabela_pericias->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
   gerador.tabela_pericias->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-                 [&tabelas, &gerador, proto_retornado, modelo] () {
+                 [&tabelas, &gerador, proto_retornado, modelo, tipo_terreno] () {
     *proto_retornado->mutable_info_pericias() = modelo->Converte();
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }
 
 void PreencheConfiguraTalentos(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
     ent::EntidadeProto* proto_retornado) {
   const ent::Tabelas& tabelas = this_->tabelas();
   *proto_retornado->mutable_info_talentos() = proto.info_talentos();
@@ -631,10 +636,10 @@ void PreencheConfiguraTalentos(
   gerador.tabela_talentos->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
 
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-                 [&tabelas, &gerador, proto_retornado, modelo] () {
+                 [&tabelas, &gerador, proto_retornado, modelo, tipo_terreno] () {
     // TODO alterar o delegate do complemento.
     *proto_retornado->mutable_info_talentos() = modelo->Converte();
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
   AtualizaUIPericias(tabelas, gerador, proto);
@@ -647,19 +652,20 @@ ent::TipoEvasao IndiceComboParaTipoEvasao(int indice) {
 }
 
 void PreencheConfiguraEvasao(Visualizador3d* this_,
+                             ent::TipoTerreno tipo_terreno,
                              ifg::qt::Ui::DialogoEntidade& gerador,
                              const ent::EntidadeProto& proto,
                              ent::EntidadeProto* proto_retornado) {
   AtualizaUIEvasao(this_->tabelas(), gerador, proto);
   const ent::Tabelas& tabelas = this_->tabelas();
-  lambda_connect(gerador.combo_evasao_estatica, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
+  lambda_connect(gerador.combo_evasao_estatica, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, tipo_terreno] () {
     proto_retornado->mutable_dados_defesa()->set_evasao_estatica(IndiceComboParaTipoEvasao(gerador.combo_evasao_estatica->currentIndex()));
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
-  lambda_connect(gerador.combo_evasao_dinamica, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
+  lambda_connect(gerador.combo_evasao_dinamica, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, tipo_terreno] () {
     proto_retornado->mutable_dados_defesa()->set_evasao(IndiceComboParaTipoEvasao(gerador.combo_evasao_dinamica->currentIndex()));
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }
@@ -672,6 +678,7 @@ void PreencheConfiguraEsquivaSobrenatural(Visualizador3d* this_,
 }
 
 void PreencheConfiguraInimigosPrediletos(Visualizador3d* this_,
+                                         ent::TipoTerreno tipo_terreno,
                                          ifg::qt::Ui::DialogoEntidade& gerador,
                                          const ent::EntidadeProto& proto,
                                          ent::EntidadeProto* proto_retornado) {
@@ -705,9 +712,9 @@ void PreencheConfiguraInimigosPrediletos(Visualizador3d* this_,
   gerador.tabela_inimigos_prediletos->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 
   lambda_connect(modelo, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-                 [&tabelas, &gerador, proto_retornado, modelo]() {
+                 [&tabelas, &gerador, proto_retornado, modelo, tipo_terreno]() {
     *proto_retornado->mutable_dados_ataque_global()->mutable_inimigos_prediletos() = modelo->Converte();
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }
@@ -898,7 +905,7 @@ RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>* BuscaArmas
 
 template <class Dialogo, class Gerador>
 void ConfiguraListaItensMagicos(
-    Dialogo* dialogo, const ent::Tabelas& tabelas, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
+    Dialogo* dialogo, const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
     ent::TipoItem tipo,
     QListWidget* lista, QPushButton* botao_usar, QPushButton* botao_adicionar, QPushButton* botao_remover, QPushButton* botao_doar,
     const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
@@ -919,7 +926,7 @@ void ConfiguraListaItensMagicos(
       }
     });
     // Botao de usar.
-    lambda_connect(botao_usar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, f_atualiza_ui] () {
+    lambda_connect(botao_usar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, f_atualiza_ui, tipo_terreno] () {
       const int indice = lista->currentRow();
       auto* itens_personagem = ent::ItensProtoMutavel(tipo, proto_retornado);
       if (indice < 0 || indice >= itens_personagem->size()) {
@@ -942,7 +949,7 @@ void ConfiguraListaItensMagicos(
       } else {
         item->set_em_uso(false);
       }
-      ent::RecomputaDependencias(tabelas, proto_retornado);
+      ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
       // AtualizaUI
       f_atualiza_ui(tabelas, gerador, *proto_retornado);
     });
@@ -953,7 +960,7 @@ void ConfiguraListaItensMagicos(
     AtualizaUITesouro(tabelas, gerador, *proto_retornado);
     lista->setCurrentRow(itens->size() - 1);
   });
-  lambda_connect(botao_remover, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, f_atualiza_ui] () {
+  lambda_connect(botao_remover, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, f_atualiza_ui, tipo_terreno] () {
     const int indice = lista->currentRow();
     auto* itens = ent::ItensProtoMutavel(tipo, proto_retornado);
     if (indice < 0 || indice >= itens->size()) {
@@ -962,12 +969,12 @@ void ConfiguraListaItensMagicos(
     auto* item = itens->Mutable(indice);
     item->set_em_uso(false);
     // Tira o efeito do personagem.
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     // Tira o item do personagem.
     if (indice >= 0 && indice < itens->size()) {
       itens->DeleteSubrange(indice, 1);
     }
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     // AtualizaUI.
     f_atualiza_ui(tabelas, gerador, *proto_retornado);
     lista->setCurrentRow(indice >= itens->size() ? - 1 : indice);
@@ -1072,7 +1079,7 @@ void OrdenaItens(const ent::Tabelas& tabelas, Gerador& gerador, ent::TipoItem ti
 
 template <class Dialogo, class Gerador>
 void ConfiguraListaPergaminhosMundanosOuPocoes(
-    Dialogo* dialogo, const ent::Tabelas& tabelas, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
+    Dialogo* dialogo, const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
     ent::TipoItem tipo, QListWidget* lista,
     QPushButton* botao_usar, QPushButton* botao_adicionar, QPushButton* botao_duplicar, QPushButton* botao_remover, QPushButton* botao_ordenar, QPushButton* botao_doar,
     const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
@@ -1083,14 +1090,14 @@ void ConfiguraListaPergaminhosMundanosOuPocoes(
     OrdenaItens(tabelas, gerador, tipo, lista, proto_retornado);
   });
   ConfiguraListaItensMagicos(
-      dialogo, tabelas, gerador, f_atualiza_ui, tipo, lista,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, tipo, lista,
       botao_usar, botao_adicionar, botao_remover, botao_doar,
       proto, proto_retornado, central);
 }
 
 template <class Dialogo, class Gerador>
 void ConfiguraArmasArmaduraOuEscudo(
-    Dialogo* dialogo, const ent::Tabelas& tabelas, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
+    Dialogo* dialogo, const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
     arma_armadura_ou_escudo_e tipo, QListWidget* lista,
     QPushButton* botao_adicionar, QPushButton* botao_duplicar, QPushButton* botao_remover, QPushButton* botao_ordenar, QPushButton* botao_doar,
     const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
@@ -1106,14 +1113,14 @@ void ConfiguraArmasArmaduraOuEscudo(
   lambda_connect(botao_ordenar, SIGNAL(clicked()), [&tabelas, &gerador, tipo, lista, proto_retornado] () {
     OrdenaArmasArmadurasOuEscudos(tabelas, gerador, tipo, lista, proto_retornado);
   });
-  lambda_connect(botao_adicionar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado] () {
+  lambda_connect(botao_adicionar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, tipo_terreno] () {
     auto* itens = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
     itens->Add()->set_id("teste");
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUITesouro(tabelas, gerador, *proto_retornado);
     lista->setCurrentRow(itens->size() - 1);
   });
-  lambda_connect(botao_remover, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, f_atualiza_ui] () {
+  lambda_connect(botao_remover, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, f_atualiza_ui, tipo_terreno] () {
     const int indice = lista->currentRow();
     auto* itens = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
     if (indice < 0 || indice >= itens->size()) {
@@ -1122,7 +1129,7 @@ void ConfiguraArmasArmaduraOuEscudo(
     if (indice >= 0 && indice < itens->size()) {
       itens->DeleteSubrange(indice, 1);
     }
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     // AtualizaUI.
     f_atualiza_ui(tabelas, gerador, *proto_retornado);
     lista->setCurrentRow(indice >= itens->size() ? - 1 : indice);
@@ -1152,7 +1159,7 @@ void ConfiguraArmasArmaduraOuEscudo(
 
 template <class Dialogo, class Gerador>
 void PreencheConfiguraTesouro(
-    Visualizador3d* this_, Dialogo* dialogo, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
+    Visualizador3d* this_, Dialogo* dialogo, ent::TipoTerreno tipo_terreno, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
     const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
   const auto& tabelas = this_->tabelas();
 
@@ -1170,7 +1177,7 @@ void PreencheConfiguraTesouro(
 
   // Pocoes.
   ConfiguraListaPergaminhosMundanosOuPocoes(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_POCAO,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_POCAO,
       gerador.lista_pocoes, /*usar=*/nullptr,
       gerador.botao_adicionar_pocao, gerador.botao_duplicar_pocao,
       gerador.botao_remover_pocao, gerador.botao_ordenar_pocoes,
@@ -1178,7 +1185,7 @@ void PreencheConfiguraTesouro(
       proto, proto_retornado, central);
   // Varinhas.
   ConfiguraListaPergaminhosMundanosOuPocoes(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_VARINHA,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_VARINHA,
       gerador.lista_varinhas, /*usar=*/nullptr,
       gerador.botao_adicionar_varinha, gerador.botao_duplicar_varinha,
       gerador.botao_remover_varinha, gerador.botao_ordenar_varinhas,
@@ -1186,14 +1193,14 @@ void PreencheConfiguraTesouro(
       proto, proto_retornado, central);
   // Pergaminhos.
   ConfiguraListaPergaminhosMundanosOuPocoes(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_ARCANO,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_ARCANO,
       gerador.lista_pergaminhos_arcanos, /*usar=*/nullptr,
       gerador.botao_adicionar_pergaminho_arcano, gerador.botao_duplicar_pergaminho_arcano,
       gerador.botao_remover_pergaminho_arcano, gerador.botao_ordenar_pergaminhos_arcanos,
       gerador.botao_doar_pergaminho_arcano,
       proto, proto_retornado, central);
   ConfiguraListaPergaminhosMundanosOuPocoes(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_DIVINO,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_PERGAMINHO_DIVINO,
       gerador.lista_pergaminhos_divinos, /*usar=*/nullptr,
       gerador.botao_adicionar_pergaminho_divino, gerador.botao_duplicar_pergaminho_divino,
       gerador.botao_remover_pergaminho_divino, gerador.botao_ordenar_pergaminhos_divinos,
@@ -1201,7 +1208,7 @@ void PreencheConfiguraTesouro(
       proto, proto_retornado, central);
   // Itens mundanos.
   ConfiguraListaPergaminhosMundanosOuPocoes(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_ITEM_MUNDANO,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_ITEM_MUNDANO,
       gerador.lista_itens_mundanos, /*usar=*/nullptr,
       gerador.botao_adicionar_item_mundano, gerador.botao_duplicar_item_mundano,
       gerador.botao_remover_item_mundano, gerador.botao_ordenar_item_mundano,
@@ -1209,7 +1216,7 @@ void PreencheConfiguraTesouro(
       proto, proto_retornado, central);
   // Armas.
   ConfiguraArmasArmaduraOuEscudo(
-      dialogo, tabelas, gerador, f_atualiza_ui, ITEM_ARMA,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ITEM_ARMA,
       gerador.lista_armas,
       gerador.botao_adicionar_arma, gerador.botao_duplicar_arma,
       gerador.botao_remover_arma, gerador.botao_ordenar_armas,
@@ -1217,7 +1224,7 @@ void PreencheConfiguraTesouro(
       proto, proto_retornado, central);
   // Armaduras.
   ConfiguraArmasArmaduraOuEscudo(
-      dialogo, tabelas, gerador, f_atualiza_ui, ITEM_ARMADURA,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ITEM_ARMADURA,
       gerador.lista_armaduras,
       gerador.botao_adicionar_armadura, gerador.botao_duplicar_armadura,
       gerador.botao_remover_armadura, gerador.botao_ordenar_armaduras,
@@ -1225,7 +1232,7 @@ void PreencheConfiguraTesouro(
       proto, proto_retornado, central);
   // Escudo.
   ConfiguraArmasArmaduraOuEscudo(
-      dialogo, tabelas, gerador, f_atualiza_ui, ITEM_ESCUDO,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ITEM_ESCUDO,
       gerador.lista_escudos,
       gerador.botao_adicionar_escudo, gerador.botao_duplicar_escudo,
       gerador.botao_remover_escudo, gerador.botao_ordenar_escudos,
@@ -1234,43 +1241,43 @@ void PreencheConfiguraTesouro(
 
   // Aneis.
   ConfiguraListaItensMagicos(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_ANEL,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_ANEL,
       gerador.lista_aneis, gerador.botao_usar_anel, gerador.botao_adicionar_anel, gerador.botao_remover_anel,
       gerador.botao_doar_anel,
       proto, proto_retornado, central);
   // Luvas.
   ConfiguraListaItensMagicos(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_LUVAS,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_LUVAS,
       gerador.lista_luvas, gerador.botao_usar_luvas, gerador.botao_adicionar_luvas, gerador.botao_remover_luvas,
       gerador.botao_doar_luvas,
       proto, proto_retornado, central);
   // Botas.
   ConfiguraListaItensMagicos(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_BOTAS,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_BOTAS,
       gerador.lista_botas, gerador.botao_usar_botas, gerador.botao_adicionar_botas, gerador.botao_remover_botas,
       gerador.botao_doar_botas,
       proto, proto_retornado, central);
   // Amuletos.
   ConfiguraListaItensMagicos(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_AMULETO,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_AMULETO,
       gerador.lista_amuletos, gerador.botao_usar_amuleto, gerador.botao_adicionar_amuleto, gerador.botao_remover_amuleto,
       gerador.botao_doar_amuleto,
       proto, proto_retornado, central);
   // Mantos.
   ConfiguraListaItensMagicos(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_MANTO,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_MANTO,
       gerador.lista_mantos, gerador.botao_usar_manto, gerador.botao_adicionar_manto, gerador.botao_remover_manto,
       gerador.botao_doar_manto,
       proto, proto_retornado, central);
   // Bracadeiras.
   ConfiguraListaItensMagicos(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_BRACADEIRAS,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_BRACADEIRAS,
       gerador.lista_bracadeiras, gerador.botao_usar_bracadeiras, gerador.botao_adicionar_bracadeiras, gerador.botao_remover_bracadeiras,
       gerador.botao_doar_bracadeiras,
       proto, proto_retornado, central);
   // Chapeu.
   ConfiguraListaItensMagicos(
-      dialogo, tabelas, gerador, f_atualiza_ui, ent::TipoItem::TIPO_CHAPEU,
+      dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_CHAPEU,
       gerador.lista_chapeus, gerador.botao_vestir_chapeu, gerador.botao_adicionar_chapeu, gerador.botao_remover_chapeu,
       gerador.botao_doar_chapeu,
       proto, proto_retornado, central);
@@ -1280,7 +1287,8 @@ void PreencheConfiguraTesouro(
 }
 
 void PreencheConfiguraAtributos(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
   // Atualiza os campos.
   auto* atrib = proto_retornado->mutable_atributos();
   std::vector<std::tuple<QPushButton*, QSpinBox*, ent::Bonus*>> tuplas = {
@@ -1295,14 +1303,14 @@ void PreencheConfiguraAtributos(
     QPushButton* botao; QSpinBox* spin; ent::Bonus* bonus;
     std::tie(botao, spin, bonus) = t;
     // bb tem que ser capturado por valor, porque a variavel sai de escopo no loop.
-    lambda_connect(botao, SIGNAL(clicked()), [this_, bonus, proto_retornado, &gerador] () {
+    lambda_connect(botao, SIGNAL(clicked()), [this_, bonus, proto_retornado, &gerador, tipo_terreno] () {
       AbreDialogoBonus(this_, bonus);
-      ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+      ent::RecomputaDependencias(this_->tabelas(), tipo_terreno, proto_retornado);
       AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
     });
-    lambda_connect(spin, SIGNAL(valueChanged(int)), [this_, &gerador, spin, bonus, proto_retornado] () {
+    lambda_connect(spin, SIGNAL(valueChanged(int)), [this_, &gerador, spin, bonus, tipo_terreno, proto_retornado] () {
       ent::AtribuiBonus(spin->value(), ent::TB_BASE, "base", bonus);
-      ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+      ent::RecomputaDependencias(this_->tabelas(), tipo_terreno, proto_retornado);
       AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
     });
   }
@@ -1310,7 +1318,8 @@ void PreencheConfiguraAtributos(
 }
 
 void PreencheConfiguraMovimento(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
   // Atualiza os campos.
   auto* mov = proto_retornado->mutable_movimento();
   std::vector<std::tuple<QSpinBox*, std::function<void(int)>, QPushButton*, ent::Bonus*>> tuplas = {
@@ -1336,14 +1345,14 @@ void PreencheConfiguraMovimento(
     QPushButton* botao;
     ent::Bonus* bonus;
     std::tie(spin, setter, botao, bonus) = t;
-    lambda_connect(spin, SIGNAL(valueChanged(int)), [this_, &gerador, spin, setter, proto_retornado] () {
+    lambda_connect(spin, SIGNAL(valueChanged(int)), [this_, &gerador, spin, setter, tipo_terreno, proto_retornado] () {
       setter(spin->value());
-      ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+      ent::RecomputaDependencias(this_->tabelas(), tipo_terreno, proto_retornado);
       AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
     });
-    lambda_connect(botao, SIGNAL(clicked()), [this_, &gerador, botao, bonus, proto_retornado]() {
+    lambda_connect(botao, SIGNAL(clicked()), [this_, &gerador, botao, bonus, tipo_terreno, proto_retornado]() {
       AbreDialogoBonus(this_, bonus);
-      ent::RecomputaDependencias(this_->tabelas(), proto_retornado);
+      ent::RecomputaDependencias(this_->tabelas(), tipo_terreno, proto_retornado);
       AtualizaUI(this_->tabelas(), gerador, *proto_retornado);
     });
   }
@@ -1351,7 +1360,8 @@ void PreencheConfiguraMovimento(
 }
 
 void PreencheConfiguraDadosDefesa(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
   AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, proto);
   // Imune critico.
   gerador.checkbox_imune_critico->setCheckState(proto.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
@@ -1364,50 +1374,50 @@ void PreencheConfiguraDadosDefesa(
   auto* mdd = proto_retornado->mutable_dados_defesa();
   auto* mca = mdd->mutable_ca();
   const ent::Tabelas& tabelas = this_->tabelas();
-  lambda_connect(gerador.combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, mca] () {
+  lambda_connect(gerador.combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, mca, tipo_terreno] () {
     QComboBox* combo = gerador.combo_armadura;
     std::string id = combo->itemData(combo->currentIndex()).toString().toStdString();
     proto_retornado->mutable_dados_defesa()->set_id_armadura(id);
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
-  lambda_connect(gerador.combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, mca] () {
+  lambda_connect(gerador.combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, mca, tipo_terreno] () {
     QComboBox* combo = gerador.combo_escudo;
     std::string id = combo->itemData(combo->currentIndex()).toString().toStdString();
     proto_retornado->mutable_dados_defesa()->set_id_escudo(id);
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
-  lambda_connect(gerador.spin_ca_armadura_melhoria, SIGNAL(valueChanged(int)), [tabelas, &gerador, proto_retornado, mdd] () {
+  lambda_connect(gerador.spin_ca_armadura_melhoria, SIGNAL(valueChanged(int)), [tabelas, &gerador, proto_retornado, mdd, tipo_terreno] () {
     mdd->set_bonus_magico_armadura(gerador.spin_ca_armadura_melhoria->value());
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
-  lambda_connect(gerador.checkbox_armadura_obra_prima, SIGNAL(stateChanged(int)), [tabelas, &gerador, proto_retornado, mdd]() {
+  lambda_connect(gerador.checkbox_armadura_obra_prima, SIGNAL(stateChanged(int)), [tabelas, &gerador, proto_retornado, mdd, tipo_terreno]() {
     mdd->set_armadura_obra_prima(gerador.checkbox_armadura_obra_prima->checkState() == Qt::Checked);
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
-  lambda_connect(gerador.spin_ca_escudo_melhoria, SIGNAL(valueChanged(int)), [tabelas, &gerador, proto_retornado, mdd] () {
+  lambda_connect(gerador.spin_ca_escudo_melhoria, SIGNAL(valueChanged(int)), [tabelas, &gerador, proto_retornado, mdd, tipo_terreno] () {
     mdd->set_bonus_magico_escudo(gerador.spin_ca_escudo_melhoria->value());
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
-  lambda_connect(gerador.checkbox_escudo_obra_prima, SIGNAL(stateChanged(int)), [tabelas, &gerador, proto_retornado, mdd]() {
+  lambda_connect(gerador.checkbox_escudo_obra_prima, SIGNAL(stateChanged(int)), [tabelas, &gerador, proto_retornado, mdd, tipo_terreno]() {
     mdd->set_escudo_obra_prima(gerador.checkbox_escudo_obra_prima->checkState() == Qt::Checked);
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
-  lambda_connect(gerador.botao_bonus_ca, SIGNAL(clicked()), [tabelas, this_, &gerador, proto_retornado, mca] () {
+  lambda_connect(gerador.botao_bonus_ca, SIGNAL(clicked()), [tabelas, this_, &gerador, proto_retornado, mca, tipo_terreno] () {
     AbreDialogoBonus(this_, mca);
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }
 
 // Preenche o combo de arma de acordo com o tipo de ataque selecionado.
 void ConfiguraComboArma(
-    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+    const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   auto* combo_arma = gerador.combo_arma;
   std::string maior_string;
   for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
@@ -1417,7 +1427,7 @@ void ConfiguraComboArma(
   ExpandeComboBox(gerador.combo_arma);
   gerador.combo_arma->clear();
 
-  lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma] () {
+  lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma, tipo_terreno] () {
     const int index_combo = gerador.combo_arma->currentIndex();
     std::string id_arma = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
 
@@ -1429,7 +1439,7 @@ void ConfiguraComboArma(
     } else {
       da->set_id_arma(id_arma);
     }
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     gerador.linha_dano->setEnabled(!tabelas.ArmaOuFeitico(id_arma).has_dano());
     gerador.combo_material_arma->setEnabled(id_arma != "nenhuma");
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
@@ -1449,9 +1459,10 @@ ent::DescritorAtaque IndiceParaMaterialArma(int indice) {
 
 // Preenche o combo de material da arma.
 void ConfiguraComboMaterial(
-    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+    const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador,
+    ent::EntidadeProto* proto_retornado) {
   auto* combo_material = gerador.combo_material_arma;
-  lambda_connect(combo_material, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material] () {
+  lambda_connect(combo_material, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_material, tipo_terreno] () {
     const int index_lista = gerador.lista_ataques->currentRow();
     if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
     auto* da = proto_retornado->mutable_dados_ataque(index_lista);
@@ -1461,7 +1472,7 @@ void ConfiguraComboMaterial(
     } else {
       da->set_material_arma(desc);
     }
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
   });
   ExpandeComboBox(combo_material);
@@ -1499,15 +1510,16 @@ void PreencheConfiguraComboTipoAtaque(
 }
 
 void PreencheConfiguraDadosAtaque(
-    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& ent, ent::EntidadeProto* proto_retornado) {
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& ent,
+    ent::EntidadeProto* proto_retornado) {
   const ent::Tabelas& tabelas = this_->tabelas();
-  auto EditaAtualizaUIAtaque = [this_, &tabelas, &gerador, proto_retornado] () {
+  auto EditaAtualizaUIAtaque = [this_, &tabelas, &gerador, proto_retornado, tipo_terreno] () {
     int indice_antes = gerador.lista_ataques->currentRow();
     if (indice_antes < 0 || indice_antes >= proto_retornado->dados_ataque().size()) {
       // Vale apenas para edicao.
       return;
     }
-    AdicionaOuAtualizaAtaqueEntidade(tabelas, gerador, proto_retornado);
+    AdicionaOuAtualizaAtaqueEntidade(tabelas, tipo_terreno, gerador, proto_retornado);
     if (indice_antes < proto_retornado->dados_ataque().size()) {
       gerador.lista_ataques->setCurrentRow(indice_antes);
     } else {
@@ -1516,8 +1528,8 @@ void PreencheConfiguraDadosAtaque(
   };
 
   PreencheConfiguraComboTipoAtaque(tabelas, gerador, EditaAtualizaUIAtaque, proto_retornado);
-  ConfiguraComboArma(tabelas, gerador, proto_retornado);
-  ConfiguraComboMaterial(tabelas, gerador, proto_retornado);
+  ConfiguraComboArma(tabelas, tipo_terreno, gerador, proto_retornado);
+  ConfiguraComboMaterial(tabelas, tipo_terreno, gerador, proto_retornado);
 
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
 
@@ -1647,7 +1659,7 @@ void LeDominioOuEscolaDoCombo(const QComboBox* combo, string* dominio) {
 }
 
 // Chamado tb durante a finalizacao, por causa do problema de apertar enter e fechar a janela. Nao atualiza a UI.
-void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado, bool novo = false) {
+void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado, bool novo = false) {
   const int indice = gerador.lista_niveis->currentRow();
   if (gerador.linha_classe->text().isEmpty()) {
     return;
@@ -1691,7 +1703,7 @@ void AdicionaOuEditaNivel(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntid
     }
   }
 
-  ent::RecomputaDependencias(tabelas, proto_retornado);
+  ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
   AtualizaUI(tabelas, gerador, *proto_retornado);
 }
 
@@ -1707,7 +1719,7 @@ void LimpaCamposClasse(ifg::qt::Ui::DialogoEntidade& gerador) {
 }
 
 void PreencheConfiguraCombosDominio(
-    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+    const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   std::vector<QComboBox*> combos = {gerador.combo_dominio_1, gerador.combo_dominio_2};
   for (auto* combo : combos) {
     combo->addItem(combo->tr("Nenhum"), "nenhum");
@@ -1722,7 +1734,7 @@ void PreencheConfiguraCombosDominio(
     }
     ExpandeComboBox(combo);
     const int indice_dominio = combo == gerador.combo_dominio_1 ? 0 : 1;
-    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, indice_dominio, &tabelas, &gerador, proto_retornado] () {
+    lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, indice_dominio, &tabelas, &gerador, proto_retornado, tipo_terreno] () {
       const int indice = gerador.lista_niveis->currentRow();
       if (gerador.linha_classe->text().isEmpty()) {
         return;
@@ -1748,7 +1760,7 @@ void PreencheConfiguraCombosDominio(
         *fc->mutable_dominios(indice_dominio) = id;
         combo->setToolTip(combo->tr(tabelas.Dominio(id).descricao().c_str()));
       }
-      ent::RecomputaDependencias(tabelas, proto_retornado);
+      ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
       AtualizaUI(tabelas, gerador, *proto_retornado);
       combo->blockSignals(false);
     });
@@ -1757,7 +1769,8 @@ void PreencheConfiguraCombosDominio(
 }
 
 void PreencheConfiguraCombosEspecializacaoEscola(
-    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+    const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador,
+    ent::EntidadeProto* proto_retornado) {
   std::vector<QComboBox*> combos = {gerador.combo_especializacao_escola, gerador.combo_escola_proibida_1, gerador.combo_escola_proibida_2};
   for (auto* combo : combos) {
     combo->clear();
@@ -1781,7 +1794,7 @@ void PreencheConfiguraCombosEspecializacaoEscola(
     }
     ExpandeComboBox(combo);
     if (combo == gerador.combo_especializacao_escola) {
-      lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
+      lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado, tipo_terreno] () {
         combo->blockSignals(true);
         auto* fc = ent::FeiticosClasse("mago", proto_retornado);
         QVariant data = combo->itemData(combo->currentIndex());
@@ -1800,13 +1813,13 @@ void PreencheConfiguraCombosEspecializacaoEscola(
           gerador.combo_escola_proibida_1->setEnabled(true);
           gerador.combo_escola_proibida_2->setEnabled(true);
         }
-        ent::RecomputaDependencias(tabelas, proto_retornado);
+        ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
         AtualizaUI(tabelas, gerador, *proto_retornado);
         combo->blockSignals(false);
       });
     } else {
       const int indice_escola_proibida = combo == gerador.combo_escola_proibida_1 ? 0 : 1;
-      lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, indice_escola_proibida, &tabelas, &gerador, proto_retornado] () {
+      lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, indice_escola_proibida, &tabelas, &gerador, proto_retornado, tipo_terreno] () {
         auto* fc = ent::FeiticosClasse("mago", proto_retornado);
         if (fc == nullptr) return;
         combo->blockSignals(true);
@@ -1820,7 +1833,7 @@ void PreencheConfiguraCombosEspecializacaoEscola(
           string id = data.toString().toStdString();
           *fc->mutable_escolas_proibidas(indice_escola_proibida) = id;
         }
-        ent::RecomputaDependencias(tabelas, proto_retornado);
+        ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
         AtualizaUI(tabelas, gerador, *proto_retornado);
         combo->blockSignals(false);
       });
@@ -1830,7 +1843,7 @@ void PreencheConfiguraCombosEspecializacaoEscola(
 }
 
 void PreencheConfiguraComboClasse(
-    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+    const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   auto* combo = gerador.combo_classe;
   combo->addItem(combo->tr("Outro"), "outro");
   combo->insertSeparator(combo->count());
@@ -1864,7 +1877,7 @@ void PreencheConfiguraComboClasse(
 
   ExpandeComboBox(combo);
   ExpandeComboBox(gerador.combo_mod_conjuracao);
-  lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
+  lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado, tipo_terreno] () {
     const auto& classe_tabelada = tabelas.Classe(combo->itemData(combo->currentIndex()).toString().toStdString());
     const int indice = gerador.lista_niveis->currentRow();
     if (indice >= 0 && indice < proto_retornado->info_classes_size()) {
@@ -1881,27 +1894,30 @@ void PreencheConfiguraComboClasse(
     const auto& ifc = FeiticosClasse("mago", *proto_retornado);
     gerador.combo_escola_proibida_1->setEnabled(!ifc.especializacao().empty());
     gerador.combo_escola_proibida_2->setEnabled(!ifc.especializacao().empty());
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }
 
 void PreencheConfiguraComboRaca(
-    const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+    const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador,
+    ent::EntidadeProto* proto_retornado) {
   auto* combo = gerador.combo_raca;
   for (const auto& ir : tabelas.todas().tabela_racas().racas()) {
     combo->addItem(QString::fromUtf8(ir.nome().c_str()), ir.id().c_str());
   }
   ExpandeComboBox(combo);
-  lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado] () {
+  lambda_connect(combo, SIGNAL(currentIndexChanged(int)), [combo, &tabelas, &gerador, proto_retornado, tipo_terreno] () {
     const auto& raca_tabelada = tabelas.Raca(combo->itemData(combo->currentIndex()).toString().toStdString());
     proto_retornado->set_raca(raca_tabelada.id());
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 }
 
-void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+void PreencheConfiguraClassesNiveis(
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador,
+    ent::EntidadeProto* proto_retornado) {
   const auto& tabelas = this_->tabelas();
   // Ao mudar a selecao, atualiza os controles.
   lambda_connect(gerador.lista_niveis, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
@@ -1916,20 +1932,20 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
   });
 
   // Adiciona um nivel ao personagem ao clicar no botao de adicionar.
-  lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+  lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado, tipo_terreno] () {
     // Se ja tem linha selecionada, ignora o que ta na UI e cria uma nova.
     const bool novo = gerador.lista_niveis->currentRow() != -1;
     gerador.lista_niveis->setCurrentRow(-1);
-    AdicionaOuEditaNivel(tabelas, gerador, proto_retornado, novo);
+    AdicionaOuEditaNivel(tabelas, tipo_terreno, gerador, proto_retornado, novo);
     AtualizaUI(tabelas, gerador, *proto_retornado);
     // Deixa deselecionado e zera campos, mais intuitivo.
     LimpaCamposClasse(gerador);
   });
 
-  PreencheConfiguraComboClasse(tabelas, gerador, proto_retornado);
-  PreencheConfiguraComboRaca(tabelas, gerador, proto_retornado);
-  PreencheConfiguraCombosDominio(tabelas, gerador, proto_retornado);
-  PreencheConfiguraCombosEspecializacaoEscola(tabelas, gerador, proto_retornado);
+  PreencheConfiguraComboClasse(tabelas, tipo_terreno, gerador, proto_retornado);
+  PreencheConfiguraComboRaca(tabelas, tipo_terreno, gerador, proto_retornado);
+  PreencheConfiguraCombosDominio(tabelas, tipo_terreno, gerador, proto_retornado);
+  PreencheConfiguraCombosEspecializacaoEscola(tabelas, tipo_terreno, gerador, proto_retornado);
 
   PreencheComboSalvacoesFortes(gerador.combo_salvacoes_fortes);
   lambda_connect(gerador.combo_salvacoes_fortes, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado] () {
@@ -1946,24 +1962,24 @@ void PreencheConfiguraClassesNiveis(Visualizador3d* this_, ifg::qt::Ui::DialogoE
   });
 
   // Remove o nivel selecionado.
-  lambda_connect(gerador.botao_remover_nivel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
+  lambda_connect(gerador.botao_remover_nivel, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado, tipo_terreno] () {
     if (gerador.lista_niveis->currentRow() == -1 ||
         gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
       return;
     }
     proto_retornado->mutable_info_classes()->DeleteSubrange(gerador.lista_niveis->currentRow(), 1);
-    ent::RecomputaDependencias(tabelas, proto_retornado);
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
     LimpaCamposClasse(gerador);
   });
 
   // Responde uma edicao da UI se houver selecao. caso contrario nada sera feito.
-  auto EditaAtualizaNiveis = [&tabelas, &gerador, proto_retornado] () {
+  auto EditaAtualizaNiveis = [&tabelas, &gerador, proto_retornado, tipo_terreno] () {
     int indice = gerador.lista_niveis->currentRow();
     if (indice < 0 || indice >= proto_retornado->info_classes().size()) {
       return;
     }
-    AdicionaOuEditaNivel(tabelas, gerador, proto_retornado);
+    AdicionaOuEditaNivel(tabelas, tipo_terreno, gerador, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   };
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals).
@@ -2014,6 +2030,7 @@ void PreencheConfiguraDadosIniciativa(
 
 std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     const ntf::Notificacao& notificacao, bool forma_corrente, QWidget* pai) {
+  const ent::TipoTerreno tipo_terreno = notificacao.tabuleiro().tipo_terreno();
   const auto& entidade = notificacao.entidade();
   std::unique_ptr<ent::EntidadeProto> delete_proto_retornado(new ent::EntidadeProto(entidade));
   auto* proto_retornado = delete_proto_retornado.get();
@@ -2035,20 +2052,20 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   gerador.lista_rotulos->appendPlainText((rotulos_especiais.c_str()));
 
   // Eventos.
-  PreencheConfiguraEventos(this, gerador, entidade, proto_retornado);
+  PreencheConfiguraEventos(this, tipo_terreno, gerador, entidade, proto_retornado);
 
   // Formas alternativas.
   PreencheConfiguraFormasAlternativas(this, dialogo, gerador, entidade, proto_retornado);
 
   // Pericias e Talentos.
-  PreencheConfiguraPericias(this, gerador, entidade, proto_retornado);
-  PreencheConfiguraTalentos(this, gerador, entidade, proto_retornado);
+  PreencheConfiguraPericias(this, tipo_terreno, gerador, entidade, proto_retornado);
+  PreencheConfiguraTalentos(this, tipo_terreno, gerador, entidade, proto_retornado);
 
   // Inimigos Prediletos.
-  PreencheConfiguraInimigosPrediletos(this, gerador, entidade, proto_retornado);
+  PreencheConfiguraInimigosPrediletos(this, tipo_terreno, gerador, entidade, proto_retornado);
 
   // Evasao estatica e dimamica.
-  PreencheConfiguraEvasao(this, gerador, entidade, proto_retornado);
+  PreencheConfiguraEvasao(this, tipo_terreno, gerador, entidade, proto_retornado);
   // Esquiva sobrenatural.
   PreencheConfiguraEsquivaSobrenatural(this, gerador, entidade, proto_retornado);
 
@@ -2068,10 +2085,10 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Tamanho.
   gerador.slider_tamanho->setSliderPosition(ent::BonusIndividualTotal(ent::TB_BASE, entidade.bonus_tamanho()));
   gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
-  lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [this, &gerador, proto_retornado] () {
+  lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [this, &gerador, &notificacao, proto_retornado] () {
     ent::AtribuiBonus(gerador.slider_tamanho->sliderPosition(), ent::TB_BASE, "base", proto_retornado->mutable_bonus_tamanho());
     gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
-    ent::RecomputaDependencias(tabelas(), proto_retornado);
+    ent::RecomputaDependencias(tabelas(), notificacao.tabuleiro().tipo_terreno(), proto_retornado);
     AtualizaUI(tabelas(), gerador, *proto_retornado);
   });
   // Cor da entidade.
@@ -2127,7 +2144,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Modelo 3d.
   PreencheComboModelo3d(entidade.modelo_3d().id(), gerador.combo_modelos_3d);
   // Pontos de vida.
-  PreencheConfiguraPontosVida(this, gerador, entidade, proto_retornado);
+  PreencheConfiguraPontosVida(this, tipo_terreno, gerador, entidade, proto_retornado);
   // Aura.
   gerador.spin_aura_quad->setValue(entidade.aura_m() * ent::METROS_PARA_QUADRADOS);
   // Voo.
@@ -2143,7 +2160,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
       [](const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
     AtualizaUI(tabelas, gerador, proto);
   };
-  PreencheConfiguraTesouro(this, dialogo, gerador, f_atualiza_ui, entidade, proto_retornado, central_);
+  PreencheConfiguraTesouro(this, dialogo, tipo_terreno, gerador, f_atualiza_ui, entidade, proto_retornado, central_);
 
   gerador.texto_notas->appendPlainText((entidade.notas().c_str()));
 
@@ -2160,26 +2177,26 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   gerador.spin_raio_visao_escuro_quad->setEnabled(entidade.tipo_visao() == ent::VISAO_ESCURO);
 
   // Preenche os atributos.
-  PreencheConfiguraAtributos(this, gerador, entidade, proto_retornado);
-  PreencheConfiguraMovimento(this, gerador, entidade, proto_retornado);
+  PreencheConfiguraAtributos(this, tipo_terreno, gerador, entidade, proto_retornado);
+  PreencheConfiguraMovimento(this, tipo_terreno, gerador, entidade, proto_retornado);
 
   // Iniciativa.
   PreencheConfiguraDadosIniciativa(this, gerador, entidade, proto_retornado);
 
   // Tendencia.
-  PreencheConfiguraTendencia(this, gerador, proto_retornado);
+  PreencheConfiguraTendencia(this, tipo_terreno, gerador, proto_retornado);
 
   // Combos dinamicos.
-  PreencheConfiguraComboArmaduraEscudo(this, gerador, proto_retornado);
+  PreencheConfiguraComboArmaduraEscudo(this, tipo_terreno, gerador, proto_retornado);
 
   // Dados de defesa.
-  PreencheConfiguraDadosDefesa(this, gerador, entidade, proto_retornado);
+  PreencheConfiguraDadosDefesa(this, tipo_terreno, gerador, entidade, proto_retornado);
 
   // Dados de ataque.
-  PreencheConfiguraDadosAtaque(this, gerador, entidade, proto_retornado);
+  PreencheConfiguraDadosAtaque(this, tipo_terreno, gerador, entidade, proto_retornado);
 
   // Preenche configura classes e niveis.
-  PreencheConfiguraClassesNiveis(this, gerador, proto_retornado);
+  PreencheConfiguraClassesNiveis(this, tipo_terreno, gerador, proto_retornado);
 
   // Preenche a parte de resistencias.
   PreencheConfiguraSalvacoes(this, gerador, proto_retornado);
@@ -2196,8 +2213,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
-                 [this, notificacao, &entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor, forma_corrente] () {
-    ent::RecomputaDependencias(tabelas(), proto_retornado);
+                 [this, notificacao, &entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor, forma_corrente, tipo_terreno] () {
+    ent::RecomputaDependencias(tabelas(), tipo_terreno, proto_retornado);
     if (gerador.campo_rotulo->text().isEmpty()) {
       proto_retornado->clear_rotulo();
     } else {
@@ -2271,10 +2288,10 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
     if ((gerador.lista_ataques->currentRow() >= 0 && gerador.lista_ataques->currentRow() < proto_retornado->dados_ataque().size()) ||
         gerador.linha_dano->text().size() > 0) {
-      AdicionaOuAtualizaAtaqueEntidade(this->tabelas(), gerador, proto_retornado);
+      AdicionaOuAtualizaAtaqueEntidade(this->tabelas(), tipo_terreno, gerador, proto_retornado);
     }
     if (gerador.spin_nivel_classe->value() > 0) {
-      AdicionaOuEditaNivel(this->tabelas(), gerador, proto_retornado);
+      AdicionaOuEditaNivel(this->tabelas(), tipo_terreno, gerador, proto_retornado);
     }
     if (forma_corrente &&
         entidade.forma_alternativa_corrente() >= 0 &&
@@ -2894,6 +2911,7 @@ void AjustaSliderSpin(float angulo, QDial* dial, QSpinBox* spin) {
 }  // namespace
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao& notificacao) {
+  ent::TipoTerreno tipo_terreno = notificacao.tabuleiro().tipo_terreno();
   const auto& entidade = notificacao.entidade();
   auto* proto_retornado = new ent::EntidadeProto(entidade);
   ifg::qt::Ui::DialogoForma gerador;
@@ -3096,7 +3114,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       // Tem que fazer a funcao de atualiza funcionar com tesouros...
     AtualizaUITesouro(tabelas, gerador, proto);
   };
-  PreencheConfiguraTesouro(this, dialogo, gerador, f_atualiza_ui, entidade, proto_retornado, central_);
+  PreencheConfiguraTesouro(this, dialogo, tipo_terreno, gerador, f_atualiza_ui, entidade, proto_retornado, central_);
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),

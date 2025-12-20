@@ -2756,7 +2756,12 @@ void LimpaSubForma(EntidadeProto* sub_forma) {
 }
 
 void Entidade::RecomputaDependencias() {
-  ent::RecomputaDependencias(tabelas_, &proto_, this, tabuleiro_ == nullptr ? nullptr : &tabuleiro_->TodasEntidades());
+  ent::RecomputaDependencias(
+      tabelas_,
+      tabuleiro_ == nullptr ? TT_NENHUM : tabuleiro_->TipoTerreno(),
+      &proto_,
+      this,
+      tabuleiro_ == nullptr ? nullptr : &tabuleiro_->TodasEntidades());
   for (auto& sf : *proto_.mutable_sub_forma()) {
     LimpaSubForma(&sf);
   }

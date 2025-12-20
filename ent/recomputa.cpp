@@ -117,11 +117,21 @@ const ArmaProto& ArmaOutraMao(
   return tabelas.Arma(da_outra_mao->id_arma());
 }
 
+bool TerrenoCasaComOrigem(const std::string& origem, TipoTerreno tipo_terreno) {
+  TipoTerreno tipo_origem;
+  if (!TipoTerreno_Parse(origem, &tipo_origem)) return false;
+  return tipo_origem == tipo_terreno;
+}
+
 // Aplica o bonus ou remove, se for 0. Bonus vazios sao ignorados.
-void AplicaBonusPenalidadeOuRemove(const Bonus& bonus, Bonus* alvo) {
+void AplicaBonusPenalidadeOuRemove(const Bonus& bonus, Bonus* alvo, TipoTerreno tipo_terreno = TT_NENHUM) {
   for (const auto& bi : bonus.bonus_individual()) {
     for (const auto& po : bi.por_origem()) {
-      if (po.valor() != 0) {
+      bool condicoes_extras = true;
+      if (bi.tipo() == TB_TERRENO) {
+        condicoes_extras = TerrenoCasaComOrigem(po.origem(), tipo_terreno);
+      }
+      if (po.valor() != 0 && condicoes_extras) {
         AtribuiBonusPenalidadeSeMaior(po.valor(), bi.tipo(), po.origem(), alvo);
       } else {
         RemoveBonus(bi.tipo(), po.origem(), alvo);
@@ -1670,7 +1680,7 @@ void ResetComputados(EntidadeProto* proto) {
   *proto->mutable_dados_defesa()->mutable_imunidade_efeitos() = proto->mutable_dados_defesa()->imunidade_efeitos_fixas();
 }
 
-void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) {
+void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto, TipoTerreno tipo_terreno) {
   const auto& raca_tabelada = tabelas.Raca(proto->raca());
   if (raca_tabelada.has_tamanho()) {
     AtribuiBonus(raca_tabelada.tamanho(), TB_BASE, "base", proto->mutable_bonus_tamanho());
@@ -1736,7 +1746,7 @@ void RecomputaDependenciasRaciais(const Tabelas& tabelas, EntidadeProto* proto) 
         pericia = proto->add_info_pericias();
         pericia->set_id(info_pericia_raca.id());
       }
-      AplicaBonusPenalidadeOuRemove(info_pericia_raca.bonus(), pericia->mutable_bonus());
+      AplicaBonusPenalidadeOuRemove(info_pericia_raca.bonus(), pericia->mutable_bonus(), tipo_terreno);
     }
   }
   if (raca_tabelada.has_movimento()) {
@@ -3754,14 +3764,14 @@ void PreencheCamposVindosDeTesouro(const Tabelas& tabelas, EntidadeProto* proto)
 }  // namespace
 
 void RecomputaDependencias(
-    const Tabelas& tabelas, EntidadeProto* proto,
+    const Tabelas& tabelas, TipoTerreno tipo_terreno, EntidadeProto* proto,
     Entidade* entidade, const MapaEntidades* mapa_entidades) {
   VLOG(2) << "Proto antes RecomputaDependencias: " << proto->ShortDebugString();
   ResetComputados(proto);
   PreencheCamposVindosDeTesouro(tabelas, proto);
   RecomputaComplementosModelos(tabelas, proto);
   RecomputaCriaRemoveDadosAtaque(tabelas, proto);
-  RecomputaDependenciasRaciais(tabelas, proto);
+  RecomputaDependenciasRaciais(tabelas, proto, tipo_terreno);
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto, entidade);

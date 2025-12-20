@@ -14,7 +14,7 @@ typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaEntidade
 
 // Recomputa as dependencias do proto.
 void RecomputaDependencias(
-    const Tabelas& tabelas, EntidadeProto* proto,
+    const Tabelas& tabelas, TipoTerreno tipo_terreno, EntidadeProto* proto,
     Entidade* entidade = nullptr, const MapaEntidades* mapa_entidades = nullptr);
 
 }  // namespace ent

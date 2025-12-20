@@ -15302,7 +15302,10 @@ tabela_racas {
     }
     bonus_pericias { id: 'ouvir' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
     bonus_pericias { id: 'oficios_alquimia' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } } }
-    bonus_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 4 origem: 'racial'} } } }
+    bonus_pericias { id: 'esconderse' bonus { bonus_individual {
+      tipo: TB_RACIAL por_origem { valor: 4 origem: 'racial'} } }
+      tipo: TB_TERRENO por_origem { valor: 4 origem: 'floresta'} } }
+    }
     movimento {
       terrestre_basico_q: 4
     }
@@ -15366,7 +15369,6 @@ tabela_racas {
       }
     }
     # Falta: +1 CD em ataques ilusões
-    #        +4 de esconderse em mata.
     familiaridade_com_arma: 'martelo_gnomo_com_gancho'
     tamanho: TM_PEQUENO
   }

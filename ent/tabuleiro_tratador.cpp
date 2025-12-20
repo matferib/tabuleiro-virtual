@@ -3142,6 +3142,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
         *n->mutable_entidade() = entidade->Proto();
         n->mutable_entidade()->set_tipo_transicao(EntidadeProto::TRANS_CENARIO);
+        n->mutable_tabuleiro()->set_tipo_terreno(TipoTerreno());
         auto* trans = n->mutable_entidade()->mutable_transicao_cenario();
         trans->set_x(x3d);
         trans->set_y(y3d);
@@ -3462,6 +3463,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y, bool forcar) {
       auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
       n->set_modo_mestre(EmModoMestreIncluindoSecundario());
       n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
+      n->mutable_tabuleiro()->set_tipo_terreno(TipoTerreno());
       n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
       central_->AdicionaNotificacao(n.release());
     }
