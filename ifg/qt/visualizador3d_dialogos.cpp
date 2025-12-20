@@ -272,6 +272,14 @@ void PreencheComboCenarioPai(const ent::TabuleiroProto& tabuleiro, QComboBox* co
   ExpandeComboBox(combo);
 }
 
+void PreencheComboTipoTerreno(QComboBox* combo) {
+  for (int tt = ent::TipoTerreno_MIN; tt <= ent::TipoTerreno_MAX; ++tt) {
+    if (!ent::TipoTerreno_IsValid(tt)) continue;
+    combo->addItem(QString::fromUtf8(ent::TipoTerreno_Name(tt).c_str()), QVariant(tt));
+  }
+  ExpandeComboBox(combo);
+}
+
 void PreencheComboCenarios(const ent::TabuleiroProto& tabuleiro, QComboBox* combo) {
   combo->addItem("Novo", QVariant());
   combo->addItem("Principal", QVariant(CENARIO_PRINCIPAL));
@@ -2489,6 +2497,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     gerador.botao_cor_piso->setStyleSheet(CorParaEstilo(cor));
     cor_piso_proto = CorParaProto(cor);
   });
+  // Tipo de terreno.
+
 
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
@@ -2518,6 +2528,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
       return;
     }
   });
+  PreencheComboTipoTerreno(gerador.combo_tipo_terreno);
+  gerador.combo_tipo_terreno->setCurrentIndex(gerador.combo_tipo_terreno->findData(QVariant(static_cast<int>(tab_proto.tipo_terreno()))));
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
@@ -2648,6 +2660,13 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     // Mestre apenas.
     proto_retornado->set_textura_mestre_apenas(
         gerador.checkbox_mestre_apenas->checkState() == Qt::Checked ? true : false);
+
+    // Tipo de terreno.
+    {
+      int indice_tt = gerador.combo_tipo_terreno->currentIndex();
+      ent::TipoTerreno tt = static_cast<ent::TipoTerreno>(gerador.combo_tipo_terreno->itemData(indice_tt).toInt());
+      proto_retornado->set_tipo_terreno(tt);
+    }
 
     VLOG(1) << "Retornando tabuleiro: " << proto_retornado->ShortDebugString();
     dialogo->accept();
