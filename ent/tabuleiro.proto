@@ -153,6 +153,8 @@ message TabuleiroProto {
   }
   map<uint32, InfoTime> times = 32;
   optional float expessura_grade_m = 33 [default=0.1];
+  // Tipo de terreno do tabuleiro.
+  optional TipoTerreno tipo_terreno = 34;
 }
 
 // Para copiar e colar.
