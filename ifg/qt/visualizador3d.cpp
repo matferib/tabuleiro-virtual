@@ -269,7 +269,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       DesativadorWatchdogEscopo dw(tabuleiro_);
       auto* tabuleiro = AbreDialogoCenario(notificacao);
       if (tabuleiro == nullptr) {
-        VLOG(1) << "Alterações de iluminação descartadas";
+        VLOG(1) << "Alterações de tabuleiro descartadas";
         break;
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
