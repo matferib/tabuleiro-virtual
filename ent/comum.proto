@@ -654,6 +654,13 @@ message DadosDefesa {
   optional TipoEvasao evasao_estatica = 26;
 }
 
+// Tipo de terrenos, para bonus condicionais por terreno.
+enum TipoTerreno {
+  TT_NENHUM = 1;
+  TT_SUBTERRANEO = 2;
+  TT_FLORESTA = 3;
+}
+
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
 enum TipoBonus {
   TB_ALQUIMICO = 0;
@@ -693,6 +700,8 @@ enum TipoBonus {
   TB_ARMADURA_NATURAL_MELHORIA = 30;
   TB_PENALIDADE_ARMADURA = 31;
   TB_PENALIDADE_ESCUDO = 32;
+  // Se aplica apenas no terreno correto.
+  TB_TERRENO = 33;
 }
 
 
