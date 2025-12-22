@@ -1,6 +1,4 @@
-Apos atualizar cenario, tem que recomputar dependencias de todas entidade por causa do tipo de terreno.
-
-Bonus raciais por terreno (exemplo: gnomo da floresta na floresta).
+Bonus de ataque por escola de magia. Ver bonus_ataque_por_escola_magia em comum.proto.
 
 Interessante: https://bazel.build/docs/configurable-attributes
 select é a função do Bazel pra selecionar entre plataformas diferentes.
