@@ -34,6 +34,7 @@
 #include "ent/constantes.h"
 #include "ent/controle_virtual.pb.h"
 #include "ent/entidade.h"
+#include "ent/recomputa.h"
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
@@ -2655,12 +2656,31 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ATUALIZAR_TABULEIRO: {
+      auto n_desfazer = NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+      *n_desfazer->mutable_tabuleiro_antes() = *proto_corrente_;
       DeserializaPropriedades(notificacao.tabuleiro());
+      *n_desfazer->mutable_tabuleiro() = *proto_corrente_;
+
       if (notificacao.local()) {
+        // So adicionamos essa notificacao a lista de desfazer pq a inversa chamara todas as atualizações de entidade.
+        AdicionaNotificacaoListaEventos(*n_desfazer);
         // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando
         // infinitamente.
         auto* n_remota = new ntf::Notificacao(notificacao);
         central_->AdicionaNotificacaoRemota(n_remota);
+
+        auto grupo = NovoGrupoNotificacoes();
+        for (const auto& [id, entidade] : TodasEntidades()) {
+          if (entidade->IdCenario() != notificacao.tabuleiro().id_cenario()) continue;
+          auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_ENTIDADE, *entidade, grupo.get());
+          *e_antes = entidade->Proto();
+          *e_depois = entidade->Proto();
+          ent::RecomputaDependencias(tabelas_, notificacao.tabuleiro().tipo_terreno(), e_depois, entidade.get(), &TodasEntidades());
+        }
+        // Manda todas no grupo para não haver problemas com adicionar duas vezes na lista de desfazer.
+        // Nao adiciona a lista de desfazer pelos motivos citados antes das atualizações da entidade.
+        // Essa chamada enviara a atualização remota para os clientes.
+        TrataNotificacao(*grupo);
       }
       return true;
     }
@@ -6561,6 +6581,15 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       }
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
       n_inversa.mutable_entidade()->CopyFrom(n_original.entidade_antes());
+      break;
+    case ntf::TN_ATUALIZAR_TABULEIRO:
+      if (!n_original.has_tabuleiro_antes()) {
+        LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_TABULEIRO sem o proto novo e o proto anterior: "
+          << n_original.ShortDebugString();
+        break;
+      }
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_TABULEIRO);
+      n_inversa.mutable_tabuleiro()->CopyFrom(n_original.tabuleiro_antes());
       break;
     default:
       break;
