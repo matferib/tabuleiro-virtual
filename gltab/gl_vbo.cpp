@@ -935,9 +935,11 @@ void VboGravado::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
     LOG(ERROR) << "matriz de normal vai explodir o buffer unico";
     return;
   }
-  Matrix4 matriz_normal = matriz_modelagem.get();
-  matriz_normal.invert().transpose();
+
+  // Ver comentarios em AtualizaMatrizNormal para explicação.
+  Matrix3 matriz_normal = interno::ExtraiMatrizNormal(interno::BuscaContexto()->pilha_model.top());
   const float* mn = matriz_normal.get();
+
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
   // Aqui é so pra manter o buffer unico sincronizado.
   memcpy(
