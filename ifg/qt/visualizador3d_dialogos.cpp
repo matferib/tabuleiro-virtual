@@ -2534,7 +2534,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   gerador.combo_tipo_terreno->setCurrentIndex(gerador.combo_tipo_terreno->findData(QVariant(static_cast<int>(tab_proto.tipo_terreno()))));
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
-                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, &cor_nevoa_proto, proto_retornado] {
+                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, &cor_nevoa_proto, proto_retornado, kFatorGrade] {
     // Descricao.
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
     // Nevoa.
