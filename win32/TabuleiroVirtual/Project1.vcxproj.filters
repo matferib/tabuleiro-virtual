@@ -46,6 +46,9 @@
     <Filter Include="som\Headers">
       <UniqueIdentifier>{030d42b9-6cd4-48be-9175-2beb7778f945}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ntf\proto">
+      <UniqueIdentifier>{20dd6919-be10-4cfd-b0ad-56707efd9a17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ent\acoes.cpp">
@@ -301,5 +304,10 @@
     <ClInclude Include="..\..\ent\entidade.h">
       <Filter>ent\Headers</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\ntf\notificacao.proto">
+      <Filter>ntf\proto</Filter>
+    </None>
   </ItemGroup>
 </Project>
