@@ -3950,7 +3950,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   float deslocamento_x = -TamanhoX() * TAMANHO_LADO_QUADRADO_2;
   float deslocamento_y = -TamanhoY() * TAMANHO_LADO_QUADRADO_2;
   gl::VbosNaoGravados grade_nao_gravada;
-  const float expessura_linha = opcoes_.expessura_grade_m();
+  const float expessura_linha = proto_corrente_->has_expessura_grade_m() ? proto_corrente_->expessura_grade_m() : opcoes_.expessura_grade_m();
   const float expessura_linha_2 = expessura_linha / 2.0f;
   // Linhas verticais (S-N).
   {
@@ -5481,6 +5481,9 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
     *tabuleiro->mutable_cor_piso() = proto_corrente_->cor_piso();
   }
   tabuleiro->set_tipo_terreno(proto_corrente_->tipo_terreno());
+  if (proto_corrente_->has_expessura_grade_m()) {
+    tabuleiro->set_expessura_grade_m(proto_corrente_->expessura_grade_m());
+  }
   return notificacao;
 }
 
@@ -5613,6 +5616,11 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->set_aplicar_luz_ambiente_textura_ceu(novo_proto.aplicar_luz_ambiente_textura_ceu());
   }
   proto_a_atualizar->set_tipo_terreno(novo_proto.tipo_terreno());
+  if (novo_proto.has_expessura_grade_m()) {
+    proto_a_atualizar->set_expessura_grade_m(novo_proto.expessura_grade_m());
+  } else {
+    proto_a_atualizar->clear_expessura_grade_m();
+  }
 
   AtualizaPisoCeuCenario(novo_proto);
   CorrigeTopologiaAposMudancaTamanho(
