@@ -131,6 +131,7 @@ sub_menu {
     modelos { id: 'Leão Atroz' }
   }
   item_menu { id: 'Halfling Ladino 3' }
+  item_menu { id: 'Halfling Clérigo 3' }
 }
 sub_menu {
   id: 'Armas de Cerco'

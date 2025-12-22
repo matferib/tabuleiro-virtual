@@ -8586,6 +8586,103 @@ modelo {
   }
 }
 modelo {
+  id: 'Halfling Clérigo 3'
+  entidade {
+    dados_vida: '3d8+3' raca: 'halfling'
+    info_classes { id: 'clerigo' nivel: 3 }
+    dados_defesa {
+      id_armadura: 'armadura_batalha'
+      id_escudo: 'pesado_aco'
+    }
+    lista_acoes: "Ataque Corpo a Corpo"
+    dados_ataque {
+      tipo_ataque: "Ataque Corpo a Corpo"
+      rotulo: "maca_estrela"
+      empunhadura: EA_ARMA_ESCUDO
+      id_arma: "maca_estrela"
+      grupo: "cac"
+    }
+    dados_ataque {
+      tipo_ataque: "Ataque a Distância"
+      rotulo: "funda"
+      obra_prima: true
+      empunhadura: EA_ARMA_ESCUDO
+      id_arma: "funda"
+      grupo: "distancia"
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+    }
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'funda' }
+    }
+    # 2 pericias com 6 pontos.
+    info_pericias { id: 'concentracao' pontos: 5 }
+    info_pericias { id: 'cura' pontos: 3 }
+    info_pericias { id: 'identificar_magia' pontos: 3 }
+    info_pericias { id: 'conhecimento_religiao' pontos: 1 }
+    tesouro {
+      armas { id: 'maca_estrela' id_tabela: 'maca_estrela' }
+      armas { id: 'funda' id_tabela: 'funda' obra_prima: true }
+      municoes { id: 'pedra' nome: 'pedra' quantidade: 20 }
+      armaduras { id: 'couro batido' id_tabela: 'couro_batido' obra_prima: true }
+      escudos { id: 'broquel' id_tabela: 'broquel' obra_prima: true }
+      moedas { po: 150 }
+      pocoes { id: 'invisibilidade_contra_animais' }
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'protecao_contra_mal' } # 25
+      pergaminhos_divinos { id: 'protecao_contra_caos' } # 25
+      pergaminhos_divinos { id: 'pedra_encantada' } # 25
+      pergaminhos_divinos { id: 'pedra_encantada' } # 25
+      pergaminhos_divinos { id: 'pedra_encantada' } # 25
+      pergaminhos_divinos { id: 'santuario' } # 25
+      pergaminhos_divinos { id: 'forca_touro' } # 150
+      pergaminhos_divinos { id: 'forca_touro' } # 150
+    }
+    feiticos_classes {
+      # Yondalla.
+      id_classe: 'clerigo'
+      dominios: 'bem'
+      dominios: 'protecao'
+      mapa_feiticos_por_nivel {
+        key: 0
+        value {
+          conhecidos { id: 'orientacao' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+        }
+      }
+      mapa_feiticos_por_nivel {
+        key: 1
+        value {
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+        }
+      }
+      mapa_feiticos_por_nivel {
+        key: 2
+        value {
+          conhecidos { id: 'sabedoria_coruja' }
+          conhecidos { id: 'forca_touro' }
+          conhecidos { id: 'auto' }
+        }
+      }
+    }
+  }
+}
+modelo {
   id: 'Halfling Ladino 3'
   entidade {
     dados_vida: '3d6+3' raca: 'halfling'
