@@ -67,7 +67,7 @@ void CentralNotificacoes::AdicionaNotificacaoRemota(Notificacao* notificacao) {
   }
   VLOG(3) << "Adicionando notificacao remota: " << notificacao->ShortDebugString();
   if (notificacao->tipo() == TN_GRUPO_NOTIFICACOES) {
-    LOG(ERROR) << "Nao se deve adicionar GRUPO a notificacoes da central.";
+    LOG(ERROR) << "Nao se deve adicionar GRUPO a notificacoes remotas da central.";
   }
   notificacoes_remotas_.push_back(std::unique_ptr<ntf::Notificacao>(notificacao));
 }
