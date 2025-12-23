@@ -57,15 +57,15 @@ debug = ARGUMENTS.get('debug', '1')
 print('Usando debug: %r' % debug)
 if sistema == 'win32':
   env['CPPPATH'] += ['./', 'win32/include']
-  env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'WIN32_LEAN_AND_MEAN': 1, 'WIN32': 1, '_WINDOWS': 1, '_CRT_SECURE_NO_WARNINGS': 1, '_WIN32_WINNT': 0x0601, 'WINVER': 0x0601, 'QT_STATIC_BUILD': 1 }
+  env['CPPDEFINES'] = {'USAR_GLOG': 0, 'WIN32_LEAN_AND_MEAN': 1, 'WIN32': 1, '_WINDOWS': 1, '_CRT_SECURE_NO_WARNINGS': 1, '_WIN32_WINNT': 0x0601, 'WINVER': 0x0601, 'QT_STATIC_BUILD': 1 }
   env['CXXFLAGS'] = ['-std=c++11', '-Wall', '-Wfatal-errors']
   env['LIBS'] += ['glu32', 'opengl32', 'protobuf', 'boost_filesystem-mgw48-mt-1_55', 'boost_system-mgw48-mt-1_55', 'boost_timer-mgw48-mt-1_55', 'boost_chrono-mgw48-mt-1_55', 'boost_date_time-mgw48-mt-1_55', 'ws2_32', 'Mswsock', 'Gdi32', 'Winmm', 'ole32', 'Oleacc', 'OleAut32', 'libuuid', 'Comdlg32', 'imm32', 'Winspool']
   env['LIBPATH'] += [ 'win32/lib' ]
   env['LINKFLAGS'] = ['-Wl,--subsystem,windows']
 elif sistema == 'apple':
   env['CPPPATH'] = ['./', '/usr/local/include'] + env['QT5_CPPPATH'] + ['/opt/homebrew/include']
-  env['CPPDEFINES'] = {'USAR_GLOG': 1, 'USAR_GFLAGS': 0, "_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR": 1 }
-  #env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0}
+  env['CPPDEFINES'] = {'USAR_GLOG': 1, "_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR": 1 }
+  #env['CPPDEFINES'] = {'USAR_GLOG': 0 }
   env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-stdlib=libc++', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
   #env['CXXFLAGS'] += ['-Wall', '-std=c++17', '-stdlib=libstdc++', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-Wno-unused-local-typedef', '-Wfatal-errors', '-Wno-unused-lambda-capture']
   env['LIBPATH'] = [ '/usr/local/lib', '/opt/homebrew/lib' ]
@@ -74,7 +74,7 @@ elif sistema == 'apple':
 else:
   # linux.
   env['CPPPATH'] += ['./', '../libs/tbb/include'] + env['QT_CPPPATH']
-  env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
+  env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++17', '-Wfatal-errors', '-fPIC']
   env['LIBPATH'] += [ '../libs/tbb/build/linux_intel64_gcc_cc9.3.0_libc2.31_kernel5.4.0_release/' ]
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_timer', 'boost_chrono', 'boost_filesystem', 'boost_system', 'boost_date_time', 'pthread', 'tbb']
