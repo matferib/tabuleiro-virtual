@@ -9702,17 +9702,17 @@ modelo {
       # 0 nivel: 9 PO cada;
       pergaminhos_arcanos { id: 'toque_fadiga' }
       pergaminhos_arcanos { id: 'toque_fadiga' }
-      pergaminhos_arcanos { id: 'toque_fadiga' }
+      pergaminhos_arcanos { id: 'raio_gelo' }
       # 1 nivel: 17 para o que sabe, 25 pro resto.
-      pergaminhos_arcanos { id: 'causar_medo' }
-      pergaminhos_arcanos { id: 'causar_medo' }
+      pergaminhos_arcanos { id: 'invocar_criaturas_i' }
+      pergaminhos_arcanos { id: 'invocar_criaturas_i' }
       pergaminhos_arcanos { id: 'leque_cromatico' }
       pergaminhos_arcanos { id: 'leque_cromatico' }
       pergaminhos_arcanos { id: 'raio_enfraquecimento' }
       pergaminhos_arcanos { id: 'raio_enfraquecimento' }
       pergaminhos_arcanos { id: 'escudo_arcano' }  # 25
-      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
-      pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
+      pergaminhos_arcanos { id: 'misseis_magicos' }  # 25
+      pergaminhos_arcanos { id: 'misseis_magicos' }  # 25
       pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
       # 2 nivel: 105 para o que sabe, 150 pro resto.
       pergaminhos_arcanos { id: 'aterrorizar' }
@@ -9728,13 +9728,13 @@ modelo {
     feiticos_classes {
       id_classe: 'mago'
       especializacao: 'ilusao'
-      escolas_proibidas: 'conjuracao'
-      escolas_proibidas: 'evocacao'
+      escolas_proibidas: 'transmutacao'
+      escolas_proibidas: 'encantamento'
       feiticos_por_nivel_deprecated {
         # Grimorio tem todas de 0 (exceto proibidas), 7 de primeiro, 2 de segundo.
         # 4+1
         nivel: 0
-        conhecidos { id: 'pasmar' }
+        conhecidos { id: 'raio_acido' }
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'toque_fadiga' }
@@ -9753,7 +9753,7 @@ modelo {
         conhecidos { id: 'raio_enfraquecimento' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'imagem_silenciosa' }
-        conhecidos { id: 'causar_medo' }
+        conhecidos { id: 'misseis_magicos' }
         para_lancar { nivel_conhecido: 1 restrito: true }
         para_lancar { nivel_conhecido: 1 }
         para_lancar { nivel_conhecido: 1 }
@@ -9764,7 +9764,7 @@ modelo {
         nivel: 2
         conhecidos { id: 'aterrorizar' }
         conhecidos { id: 'padrao_hipnotico' }
-        conhecidos { id: 'auto' }
+        conhecidos { id: 'flecha_acida' }
         para_lancar { nivel_conhecido: 2 restrito: true }
         para_lancar { nivel_conhecido: 2 }
       }
