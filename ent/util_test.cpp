@@ -156,16 +156,22 @@ TEST(TesteItemMagico, TesteItemMagicoContinuo) {
   ASSERT_TRUE(proto.evento().empty());
 }
 
-TEST(TesteAtaqueVsDefesa, TesteAcuidadeArmaDuplaMaoRuim) {
+TEST(TesteAtaqueVsDefesa, TesteGnomaRangerDuasArmas3) {
   auto gnoma = NovaEntidadeParaTestes(TabelasCriando().ModeloEntidade("Gnoma Ranger (Duas Armas) 3").entidade(), TabelasCriando());
   // Copia.
   ent::EntidadeProto proto = gnoma->Proto();
   RecomputaDependencias(TabelasCriando(), TT_NENHUM, &proto);
   ASSERT_GE(proto.dados_ataque().size(), 3);
+  // Martelo gnomo com gancho.
   // 3 base, 1 tamanho, 1 obraprima, -2 empunhadura com talento.
-  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 3);
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo gnomo com gancho", proto, 0).bonus_ataque_final(), 3);
   // 3 base, 1 tamanho, 1 obraprima, -2 empunhadura com talento, 2 destreza por acuidade.
-  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 5);
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo gnomo com gancho", proto, 1).bonus_ataque_final(), 5);
+  // Arco curto: 3 base, 1 tamanho, 1 obra prima, 2 destreza.
+  const auto& darco = DadosAtaquePorGrupo("arco curto", proto, 0);
+  EXPECT_EQ(darco.bonus_ataque_final(), 7);
+  EXPECT_GT(darco.alcance_m(), 0);
+
   // Verificar: CA vs gigante +4.
 }
 
