@@ -5,6 +5,7 @@
 #if USAR_GLOG
 
 #include "absl/flags/parse.h"
+#include "absl/log/globals.h"
 #include "absl/log/initialize.h"
 #include "absl/log/log.h"
 
@@ -79,8 +80,8 @@ namespace meulog {
 
 inline void Inicializa(int* argc, char*** argv) {
 #if USAR_GLOG
-  absl::InitializeLog();
   absl::ParseCommandLine(*argc, *argv);
+  absl::InitializeLog();
 #endif
 }
 
