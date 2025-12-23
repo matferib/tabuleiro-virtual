@@ -7,9 +7,6 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
-#if USAR_GFLAGS
-#include <gflags/gflags.h>
-#endif
 
 #include <QtCore/QDir>
 #include <QtCore/QLocale>
@@ -34,11 +31,6 @@
 #include "log/log.h"
 #include "som/som.h"
 #include "tex/texturas.h"
-
-#if USAR_GFLAGS
-DEFINE_bool(iluminacao_por_pixel, true, "Se verdadeiro, usa luz por pixel (caro mas melhor).");
-DEFINE_string(tabuleiro, "", "Se nao vazio, carrega o tabuleiro passado ao iniciar.");
-#endif
 
 using namespace std;
 
@@ -69,11 +61,7 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
     LOG(INFO) << "Carregando opcoes padroes.";
   }
   if (!proto->has_iluminacao_por_pixel()) {
-#if USAR_GFLAGS
-    proto->set_iluminacao_por_pixel(FLAGS_iluminacao_por_pixel);
-#else
     proto->set_iluminacao_por_pixel(true);
-#endif
   }
   LOG(INFO) << "Opcoes inciais: " << proto->ShortDebugString();
 }
@@ -116,9 +104,6 @@ int main(int argc, char** argv) {
 #if USAR_GLOG
   meulog::Inicializa(&argc, &argv);
 #endif
-#if USAR_GFLAGS
-  google::ParseCommandLineFlags(&argc, &argv, true);
-#endif
 
   //MyApp q_app(argc, argv);
   QSurfaceFormat::setDefaultFormat(Formato());
@@ -155,21 +140,12 @@ int main(int argc, char** argv) {
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &modelos3d, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(tabelas, p.get(), &teclado_mouse, &tabuleiro, &central);
-#if USAR_GFLAGS
-  if (!FLAGS_tabuleiro.empty()) {
-    // Carrega o tabuleiro.
-    auto n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-    n->set_endereco(std::string("://") + FLAGS_tabuleiro);
-    central.AdicionaNotificacao(n.release());
-  }
-#else
   if (argc >= 2 && argv[1][0] != '-') {
     // Carrega o tabuleiro.
     auto n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
     n->set_endereco(std::string("://") + argv[1]);
     central.AdicionaNotificacao(n.release());
   }
-#endif
   // As vezes o carregamento falha por diretorios errados. Conferir se tabela carregou (pois nao da erro apos construcao).
   if (tabelas.todas().tabela_classes().info_classes().empty()) {
     central.AdicionaNotificacao(ntf::NovaNotificacaoErro(
