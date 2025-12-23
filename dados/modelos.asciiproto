@@ -9706,13 +9706,13 @@ modelo {
       # 1 nivel: 17 para o que sabe, 25 pro resto.
       pergaminhos_arcanos { id: 'invocar_criaturas_i' }
       pergaminhos_arcanos { id: 'invocar_criaturas_i' }
-      pergaminhos_arcanos { id: 'leque_cromatico' }
-      pergaminhos_arcanos { id: 'leque_cromatico' }
+      pergaminhos_arcanos { id: 'romper_morto_vivo' }
+      pergaminhos_arcanos { id: 'romper_morto_vivo' }
       pergaminhos_arcanos { id: 'raio_enfraquecimento' }
       pergaminhos_arcanos { id: 'raio_enfraquecimento' }
       pergaminhos_arcanos { id: 'escudo_arcano' }  # 25
-      pergaminhos_arcanos { id: 'misseis_magicos' }  # 25
-      pergaminhos_arcanos { id: 'misseis_magicos' }  # 25
+      pergaminhos_arcanos { id: 'missil_magico' }  # 25
+      pergaminhos_arcanos { id: 'missil_magico' }  # 25
       pergaminhos_arcanos { id: 'ataque_certeiro' }  # 25
       # 2 nivel: 105 para o que sabe, 150 pro resto.
       pergaminhos_arcanos { id: 'aterrorizar' }
@@ -9734,39 +9734,39 @@ modelo {
         # Grimorio tem todas de 0 (exceto proibidas), 7 de primeiro, 2 de segundo.
         # 4+1
         nivel: 0
+        conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'raio_acido' }
         conhecidos { id: 'detectar_magia' }
         conhecidos { id: 'detectar_venenos' }
         conhecidos { id: 'toque_fadiga' }
-        conhecidos { id: 'som_fantasma' }
         conhecidos { id: 'ler_magias' }
-        para_lancar { nivel_conhecido: 0 restrito: true }
-        para_lancar { nivel_conhecido: 0 }
-        para_lancar { nivel_conhecido: 0 }
-        para_lancar { nivel_conhecido: 0 }
-        para_lancar { nivel_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 restrito: true indice_conhecido: 0 }
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 1}
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 2}
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 3}
+        para_lancar { nivel_conhecido: 0 indice_conhecido: 4}
       }
       feiticos_por_nivel_deprecated {
         # 3+1
         nivel: 1
         conhecidos { id: 'leque_cromatico' }
+        conhecidos { id: 'missil_magico' }
         conhecidos { id: 'raio_enfraquecimento' }
         conhecidos { id: 'armadura_arcana' }
         conhecidos { id: 'imagem_silenciosa' }
-        conhecidos { id: 'misseis_magicos' }
-        para_lancar { nivel_conhecido: 1 restrito: true }
-        para_lancar { nivel_conhecido: 1 }
-        para_lancar { nivel_conhecido: 1 }
-        para_lancar { nivel_conhecido: 1 }
+        para_lancar { nivel_conhecido: 1 restrito: true indice_conhecido: 0}
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 1}
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 2}
+        para_lancar { nivel_conhecido: 1 indice_conhecido: 3}
       }
       feiticos_por_nivel_deprecated {
         # 1+1
         nivel: 2
-        conhecidos { id: 'aterrorizar' }
         conhecidos { id: 'padrao_hipnotico' }
         conhecidos { id: 'flecha_acida' }
-        para_lancar { nivel_conhecido: 2 restrito: true }
-        para_lancar { nivel_conhecido: 2 }
+        conhecidos { id: 'aterrorizar' }
+        para_lancar { nivel_conhecido: 2 restrito: true indice_conhecido: 0}
+        para_lancar { nivel_conhecido: 2 indice_conhecido: 1}
       }
     }
   }
@@ -11907,6 +11907,9 @@ modelo {
     dados_vida: '3d8+6' info_textura { id: 'black_bear.png' } cor { r: 0.2 g: 0.2 b: 0.2 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     tendencia { simples: TD_NEUTRO }
+    movimento {
+      terrestre_basico_q: 8
+    }
     info_classes {
       id: 'animal' nivel: 3
       pericias_monstro: 'ouvir'
