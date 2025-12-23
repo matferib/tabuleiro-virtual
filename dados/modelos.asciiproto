@@ -9513,7 +9513,8 @@ modelo {
       rotulo: "arco curto"
       obra_prima: true
       empunhadura: EA_ARMA_APENAS
-      id_arma: "equipamento:arco curto pequeno"
+      id_arma_tesouro: "arco curto pequeno"
+      grupo: 'arco curto'
     }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
