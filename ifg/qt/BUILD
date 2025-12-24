@@ -38,6 +38,7 @@ qt_cc_library(
     "@platforms//os:osx": ["USAR_QT5=1"],
     "//conditions:default": ["USAR_QT5=0"],
   }),
+  copts = ["-Wno-deprecated-declarations"],
   deps = [
     "@abseil-cpp//absl/strings",
     "@abseil-cpp//absl/strings:str_format",
