@@ -5,6 +5,7 @@
 #include <QtGui/QOpenGLContext>
 #if USAR_QT5
 #include <QtGui/QOpenGLFramebufferObject>
+#include <QtGui/QTouchEvent>
 #include <QtWidgets/QOpenGLWidget>
 #else
 #include <QtOpenGL/QOpenGLFramebufferObject>
@@ -82,6 +83,7 @@ class Visualizador3d :
   bool event(QEvent *event) override;
   // https://stackoverflow.com/questions/34010085/qt-gesture-grabbing-only-pinch-works-reliably
   bool gestureEvent(QGestureEvent* event);
+  bool touchEvent(QTouchEvent* event);
 
   // Interface ntf::Receptor.
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -122,6 +124,8 @@ class Visualizador3d :
   boost::timer::cpu_timer timer_;
   int skip_ = 0;
   bool processando_gesto_ = false;
+  bool dois_ou_mais_dedos_ = false;
+  quint64 tap_timestamp_ = 0;
 };
 
 }  // namespace qt

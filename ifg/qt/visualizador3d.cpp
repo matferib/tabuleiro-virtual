@@ -108,7 +108,15 @@ Visualizador3d::Visualizador3d(
   std::cerr << "logy: " << QGuiApplication::primaryScreen()->logicalDotsPerInchY() << std::endl;
   //std::cerr << "screen: " << *QGuiApplication::primaryScreen();
 
-  grabGesture(Qt::PinchGesture, /*flags=*/static_cast<Qt::GestureFlag>(0));
+  // Infelizmente, o tratamento nativo de gestos é muito ruim, então desabilitei tudo
+  // e trato os gestos de toque de forma crua.
+  //grabGesture(Qt::PinchGesture, /*flags=*/static_cast<Qt::GestureFlag>(Qt::ReceivePartialGestures));
+  //grabGesture(Qt::TapAndHoldGesture, /*flags=*/static_cast<Qt::GestureFlag>(Qt::ReceivePartialGestures));
+  //grabGesture(Qt::SwipeGesture, /*flags=*/static_cast<Qt::GestureFlag>(Qt::ReceivePartialGestures));
+  ungrabGesture(Qt::PinchGesture);
+  ungrabGesture(Qt::TapAndHoldGesture);
+  ungrabGesture(Qt::SwipeGesture);
+  setAttribute(Qt::WA_AcceptTouchEvents, true);
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -400,20 +408,149 @@ void Visualizador3d::wheelEvent(QWheelEvent* event) {
   LiberaContexto();
 }
 
+// Infelizmente, nao funciona bem... então não é chamado.
 bool Visualizador3d::gestureEvent(QGestureEvent* event) {
+  PegaContexto();
+  qDebug() << "gesture: " << event;
   if (auto *pinch = static_cast<QPinchGesture*>(event->gesture(Qt::PinchGesture)); pinch != nullptr) {
     if (pinch->state() == Qt::GestureStarted) {
       processando_gesto_ = true;
+      pinch->setGestureCancelPolicy(QGesture::CancelAllInContext);
       //auto centro = pinch->centerPoint();
       //teclado_mouse_->TrataInicioPinca(centro.x(), centro.y(), centro.x(), centro.y());
+      VLOG(1) << "gestureEvent started";
     } else if (pinch->state() == Qt::GestureFinished) {
       processando_gesto_ = false;
+      VLOG(1) << "gestureEvent finished";
     } else {
       teclado_mouse_->TrataPincaEscala(pinch->scaleFactor());
       teclado_mouse_->TrataRotacaoPorDeltaRad((pinch->rotationAngle() - pinch->lastRotationAngle()) * GRAUS_PARA_RAD);
+      VLOG(1) << "gestureEvent escala e delta";
     }
   }
   event->accept();
+  LiberaContexto();
+  return true;
+}
+
+namespace {
+//--------
+// Rotacao
+//--------
+QPointF Media(const QTouchEvent& toque) {
+  QPointF media;
+  for (const auto& point : toque.points()) {
+    media += point.position();
+  }
+  media /= toque.pointCount();
+  return media;
+}
+
+QPointF MediaUltimo(const QTouchEvent& toque) {
+  QPointF media;
+  for (const auto& point : toque.points()) {
+    media += point.lastPosition();
+  }
+  media /= toque.pointCount();
+  return media;
+}
+
+
+// Se o angulo foir maior que 180 (ou seja, y negativo), corrige
+// pq acosf so considera os quadrantes positivos.
+float Acosf(const Vector2& v) {
+  float acosfx = acosf(v.x);
+  if (v.y < 0.0f) {
+    return 2.0f * M_PI - acosfx;
+  }
+  return acosfx;
+}
+
+// A rotacao usa o ponto medio como referencia mas apenas um ponto
+// para ver o quanto rodou (como se todos dedos rodassem ao redor da media).
+float FatorRotacaoRadPinca(QTouchEvent& event) {
+  QPointF media = Media(event);
+  Vector2 m(media.x(), media.y());
+  QPointF corrente = event.point(0).position() - media;
+  Vector2 c(corrente.x(), corrente.y());
+  c.normalize();
+  QPointF media_ultimo = MediaUltimo(event);
+  QPointF ultimo = event.point(0).lastPosition() - media_ultimo;
+  Vector2 u(ultimo.x(), ultimo.y());
+  u.normalize();
+  return Acosf(c) - Acosf(u);
+}
+
+//-------
+// Escala
+//-------
+float DistanciaPontos(const QPointF& p1, const QPointF& p2) {
+  return sqrt(powf(p1.x() - p2.x(), 2.0f) + powf(p1.y() - p2.y(), 2.0f));
+}
+
+// A funco point é nao const sei la porque...
+float FatorEscalaPinca(QTouchEvent& event) {
+  return DistanciaPontos(event.point(0).position(), event.point(1).position()) /
+         DistanciaPontos(event.point(0).lastPosition(), event.point(1).lastPosition());
+}
+
+const quint64 kIntervaloMaximoDuploCliqueMs = 500;
+
+}  // namespace
+
+// Tratamento de toques nativos.
+bool Visualizador3d::touchEvent(QTouchEvent* event) {
+  PegaContexto();
+  if (!processando_gesto_) {
+    if (event->pointCount() == 1) {
+      VLOG(1) << "single touch started";
+      if ((event->timestamp() - tap_timestamp_) > kIntervaloMaximoDuploCliqueMs) {
+        teclado_mouse_->TrataBotaoMousePressionado(Botao_Esquerdo, /*modificadores=*/0,
+                                                   XPara3d(event->point(0).position().x()),
+                                                   YPara3d(height() - event->point(0).position().y()));
+      } else {
+        teclado_mouse_->TrataDuploCliqueMouse(Botao_Esquerdo, /*modificadores=*/0,
+                                              XPara3d(event->point(0).position().x()),
+                                              YPara3d(height() - event->point(0).position().y()));
+      }
+      dois_ou_mais_dedos_ = false;
+      tap_timestamp_ = event->timestamp();
+    } else if (event->pointCount() > 1) {
+      VLOG(1) << "double touch started";
+      teclado_mouse_->TrataInicioPinca(XPara3d(event->point(0).position().x()), YPara3d(height() - event->point(0).position().y()),
+                                       XPara3d(event->point(1).position().x()), YPara3d(height() - event->point(1).position().y()));
+      QPointF media = Media(*event);
+      teclado_mouse_->TrataBotaoMousePressionado(Botao_Direito, /*modificadores=*/0, XPara3d(media.x()), YPara3d(height() - media.y()));
+      dois_ou_mais_dedos_ = true;
+    }
+    processando_gesto_ = true;
+  } else if (!dois_ou_mais_dedos_ && event->pointCount() > 1) {
+    VLOG(1) << "touch changed";
+    teclado_mouse_->TrataBotaoMouseLiberado();
+    teclado_mouse_->TrataInicioPinca(XPara3d(event->point(0).position().x()), YPara3d(height() - event->point(0).position().y()),
+                                     XPara3d(event->point(1).position().x()), YPara3d(height() - event->point(1).position().y()));
+    QPointF media = Media(*event);
+    teclado_mouse_->TrataBotaoMousePressionado(Botao_Direito, /*modificadores=*/0, XPara3d(media.x()), YPara3d(height() - media.y()));
+    dois_ou_mais_dedos_ = true;
+  } else if ((dois_ou_mais_dedos_ && event->pointCount() <= 1) ||
+             event->pointCount() <= 0 ||
+             event->type() == QEvent::TouchEnd) {
+    VLOG(1) << "touch finished";
+    teclado_mouse_->TrataBotaoMouseLiberado();
+    processando_gesto_ = false;
+  } else {
+    VLOG(2) << "touch updated";
+    if (dois_ou_mais_dedos_) {
+      teclado_mouse_->TrataPincaEscala(FatorEscalaPinca(*event));
+      teclado_mouse_->TrataRotacaoPorDeltaRad(FatorRotacaoRadPinca(*event));
+    }
+    QPointF media = Media(*event);
+    teclado_mouse_->TrataMovimentoMouse(XPara3d(media.x()), YPara3d(height() - media.y()));
+  }
+  //qDebug() << "touch: " << event;
+
+  event->accept();
+  LiberaContexto();
   return true;
 }
 
@@ -421,9 +558,9 @@ bool Visualizador3d::event(QEvent* event) {
   if (event->type() == QEvent::Gesture) {
     return gestureEvent(static_cast<QGestureEvent*>(event));
   }
-  //if (processando_gesto_) {
-  //  return false;
-  //}
+  if (event->type() == QEvent::TouchBegin || event->type() == QEvent::TouchUpdate || event->type() == QEvent::TouchEnd) {
+    return touchEvent(static_cast<QTouchEvent*>(event));
+  }
   return QOpenGLWidget::event(event);
 }
 
