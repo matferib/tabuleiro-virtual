@@ -324,7 +324,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeScale(JNIEnv* env, jobj
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRotation(JNIEnv* env, jobject thiz, jfloat rad) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeScale: %f", s);
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeRotation: %f", s);
   g_tabuleiro->TrataRotacaoPorDelta(rad);
 }
 
