@@ -633,7 +633,7 @@ class Tabuleiro : public ntf::Receptor {
 
   int IdCenario() const { return proto_corrente_->id_cenario(); }
 
-  TipoTerreno TipoTerreno() const { return proto_corrente_->tipo_terreno(); }
+  ent::TipoTerreno TipoTerreno() const { return proto_corrente_->tipo_terreno(); }
 
   /** Retorna o nivel do solo na coordenada ou zero se nao for valida. */
   float ZChao(float x, float y) const;
