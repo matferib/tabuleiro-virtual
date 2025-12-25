@@ -190,6 +190,7 @@ cc_test(
     srcs = ["ent_test.cpp"],
     deps = [
         ":ent",
+        "//som:som_dummy",  # para nao linkaer QT.
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
@@ -211,6 +212,7 @@ cc_test(
     srcs = ["acoes_test.cpp"],
     deps = [
         ":ent",
+        "//som:som_dummy",  # para nao linkar QT.
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
@@ -232,6 +234,7 @@ cc_test(
     srcs = ["util_test.cpp"],
     deps = [
         ":ent",
+        "//som:som_dummy",  # para nao linkar QT.
         "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],

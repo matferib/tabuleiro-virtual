@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NSPrincipalClass</key>
+  <string>NSApplication</string>
+
+  <key>CFBundleName</key>
+  <string>TabuleiroVirtual</string>
+
+  <key>CFBundleDisplayName</key>
+  <string>Tabuleiro Virtual</string>
+
+  <key>CFBundleIdentifier</key>
+  <string>com.matferib.TabuleiroVirtual</string>
+
+  <key>CFBundleVersion</key>
+  <string>3.2.2</string>
+
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+
+  <key>CFBundleExecutable</key>
+  <string>tabvirt</string>
+
+  <key>CFBundleIconFile</key>
+  <string>iconfile.icns</string>
+</dict>
+</plist>

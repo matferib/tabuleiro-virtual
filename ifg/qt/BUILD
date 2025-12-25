@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//:qt.bzl", "qt_cc_library", "qt_ui_library")
+load("//:qt.bzl", "qt_cc_library")
 
 qt_cc_library(
   name = "ifg_qt",
@@ -15,6 +15,7 @@ qt_cc_library(
     "util.cpp",
     "visualizador3d.cpp",
     "visualizador3d_dialogos.cpp",
+    "som_qt.cpp"
   ],
   normal_hdrs = [],
   hdrs = [
@@ -35,15 +36,15 @@ qt_cc_library(
     "visualizador3d.h",
   ],
   defines = select({
-    "@platforms//os:osx": ["USAR_QT5=1"],
+    "@platforms//os:osx": ["USAR_QT5=0"],
     "//conditions:default": ["USAR_QT5=0"],
   }),
-  copts = ["-Wno-deprecated-declarations"],
   deps = [
     "@abseil-cpp//absl/strings",
     "@abseil-cpp//absl/strings:str_format",
     "@qt//:qt_core",
     "@qt//:qt_gui",
+    "@qt//:qt_multimedia",
     "@qt//:qt_opengl",
     "@qt//:qt_openglwidgets",
     "@qt//:qt_widgets",
@@ -54,6 +55,7 @@ qt_cc_library(
     "//log:log",
     "//m3d:m3d",
     "//net:net",
+    "//som:som",
     "//tex:tex",
   ]
 )
