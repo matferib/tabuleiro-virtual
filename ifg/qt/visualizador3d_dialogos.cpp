@@ -53,6 +53,9 @@ namespace ifg {
 namespace qt {
 namespace {
 
+// Usado para controlar a expessura da grade. Valor empiricamente achado.
+const float kFatorGrade = 30;
+
 using namespace std;
 using google::protobuf::RepeatedPtrField;
 
@@ -2384,7 +2387,6 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoEntidade(
 // para nao se perder outras coisas importantes do cenario.
 ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     const ntf::Notificacao& notificacao) {
-  const float kFatorGrade = 30;
   auto* proto_retornado = new ent::TabuleiroProto;
   proto_retornado->set_id_cenario(notificacao.tabuleiro().id_cenario());
   ifg::qt::Ui::DialogoIluminacao gerador;
@@ -2783,6 +2785,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
       opcoes_proto.anti_aliasing() ? Qt::Checked : Qt::Unchecked);
   // grade.
   gerador.checkbox_grade->setCheckState(opcoes_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
+  //gerador.slider_grade->setValue(static_cast<int>(opcoes_proto.expessura_grade_m() * kFatorGrade));
   // Controle virtual.
   gerador.checkbox_controle->setCheckState(opcoes_proto.desenha_controle_virtual() ? Qt::Checked : Qt::Unchecked);
   // Mapeamento de sombras.
@@ -2834,6 +2837,9 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     proto_retornado->set_anti_aliasing(gerador.checkbox_anti_aliasing->checkState() == Qt::Checked);
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
+    if (proto_retornado->desenha_grade()) {
+      //proto_retornado->set_expessura_grade_m(gerador.slider_grade->value() / kFatorGrade);
+    }
     proto_retornado->set_desenha_controle_virtual(
         gerador.checkbox_controle->checkState() == Qt::Checked ? true : false);
    proto_retornado->set_mapeamento_sombras(
