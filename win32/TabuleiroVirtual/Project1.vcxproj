@@ -394,39 +394,40 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)..\;$(QTDIR)\msvc2019_64\include;$(QTDIR)\msvc2019_64\include\QtOpenGL;$(QTDIR)\msvc2019_64\include\QtCore;$(QTDIR)\msvc2019_64\include\QtWidgets;$(QTDIR)\msvc2019_64\include\QtMultimedia;$(QTDIR)\msvc2019_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=1;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;_HAS_AUTO_PTR_ETC=1;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING=1;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)..\;$(QTDIR)\msvc2022_64\include;$(QTDIR)\msvc2022_64\include\QtOpenGL;$(QTDIR)\msvc2022_64\include\QtCore;$(QTDIR)\msvc2022_64\include\QtWidgets;$(QTDIR)\msvc2022_64\include\QtMultimedia;$(QTDIR)\msvc2022_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=0;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;_HAS_AUTO_PTR_ETC=1;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING=1;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <DisableSpecificWarnings>4996;4251;4267</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Qt5Widgets.lib;Qt5Opengl.lib;Qt5Gui.lib;Qt5Core.lib;Qt5Multimedia.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;$(QTDIR)\msvc2019_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Qt6Widgets.lib;Qt6Opengl.lib;Qt6OpenglWidgets.lib;Qt6Gui.lib;Qt6Core.lib;Qt6Multimedia.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;$(QTDIR)\msvc2022_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PreBuildEvent>
       <Command>$(SolutionDir)vcpkg_installed\x64-windows\tools\protobuf\protoc.exe  -I$(SolutionDir).. --cpp_out=$(SolutionDir).. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
-$(QTDIR)\msvc2019_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\entidade.ui -o $(SolutionDir)..\ifg\qt\ui\entidade.h
-$(QTDIR)\msvc2019_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\opcoes.ui -o $(SolutionDir)..\ifg\qt\ui\opcoes.h
-$(QTDIR)\msvc2019_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\cenario.ui -o $(SolutionDir)..\ifg\qt\ui\cenario.h
-$(QTDIR)\msvc2019_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\forma.ui -o $(SolutionDir)..\ifg\qt\ui\forma.h
-$(QTDIR)\msvc2019_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\listapaginada.ui -o $(SolutionDir)..\ifg\qt\ui\listapaginada.h
-$(QTDIR)\msvc2019_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\entradastring.ui -o $(SolutionDir)..\ifg\qt\ui\entradastring.h
-$(QTDIR)\msvc2019_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\dialogo_bonus.ui -o $(SolutionDir)..\ifg\qt\ui\dialogo_bonus.h
-$(QTDIR)\msvc2019_64\bin\moc.exe $(SolutionDir)..\ifg\qt\bonus_util.h -o $(SolutionDir)..\ifg\qt\moc_bonus_util.cpp
-$(QTDIR)\msvc2019_64\bin\moc.exe $(SolutionDir)..\ifg\qt\evento_util.h -o $(SolutionDir)..\ifg\qt\moc_evento_util.cpp
-$(QTDIR)\msvc2019_64\bin\moc.exe $(SolutionDir)..\ifg\qt\menuprincipal.h -o $(SolutionDir)..\ifg\qt\moc_menuprincipal.cpp
-$(QTDIR)\msvc2019_64\bin\moc.exe $(SolutionDir)..\ifg\qt\pericias_util.h -o $(SolutionDir)..\ifg\qt\moc_pericias_util.cpp
-$(QTDIR)\msvc2019_64\bin\moc.exe $(SolutionDir)..\ifg\qt\principal.h -o $(SolutionDir)..\ifg\qt\moc_principal.cpp
-$(QTDIR)\msvc2019_64\bin\moc.exe $(SolutionDir)..\ifg\qt\talentos_util.h -o $(SolutionDir)..\ifg\qt\moc_talentos_util.cpp
-$(QTDIR)\msvc2019_64\bin\moc.exe $(SolutionDir)..\ifg\qt\util.h -o $(SolutionDir)..\ifg\qt\moc_util.cpp
+$(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\entidade.ui -o $(SolutionDir)..\ifg\qt\ui\entidade.h
+$(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\opcoes.ui -o $(SolutionDir)..\ifg\qt\ui\opcoes.h
+$(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\cenario.ui -o $(SolutionDir)..\ifg\qt\ui\cenario.h
+$(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\forma.ui -o $(SolutionDir)..\ifg\qt\ui\forma.h
+$(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\listapaginada.ui -o $(SolutionDir)..\ifg\qt\ui\listapaginada.h
+$(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\entradastring.ui -o $(SolutionDir)..\ifg\qt\ui\entradastring.h
+$(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\dialogo_bonus.ui -o $(SolutionDir)..\ifg\qt\ui\dialogo_bonus.h
+$(QTDIR)\msvc2022_64\bin\moc.exe $(SolutionDir)..\ifg\qt\bonus_util.h -o $(SolutionDir)..\ifg\qt\moc_bonus_util.cpp
+$(QTDIR)\msvc2022_64\bin\moc.exe $(SolutionDir)..\ifg\qt\evento_util.h -o $(SolutionDir)..\ifg\qt\moc_evento_util.cpp
+$(QTDIR)\msvc2022_64\bin\moc.exe $(SolutionDir)..\ifg\qt\menuprincipal.h -o $(SolutionDir)..\ifg\qt\moc_menuprincipal.cpp
+$(QTDIR)\msvc2022_64\bin\moc.exe $(SolutionDir)..\ifg\qt\pericias_util.h -o $(SolutionDir)..\ifg\qt\moc_pericias_util.cpp
+$(QTDIR)\msvc2022_64\bin\moc.exe $(SolutionDir)..\ifg\qt\principal.h -o $(SolutionDir)..\ifg\qt\moc_principal.cpp
+$(QTDIR)\msvc2022_64\bin\moc.exe $(SolutionDir)..\ifg\qt\talentos_util.h -o $(SolutionDir)..\ifg\qt\moc_talentos_util.cpp
+$(QTDIR)\msvc2022_64\bin\moc.exe $(SolutionDir)..\ifg\qt\util.h -o $(SolutionDir)..\ifg\qt\moc_util.cpp
 </Command>
     </PreBuildEvent>
     <ProjectReference>
