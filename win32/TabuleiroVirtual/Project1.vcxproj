@@ -96,6 +96,7 @@
     <ClCompile Include="..\..\ifg\qt\moc_util.cpp" />
     <ClCompile Include="..\..\ifg\qt\principal.cpp" />
     <ClCompile Include="..\..\ifg\qt\qt_interface.cpp" />
+    <ClCompile Include="..\..\ifg\qt\som_qt.cpp" />
     <ClCompile Include="..\..\ifg\qt\util.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\ifg_qt_util.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\ifg_qt_util.obj</ObjectFileName>
@@ -123,7 +124,6 @@
     </ClCompile>
     <ClCompile Include="..\..\ntf\notificacao.cpp" />
     <ClCompile Include="..\..\ntf\notificacao.pb.cc" />
-    <ClCompile Include="..\..\som\som_qt.cpp" />
     <ClCompile Include="..\..\tex\lodepng.cpp" />
     <ClCompile Include="..\..\tex\picopng.cpp" />
     <ClCompile Include="..\..\tex\texturas.cpp" />
