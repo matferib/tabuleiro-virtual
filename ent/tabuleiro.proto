@@ -74,6 +74,8 @@ message OpcoesProto {
   optional bool pular_frames = 28;
   optional float fps = 29 [default=30.0];
   optional float expessura_grade_m = 30 [default=0.1];
+  // Se verdadeiro, usara a detecao de gestos do QT.
+  optional bool usar_gestos_nativos = 31;
 }
 
 // Mensagem enviada para os clientes de um jogo.

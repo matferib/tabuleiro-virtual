@@ -110,10 +110,10 @@ Visualizador3d::Visualizador3d(
 
   // Infelizmente, o tratamento nativo de gestos é muito ruim, então desabilitei tudo
   // e trato os gestos de toque de forma crua.
-  //grabGesture(Qt::PinchGesture, /*flags=*/static_cast<Qt::GestureFlag>(Qt::ReceivePartialGestures));
+  grabGesture(Qt::PinchGesture, /*flags=*/static_cast<Qt::GestureFlag>(Qt::ReceivePartialGestures));
   //grabGesture(Qt::TapAndHoldGesture, /*flags=*/static_cast<Qt::GestureFlag>(Qt::ReceivePartialGestures));
   //grabGesture(Qt::SwipeGesture, /*flags=*/static_cast<Qt::GestureFlag>(Qt::ReceivePartialGestures));
-  ungrabGesture(Qt::PinchGesture);
+  //ungrabGesture(Qt::PinchGesture);
   ungrabGesture(Qt::TapAndHoldGesture);
   ungrabGesture(Qt::SwipeGesture);
   setAttribute(Qt::WA_AcceptTouchEvents, true);
@@ -411,7 +411,7 @@ void Visualizador3d::wheelEvent(QWheelEvent* event) {
 // Infelizmente, nao funciona bem... então não é chamado.
 bool Visualizador3d::gestureEvent(QGestureEvent* event) {
   PegaContexto();
-  qDebug() << "gesture: " << event;
+  //qDebug() << "gesture: " << event;
   if (auto *pinch = static_cast<QPinchGesture*>(event->gesture(Qt::PinchGesture)); pinch != nullptr) {
     if (pinch->state() == Qt::GestureStarted) {
       processando_gesto_ = true;
@@ -555,10 +555,10 @@ bool Visualizador3d::touchEvent(QTouchEvent* event) {
 }
 
 bool Visualizador3d::event(QEvent* event) {
-  if (event->type() == QEvent::Gesture) {
+  const ent::OpcoesProto& opcoes = tabuleiro_->Opcoes();
+  if (opcoes.usar_gestos_nativos() && event->type() == QEvent::Gesture) {
     return gestureEvent(static_cast<QGestureEvent*>(event));
-  }
-  if (event->type() == QEvent::TouchBegin || event->type() == QEvent::TouchUpdate || event->type() == QEvent::TouchEnd) {
+  } else if (!opcoes.usar_gestos_nativos() && (event->type() == QEvent::TouchBegin || event->type() == QEvent::TouchUpdate || event->type() == QEvent::TouchEnd)) {
     return touchEvent(static_cast<QTouchEvent*>(event));
   }
   return QOpenGLWidget::event(event);

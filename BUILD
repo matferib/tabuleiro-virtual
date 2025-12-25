@@ -5,6 +5,7 @@ cc_binary(
     srcs = ["main.cpp"],
     copts = [
       "-fpic",
+      "-Wno-deprecated-declarations",
     ],
     deps = [
       "@abseil-cpp//absl/strings",
