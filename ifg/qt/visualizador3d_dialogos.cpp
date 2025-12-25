@@ -2483,7 +2483,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   gerador.spin_escala_piso_y->setValue(tab_proto.info_textura_piso().escala_y());
   // grade.
   gerador.checkbox_grade->setCheckState(tab_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
-  gerador.slider_grade->setValue(static_cast<int>(tab_proto.expessura_grade_m() * kFatorGrade));
+  gerador.slider_grade->setValue(tab_proto.has_expessura_grade_m() ? static_cast<int>(tab_proto.expessura_grade_m() * kFatorGrade) : 0);
   // Mestre apenas.
   gerador.checkbox_mestre_apenas->setCheckState(tab_proto.textura_mestre_apenas() ? Qt::Checked : Qt::Unchecked);
   // Cor de piso.
@@ -2535,7 +2535,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   gerador.combo_tipo_terreno->setCurrentIndex(gerador.combo_tipo_terreno->findData(QVariant(static_cast<int>(tab_proto.tipo_terreno()))));
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
-                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, &cor_nevoa_proto, proto_retornado, kFatorGrade] {
+                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, &cor_nevoa_proto, proto_retornado] {
     // Descricao.
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
     // Nevoa.
@@ -2659,8 +2659,10 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     // Grade.
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
-    if (proto_retornado->desenha_grade()) {
+    if (proto_retornado->desenha_grade() && gerador.slider_grade->value() > 0) {
       proto_retornado->set_expessura_grade_m(gerador.slider_grade->value() / kFatorGrade);
+    } else {
+      proto_retornado->clear_expessura_grade_m();
     }
     // Mestre apenas.
     proto_retornado->set_textura_mestre_apenas(
@@ -2785,7 +2787,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
       opcoes_proto.anti_aliasing() ? Qt::Checked : Qt::Unchecked);
   // grade.
   gerador.checkbox_grade->setCheckState(opcoes_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
-  //gerador.slider_grade->setValue(static_cast<int>(opcoes_proto.expessura_grade_m() * kFatorGrade));
+  gerador.slider_grade->setValue(opcoes_proto.has_expessura_grade_m() ? static_cast<int>(opcoes_proto.expessura_grade_m() * kFatorGrade) : 0);
   // Controle virtual.
   gerador.checkbox_controle->setCheckState(opcoes_proto.desenha_controle_virtual() ? Qt::Checked : Qt::Unchecked);
   // Mapeamento de sombras.
@@ -2837,8 +2839,10 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     proto_retornado->set_anti_aliasing(gerador.checkbox_anti_aliasing->checkState() == Qt::Checked);
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
-    if (proto_retornado->desenha_grade()) {
-      //proto_retornado->set_expessura_grade_m(gerador.slider_grade->value() / kFatorGrade);
+    if (proto_retornado->desenha_grade() && gerador.slider_grade->value() > 0) {
+      proto_retornado->set_expessura_grade_m(gerador.slider_grade->value() / kFatorGrade);
+    } else {
+      proto_retornado->clear_expessura_grade_m();
     }
     proto_retornado->set_desenha_controle_virtual(
         gerador.checkbox_controle->checkState() == Qt::Checked ? true : false);

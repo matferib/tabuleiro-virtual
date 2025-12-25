@@ -5483,6 +5483,8 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
   tabuleiro->set_tipo_terreno(proto_corrente_->tipo_terreno());
   if (proto_corrente_->has_expessura_grade_m()) {
     tabuleiro->set_expessura_grade_m(proto_corrente_->expessura_grade_m());
+  } else {
+    tabuleiro->clear_expessura_grade_m();
   }
   return notificacao;
 }
@@ -5945,6 +5947,7 @@ void Tabuleiro::AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto) {
   dfb_luzes_[0].Apaga();
   dfb_colisao_.Apaga();
   GeraFramebuffer(true  /*nao_usado*/);
+  RegeraVboTabuleiro();
   SalvaConfiguracoes(opcoes_);
   V_ERRO("erro deserializando GL");
 }

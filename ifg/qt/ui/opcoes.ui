@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>452</width>
-    <height>500</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,11 +50,28 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkbox_grade">
-     <property name="text">
-      <string>Desenhar Grade</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QCheckBox" name="checkbox_grade">
+       <property name="text">
+        <string>Desenhar Grade</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="slider_grade">
+       <property name="maximum">
+        <number>10</number>
+       </property>
+       <property name="pageStep">
+        <number>3</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QCheckBox" name="checkbox_controle">
