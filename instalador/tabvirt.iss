@@ -32,7 +32,7 @@ Source: ..\libprotobuf-lite.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\abseil_dll.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\msvcp140.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\boost_*.dll; Destdir: {app}; Flags: ignoreversion;
-Source: ..\Qt5*.dll; Destdir: {app}; Flags: ignoreversion;
+Source: ..\Qt6*.dll; Destdir: {app}; Flags: ignoreversion;
 Source: ..\texturas\*.png; Destdir: {app}\texturas; Flags: ignoreversion;
 Source: ..\sons\*.wav; Destdir: {app}\sons; Flags: ignoreversion;
 Source: ..\dados\*.asciiproto; Destdir: {app}\dados; Flags: ignoreversion;
