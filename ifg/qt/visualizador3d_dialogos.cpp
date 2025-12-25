@@ -1,6 +1,5 @@
 #include "ifg/qt/visualizador3d.h"
 
-#include <QtCore/QFileInfo>
 #include <QtCore/QString>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QOpenGLContext>
