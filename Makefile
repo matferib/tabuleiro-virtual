@@ -38,7 +38,6 @@ apple:
 	bazel build --config=mac //ent:acoes_test --verbose_failures
 	bazel build --config=mac //ent:ent_test --verbose_failures
 	bazel build --config=mac //ent:util_test --verbose_failures
-	#scons sistema=apple debug=0 -j 2
 
 apple_clean:
 	bazel clean --config=mac --verbose_failures
