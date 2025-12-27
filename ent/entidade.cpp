@@ -1779,6 +1779,7 @@ std::string Entidade::TipoAcaoExecutada(int indice_acao, const std::vector<std::
   // Junta as acoes da entidade com as padroes.
   std::vector<std::string> acoes(proto_.lista_acoes().begin(), proto_.lista_acoes().end());
   for (const std::string& acao_padrao : acoes_padroes) {
+    continue;
     if (std::find(acoes.begin(), acoes.end(), acao_padrao) == acoes.end()) {
       acoes.push_back(acao_padrao);
     }
@@ -1786,7 +1787,7 @@ std::string Entidade::TipoAcaoExecutada(int indice_acao, const std::vector<std::
       break;
     }
   }
-  return acoes[indice_acao];
+  return indice_acao >= acoes.size() ? std::string("") : acoes[indice_acao];
 }
 
 const Posicao Entidade::PosicaoAltura(float fator) const {
