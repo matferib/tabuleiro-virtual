@@ -1,9 +1,7 @@
-load("@//:qt.bzl", "qt_cc_library", "qt_ui_library")
-
 cc_binary(
     name = "tabvirt",
     srcs = ["main.cpp"],
-    copts = [
+    cxxopts = [
       "-fpic",
       "-Wno-deprecated-declarations",
     ],
@@ -41,3 +39,4 @@ cc_binary(
       "//conditions:default": [":generic_lib"],
     })
 )
+
