@@ -39,9 +39,8 @@ https://support.apple.com/kb/PH13922?locale=pt_BR
 Qt6 e includes (dev note):
 --------------------------
 
-Os frameworks sao configurados em qt.BUILD.
-
-o qt6 do mac nao cria o diretorio de include/Framework (exemplo include/QtCore). Eu criei na mao copiando do qt5:
-mribeiro@mribeiro-mac:/opt/homebrew/Cellar/qt/6.9.3/include$ for i in `find ../../../qt\@5/5.15.15/include/ -maxdepth 1  -type l`; do cp -a $i .; done
-ln -sf ../lib/QtOpenGLWidgets.framework/Headers QtOpenGLWidgets
-
+cd qtbuild
+cd include
+for i in /opt/homebrew/Cellar/qt/6.9.3/Frameworks/Qt*; do FILE=`basename $i | sed 's/\..*$//'`; echo $FILE; mkdir $FILE; ln -sf $i/Headers/Q* $i/Headers/q* $FILE/; done
+cd ../lib
+for i in /opt/homebrew/Cellar/qt/6.9.3/Frameworks/Qt*; do FILE=`basename $i | sed 's/\..*$//'`; echo $FILE; ln -sf $i/$FILE .; done

@@ -66,9 +66,10 @@ QT_LIBRARIES = [
         name = "qt_%s_osx" % name,
         # When being on Windows or Linux this glob will be empty
         hdrs = glob(["include/%s/**" % include_folder], allow_empty = True),
-        includes = ["include", "."],
+        includes = ["include"],
         # macOS qt libs do not contain a 6 - e.g. instead of Qt6Core the lib is called QtCore
         linkopts = [
+            "-F %s" % library_name,
             "-framework %s" % library_name.replace("6", "")
             ],
         # Available from Bazel 4.0.0
