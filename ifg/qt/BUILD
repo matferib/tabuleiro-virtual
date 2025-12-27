@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//:qt.bzl", "qt_cc_library")
+load("@qt//:qt.bzl", "qt_cc_library")
 
 qt_cc_library(
   name = "ifg_qt",

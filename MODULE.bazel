@@ -8,6 +8,8 @@ bazel_dep(name = "googletest", version = "1.15.2")
 # https://registry.bazel.build/modules/protobuf
 bazel_dep(name = "protobuf", version = "33.1")
 
+bazel_dep(name = "platforms", version = "1.0.0")
+
 # Qt rules from git.
 #bazel_dep(name = "com_justbuchanan_rules_qt")
 #git_override(
@@ -35,3 +37,15 @@ use_repo(
     non_module_boost_repositories,
     "boost",
 )
+
+bazel_dep(name = "qt")
+local_path_override(
+    module_name = "qt",
+    path = "qtbuild",
+)
+
+# -- bazel_dep definitions -- #
+
+# -- use_repo_rule statements -- #
+
+# -- repo definitions -- #

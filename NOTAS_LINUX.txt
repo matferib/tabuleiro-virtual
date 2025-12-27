@@ -3,6 +3,17 @@
 run
 gprof gmon.out
 
+qt: 
+- arrumar o path no qt.bzl que tem as regras de uic, lirary etc)
+- para o BUILD funcionar, popular lib e inlude como abaixo.
+cd qtbuild
+mkdir -p lib include
+cd lib
+ln -sf /usr/lib/x86_64-linux-gnu/libQt6* .
+cd ../include
+ln -sf /usr/include/x86_64-linux-gnu/qt6/* .
+
+
 boost:
 ./bootstrap.sh --with-libraries=system,timer,filesystem,chrono,date_time
 ./b2

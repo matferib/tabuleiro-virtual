@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//:qt.bzl", "qt_ui_library")
+load("@qt//:qt.bzl", "qt_ui_library")
 
 # UI files compilados.
 qt_ui_library(
