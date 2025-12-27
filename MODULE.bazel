@@ -1,9 +1,9 @@
 # Choose the most recent version available at
 # https://registry.bazel.build/modules/abseil-cpp.
-bazel_dep(name = "abseil-cpp", version = "20250127.1")
+bazel_dep(name = "abseil-cpp", version = "20250512.1")
 # Choose the most recent version available at
 # https://registry.bazel.build/modules/googletest
-bazel_dep(name = "googletest", version = "1.15.2")
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 # Choose the most recent version available at
 # https://registry.bazel.build/modules/protobuf
 bazel_dep(name = "protobuf", version = "33.1")
