@@ -1,3 +1,5 @@
+Som de cenario.
+
 Bonus de ataque por escola de magia. Ver bonus_ataque_por_escola_magia em comum.proto.
 
 Interessante: https://bazel.build/docs/configurable-attributes
