@@ -1296,6 +1296,17 @@ void PreencheConfiguraTesouro(
   gerador.lista_tesouro->setPlainText((proto.tesouro().tesouro().c_str()));
 }
 
+void PreencheConfiguraComboVisao(
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
+  gerador.combo_visao->clear();
+  for (int tv = ent::TipoVisao_MIN; tv <= ent::TipoVisao_MAX; ++tv) {
+    if (!ent::TipoVisao_IsValid(tv)) continue;
+    gerador.combo_visao->addItem(QString::fromUtf8(ent::TipoVisao_Name(tv).c_str()), QVariant(tv));
+  }
+  ExpandeComboBox(gerador.combo_visao);
+}
+
 void PreencheConfiguraAtributos(
     Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
     ent::EntidadeProto* proto_retornado) {
@@ -2179,6 +2190,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
 
   // Tipo de visao.
+  PreencheConfiguraComboVisao(this, tipo_terreno, gerador, entidade, proto_retornado);
   gerador.combo_visao->setCurrentIndex((int)entidade.tipo_visao());
   lambda_connect(gerador.combo_visao, SIGNAL(currentIndexChanged(int)), [this, &gerador] () {
     gerador.spin_raio_visao_escuro_quad->setEnabled(gerador.combo_visao->currentIndex() == ent::VISAO_ESCURO);
