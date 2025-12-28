@@ -36,7 +36,7 @@ qt_cc_library(
     "visualizador3d.h",
   ],
   defines = select({
-    "@platforms//os:osx": ["USAR_QT5=0"],
+    "@platforms//os:osx": ["USAR_QT5=1"],
     "//conditions:default": ["USAR_QT5=0"],
   }),
   deps = [

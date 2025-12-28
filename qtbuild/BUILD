@@ -69,8 +69,7 @@ QT_LIBRARIES = [
         includes = ["include"],
         # macOS qt libs do not contain a 6 - e.g. instead of Qt6Core the lib is called QtCore
         linkopts = [
-            "-F %s" % library_name,
-            "-framework %s" % library_name.replace("6", "")
+            "-framework %s" % library_name.replace("6", "") if library_name != "Qt6OpenGLWidgets" else ""
             ],
         # Available from Bazel 4.0.0
         # target_compatible_with = ["@platforms//os:osx"],
@@ -90,40 +89,3 @@ QT_LIBRARIES = [
     )
     for name, _, _, dependencies in QT_LIBRARIES
 ]
-
-# TODO: Make available also for Windows
-cc_library(
-    name = "qt_3d",
-    # When being on Windows this glob will be empty
-    hdrs = glob([
-        "Qt3DAnimation/**",
-        "Qt3DCore/**",
-        "Qt3DExtras/**",
-        "Qt3DInput/**",
-        "Qt3DLogic/**",
-        "Qt3DQuick/**",
-        "Qt3DQuickAnimation/**",
-        "Qt3DQuickExtras/**",
-        "Qt3DQuickInput/**",
-        "Qt3DQuickRender/**",
-        "Qt3DQuickScene2D/**",
-        "Qt3DRender/**",
-    ], allow_empty = True),
-    includes = ["."],
-    linkopts = [
-        "-lQt63DAnimation",
-        "-lQt63DCore",
-        "-lQt63DExtras",
-        "-lQt63DInput",
-        "-lQt63DLogic",
-        "-lQt63DQuick",
-        "-lQt63DQuickAnimation",
-        "-lQt63DQuickExtras",
-        "-lQt63DQuickInput",
-        "-lQt63DQuickRender",
-        "-lQt63DQuickScene2D",
-        "-lQt63DRender",
-    ],
-    # Available from Bazel 4.0.0
-    # target_compatible_with = ["@platforms//os:linux"],
-)
