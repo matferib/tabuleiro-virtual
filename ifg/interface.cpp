@@ -927,7 +927,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
     *grupo_notificacao->add_notificacao() = *n_alteracao_feitico;
 
     tabuleiro_->AdicionaNotificacaoListaEventos(*grupo_notificacao);
-    TrataNotificacao(*grupo_notificacao);
+    tabuleiro_->TrataNotificacao(*grupo_notificacao);
     VLOG(1) << "gastando feitico nivel: " << nivel_gasto << ", indice: " << item.indice_gasto;
   };
 
