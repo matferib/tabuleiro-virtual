@@ -1,5 +1,6 @@
 #include "ifg/qt/visualizador3d.h"
 
+#include <QtCore/QDebug>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QScreen>
@@ -408,23 +409,27 @@ void Visualizador3d::wheelEvent(QWheelEvent* event) {
   LiberaContexto();
 }
 
-// Infelizmente, nao funciona bem... então não é chamado.
+// Infelizmente, nao funciona bem para tela touch...
 bool Visualizador3d::gestureEvent(QGestureEvent* event) {
   PegaContexto();
-  //qDebug() << "gesture: " << event;
+  // Por alguma razao, o Mac sempre retorna o mesmo centerpoint no touchpad, entao nunca funciona a translacao.
+  //qDebug() << event;
   if (auto *pinch = static_cast<QPinchGesture*>(event->gesture(Qt::PinchGesture)); pinch != nullptr) {
     if (pinch->state() == Qt::GestureStarted) {
       processando_gesto_ = true;
-      pinch->setGestureCancelPolicy(QGesture::CancelAllInContext);
-      //auto centro = pinch->centerPoint();
-      //teclado_mouse_->TrataInicioPinca(centro.x(), centro.y(), centro.x(), centro.y());
+      teclado_mouse_->TrataInicioPinca(XPara3d(pinch->centerPoint().x()), YPara3d(height() - pinch->centerPoint().y()),
+                                       XPara3d(pinch->centerPoint().x()), YPara3d(height() - pinch->centerPoint().y()));
+      teclado_mouse_->TrataBotaoMousePressionado(Botao_Direito, /*modificadores=*/0, XPara3d(pinch->centerPoint().x()), YPara3d(height() - pinch->centerPoint().y()));
+      dois_ou_mais_dedos_ = true;
       VLOG(1) << "gestureEvent started";
     } else if (pinch->state() == Qt::GestureFinished) {
+      teclado_mouse_->TrataBotaoMouseLiberado();
       processando_gesto_ = false;
       VLOG(1) << "gestureEvent finished";
     } else {
       teclado_mouse_->TrataPincaEscala(pinch->scaleFactor());
       teclado_mouse_->TrataRotacaoPorDeltaRad((pinch->rotationAngle() - pinch->lastRotationAngle()) * GRAUS_PARA_RAD);
+      teclado_mouse_->TrataMovimentoMouse(XPara3d(pinch->centerPoint().x()), YPara3d(height() - pinch->centerPoint().y()));
       VLOG(1) << "gestureEvent escala e delta";
     }
   }
@@ -433,6 +438,7 @@ bool Visualizador3d::gestureEvent(QGestureEvent* event) {
   return true;
 }
 
+#if !USAR_QT5
 namespace {
 //--------
 // Rotacao
@@ -497,9 +503,11 @@ float FatorEscalaPinca(QTouchEvent& event) {
 const quint64 kIntervaloMaximoDuploCliqueMs = 500;
 
 }  // namespace
+#endif  // USAR_QT
 
 // Tratamento de toques nativos.
 bool Visualizador3d::touchEvent(QTouchEvent* event) {
+#if !USAR_QT5
   PegaContexto();
   if (!processando_gesto_) {
     if (event->pointCount() == 1) {
@@ -551,6 +559,7 @@ bool Visualizador3d::touchEvent(QTouchEvent* event) {
 
   event->accept();
   LiberaContexto();
+#endif // !USAR_QT
   return true;
 }
 
@@ -558,9 +567,12 @@ bool Visualizador3d::event(QEvent* event) {
   const ent::OpcoesProto& opcoes = tabuleiro_->Opcoes();
   if (opcoes.usar_gestos_nativos() && event->type() == QEvent::Gesture) {
     return gestureEvent(static_cast<QGestureEvent*>(event));
-  } else if (!opcoes.usar_gestos_nativos() && (event->type() == QEvent::TouchBegin || event->type() == QEvent::TouchUpdate || event->type() == QEvent::TouchEnd)) {
+  }
+#if !USAR_QT5
+  if (!opcoes.usar_gestos_nativos() && (event->type() == QEvent::TouchBegin || event->type() == QEvent::TouchUpdate || event->type() == QEvent::TouchEnd)) {
     return touchEvent(static_cast<QTouchEvent*>(event));
   }
+#endif
   return QOpenGLWidget::event(event);
 }
 
