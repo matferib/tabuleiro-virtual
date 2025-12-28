@@ -11843,13 +11843,17 @@ modelo {
   }
 }
 modelo {
-  id: 'Urso-Coruja'
+  id: 'Urso-Coruja'  #owlbear
   entidade {
     rotulo_especial: 'faro'
     dados_vida: '5d10+25'
-    tamanho: TM_GRANDE info_textura { id: 'owlbear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
+    tamanho: TM_GRANDE
+    info_textura { id: 'owlbear.png' translacao_x: 0.20 largura: 0.6 translacao_y: 0.1 altura: 0.8 } cor { r: 0.5 g: 0.25 b: 0.05 }
     tipo_visao: VISAO_ESCURO_E_BAIXA_LUMINOSIDADE
     tendencia { simples: TD_NEUTRO }
+    movimento {
+      terrestre_basico_q: 7
+    }
     info_classes {
       id: 'besta_magica' nivel: 4
       pericias_monstro: 'ouvir'
