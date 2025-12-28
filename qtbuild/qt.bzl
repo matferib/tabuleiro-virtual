@@ -51,7 +51,11 @@ def qt_ui_library(name, ui, deps, **kwargs):
         ui_file = ui,
         ui_header = "%s.h" % ui.split(".")[0],
         #uic = "@qt//libexec:uic",
-        uic = "/usr/lib/qt6/libexec/uic",
+        uic = select({
+            "@platforms//os:linux": "/usr/lib/qt6/libexec/uic",
+            "@platforms//os:windows": "$(location @qt//:uic)",
+            "@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/uic",
+        }),
     )
     cc_library(
         name = name,
@@ -136,7 +140,7 @@ def qt_resource(name, files, **kwargs):
         rcc = select({
             "@platforms//os:linux": "/usr/lib/qt6/libexec/rcc",
             "@platforms//os:windows": "$(location @qt//:rcc)",
-            "@platforms//os:osx": "/opt/homebrew/Cellar/qt/6.9.3/bin/rcc",
+            "@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/rcc",
         }),
 
     )
@@ -169,7 +173,7 @@ def qt_cc_library(name, srcs, hdrs, normal_hdrs = [], deps = None, **kwargs):
             cmd = select({
                 "@platforms//os:linux": "/usr/lib/qt6/libexec/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
                 "@platforms//os:windows": "$(location @qt//:moc) $(locations %s) -o $@ -f'%s'" % (hdr, header_path),
-                "@platforms//os:osx": "/opt/homebrew/Cellar/qtbase/6.9.3_1/share/qt/libexec/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
+                "@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
             }),
             tools = select({
                 "@platforms//os:linux": [],
