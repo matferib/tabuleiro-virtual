@@ -563,6 +563,7 @@ message DadosAtaque {
   optional bool ignora_origem = 78;
   // Caso verdadeiro, a criatura podera agarrar automaticamente com este ataque (desde que alvo seja menor e o teste de agarrar seja bem sucedido).
   optional bool agarrar_aprimorado = 85;
+  // Como agarrar_aprimoradoagarrar_aprimorado, mas depende de outro ataque ter acertado tb (shambling mound com seus 2 tentaculos).
   optional bool agarrar_aprimorado_se_acertou_anterior = 106;
   // Se verdadeiro, este ataque acertou na rodada.
   optional bool acertou_ataque = 108;
