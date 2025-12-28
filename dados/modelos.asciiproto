@@ -11855,7 +11855,7 @@ modelo {
       terrestre_basico_q: 7
     }
     info_classes {
-      id: 'besta_magica' nivel: 4
+      id: 'besta_magica' nivel: 5
       pericias_monstro: 'ouvir'
       pericias_monstro: 'observar'
     }
@@ -11871,8 +11871,8 @@ modelo {
       gerais { id: 'prontidao' }
       gerais { id: 'rastrear' }
     }
-    info_pericias { id: 'ouvir' pontos: 5 }
-    info_pericias { id: 'observar' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 4 }
     dados_defesa {
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
