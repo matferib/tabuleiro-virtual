@@ -5,9 +5,9 @@ export LD_LIBRARY_PATH=/home/matheus/Documentos/Projetos/libs/Qt/5.15.0/gcc_64/l
 
 if [ "$1" == "debug" ]; then
 #ddd -tui ./tabvirt
-lldb ./tabvirt -- $@
+lldb ./bazel-bin/tabvirt -- $@
 elif [ "$1" == "perf" ]; then
 perf stat -d ./tabvirt -- $@
 else
-./tabvirt $@
+./bazel-bin/tabvirt $@
 fi

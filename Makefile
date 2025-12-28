@@ -8,6 +8,9 @@ all:
 all_sem_testes:
 	bazel build --config=linux :tabvirt --verbose_failures
 
+clean:
+	bazel clean --config=linux
+
 superclean:
 	bazel clean --expunge --config=linux --verbose_failures
 
@@ -82,6 +85,3 @@ linux_profile:
 
 linux_release:
 	scons debug=0
-
-clean:
-	bazel clean --config=linux

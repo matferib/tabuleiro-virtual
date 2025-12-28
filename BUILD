@@ -12,11 +12,6 @@ cc_binary(
       "@boost//:system",
       "@boost//:date_time",
       "@boost//:timer",
-      "@qt//:qt_core",
-      "@qt//:qt_gui",
-      "@qt//:qt_opengl",
-      "@qt//:qt_network",
-      "@qt//:qt_widgets",
       "//ent:ent",
       "//ifg:ifg",
       "//ifg/qt:ifg_qt",
@@ -30,7 +25,7 @@ cc_binary(
     linkopts = select({
       "@platforms//os:osx": [
         "-framework OpenGL",
-        "-F /opt/homebrew/Cellar/qt/6.9.3/Frameworks",
+        "-F /opt/homebrew/Cellar/qt@5/5.15.15/Frameworks",
       ],
       "@platforms//os:linux": [
         "-lGLU",

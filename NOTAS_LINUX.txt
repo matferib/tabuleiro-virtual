@@ -12,6 +12,9 @@ cd lib
 ln -sf /usr/lib/x86_64-linux-gnu/libQt6* .
 cd ../include
 ln -sf /usr/include/x86_64-linux-gnu/qt6/* .
+# Tentando bin tb.
+#cd ../bin
+#ln -sf /usr/lib/qt6/libexec/uic /usr/lib/qt6/libexec/moc /usr/lib/qt6/libexec/rcc .
 
 
 boost:
