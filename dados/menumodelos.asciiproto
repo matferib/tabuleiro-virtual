@@ -101,6 +101,7 @@ sub_menu {
   item_menu { id: 'Cão Teleportador'}
   item_menu { id: 'Coruja Gigante'}
   item_menu { id: 'Stirge'}
+  item_menu { id: 'Urso-Coruja' }
 }
 sub_menu {
   id: 'Anões'

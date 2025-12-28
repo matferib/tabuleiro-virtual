@@ -11845,9 +11845,54 @@ modelo {
 modelo {
   id: 'Urso-Coruja'
   entidade {
-    dados_vida: '5d10+25' tamanho: TM_GRANDE info_textura { id: 'owlbear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
-    rotulo_especial: 'ini: +1\nat: 2 garras +9 1d6+5\nat: mordida +4 1d8+2\nca: 15'
-    modificador_iniciativa: 1
+    rotulo_especial: 'faro'
+    dados_vida: '5d10+25'
+    tamanho: TM_GRANDE info_textura { id: 'owlbear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
+    tipo_visao: VISAO_ESCURO_E_BAIXA_LUMINOSIDADE
+    tendencia { simples: TD_NEUTRO }
+    info_classes {
+      id: 'besta_magica' nivel: 4
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'rastrear' }
+    }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'observar' pontos: 5 }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' agarrar_aprimorado: true
+      acao_fixa {
+        som_inicial: 'claw.wav'
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6'  agarrar_aprimorado: true
+      acao_fixa {
+        som_inicial: 'claw.wav'
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d8'
+      acao_fixa {
+        som_inicial: 'screech.wav'
+        som_sucesso: 'owlbear.wav'
+      }
+    }
   }
 }
 modelo {
