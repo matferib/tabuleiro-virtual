@@ -23,6 +23,8 @@ som pistol: https://freesound.org/people/schots/sounds/382735/
 som landslide: https://freesound.org/people/tayingalive/sounds/442552/
 som claw: custom_shredder_claw_or_small_swing_w_and_without_ringout_movement_sounds_11162024 by Artninja -- https://freesound.org/s/768408/ -- License: Attribution 4.0
 som bite: werewolf bites by Bernuy -- https://freesound.org/s/268505/ -- License: Attribution 3.0
+som ownbear: Owl scream by Asovang -- https://freesound.org/s/156214/ -- License: Creative Commons 0
+som screech: Corellas screech multiple by magicthighs -- https://freesound.org/s/436571/ -- License: Creative Commons 0
 
 terrain_foliage_coarse.png: CC BY-SA 3.0 -- Heath Rezabek -- Vessel CC -- http://vessel.cc
 swarm_spider: Spider made by Tuomo Untinen.
