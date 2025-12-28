@@ -11880,18 +11880,21 @@ modelo {
     }
     dados_ataque {
       grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6' agarrar_aprimorado: true
+      alcance_q: 1
       acao_fixa {
         som_inicial: 'claw.wav'
       }
     }
     dados_ataque {
       grupo: 'ataque_total' rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO dano_basico: '1d6'  agarrar_aprimorado: true
+      alcance_q: 1
       acao_fixa {
         som_inicial: 'claw.wav'
       }
     }
     dados_ataque {
       grupo: 'ataque_total' rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO dano_basico: '1d8'
+      alcance_q: 1
       acao_fixa {
         som_inicial: 'screech.wav'
         som_sucesso: 'owlbear.wav'
