@@ -57,6 +57,9 @@ class Principal : public QMainWindow, ntf::Receptor {
   /** Interface ntf::Receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
+  /** Indica que a aplicação está fechando. */
+  bool Fechando() const { return fechando_; }
+
  protected:
   /** Handler de fechamento. */
   void closeEvent(QCloseEvent * event) override;
@@ -83,6 +86,8 @@ class Principal : public QMainWindow, ntf::Receptor {
   MenuPrincipal* menu_principal_ = nullptr;
   /** Dock com o log. */
   QDockWidget* dock_log_ = nullptr;
+  /** aplicação está sendo encerrada. */
+  bool fechando_ = false;
 };
 
 } // namespace qt

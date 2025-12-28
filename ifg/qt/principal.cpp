@@ -214,6 +214,7 @@ void Principal::closeEvent(QCloseEvent *event) {
       tabuleiro_->TrataNotificacao(n);
     }
   }
+  fechando_ = true;
   event->accept();
 }
 

@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include "ifg/interface.h"
+#include "ifg/qt/principal.h"
 
 namespace ent {
 class Tabelas;
@@ -18,7 +19,7 @@ class ParametrosDesenho;
 class InterfaceGraficaQt : public ifg::InterfaceGrafica {
  public:
   InterfaceGraficaQt(
-      const ent::Tabelas& tabelas, QWidget* pai, ifg::TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro,
+      const ent::Tabelas& tabelas, Principal* pai, ifg::TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro,
       ntf::CentralNotificacoes* central)
       : ifg::InterfaceGrafica(tabelas, teclado_mouse, tabuleiro, central), pai_(pai) {}
 
@@ -60,7 +61,7 @@ class InterfaceGraficaQt : public ifg::InterfaceGrafica {
   void EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) override;
 
  private:
-  QWidget* pai_ = nullptr;
+  Principal* pai_ = nullptr;
 };
 
 }  // namespace qt
