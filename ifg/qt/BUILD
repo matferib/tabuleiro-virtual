@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@qt//:qt.bzl", "qt_cc_library")
+load("@qt//qt5:qt.bzl", "qt_cc_library")
 
 qt_cc_library(
   name = "ifg_qt",
@@ -37,17 +37,18 @@ qt_cc_library(
   ],
   defines = select({
     "@platforms//os:osx": ["USAR_QT5=1"],
+    #"@platforms//os:osx": ["USAR_QT5=0"],
     "//conditions:default": ["USAR_QT5=0"],
   }),
   deps = [
     "@abseil-cpp//absl/strings",
     "@abseil-cpp//absl/strings:str_format",
-    "@qt//:qt_core",
-    "@qt//:qt_gui",
-    "@qt//:qt_multimedia",
-    "@qt//:qt_opengl",
-    "@qt//:qt_openglwidgets",
-    "@qt//:qt_widgets",
+    "@qt//qt5:qt_core",
+    "@qt//qt5:qt_gui",
+    "@qt//qt5:qt_multimedia",
+    "@qt//qt5:qt_opengl",
+    "@qt//qt5:qt_openglwidgets",
+    "@qt//qt5:qt_widgets",
     "//arq:arq_headers",
     "//ifg:ifg_cc_proto",
     "//ifg/qt/ui:ifg_qt_ui",
@@ -57,7 +58,15 @@ qt_cc_library(
     "//net:net",
     "//som:som",
     "//tex:tex",
-  ]
+  ],
+  linkopts = select({
+      "@platforms//os:osx": [
+        "-framework OpenGL",
+        "-F /opt/homebrew/Cellar/qt@5/5.15.15/Frameworks",
+        #"-F /opt/homebrew/Cellar/qt/6.9.3/Frameworks/",
+      ],
+      "//conditions:default": [],
+  }),
 )
 
 
