@@ -25,7 +25,6 @@ cc_binary(
     linkopts = select({
       "@platforms//os:osx": [
         "-framework OpenGL",
-        "-F /opt/homebrew/Cellar/qt@5/5.15.15/Frameworks",
       ],
       "@platforms//os:linux": [
         "-lGLU",
