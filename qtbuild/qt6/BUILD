@@ -69,7 +69,7 @@ QT_LIBRARIES = [
         includes = ["include"],
         # macOS qt libs do not contain a 6 - e.g. instead of Qt6Core the lib is called QtCore
         linkopts = [
-            "-framework %s" % library_name.replace("6", "") if library_name != "Qt6OpenGLWidgets" else ""
+            "-framework %s" % library_name.replace("6", "")
             ],
         # Available from Bazel 4.0.0
         # target_compatible_with = ["@platforms//os:osx"],
