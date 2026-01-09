@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSAO=
-BUNDLEDIR=macqtbundle
+BUNDLEDIR=macqt6bundle
 while [[ $# > 0 ]]; do
   key="$1"
   echo ${key}
@@ -29,7 +29,8 @@ echo "Escrevendo em ${BUNDLEDIR}"
 RESOURCESDIR=${BUNDLEDIR}/Contents/Resources
 XDIR=${BUNDLEDIR}/Contents/MacOS
 FRAMEWORKSDIR=${BUNDLEDIR}/Contents/Frameworks
-MACDEPLOYQT=/opt/homebrew/Cellar/qt@5/5.15.15/bin/macdeployqt
+#MACDEPLOYQT=/opt/homebrew/Cellar/qt@5/5.15.15/bin/macdeployqt
+MACDEPLOYQT=/opt/homebrew/Cellar/qtbase/6.9.3_1/bin/macdeployqt
 
 make apple && \
 mkdir -p ${XDIR} ${RESOURCESDIR}/tabuleiros_salvos ${RESOURCESDIR}/dados ${RESOURCESDIR}/shaders ${RESOURCESDIR}/texturas ${RESOURCESDIR}/modelos3d ${RESOURCESDIR}/sons && \
@@ -43,8 +44,8 @@ cp -f modelos3d/*.binproto ${RESOURCESDIR}/modelos3d && \
 cp -f sons/*.wav ${RESOURCESDIR}/sons && \
 cp -f tabuleiros_salvos/*.binproto ${RESOURCESDIR}/tabuleiros_salvos && \
 chmod -R a+r ${BUNDLEDIR}/ &&  \
-${MACDEPLOYQT} macqt5bundle -always-overwrite && \
-cd macqt5bundle/Contents/MacOS && \
+${MACDEPLOYQT} ${BUNDLEDIR} -always-overwrite && \
+cd ${BUNDLEDIR}/Contents/MacOS && \
 codesign --force -s - --deep tabvirt && \
 cd - && \
 pkgbuild --identifier com.matferib.TabuleiroVirtual --version ${VERSAO} --install-location=/Applications/TabuleiroVirtual.app --root ./${BUNDLEDIR} TabuleiroVirtual-${VERSAO}.pkg
