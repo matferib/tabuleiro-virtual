@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@qt//qt5:qt.bzl", "qt_ui_library")
+load("@qt//:qt.bzl", "qt_ui_library")
 
 # UI files compilados.
 qt_ui_library(
@@ -51,9 +51,9 @@ cc_library(
     ":formaui",
     ":listapaginadaui",
     ":opcoesui",
-    "@qt//qt5:qt_core",
-    "@qt//qt5:qt_widgets",
-    "@qt//qt5:qt_opengl",
+    "@qt//:qt_core",
+    "@qt//:qt_widgets",
+    "@qt//:qt_opengl",
   ]
 )
 

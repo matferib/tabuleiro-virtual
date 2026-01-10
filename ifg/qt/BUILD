@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@qt//qt5:qt.bzl", "qt_cc_library")
+load("@qt//:qt.bzl", "qt_cc_library")
 
 qt_cc_library(
   name = "ifg_qt",
@@ -43,12 +43,12 @@ qt_cc_library(
   deps = [
     "@abseil-cpp//absl/strings",
     "@abseil-cpp//absl/strings:str_format",
-    "@qt//qt5:qt_core",
-    "@qt//qt5:qt_gui",
-    "@qt//qt5:qt_multimedia",
-    "@qt//qt5:qt_opengl",
-    "@qt//qt5:qt_openglwidgets",
-    "@qt//qt5:qt_widgets",
+    "@qt//:qt_core",
+    "@qt//:qt_gui",
+    "@qt//:qt_multimedia",
+    "@qt//:qt_opengl",
+    "@qt//:qt_openglwidgets",
+    "@qt//:qt_widgets",
     "//arq:arq_headers",
     "//ifg:ifg_cc_proto",
     "//ifg/qt/ui:ifg_qt_ui",
