@@ -86,6 +86,12 @@ QT_LIBRARIES = [
             "@platforms//os:windows": [":qt6_%s_windows" % name],
             "@platforms//os:osx": [":qt6_%s_osx" % name],
         }),
+        linkopts = select({
+            "@platforms//os:osx": [
+              "-F /opt/homebrew/Cellar/qt/6.9.3/Frameworks/",
+            ],
+            "//conditions:default": [],
+        }),
     )
     for name, _, _, dependencies in QT_LIBRARIES
 ]

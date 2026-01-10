@@ -86,6 +86,12 @@ QT_LIBRARIES = [
             "@platforms//os:windows": [":qt5_%s_windows" % name],
             "@platforms//os:osx": [":qt5_%s_osx" % name],
         }),
+        linkopts = select({
+            "@platforms//os:osx": [
+              "-F /opt/homebrew/Cellar/qt@5/5.15.15/Frameworks",
+            ],
+            "//conditions:default": [],
+        }),
     )
     for name, _, _, dependencies in QT_LIBRARIES
 ]
