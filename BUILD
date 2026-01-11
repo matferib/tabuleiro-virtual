@@ -30,7 +30,7 @@ cc_binary(
         "-lGLU",
         "-lGL",
       ],
-      "//conditions:default": [":generic_lib"],
+      "//conditions:default": [],
     })
 )
 
