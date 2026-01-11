@@ -35,11 +35,6 @@ qt_cc_library(
     "util.h",
     "visualizador3d.h",
   ],
-  defines = select({
-    "@platforms//os:osx": ["USAR_QT5=1"],
-    #"@platforms//os:osx": ["USAR_QT5=0"],
-    "//conditions:default": ["USAR_QT5=0"],
-  }),
   deps = [
     "@abseil-cpp//absl/strings",
     "@abseil-cpp//absl/strings:str_format",
