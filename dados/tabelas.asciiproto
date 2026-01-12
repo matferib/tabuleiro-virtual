@@ -6339,6 +6339,7 @@ tabela_feiticos {
     acao {
       id: 'Criação de Entidade'
       id_modelo_entidade: 'Esfera Flamejante'
+      quantidade_entidades: '4'
     }
     escola: 'encantamento'
   }
@@ -10649,7 +10650,7 @@ tabela_feiticos {
   armas {
     id: 'prestigidacao'
     nome_ingles: 'prestigidation'
-    nome: 'prestigidação'
+    nome: 'prestidigitação'
     info_classes {
       id: 'mago'
       nivel: 0
