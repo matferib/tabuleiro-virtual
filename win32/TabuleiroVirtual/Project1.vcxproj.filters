@@ -150,7 +150,6 @@
     <ClCompile Include="..\..\tex\texturas.cpp">
       <Filter>tex</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\main.cpp" />
     <ClCompile Include="..\..\matrix\matrices.cpp">
       <Filter>matrix</Filter>
     </ClCompile>
