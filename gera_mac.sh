@@ -1,7 +1,8 @@
 #!/bin/bash
 
 VERSAO=
-BUNDLEDIR=macqt6bundle
+#BUNDLEDIR=macqtbundle
+BUNDLEDIR=macqt5bundle
 while [[ $# > 0 ]]; do
   key="$1"
   echo ${key}
