@@ -1,3 +1,4 @@
+Arrumar tesouro: armas (tem que colocar a lista de armas como drop down e a opção de obra prima).
 Som de cenario.
 Botao para emitir som de criatura.
 
