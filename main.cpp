@@ -108,6 +108,7 @@ int main(int argc, char** argv) {
   //MyApp q_app(argc, argv);
   QSurfaceFormat::setDefaultFormat(Formato());
   QApplication q_app(argc, argv);
+  q_app.setStyle("Fusion");
   QDir dir(QCoreApplication::applicationDirPath());
 
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
