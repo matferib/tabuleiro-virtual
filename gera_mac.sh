@@ -1,8 +1,8 @@
 #!/bin/bash
 
 VERSAO=
-#BUNDLEDIR=macqtbundle
-BUNDLEDIR=macqt5bundle
+BUNDLEDIR=macqtbundle
+#BUNDLEDIR=macqt5bundle
 while [[ $# > 0 ]]; do
   key="$1"
   echo ${key}
@@ -31,7 +31,7 @@ RESOURCESDIR=${BUNDLEDIR}/Contents/Resources
 XDIR=${BUNDLEDIR}/Contents/MacOS
 FRAMEWORKSDIR=${BUNDLEDIR}/Contents/Frameworks
 #MACDEPLOYQT=/opt/homebrew/Cellar/qt@5/5.15.15/bin/macdeployqt
-MACDEPLOYQT=/opt/homebrew/Cellar/qtbase/6.9.3_1/bin/macdeployqt
+MACDEPLOYQT=/opt/homebrew/Cellar/qtbase/6.10.1/bin/macdeployqt
 
 make apple && \
 mkdir -p ${XDIR} ${RESOURCESDIR}/tabuleiros_salvos ${RESOURCESDIR}/dados ${RESOURCESDIR}/shaders ${RESOURCESDIR}/texturas ${RESOURCESDIR}/modelos3d ${RESOURCESDIR}/sons && \
