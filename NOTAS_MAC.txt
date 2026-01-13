@@ -39,8 +39,8 @@ https://support.apple.com/kb/PH13922?locale=pt_BR
 Qt6 e includes (dev note):
 --------------------------
 
-cd qtbuild
+cd qtbuild/qt6
 cd include
-for i in /opt/homebrew/Cellar/qt/6.9.3/Frameworks/Qt*; do FILE=`basename $i | sed 's/\..*$//'`; echo $FILE; mkdir $FILE; ln -sf $i/Headers/Q* $i/Headers/q* $FILE/; done
+for i in /opt/homebrew/Cellar/qt/6.10.1/Frameworks/Qt*; do FILE=`basename $i | sed 's/\..*$//'`; echo $FILE; mkdir $FILE; ln -sf $i/Headers/Q* $i/Headers/q* $FILE/; done
 cd ../lib
-for i in /opt/homebrew/Cellar/qt/6.9.3/Frameworks/Qt*; do FILE=`basename $i | sed 's/\..*$//'`; echo $FILE; ln -sf $i/$FILE .; done
+for i in /opt/homebrew/Cellar/qt/6.10.1/Frameworks/Qt*; do FILE=`basename $i | sed 's/\..*$//'`; echo $FILE; ln -sf $i/$FILE .; done

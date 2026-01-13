@@ -88,7 +88,7 @@ QT_LIBRARIES = [
         }),
         linkopts = select({
             "@platforms//os:osx": [
-              "-F /opt/homebrew/Cellar/qt/6.9.3/Frameworks/",
+              "-F /opt/homebrew/Cellar/qt/6.10.1/Frameworks/",
             ],
             "//conditions:default": [],
         }),
