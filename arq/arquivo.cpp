@@ -153,8 +153,12 @@ void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::str
 }
 
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
-  // TODO: deveria ser TextFormat::PrintToString???
-  EscreveArquivo(tipo, nome_arquivo, mensagem.DebugString());
+  std::string saida;
+  if (google::protobuf::TextFormat::PrintToString(mensagem, &saida)) {
+    EscreveArquivo(tipo, nome_arquivo, saida);
+  } else {
+    throw std::logic_error(std::string("Falha ao salvar proto em formato ascii."));
+  }
 }
 
 void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
