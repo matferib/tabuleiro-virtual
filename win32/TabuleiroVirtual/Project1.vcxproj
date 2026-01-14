@@ -135,6 +135,7 @@
     <ClInclude Include="..\..\ent\util.h" />
     <ClInclude Include="..\..\gltab\gl.h" />
     <ClInclude Include="..\..\ifg\interface.h" />
+    <ClInclude Include="..\..\ifg\qt\armas_util.h" />
     <ClInclude Include="..\..\ifg\qt\atualiza_ui.h" />
     <ClInclude Include="..\..\ifg\qt\bonus_util.h" />
     <ClInclude Include="..\..\ifg\qt\evento_util.h" />
@@ -143,7 +144,6 @@
     <ClInclude Include="..\..\ifg\qt\itens_magicos_util.h" />
     <ClInclude Include="..\..\ifg\qt\menuprincipal.h" />
     <ClInclude Include="..\..\ifg\qt\pericias_util.h" />
-    <ClInclude Include="..\..\ifg\qt\pocoes_util.h" />
     <ClInclude Include="..\..\ifg\qt\principal.h" />
     <ClInclude Include="..\..\ifg\qt\qt_interface.h" />
     <ClInclude Include="..\..\ifg\qt\talentos_util.h" />

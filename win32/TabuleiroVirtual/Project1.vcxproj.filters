@@ -264,9 +264,6 @@
     <ClInclude Include="..\..\ifg\qt\principal.h">
       <Filter>ifg\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ifg\qt\pocoes_util.h">
-      <Filter>ifg\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ifg\qt\pericias_util.h">
       <Filter>ifg\Headers</Filter>
     </ClInclude>
@@ -302,6 +299,9 @@
     </ClInclude>
     <ClInclude Include="..\..\ent\entidade.h">
       <Filter>ent\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ifg\qt\armas_util.h">
+      <Filter>ifg\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
