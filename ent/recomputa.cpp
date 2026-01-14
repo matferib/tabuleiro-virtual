@@ -2,6 +2,7 @@
 
 #include <unordered_set>
 #include "absl/strings/str_format.h"
+#include "absl/strings/str_cat.h"
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"
@@ -2574,8 +2575,19 @@ void RecomputaDependenciasTendencia(EntidadeProto* proto) {
 }
 
 void RecomputaDependenciasArmasTesouro(const Tabelas& tabelas, EntidadeProto* proto) {
+  std::unordered_set<std::string> unique_ids;
   for (auto& arma_pc : *proto->mutable_tesouro()->mutable_armas()) {
     GeraNomeArma(tabelas, arma_pc);
+    if (!arma_pc.id_tabela().empty()) {
+      int contador = 0;
+      while (!arma_pc.has_id() || unique_ids.contains(arma_pc.id())) {
+        arma_pc.set_id(absl::StrCat(arma_pc.id_tabela(), "-id-", contador++));
+        if (contador > 100) {
+          LOG(ERROR) << "limite de ids alcancado, desistindo de gerar id para arma: " << arma_pc.nome();
+          break;
+        }
+      }
+    }
   }
 }
 
