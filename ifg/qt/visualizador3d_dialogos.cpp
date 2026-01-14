@@ -30,6 +30,7 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "ifg/qt/armas_util.h"
 #include "ifg/qt/atualiza_ui.h"
 #include "ifg/qt/bonus_util.h"
 #include "ifg/qt/constantes.h"
@@ -1111,11 +1112,13 @@ void ConfiguraArmasArmaduraOuEscudo(
     arma_armadura_ou_escudo_e tipo, QListWidget* lista,
     QPushButton* botao_adicionar, QPushButton* botao_duplicar, QPushButton* botao_remover, QPushButton* botao_ordenar, QPushButton* botao_doar,
     const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
-  // Delegado.
-  //std::unique_ptr<QAbstractItemDelegate> delete_old(lista->itemDelegate());
-  //auto* delegado = new ItemMagicoDelegate(tabelas, tipo, lista, proto_retornado);
-  //lista->setItemDelegate(delegado);
-  //delegado->deleteLater();
+  if (tipo == arma_armadura_ou_escudo_e::ITEM_ARMA) {
+    // Delegado.
+    std::unique_ptr<QAbstractItemDelegate> delete_old(lista->itemDelegate());
+    auto* delegado = new ArmaDelegate(tabelas, lista, proto_retornado);
+    lista->setItemDelegate(delegado);
+    delegado->deleteLater();
+  }
 
   lambda_connect(botao_duplicar, SIGNAL(clicked()), [&tabelas, &gerador, tipo, lista, proto_retornado] () {
     DuplicaArmaArmaduraOuEscudo(tabelas, gerador, tipo, lista, proto_retornado);
@@ -1124,11 +1127,11 @@ void ConfiguraArmasArmaduraOuEscudo(
     OrdenaArmasArmadurasOuEscudos(tabelas, gerador, tipo, lista, proto_retornado);
   });
   lambda_connect(botao_adicionar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, tipo_terreno] () {
-    auto* itens = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
-    itens->Add()->set_id("teste");
+    auto* aae = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
+    aae->Add();
     ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUITesouro(tabelas, gerador, *proto_retornado);
-    lista->setCurrentRow(itens->size() - 1);
+    lista->setCurrentRow(aae->size() - 1);
   });
   lambda_connect(botao_remover, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, f_atualiza_ui, tipo_terreno] () {
     const int indice = lista->currentRow();
