@@ -1071,6 +1071,8 @@ const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto&
 // Retorna a arma tabelada pelo id.
 const ArmaProto& ArmaTabela(
   const Tabelas& tabelas, const std::string& id);
+// Retorna a arma do personagem pelo campo id do proto (note que esse não é o id da tabela!).
+const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaPersonagem(const std::string& id_arma, const EntidadeProto& proto);
 const ArmaProto& ArmaTabela(const Tabelas& tabelas, const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc);
 void GeraNomeArma(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc);
 
