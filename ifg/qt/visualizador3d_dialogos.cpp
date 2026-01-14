@@ -1131,6 +1131,7 @@ void ConfiguraArmasArmaduraOuEscudo(
     OrdenaArmasArmadurasOuEscudos(tabelas, gerador, tipo, lista, proto_retornado);
   });
 
+  // TODO pensar em armas duplas.
   if (checkbox_op != nullptr) {
     lambda_connect(checkbox_op, SIGNAL(stateChanged(int)), [checkbox_op, &tabelas, &gerador, tipo, lista, proto_retornado, f_atualiza_ui, tipo_terreno] () {
       const int indice = lista->currentRow();
@@ -1141,7 +1142,18 @@ void ConfiguraArmasArmaduraOuEscudo(
       aae->Mutable(indice)->set_obra_prima(checkbox_op->checkState() == Qt::CheckState::Checked);
       ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
       AtualizaUITesouro(tabelas, gerador, *proto_retornado);
-      lista->setCurrentRow(indice >= aae->size() ? -1 : indice);
+    });
+  }
+  if (spin_bonus != nullptr) {
+    lambda_connect(spin_bonus, SIGNAL(valueChanged(int)), [spin_bonus, &tabelas, &gerador, tipo, lista, proto_retornado, f_atualiza_ui, tipo_terreno]() {
+      const int indice = lista->currentRow();
+      auto* aae = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
+      if (indice < 0 || indice >= aae->size()) {
+        return;
+      }
+      aae->Mutable(indice)->set_bonus_magico(spin_bonus->value());
+      ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
+      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
     });
   }
   lambda_connect(botao_adicionar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, tipo_terreno] () {
