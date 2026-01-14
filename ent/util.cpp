@@ -5283,9 +5283,15 @@ const ArmaProto& ArmaTabela(
 }
 
 void GeraNomeArma(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc) {
-  arma_pc.set_nome(absl::StrCat(ArmaTabela(tabelas, arma_pc.id_tabela()).nome(), arma_pc.obra_prima() ? "[op]" : ""));
+  std::string nome = ArmaTabela(tabelas, arma_pc.id_tabela()).nome();
+  if (arma_pc.bonus_magico() > 0) {
+    arma_pc.set_nome(absl::StrCat(nome, "+", arma_pc.bonus_magico()));
+  } else if (arma_pc.obra_prima()) {
+    arma_pc.set_nome(absl::StrCat(nome, "[op]"));
+  } else {
+    arma_pc.set_nome(nome);
+  }
 }
-
 
 const ArmaduraOuEscudoProto& ArmaduraTabela(
   const Tabelas& tabelas, const std::string& id) {
