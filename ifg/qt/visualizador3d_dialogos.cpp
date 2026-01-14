@@ -368,8 +368,8 @@ void AdicionaOuAtualizaAtaqueEntidade(
     da.set_dano_basico(dano_arma.dano);
     da.set_multiplicador_critico(dano_arma.multiplicador);
     da.set_margem_critico(dano_arma.margem_critico);
-  } else if (id.find("equipamento:") == 0) {
-    da.set_id_arma_tesouro(id.substr(strlen("equipamento:")));
+  } else if (id.find(kPrefixoEquipamento) == 0) {
+    da.set_id_arma_tesouro(id.substr(strlen(kPrefixoEquipamento)));
   } else {
     da.set_id_arma(id);
     // Se houver dano, usa ele mesmo com id. Deixa RecomputaDependencias decidir.
@@ -494,8 +494,8 @@ void PreencheConfiguraComboArmaduraEscudo(
   lambda_connect(combo_armadura, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_armadura, tipo_terreno] () {
     QVariant idvar = combo_armadura->itemData(combo_armadura->currentIndex());
     std::string id = idvar.toString().toStdString();
-    if (id.find("equipamento:") == 0) {
-      proto_retornado->mutable_dados_defesa()->set_id_armadura(id.substr(strlen("equipamento:")));
+    if (id.find(kPrefixoEquipamento) == 0) {
+      proto_retornado->mutable_dados_defesa()->set_id_armadura(id.substr(strlen(kPrefixoEquipamento)));
     } else {
       proto_retornado->mutable_dados_defesa()->set_id_armadura(id);
     }
@@ -516,8 +516,8 @@ void PreencheConfiguraComboArmaduraEscudo(
   lambda_connect(combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_escudo, tipo_terreno] () {
     QVariant idvar = combo_escudo->itemData(combo_escudo->currentIndex());
     std::string id = idvar.toString().toStdString();
-    if (id.find("equipamento:") == 0) {
-      proto_retornado->mutable_dados_defesa()->set_id_escudo(id.substr(strlen("equipamento:")));
+    if (id.find(kPrefixoEquipamento) == 0) {
+      proto_retornado->mutable_dados_defesa()->set_id_escudo(id.substr(strlen(kPrefixoEquipamento)));
     } else {
       proto_retornado->mutable_dados_defesa()->set_id_escudo(id);
     }
@@ -1484,19 +1484,30 @@ void ConfiguraComboArma(
 
   lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma, tipo_terreno] () {
     const int index_combo = gerador.combo_arma->currentIndex();
-    std::string id_arma = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
+    const std::string id_combo = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
+    bool do_equipamento = false;
+    std::string id_tabela = id_combo;
+    std::string id_tesouro;
+    if (id_combo.find(kPrefixoEquipamento) == 0) {
+      id_tesouro = id_combo.substr(strlen(kPrefixoEquipamento));
+      const auto& arma_personagem = ent::ArmaPersonagem(id_tesouro, *proto_retornado);
+      id_tabela = arma_personagem.has_id_tabela() ? arma_personagem.id_tabela() : "nenhuma";
+      do_equipamento = true;
+    }
+    LOG(ERROR) << "id_combo: " << id_combo << ", id_tabela: " << id_tabela << ", id_tesouro: " << id_tesouro;
 
     const int index_lista = gerador.lista_ataques->currentRow();
     if (index_lista < 0 || index_lista >= proto_retornado->dados_ataque_size()) return;
     auto* da = proto_retornado->mutable_dados_ataque(index_lista);
-    if (id_arma == "nenhuma") {
+    if (id_tabela == "nenhuma") {
       da->clear_id_arma();
     } else {
-      da->set_id_arma(id_arma);
+      da->set_id_arma(id_tabela);
+    }
+    if (!id_tesouro.empty()) {
+      da->set_id_arma_tesouro(id_tesouro);
     }
     ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
-    gerador.linha_dano->setEnabled(!tabelas.ArmaOuFeitico(id_arma).has_dano());
-    gerador.combo_material_arma->setEnabled(id_arma != "nenhuma");
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
   });
 }

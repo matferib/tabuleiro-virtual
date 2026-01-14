@@ -3,6 +3,7 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QCheckbox>
 #include <unordered_set>
+#include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "ent/entidade.pb.h"
 #include "ent/constantes.h"
@@ -373,7 +374,7 @@ void PreencheComboArma(
       if ((cac && ent::PossuiCategoria(ent::CAT_CAC, arma_tabelada)) ||
           (projetil_area && arma_projetil_area) ||
           (distancia && !arma_projetil_area && ent::PossuiCategoria(ent::CAT_DISTANCIA, arma_tabelada))) {
-        nome_id_map[absl::StrFormat(" do equipamento: %s", arma_tesouro.id().c_str())] = absl::StrFormat("equipamento:%s", arma_tesouro.id().c_str());
+        nome_id_map[absl::StrFormat(" do equipamento: %s", arma_tesouro.nome().c_str())] = absl::StrFormat("equipamento:%s", arma_tesouro.id().c_str());
       }
     }
     for (const auto& arma : tabelas.todas().tabela_armas().armas()) {
@@ -400,8 +401,8 @@ void PreencheComboArma(
   }
   gerador.combo_arma->clear();
   gerador.combo_arma->addItem("Nenhuma", QVariant("nenhuma"));
-  for (const auto& name_id : nome_id_map) {
-    gerador.combo_arma->addItem(QString::fromUtf8(name_id.first.c_str()), QVariant(name_id.second.c_str()));
+  for (const auto& [name, id] : nome_id_map) {
+    gerador.combo_arma->addItem(QString::fromUtf8(name), QVariant(id.c_str()));
   }
 }
 
@@ -436,11 +437,11 @@ int MaterialEscudoParaIndice(ent::DescritorAtaque descritor) {
 }
 
 // retorna o identificador que vai pro QVariant do item do combo.
-std::string DadoArma(const ent::DadosAtaque& da) {
+std::string IdArmaParaCombo(const ent::DadosAtaque& da) {
   if (da.id_arma_tesouro().empty()) {
     return da.id_arma();
   } else {
-    return absl::StrFormat("equipamento:%s", da.id_arma_tesouro().c_str());
+    return absl::StrCat(kPrefixoEquipamento, da.id_arma_tesouro().c_str());
   }
 }
 
@@ -504,8 +505,10 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
     return;
   }
   const auto& da = proto.dados_ataque(linha);
-  std::string id_arma = DadoArma(da);
-  gerador.combo_arma->setCurrentIndex(id_arma.empty() ? 0 : gerador.combo_arma->findData(id_arma.c_str()));
+  const bool do_equipamento = !da.id_arma_tesouro().empty();
+  std::string id_arma_combo = IdArmaParaCombo(da);
+  std::string id_arma_tabela = do_equipamento ? ent::ArmaPersonagem(da.id_arma_tesouro(), proto).id_tabela() : da.id_arma();
+  gerador.combo_arma->setCurrentIndex(id_arma_combo.empty() ? 0 : gerador.combo_arma->findData(QVariant(id_arma_combo.c_str())));
   gerador.combo_material_arma->setCurrentIndex(MaterialArmaParaIndice(da.material_arma()));
   gerador.botao_remover_ataque->setEnabled(true);
   gerador.linha_grupo_ataque->setText(QString::fromUtf8(da.grupo().c_str()));
@@ -513,15 +516,18 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   const auto& tipo_str = da.tipo_ataque();
   gerador.combo_tipo_ataque->setCurrentIndex(gerador.combo_tipo_ataque->findData(tipo_str.c_str()));
   gerador.linha_dano->setText(QString::fromUtf8(ent::StringDanoBasicoComCritico(da).c_str()));
+  gerador.linha_dano->setEnabled(!tabelas.ArmaOuFeitico(id_arma_tabela).has_dano());
   gerador.spin_incrementos->setValue(da.incrementos());
   gerador.spin_alcance_quad->setValue(ent::METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
   gerador.checkbox_op->setCheckState(da.obra_prima() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_op->setEnabled(!do_equipamento);
   gerador.checkbox_ignora_rm->setCheckState(da.acao_fixa().ignora_resistencia_magia() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_permite_salvacao->setCheckState(da.acao_fixa().permite_salvacao() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_ataque_agarrar->setCheckState(da.acao_fixa().ataque_agarrar() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_ataque_toque->setCheckState(da.acao_fixa().ataque_toque() ? Qt::Checked : Qt::Unchecked);
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
+  gerador.spin_bonus_magico->setEnabled(!do_equipamento);
   gerador.spin_municao->setValue(da.municao());
   gerador.spin_limite_vezes->setValue(da.limite_vezes());
   if (pergaminho) {

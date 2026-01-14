@@ -19,6 +19,8 @@ class Tabelas;
 namespace ifg {
 namespace qt {
 
+constexpr char kPrefixoEquipamento[] = "equipamento:";
+
 // Chama todas atualizacoes de UI.
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 
