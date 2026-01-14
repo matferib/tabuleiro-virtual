@@ -2573,6 +2573,11 @@ void RecomputaDependenciasTendencia(EntidadeProto* proto) {
   }
 }
 
+void RecomputaDependenciasArmasTesouro(const Tabelas& tabelas, EntidadeProto* proto) {
+  for (auto& arma_pc : *proto->mutable_tesouro()->mutable_armas()) {
+    GeraNomeArma(tabelas, arma_pc);
+  }
+}
 
 void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* proto) {
   // TODO So pra garantir pros itens criados antes da tabela ter tipo. Depois rola de remover.
@@ -3772,6 +3777,7 @@ void RecomputaDependencias(
   RecomputaComplementosModelos(tabelas, proto);
   RecomputaCriaRemoveDadosAtaque(tabelas, proto);
   RecomputaDependenciasRaciais(tabelas, tipo_terreno, proto);
+  RecomputaDependenciasArmasTesouro(tabelas, proto);
   RecomputaDependenciasItensMagicos(tabelas, proto);
   RecomputaDependenciasTendencia(proto);
   RecomputaDependenciasEfeitos(tabelas, proto, entidade);
