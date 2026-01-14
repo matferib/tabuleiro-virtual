@@ -657,8 +657,9 @@ const RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& Busc
 void AtualizaListaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, arma_armadura_ou_escudo_e tipo, QListWidget* lista, const ent::EntidadeProto& proto) {
   const int indice = lista->currentRow();
   lista->clear();
-  for (const auto& item : BuscaArmasArmadurasEscudos(tipo, proto)) {
-    auto* wi = new QListWidgetItem(QString::fromUtf8(item.id().c_str()), lista);
+  for (const auto& aae : BuscaArmasArmadurasEscudos(tipo, proto)) {
+    const std::string& nome = aae.nome();
+    auto* wi = new QListWidgetItem(QString::fromUtf8(nome), lista);
     wi->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
   }
   lista->setCurrentRow(indice);

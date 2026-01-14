@@ -13,19 +13,12 @@
 namespace ifg {
 namespace qt {
 
-// Retorna o maximo de itens em uso pelo tipo.
-int MaximoEmUso();
-
 // Retorna as armas da tabela.
 const google::protobuf::RepeatedPtrField<ent::ArmaProto>& ArmasTabela(
     const ent::Tabelas& tabelas);
 
 // Retorna a string de descricao da arma.
 std::string DescricaoParaLista(
-    const ent::Tabelas& tabelas, const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc);
-
-// Retorna o nome da arma seguido por 'em uso' ou 'não usado'.
-std::string NomeParaLista(
     const ent::Tabelas& tabelas, const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc);
 
 // Responsavel por tratar a edicao do tipo de efeito.
@@ -36,7 +29,7 @@ class ArmaDelegate : public QItemDelegate {
       QListWidget* lista, ent::EntidadeProto* proto)
       : QItemDelegate(lista), tabelas_(tabelas), lista_(lista), proto_(proto) {}
 
-  QWidget* createEditor(
+  __declspec(noinline) QWidget* createEditor(
       QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
     return PreencheConfiguraCombo(new QComboBox(parent));
   }
@@ -51,16 +44,25 @@ class ArmaDelegate : public QItemDelegate {
     combo->setCurrentIndex(combo->findData(IdCorrenteDoProto()));
   }
 
-  // Salva o valor do combo no modelo.
-  void setModelData(
+  // Salva o valor do combo no modelo (proto).
+   void setModelData(
       QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override {
-    const int indice_proto = lista_->currentRow();
-    auto* itens = ArmasPersonagemMutavel();
-    if (indice_proto < 0 || indice_proto >= itens->size()) {
-      LOG(ERROR) << "indice invalido em setEditorData: " << indice_proto;
+    const int indice_selecionado = lista_->currentRow();
+    int indice  = indice_selecionado;
+    auto* armas_pc = ArmasPersonagemMutavel();
+    //if (indice < 0) {
+    //  LOG(ERROR) << "indice invalido em setEditorData: " << indice;
+    //  return;
+    //}
+    //indice -= armas_pc->size();
+    const auto& at = ArmasTabela(tabelas_);
+    if (indice < 0 || indice >= at.size()) {
+      LOG(ERROR) << "indice invalido em setEditorData: " << indice;
       return;
     }
-    itens->Mutable(indice_proto)->set_id(IdCorrenteDoCombo(qobject_cast<QComboBox*>(editor)));
+    auto* arma_pc = armas_pc->Mutable(indice_selecionado);
+    arma_pc->set_id_tabela(IdCorrenteDoCombo(qobject_cast<QComboBox*>(editor)));
+    GeraNomeArma(tabelas_, *arma_pc);
   }
 
   // O tamanho padrao da linha nao cabe o combo de edicao.
@@ -110,11 +112,11 @@ class ArmaDelegate : public QItemDelegate {
   }
 
   // Retorna o item do personagem.
-  const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaCorrenteDoProto() const {
+  __declspec(noinline) const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaCorrenteDoProto() const {
     return ArmaDoProto(lista_->currentRow());
   }
 
-  const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaDoProto(int indice_proto) const {
+  __declspec(noinline) const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaDoProto(int indice_proto) const {
     const auto& armas = ArmasPersonagem();
     if (indice_proto < 0 || indice_proto >= armas.size()) {
       LOG(ERROR) << "indice invalido em ArmaDoPRoto: " << indice_proto;
@@ -123,27 +125,26 @@ class ArmaDelegate : public QItemDelegate {
     return armas.Get(indice_proto);
   }
 
-
   // Retorna o id do item corrente.
   const char* IdCorrenteDoProto() const {
-    return ArmaCorrenteDoProto().id().c_str();
-  }
-
-  std::string NomeCorrente() const {
-    return NomeParaLista(tabelas_, ArmaCorrenteDoProto());
+    return ArmaCorrenteDoProto().id_tabela().c_str();
   }
 
   // Retorna o proprio combo por conveniencia. Preenche com os itens da tabela, ordenado por nome.
   // O dado de cada linha sera o id do item. Configura o combo para fechar e submeter os dados quando
   // alterado o item corrente.
   QComboBox* PreencheConfiguraCombo(QComboBox* combo) const {
-    std::map<QString, std::string> itens_ordenados;
-    for (const auto& pp : ArmasTabela(tabelas_)) {
-      QString nome_traduzido = tr(pp.nome().c_str());
-      itens_ordenados.insert(std::make_pair(nome_traduzido, pp.id()));
+    std::map<QString, std::string> armas_ordenadas;
+    //for (const auto& apc : ArmasPersonagem()) {
+    //  QString nome_traduzido = tr(apc.nome().c_str());
+    //  itens_ordenados.insert(std::make_pair(nome_traduzido, apc.id()));
+    //}
+    for (const auto& at : ArmasTabela(tabelas_)) {
+      QString nome_traduzido = tr(at.nome().c_str());
+      armas_ordenadas.insert(std::make_pair(nome_traduzido, at.id()));
     }
-    for (const auto& par : itens_ordenados) {
-      combo->addItem(par.first, QString(par.second.c_str()));
+    for (const auto& [id, nome] : armas_ordenadas) {
+      combo->addItem(id, QString(nome.c_str()));
     }
     ExpandeComboBox(combo);
     //connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(commitAndCloseEditor()));
@@ -154,7 +155,7 @@ class ArmaDelegate : public QItemDelegate {
       emit thiz->commitData(combo);
       emit thiz->closeEditor(combo);
       // Aqui eh so para trigar o itemChanged.
-      emit lista_->model()->setData(lista_->currentIndex(), QString::fromUtf8(NomeCorrente().c_str()));
+      emit lista_->model()->setData(lista_->currentIndex(), QString::fromUtf8(ArmaCorrenteDoProto().nome().c_str()));
     });
     return combo;
   }
@@ -169,23 +170,15 @@ inline const google::protobuf::RepeatedPtrField<ent::ArmaProto>& ArmasTabela(
   return tabelas.todas().tabela_armas().armas();
 }
 
-inline std::string NomeParaLista(
-    const ent::Tabelas& tabelas, const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc) {
+inline std::string DescricaoParaLista(
+  const ent::Tabelas& tabelas, const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc) {
   const auto& arma_tabela = ent::ArmaTabela(tabelas, arma_pc.id_tabela());
   std::string nome = absl::StrFormat(
       "%s [%d PO]",
       arma_tabela.nome().c_str(),
       ent::PrecoArmaPo(arma_pc));
   if (arma_tabela.nome().empty()) { nome = "---"; }
-  return absl::StrFormat(
-          "%s%s",
-          nome.c_str(),
-          arma_pc.em_uso() ? " (em uso)" : " (não usado)");
-}
-
-inline std::string DescricaoParaLista(
-    const ent::Tabelas& tabelas, const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc) {
-  return arma_pc.nome().c_str();
+  return nome.c_str();
 }
 
 }  // namespace qt
