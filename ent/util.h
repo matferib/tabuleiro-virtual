@@ -1068,9 +1068,19 @@ const ItemMagicoProto& ItemTabela(
     const Tabelas& tabelas, TipoItem tipo, const std::string& id);
 const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item);
 
+// Retorna a arma tabelada pelo id.
+const ArmaProto& ArmaTabela(
+  const Tabelas& tabelas, const std::string& id);
+const ArmaProto& ArmaTabela(const Tabelas& tabelas, const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc);
+void GeraNomeArma(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc);
+
+const ArmaduraOuEscudoProto& ArmaduraTabela(const Tabelas& tabelas, const std::string& id);
+const ArmaduraOuEscudoProto& EscudoTabela(const Tabelas& tabelas, const std::string& id);
+
 // Retorna o repeated do tipo passado para o proto.
 std::string NomeTipoItem(TipoItem tipo);
 const google::protobuf::RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& ArmasArmadurasOuEscudosProto(TipoTesouro tipo, const EntidadeProto& proto);
+google::protobuf::RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>* ArmasArmadurasOuEscudosProtoMutavel(TipoTesouro tipo, EntidadeProto* proto);
 const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
 google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
 // Retorna todos os itens do proto, exceto pocoes. Usado para computar efeitos orfãos (a poção ou ja foi consumida ou ainda não tem efeito).

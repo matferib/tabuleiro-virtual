@@ -1,5 +1,6 @@
 #include "ent/util.h"
 #include <google/protobuf/repeated_field.h>
+#include <absl/strings/str_cat.h>
 #include <algorithm>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
@@ -5274,6 +5275,30 @@ const ItemMagicoProto& ItemTabela(
 
 const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item) {
   return ItemTabela(tabelas, item.tipo(), item.id());
+}
+
+const ArmaProto& ArmaTabela(
+  const Tabelas& tabelas, const std::string& id) {
+  return tabelas.Arma(id);
+}
+
+void GeraNomeArma(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc) {
+  arma_pc.set_nome(absl::StrCat(ArmaTabela(tabelas, arma_pc.id_tabela()).nome(), arma_pc.obra_prima() ? "[op]" : ""));
+}
+
+
+const ArmaduraOuEscudoProto& ArmaduraTabela(
+  const Tabelas& tabelas, const std::string& id) {
+  return tabelas.Armadura(id);
+}
+
+const ArmaduraOuEscudoProto& EscudoTabela(
+    const Tabelas& tabelas, const std::string& id) {
+  return tabelas.Escudo(id);
+}
+
+const ArmaProto& ArmaTabela(const Tabelas& tabelas, const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma) {
+  return ArmaTabela(tabelas, arma.id_tabela());
 }
 
 void AdicionaEventosItemMagicoContinuo(
