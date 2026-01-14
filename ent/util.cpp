@@ -5307,6 +5307,14 @@ const ArmaProto& ArmaTabela(const Tabelas& tabelas, const EntidadeProto::ArmaArm
   return ArmaTabela(tabelas, arma.id_tabela());
 }
 
+const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaPersonagem(const std::string& id_arma, const EntidadeProto& proto) {
+  for (const auto& arma_pc : proto.tesouro().armas()) {
+    if (id_arma == arma_pc.id()) return arma_pc;
+  }
+  return EntidadeProto::ArmaArmaduraOuEscudoPersonagem::default_instance();
+}
+
+
 void AdicionaEventosItemMagicoContinuo(
     const Tabelas& tabelas, ItemMagicoProto* item, std::vector<int>* ids_unicos, EntidadeProto* proto) {
   int tam_antes = ids_unicos->size();
