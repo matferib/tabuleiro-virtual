@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QItemDelegate>
+#include <QtWidgets/QListWidget>
 #include <QtWidgets/QToolTip>
 #include "absl/strings/str_format.h"
 #include "ent/tabelas.h"
