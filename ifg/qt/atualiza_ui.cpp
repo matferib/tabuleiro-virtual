@@ -1,6 +1,7 @@
 #include "ifg/qt/atualiza_ui.h"
 
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QCheckbox>
 #include <unordered_set>
 #include "absl/strings/str_format.h"
 #include "ent/entidade.pb.h"
@@ -654,15 +655,22 @@ const RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& Busc
   }
 }
 
-void AtualizaListaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, arma_armadura_ou_escudo_e tipo, QListWidget* lista, const ent::EntidadeProto& proto) {
+void AtualizaListaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, arma_armadura_ou_escudo_e tipo, QListWidget* lista, QCheckBox* checkbox_op, const ent::EntidadeProto& proto) {
   const int indice = lista->currentRow();
   lista->clear();
-  for (const auto& aae : BuscaArmasArmadurasEscudos(tipo, proto)) {
+  const auto& aaes = BuscaArmasArmadurasEscudos(tipo, proto);
+  for (const auto& aae : aaes) {
     const std::string& nome = aae.nome();
     auto* wi = new QListWidgetItem(QString::fromUtf8(nome), lista);
     wi->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
   }
   lista->setCurrentRow(indice);
+  if (indice < 0 || indice >= aaes.size()) return;
+  if (checkbox_op != nullptr) {
+    checkbox_op->blockSignals(true);
+    checkbox_op->setCheckState(aaes[indice].obra_prima() ? Qt::Checked : Qt::Unchecked);
+    checkbox_op->blockSignals(false);
+  }
 }
 
 template <class Dialogo>
@@ -696,9 +704,9 @@ void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, co
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_DIVINO, gerador.lista_pergaminhos_divinos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_VARINHA, gerador.lista_varinhas, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_ITEM_MUNDANO, gerador.lista_itens_mundanos, proto);
-  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMA, gerador.lista_armas, proto);
-  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMADURA, gerador.lista_armaduras, proto);
-  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ESCUDO, gerador.lista_escudos, proto);
+  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMA, gerador.lista_armas, gerador.checkbox_arma_op, proto);
+  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMADURA, gerador.lista_armaduras, nullptr, proto);
+  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ESCUDO, gerador.lista_escudos, nullptr, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
 }
