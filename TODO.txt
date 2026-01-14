@@ -1,4 +1,4 @@
-Arrumar tesouro: armas (tem que colocar a lista de armas como drop down e a opção de obra prima).
+UI: permitir modificar arma dupla na ui (por exemplo, OP e bonus)
 Som de cenario.
 Botao para emitir som de criatura.
 
