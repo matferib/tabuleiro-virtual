@@ -1734,6 +1734,9 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QSpinBox" name="spin_bonus_arma_secundario"/>
+              </item>
              </layout>
             </item>
             <item>

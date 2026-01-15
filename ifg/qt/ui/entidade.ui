@@ -692,23 +692,6 @@ QGroupBox::title {
          </item>
         </layout>
        </item>
-       <item row="6" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_21">
-         <item>
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Modelo 3D</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="combo_modelos_3d"/>
-         </item>
-        </layout>
-       </item>
        <item row="7" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_35">
          <item>
@@ -964,7 +947,7 @@ QGroupBox::title {
            <item>
             <widget class="QGroupBox" name="groupBox_10">
              <property name="title">
-              <string>Textura</string>
+              <string>Textura ou Modelo 3d</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_21">
               <item row="0" column="0">
@@ -1030,7 +1013,7 @@ QGroupBox::title {
                 </item>
                </layout>
               </item>
-              <item row="1" column="3">
+              <item row="3" column="1">
                <layout class="QHBoxLayout" name="horizontalLayout_25">
                 <item>
                  <widget class="QLabel" name="label_19">
@@ -1063,7 +1046,7 @@ QGroupBox::title {
                 </item>
                </layout>
               </item>
-              <item row="3" column="3">
+              <item row="1" column="1">
                <layout class="QHBoxLayout" name="horizontalLayout_26">
                 <item>
                  <widget class="QLabel" name="label_20">
@@ -1093,6 +1076,23 @@ QGroupBox::title {
                    <double>0.100000000000000</double>
                   </property>
                  </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_21">
+                <item>
+                 <widget class="QLabel" name="label_16">
+                  <property name="text">
+                   <string>Modelo 3D</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="combo_modelos_3d"/>
                 </item>
                </layout>
               </item>
@@ -3977,13 +3977,33 @@ QGroupBox::title {
              <layout class="QHBoxLayout" name="horizontalLayout_27">
               <item>
                <widget class="QCheckBox" name="checkbox_arma_op">
+                <property name="toolTip">
+                 <string>Marca arma como obra prima</string>
+                </property>
                 <property name="text">
                  <string>OP</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="spin_bonus_arma"/>
+               <widget class="QSpinBox" name="spin_bonus_arma">
+                <property name="toolTip">
+                 <string>Bônus mágico da arma.</string>
+                </property>
+                <property name="maximum">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_bonus_arma_secundario">
+                <property name="toolTip">
+                 <string>Bônus mágico da segunda cabeça da arma, se aplicável.</string>
+                </property>
+                <property name="maximum">
+                 <number>5</number>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -4922,21 +4942,11 @@ QGroupBox::title {
   <tabstop>campo_id</tabstop>
   <tabstop>campo_rotulo</tabstop>
   <tabstop>lista_rotulos</tabstop>
-  <tabstop>checkbox_cor</tabstop>
-  <tabstop>botao_cor</tabstop>
-  <tabstop>slider_alfa</tabstop>
-  <tabstop>spin_raio_quad</tabstop>
-  <tabstop>botao_luz</tabstop>
   <tabstop>slider_tamanho</tabstop>
   <tabstop>spin_pontos_vida</tabstop>
   <tabstop>spin_max_pontos_vida</tabstop>
   <tabstop>botao_bonus_pv_temporario</tabstop>
   <tabstop>spin_dano_nao_letal</tabstop>
-  <tabstop>combo_textura</tabstop>
-  <tabstop>spin_tex_altura</tabstop>
-  <tabstop>spin_tex_largura</tabstop>
-  <tabstop>spin_tex_trans_x</tabstop>
-  <tabstop>spin_tex_trans_y</tabstop>
   <tabstop>checkbox_selecionavel</tabstop>
   <tabstop>checkbox_voadora</tabstop>
   <tabstop>checkbox_visibilidade</tabstop>
@@ -4951,6 +4961,16 @@ QGroupBox::title {
   <tabstop>spin_raio_visao_escuro_quad</tabstop>
   <tabstop>checkbox_salvacao</tabstop>
   <tabstop>combo_salvacao</tabstop>
+  <tabstop>checkbox_cor</tabstop>
+  <tabstop>botao_cor</tabstop>
+  <tabstop>slider_alfa</tabstop>
+  <tabstop>spin_raio_quad</tabstop>
+  <tabstop>botao_luz</tabstop>
+  <tabstop>combo_textura</tabstop>
+  <tabstop>spin_tex_altura</tabstop>
+  <tabstop>spin_tex_trans_y</tabstop>
+  <tabstop>spin_tex_largura</tabstop>
+  <tabstop>spin_tex_trans_x</tabstop>
   <tabstop>combo_modelos_3d</tabstop>
   <tabstop>lista_formas_alternativas</tabstop>
   <tabstop>botao_adicionar_forma_alternativa</tabstop>
@@ -4967,6 +4987,9 @@ QGroupBox::title {
   <tabstop>botao_bonus_sabedoria</tabstop>
   <tabstop>spin_carisma</tabstop>
   <tabstop>botao_bonus_carisma</tabstop>
+  <tabstop>botao_bonus_salvacao_fortitude</tabstop>
+  <tabstop>botao_bonus_salvacao_reflexo</tabstop>
+  <tabstop>botao_bonus_salvacao_vontade</tabstop>
   <tabstop>botao_bonus_iniciativa</tabstop>
   <tabstop>checkbox_iniciativa</tabstop>
   <tabstop>spin_iniciativa</tabstop>
@@ -4974,16 +4997,11 @@ QGroupBox::title {
   <tabstop>combo_material_armadura</tabstop>
   <tabstop>checkbox_armadura_obra_prima</tabstop>
   <tabstop>spin_ca_armadura_melhoria</tabstop>
-  <tabstop>botao_bonus_ca</tabstop>
   <tabstop>combo_escudo</tabstop>
   <tabstop>combo_material_escudo</tabstop>
   <tabstop>checkbox_escudo_obra_prima</tabstop>
   <tabstop>spin_ca_escudo_melhoria</tabstop>
-  <tabstop>botao_bonus_salvacao_fortitude</tabstop>
-  <tabstop>botao_bonus_salvacao_reflexo</tabstop>
-  <tabstop>botao_bonus_salvacao_vontade</tabstop>
-  <tabstop>botao_resistencia_magia</tabstop>
-  <tabstop>checkbox_imune_critico</tabstop>
+  <tabstop>botao_bonus_ca</tabstop>
   <tabstop>spin_mov_terrestre</tabstop>
   <tabstop>botao_mov_terrestre</tabstop>
   <tabstop>spin_mov_aereo</tabstop>
@@ -4994,6 +5012,8 @@ QGroupBox::title {
   <tabstop>botao_mov_escavando</tabstop>
   <tabstop>spin_mov_escalando</tabstop>
   <tabstop>botao_mov_escalando</tabstop>
+  <tabstop>botao_resistencia_magia</tabstop>
+  <tabstop>checkbox_imune_critico</tabstop>
   <tabstop>tabela_lista_eventos</tabstop>
   <tabstop>botao_adicionar_evento</tabstop>
   <tabstop>botao_remover_evento</tabstop>
@@ -5023,8 +5043,8 @@ QGroupBox::title {
   <tabstop>tabela_talentos</tabstop>
   <tabstop>botao_adicionar_talento</tabstop>
   <tabstop>botao_remover_talento</tabstop>
-  <tabstop>linha_furtivo</tabstop>
   <tabstop>combo_esquiva_sobrenatural</tabstop>
+  <tabstop>linha_furtivo</tabstop>
   <tabstop>combo_evasao_estatica</tabstop>
   <tabstop>combo_evasao_dinamica</tabstop>
   <tabstop>tabela_inimigos_prediletos</tabstop>
@@ -5064,83 +5084,86 @@ QGroupBox::title {
   <tabstop>botao_remover_pocao</tabstop>
   <tabstop>botao_ordenar_pocoes</tabstop>
   <tabstop>botao_doar_pocao</tabstop>
-  <tabstop>lista_botas</tabstop>
-  <tabstop>botao_usar_botas</tabstop>
-  <tabstop>botao_adicionar_botas</tabstop>
-  <tabstop>botao_remover_botas</tabstop>
-  <tabstop>botao_doar_botas</tabstop>
-  <tabstop>lista_amuletos</tabstop>
-  <tabstop>botao_usar_amuleto</tabstop>
-  <tabstop>botao_adicionar_amuleto</tabstop>
-  <tabstop>botao_remover_amuleto</tabstop>
-  <tabstop>botao_doar_amuleto</tabstop>
-  <tabstop>lista_chapeus</tabstop>
-  <tabstop>botao_vestir_chapeu</tabstop>
-  <tabstop>botao_adicionar_chapeu</tabstop>
-  <tabstop>botao_remover_chapeu</tabstop>
-  <tabstop>botao_doar_chapeu</tabstop>
   <tabstop>lista_pergaminhos_arcanos</tabstop>
   <tabstop>botao_adicionar_pergaminho_arcano</tabstop>
   <tabstop>botao_duplicar_pergaminho_arcano</tabstop>
   <tabstop>botao_remover_pergaminho_arcano</tabstop>
   <tabstop>botao_ordenar_pergaminhos_arcanos</tabstop>
   <tabstop>botao_doar_pergaminho_arcano</tabstop>
-  <tabstop>lista_luvas</tabstop>
-  <tabstop>botao_usar_luvas</tabstop>
-  <tabstop>botao_adicionar_luvas</tabstop>
-  <tabstop>botao_remover_luvas</tabstop>
-  <tabstop>botao_doar_luvas</tabstop>
-  <tabstop>lista_bracadeiras</tabstop>
-  <tabstop>botao_usar_bracadeiras</tabstop>
-  <tabstop>botao_adicionar_bracadeiras</tabstop>
-  <tabstop>botao_remover_bracadeiras</tabstop>
-  <tabstop>botao_doar_bracadeiras</tabstop>
-  <tabstop>lista_mantos</tabstop>
-  <tabstop>botao_usar_manto</tabstop>
-  <tabstop>botao_adicionar_manto</tabstop>
-  <tabstop>botao_remover_manto</tabstop>
-  <tabstop>botao_doar_manto</tabstop>
   <tabstop>lista_pergaminhos_divinos</tabstop>
   <tabstop>botao_adicionar_pergaminho_divino</tabstop>
   <tabstop>botao_duplicar_pergaminho_divino</tabstop>
   <tabstop>botao_remover_pergaminho_divino</tabstop>
   <tabstop>botao_ordenar_pergaminhos_divinos</tabstop>
   <tabstop>botao_doar_pergaminho_divino</tabstop>
+  <tabstop>lista_armas</tabstop>
+  <tabstop>botao_adicionar_arma</tabstop>
+  <tabstop>botao_duplicar_arma</tabstop>
+  <tabstop>checkbox_arma_op</tabstop>
+  <tabstop>spin_bonus_arma</tabstop>
+  <tabstop>spin_bonus_arma_secundario</tabstop>
+  <tabstop>botao_remover_arma</tabstop>
+  <tabstop>botao_ordenar_armas</tabstop>
+  <tabstop>botao_doar_arma</tabstop>
+  <tabstop>lista_botas</tabstop>
+  <tabstop>botao_usar_botas</tabstop>
+  <tabstop>botao_adicionar_botas</tabstop>
+  <tabstop>botao_remover_botas</tabstop>
+  <tabstop>botao_doar_botas</tabstop>
+  <tabstop>lista_luvas</tabstop>
+  <tabstop>botao_usar_luvas</tabstop>
+  <tabstop>botao_adicionar_luvas</tabstop>
+  <tabstop>botao_remover_luvas</tabstop>
+  <tabstop>botao_doar_luvas</tabstop>
   <tabstop>lista_itens_mundanos</tabstop>
   <tabstop>botao_adicionar_item_mundano</tabstop>
   <tabstop>botao_duplicar_item_mundano</tabstop>
   <tabstop>botao_remover_item_mundano</tabstop>
   <tabstop>botao_ordenar_item_mundano</tabstop>
   <tabstop>botao_doar_item_mundano</tabstop>
-  <tabstop>lista_aneis</tabstop>
-  <tabstop>botao_usar_anel</tabstop>
-  <tabstop>botao_adicionar_anel</tabstop>
-  <tabstop>botao_remover_anel</tabstop>
-  <tabstop>botao_doar_anel</tabstop>
-  <tabstop>lista_varinhas</tabstop>
-  <tabstop>botao_adicionar_varinha</tabstop>
-  <tabstop>botao_duplicar_varinha</tabstop>
-  <tabstop>botao_remover_varinha</tabstop>
-  <tabstop>botao_ordenar_varinhas</tabstop>
-  <tabstop>botao_doar_varinha</tabstop>
-  <tabstop>lista_armas</tabstop>
-  <tabstop>botao_adicionar_arma</tabstop>
-  <tabstop>botao_duplicar_arma</tabstop>
-  <tabstop>botao_remover_arma</tabstop>
-  <tabstop>botao_ordenar_armas</tabstop>
-  <tabstop>botao_doar_arma</tabstop>
   <tabstop>lista_armaduras</tabstop>
   <tabstop>botao_adicionar_armadura</tabstop>
   <tabstop>botao_duplicar_armadura</tabstop>
   <tabstop>botao_remover_armadura</tabstop>
   <tabstop>botao_ordenar_armaduras</tabstop>
   <tabstop>botao_doar_armadura</tabstop>
+  <tabstop>lista_amuletos</tabstop>
+  <tabstop>botao_usar_amuleto</tabstop>
+  <tabstop>botao_adicionar_amuleto</tabstop>
+  <tabstop>botao_remover_amuleto</tabstop>
+  <tabstop>botao_doar_amuleto</tabstop>
+  <tabstop>lista_bracadeiras</tabstop>
+  <tabstop>botao_usar_bracadeiras</tabstop>
+  <tabstop>botao_adicionar_bracadeiras</tabstop>
+  <tabstop>botao_remover_bracadeiras</tabstop>
+  <tabstop>botao_doar_bracadeiras</tabstop>
+  <tabstop>lista_aneis</tabstop>
+  <tabstop>botao_usar_anel</tabstop>
+  <tabstop>botao_adicionar_anel</tabstop>
+  <tabstop>botao_remover_anel</tabstop>
+  <tabstop>botao_doar_anel</tabstop>
   <tabstop>lista_escudos</tabstop>
   <tabstop>botao_adicionar_escudo</tabstop>
   <tabstop>botao_duplicar_escudo</tabstop>
   <tabstop>botao_remover_escudo</tabstop>
   <tabstop>botao_ordenar_escudos</tabstop>
   <tabstop>botao_doar_escudo</tabstop>
+  <tabstop>lista_chapeus</tabstop>
+  <tabstop>botao_vestir_chapeu</tabstop>
+  <tabstop>botao_adicionar_chapeu</tabstop>
+  <tabstop>botao_remover_chapeu</tabstop>
+  <tabstop>botao_doar_chapeu</tabstop>
+  <tabstop>lista_mantos</tabstop>
+  <tabstop>botao_usar_manto</tabstop>
+  <tabstop>botao_adicionar_manto</tabstop>
+  <tabstop>botao_remover_manto</tabstop>
+  <tabstop>botao_doar_manto</tabstop>
+  <tabstop>lista_varinhas</tabstop>
+  <tabstop>botao_adicionar_varinha</tabstop>
+  <tabstop>botao_duplicar_varinha</tabstop>
+  <tabstop>botao_remover_varinha</tabstop>
+  <tabstop>botao_ordenar_varinhas</tabstop>
+  <tabstop>botao_doar_varinha</tabstop>
   <tabstop>spin_po</tabstop>
   <tabstop>spin_pp</tabstop>
   <tabstop>spin_pc</tabstop>
