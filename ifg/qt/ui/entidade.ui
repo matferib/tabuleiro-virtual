@@ -1745,7 +1745,7 @@ QGroupBox::title {
              </widget>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="spin_bonus_escudo">
+             <widget class="QLabel" name="label_bonus_escudo">
               <property name="text">
                <string>Escudo</string>
               </property>
@@ -1886,16 +1886,6 @@ QGroupBox::title {
             </item>
             <item row="1" column="1">
              <widget class="QComboBox" name="combo_armadura"/>
-            </item>
-            <item row="0" column="6">
-             <widget class="QLabel" name="spin_bonus_escudo_2">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
             </item>
             <item row="1" column="2">
              <widget class="QComboBox" name="combo_material_armadura">
@@ -3953,18 +3943,41 @@ QGroupBox::title {
          <property name="title">
           <string>Armas</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_30">
+         <layout class="QHBoxLayout" name="horizontalLayout_36">
           <item>
            <widget class="QListWidget" name="lista_armas"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_29">
+           <layout class="QVBoxLayout" name="verticalLayout_28">
             <item>
-             <widget class="QPushButton" name="botao_adicionar_arma">
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_30">
+              <item>
+               <widget class="QPushButton" name="botao_adicionar_arma">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="botao_remover_arma">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QPushButton" name="botao_duplicar_arma">
@@ -4006,13 +4019,6 @@ QGroupBox::title {
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_remover_arma">
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="botao_ordenar_armas">
@@ -4177,18 +4183,29 @@ QGroupBox::title {
          <property name="title">
           <string>Escudos</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_75">
+         <layout class="QHBoxLayout" name="horizontalLayout_71">
           <item>
            <widget class="QListWidget" name="lista_escudos"/>
           </item>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_31">
             <item>
-             <widget class="QPushButton" name="botao_adicionar_escudo">
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_51">
+              <item>
+               <widget class="QPushButton" name="botao_adicionar_escudo">
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="botao_remover_escudo">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QPushButton" name="botao_duplicar_escudo">
@@ -4198,11 +4215,28 @@ QGroupBox::title {
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_remover_escudo">
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_45">
+              <item>
+               <widget class="QCheckBox" name="checkbox_escudo_op">
+                <property name="toolTip">
+                 <string>Marca armadura como obra prima</string>
+                </property>
+                <property name="text">
+                 <string>OP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_bonus_escudo">
+                <property name="toolTip">
+                 <string>Bônus mágico da armadura.</string>
+                </property>
+                <property name="maximum">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QPushButton" name="botao_ordenar_escudos">
@@ -4344,18 +4378,41 @@ QGroupBox::title {
          <property name="title">
           <string>Armaduras</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_74">
+         <layout class="QHBoxLayout" name="horizontalLayout_42">
           <item>
            <widget class="QListWidget" name="lista_armaduras"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_30">
+           <layout class="QVBoxLayout" name="verticalLayout_29">
             <item>
-             <widget class="QPushButton" name="botao_adicionar_armadura">
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_40">
+              <item>
+               <widget class="QPushButton" name="botao_adicionar_armadura">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="botao_remover_armadura">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QPushButton" name="botao_duplicar_armadura">
@@ -4365,11 +4422,28 @@ QGroupBox::title {
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_remover_armadura">
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_41">
+              <item>
+               <widget class="QCheckBox" name="checkbox_armadura_op">
+                <property name="toolTip">
+                 <string>Marca armadura como obra prima</string>
+                </property>
+                <property name="text">
+                 <string>OP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_bonus_armadura">
+                <property name="toolTip">
+                 <string>Bônus mágico da armadura.</string>
+                </property>
+                <property name="maximum">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QPushButton" name="botao_ordenar_armaduras">
@@ -5098,11 +5172,11 @@ QGroupBox::title {
   <tabstop>botao_doar_pergaminho_divino</tabstop>
   <tabstop>lista_armas</tabstop>
   <tabstop>botao_adicionar_arma</tabstop>
+  <tabstop>botao_remover_arma</tabstop>
   <tabstop>botao_duplicar_arma</tabstop>
   <tabstop>checkbox_arma_op</tabstop>
   <tabstop>spin_bonus_arma</tabstop>
   <tabstop>spin_bonus_arma_secundario</tabstop>
-  <tabstop>botao_remover_arma</tabstop>
   <tabstop>botao_ordenar_armas</tabstop>
   <tabstop>botao_doar_arma</tabstop>
   <tabstop>lista_botas</tabstop>
@@ -5123,8 +5197,10 @@ QGroupBox::title {
   <tabstop>botao_doar_item_mundano</tabstop>
   <tabstop>lista_armaduras</tabstop>
   <tabstop>botao_adicionar_armadura</tabstop>
-  <tabstop>botao_duplicar_armadura</tabstop>
   <tabstop>botao_remover_armadura</tabstop>
+  <tabstop>botao_duplicar_armadura</tabstop>
+  <tabstop>checkbox_armadura_op</tabstop>
+  <tabstop>spin_bonus_armadura</tabstop>
   <tabstop>botao_ordenar_armaduras</tabstop>
   <tabstop>botao_doar_armadura</tabstop>
   <tabstop>lista_amuletos</tabstop>
@@ -5144,8 +5220,10 @@ QGroupBox::title {
   <tabstop>botao_doar_anel</tabstop>
   <tabstop>lista_escudos</tabstop>
   <tabstop>botao_adicionar_escudo</tabstop>
-  <tabstop>botao_duplicar_escudo</tabstop>
   <tabstop>botao_remover_escudo</tabstop>
+  <tabstop>botao_duplicar_escudo</tabstop>
+  <tabstop>checkbox_escudo_op</tabstop>
+  <tabstop>spin_bonus_escudo</tabstop>
   <tabstop>botao_ordenar_escudos</tabstop>
   <tabstop>botao_doar_escudo</tabstop>
   <tabstop>lista_chapeus</tabstop>
