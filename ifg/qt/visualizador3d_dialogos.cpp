@@ -1110,7 +1110,7 @@ template <class Dialogo, class Gerador>
 void ConfiguraArmasArmaduraOuEscudo(
     Dialogo* dialogo, const ent::Tabelas& tabelas, ent::TipoTerreno tipo_terreno, Gerador& gerador, std::function<void(const ent::Tabelas&, Gerador&, const ent::EntidadeProto& proto)> f_atualiza_ui,
     arma_armadura_ou_escudo_e tipo, QListWidget* lista,
-    QPushButton* botao_adicionar, QPushButton* botao_duplicar, QCheckBox* checkbox_op, QSpinBox* spin_bonus, QPushButton* botao_remover, QPushButton* botao_ordenar, QPushButton* botao_doar,
+    QPushButton* botao_adicionar, QPushButton* botao_duplicar, QCheckBox* checkbox_op, QSpinBox* spin_bonus, QSpinBox* spin_bonus_secundario, QPushButton* botao_remover, QPushButton* botao_ordenar, QPushButton* botao_doar,
     const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado, ntf::CentralNotificacoes* central) {
   if (tipo == arma_armadura_ou_escudo_e::ITEM_ARMA) {
     // Delegado.
@@ -1155,6 +1155,18 @@ void ConfiguraArmasArmaduraOuEscudo(
       ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
       AtualizaUITesouro(tabelas, gerador, *proto_retornado);
     });
+  }
+  if (spin_bonus_secundario != nullptr) {
+    lambda_connect(spin_bonus_secundario, SIGNAL(valueChanged(int)), [spin_bonus_secundario, &tabelas, &gerador, tipo, lista, proto_retornado, f_atualiza_ui, tipo_terreno]() {
+      const int indice = lista->currentRow();
+      auto* aae = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
+      if (indice < 0 || indice >= aae->size()) {
+        return;
+      }
+      aae->Mutable(indice)->set_bonus_magico_secundario(spin_bonus_secundario->value());
+      ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
+      AtualizaUITesouro(tabelas, gerador, *proto_retornado);
+      });
   }
   lambda_connect(botao_adicionar, SIGNAL(clicked()), [tipo, &tabelas, &gerador, lista, proto_retornado, tipo_terreno] () {
     auto* aae = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
@@ -1260,7 +1272,7 @@ void PreencheConfiguraTesouro(
       dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ITEM_ARMA,
       gerador.lista_armas,
       gerador.botao_adicionar_arma, gerador.botao_duplicar_arma,
-      gerador.checkbox_arma_op, gerador.spin_bonus_arma,
+      gerador.checkbox_arma_op, gerador.spin_bonus_arma, gerador.spin_bonus_arma_secundario,
       gerador.botao_remover_arma, gerador.botao_ordenar_armas,
       gerador.botao_doar_arma,
       proto, proto_retornado, central);
@@ -1269,7 +1281,7 @@ void PreencheConfiguraTesouro(
       dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ITEM_ARMADURA,
       gerador.lista_armaduras,
       gerador.botao_adicionar_armadura, gerador.botao_duplicar_armadura,
-      nullptr, nullptr,
+      nullptr, nullptr, nullptr,
       gerador.botao_remover_armadura, gerador.botao_ordenar_armaduras,
       gerador.botao_doar_armadura,
       proto, proto_retornado, central);
@@ -1278,7 +1290,7 @@ void PreencheConfiguraTesouro(
       dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ITEM_ESCUDO,
       gerador.lista_escudos,
       gerador.botao_adicionar_escudo, gerador.botao_duplicar_escudo,
-      nullptr, nullptr,
+      nullptr, nullptr, nullptr,
       gerador.botao_remover_escudo, gerador.botao_ordenar_escudos,
       gerador.botao_doar_escudo,
       proto, proto_retornado, central);

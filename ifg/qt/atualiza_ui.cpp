@@ -657,7 +657,8 @@ const RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& Busc
   }
 }
 
-void AtualizaListaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, arma_armadura_ou_escudo_e tipo, QListWidget* lista, QCheckBox* checkbox_op, QSpinBox* spin_bonus, const ent::EntidadeProto& proto) {
+void AtualizaListaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, arma_armadura_ou_escudo_e tipo, QListWidget* lista, QCheckBox* checkbox_op, QSpinBox* spin_bonus, QSpinBox* spin_bonus_secundario,
+                                       const ent::EntidadeProto& proto) {
   const int indice = lista->currentRow();
   lista->clear();
   const auto& aaes = BuscaArmasArmadurasEscudos(tipo, proto);
@@ -678,6 +679,12 @@ void AtualizaListaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, arma_armadur
       spin_bonus->setValue(0);
       spin_bonus->blockSignals(false);
     }
+    if (spin_bonus_secundario != nullptr) {
+      spin_bonus_secundario->blockSignals(true);
+      spin_bonus_secundario->setValue(0);
+      spin_bonus_secundario->setEnabled(false);
+      spin_bonus_secundario->blockSignals(false);
+    }
     return;
   }
   if (checkbox_op != nullptr) {
@@ -689,6 +696,12 @@ void AtualizaListaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, arma_armadur
     spin_bonus->blockSignals(true);
     spin_bonus->setValue(aaes[indice].bonus_magico());
     spin_bonus->blockSignals(false);
+  }
+  if (spin_bonus_secundario != nullptr) {
+    spin_bonus_secundario->blockSignals(true);
+    spin_bonus_secundario->setEnabled(ent::PossuiCategoria(ent::CAT_ARMA_DUPLA, tabelas.Arma(aaes[indice].id_tabela())));
+    spin_bonus_secundario->setValue(aaes[indice].bonus_magico_secundario());
+    spin_bonus_secundario->blockSignals(false);
   }
 }
 
@@ -723,9 +736,9 @@ void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, co
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_DIVINO, gerador.lista_pergaminhos_divinos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_VARINHA, gerador.lista_varinhas, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_ITEM_MUNDANO, gerador.lista_itens_mundanos, proto);
-  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMA, gerador.lista_armas, gerador.checkbox_arma_op, gerador.spin_bonus_arma, proto);
-  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMADURA, gerador.lista_armaduras, nullptr, nullptr, proto);
-  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ESCUDO, gerador.lista_escudos, nullptr, nullptr, proto);
+  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMA, gerador.lista_armas, gerador.checkbox_arma_op, gerador.spin_bonus_arma, gerador.spin_bonus_arma_secundario, proto);
+  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMADURA, gerador.lista_armaduras, nullptr, nullptr, nullptr, proto);
+  AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ESCUDO, gerador.lista_escudos, nullptr, nullptr, nullptr, proto);
 
   for (auto* obj : objs) obj->blockSignals(false);
 }
