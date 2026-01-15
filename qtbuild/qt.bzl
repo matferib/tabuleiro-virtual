@@ -54,8 +54,8 @@ def qt_ui_library(name, ui, deps, **kwargs):
         uic = select({
             "@platforms//os:linux": "/usr/lib/qt6/libexec/uic",
             "@platforms//os:windows": "$(location @qt//:uic)",
-            #"@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/uic",
-            "@platforms//os:osx": "/opt/homebrew/Cellar/qtbase/6.10.1/share/qt/libexec/uic",
+            "@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/uic",
+            #"@platforms//os:osx": "/opt/homebrew/Cellar/qtbase/6.10.1/share/qt/libexec/uic",
         }),
     )
     cc_library(
@@ -141,8 +141,8 @@ def qt_resource(name, files, **kwargs):
         rcc = select({
             "@platforms//os:linux": "/usr/lib/qt6/libexec/rcc",
             "@platforms//os:windows": "$(location @qt//:rcc)",
-            #"@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/rcc",
-            "@platforms//os:osx": "/opt/homebrew/Cellar/qtbase/6.10.1/share/qt/libexec/rcc",
+            "@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/rcc",
+            #"@platforms//os:osx": "/opt/homebrew/Cellar/qtbase/6.10.1/share/qt/libexec/rcc",
         }),
 
     )
@@ -175,8 +175,8 @@ def qt_cc_library(name, srcs, hdrs, normal_hdrs = [], deps = None, **kwargs):
             cmd = select({
                 "@platforms//os:linux": "/usr/lib/qt6/libexec/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
                 "@platforms//os:windows": "$(location @qt//:moc) $(locations %s) -o $@ -f'%s'" % (hdr, header_path),
-                #"@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
-                "@platforms//os:osx": "/opt/homebrew/Cellar/qtbase/6.10.1/share/qt/libexec/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
+                "@platforms//os:osx": "/opt/homebrew/Cellar/qt@5/5.15.15/bin/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
+                #"@platforms//os:osx": "/opt/homebrew/Cellar/qtbase/6.10.1/share/qt/libexec/moc $(location %s) -o $@ -f'%s'" % (hdr, header_path),
             }),
             tools = select({
                 "@platforms//os:linux": [],

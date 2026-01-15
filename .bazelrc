@@ -8,5 +8,5 @@ build:windows --cxxopt=/std:c++20 --cxxopt=/DUSAR_GLOG=1 --cxxopt=/DWIN32_LEAN_A
 build:linux --cxxopt=-std=c++20 --cxxopt=-I/usr/include/x86_64-linux-gnu/qt6 --cxxopt=-DUSAR_GLOG=1 --cxxopt=-DUSAR_QT5=0
 
 # Mac.
-build:mac --cxxopt=-std=c++20 --cxxopt=-Wno-unused-lambda-capture --cxxopt=-DUSAR_GLOG=1 --cxxopt=-DUSAR_QT5=0 --cxxopt=-DGL_SILENCE_DEPRECATION --macos_minimum_os=10.15
+build:mac --cxxopt=-std=c++20 --cxxopt=-Wno-unused-lambda-capture --cxxopt=-DUSAR_GLOG=1 --cxxopt=-DUSAR_QT5=1 --cxxopt=-DGL_SILENCE_DEPRECATION --macos_minimum_os=10.15
  

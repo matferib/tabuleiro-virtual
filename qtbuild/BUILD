@@ -20,7 +20,7 @@ QT_LIBRARIES = [
         deps = dependencies + select({
             "@platforms//os:linux": ["//qt6:qt6_%s" % name],
             "@platforms//os:windows": ["//qt6:qt6_%s" % name],
-            "@platforms//os:osx": ["//qt6:qt6_%s" % name],
+            "@platforms//os:osx": ["//qt5:qt5_%s" % name],
         }),
     )
     for name, _, _, dependencies in QT_LIBRARIES
