@@ -402,7 +402,7 @@ void PreencheComboArma(
   gerador.combo_arma->clear();
   gerador.combo_arma->addItem("Nenhuma", QVariant("nenhuma"));
   for (const auto& [name, id] : nome_id_map) {
-    gerador.combo_arma->addItem(QString::fromUtf8(name), QVariant(id.c_str()));
+    gerador.combo_arma->addItem(QString::fromUtf8(name.c_str()), QVariant(id.c_str()));
   }
 }
 
@@ -477,10 +477,6 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   }
 
   // BBA.
-  int bba = 0;
-  for (const auto& info_classe : proto.info_classes()) {
-    bba += info_classe.bba();
-  }
   gerador.label_bba_base->setText(QString::number(proto.bba().base()));
   gerador.label_bba_agarrar->setText(QString::number(proto.bba().agarrar()));
   gerador.label_bba_cac->setText(QString::number(proto.bba().cac()));
@@ -667,7 +663,7 @@ void AtualizaListaArmaArmaduraOuEscudo(const ent::Tabelas& tabelas, arma_armadur
   const auto& aaes = BuscaArmasArmadurasEscudos(tipo, proto);
   for (const auto& aae : aaes) {
     const std::string& nome = aae.nome();
-    auto* wi = new QListWidgetItem(QString::fromUtf8(nome), lista);
+    auto* wi = new QListWidgetItem(QString::fromUtf8(nome.c_str()), lista);
     wi->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
   }
   lista->setCurrentRow(indice);

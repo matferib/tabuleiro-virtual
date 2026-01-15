@@ -29,7 +29,7 @@ class ArmaDelegate : public QItemDelegate {
       QListWidget* lista, ent::EntidadeProto* proto)
       : QItemDelegate(lista), tabelas_(tabelas), lista_(lista), proto_(proto) {}
 
-  __declspec(noinline) QWidget* createEditor(
+  QWidget* createEditor(
       QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
     return PreencheConfiguraCombo(new QComboBox(parent));
   }
@@ -112,11 +112,11 @@ class ArmaDelegate : public QItemDelegate {
   }
 
   // Retorna o item do personagem.
-  __declspec(noinline) const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaCorrenteDoProto() const {
+  const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaCorrenteDoProto() const {
     return ArmaDoProto(lista_->currentRow());
   }
 
-  __declspec(noinline) const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaDoProto(int indice_proto) const {
+  const ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaDoProto(int indice_proto) const {
     const auto& armas = ArmasPersonagem();
     if (indice_proto < 0 || indice_proto >= armas.size()) {
       LOG(ERROR) << "indice invalido em ArmaDoPRoto: " << indice_proto;

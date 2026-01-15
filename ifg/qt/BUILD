@@ -19,6 +19,7 @@ qt_cc_library(
   ],
   normal_hdrs = [],
   hdrs = [
+    "armas_util.h",
     "atualiza_ui.h",
     "bonus_util.h",
     "constantes.h",
