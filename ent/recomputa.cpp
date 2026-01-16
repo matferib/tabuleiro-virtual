@@ -3844,15 +3844,30 @@ void RecomputaDependencias(
   if (proto->info_classes_size() > 0 ||  proto->bba().has_base()) {
     const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
     const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
-    const int bba = proto->info_classes_size() > 0 ? CalculaBonusBaseAtaque(*proto) : proto->bba().base();
     const int niveis_negativos = proto->niveis_negativos();
+    // Note que é importante separar o bba no nivel negativo por razões de numero de ataques.
+    const int bba = proto->info_classes_size() > 0 ? CalculaBonusBaseAtaque(*proto) : proto->bba().base();
+    proto->mutable_bba()->set_base_detalhes(
+        absl::StrFormat("classe: %+d", bba));
     proto->mutable_bba()->set_base(bba);
+
     proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba - niveis_negativos);
-    proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba - niveis_negativos);
-    int total_agarrar = modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba - niveis_negativos;
+    proto->mutable_bba()->set_cac_detalhes(
+        absl::StrFormat("BBA: %d, força: %+d, tamanho: %+d, níveis negativos: %+d", bba, modificador_forca, modificador_tamanho, -niveis_negativos));
+
+    proto->mutable_bba()->set_distancia(modificador_destreza + modificador_tamanho + bba -niveis_negativos);
+    proto->mutable_bba()->set_distancia_detalhes(
+        absl::StrFormat("BBA: %d, destreza %+d, tamanho: %+d, níveis negativos: %+d", bba, modificador_destreza, modificador_tamanho, -niveis_negativos));
+
+    const int modificador_tamanho_agarrar = ModificadorTamanhoAgarrar(proto->tamanho());
+    int total_agarrar = modificador_forca + modificador_tamanho_agarrar + bba - niveis_negativos;
+    int modificador_agarrar_aprimorado = 0;
     if (PossuiTalento("agarrar_aprimorado", *proto)) {
       total_agarrar += 4;
+      modificador_agarrar_aprimorado = 4;
     }
+    proto->mutable_bba()->set_agarrar_detalhes(
+        absl::StrFormat("BBA: %d, força: %+d, tamanho: %+d, agarrar aprimorado: %+d, níveis negativos: %+d", bba, modificador_forca, modificador_tamanho_agarrar, modificador_agarrar_aprimorado, -niveis_negativos));
     proto->mutable_bba()->set_agarrar(total_agarrar);
   }
 
