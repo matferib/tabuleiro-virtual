@@ -280,9 +280,13 @@ message EntidadeProto {
   // Bonus base de ataque.
   message InfoBBA {
     optional int32 base = 1;
+    optional string base_detalhes = 5;
     optional int32 agarrar = 2;
+    optional string agarrar_detalhes = 6;
     optional int32 cac = 3;
+    optional string cac_detalhes = 7;
     optional int32 distancia = 4;
+    optional string distancia_detalhes = 8;
   }
   optional InfoBBA bba = 70;
 
