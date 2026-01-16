@@ -2002,10 +2002,11 @@ void PreencheConfiguraClassesNiveis(
     AtualizaUIClassesNiveis(tabelas, gerador, *proto_retornado);
   });
 
-  lambda_connect(gerador.spin_niveis_negativos, SIGNAL(valueChanged(int)), [&tabelas, &gerador, proto_retornado] () {
+  lambda_connect(gerador.spin_niveis_negativos, SIGNAL(valueChanged(int)), [&tabelas, &gerador, proto_retornado, tipo_terreno] () {
     ent::AtribuiOuRemoveBonus(
         std::max(0, gerador.spin_niveis_negativos->value()), ent::TB_BASE, "base",
         proto_retornado->mutable_niveis_negativos_dinamicos());
+    ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUI(tabelas, gerador, *proto_retornado);
   });
 
