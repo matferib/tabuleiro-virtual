@@ -478,9 +478,14 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
 
   // BBA.
   gerador.label_bba_base->setText(QString::number(proto.bba().base()));
+  gerador.label_bba_base->setToolTip(QString::fromUtf8(proto.bba().base_detalhes().c_str()));
   gerador.label_bba_agarrar->setText(QString::number(proto.bba().agarrar()));
+  gerador.label_bba_agarrar->setToolTip(QString::fromUtf8(proto.bba().agarrar_detalhes().c_str()));
   gerador.label_bba_cac->setText(QString::number(proto.bba().cac()));
+  gerador.label_bba_cac->setToolTip(QString::fromUtf8(proto.bba().cac_detalhes().c_str()));
   gerador.label_bba_distancia->setText(QString::number(proto.bba().distancia()));
+  gerador.label_bba_distancia->setToolTip(QString::fromUtf8(proto.bba().distancia_detalhes().c_str()));
+
 
   const bool linha_valida = linha >= 0 && linha < proto.dados_ataque_size();
   const auto& tipo_ataque = linha_valida ? proto.dados_ataque(linha).tipo_ataque() : CurrentData(gerador.combo_tipo_ataque).toString().toStdString();
