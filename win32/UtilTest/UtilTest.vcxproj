@@ -19,13 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{98cae8f1-e1ec-415a-9265-4bf839aafa7a}</ProjectGuid>
+    <ProjectGuid>{67aad2c7-474d-4301-b0a8-64f39f461d9e}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
-    <ProjectName>AcoesTest</ProjectName>
+    <ProjectName>UtilTest</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -111,7 +111,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ent\acoes_test.cpp" />
+    <ClCompile Include="..\..\ent\util_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TabuleiroVirtual\Project1.vcxproj">
