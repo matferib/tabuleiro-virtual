@@ -24,10 +24,13 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <ProjectName>AcoesTest</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
@@ -96,7 +99,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)vcpkg_installed/x64-windows/include;$(SolutionDir)..\;$(QTDIR)\msvc2022_64\include;$(QTDIR)\msvc2022_64\include\QtOpenGL;$(QTDIR)\msvc2022_64\include\QtCore;$(QTDIR)\msvc2022_64\include\QtWidgets;$(QTDIR)\msvc2022_64\include\QtMultimedia;$(QTDIR)\msvc2022_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)..\;$(QTDIR)\msvc2022_64\include;$(QTDIR)\msvc2022_64\include\QtOpenGL;$(QTDIR)\msvc2022_64\include\QtCore;$(QTDIR)\msvc2022_64\include\QtWidgets;$(QTDIR)\msvc2022_64\include\QtMultimedia;$(QTDIR)\msvc2022_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

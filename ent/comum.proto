@@ -587,6 +587,8 @@ message DadosAtaqueGlobal {
   map<int32, int32> bonus_ataque_por_sub_tipo = 33;
   // A chave deveria ser CategoriaArma, mas mapa nao aceita.
   map<int32, int32> bonus_ataque_por_categoria_arma = 34;
+  // A chave é o valor do campo escola da tabela de armas. 
+  map<string, int32> bonus_ataque_por_escola_magia = 35;
 }
 
 // Dados de defesa global (independe de ataque).

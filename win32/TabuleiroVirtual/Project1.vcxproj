@@ -193,7 +193,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -410,7 +410,7 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PreBuildEvent>
-      <Command>$(SolutionDir)vcpkg_installed\x64-windows\tools\protobuf\protoc.exe  -I$(SolutionDir).. --cpp_out=$(SolutionDir).. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
+      <Command>$(SolutionDir)vcpkg_installed\x64-windows\x64-windows\tools\protobuf\protoc.exe  -I$(SolutionDir).. --cpp_out=$(SolutionDir).. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
 $(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\entidade.ui -o $(SolutionDir)..\ifg\qt\ui\entidade.h
 $(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\opcoes.ui -o $(SolutionDir)..\ifg\qt\ui\opcoes.h
 $(QTDIR)\msvc2022_64\bin\uic.exe $(SolutionDir)..\ifg\qt\ui\cenario.ui -o $(SolutionDir)..\ifg\qt\ui\cenario.h

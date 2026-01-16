@@ -1661,6 +1661,9 @@ QGroupBox::title {
               <property name="text">
                <string>Distância</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignCenter</set>
+              </property>
              </widget>
             </item>
             <item row="1" column="2">

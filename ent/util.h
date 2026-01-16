@@ -11,31 +11,13 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <google/protobuf/repeated_field.h>
+#include "google/protobuf/repeated_field.h"
 #include "arq/arquivo.h"
 #include "ent/controle_virtual.pb.h"
 #include "ent/tabelas.pb.h"
 #include "matrix/matrices.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
-
-#if WIN32
-namespace std {
-  template<typename TK, typename TV>
-  class tuple_size<google::protobuf::MapPair<TK, TV>> : public std::integral_constant<size_t, 2> { };
-
-  template<size_t I, typename TK, typename TV>
-  struct tuple_element< I, google::protobuf::MapPair<TK, TV>> { };
-  template<typename TK, typename TV> struct tuple_element<0, google::protobuf::MapPair<TK, TV>> { using type = TK; };
-  template<typename TK, typename TV> struct tuple_element<1, google::protobuf::MapPair<TK, TV>> { using type = TV; };
-
-  template<int I, typename TK, typename TV>
-  auto get(const google::protobuf::MapPair<TK, TV>& x) {
-    if constexpr (I == 0) return x.first;
-    if constexpr (I == 1) return x.second;
-  }
-}
-#endif
 
 // Funcoes uteis de ent.
 namespace ent {
