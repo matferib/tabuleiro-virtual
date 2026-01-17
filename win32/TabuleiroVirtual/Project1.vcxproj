@@ -153,6 +153,12 @@
     <ClInclude Include="..\..\som\som.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\ent\acoes.proto" />
+    <None Include="..\..\ent\comum.proto" />
+    <None Include="..\..\ent\controle_virtual.proto" />
+    <None Include="..\..\ent\entidade.proto" />
+    <None Include="..\..\ent\tabelas.proto" />
+    <None Include="..\..\ent\tabuleiro.proto" />
     <None Include="..\..\ntf\notificacao.proto" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
