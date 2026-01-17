@@ -3506,7 +3506,19 @@ void RecomputaDependenciasUmDadoAtaque(
       da->set_dano_basico(ConverteDanoBasicoMedioParaTamanho(DanoBasicoMonge(nivel_monge), tamanho));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
-    } else if (da->empunhadura() == EA_MAO_RUIM && PossuiCategoria(CAT_ARMA_DUPLA, arma) && arma.has_dano_secundario()) {
+    } else if ((da->empunhadura() == EA_MAO_RUIM) && PossuiCategoria(CAT_ARMA_DUPLA, arma)) {
+      if (!da->inverter_arma() && arma.has_dano_secundario()) {
+        // Usa o lado secundario.
+        da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano_secundario()));
+        da->set_margem_critico(arma.margem_critico());
+        da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
+      } else {
+        // Usa o lado primario como ruim.
+        da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano()));
+        da->set_margem_critico(arma.margem_critico());
+        da->set_multiplicador_critico(arma.multiplicador_critico());
+      }
+    } else if (PossuiCategoria(CAT_ARMA_DUPLA, arma) && da->inverter_arma()) {
       da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano_secundario()));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico_secundario());

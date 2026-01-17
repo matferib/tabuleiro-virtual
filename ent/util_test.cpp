@@ -239,6 +239,61 @@ TEST(TesteArmas, TestePistola) {
   }
 }
 
+TEST(TesteArmas, TesteMarteloGnomo) {
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(1);
+    ic->set_id("guerreiro");
+  }
+  {
+    auto* da = DadosAtaquePorGrupoOuCria("martelo_gnomo_com_gancho", &proto);
+    da->set_tipo_ataque("Ataque Corpo a Corpo");
+    da->set_empunhadura(EA_MAO_BOA);
+    da->set_id_arma("martelo_gnomo_com_gancho");
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_grupo("martelo_gnomo_com_gancho");
+    da->set_tipo_ataque("Ataque Corpo a Corpo");
+    da->set_empunhadura(EA_MAO_RUIM);
+    da->set_id_arma("martelo_gnomo_com_gancho");
+  }
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).dano(), "1d8");
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).multiplicador_critico(), 3);
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).dano(), "1d6");
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).multiplicador_critico(), 4);
+}
+
+TEST(TesteArmas, TesteMarteloGnomoInvertido) {
+  EntidadeProto proto;
+  {
+    auto* ic = proto.add_info_classes();
+    ic->set_nivel(1);
+    ic->set_id("guerreiro");
+  }
+  {
+    auto* da = DadosAtaquePorGrupoOuCria("martelo_gnomo_com_gancho", &proto);
+    da->set_tipo_ataque("Ataque Corpo a Corpo");
+    da->set_empunhadura(EA_MAO_BOA);
+    da->set_id_arma("martelo_gnomo_com_gancho");
+    da->set_inverter_arma(true);
+  }
+  {
+    auto* da = proto.add_dados_ataque();
+    da->set_grupo("martelo_gnomo_com_gancho");
+    da->set_tipo_ataque("Ataque Corpo a Corpo");
+    da->set_empunhadura(EA_MAO_RUIM);
+    da->set_id_arma("martelo_gnomo_com_gancho");
+    da->set_inverter_arma(true);
+  }
+  std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).dano(), "1d6");
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).multiplicador_critico(), 4);
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).dano(), "1d8");
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).multiplicador_critico(), 3);
+}
 
 TEST(TesteArmas, TesteChicote) {
   auto modelo = TabelasCriando().ModeloEntidade("Humano Plebeu 1");
@@ -7475,7 +7530,6 @@ TEST(TesteRacas, TesteGnomoDaFlorestaNaFloresta) {
   RecomputaDependencias(TabelasCriando(), TT_SUBTERRANEO, &proto);
   EXPECT_EQ(ValorFinalPericia("esconderse", proto), 8) << BonusPericia("esconderse", gnomo->Proto()).DebugString();
 }
-
 
 TEST(TesteRacas, TesteElfo) {
   EntidadeProto proto;
