@@ -343,6 +343,7 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.botao_clonar_ataque->setEnabled(false);
 
   gerador.combo_empunhadura->setCurrentIndex(0);
+  gerador.checkbox_inverter_arma->setCheckState(Qt::Unchecked);
   gerador.checkbox_op->setCheckState(Qt::Unchecked);
   gerador.checkbox_ignora_rm->setCheckState(Qt::Unchecked);
   gerador.checkbox_permite_salvacao->setCheckState(Qt::Unchecked);
@@ -451,7 +452,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   std::vector<QObject*> objs =
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.checkbox_ignora_rm, gerador.checkbox_permite_salvacao,
        gerador.checkbox_ataque_agarrar, gerador.checkbox_ataque_toque, gerador.spin_municao,
-       gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.spin_limite_vezes, gerador.combo_empunhadura,
+       gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.spin_limite_vezes, gerador.combo_empunhadura, gerador.checkbox_inverter_arma,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_grupo_ataque, gerador.linha_rotulo_ataque, gerador.lista_ataques,
        gerador.combo_arma, gerador.spin_ordem_ataque, gerador.combo_material_arma,
        gerador.spin_nivel_conjurador_pergaminho, gerador.spin_modificador_atributo_pergaminho };
@@ -527,6 +528,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.checkbox_ataque_agarrar->setCheckState(da.acao_fixa().ataque_agarrar() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_ataque_toque->setCheckState(da.acao_fixa().ataque_toque() ? Qt::Checked : Qt::Unchecked);
   gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
+  gerador.checkbox_inverter_arma->setChecked(da.inverter_arma() ? Qt::Checked : Qt::Unchecked);
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.bonus_ataque()));
   gerador.spin_bonus_magico->setEnabled(!do_equipamento);
   gerador.spin_municao->setValue(da.municao());

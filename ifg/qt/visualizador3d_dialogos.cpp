@@ -362,6 +362,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
   }
   da.set_obra_prima(gerador.checkbox_op->checkState() == Qt::Checked);
   da.set_empunhadura(ComboParaEmpunhadura(gerador.combo_empunhadura));
+  da.set_inverter_arma(gerador.checkbox_inverter_arma->isChecked());
   std::string id = gerador.combo_arma->itemData(gerador.combo_arma->currentIndex()).toString().toStdString();
   if (id == "nenhuma") {
     ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toStdString());
@@ -1681,6 +1682,7 @@ void PreencheConfiguraDadosAtaque(
   lambda_connect(gerador.checkbox_ataque_agarrar, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.checkbox_ataque_toque, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
+  lambda_connect(gerador.checkbox_inverter_arma, SIGNAL(stateChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); });
   lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );
   lambda_connect(gerador.spin_nivel_conjurador_pergaminho, SIGNAL(valueChanged(int)), [EditaAtualizaUIAtaque]() { EditaAtualizaUIAtaque(); } );

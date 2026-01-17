@@ -3887,6 +3887,16 @@ QGroupBox::title {
          </property>
         </widget>
        </item>
+       <item row="0" column="12">
+        <widget class="QCheckBox" name="checkbox_inverter_arma">
+         <property name="toolTip">
+          <string>Se a arma for dupla, usar o lado secundário como principal.</string>
+         </property>
+         <property name="text">
+          <string>Inverter arma</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab">
