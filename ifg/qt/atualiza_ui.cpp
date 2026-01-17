@@ -1,7 +1,7 @@
 #include "ifg/qt/atualiza_ui.h"
 
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QCheckbox>
+#include <QtWidgets/QCheckBox>
 #include <unordered_set>
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
