@@ -1,4 +1,4 @@
-UI: permitir modificar arma dupla na ui (por exemplo, OP e bonus)
+Recomputa deve verificar arma ivnertida e aplicar nas duas pontas se setada em alguma.
 Som de cenario.
 Botao para emitir som de criatura.
 
