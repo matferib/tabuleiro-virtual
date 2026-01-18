@@ -4190,6 +4190,26 @@ TEST(TesteSalvacao, TesteModificadoresPorTipoDiferente) {
   }
 }
 
+TEST(TesteFeiticos, TodosToqueTemAlcance) {
+  for (const auto& feitico : TabelasCriando().todas().tabela_feiticos().armas()) {
+    ASSERT_FALSE(feitico.info_classes().empty()) << "feitico " << feitico.id() << " sem classes";
+    if (feitico.acao().id() != "Feitiço de Toque") continue;
+    EntidadeProto proto;
+    auto* ic = proto.add_info_classes();
+    ic->set_id(feitico.info_classes(0).id());
+    ic->set_nivel(20);
+    AtribuiBaseAtributo(18, TA_INTELIGENCIA, &proto);
+    AtribuiBaseAtributo(18, TA_SABEDORIA, &proto);
+    AtribuiBaseAtributo(18, TA_CARISMA, &proto);
+    auto* da = proto.add_dados_ataque();
+    da->set_grupo("feitico");
+    da->set_id_arma(feitico.id());
+    RecomputaDependencias(TabelasCriando(), TT_NENHUM, &proto);
+    EXPECT_TRUE(DadosAtaquePorGrupo("feitico", proto).has_alcance_m()) << "feitico de toque: '" << feitico.id() << "' sem alcance.";
+  }
+}
+
+
 TEST(TesteFeiticos, TesteCurarNaoAplicaForca) {
   {
     EntidadeProto proto;
@@ -7479,7 +7499,7 @@ TEST(TestFeiticos, TesteFeiticosComSalvacaoTemSalvacao) {
     if (!ou_nao_tem_id_ou_tem_id_valido) continue;
     acao.MergeFrom(feitico.acao());
     if (acao.permite_salvacao()) {
-      EXPECT_TRUE(acao.has_tipo_salvacao()) << "feitico sem tipo de salvacao: " << feitico.nome();
+      EXPECT_TRUE(acao.has_tipo_salvacao()) << "feitico sem tipo de salvacao: '" << feitico.nome() << "'";
       EXPECT_TRUE(acao.has_dificuldade_salvacao_base() || acao.has_dificuldade_salvacao_por_nivel()) << "feitico sem CD de salvacao: " << feitico.nome();
     }
   }
