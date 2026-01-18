@@ -544,6 +544,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
   } else if (acao == acoes_[ME_TABULEIRO][MI_ENVIAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
     *notificacao->mutable_tabuleiro()->mutable_camera_inicial() = tabuleiro_->CameraCorrente();
+    notificacao->mutable_tabuleiro()->set_id_cenario(tabuleiro_->IdCenario());
     central_->AdicionaNotificacaoRemota(notificacao.release());
   } else if (acao == acoes_[ME_TABULEIRO][MI_REMOVER_CENARIO]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REMOVER_CENARIO);
