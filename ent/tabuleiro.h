@@ -669,6 +669,9 @@ class Tabuleiro : public ntf::Receptor {
   void RemoverEntidadesDeTimeNotificando();
   void AdicionarEntidadesAoTimeNotificando();
 
+  // Retorna a camera corrente.
+  const Olho& CameraCorrente() const { return olho_; }
+
  private:
   struct DadosIniciativa {
     unsigned int id;  // entidade.
