@@ -49,7 +49,7 @@
     <Filter Include="ntf\proto">
       <UniqueIdentifier>{20dd6919-be10-4cfd-b0ad-56707efd9a17}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ifg\Proto">
+    <Filter Include="ent\Proto">
       <UniqueIdentifier>{b8ab15ce-a4c2-41a3-845a-7355d41ede93}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -312,22 +312,22 @@
       <Filter>ntf\proto</Filter>
     </None>
     <None Include="..\..\ent\acoes.proto">
-      <Filter>ifg\Proto</Filter>
+      <Filter>ent\Proto</Filter>
     </None>
     <None Include="..\..\ent\comum.proto">
-      <Filter>ifg\Proto</Filter>
+      <Filter>ent\Proto</Filter>
     </None>
     <None Include="..\..\ent\controle_virtual.proto">
-      <Filter>ifg\Proto</Filter>
+      <Filter>ent\Proto</Filter>
     </None>
     <None Include="..\..\ent\entidade.proto">
-      <Filter>ifg\Proto</Filter>
+      <Filter>ent\Proto</Filter>
     </None>
     <None Include="..\..\ent\tabelas.proto">
-      <Filter>ifg\Proto</Filter>
+      <Filter>ent\Proto</Filter>
     </None>
     <None Include="..\..\ent\tabuleiro.proto">
-      <Filter>ifg\Proto</Filter>
+      <Filter>ent\Proto</Filter>
     </None>
   </ItemGroup>
 </Project>
