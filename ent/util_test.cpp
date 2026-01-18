@@ -4190,10 +4190,11 @@ TEST(TesteSalvacao, TesteModificadoresPorTipoDiferente) {
   }
 }
 
-TEST(TesteFeiticos, TodosToqueTemAlcance) {
+TEST(TesteFeiticos, TodosFeiticosToqueTemAlcance) {
   for (const auto& feitico : TabelasCriando().todas().tabela_feiticos().armas()) {
     ASSERT_FALSE(feitico.info_classes().empty()) << "feitico " << feitico.id() << " sem classes";
-    if (feitico.acao().id() != "Feitiço de Toque") continue;
+    if (feitico.acao().tipo() != ACAO_FEITICO_TOQUE) continue;
+
     EntidadeProto proto;
     auto* ic = proto.add_info_classes();
     ic->set_id(feitico.info_classes(0).id());
@@ -4208,7 +4209,6 @@ TEST(TesteFeiticos, TodosToqueTemAlcance) {
     EXPECT_TRUE(DadosAtaquePorGrupo("feitico", proto).has_alcance_m()) << "feitico de toque: '" << feitico.id() << "' sem alcance.";
   }
 }
-
 
 TEST(TesteFeiticos, TesteCurarNaoAplicaForca) {
   {
@@ -7504,7 +7504,6 @@ TEST(TestFeiticos, TesteFeiticosComSalvacaoTemSalvacao) {
     }
   }
 }
-
 
 TEST(TestFeiticos, RodadasBaseAnterior) {
   for (const auto& feitico : TabelasCriando().todas().tabela_feiticos().armas()) {
