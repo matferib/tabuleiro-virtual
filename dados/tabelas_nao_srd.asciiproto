@@ -649,6 +649,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
+      id: 'Feitiço de Toque'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       icone: 'icon_touch.png'

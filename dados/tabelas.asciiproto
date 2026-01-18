@@ -8941,6 +8941,7 @@ tabela_feiticos {
       nivel: 8
     }
     acao {
+      id: 'Feitiço de Toque'
       tipo: ACAO_FEITICO_TOQUE
       permite_salvacao: false
       ignora_resistencia_magia: true
@@ -8984,13 +8985,14 @@ tabela_feiticos {
 
   armas {
     id: 'arma_rompimento'
-    nome_ingles: 'disruping weapon'
+    nome_ingles: 'disrupting weapon'
     nome: 'arma do rompimento'
     info_classes {
       id: 'clerigo'
       nivel: 5
     }
     acao {
+      id: 'Feitiço de Toque'
       tipo: ACAO_FEITICO_TOQUE
       permite_salvacao: false
       ignora_resistencia_magia: true
@@ -9499,6 +9501,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       permite_salvacao: false
       ignora_resistencia_magia: true
@@ -9543,6 +9546,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       ignora_resistencia_magia: true
       permite_ataque_vs_defesa: false
@@ -9712,10 +9716,14 @@ tabela_feiticos {
       nivel: 3
     }
     ataque_toque: true
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     acao {
+      id: 'Feitiço a Distância'
       tipo: ACAO_FEITICO_TOQUE
       ignora_resistencia_magia: true
       permite_ataque_vs_defesa: false
+      permite_salvacao: false
       cor { r: 1.0 g: 1.0 b: 0.0 a: 0.9 }
       efeitos_adicionais {
         efeito: EFEITO_LAMINA_AFIADA
@@ -9765,6 +9773,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       permite_salvacao: false
       ignora_resistencia_magia: true
@@ -9945,6 +9954,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       efeitos_adicionais {
         efeito: EFEITO_TENDENCIA_EM_ARMA
@@ -10407,6 +10417,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
@@ -10437,6 +10448,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
@@ -10467,6 +10479,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
@@ -10502,6 +10515,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       permite_ataque_vs_defesa: false
       ignora_resistencia_magia: true
@@ -11261,6 +11275,7 @@ tabela_feiticos {
     }
 
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -11391,6 +11406,7 @@ tabela_feiticos {
       nivel: 2
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -11510,6 +11526,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -11540,6 +11557,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -11564,6 +11582,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -11598,7 +11617,10 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Feitiço de Toque'
       tipo: ACAO_FEITICO_TOQUE
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
     }
@@ -11995,6 +12017,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -12075,6 +12098,7 @@ tabela_feiticos {
     }
 
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -12124,6 +12148,7 @@ tabela_feiticos {
       nivel: 0
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -12135,42 +12160,6 @@ tabela_feiticos {
       }
     }
     escola: 'evocacao'
-  }
-  armas {
-    id: 'resistencia'
-    nome_ingles: 'resistance'
-    nome: 'resistência'
-    info_classes {
-      id: 'clerigo'
-      nivel: 0
-    }
-    info_classes {
-      id: 'bardo'
-      nivel: 0
-    }
-    info_classes {
-      id: 'druida'
-      nivel: 0
-    }
-    info_classes {
-      id: 'paladino'
-      nivel: 1
-    }
-    info_classes {
-      id: 'mago'
-      nivel: 0
-    }
-    acao {
-      tipo: ACAO_FEITICO_TOQUE
-      cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
-      icone: 'icon_touch.png'
-      efeitos_adicionais {
-        efeito: EFEITO_RESISTENCIA_SALVACAO
-        rodadas: 10
-        complementos: 1
-      }
-    }
-    escola: 'abjuracao'
   }
   armas {
     id: 'cura_completa'
@@ -12870,6 +12859,7 @@ tabela_feiticos {
       nivel: 1
     }
     acao {
+      id: 'Feitiço de Toque'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -12898,6 +12888,7 @@ tabela_feiticos {
       dominio: true
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -13092,6 +13083,7 @@ tabela_feiticos {
     }
 
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -13196,6 +13188,7 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
@@ -13398,6 +13391,7 @@ tabela_feiticos {
       nivel: 4
     }
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 0.7 g: 0.7 b: 0.7 }
       efeitos_adicionais {
@@ -14262,6 +14256,7 @@ tabela_feiticos {
     }
     ataque_toque: true
     acao {
+      id: 'Feitiço de Toque Aliado'
       tipo: ACAO_FEITICO_TOQUE
       cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
       duracao_s: 0.5
@@ -14500,7 +14495,7 @@ tabela_feiticos {
       nivel: 3
     }
     acao {
-      tipo: ACAO_FEITICO_TOQUE
+      id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
       icone: 'icon_touch.png'
       # Mais modificador de conjurador.
