@@ -66,6 +66,7 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
     MI_REMOVER_CENARIO,
     MI_SALVAR_CAMERA,
     MI_REINICIAR_CAMERA,
+    MI_ENVIAR_CAMERA,
     // ME_ENTIDADES
     MI_PROPRIEDADES_ENTIDADE = 0,
     MI_ADICIONAR,

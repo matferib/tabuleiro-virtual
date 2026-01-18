@@ -77,6 +77,7 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&mover Cenário Corrente"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "En&viar Câmera"),
     g_fim,
   // Entidades.
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar modelo"),
@@ -330,10 +331,11 @@ void MenuPrincipal::Modo(modomenu_e modo){
   case MM_MESTRE:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
     EstadoItemMenu(true, ME_JOGO, { MI_CONECTAR_PROXY });
+    EstadoItemMenu(true, ME_TABULEIRO, { MI_ENVIAR_CAMERA });
     break;
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR_PROXY, MI_CONECTAR });
-    EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_SALVAR_COMO, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, MI_RESTAURAR_VERSAO, MI_REMOVER_VERSAO });
+    EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_SALVAR_COMO, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, MI_RESTAURAR_VERSAO, MI_REMOVER_VERSAO, MI_ENVIAR_CAMERA });
     EstadoItemMenu(false, ME_ENTIDADES, { MI_SALVAR_MODELO_3D, MI_RESTAURAR_MODELO_3D, });
     EstadoMenu(false, ME_DESENHO);
     for (auto* acao : acoes_modelos_) {
@@ -539,6 +541,10 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_REMOVER_VERSAO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
+  } else if (acao == acoes_[ME_TABULEIRO][MI_ENVIAR_CAMERA]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
+    *notificacao->mutable_tabuleiro()->mutable_camera_inicial() = tabuleiro_->CameraCorrente();
+    central_->AdicionaNotificacaoRemota(notificacao.release());
   } else if (acao == acoes_[ME_TABULEIRO][MI_REMOVER_CENARIO]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REMOVER_CENARIO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR_CAMERA]) {
