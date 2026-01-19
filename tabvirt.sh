@@ -9,5 +9,5 @@ lldb ./bazel-bin/tabvirt -- $@
 elif [ "$1" == "perf" ]; then
 perf stat -d ./tabvirt -- $@
 else
-./bazel-bin/tabvirt $@
+./bazel-bin/tabvirt --stderrthreshold=0 $@
 fi
