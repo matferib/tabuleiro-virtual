@@ -5107,6 +5107,7 @@ tabela_classes {
     pericias: 'sobrevivencia'
     pericias: 'natacao'
     pericias: 'usar_cordas'
+    habilidades_por_nivel { id: 'empatia_natureza' nivel: 1 }
     habilidades_por_nivel { id: 'evasao' nivel: 9 }
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO atributo_conjuracao: TA_SABEDORIA
   }
@@ -5168,8 +5169,8 @@ tabela_classes {
     pericias: 'observar'
     pericias: 'sobrevivencia'
     pericias: 'natacao'
-
     salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_VONTADE atributo_conjuracao: TA_SABEDORIA
+    habilidades_por_nivel { id: 'empatia_natureza' nivel: 1 }
   }
   info_classes {
     id: 'paladino' nome: 'Paladino' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4
