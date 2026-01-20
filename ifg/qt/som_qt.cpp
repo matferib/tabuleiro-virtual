@@ -17,16 +17,32 @@ namespace {
 std::unordered_map<std::string, std::unique_ptr<QSoundEffect>> g_fxs;
 const ent::OpcoesProto* g_opcoes = nullptr;
 
+std::unique_ptr<QSoundEffect> CarregaSomUnico(const std::string& nome) {
+  auto fx = std::make_unique<QSoundEffect>();
+  QString qs = QFileInfo(
+      QString::fromStdString(absl::StrFormat("%s/%s",
+                                             arq::Diretorio(arq::TIPO_SOM).c_str(),
+                                             nome.c_str()))).absoluteFilePath();
+  fx->setSource(QUrl::fromLocalFile(qs));
+  fx->setLoopCount(1);
+  return fx;
+}
+
 }  // namespace
 
 void Inicia(const ent::OpcoesProto& opcoes) {
+  {
+    LOG(INFO) << "Forçando sistema de som a iniciar...";
+    // Toca na inicialização para forçar loading do sistema de som.
+    if (auto fx = CarregaSomUnico("nothing.wav"); fx != nullptr) {
+      fx->play();
+      LOG(INFO) << "Som forçado!!!";
+    }
+  }
+
   std::vector<std::string> sons = arq::ConteudoDiretorio(arq::TIPO_SOM);
   for (const std::string& som : sons) {
-    auto fx = std::make_unique<QSoundEffect>();
-    QString qs = QFileInfo(QString::fromStdString(absl::StrFormat("%s/%s", arq::Diretorio(arq::TIPO_SOM).c_str(), som.c_str()))).absoluteFilePath();
-    fx->setSource(QUrl::fromLocalFile(qs));
-    fx->setLoopCount(1);
-    g_fxs[som] = std::move(fx);
+    g_fxs[som] = CarregaSomUnico(som);
   }
   g_opcoes = &opcoes;
 }
