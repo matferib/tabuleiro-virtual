@@ -1,5 +1,6 @@
 /** @file not/Notificacao.cpp implementacao das funcoes basicas de notificacao. */
 
+#include "absl/strings/str_cat.h"
 #include "log/log.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
@@ -52,10 +53,28 @@ void CentralNotificacoes::DesregistraEmissorRemoto(const EmissorRemoto* receptor
   }
 }
 
+namespace {
+
+std::string NotificacoesGrupo(const Notificacao& notificacao) {
+  std::string tipos;
+  bool primeiro = true;
+  for (const auto& sn : notificacao.notificacao()) {
+    if (primeiro) {
+      absl::StrAppend(&tipos, Tipo_Name(sn.tipo()));
+      primeiro = false;
+    } else {
+      absl::StrAppend(&tipos, ", ", Tipo_Name(sn.tipo()));
+    }
+  }
+  return tipos;
+}
+
+}  // namespace
+
 void CentralNotificacoes::AdicionaNotificacao(Notificacao* notificacao) {
   VLOG(3) << "Adicionando: " << notificacao->ShortDebugString();
   if (notificacao->tipo() == TN_GRUPO_NOTIFICACOES) {
-    LOG(ERROR) << "Nao se deve adicionar GRUPO a notificacoes da central.";
+    LOG(ERROR) << "Nao se deve adicionar GRUPO a notificacoes da central: " << NotificacoesGrupo(*notificacao);
   }
   notificacoes_.push_back(std::unique_ptr<ntf::Notificacao>(notificacao));
 }
@@ -67,7 +86,7 @@ void CentralNotificacoes::AdicionaNotificacaoRemota(Notificacao* notificacao) {
   }
   VLOG(3) << "Adicionando notificacao remota: " << notificacao->ShortDebugString();
   if (notificacao->tipo() == TN_GRUPO_NOTIFICACOES) {
-    LOG(ERROR) << "Nao se deve adicionar GRUPO a notificacoes remotas da central.";
+    LOG(ERROR) << "Nao se deve adicionar GRUPO a notificacoes remotas da central: " << NotificacoesGrupo(*notificacao);
   }
   notificacoes_remotas_.push_back(std::unique_ptr<ntf::Notificacao>(notificacao));
 }
