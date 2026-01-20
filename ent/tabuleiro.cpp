@@ -3401,9 +3401,10 @@ void Tabuleiro::ProximaAcao() {
   if (opcoes_.tab_ativa_ataque()) {
     EntraModoClique(MODO_ACAO);
   }
-  if (grupo->notificacao().size()) {
+  if (!grupo->notificacao().empty()) {
+    // Ao tratar as notificacoes locais, elas serão enviadas.
+    TrataNotificacao(*grupo);
     AdicionaNotificacaoListaEventos(*grupo);
-    central_->AdicionaNotificacaoRemota(grupo.release());
   }
 }
 
@@ -3444,9 +3445,10 @@ void Tabuleiro::AcaoAnterior() {
   if (opcoes_.tab_ativa_ataque()) {
     EntraModoClique(MODO_ACAO);
   }
-  if (grupo->notificacao().size()) {
+  if (!grupo->notificacao().empty()) {
+    // Ao tratar as notificacoes locais, elas serão enviadas.
+    TrataNotificacao(*grupo);
     AdicionaNotificacaoListaEventos(*grupo);
-    central_->AdicionaNotificacaoRemota(grupo.release());
   }
 }
 

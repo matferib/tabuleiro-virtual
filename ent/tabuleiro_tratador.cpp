@@ -3783,8 +3783,8 @@ void Tabuleiro::DesagarraEntidadesSelecionadasNotificando() {
     }
 
     if (!grupo->notificacao().empty()) {
+      // As notificacoes, por serem locais, serão enviadas remotamente.
       TrataNotificacao(*grupo);
-      central_->AdicionaNotificacaoRemota(grupo.release());
       AdicionaNotificacaoListaEventos(grupo_desfazer);
     }
   }
