@@ -267,10 +267,20 @@ void InterfaceGraficaQt::EscolheCor(
 }
 
 void InterfaceGraficaQt::EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) {
-  bool ok;
-  int val = QInputDialog::getInt(pai_, pai_->tr("Escolha o valor"),
-                                       pai_->tr("D%1:").arg(nfaces), /*value=*/1, /*min=*/1, /*max=*/nfaces, /*step=*/1, &ok);
-  funcao_volta(ok ? val : 0);
+  auto* dialogo = new QDialog(pai_);
+  int numero_colunas = nfaces == 100
+      ? 10
+      : nfaces >= 10 ? (nfaces / 2) : nfaces;
+  int val = 0;
+  auto* layout = new QGridLayout(dialogo);
+  dialogo->setWindowTitle(absl::StrCat("Escolha o valor do d", nfaces).c_str());
+  for (int i = 1; i <= nfaces; ++i) {
+    auto* botao = new QPushButton(absl::StrCat(i).c_str());
+    lambda_connect(botao, SIGNAL(clicked()), [&val, i, dialogo]() { val = i; dialogo->accept(); });
+    layout->addWidget(botao, /*row=*/(i-1) / numero_colunas, /*column=*/(i-1) % numero_colunas);
+  }
+  dialogo->exec();
+  funcao_volta(val);
 }
 
 }  // namespace qt
