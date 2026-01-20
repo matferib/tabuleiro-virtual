@@ -434,6 +434,36 @@ fixo {
       tamanho: 1
       linha: 10
       coluna: 6
+      rotulo: "d2"
+      id: CONTROLE_ROLAR_D2
+      textura: "icon_d2.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d2."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+        referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 10
+      coluna: 7
+      rotulo: "d3"
+      id: CONTROLE_ROLAR_D3
+      textura: "icon_d3.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d3."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS tipo: VIS_IGUAL_A }
+        referencia { tipo: VIS_ENTIDADE_PRIMEIRA_PESSOA_OU_SELECIONADAS }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 10
+      coluna: 8
       rotulo: "d4"
       id: CONTROLE_ROLAR_D4
       textura: "icon_d4.png"
@@ -448,7 +478,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 10
-      coluna: 7
+      coluna: 9
       rotulo: "d6"
       id: CONTROLE_ROLAR_D6
       textura: "icon_d6.png"
@@ -463,7 +493,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 10
-      coluna: 8
+      coluna: 10
       rotulo: "d8"
       id: CONTROLE_ROLAR_D8
       textura: "icon_d8.png"
@@ -478,7 +508,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 10
-      coluna: 9
+      coluna: 11
       rotulo: "d10"
       id: CONTROLE_ROLAR_D10
       textura: "icon_d10.png"
@@ -493,7 +523,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 10
-      coluna: 10
+      coluna: 12
       rotulo: "d12"
       id: CONTROLE_ROLAR_D12
       textura: "icon_d12.png"
@@ -508,7 +538,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 10
-      coluna: 11
+      coluna: 13
       rotulo: "20"
       id: CONTROLE_ROLAR_D20
       textura: "icon_d20.png"
@@ -523,7 +553,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 10
-      coluna: 12
+      coluna: 14
       rotulo: "d%"
       id: CONTROLE_ROLAR_D100
       textura: "icon_d100.png"
@@ -552,6 +582,35 @@ fixo {
       tamanho: 1
       linha: 11
       coluna: 6
+      rotulo: "d2"
+      id: CONTROLE_FORCAR_D2
+      textura: "icon_d2.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d2."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS_FORCADOS tipo: VIS_IGUAL_A }
+      }
+    }
+    dados_botoes {
+      tamanho: 1
+      linha: 11
+      coluna: 7
+      rotulo: "d3"
+      id: CONTROLE_FORCAR_D3
+      textura: "icon_d3.png"
+      forma: FORMA_RETANGULO
+      mestre_apenas: false
+      dica: "Rola um d3."
+      visibilidade {
+        referencia { id: CONTROLE_DADOS_FORCADOS tipo: VIS_IGUAL_A }
+      }
+    }
+
+    dados_botoes {
+      tamanho: 1
+      linha: 11
+      coluna: 8
       rotulo: "d4"
       id: CONTROLE_FORCAR_D4
       textura: "icon_d4.png"
@@ -565,7 +624,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 11
-      coluna: 7
+      coluna: 9
       rotulo: "d6"
       id: CONTROLE_FORCAR_D6
       textura: "icon_d6.png"
@@ -579,7 +638,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 11
-      coluna: 8
+      coluna: 10
       rotulo: "d8"
       id: CONTROLE_FORCAR_D8
       textura: "icon_d8.png"
@@ -593,7 +652,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 11
-      coluna: 9
+      coluna: 11
       rotulo: "d10"
       id: CONTROLE_FORCAR_D10
       textura: "icon_d10.png"
@@ -607,7 +666,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 11
-      coluna: 10
+      coluna: 12
       rotulo: "d12"
       id: CONTROLE_FORCAR_D12
       textura: "icon_d12.png"
@@ -621,7 +680,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 11
-      coluna: 11
+      coluna: 13
       rotulo: "20"
       id: CONTROLE_FORCAR_D20
       textura: "icon_d20.png"
@@ -635,7 +694,7 @@ fixo {
     dados_botoes {
       tamanho: 1
       linha: 11
-      coluna: 12
+      coluna: 14
       rotulo: "d%"
       id: CONTROLE_FORCAR_D100
       textura: "icon_d100.png"
