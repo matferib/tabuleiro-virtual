@@ -3,7 +3,7 @@ package ent;
 
 import "ent/comum.proto";
 
-// Proximo id: 169, mas conferir pq ha gaps.
+// Proximo id: 173, mas conferir pq ha gaps.
 enum IdBotao {
   CONTROLE_ACAO = 1;
   CONTROLE_ACAO_ANTERIOR = 2;
@@ -91,6 +91,8 @@ enum IdBotao {
   CONTROLE_APAGAR_INICIATIVAS = 82;
   CONTROLE_ROLAR_D20 = 81;
   CONTROLE_ROLAR_D100 = 116;
+  CONTROLE_ROLAR_D2 = 170;
+  CONTROLE_ROLAR_D3 = 169;
   CONTROLE_ROLAR_D4 = 147;
   CONTROLE_ROLAR_D6 = 148;
   CONTROLE_ROLAR_D8 = 149;
@@ -175,6 +177,8 @@ enum IdBotao {
   CONTROLE_DADOS_FORCADOS = 161;
   CONTROLE_FORCAR_D20 = 162;
   CONTROLE_FORCAR_D100 = 163;
+  CONTROLE_FORCAR_D2 = 171;
+  CONTROLE_FORCAR_D3 = 172;
   CONTROLE_FORCAR_D4 = 164;
   CONTROLE_FORCAR_D6 = 165;
   CONTROLE_FORCAR_D8 = 166;

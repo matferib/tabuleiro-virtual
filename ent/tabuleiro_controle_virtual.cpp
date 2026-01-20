@@ -234,6 +234,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_CLASSE_FEITICO_ATIVA:
       TrataMudarClasseFeiticoAtiva();
       break;
+    case CONTROLE_ROLAR_D2:
+      AlternaModoDado(2);
+      break;
+    case CONTROLE_ROLAR_D3:
+      AlternaModoDado(3);
+      break;
     case CONTROLE_ROLAR_D4:
       AlternaModoDado(4);
       break;
@@ -258,26 +264,41 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_DADOS:
       mostrar_dados_ = !mostrar_dados_;
       break;
+    case CONTROLE_FORCAR_D2:
+      if (alterna_selecao) LimpaDadosAcumulados(2);
+      else AbreDialogoForcarDado(2, *central_);
+      break;
+    case CONTROLE_FORCAR_D3:
+      if (alterna_selecao) LimpaDadosAcumulados(3);
+      else AbreDialogoForcarDado(3, *central_);
+      break;
     case CONTROLE_FORCAR_D4:
-      AbreDialogoForcarDado(4, *central_);
+      if (alterna_selecao) LimpaDadosAcumulados(4);
+      else AbreDialogoForcarDado(4, *central_);
       break;
     case CONTROLE_FORCAR_D6:
-      AbreDialogoForcarDado(6, *central_);
+      if (alterna_selecao) LimpaDadosAcumulados(6);
+      else AbreDialogoForcarDado(6, *central_);
       break;
     case CONTROLE_FORCAR_D8:
-      AbreDialogoForcarDado(8, *central_);
+      if (alterna_selecao) LimpaDadosAcumulados(8);
+      else AbreDialogoForcarDado(8, *central_);
       break;
     case CONTROLE_FORCAR_D10:
-      AbreDialogoForcarDado(10, *central_);
+      if (alterna_selecao) LimpaDadosAcumulados(10);
+      else AbreDialogoForcarDado(10, *central_);
       break;
     case CONTROLE_FORCAR_D12:
-      AbreDialogoForcarDado(12, *central_);
+      if (alterna_selecao) LimpaDadosAcumulados(12);
+      else AbreDialogoForcarDado(12, *central_);
       break;
     case CONTROLE_FORCAR_D20:
-      AbreDialogoForcarDado(20, *central_);
+      if (alterna_selecao) LimpaDadosAcumulados(20);
+      else AbreDialogoForcarDado(20, *central_);
       break;
     case CONTROLE_FORCAR_D100:
-      AbreDialogoForcarDado(100, *central_);
+      if (alterna_selecao) LimpaDadosAcumulados(100);
+      else AbreDialogoForcarDado(100, *central_);
       break;
     case CONTROLE_DADOS_FORCADOS:
       mostrar_dados_forcados_ = !mostrar_dados_forcados_;
@@ -1478,6 +1499,8 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ADICIONA_ENTIDADE, [this] (const Entidade* entidade) { return modo_clique_ == MODO_ADICAO_ENTIDADE; } },
     { CONTROLE_TRANSICAO,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_REGUA; } },
+    { CONTROLE_ROLAR_D2,          [this](const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 2; } },
+    { CONTROLE_ROLAR_D3,          [this](const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 3; } },
     { CONTROLE_ROLAR_D4,          [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 4; } },
     { CONTROLE_ROLAR_D6,          [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 6; } },
     { CONTROLE_ROLAR_D8,          [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 8; } },
