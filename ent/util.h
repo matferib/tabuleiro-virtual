@@ -222,6 +222,7 @@ void AcumulaDado(Face face, int valor);
 std::optional<int> DadoAcumulado(Face face);
 std::optional<int> DadoAcumulado(int nfaces);
 void LimpaDadosAcumulados();
+void LimpaDadosAcumulados(int nfaces);
 
 /** Gera um aleatorio de 1 a nfaces. */
 int RolaDado(unsigned int nfaces, bool ignora_forcado = false);

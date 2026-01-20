@@ -755,6 +755,10 @@ void LimpaDadosAcumulados() {
   g_dados_forcados.clear();
 }
 
+void LimpaDadosAcumulados(int nfaces) {
+  g_dados_forcados[nfaces].pop();
+}
+
 std::optional<DadoTesteOuForcado> TemDadoDeTesteOuForcado(int nfaces) {
   std::optional<Face> face = NumParaFace(nfaces, /*logar_erro=*/false);
   if (!face.has_value()) return std::nullopt;
