@@ -6318,6 +6318,14 @@ tabela_pericias {
     atributo: TA_CARISMA
     sinergias { id: 'identificar_magia' restricao: 'pergaminhos' }
   }
+  pericias {
+    id: 'empatia_natureza'
+    nome: 'Empatia com Natureza'
+    # classes: [  'ranger'  'druida' ]
+    sem_treinamento: true
+    atributo: TA_CARISMA
+    de_habilidade: 'empatia_natureza'
+  }
 }
 tabela_feiticos {
   armas {
