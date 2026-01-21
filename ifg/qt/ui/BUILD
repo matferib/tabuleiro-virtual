@@ -1,6 +1,7 @@
-package(default_visibility = ["//visibility:public"])
-
 load("@qt//:qt.bzl", "qt_ui_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
 
 # UI files compilados.
 qt_ui_library(
