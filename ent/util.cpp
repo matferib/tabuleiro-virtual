@@ -3675,6 +3675,9 @@ bool PodeUsarPericia(const Tabelas& tabelas, const std::string& id_pericia, cons
   if (!pt->derivada_de().empty()) {
     pt = &tabelas.Pericia(pt->derivada_de());
   }
+  if (!pt->de_habilidade().empty()) {
+    return PossuiHabilidadeEspecial(pt->de_habilidade(), proto);
+  }
   if (pt->sem_treinamento()) return true;
   const auto& pp = Pericia(pt->id(), proto);
   return PericiaDeClasse(tabelas, pt->id(), proto) ? pp.pontos() > 0 : pp.pontos() > 1;
