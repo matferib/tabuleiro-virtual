@@ -85,6 +85,11 @@ void AtualizaUIEsquivaSobrenatural(const ent::Tabelas& tabelas, ifg::qt::Ui::Dia
   gerador.combo_esquiva_sobrenatural->setCurrentIndex(TipoEsquivaSobrenaturalParaIndiceCombo(proto));
 }
 
+void AtualizaUIEmpatiaNatureza(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.checkbox_empatia_com_natureza->setEnabled(false);
+  gerador.checkbox_empatia_com_natureza->setChecked(ent::PossuiHabilidadeEspecial("empatia_natureza", proto));
+}
+
 void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   AtualizaUIClassesNiveis(tabelas, gerador, proto);
   AtualizaUIAtributos(tabelas, gerador, proto);
@@ -99,6 +104,7 @@ void AtualizaUI(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerad
   AtualizaUIEventos(tabelas, gerador, proto);
   AtualizaUIEvasao(tabelas, gerador, proto);
   AtualizaUIEsquivaSobrenatural(tabelas, gerador, proto);
+  AtualizaUIEmpatiaNatureza(tabelas, gerador, proto);
 }
 
 int SalvacoesFortesParaIndice(const ent::InfoClasse& ic) {

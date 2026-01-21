@@ -183,9 +183,17 @@ class ModeloPericias : public QAbstractTableModel {
   }
 
   Qt::ItemFlags flags(const QModelIndex & index) const override {
+    const unsigned int row = index.row();
     switch (index.column()) {
       case 0:
       case 1:
+        return Qt::ItemIsEnabled;
+      case 2:
+        if (tabelas_.Pericia(modelo_[row].id()).de_habilidade().empty()) {
+          return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+        } else {
+          return Qt::ItemIsEnabled;
+        }
       case 3:
       case 5:
         return Qt::ItemIsEnabled;
