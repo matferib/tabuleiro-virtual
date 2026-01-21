@@ -893,6 +893,8 @@ message PericiaProto {
   // fintar -> blefar vs sentir motivacao + BBA
   // rastrear -> sobrevivencia
   optional string derivada_de = 10;
+  // Não pode receber pontos, vem de habilidade e é computada dinamicamente.
+  optional string de_habilidade = 11;
 }
 
 // Talentos.
