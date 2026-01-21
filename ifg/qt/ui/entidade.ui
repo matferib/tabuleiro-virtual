@@ -3014,6 +3014,13 @@ QGroupBox::title {
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_52">
            <item>
+            <widget class="QCheckBox" name="checkbox_empatia_com_natureza">
+             <property name="text">
+              <string>Empatia com Natureza</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label_86">
              <property name="text">
               <string>Esquiva Sobrenatural</string>

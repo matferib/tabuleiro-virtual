@@ -689,6 +689,14 @@ void PreencheConfiguraEsquivaSobrenatural(Visualizador3d* this_,
   AtualizaUIEsquivaSobrenatural(this_->tabelas(), gerador, proto);
 }
 
+void PreencheConfiguraEmpatiaNatureza(Visualizador3d* this_,
+  ent::TipoTerreno tipo_terreno,
+  ifg::qt::Ui::DialogoEntidade& gerador,
+  const ent::EntidadeProto& proto,
+  ent::EntidadeProto* proto_retornado) {
+  AtualizaUIEmpatiaNatureza(this_->tabelas(), gerador, proto);
+}
+
 void PreencheConfiguraInimigosPrediletos(Visualizador3d* this_,
                                          ent::TipoTerreno tipo_terreno,
                                          ifg::qt::Ui::DialogoEntidade& gerador,
@@ -2149,6 +2157,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   PreencheConfiguraEvasao(this, tipo_terreno, gerador, entidade, proto_retornado);
   // Esquiva sobrenatural.
   PreencheConfiguraEsquivaSobrenatural(this, gerador, entidade, proto_retornado);
+  // Empatia com natureza.
+  PreencheConfiguraEmpatiaNatureza(this, tipo_terreno, gerador, entidade, proto_retornado);
+
 
   // Feiticos.
   PreencheConfiguraFeiticos(this, gerador, entidade, proto_retornado);
