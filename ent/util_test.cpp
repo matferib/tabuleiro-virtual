@@ -2260,10 +2260,12 @@ TEST(TesteVazamento, TesteVazamento) {
   evento->add_complementos(5);
   RecomputaDependencias(TabelasCriando(), TT_NENHUM, &proto);
   const int tamanho = proto.ByteSizeLong();
+  std::string anterior = proto.ShortDebugString();
   for (int i = 0; i < 2; ++i) {
     RecomputaDependencias(TabelasCriando(), TT_NENHUM, &proto);
-    EXPECT_EQ(tamanho, proto.ByteSizeLong()) << ", iteração: " << i << ", proto: " << proto.ShortDebugString();
-    //break;
+    std::string corrente = proto.ShortDebugString();
+    ASSERT_EQ(tamanho, proto.ByteSizeLong()) << ", iteração: " << i << ", proto: " << corrente << ", anterior: " << anterior;
+    anterior = corrente;
   }
 }
 
@@ -5871,6 +5873,18 @@ TEST(TesteModelo, TesteCaoInfernal) {
   EXPECT_EQ(ValorFinalPericia("sobrevivencia", cao->Proto()), 15);
 }
 
+TEST(TesteModelo, TesteDruida5) {
+  const auto& modelo = TabelasCriando().ModeloEntidade("Humano Druida 5");
+  auto druida = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
+  ASSERT_EQ(druida->NivelClasse("druida"), 5);
+  // Sabedoria 15+1 = 16. Da 0111 de bonus de feiticos.
+  EXPECT_EQ(FeiticosNivel("druida", 0, druida->Proto()).para_lancar().size(), 5);
+  EXPECT_EQ(FeiticosNivel("druida", 1, druida->Proto()).para_lancar().size(), 3+1);
+  EXPECT_EQ(FeiticosNivel("druida", 2, druida->Proto()).para_lancar().size(), 2+1);
+  EXPECT_EQ(FeiticosNivel("druida", 3, druida->Proto()).para_lancar().size(), 1+1);
+  EXPECT_TRUE(PossuiHabilidadeEspecial("empatia_natureza", druida->Proto()));
+  EXPECT_EQ(BonusTotal(BonusPericia("empatia_natureza", druida->Proto())), 5 + ModificadorAtributo(BonusAtributo(TA_CARISMA, druida->Proto())));
+}
 
 TEST(TesteModelo, TesteRanger9) {
   // Forca 16, +3.
@@ -5879,6 +5893,8 @@ TEST(TesteModelo, TesteRanger9) {
   auto ranger = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   ASSERT_EQ(ranger->NivelClasse("ranger"), 9);
   EXPECT_EQ(FeiticosNivel("ranger", 1, ranger->Proto()).conhecidos().size(), 1);
+  EXPECT_TRUE(PossuiHabilidadeEspecial("empatia_natureza", ranger->Proto()));
+  EXPECT_EQ(BonusTotal(BonusPericia("empatia_natureza", ranger->Proto())), 9 + ModificadorAtributo(BonusAtributo(TA_CARISMA, ranger->Proto())));
   for (const auto& c : FeiticosNivel("ranger", 1, ranger->Proto()).conhecidos()) {
     EXPECT_FALSE(c.id().empty());
     EXPECT_NE(c.id(), "auto");

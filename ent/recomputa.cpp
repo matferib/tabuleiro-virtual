@@ -1780,7 +1780,7 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   // Mapa do proto do personagem, porque iremos iterar nas pericias existentes na tabela.
   std::unordered_map<std::string, InfoPericia> mapa_pericias_proto;
   std::unordered_set<std::string> remocoes;
-  for (auto& ip : *proto->mutable_info_pericias()) {
+  for (InfoPericia& ip : *proto->mutable_info_pericias()) {
     if (!ip.substituir().empty()) {
       remocoes.insert(ip.substituir());
     }
@@ -1817,6 +1817,13 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     // Graduacoes.
     auto& pericia_proto = mapa_pericias_proto[pt.id()];
     if (!pt.derivada_de().empty()) continue;
+
+    // Atributo.
+    AtribuiOuRemoveBonus(
+        ModificadorAtributo(pericia_proto.has_atributo() ? pericia_proto.atributo() : pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto.mutable_bonus());
+
+    if (!pt.de_habilidade().empty()) continue;
+
     const int graduacoes = PericiaDeClasse(tabelas, pt.id(), *proto) ? pericia_proto.pontos() : pericia_proto.pontos() / 2;
     AtribuiOuRemoveBonus(graduacoes, TB_BASE, "graduacao", pericia_proto.mutable_bonus());
 
@@ -1831,10 +1838,6 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
           absl::StrFormat("sinergia_%s", pt.id().c_str()),
           pericia_alvo.mutable_bonus());
     }
-
-    // Atributo.
-    AtribuiOuRemoveBonus(
-        ModificadorAtributo(pericia_proto.has_atributo() ? pericia_proto.atributo() : pt.atributo(), *proto), TB_ATRIBUTO, "atributo", pericia_proto.mutable_bonus());
 
     if (pt.id() == "esconderse") {
       // Bonus de tamanho.
@@ -1889,8 +1892,29 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
     LimpaBonus(TB_BASE, "graduacao", pericia_proto.mutable_bonus());
     AtribuiOuRemoveBonus(BonusTotal(pericia_origem.bonus()), TB_SEM_NOME, "origem", pericia_proto.mutable_bonus());
   }
+  // Pericias de habilidade.
+  for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
+    if (pt.de_habilidade().empty() || !mapa_pericias_proto.contains(pt.de_habilidade())) continue;
+    auto& pericia_proto = mapa_pericias_proto[pt.id()];
+    pericia_proto.set_pontos(0);  // nao pode ter pontos
+    LimpaBonus(TB_BASE, "graduacao", pericia_proto.mutable_bonus());
+    int graduacoes = 0;
+    std::string origem = "";
+    if (pt.id() == "empatia_natureza") {
+      for (const auto& ic : proto->info_classes()) {
+        if (ic.id() == "ranger") {
+          graduacoes += ic.nivel();
+        } else if (ic.id() == "druida") {
+          graduacoes += ic.nivel();
+        }
+      }
+      graduacoes -= proto->niveis_negativos();
+      origem = "ranger/druida";
+    }
+    AtribuiOuRemoveBonus(graduacoes, TB_SEM_NOME, origem, pericia_proto.mutable_bonus());
+  }
 
-  // Atribui de volt ao proto.
+  // Atribui de volta ao proto.
   for (auto& it : mapa_pericias_proto) {
     proto->add_info_pericias()->Swap(&it.second);
   }
