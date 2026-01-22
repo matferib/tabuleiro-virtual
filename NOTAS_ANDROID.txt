@@ -3,7 +3,7 @@
 ========
 
 -- Listar targets:
-${ANDROID_DEV_TOOLKIT}/sdk/tools/android list targets
+${ANDROID_DEV_TOOLKIT}/bin/avdmanager list targets
 
 -- Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
 // Imprime debug pra cima pra Tabuleiro ou TabuleiroRenderer e suprime o resto.
