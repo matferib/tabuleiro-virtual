@@ -1,10 +1,12 @@
-syntax = "proto2";
+edition = "2023";
+
 package ent;
 
 import "ent/comum.proto";
 
 // Proximo id: 173, mas conferir pq ha gaps.
 enum IdBotao {
+  CONTROLE_DESCONHECIDO = 0;
   CONTROLE_ACAO = 1;
   CONTROLE_ACAO_ANTERIOR = 2;
   CONTROLE_ACAO_PROXIMA = 3;
@@ -192,6 +194,7 @@ enum IdBotao {
 }
 
 enum Alinhamento {
+  ALINHAMENTO_DESCONHECIDO = 0;
   ALINHAMENTO_CENTRO   = 1;
   ALINHAMENTO_ESQUERDA = 2;
   ALINHAMENTO_DIREITA  = 3;
@@ -200,6 +203,7 @@ enum Alinhamento {
 }
 
 enum FormaBotao {
+  FORMA_DESCONHECIDA = 0;
   FORMA_TRIANGULO = 1;
   FORMA_RETANGULO = 2;
   FORMA_DISCO     = 3;
@@ -252,8 +256,8 @@ enum TipoVisibilidade {
 
 message Visibilidade {
   message Referencia {
-    optional TipoVisibilidade tipo = 1;
-    optional IdBotao id = 2;
+    TipoVisibilidade tipo = 1;
+    IdBotao id = 2;
   }
   // A operacao sera um AND das referencias.
   repeated Referencia referencia = 1;
@@ -262,45 +266,45 @@ message Visibilidade {
 message DadosBotao {
   // Tamanho do botao. Ha uma unidade ficticia que eh computada de acordo com a resolucao. O tamanho 1 ocupa
   // uma unidade, o 2 ocupa 4 (2x2). O valor em x e y eh diferente.
-  optional float tamanho = 1;
+  float tamanho = 1;
   // Se tamanho nao for preenchido, esses dois devem ser. A unidade eh a mesma do tamanho (ou seja, em caracteres).
-  optional float largura = 2;
-  optional float altura = 3;
+  float largura = 2;
+  float altura = 3;
   // Em qual linha o botao se encontra: 0 baixo, 1 uma acima.
-  optional int32 linha = 4;
+  int32 linha = 4;
   // Em qual coluna o botao se encontra.
-  optional int32 coluna = 5;
+  int32 coluna = 5;
   // Escrito no botao.
-  optional string rotulo = 6;
+  string rotulo = 6;
   // // cor do rotulo (letra).
-  optional Cor cor_rotulo = 7;
+  Cor cor_rotulo = 7;
   // Cor de fundo do botao.
-  optional Cor cor_fundo = 8;
+  Cor cor_fundo = 8;
   // Nome do arquivo de icone.
-  optional string textura = 9;
+  string textura = 9;
   // Apos carregado, contem o id da textura do botao.
-  optional uint32 id_textura = 20;
+  uint32 id_textura = 20;
   // Identifica o que o botao faz, ver IdBotao.
-  optional IdBotao id = 10;
+  IdBotao id = 10;
   // Forma do botao. Use FORMA_NULA para botoes de label apenas.
-  optional FormaBotao forma = 11;
+  FormaBotao forma = 11;
   // Rotacao do botao.
-  optional float rotacao_graus = 12;
+  float rotacao_graus = 12;
   // Translacao do desenho em fator de escala da fonte (largura_botao * translacao_x).
-  optional float translacao_x = 13;
+  float translacao_x = 13;
   // Translacao do desenho em fator de escala da fonte (altura_botao * translacao_x).
-  optional float translacao_y = 14;
+  float translacao_y = 14;
   // Se verdadeiro, deve ser desenhado apenas durante picking. Util para evitar cliques no tabuleiro.
-  optional bool picking_apenas = 15;
+  bool picking_apenas = 15;
   // Texto mostrado quando cursor ficar sobre o botao.
-  optional string dica = 16;
+  string dica = 16;
   // Se verdadeiro, apenas o mestre deve ver.
-  optional bool mestre_apenas = 17;
+  bool mestre_apenas = 17;
   // Alinhamento do botao.
-  optional Alinhamento alinhamento_horizontal = 18 [default=ALINHAMENTO_ESQUERDA];
-  optional Alinhamento alinhamento_vertical = 19 [default=ALINHAMENTO_BAIXO];
+  Alinhamento alinhamento_horizontal = 18 [default=ALINHAMENTO_ESQUERDA];
+  Alinhamento alinhamento_vertical = 19 [default=ALINHAMENTO_BAIXO];
   // Alguns botoes sao visiveis apenas em situacoes especificas.
-  optional Visibilidade visibilidade = 21;
+  Visibilidade visibilidade = 21;
 }
 
 // Uma pagina contem varios botoes. As paginas servem para organizar os botoes.
@@ -315,8 +319,8 @@ message Fixo {
 
 // O controle eh composto por varias paginas.
 message ControleVirtualProto {
-  optional Fixo fixo = 1;
+  Fixo fixo = 1;
   repeated Pagina pagina = 2;
-  optional int32 pagina_corrente = 3;
-  optional bool modo_debug = 4;
+  int32 pagina_corrente = 3;
+  bool modo_debug = 4;
 }

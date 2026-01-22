@@ -1,4 +1,4 @@
-syntax = "proto2";
+edition = "2023";
 
 // Tudo relacionado as acoes que os jogadores podem realizar.
 import "ent/comum.proto";
@@ -35,6 +35,7 @@ enum TipoConsequencia {
 }
 
 enum GeometriaAcao {
+  ACAO_GEO_DESCONHECIDA = 0;
   ACAO_GEO_ESFERA = 1;
   ACAO_GEO_CUBO = 2;
   ACAO_GEO_CONE = 3;
@@ -43,24 +44,25 @@ enum GeometriaAcao {
 }
 
 enum TipoAceleracao {
+  ACAO_ACEL_DESCONHECIDA = 0;
   ACAO_ACEL_ZERO = 1;  // Nao muda velocidade.
   ACAO_ACEL_CONSTANTE = 2;  // Aceleracao nao varia, velocidade varia linerarmente.
   ACAO_ACEL_LINEAR = 3;  // Aceleracao varia, velocidade quadratica.
 }
 
 message Translacao {
-  optional float x = 1 [default=0];
-  optional float y = 2 [default=0];
-  optional float z = 3 [default=0];
+  float x = 1 [default=0];
+  float y = 2 [default=0];
+  float z = 3 [default=0];
 }
 
 message Velocidade {
   // Em m/s.
-  optional float inicial_m_s = 1 [default = 50.0];
-  optional TipoAceleracao tipo_aceleracao = 2 [default=ACAO_ACEL_ZERO];
-  optional float aceleracao_m_s_2 = 3 [default = 0];
-  optional float delta_aceleracao_m_s_3 = 4 [default = 0];
-  optional float maxima_m_s = 5 [default=50.0];
+  float inicial_m_s = 1 [default = 50.0];
+  TipoAceleracao tipo_aceleracao = 2 [default=ACAO_ACEL_ZERO];
+  float aceleracao_m_s_2 = 3 [default = 0];
+  float delta_aceleracao_m_s_3 = 4 [default = 0];
+  float maxima_m_s = 5 [default=50.0];
 }
 
 enum ModificadorRodadas {
@@ -108,189 +110,189 @@ enum ModificadorQuantidade {
 // Proximo id: 106.
 message AcaoProto {
   // Identificador da acao, para coisas tabeladas.
-  optional string id = 1;
+  string id = 1;
   // Tipo da acao. A criacao do objeto de acao usa isso, e nao o id.
-  optional TipoAcao tipo = 2;
+  TipoAcao tipo = 2;
   // Raio da acao (para dispersao).
-  optional float raio_quadrados = 3;  // quadrados.
+  float raio_quadrados = 3;  // quadrados.
   // Distancia da acao (para dispersao de cone e raio).
-  optional float distancia_quadrados = 5;  // quadrados.
+  float distancia_quadrados = 5;  // quadrados.
   // Aplicada antes da escala.
-  optional Translacao translacao = 17;
+  Translacao translacao = 17;
   // Escala sobre a geometria.
-  optional Escala escala = 18;
+  Escala escala = 18;
   // Cor da acao.
-  optional Cor cor = 4;
+  Cor cor = 4;
   // Identificador do causador da acao.
-  optional uint32 id_entidade_origem = 10;
+  uint32 id_entidade_origem = 10;
   // Identificador do destino da acao, se houver.
-  optional uint32 id_entidade_destino = 79;
+  uint32 id_entidade_destino = 79;
   // Posicao do clique no tabuleiro, para quem usar.
-  optional Posicao pos_tabuleiro = 13;
+  Posicao pos_tabuleiro = 13;
   // Posicao do clique na entidade, se houver.
-  optional Posicao pos_entidade = 12;
+  Posicao pos_entidade = 12;
   // Usado para indicar o delta de pontos de vida da unidade afetada. Ver afeta_pontos_vida.
-  optional int32 delta_pontos_vida = 14;  // quanto de vida. Se afeta_pontos_vida, afetara de verdade.
-  optional string texto = 24;  // tambem cosmetico, usado para regua.
+  int32 delta_pontos_vida = 14;  // quanto de vida. Se afeta_pontos_vida, afetara de verdade.
+  string texto = 24;  // tambem cosmetico, usado para regua.
   // O tabuleiro ira alterar os pontos de vida da entidade afetada ao termino da acao.
-  optional bool afeta_pontos_vida = 15;  // Se verdadeiro, a entidade sofre o dano de verdade.
-  optional bool gera_outras_acoes = 43;  // Se verdadeiro, gerara outras acoes, como de texto ao termino.
+  bool afeta_pontos_vida = 15;  // Se verdadeiro, a entidade sofre o dano de verdade.
+  bool gera_outras_acoes = 43;  // Se verdadeiro, gerara outras acoes, como de texto ao termino.
   // O tipo de objeto para algumas acoes especificas.
-  optional GeometriaAcao geometria = 16;
-  optional Modelo3d modelo_3d = 86;
-  optional Velocidade velocidade = 19;
+  GeometriaAcao geometria = 16;
+  Modelo3d modelo_3d = 86;
+  Velocidade velocidade = 19;
   // Se verdadeiro, o projetil fara um arco.
-  optional bool faz_arco = 105;
+  bool faz_arco = 105;
   // Duracao em s.
-  optional float duracao_s = 20;
+  float duracao_s = 20;
   // Atraso para comecar a acao em s.
-  optional float atraso_s = 21;
+  float atraso_s = 21;
   // Acao tem efeito de area. Isso implica que os alvos serao calculados dinamicamente.
-  optional bool efeito_area = 22;
+  bool efeito_area = 22;
   // Acao tem dano direto e de area.
-  optional bool efeito_projetil_area = 42;
+  bool efeito_projetil_area = 42;
   // Se verdadeiro, a acao causara efeitos adicionais no splash da area tb.
-  optional bool respingo_causa_efeitos_adicionais = 99;
+  bool respingo_causa_efeitos_adicionais = 99;
   // Se verdadeiro, respingo causara mesmo dano do ataque.
-  optional bool respingo_causa_mesmo_dano = 104;
-  optional bool permite_salvacao = 23;
-  optional bool dano_ignora_salvacao_deprecated = 62;
-  optional ResultadoSalvacao resultado_ao_salvar = 32;
+  bool respingo_causa_mesmo_dano = 104;
+  bool permite_salvacao = 23;
+  bool dano_ignora_salvacao_deprecated = 62;
+  ResultadoSalvacao resultado_ao_salvar = 32;
   // A base eh usada para calcular o valor final, adicionando modificadores de atributos.
-  optional int32 dificuldade_salvacao_base = 49;
+  int32 dificuldade_salvacao_base = 49;
   // Se presente, usara este atributo para calcular a dificuldade da salvacao.
-  optional TipoAtributo atributo_dificuldade_salvacao = 59;
+  TipoAtributo atributo_dificuldade_salvacao = 59;
   // Caso presente, usara 10 + o nivel do feitico como base.
-  optional bool dificuldade_salvacao_por_nivel = 50;
+  bool dificuldade_salvacao_por_nivel = 50;
   // Se presente, usara 10 + meio nivel de conjurador como base.
-  optional bool dificuldade_salvacao_por_meio_nivel = 85;
-  optional int32 dificuldade_salvacao_deprecated = 33 [deprecated=true];
-  optional TipoSalvacao tipo_salvacao = 34;
+  bool dificuldade_salvacao_por_meio_nivel = 85;
+  int32 dificuldade_salvacao_deprecated = 33 [deprecated=true];
+  TipoSalvacao tipo_salvacao = 34;
   // Se verdadeiro, o ataque permite que ataque vs defesa seja feito automaticamente. Caso contrario,
   // ira considerar sempre um acerto e pular esta etapa.
-  optional bool permite_ataque_vs_defesa = 27;
+  bool permite_ataque_vs_defesa = 27;
   // Para agarrar, ignora o ataque de toque.
-  optional bool ignora_ataque_toque = 41;
+  bool ignora_ataque_toque = 41;
   // A textura que representa a acao (icone).
-  optional string icone = 25;
+  string icone = 25;
   // A acao deve ser feita apenas localmente.
-  optional bool local_apenas = 26;
+  bool local_apenas = 26;
   // Acoes com textura.
-  optional InfoTextura info_textura = 28;
+  InfoTextura info_textura = 28;
   // Se verdadeiro, desliga a luz para desenha a acao.
-  optional bool ignora_luz = 29;
+  bool ignora_luz = 29;
   // Se verdadeiro, desliga face nula (culling).
-  optional bool dois_lados = 30;
+  bool dois_lados = 30;
   // Consequencia da acao.
-  optional TipoConsequencia consequencia = 31 [default=TC_NENHUMA];
+  TipoConsequencia consequencia = 31 [default=TC_NENHUMA];
   // Consequencia da acao na origem.
-  optional TipoConsequencia consequencia_origem = 53 [default=TC_NENHUMA];
+  TipoConsequencia consequencia_origem = 53 [default=TC_NENHUMA];
   // Para acoes que afetam multiplos alvos.
   message PorEntidade {
-    optional uint32 id = 1;     // id da entidade destino.
-    optional int32 delta = 2;   // delta da entidade.
+    uint32 id = 1;     // id da entidade destino.
+    int32 delta = 2;   // delta da entidade.
     // Se verdadeiro, aplica a consequencia independente de delta.
-    optional bool forca_consequencia = 5;
-    optional bool omite_texto = 3 [deprecated=true];
-    optional string texto = 4;  // texto da entidade.
+    bool forca_consequencia = 5;
+    bool omite_texto = 3 [deprecated=true];
+    string texto = 4;  // texto da entidade.
   }
   repeated PorEntidade por_entidade = 35;
   // Indica ataque de toque para este tipo de acao.
-  optional bool ataque_toque = 36;
+  bool ataque_toque = 36;
   // Indica ataque a distancia.
-  optional bool ataque_distancia = 37;
-  optional bool ataque_corpo_a_corpo = 66;
-  optional bool ataque_arremesso = 67;
+  bool ataque_distancia = 37;
+  bool ataque_corpo_a_corpo = 66;
+  bool ataque_arremesso = 67;
   // O ataque eh de agarrar.
-  optional bool ataque_agarrar = 38;
+  bool ataque_agarrar = 38;
   // Indica que o ataque vs defesa passou. Usado para acoes fazerem efeitos visuais a para o projetil
   // de area saber se causa respingo ou nao no alvo.
-  optional bool bem_sucedida = 39;
+  bool bem_sucedida = 39;
   // Indica dano nao letal.
-  optional bool nao_letal = 40;
+  bool nao_letal = 40;
   // Algumas acoes afetam apenas alguns tipos de entidades.
   repeated TipoDnD afeta_apenas = 44;
   repeated TipoDnD nao_afeta_tipo = 56;
   repeated SubTipoDnD nao_afeta_sub_tipo = 57;
-  optional TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 101;
-  optional bool nao_afeta_origem = 58;
+  TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 101;
+  bool nao_afeta_origem = 58;
   // Se presente, a acao afeta no maximo dv_mais_alto dados de vida.
-  optional int32 dv_mais_alto = 61;
+  int32 dv_mais_alto = 61;
   // Total de dados de vida afetados pela acao.
-  optional int32 total_dv = 74;
-  optional bool mais_fracos_primeiro = 75;
+  int32 total_dv = 74;
+  bool mais_fracos_primeiro = 75;
   // Se presente, a acao afeta no maximo uma criatura com pv menor igual a isso.
-  optional int32 pv_mais_alto = 69;
-  optional string dado_pv_mais_alto = 76;
+  int32 pv_mais_alto = 69;
+  string dado_pv_mais_alto = 76;
   // Se presente, a acao afeta no maximo esse numero de criaturas.
-  optional int32 maximo_criaturas_afetadas = 77;
-  optional ModeloGenerico modelo_maximo_criaturas_afetadas = 88;
+  int32 maximo_criaturas_afetadas = 77;
+  ModeloGenerico modelo_maximo_criaturas_afetadas = 88;
   // Para acoes de projetil que ignoram municao, tipo missil magico.
-  optional bool ignora_municao = 45;
+  bool ignora_municao = 45;
   // Diversos tipos de acao ignoram a reducao de dano do barbaro, que se aplica apenas a ataques de armas
   // e ataques naturais.
-  optional bool ignora_reducao_dano_barbaro = 46;
+  bool ignora_reducao_dano_barbaro = 46;
   // Para acoes que vem de conjuracao, indicar a classe: mago, clerigo etc.
-  optional string classe_conjuracao = 47;
+  string classe_conjuracao = 47;
   // True se a acao ignorar resistencia a magia.
-  optional bool ignora_resistencia_magia = 48;
+  bool ignora_resistencia_magia = 48;
   // Ataque elemental.
-  optional DescritorAtaque elemento = 51;
+  DescritorAtaque elemento = 51;
   // Descritores do ataque: computado dinamicamente.
   repeated DescritorAtaque descritores_ataque_dreprecated = 52;
-  optional IluminacaoPontual luz_origem = 54;
+  IluminacaoPontual luz_origem = 54;
   // Proximo id: 29.
   message EfeitoAdicional {
-    optional TipoEfeito efeito = 1;
-    optional TipoEfeito combinar_com_efeito = 16;  // Usado para combinacao.
+    TipoEfeito efeito = 1;
+    TipoEfeito combinar_com_efeito = 16;  // Usado para combinacao.
     // Para efeitos de cura ou dano.
-    optional string delta_pontos_vida = 10;
+    string delta_pontos_vida = 10;
     // Para efeitos que afetam apenas um tipo de alinhamento.
     repeated TendenciaSimplificada afeta_apenas_tendencias = 11;
     repeated TipoDnD afeta_apenas = 22;
     repeated TipoDnD nao_afeta_tipo = 23;
     // Se presente, setara o valor. Caso contrario fara efeito continuo.
-    optional int32 rodadas = 2;
+    int32 rodadas = 2;
     repeated int32 complementos = 3;
     repeated string complementos_str = 4;
-    optional string descricao = 5;
+    string descricao = 5;
     // Se presente, ao inves de fazer merge com repeated, ira combinar com o
     // efeito ja existente no indice passado. Prefira combinar_com_efeito.
-    optional int32 combinar_com = 6;
+    int32 combinar_com = 6;
     // Para mudar o valor de rodadas.
-    optional int32 rodadas_base = 7;
-    optional ModificadorRodadas modificador_rodadas = 8;
+    int32 rodadas_base = 7;
+    ModificadorRodadas modificador_rodadas = 8;
     // Se verdadeiro, rodadas base vira do efeito anterior.
-    optional bool rodadas_base_igual_efeito_anterior = 21;
+    bool rodadas_base_igual_efeito_anterior = 21;
     // Outra forma de gerar rodadas, quando o modificador de rodadas so depende de dados.
-    optional string dado_modificador_rodadas = 14;
+    string dado_modificador_rodadas = 14;
     // Modificador dos complementos.
-    optional ModificadorComplementos modificador_complementos = 9;
+    ModificadorComplementos modificador_complementos = 9;
     // Outra forma de gerar o complemento, rolara o dado passado.
-    optional string dado_complementos_str = 13;
+    string dado_complementos_str = 13;
     // A origem do efeito.
-    optional string origem = 12;
+    string origem = 12;
 
-    optional int32 pontos_vida_temporarios = 15;
+    int32 pontos_vida_temporarios = 15;
     // Caso o modelo seja desativado, o efeito também desaparecerá.
-    optional TipoEfeitoModelo requer_modelo_ativo = 17;
+    TipoEfeitoModelo requer_modelo_ativo = 17;
     // Se presente, o efeito so se aplicara em criaturas que estejam nos criterios.
-    optional int32 afeta_apenas_dados_vida_menor_igual_a = 18;
-    optional int32 afeta_apenas_dados_vida_maior_igual_a = 19;
-    optional int32 afeta_apenas_dados_vida_igual_a = 20;
+    int32 afeta_apenas_dados_vida_menor_igual_a = 18;
+    int32 afeta_apenas_dados_vida_maior_igual_a = 19;
+    int32 afeta_apenas_dados_vida_igual_a = 20;
     // Se verdadeiro, os valores acima serao relativos ao nivel do conjurador.
     // Por exemplo, se nivel de conjurador for 4 e afeta_apenas_dados_vida_menor_igual_a -1,
     // afetara nivel 3, 2 e 1.
-    optional bool referencia_dados_vida_nivel_conjurador = 24;
-    optional TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 25;
-    optional bool afeta_aliados_apenas = 26;
-    optional bool afeta_inimigos_apenas = 27;
+    bool referencia_dados_vida_nivel_conjurador = 24;
+    TamanhoEntidade afeta_apenas_tamanhos_menores_ou_igual_a = 25;
+    bool afeta_aliados_apenas = 26;
+    bool afeta_inimigos_apenas = 27;
     message ValorAtributo {
-      optional TipoAtributo atributo = 1;
-      optional int32 valor = 2;
+      TipoAtributo atributo = 1;
+      int32 valor = 2;
     }
     // Caso a criatura tenha atributo menor igual ao passado, nao sera afetada pelo efeito.
-    optional ValorAtributo nao_afeta_se_atributo_menor_igual_a = 28;
+    ValorAtributo nao_afeta_se_atributo_menor_igual_a = 28;
   }
   repeated EfeitoAdicional efeitos_adicionais = 55;
   // Alguns efeitos se aplicam no conjurador.
@@ -298,73 +300,74 @@ message AcaoProto {
   // Em alguns casos, mesmo passando na salvacao ainda da efeito adicional.
   repeated EfeitoAdicional efeitos_adicionais_se_salvou = 60;
   // Alguns ataques requerem algum efeito da origem.
-  optional TipoEfeito requer_efeito_origem = 103; 
+  TipoEfeito requer_efeito_origem = 103; 
   // Para entidades de criacao.
-  optional string id_modelo_entidade = 63;
-  optional string quantidade_entidades = 80;
-  optional ModificadorQuantidade modificador_quantidade = 81;
+  string id_modelo_entidade = 63;
+  string quantidade_entidades = 80;
+  ModificadorQuantidade modificador_quantidade = 81;
   // O veneno da acao.
-  optional VenenoProto veneno_deprecated = 64 [deprecated=true];
-  optional TipoMagia tipo_pergaminho = 65;
+  VenenoProto veneno_deprecated = 64 [deprecated=true];
+  TipoMagia tipo_pergaminho = 65;
   // Algumas acoes precisam de mais detalhes para serem executadas, e isso deve ser passado pelo usuário.
   // Por exemplo, feiticos que tem varias formas possiveis, ou a arma que sera alvo de uma magia.
   // TODO fazer isso funcionar.
   enum DetalhesAdicionais {
     IA_NENHUMA = 0;
   }
-  optional DetalhesAdicionais detalhes_adicionais = 70;
-  optional bool ignora_reflexos = 71;
+  DetalhesAdicionais detalhes_adicionais = 70;
+  bool ignora_reflexos = 71;
   // Reducao da luz do alvo [0-1].
-  optional float reducao_luz = 72;
-  optional bool reduz_luz = 73;
+  float reducao_luz = 72;
+  bool reduz_luz = 73;
 
   // Alguns feiticos tem varios efeitos, que devem ser escolhidos na hora do lancamento.
   // Exemplo: cegueira/surdez.
   // Outros podem ser dinamicos (quem sera afetado).
   enum ConsequenciaParametro {
+    CP_DESCONHECIDO = 0;
     CP_ATRIBUI_EFEITO = 1;           // o efeito sera preenchido com valor do parametro.
     CP_ATRIBUI_MODELO_ENTIDADE = 2;  // o id modelo da entidade sera preenchido com valor do parametro.
     CP_SELECIONA_ENTIDADES_NO_ALCANCE = 3;   // afeta entidades dentro do alcance.
     CP_SELECIONA_FEITICO = 4;   // elucubracao, imunidade a magia.
   }
   message ParametroLancamento {
-    optional string texto = 1;  // para display.
-    optional TipoEfeito efeito = 2;  // o efeito que o parametro causa.
-    optional string id_modelo_entidade = 3;  // qual modelo de entidade foi escolhido.
-    optional string quantidade = 5;  // quantidade de criaturas ou feiticos.
-    optional int32 id_entidade = 4;  // ids das entidades escolhidas.
-    optional int32 nivel_maximo = 6; // nivel maximo de feitico.
-    optional string id_classe = 7;  // se presente, apenas feitico desta classe serao usados.
+    string texto = 1;  // para display.
+    TipoEfeito efeito = 2;  // o efeito que o parametro causa.
+    string id_modelo_entidade = 3;  // qual modelo de entidade foi escolhido.
+    string quantidade = 5;  // quantidade de criaturas ou feiticos.
+    int32 id_entidade = 4;  // ids das entidades escolhidas.
+    int32 nivel_maximo = 6; // nivel maximo de feitico.
+    string id_classe = 7;  // se presente, apenas feitico desta classe serao usados.
   }
   message ParametrosLancamento {
-    optional ConsequenciaParametro consequencia = 1;
+    ConsequenciaParametro consequencia = 1;
     repeated ParametroLancamento parametros = 2;
   }
-  optional ParametrosLancamento parametros_lancamento = 78;
+  ParametrosLancamento parametros_lancamento = 78;
   // Para acoes que tem modelo 3d, indica qual modelo usar.
-  optional string modelo_acao = 82;
-  optional string grupo_ataque = 83;
-  optional int32 indice_ataque = 84;
+  string modelo_acao = 82;
+  string grupo_ataque = 83;
+  int32 indice_ataque = 84;
   // Para ilusoes.
-  optional bool permite_desacreditar = 87;
+  bool permite_desacreditar = 87;
   // Se verdadeiro, feitico afeta apenas aliados/ou inimigos. A ação abrira uma janela para se selecionarem os alvos.
-  optional bool aliados_ou_inimigos_apenas = 89;
+  bool aliados_ou_inimigos_apenas = 89;
   // Se verdadeiro, feitico afeta aliados e inimigos de forma diferente. Ação abrirá uma janela para se selecionarem os aliados.
-  optional bool aliados_e_inimigos_de_forma_diferente = 98;
+  bool aliados_e_inimigos_de_forma_diferente = 98;
   // Apos a janela ser aberta, preenche estes dados.
   repeated uint32 ids_afetados = 90;
   repeated uint32 ids_afetados_inimigos = 97;
   // Indica acao pessoal (ja se sabe o id destino).
-  optional bool pessoal = 91;
+  bool pessoal = 91;
   // Bem, mal, caos, leal.
-  optional DescritorAtaque alinhamento_bem_mal = 92;
-  optional DescritorAtaque alinhamento_ordem_caos = 93;
-  optional string som_sucesso = 94;
-  optional string som_fracasso = 95;
-  optional string som_inicial = 96;
-  optional bool adiciona_ao_log_se_local = 100;
+  DescritorAtaque alinhamento_bem_mal = 92;
+  DescritorAtaque alinhamento_ordem_caos = 93;
+  string som_sucesso = 94;
+  string som_fracasso = 95;
+  string som_inicial = 96;
+  bool adiciona_ao_log_se_local = 100;
   // Caso o alvo e o lancador sejam de tipos diferentes, aplica este bonus.
-  optional int32 bonus_salvacao_por_tipo_diferente = 102;
+  int32 bonus_salvacao_por_tipo_diferente = 102;
 }
 
 // Como uma arma esta empunhada.
@@ -388,15 +391,15 @@ enum EmpunhaduraArma {
 }
 
 message DanoPorTipoDnD {
-  optional string dano = 1;
-  optional TipoDnD tipo = 2;
+  string dano = 1;
+  TipoDnD tipo = 2;
 }
 
 message DanoAdicionalPorTendencia {
-  optional int32 bom = 1;
-  optional int32 mau = 2;
-  optional int32 leal = 3;
-  optional int32 caotico = 4;
+  int32 bom = 1;
+  int32 mau = 2;
+  int32 leal = 3;
+  int32 caotico = 4;
 }
 
 // Dados para um ataque especifico.
@@ -404,239 +407,239 @@ message DanoAdicionalPorTendencia {
 // Proximo id: 113.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
-  optional string rotulo = 9;
+  string rotulo = 9;
   // Ataques com mesmo nome de grupo sao considerados parte da mesma acao.
-  optional string grupo = 40;
+  string grupo = 40;
 
   // Deve casar com as strings de id do arquivo de dados das acoes.
-  optional string tipo_ataque = 1;
-  optional TipoAcao tipo_acao_deprecated = 39 [deprecated=true];
+  string tipo_ataque = 1;
+  TipoAcao tipo_acao_deprecated = 39 [deprecated=true];
   // Bonus final para ataque.
-  optional int32 bonus_ataque_final = 2;
+  int32 bonus_ataque_final = 2;
   // O dano final da arma: 1d8+5.
-  optional string dano = 3;
+  string dano = 3;
   // Adicionais de dano de acordo com tendencia do alvo.
-  optional DanoAdicionalPorTendencia dano_adicional_por_tendencia = 93;
+  DanoAdicionalPorTendencia dano_adicional_por_tendencia = 93;
   // Se presente, aplicara ao dano de acordo com tipo do alvo. Se nao houver, fallback pra dano.
   repeated DanoPorTipoDnD dano_por_tipo = 79;
-  optional int32 margem_critico = 6 [default=20];
-  optional int32 multiplicador_critico = 7 [default=2];
+  int32 margem_critico = 6 [default=20];
+  int32 multiplicador_critico = 7 [default=2];
   // Devem ser derivados do dado de defesa.
-  optional int32 ca_normal = 4;
-  optional int32 ca_surpreso = 5;
-  optional int32 ca_toque = 8;
+  int32 ca_normal = 4;
+  int32 ca_surpreso = 5;
+  int32 ca_toque = 8;
   // Esses valores de alcance_*m devem ser computados dinamicamente.
-  optional float alcance_m = 10;
-  optional float alcance_minimo_m = 33;
+  float alcance_m = 10;
+  float alcance_minimo_m = 33;
   // Esse aqui deve ser usado para computar alcance para monstros.
-  optional float alcance_q = 56;  // Converte para alcance_m (mas nao o contrario).
-  optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
+  float alcance_q = 56;  // Converte para alcance_m (mas nao o contrario).
+  int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
   // A diferenca desses dois eh importante.
   // O campo acao eh o valor final, recomputado sempre a partir da acao da arma e da acao_fixa.
   // Por que nao deixar tudo na arma? Alguns monstros tem modificadores de dados de ataque
   // sem usar armas, portanto eles tem na entrada deles acao_fixa. Por exemplo, o ankheg.
   // Caso o jato dele tivesse acao ao inves de acao_fixa, qualquer mudanca que cause recomputacao
   // (tipo drenar forca), apagaria o campo acao.
-  optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
-  optional AcaoProto acao_fixa = 41;  // Sempre sera aplicada ao recalcular o dado de ataque.
+  AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
+  AcaoProto acao_fixa = 41;  // Sempre sera aplicada ao recalcular o dado de ataque.
   // Indica arma obra prima. Modifica bonus_ataque.
-  optional bool obra_prima = 14;
-  optional EmpunhaduraArma empunhadura = 15;
+  bool obra_prima = 14;
+  EmpunhaduraArma empunhadura = 15;
   // Arma permite acuidade.
-  optional bool acuidade = 17;
+  bool acuidade = 17;
   // Para arcos compostos.
-  optional int32 bonus_composto = 20;
+  int32 bonus_composto = 20;
   // Os bonus de ataque e dano.
-  optional Bonus bonus_ataque = 21;
-  optional Bonus bonus_dano = 22;
+  Bonus bonus_ataque = 21;
+  Bonus bonus_dano = 22;
   // Apenas o dano basico da arma, parseavel (exemplo: '1d8 (19-20/x3)').
-  optional string dano_basico = 23;
+  string dano_basico = 23;
   // Gera o dano basico independente de tamanho ou qualquer outra coisa.
-  optional string dano_basico_fixo = 37;
+  string dano_basico_fixo = 37;
   // Gera o dano basico para ser modificado por tamanho. Util para ataques naturais (dano nao vem da arma).
   // Esse valor pode ser alterado pelo tamanho.
   // Atencao: este valor é para tamanho medio e sera convertido para o tamanho da criatura.
-  optional string dano_basico_medio_natural = 89;
+  string dano_basico_medio_natural = 89;
   // Para ataques que curam.
-  optional bool cura = 54;
+  bool cura = 54;
   // Chave da arma na tabela de armas (Exemplo: 'espada_longa').
-  optional string id_arma = 24;
+  string id_arma = 24;
   // Se presente, ao recomputar ira buscar a arma do tesouro.
-  optional string id_arma_tesouro = 98;
+  string id_arma_tesouro = 98;
   // A arma pode ter tamanho diferente.
-  optional TamanhoEntidade tamanho = 26;
+  TamanhoEntidade tamanho = 26;
   // Dano adicional nao eh multiplicado em criticos. Exemplo: dano de fogo de uma arma flamejante.
-  optional string dano_adicional = 27;
-  optional DescritorAtaque elemento_dano_adicional = 86;
+  string dano_adicional = 27;
+  DescritorAtaque elemento_dano_adicional = 86;
   // Indica ataque de toque.
-  optional bool ataque_toque = 28;
+  bool ataque_toque = 28;
   // Indica que o ataque eh a distancia.
-  optional bool ataque_distancia = 29;
+  bool ataque_distancia = 29;
   // Indica um ataque corpo a corpo.
-  optional bool ataque_corpo_a_corpo = 65;
-  optional bool ataque_arremesso = 66;
+  bool ataque_corpo_a_corpo = 65;
+  bool ataque_arremesso = 66;
   // Indica ataque de agarrar.
-  optional bool ataque_agarrar = 30;
+  bool ataque_agarrar = 30;
   // Para manobra agarrar.
-  optional bool ignora_ataque_toque = 35;
+  bool ignora_ataque_toque = 35;
   // Bonus magico da arma. Modifica o bonus_ataque e bonus_dano.
-  optional int32 bonus_magico = 31;
+  int32 bonus_magico = 31;
   // Cada ataque apos o primeiro recebe penalidade de -5. O primeiro ataque tem ordem 0.
-  optional int32 ordem_ataque = 32;
+  int32 ordem_ataque = 32;
   // Ataque da dano nao letal.
-  optional bool nao_letal = 34;
+  bool nao_letal = 34;
   // Para efeitos que criam dados ataque.
-  optional int32 id_unico_efeito  = 36;
+  int32 id_unico_efeito  = 36;
   // Se o dado de ataque tiver origem racial, dominio ou talento.
-  optional string id_raca = 80;
-  optional string dominio = 82;
-  optional string id_talento = 88;
+  string id_raca = 80;
+  string dominio = 82;
+  string id_talento = 88;
   // Municao para a arma.
-  optional uint32 municao = 38;
+  uint32 municao = 38;
   // Para ataques com veneno.
-  optional VenenoProto veneno = 42;
+  VenenoProto veneno = 42;
   // Para ataques com doença.
-  optional DoencaProto doenca = 84;
+  DoencaProto doenca = 84;
   // Se presente, ataque desaparecerá após ser usado esse número de vezes.
   // É diferente de munição, que permanece após zerar.
-  optional int32 limite_vezes = 43;
+  int32 limite_vezes = 43;
   // Se > 0, o consumo de limite de vezes so ocorrera apos esse numero de usos.
-  optional int32 consome_apos_n_usos = 102;
-  optional int32 usos = 103;
+  int32 consome_apos_n_usos = 102;
+  int32 usos = 103;
 
   // Alguns ataques são limitados, mas não devem ser zerados. Na prática, funciona como munição
   // para ataques por dia. Exemplo, inspirar coragem.
-  optional bool mantem_com_limite_zerado = 73;
+  bool mantem_com_limite_zerado = 73;
   // Se false, ao realizar o ataque nao passa para o proximo. Isso ocorre com algumas entidades conjuradas com varios ataques na rodada
   // que sao muito dificeis de modelar como um so.
-  optional bool incrementa_proximo_ataque = 68 [default=true];
+  bool incrementa_proximo_ataque = 68 [default=true];
   // TODO: passar isso tudo pra acao? Me parece mais adequado.
   // Ferro frio, adamante etc.
-  optional DescritorAtaque material_arma = 46;
+  DescritorAtaque material_arma = 46;
   // Perfurante, cortante, estourante. Algumas armas sao de mais de um tipo.
   repeated DescritorAtaque tipo_ataque_fisico = 47;
   // Bem, mal, caos, leal.
-  optional DescritorAtaque alinhamento_bem_mal = 48;
-  optional DescritorAtaque alinhamento_ordem_caos = 77;
+  DescritorAtaque alinhamento_bem_mal = 48;
+  DescritorAtaque alinhamento_ordem_caos = 77;
 
   // Para armas que tem que ser carregadas.
-  optional bool requer_carregamento = 49;
-  optional bool descarregada = 50;
+  bool requer_carregamento = 49;
+  bool descarregada = 50;
   // Se verdadeiro, o ataque tenta derrubar automaticamente o alvo em caso de acerto.
-  optional bool derrubar_automatico = 51;
+  bool derrubar_automatico = 51;
   // Parecido com anterior, mas se bem sucedida, derruba sem teste.
-  optional bool derruba_sem_teste = 67;
+  bool derruba_sem_teste = 67;
 
   // Para pergaminhos, que já vem com estas variaveis definidas.
-  optional int32 nivel_conjurador_pergaminho = 52;
-  optional int32 modificador_atributo_pergaminho = 53;
+  int32 nivel_conjurador_pergaminho = 52;
+  int32 modificador_atributo_pergaminho = 53;
   // Se presente, indica um slot maior para a magia para fins de calculo de CD.
-  optional int32 nivel_slot = 99;
-  optional TipoMagia tipo_pergaminho = 55;
+  int32 nivel_slot = 99;
+  TipoMagia tipo_pergaminho = 55;
   // Computado dinamicamente.
   repeated DescritorAtaque descritores = 57;
-  optional DescritorAtaque elemento = 58;
-  optional int32 dificuldade_salvacao = 59;
-  optional string icone = 60;
-  optional TipoSalvacao tipo_salvacao = 61;
+  DescritorAtaque elemento = 58;
+  int32 dificuldade_salvacao = 59;
+  string icone = 60;
+  TipoSalvacao tipo_salvacao = 61;
   // O que acontece quando salva.
-  optional ResultadoSalvacao resultado_ao_salvar = 62;
-  optional bool dano_ignora_salvacao = 63;
-  optional bool ignora_reflexos = 69;
+  ResultadoSalvacao resultado_ao_salvar = 62;
+  bool dano_ignora_salvacao = 63;
+  bool ignora_reflexos = 69;
   // Ataque so disponivel se modelo estiver ativado.
-  optional TipoEfeitoModelo requer_modelo_ativo = 71;
+  TipoEfeitoModelo requer_modelo_ativo = 71;
   // O identificador do ataque dentro do modelo, para aplicá-lo e desligá-lo.
-  optional int32 id_ataque_modelo = 72;
+  int32 id_ataque_modelo = 72;
   // Indica que ataque é proveniente de uma arma.
-  optional bool eh_arma = 74;
+  bool eh_arma = 74;
   // Para cool down. Se houver taxa de refrescamento, atualiza disponivel_em. Quando disponivel_em for 0,
   // pode usar de novo o ataque.
-  optional string taxa_refrescamento = 75;
+  string taxa_refrescamento = 75;
   // Se verdadeiro, pode usar livremente na rodada, mas apos termino calcula disponivel_em.
-  optional bool refresca_apos_rodada = 81;
+  bool refresca_apos_rodada = 81;
   // indica que o ataque foi usado na rodada.
-  optional bool usado_rodada = 83;
+  bool usado_rodada = 83;
   // Ao refrescar,refresca para esse valor.
-  optional int32 limite_vezes_original = 87;
-  optional int32 disponivel_em = 76;
+  int32 limite_vezes_original = 87;
+  int32 disponivel_em = 76;
   // Se verdadeiro, origem sera ignorada no picking. Util para entidades que cobrem uma area e atacam quem estiver dentro.
-  optional bool ignora_origem = 78;
+  bool ignora_origem = 78;
   // Caso verdadeiro, a criatura podera agarrar automaticamente com este ataque (desde que alvo seja menor e o teste de agarrar seja bem sucedido).
-  optional bool agarrar_aprimorado = 85;
+  bool agarrar_aprimorado = 85;
   // Como agarrar_aprimoradoagarrar_aprimorado, mas depende de outro ataque ter acertado tb (shambling mound com seus 2 tentaculos).
-  optional bool agarrar_aprimorado_se_acertou_anterior = 106;
+  bool agarrar_aprimorado_se_acertou_anterior = 106;
   // Se verdadeiro, este ataque acertou na rodada.
-  optional bool acertou_ataque = 108;
+  bool acertou_ataque = 108;
   // Se o agarrar aprimorado funcionar, da o dano de constrição como esmagamento.
-  optional bool constricao = 105;
+  bool constricao = 105;
   // Dano final da constricao.
-  optional string dano_constricao = 107;
+  string dano_constricao = 107;
   // Os dois que geram o dano de constrição.
-  optional string dano_basico_constricao = 109;
-  optional Bonus bonus_dano_constricao = 110;
+  string dano_basico_constricao = 109;
+  Bonus bonus_dano_constricao = 110;
   // Caso verdadeiro, a criatura agarrará sem teste após um ataque bem sucedido.
-  optional bool adesao = 100;
+  bool adesao = 100;
   // Se verdadeiro, ataque é oriundo de feitiço.
-  optional bool eh_feitico = 90;
+  bool eh_feitico = 90;
   // Se verdadeiro, ataque sera para derrubar.
-  optional bool ataque_derrubar = 91;
-  optional int32 chance_falha = 94;
-  optional int32 tempo_execucao_rodadas = 95;
+  bool ataque_derrubar = 91;
+  int32 chance_falha = 94;
+  int32 tempo_execucao_rodadas = 95;
   // se verdadeiro, ataque sera um desarme.
-  optional bool ataque_desarmar = 96;
+  bool ataque_desarmar = 96;
   // Indica que este ataque esta desarmado.
-  optional bool desarmado = 97;
+  bool desarmado = 97;
   // Indica que ataque é de varinha (valor da varinha é o id a tabela).
-  optional string varinha = 101;
+  string varinha = 101;
   // Se verdadeiro, ataque nao precisa estar na lista do personagem.
-  optional bool nao_precisa_ter_na_lista = 104;
+  bool nao_precisa_ter_na_lista = 104;
   // A entidade so pode atacar se tiver alguem montada nela, pois usara os dados de quem monta.
-  optional bool requer_entidade_montada = 111;
+  bool requer_entidade_montada = 111;
   // Para armas duplas, inverte o lado da arma.
-  optional bool inverter_arma = 112;
+  bool inverter_arma = 112;
 }
 
 message ConsequenciaEvento {
   // Afeta todos atributos.
-  optional Atributos atributos = 1;
+  Atributos atributos = 1;
   // Afeta os dados de defesa: ca e salvacoes.
-  optional DadosDefesa dados_defesa = 2;
+  DadosDefesa dados_defesa = 2;
   // Afeta o bonus das jogadas de ataque.
-  optional Bonus jogada_ataque = 3;
-  optional Bonus jogada_dano = 6;
+  Bonus jogada_ataque = 3;
+  Bonus jogada_dano = 6;
   // Efeito so vale para algumas armas.
-  optional RestricaoArma restricao_arma = 7;
+  RestricaoArma restricao_arma = 7;
   // Alteracao no tamanho da entidade.
-  optional Bonus tamanho = 4;
+  Bonus tamanho = 4;
   // Alteracao na pericia.
   repeated InfoPericia dados_pericia = 5;
   // Evento da bonus de iniciativa.
-  optional Bonus bonus_iniciativa = 11;
+  Bonus bonus_iniciativa = 11;
   // Evento cria os dados de ataque passado.
   repeated DadosAtaque dados_ataque = 12;
   // Para efeitos que causam iluminacao.
-  optional IluminacaoPontual luz = 13;
+  IluminacaoPontual luz = 13;
   // Para efeitos que alteram movimento.
-  optional Movimento movimento = 14;
+  Movimento movimento = 14;
   // Pontos de vida temporarios.
-  optional Bonus pontos_vida_temporarios = 15;
+  Bonus pontos_vida_temporarios = 15;
   // Muda o tipo de visao: apenas para modelos.
-  optional TipoVisao tipo_visao = 16;
-  optional float alcance_visao_m = 17;
+  TipoVisao tipo_visao = 16;
+  float alcance_visao_m = 17;
 }
 
 message EfeitoProto {
-  optional TipoEfeito id = 1;  // id do efeito.
-  optional string nome = 5;  // nome do efeito, legibilidade.
-  optional string formato_complementos = 6;  // Apenas para display: explica como usar os complementos.
+  TipoEfeito id = 1;  // id do efeito.
+  string nome = 5;  // nome do efeito, legibilidade.
+  string formato_complementos = 6;  // Apenas para display: explica como usar os complementos.
   // Apenas um efeito desse sera computado por vez. Por exemplo, acelerar. Outros efeitos podem ser acumulados,
   // mas seus bonus nao se acumularam. O caso de acelerar eh explicito na regra que nao acumula (ate pq o bonus e de esquiva,
   // que se acumula).
-  optional bool nao_cumulativo = 4;
+  bool nao_cumulativo = 4;
   // O que ocorre com a entidade quando efeito comeca.
-  optional ConsequenciaEvento consequencia = 2;
+  ConsequenciaEvento consequencia = 2;
   // O que ocorre quando o efeito termina.
-  optional ConsequenciaEvento consequencia_fim = 3;
+  ConsequenciaEvento consequencia_fim = 3;
   // Afeta apenas os tipos passados.
   repeated TipoDnD afeta_apenas = 7;
   // Nao afeta nenhum dos tipos.
@@ -644,13 +647,13 @@ message EfeitoProto {
 }
 
 message EfeitoModeloProto {
-  optional TipoEfeitoModelo id = 1;  // id do efeito.
-  optional string nome = 5;  // nome do efeito, legibilidade.
+  TipoEfeitoModelo id = 1;  // id do efeito.
+  string nome = 5;  // nome do efeito, legibilidade.
   // O que ocorre com a entidade quando efeito comeca.
-  optional ConsequenciaEvento consequencia = 2;
+  ConsequenciaEvento consequencia = 2;
   // Indica que o template pode ser desligado, tipo vulto com luz.
-  optional bool desligavel = 3;
-  optional string descricao = 4;
+  bool desligavel = 3;
+  string descricao = 4;
 }
 
 // O arquivo de acoes é serializado desta forma.

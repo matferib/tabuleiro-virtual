@@ -1,4 +1,4 @@
-syntax = "proto2";
+edition = "2023";
 
 import "ent/acoes.proto";
 import "ent/comum.proto";
@@ -28,62 +28,62 @@ enum TipoForma {
 
 // Proximo id: 121.
 message EntidadeProto {
-  optional string raca = 99;
+  string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   // Isso aqui eh o tipo do jogo e nao das regras de D&D.
-  optional TipoEntidade tipo = 1;
-  optional TipoForma sub_tipo = 18;
+  TipoEntidade tipo = 1;
+  TipoForma sub_tipo = 18;
 
   // O tipo da entidade segundo as regras de dnd.
   repeated TipoDnD tipo_dnd = 86;
   repeated SubTipoDnD sub_tipo_dnd = 93;
-  optional Movimento movimento = 90;
+  Movimento movimento = 90;
   // Identificador global da entidade composto pelo id_criador << 28 | id_local.
   // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em
   // um GLuint para permitir realização da operação de picking no 3d.
-  optional uint32 id = 2;
+  uint32 id = 2;
   // Pontos de vida da entidade.
-  optional int32 pontos_vida = 11;
+  int32 pontos_vida = 11;
   // Pontos de vida temporarios, computados a partir do bonus.
-  optional int32 pontos_vida_temporarios = 59;
+  int32 pontos_vida_temporarios = 59;
   // A fonte de cada ponto de vida temporario. Fontes iguais so a maior se aplica. Fontes diferentes acumulam (do FAQ).
-  optional Bonus pontos_vida_temporarios_por_fonte = 81;
+  Bonus pontos_vida_temporarios_por_fonte = 81;
   // Quantidade de dano nao letal.
-  optional int32 dano_nao_letal = 82;
+  int32 dano_nao_letal = 82;
 
   // Maximo de pontos de vida da entidade, incluindo bonus de constituicao.
-  optional int32 max_pontos_vida = 12;
+  int32 max_pontos_vida = 12;
   // Exemplo: 4d8 + 8.
-  optional string dados_vida = 19;
+  string dados_vida = 19;
   // Se true, os dados_vida serao gerados automaticamente.
-  optional bool dados_vida_automatico = 120;
+  bool dados_vida_automatico = 120;
   // Armazena os bonus de dados de vida do personagem (como vitalidade).
-  optional Bonus bonus_dados_vida = 117;
+  Bonus bonus_dados_vida = 117;
   // Para os jogadores poderem se identificar.
-  optional string rotulo = 20;
+  string rotulo = 20;
   // Informacoes adicionais sobre a entidade. Visivel apenas para o mestre ou se a entidade puder ser selecionada.
   // Algumas informacoes serao concatenadas ao valor do campo.
   repeated string rotulo_especial = 30;
   // O tamanho final da entidade.
-  optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
+  TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // O tamanho da entidade.
-  optional Bonus bonus_tamanho = 78;
+  Bonus bonus_tamanho = 78;
   // Se verdadeiro, objeto sera desenhado de forma achatada.
-  optional bool achatado = 17 [default=false];
+  bool achatado = 17 [default=false];
   // Posicao atual da entidade. Note que o Z eh quanto a criatura esta acima da translacao. A real posicao dela
   // esta em pos.z + translacao.z.
-  optional Posicao pos = 4;
+  Posicao pos = 4;
   // Se a entidade tiver, usa esta posicao ao inves da posicao padrao.
-  optional Posicao posicao_acao = 89;
+  Posicao posicao_acao = 89;
   // Para a mao ruim.
-  optional Posicao posicao_acao_secundaria = 109;
+  Posicao posicao_acao_secundaria = 109;
   // Para formas (exceto translacao).
   repeated Posicao ponto = 21;
-  optional Escala escala = 22;
-  optional float rotacao_z_graus = 23;  // rotacao do objeto ao redor de Z em graus.
-  optional float rotacao_y_graus = 29;  // rotacao do objeto ao redor de Y em graus.
-  optional float rotacao_x_graus = 33;  // rotacao do objeto ao redor de X em graus.
-  optional float translacao_z_deprecated = 24 [deprecated=true];
+  Escala escala = 22;
+  float rotacao_z_graus = 23;  // rotacao do objeto ao redor de Z em graus.
+  float rotacao_y_graus = 29;  // rotacao do objeto ao redor de Y em graus.
+  float rotacao_x_graus = 33;  // rotacao do objeto ao redor de X em graus.
+  float translacao_z_deprecated = 24 [deprecated=true];
   repeated EntidadeProto sub_forma = 25;  // Para entidades compostas.
   enum TipoTransicao {
     TRANS_NENHUMA = 0;
@@ -92,139 +92,139 @@ message EntidadeProto {
     // Acao na entidade recolhe tesouro.
     TRANS_TESOURO = 2;
   }
-  optional TipoTransicao tipo_transicao = 61;
+  TipoTransicao tipo_transicao = 61;
   // Algumas formas permitem a transicao de um cenario para outro. Quando presente, esta forma tera a capacidade de transitar
   // entidades e a camera para outro cenario. Valor de -1 eh usado para cenario principal e -2 eh reservado para limpar a transicao.
-  optional Posicao transicao_cenario = 35;
+  Posicao transicao_cenario = 35;
 
   // Destino da entidade.
-  optional Posicao destino = 5;
+  Posicao destino = 5;
   // Cor da entidade.
-  optional Cor cor = 6;
+  Cor cor = 6;
   // Iluminação da entidade.
-  optional IluminacaoPontual luz = 7;
+  IluminacaoPontual luz = 7;
   // Textura.
-  optional InfoTextura info_textura = 8;
+  InfoTextura info_textura = 8;
   // Modelo 3d.
-  optional Modelo3d modelo_3d = 34;
+  Modelo3d modelo_3d = 34;
 
   // BITS DAS ENTIDADE.
-  optional int32 aura = 9 [deprecated=true];
-  optional float aura_m = 41;
-  optional bool aura_mestre_apenas = 94;  // Apenas o mestre ve.
+  int32 aura = 9 [deprecated=true];
+  float aura_m = 41;
+  bool aura_mestre_apenas = 94;  // Apenas o mestre ve.
   // Visibilidade. Apenas o dono pode ver.
-  optional bool visivel = 10 [default=true];
+  bool visivel = 10 [default=true];
   // Verdadeiro se a entidade for voadora.
-  optional bool voadora = 13 [default=false];
-  optional bool nadando = 115 [default=false];
-  optional float z_antes_voo = 49;
+  bool voadora = 13 [default=false];
+  bool nadando = 115 [default=false];
+  float z_antes_voo = 49;
   // Entidade esta caida.
-  optional bool caida = 14 [default=false];
+  bool caida = 14 [default=false];
   // Entidade esta morta.
-  optional bool morta = 15 [default=false];
+  bool morta = 15 [default=false];
   // Entidade esta a beira da morte.
-  optional bool inconsciente = 105;
+  bool inconsciente = 105;
   // Entidade esta incapacitada.
-  optional bool incapacitada = 106;
+  bool incapacitada = 106;
   // Parecido com incapacitada, mas com dano nao letal.
-  optional bool nocauteada = 107;
+  bool nocauteada = 107;
   // Se false, apenas o mestre pode ver propriedades da entidade, seleciona-la e fazer picking.
-  optional bool selecionavel_para_jogador = 16 [default=true];
+  bool selecionavel_para_jogador = 16 [default=true];
   // Se verdadeiro, o mestre nao conseguira selecionar a entidade. Ela sera apenas editavel com duplo clique.
-  optional bool fixa = 32 [default=false];
+  bool fixa = 32 [default=false];
   // Se falso, a entidade nao faz sombra.
-  optional bool faz_sombra = 39 [default=true];
+  bool faz_sombra = 39 [default=true];
   // Tipo de visao da entidade.
-  optional TipoVisao tipo_visao = 36;
+  TipoVisao tipo_visao = 36;
   // Alcance da visao no escuro em metros.
-  optional float alcance_visao_m = 37;
+  float alcance_visao_m = 37;
   // Entidade causa colisao.
-  optional bool causa_colisao = 48;
+  bool causa_colisao = 48;
   // Indica que a entidade esta apoiada.
-  optional bool apoiada = 50 [default=true];
+  bool apoiada = 50 [default=true];
   // Indica que a entidade esta espiando de um lado ou do outro. -1 esquerda, 1 direita.
-  optional int32 espiando = 58;
+  int32 espiando = 58;
   // Se verdadeiro, desligara luz para desenho.
-  optional bool ignora_luz = 75;
+  bool ignora_luz = 75;
   // Se verdadeiro, desligara backface culling.
-  optional bool dois_lados = 76;
+  bool dois_lados = 76;
 
   // TODO implementar as coisas de surpresa.
-  optional bool surpreso = 64;
+  bool surpreso = 64;
   // Indica que o ataque dara dano furtivo. Para saber se a entidade tem furtivo, ver dano_furtivo.
-  optional bool deprecated_furtivo = 62;
+  bool deprecated_furtivo = 62;
   // Ids das entidades agarradas.
   repeated uint32 agarrado_a = 71;
 
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
-  optional string ultima_acao = 26;
-  optional string ultimo_grupo_acao = 92;
+  string ultima_acao = 26;
+  string ultimo_grupo_acao = 92;
   // Ultimas acoes executadas da unidade. Funciona como uma fila onde o indice 0 eh a acao mais recente e o
   // tamanho maximo eh dado pela constante MaxNumAcoes.
   repeated string lista_acoes = 38;
   // Resultado da proxima salvacao da entidade.
-  optional ResultadoSalvacao proxima_salvacao = 27;
+  ResultadoSalvacao proxima_salvacao = 27;
   // A direcao do ultimo impacto sofrido pela entidade.
-  optional Posicao direcao_queda = 28;
+  Posicao direcao_queda = 28;
   // Evento de entidade. A cada rodada, o contador de rodadas diminuira ate zero.
   // Ao termino do contador, o tabuleiro sinalizara a entidade.
   message Evento {
     // Atencao: a atualizacao parcial de eventos so atualiza rodadas e complementos.
-    optional int32 rodadas = 1;            // se -1, sinaliza remocao.
-    optional int32 iniciativa = 15;              // A iniciativa de quem criou, se relevante.
-    optional int32 modificador_iniciativa = 16;  // modificador de iniciativa de quem criou.
-    optional bytes descricao = 2;          // aparentemente eu salvei coisa em formato binario aqui, nao funciona como string.
-    optional TipoEfeito id_efeito = 4;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
+    int32 rodadas = 1;            // se -1, sinaliza remocao.
+    int32 iniciativa = 15;              // A iniciativa de quem criou, se relevante.
+    int32 modificador_iniciativa = 16;  // modificador de iniciativa de quem criou.
+    bytes descricao = 2;          // aparentemente eu salvei coisa em formato binario aqui, nao funciona como string.
+    TipoEfeito id_efeito = 4;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
     repeated int32 complementos = 3;       // Alguns efeitos tem complementos.
     repeated string complementos_str = 8;  // Complementos na forma de string.
-    optional bool processado = 5;          // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
+    bool processado = 5;          // indica que o evento ainda nao foi processado. Alguns tipos de efeito usam isso.
     // Identificador unico para o efeito. Util para desfazer fim de efeitos e mensagens de desfazer.
-    optional int32 id_unico = 6;
+    int32 id_unico = 6;
     // Indica que efeito nao expira (nao precisa decrementar contador de rodadas).
-    optional bool continuo = 7;
+    bool continuo = 7;
     // A origem do evento, sera passada ao efeito. Origens iguais nao se acumulam.
     // Por exemplo: mesmo feitico lançado multiplas vezes.
-    optional string origem = 9;
+    string origem = 9;
     // Se o evento for continuo e vier de um item magico, deve setar isso para true. Eventos orfaos serao removidos em recomputa.
-    optional bool requer_pai = 10;
+    bool requer_pai = 10;
     // Para eventos que precisam salvar estado anterior. Especifico por tipo de efeito.
-    optional bytes estado_anterior = 11;
+    bytes estado_anterior = 11;
     // O evento requer um modelo ativo para permanecer.
-    optional TipoEfeitoModelo requer_modelo_ativo = 12;
+    TipoEfeitoModelo requer_modelo_ativo = 12;
     // Para efeitos que demandam salvacao toda rodada.
-    optional int32 dificuldade_salvacao = 13;
-    optional TipoSalvacao tipo_salvacao = 14;
+    int32 dificuldade_salvacao = 13;
+    TipoSalvacao tipo_salvacao = 14;
   }
   repeated Evento evento = 31;
 
-  optional Atributos atributos = 68;
+  Atributos atributos = 68;
 
   repeated DadosAtaque dados_ataque = 44;
 
-  optional DadosAtaqueGlobal dados_ataque_global = 73;
+  DadosAtaqueGlobal dados_ataque_global = 73;
 
-  optional DadosDefesa dados_defesa = 45;
+  DadosDefesa dados_defesa = 45;
 
   message ArmaArmaduraOuEscudoPersonagem {
     // Id unico da arma, para ser referenciado.
-    optional string id = 1;
+    string id = 1;
     // Usado da arma na tabela.
-    optional string id_tabela = 12;
-    optional string nome = 6;  // nome legivel.
+    string id_tabela = 12;
+    string nome = 6;  // nome legivel.
     // Isso nao muda.
     repeated DescritorAtaque descritores_basicos = 2;
     // Final: mistura tudo.
     repeated DescritorAtaque descritores = 3;
     // Para referencias cruzadas. deve ser unico dentro de sua categoria para o
     // personagem.
-    optional int32 id_unico = 4;
+    int32 id_unico = 4;
     // Para ficar mais facil.
-    optional int32 bonus_magico = 9;
-    optional int32 bonus_magico_secundario = 11;
-    optional bool obra_prima = 10;
+    int32 bonus_magico = 9;
+    int32 bonus_magico_secundario = 11;
+    bool obra_prima = 10;
     // Os bonus do item.
-    optional Bonus bonus = 5;
-    optional bool em_uso = 7;
+    Bonus bonus = 5;
+    bool em_uso = 7;
     // Ao usar, item gera este efeito. Util para finalizar o efeito.
     repeated uint32 ids_efeitos = 8;
   }
@@ -233,7 +233,7 @@ message EntidadeProto {
   // Atencao: ao adicionar campos aqui, alterar tb em tabuleiro_tratador:
   // TrataBotaoTransicaoPressionadoPosPicking.
   message DadosTesouro {
-    optional string tesouro = 1;
+    string tesouro = 1;
     repeated ItemMagicoProto pocoes = 2;
     repeated ItemMagicoProto aneis = 3;
     repeated ItemMagicoProto mantos = 4;
@@ -250,50 +250,50 @@ message EntidadeProto {
     repeated ArmaArmaduraOuEscudoPersonagem escudos = 22;
     repeated Municao municoes = 23;
     repeated ItemMagicoProto itens_mundanos = 25;
-    optional Moedas moedas = 24;
-    optional OperacaoCombinacao operacao = 100;
+    Moedas moedas = 24;
+    OperacaoCombinacao operacao = 100;
     // Apenas para conferencia.
-    optional int32 valor_esperado_po = 26;
+    int32 valor_esperado_po = 26;
     repeated ItemMagicoProto itens_maravilhosos = 27;
   }
-  optional DadosTesouro tesouro = 46;
+  DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.
-  optional int32 iniciativa = 55;
-  optional int32 modificador_iniciativa = 56;
-  optional Bonus bonus_iniciativa = 69;
+  int32 iniciativa = 55;
+  int32 modificador_iniciativa = 56;
+  Bonus bonus_iniciativa = 69;
   // Algumas entidades tem varias formas. Neste caso, a primeira sera a original para poder reverter
   // enquanto as outras serao as alternativas. Ou seja, eh 0 ou 2+.
   repeated EntidadeProto formas_alternativas = 60;
   // Modelos (templates) sao como efeitos permanentes de uma entidade. Vamos ver se dessa forma funciona.
   repeated ModeloDnD modelos = 95;
   // Se houver forma alternativa, indica qual esta em uso.
-  optional int32 forma_alternativa_corrente = 74;
+  int32 forma_alternativa_corrente = 74;
   // Se presente, usara este id como base para a forma alternativa.
-  optional string id_forma_alternativa = 113;
+  string id_forma_alternativa = 113;
 
   // Informacoes sobre a classe do personagem.
   repeated InfoClasse info_classes = 63;
   // Valor final computado.
-  optional int32 niveis_negativos = 83;
-  optional Bonus niveis_negativos_dinamicos = 100;
+  int32 niveis_negativos = 83;
+  Bonus niveis_negativos_dinamicos = 100;
 
   // Bonus base de ataque.
   message InfoBBA {
-    optional int32 base = 1;
-    optional string base_detalhes = 5;
-    optional int32 agarrar = 2;
-    optional string agarrar_detalhes = 6;
-    optional int32 cac = 3;
-    optional string cac_detalhes = 7;
-    optional int32 distancia = 4;
-    optional string distancia_detalhes = 8;
+    int32 base = 1;
+    string base_detalhes = 5;
+    int32 agarrar = 2;
+    string agarrar_detalhes = 6;
+    int32 cac = 3;
+    string cac_detalhes = 7;
+    int32 distancia = 4;
+    string distancia_detalhes = 8;
   }
-  optional InfoBBA bba = 70;
+  InfoBBA bba = 70;
 
   // Mesmo que haja um modelo 3d, desenha o tijolo de base da entidade.
-  optional bool desenha_base = 65;
+  bool desenha_base = 65;
   // Outras coisas de entidade, apenas para armazenamento.
-  optional string notas = 66;
+  string notas = 66;
 
   message InfoTalentos {
     // Gerais respeita os niveis.
@@ -303,129 +303,129 @@ message EntidadeProto {
     // Talentos automaticos, sempre recomputados.
     repeated TalentoProto automaticos = 3;
   }
-  optional InfoTalentos info_talentos = 79;
+  InfoTalentos info_talentos = 79;
   repeated InfoPericia info_pericias = 85;
 
   // Alinhamento ou tendencia.
   message TendenciaDetalhada {
     // Daqui se geram os eixos.
-    optional TendenciaSimplificada simples = 3 [default = TD_NEUTRO];
-    optional float eixo_bem_mal = 1 [default = 0.5];
-    optional float eixo_ordem_caos = 2 [default = 0.5];
+    TendenciaSimplificada simples = 3 [default = TD_NEUTRO];
+    float eixo_bem_mal = 1 [default = 0.5];
+    float eixo_ordem_caos = 2 [default = 0.5];
   }
-  optional TendenciaDetalhada tendencia = 80;
+  TendenciaDetalhada tendencia = 80;
   // XP do personagem.
-  optional int32 experiencia = 84;
+  int32 experiencia = 84;
 
   // Informacao sobre um feitico conhecido.
   message InfoConhecido {
     // Identificador do feitico, usado pelo slot.
-    optional string id = 1;  // use auto para gerar aleatoriamente.
-    optional string nome = 2;
+    string id = 1;  // use auto para gerar aleatoriamente.
+    string nome = 2;
     // Indica feitico de domino.
-    //optional bool dominio = 3;
+    //bool dominio = 3;
   }
   // As magias prontas para lancamento.
   message InfoLancar {
     // Identifica o feitico (se tiver que memorizar).
-    optional int32 nivel_conhecido = 1;
-    optional int32 indice_conhecido = 2;
+    int32 nivel_conhecido = 1;
+    int32 indice_conhecido = 2;
     // Indica slot usado.
-    optional bool usado = 3;
+    bool usado = 3;
     // Usado para notificacoes que alteram o slot.
-    optional int32 indice = 4;
+    int32 indice = 4;
     // Se verdadeiro, slot devera ser usado para feitico restrito (dominio ou escola especializada).
-    optional bool restrito = 5;
+    bool restrito = 5;
   }
   message FeiticosPorNivel {
     // Nivel dos feiticos. Preenchido apenas em notificacoes de alteracao de feitico.
-    optional int32 nivel = 1;
+    int32 nivel = 1;
 
     // Esses arrays sao sempre indexado por nivel, mesmo que nao haja nivel 0.
     repeated InfoConhecido conhecidos = 5;
     repeated InfoLancar para_lancar = 6;
     // Para combinacao modelos.
-    //optional OperacaoCombinacao operacao = 7;
+    //OperacaoCombinacao operacao = 7;
   }
   message PoderesDominio {
-    optional bool usado = 1;
-    optional int32 disponivel_em = 2;
-    optional string taxa_refrescamento = 3;
+    bool usado = 1;
+    int32 disponivel_em = 2;
+    string taxa_refrescamento = 3;
   }
   message InfoFeiticosClasse {
-    optional string id_classe = 1;
+    string id_classe = 1;
     repeated string dominios = 6;
-    optional string especializacao = 9;
+    string especializacao = 9;
     repeated string escolas_proibidas = 10;
     // Cada repeticao vale para o nivel do indice. Por exemplo, nivel 0 eh a primeira entrada.
     repeated FeiticosPorNivel feiticos_por_nivel_deprecated = 5;
     map<int32, FeiticosPorNivel> mapa_feiticos_por_nivel = 12;
     // Indica operacao de conversao espontanea.
-    optional bool conversao_espontanea = 8;
-    optional OperacaoCombinacao operacao = 7;
+    bool conversao_espontanea = 8;
+    OperacaoCombinacao operacao = 7;
     map<string, PoderesDominio> poderes_dominio = 11;
   }
   repeated InfoFeiticosClasse feiticos_classes = 87;
   // Indica a classe de feitico ativa.
-  optional string classe_feitico_ativa = 88;
+  string classe_feitico_ativa = 88;
   // Fim feiticos.
   // Apenas para atualizacao parcial reiniciar os ataques.
-  optional bool reiniciar_ataque = 91;
+  bool reiniciar_ataque = 91;
 
   // Indica que a entidade está montada em outra, ou seja, o movimento acompanhará.
-  optional uint32 montado_em = 96;
+  uint32 montado_em = 96;
   // Quais entidades estão montadas nessa.
   repeated uint32 entidades_montadas = 97;
-  optional bool mais_de_duas_pernas = 98;
+  bool mais_de_duas_pernas = 98;
   // Se verdadeiro, a entidade podera ser afetada por acoes independente do
   // tipo. Se for false, o contrario. Ausencia usa o padrao para entidade.
-  optional bool pode_ser_afetada_por_acao = 101;
+  bool pode_ser_afetada_por_acao = 101;
   // Se false, nao sera gerado ataque de agarrar para entidade.
-  optional bool gerar_agarrar = 102 [default=true];
+  bool gerar_agarrar = 102 [default=true];
   // Se verdadeiro, indica que entidade esta em corpo a corpo.
-  optional bool em_corpo_a_corpo = 103;
+  bool em_corpo_a_corpo = 103;
   // Se presente diz se entidade respeitara solo ao se movimentar (caso
   // contrario, vai pelo tipo).
-  optional bool forcar_respeita_solo = 104;
-  optional bool canhota = 108;
+  bool forcar_respeita_solo = 104;
+  bool canhota = 108;
   // Se verdadeiro, objeto brilhara como metal.
-  optional bool especular = 110;
+  bool especular = 110;
   // Indica criatura cega por padrao.
-  optional bool naturalmente_cego = 111;
+  bool naturalmente_cego = 111;
   // Indica entidade emitindo fumaca.
-  optional bool fumegando = 112;
+  bool fumegando = 112;
   // Se verdadeiro, entidade foi conjurada.
-  optional bool conjurada = 114;
+  bool conjurada = 114;
   // Ultima pericia rolada pelo personagem.
-  optional string ultima_pericia = 116;
+  string ultima_pericia = 116;
   // Familiar da entidade.
-  optional uint32 familiar = 118;
+  uint32 familiar = 118;
   // Times representam aliados. Usado para feiticos que afetam apenas aliados e controles automaticos.
   repeated uint32 times = 119;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.
 message Modelo {
-  optional string id = 1;
+  string id = 1;
   // Para entidades templatizadas.
   message Parametros {
-    optional TipoDuracao tipo_duracao = 1;
+    TipoDuracao tipo_duracao = 1;
     // Dano.
     // Para danos tipo: 1d8 + x/nivel.
-    optional string dano_fixo = 2;
+    string dano_fixo = 2;
     // Para danos tipo: 1d6/nivel (usar 6 aqui que o multiplicador virá do multiplicador_nivel_dano, gerando xd6).
-    optional int32 dado_dano_por_nivel = 7;
-    optional float multiplicador_nivel_dano = 3;
-    optional int32 maximo_modificador_dano = 4;
+    int32 dado_dano_por_nivel = 7;
+    float multiplicador_nivel_dano = 3;
+    int32 maximo_modificador_dano = 4;
     // Ataque.
-    optional TipoModificadorAtaque tipo_modificador_ataque = 5;
+    TipoModificadorAtaque tipo_modificador_ataque = 5;
     // Modificador da salvacao.
-    optional TipoModificadorSalvacao tipo_modificador_salvacao = 6;
+    TipoModificadorSalvacao tipo_modificador_salvacao = 6;
     // Outros.
     repeated string rotulo_especial = 10;
   }
-  optional Parametros parametros = 3;
-  optional EntidadeProto entidade = 2;
+  Parametros parametros = 3;
+  EntidadeProto entidade = 2;
   // Se presente, lera a entidade com o id_passado e apenas fara o merge com
   // entidade.
   repeated string id_entidade_base = 4;

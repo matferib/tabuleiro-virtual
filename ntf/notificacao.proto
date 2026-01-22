@@ -1,4 +1,4 @@
-syntax = "proto2";
+edition = "2023";
 
 import "ent/acoes.proto";
 import "ent/comum.proto";
@@ -11,6 +11,7 @@ option java_package = "com.matferib.Tabuleiro.ntf";
 
 // Proximo: 86.
 enum Tipo {
+  TN_INVALIDO = 0;
   TN_SAIR = 1;
   TN_ERRO = 2;
   TN_INFO = 30;
@@ -106,58 +107,58 @@ enum Tipo {
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
 // Proximo id: 25.
 message Notificacao {
-  optional Tipo tipo = 1;
+  Tipo tipo = 1;
   // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Toda notificacao deste tipo
   // devera ser acompanhada do id do cliente.
   // Caso contrario, enviado para todo pendentes.
-  optional bool clientes_pendentes = 2 [default=false];
+  bool clientes_pendentes = 2 [default=false];
   // Se verdadeira, indica que o servidor nao deve repassar a mensagem para outros clientes.
-  optional bool servidor_apenas = 17 [default=false];
+  bool servidor_apenas = 17 [default=false];
   // Usado para varios tipos de respostas. Ausente quando nao ha erro.
-  optional string erro = 4;
+  string erro = 4;
   // Identificacao propria do cliente no formato de string. Mensagens enviadas do servidor com este campo atribuido.
   // serao enviadas apenas para o cliente especificado.
-  optional string id_rede = 15;
+  string id_rede = 15;
   // URL do servidor para conexao ou caminho de arquivo para serializacao deserializacao.
   // Muitas vezes usada para evitar repeticao de mensagens (cliente recebe e repassa ao servidor
   // que processa e repassa ao cliente infinitamente). Quando usada assim, a ausencia de endereco
   // significa, processe e nao repasse.
-  optional string endereco = 5;
+  string endereco = 5;
   // Para o cliente forcar o endereco local.
-  optional int32 porta_local = 30;
+  int32 porta_local = 30;
   // Tabuleiro de jogo.
-  optional ent.TabuleiroProto tabuleiro = 6;
+  ent.TabuleiroProto tabuleiro = 6;
   // Para desfazer.
-  optional ent.TabuleiroProto tabuleiro_antes = 16;
+  ent.TabuleiroProto tabuleiro_antes = 16;
   // Entidade.
-  optional ent.EntidadeProto entidade = 7;
+  ent.EntidadeProto entidade = 7;
   // Para atualizacoes de entidade, guardando o estado anterior a modificacao.
-  optional ent.EntidadeProto entidade_antes = 3;
+  ent.EntidadeProto entidade_antes = 3;
   // Usado na criacao de entidades, contem o ultimo id selecionado antes da notificacao.
-  optional uint32 id_referencia = 19;
+  uint32 id_referencia = 19;
   // Acoes.
-  optional ent.AcaoProto acao = 12;
+  ent.AcaoProto acao = 12;
   // Opcoes.
-  optional ent.OpcoesProto opcoes = 8;
+  ent.OpcoesProto opcoes = 8;
   // Informacao sobre textura para carregamento e descarregamento.
   repeated ent.InfoTextura info_textura = 9;
   // Informacao sobre modelos 3d.
   repeated ent.Modelo3d info_modelo_3d = 18;
   // Transmissao de tabelas.
-  optional ent.TodasTabelas tabelas = 20;
+  ent.TodasTabelas tabelas = 20;
   // Indica se o jogo esta em modo mestre ou nao.
-  optional bool modo_mestre = 10;
+  bool modo_mestre = 10;
   // Para eventos de mouse e relacionados a posicao.
-  optional ent.Posicao pos = 21;
+  ent.Posicao pos = 21;
   // Indica que notificacao foi criada de um evento forcado (ctrl clique).
   // A semantica depende do que a notificacao faz.
-  optional bool forcado = 22;
+  bool forcado = 22;
   // Indica que a mensagem eh local, ou seja, veio do proprio jogo e nao de um cliente remoto.
   // Este campo eh preenchido para false durante recebimento de notificacoes pela rede.
-  optional bool local = 11 [default=true];
+  bool local = 11 [default=true];
   // Para notificacoes do tipo TN_GRUPO_NOTIFICACOES. Apenas alguns tipos de notificacoes sao suportadas.
   repeated Notificacao notificacao = 14;
   // Para mensagens poderem usar de forma generica.
-  optional int32 id_generico = 23;
-  optional string str_generica = 24;
+  int32 id_generico = 23;
+  string str_generica = 24;
 }

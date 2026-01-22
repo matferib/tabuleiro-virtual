@@ -1,4 +1,5 @@
-syntax = "proto2";
+edition = "2023";
+
 import "ent/entidade.proto";
 import "ent/comum.proto";
 
@@ -7,12 +8,12 @@ option java_package = "com.matferib.Tabuleiro.ent";
 
 message IluminacaoDirecional {
   // Cor da luz ambiente.
-  optional Cor cor = 1;
+  Cor cor = 1;
   // Angulos em graus.
   // Direcao da luz ambiente. 0 significa nascente, 90 significa luz a pino, 180 poente, 270 subsolo.
-  optional float inclinacao_graus = 2 [default=90.0];
+  float inclinacao_graus = 2 [default=90.0];
   // Posicao do eixo do sol (0 = norte, 90 = leste, 180 = sul, 270 = oeste).
-  optional float posicao_graus = 3 [default=0.0];
+  float posicao_graus = 3 [default=0.0];
 }
 
 // O sistema de visualizacao funciona com dois pontos:
@@ -22,145 +23,145 @@ message IluminacaoDirecional {
 // de uma determinada altura e rotacao.
 // A posicao do destino eh para onde o olho se desloca conforme selecao de entidades ou quadrados.
 message Olho {
-  optional Posicao alvo = 1;  // Para onde o olho olha.
-  optional Posicao destino = 2;  // Para movimentos de olho.
-  optional float rotacao_rad = 3;  // radianos.
-  optional float altura = 4;  // Distancia vertical do olho ao alvo.
-  optional float raio = 5;  // Distancia horizontal do olho ao alvo.
-  optional Posicao pos = 6;  // Posicao do olho, computada dos valores acima.
+  Posicao alvo = 1;  // Para onde o olho olha.
+  Posicao destino = 2;  // Para movimentos de olho.
+  float rotacao_rad = 3;  // radianos.
+  float altura = 4;  // Distancia vertical do olho ao alvo.
+  float raio = 5;  // Distancia horizontal do olho ao alvo.
+  Posicao pos = 6;  // Posicao do olho, computada dos valores acima.
 }
 
 // Opcoes pessoais.
 message OpcoesProto {
-  optional bool mostra_fps = 1 [default=false];
-  optional bool texturas_sempre_de_frente = 2 [default=true];
-  optional bool iluminacao_mestre_igual_jogadores = 3 [default=true];
-  optional bool desenha_rosa_dos_ventos = 4 [default=true];
-  optional bool anti_aliasing = 5 [default=false];
-  optional bool desenha_grade = 6 [default=true];
-  optional bool desenha_controle_virtual = 7 [default=true];
-  optional bool mostra_lista_objetos = 8 [default=false];
-  optional bool desenha_olho = 9 [default=false];
-  optional bool mostra_lista_jogadores = 10 [default=false];
+  bool mostra_fps = 1 [default=false];
+  bool texturas_sempre_de_frente = 2 [default=true];
+  bool iluminacao_mestre_igual_jogadores = 3 [default=true];
+  bool desenha_rosa_dos_ventos = 4 [default=true];
+  bool anti_aliasing = 5 [default=false];
+  bool desenha_grade = 6 [default=true];
+  bool desenha_controle_virtual = 7 [default=true];
+  bool mostra_lista_objetos = 8 [default=false];
+  bool desenha_olho = 9 [default=false];
+  bool mostra_lista_jogadores = 10 [default=false];
 
   // Estas opcoes nao podem ser alteradas durante o jogo. ie deve-se reiniciar.
   // TODO mudar para mapeamento_luz_direcional.
-  optional bool mapeamento_sombras = 11 [default=true];
-  optional bool iluminacao_por_pixel = 12 [default=false, deprecated=true];
+  bool mapeamento_sombras = 11 [default=true];
+  bool iluminacao_por_pixel = 12 [default=false, deprecated=true];
   enum TipoIluminacao {
     TI_VERTICE = 0;
     TI_PIXEL = 1;
     TI_ESPECULAR = 2;
   }
-  optional TipoIluminacao tipo_iluminacao = 20 [default=TI_VERTICE];
-  optional bool mapeamento_oclusao = 13 [default=true];
-  optional bool mapeamento_luzes = 18 [default=true];
+  TipoIluminacao tipo_iluminacao = 20 [default=TI_VERTICE];
+  bool mapeamento_oclusao = 13 [default=true];
+  bool mapeamento_luzes = 18 [default=true];
 
-  optional bool mostra_iniciativas = 14 [default=true];
-  optional string ultimo_endereco = 15;
-  optional string ultimo_endereco_proxy = 19;
-  optional bool mostra_log_eventos = 16;
-  optional bool ataque_vs_defesa_posicao_real = 17;
+  bool mostra_iniciativas = 14 [default=true];
+  string ultimo_endereco = 15;
+  string ultimo_endereco_proxy = 19;
+  bool mostra_log_eventos = 16;
+  bool ataque_vs_defesa_posicao_real = 17;
   // Se verdadeiro, ao apertar tab, o ataque será ativado automaticamente.
-  optional bool tab_ativa_ataque = 21;
+  bool tab_ativa_ataque = 21;
   // Se verdadeiro, som sera desativado.
-  optional bool desativar_som = 22;
-  optional bool renderizacao_em_framebuffer_fixo = 23;
-  optional int32 tamanho_framebuffer_fixo = 24 [default = 1024];
-  optional bool desabilitar_retina = 25 [default = false];
-  optional int32 tamanho_framebuffer_texturas_mapeamento = 26 [default = 512];
-  optional float escala = 27 [default = 0.0];  // fator de escala para texto. Se 0.0, usara automatico.
+  bool desativar_som = 22;
+  bool renderizacao_em_framebuffer_fixo = 23;
+  int32 tamanho_framebuffer_fixo = 24 [default = 1024];
+  bool desabilitar_retina = 25 [default = false];
+  int32 tamanho_framebuffer_texturas_mapeamento = 26 [default = 512];
+  float escala = 27 [default = 0.0];  // fator de escala para texto. Se 0.0, usara automatico.
   // Se verdadeiro, pulara frames apos frames longos.
-  optional bool pular_frames = 28;
-  optional float fps = 29 [default=30.0];
-  optional float expessura_grade_m = 30 [default=0.1];
+  bool pular_frames = 28;
+  float fps = 29 [default=30.0];
+  float expessura_grade_m = 30 [default=0.1];
   // Se verdadeiro, usara a detecao de gestos do QT.
-  optional bool usar_gestos_nativos = 31;
+  bool usar_gestos_nativos = 31;
 }
 
 // Mensagem enviada para os clientes de um jogo.
 // Proximo id: 33.
 message TabuleiroProto {
   // Identificador do cenario. Um tabuleiro pode ser composto por varios cenarios. O principal sera sempre o -1.
-  optional int32 id_cenario = 17 [default = -1];
+  int32 id_cenario = 17 [default = -1];
   // Uma breve descricao do cenario.
-  optional string descricao_cenario = 19;
+  string descricao_cenario = 19;
   // Quando o tabuleiro eh salvo, ele ganha um nome para a operacao de salvar.
-  optional string nome = 12;
+  string nome = 12;
   // Identificador do cliente.
-  optional int32 id_cliente = 1;
+  int32 id_cliente = 1;
   // Iluminacao do tabuleiro.
-  optional IluminacaoDirecional luz_direcional = 3;
-  optional Cor luz_ambiente = 7;
+  IluminacaoDirecional luz_direcional = 3;
+  Cor luz_ambiente = 7;
   // Textura do tabuleiro. Se herdado, usara do pai.
-  optional InfoTextura info_textura_piso = 5;
+  InfoTextura info_textura_piso = 5;
   // Se presente, aplicara cor de piso. Se herdado, usara do pai.
-  optional Cor cor_piso = 23;
+  Cor cor_piso = 23;
   // Caixa do ceu (skybox). Se herdado, usara do pai.
-  optional InfoTextura info_textura_ceu = 16;
+  InfoTextura info_textura_ceu = 16;
   // Para texturas noturnas e escuras, eh melhor nao aplicar iluminacao. Se herdado, usara do pai.
-  optional bool aplicar_luz_ambiente_textura_ceu = 20 [default = true];
+  bool aplicar_luz_ambiente_textura_ceu = 20 [default = true];
   // Aplicar a textura de forma ladrilhada. Se herdado, usara do pai.
-  optional bool ladrilho = 9;
+  bool ladrilho = 9;
   // Tamanho do tabuleiro em quadrados.
-  optional uint32 largura = 4 [default=20];
-  optional uint32 altura = 6 [default=20];
+  uint32 largura = 4 [default=20];
+  uint32 altura = 6 [default=20];
   // Os pontos de relevo do terreno. Preenche-se do sul para o norte, oeste para leste. O primeiro
   // ponto eh SW, o segundo eh SW + 1E e por ai vai.
   repeated double ponto_terreno = 21;
   // Se verdadeiro, nao usa entidades do proto e mantem as correntes. Usado para deserializacao.
-  optional bool manter_entidades = 8 [default=false];
+  bool manter_entidades = 8 [default=false];
   // Entidades do tabuleiro.
   repeated EntidadeProto entidade = 2;
   // Nevoa do tabuleiro, se houver.
-  optional Nevoa nevoa = 10;
+  Nevoa nevoa = 10;
   // Alguns tabuleiros ja vem com grade desenhada.
-  optional bool desenha_grade = 11 [default=true];
+  bool desenha_grade = 11 [default=true];
   // Se verdadeiro, apenas o mestre vera a textura do tabuleiro.
-  optional bool textura_mestre_apenas = 13 [default=false];
+  bool textura_mestre_apenas = 13 [default=false];
   // Quando jogador entra no jogo, a camera aponta inicialmente para ca.
-  optional Olho camera_inicial = 14;
+  Olho camera_inicial = 14;
   // Contador simples de rodadas.
-  optional int32 contador_rodadas = 15;
+  int32 contador_rodadas = 15;
   // Sub cenarios do tabuleiro. Deve ser populado apenas para o tabuleiro pai.
   // Os sub cenarios nao possuem entidades. Cada entidade possui informacao sobre
   // qual tabuleiro ela esta localizada.
   repeated TabuleiroProto sub_cenario = 18;
   // Para atualizacao de iniciativa.
-  optional int32 indice_iniciativa = 22;
-  optional bool iniciativa_valida = 30;
+  int32 indice_iniciativa = 22;
+  bool iniciativa_valida = 30;
 
   repeated TabuleiroProto deprecated_versoes = 24;
   message Versao {
     // Proto serializado, performance.
-    optional bytes dados = 1;
+    bytes dados = 1;
     // Descricao da versao.
-    optional string descricao = 2;
+    string descricao = 2;
   }
   // Cada vez que salva, uma versao do tabuleiro é salva para poder ser restaurada. Por motivos de eficiencia, manter como byte string.
   repeated Versao versoes = 25;
 
   // Caso estas variaveis esteja preenchidas, usara a textura de ceu e piso de
   // outro tabuleiro.
-  optional int32 herdar_piso_de = 26;
-  optional int32 herdar_ceu_de = 27;
-  optional int32 herdar_iluminacao_de = 28;
-  optional int32 herdar_nevoa_de = 29;
+  int32 herdar_piso_de = 26;
+  int32 herdar_ceu_de = 27;
+  int32 herdar_iluminacao_de = 28;
+  int32 herdar_nevoa_de = 29;
   // Para poderes que dependem de luz e chances de falha.
-  optional NivelIluminacao nivel_iluminacao = 31;
+  NivelIluminacao nivel_iluminacao = 31;
   // Informacao sobre times.
   message InfoTime {
-    optional string descricao = 1;
+    string descricao = 1;
     repeated uint32 ids_entidades = 2;
   }
   map<uint32, InfoTime> times = 32;
-  optional float expessura_grade_m = 33 [default=0.1];
+  float expessura_grade_m = 33 [default=0.1];
   // Tipo de terreno do tabuleiro.
-  optional TipoTerreno tipo_terreno = 34;
+  TipoTerreno tipo_terreno = 34;
 }
 
 // Para copiar e colar.
 message EntidadesCopiadas {
-  optional TabuleiroProto origem = 2;
+  TabuleiroProto origem = 2;
   repeated EntidadeProto entidade = 1;
 }

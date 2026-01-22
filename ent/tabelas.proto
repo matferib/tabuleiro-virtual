@@ -1,4 +1,4 @@
-syntax = "proto2";
+edition = "2023";
 
 import "ent/comum.proto";
 import "ent/acoes.proto";
@@ -13,39 +13,39 @@ enum TipoArmadura {
 }
 
 message RacaProto {
-  optional string id = 1;
-  optional string nome = 2;
-  optional string descricao = 3;
-  optional Atributos bonus_atributos = 4;
+  string id = 1;
+  string nome = 2;
+  string descricao = 3;
+  Atributos bonus_atributos = 4;
   repeated InfoPericia bonus_pericias = 9;
-  optional TamanhoEntidade tamanho = 5 [default=TM_MEDIO];
-  optional DadosDefesa dados_defesa = 6;
-  optional TipoDnD tipo = 7;
-  optional SubTipoDnD sub_tipo = 8;
+  TamanhoEntidade tamanho = 5 [default=TM_MEDIO];
+  DadosDefesa dados_defesa = 6;
+  TipoDnD tipo = 7;
+  SubTipoDnD sub_tipo = 8;
   repeated DadosAtaque dados_ataque = 10;
-  optional DadosAtaqueGlobal dados_ataque_global = 15;
-  optional Movimento movimento = 11;
-  optional TipoVisao tipo_visao = 12;
-  optional float alcance_visao_m = 13;
+  DadosAtaqueGlobal dados_ataque_global = 15;
+  Movimento movimento = 11;
+  TipoVisao tipo_visao = 12;
+  float alcance_visao_m = 13;
   // Para raças estaveis como anões.
-  optional bool estabilidade = 14;
+  bool estabilidade = 14;
   repeated TalentoProto talentos_com_complemento_automaticos = 16;
   repeated string familiaridade_com_arma = 17;
 }
 
 message ArmaduraOuEscudoProto {
-  optional string nome = 1;
-  optional Moedas preco = 2;
-  optional int32 bonus = 3;
-  optional int32 max_bonus_destreza = 4 [default = 100];
-  optional TipoArmadura tipo = 5;
-  optional int32 falha_arcana = 6;  // de 0 a 100.
-  optional bool reduz_movimento = 7;
-  optional int32 peso_kg = 8;
+  string nome = 1;
+  Moedas preco = 2;
+  int32 bonus = 3;
+  int32 max_bonus_destreza = 4 [default = 100];
+  TipoArmadura tipo = 5;
+  int32 falha_arcana = 6;  // de 0 a 100.
+  bool reduz_movimento = 7;
+  int32 peso_kg = 8;
   // Valor eh positivo.
-  optional int32 penalidade_armadura = 9;
+  int32 penalidade_armadura = 9;
   // Identificador unico, sem caracteres especiais para mapeamento em tabelas.
-  optional string id = 10;
+  string id = 10;
 }
 
 // Para efeitos de perícia, a arma pode ter apenas uma categoria.
@@ -90,17 +90,17 @@ enum TipoDano {
 
 // O medio vem de tabela e os outros gerados automaticamente.
 message StringPorTamanho {
-  optional string minusculo = 8;
-  optional string diminuto = 9;
-  optional string miudo = 10;
-  optional string pequeno = 2;
-  optional string medio = 1;
-  optional string grande = 3;
-  optional string enorme = 5;
-  optional string imenso = 6;
-  optional string colossal = 7;
+  string minusculo = 8;
+  string diminuto = 9;
+  string miudo = 10;
+  string pequeno = 2;
+  string medio = 1;
+  string grande = 3;
+  string enorme = 5;
+  string imenso = 6;
+  string colossal = 7;
   // Dano nao varia por tamanho.
-  optional string invariavel = 4;
+  string invariavel = 4;
 }
 
 enum TipoCarregamento {
@@ -117,68 +117,68 @@ enum TipoComponenteMaterial {
 }
 
 message InfoComponente {
-  optional TipoComponenteMaterial tipo = 1;
-  optional Moedas custo = 2;
-  optional string descricao = 3;
-  optional bool verbal = 4 [default=true];
-  optional bool somatico = 5 [default=true];
-  optional bool material = 6 [default=true];
+  TipoComponenteMaterial tipo = 1;
+  Moedas custo = 2;
+  string descricao = 3;
+  bool verbal = 4 [default=true];
+  bool somatico = 5 [default=true];
+  bool material = 6 [default=true];
 }
 
 // Proximo id: 42.
 message ArmaProto {
-  optional string id = 1;
-  optional string id_arma_base = 39;
-  optional string nome = 2;
+  string id = 1;
+  string id_arma_base = 39;
+  string nome = 2;
   repeated CategoriaArma categoria = 3;
-  optional string preco = 4;
-  optional StringPorTamanho dano = 5;
+  string preco = 4;
+  StringPorTamanho dano = 5;
   // Presente em armas duplas.
-  optional StringPorTamanho dano_secundario = 6;
-  optional StringPorTamanho peso = 8;
+  StringPorTamanho dano_secundario = 6;
+  StringPorTamanho peso = 8;
   repeated TipoDano tipo_dano = 9;
   // Algumas armas tem dano perfurante, mas o movimento é de outro tipo.
-  optional TipoDano tipo_movimento_acao = 41;
-  optional int32 alcance_quadrados = 10;
+  TipoDano tipo_movimento_acao = 41;
+  int32 alcance_quadrados = 10;
   // Para armas como chicote e corrente com cravos.
-  optional bool atinge_adjacentes = 17;
-  optional int32 multiplicador_haste = 37 [default=2];
+  bool atinge_adjacentes = 17;
+  int32 multiplicador_haste = 37 [default=2];
   enum ModificadorAlcance {
     MOD_NENHUM = 0;
     MOD_2_QUAD_NIVEL = 1;
     MOD_8_QUAD_NIVEL = 2;
     MOD_1_QUAD_CADA_2_NIVEIS = 3;
   }
-  optional ModificadorAlcance modificador_alcance = 22;
-  optional int32 margem_critico = 7 [default=20];
-  optional int32 multiplicador_critico = 11 [default=2];
-  //optional int32 margem_critico_secundario = 12 [default=20];
+  ModificadorAlcance modificador_alcance = 22;
+  int32 margem_critico = 7 [default=20];
+  int32 multiplicador_critico = 11 [default=2];
+  //int32 margem_critico_secundario = 12 [default=20];
   reserved 12;
-  optional int32 multiplicador_critico_secundario = 13 [default=2];
+  int32 multiplicador_critico_secundario = 13 [default=2];
   // Maximo modificador de forca permitido pela arma (valido para arcos).
-  optional int32 max_forca = 14;
-  optional CategoriaPericia categoria_pericia = 15;
+  int32 max_forca = 14;
+  CategoriaPericia categoria_pericia = 15;
   // Indica que a arma eh de haste.
-  optional bool haste = 16;
-  optional bool nao_letal = 18;
+  bool haste = 16;
+  bool nao_letal = 18;
   // Para projeteis de area.
-  optional string dano_dispersao = 19;
+  string dano_dispersao = 19;
   // Para outros efeitos.
-  optional AcaoProto acao = 20;
+  AcaoProto acao = 20;
   // Em caso de feitico, indica quais classes podem usa-lo e o nivel.
   message InfoClasseParaFeitico {
     // Classe que pode usar o feitico, ou id do dominio.
-    optional string id = 1;
+    string id = 1;
     // Para feiticos de dominio.
-    optional bool dominio = 2;
+    bool dominio = 2;
     // Nivel da classe.
-    optional int32 nivel = 3;
+    int32 nivel = 3;
   }
   repeated InfoClasseParaFeitico info_classes = 21;
 
   // Se a arma for criada por um feitico. Esses modelos devem ser usados apenas para
   // criar coisas nos DadosAtaque, ja que as ações serão sobrescritas no recomputa.
-  optional ModeloGenerico modelo_limite_vezes = 23;
+  ModeloGenerico modelo_limite_vezes = 23;
 
   enum ModeloDano {
     DANO_1D6_POR_NIVEL_MAX_10D6 = 0;
@@ -204,44 +204,44 @@ message ArmaProto {
     DANO_1D6_POR_NIVEL_MAX_20D6 = 20;
   }
   // Se a arma for criada por feitico.
-  optional ModeloDano modelo_dano = 25;
+  ModeloDano modelo_dano = 25;
 
   // Arma requer carregamento.
   message Carregamento {
-    optional bool requer_carregamento = 1;
+    bool requer_carregamento = 1;
     // O tipo de carregamento da arma.
-    optional TipoCarregamento tipo_carregamento = 2;
+    TipoCarregamento tipo_carregamento = 2;
     // A capacidade de carga antes de ter que carregar (besta de repeticao).
-    optional int32 capacidade_carga = 3;
+    int32 capacidade_carga = 3;
   }
-  optional Carregamento carregamento = 24;
+  Carregamento carregamento = 24;
 
   // Arma possui veneno.
-  optional VenenoProto veneno = 27;
+  VenenoProto veneno = 27;
 
   // A arma requer ataque de toque.
-  optional bool ataque_toque = 26;
+  bool ataque_toque = 26;
   // Alguns feiticos dao dano independente da salvacao (explosao sonora). Apenas os efeitos sao anulados pela salvacao.
-  optional bool dano_ignora_salvacao = 28;
-  optional string escola = 29;
+  bool dano_ignora_salvacao = 28;
+  string escola = 29;
   enum ModeloTotalDadosVida {
     TDV_NENHUM = 0;
     TDV_2D4_MAIS_NIVEL = 1;
     TDV_1D4_POR_NIVEL_MAX_20D4 = 2;
   };
-  optional ModeloTotalDadosVida modelo_total_dv = 30;
+  ModeloTotalDadosVida modelo_total_dv = 30;
   // link da arma, feitico ou o que for.
-  optional string link = 32;
-  optional string nome_ingles = 33;
+  string link = 32;
+  string nome_ingles = 33;
   // Caso a arma tenha modelo 3d.
-  optional string modelo_3d = 31 [deprecated=true];
-  optional Modelo3d info_modelo_3d = 34;
+  string modelo_3d = 31 [deprecated=true];
+  Modelo3d info_modelo_3d = 34;
   // Se verdadeiro, arma pode ser usada para derrubar.
-  optional bool pode_derrubar = 35;
-  optional int32 bonus_desarmar = 40;
-  optional InfoComponente componente = 36;
+  bool pode_derrubar = 35;
+  int32 bonus_desarmar = 40;
+  InfoComponente componente = 36;
   // tempo_conjuracao, casting_time;
-  optional int32 tempo_execucao_rodadas = 38;
+  int32 tempo_execucao_rodadas = 38;
 }
 
 message TabelaArmaduraOuEscudo {
@@ -343,9 +343,9 @@ message TabelaRacas {
 }
 
 message DominioProto {
-  optional string id = 1;
-  optional string nome = 2;
-  optional string descricao = 3;
+  string id = 1;
+  string nome = 2;
+  string descricao = 3;
   repeated DadosAtaque dados_ataque = 4;
 }
 
@@ -355,30 +355,30 @@ message TabelaDominios {
 
 // O arquivo tabelas.asciiproto eh desse tipo.
 message TodasTabelas {
-  optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
-  optional TabelaArmaduraOuEscudo tabela_escudos = 2;
-  optional TabelaArmas tabela_armas = 3;
-  optional TabelaEfeitos tabela_efeitos = 4;
-  optional TabelaTalentos tabela_talentos = 5;
-  optional TabelaPericias tabela_pericias =  6;
-  optional TabelaFeiticos tabela_feiticos = 7;
-  optional TabelaEfeitosModelos tabela_efeitos_modelos = 8;
-  optional TabelaRacas tabela_racas = 9;
-  optional TabelaPocoes tabela_pocoes = 50;
-  optional TabelaPergaminhos tabela_pergaminhos = 61;
-  optional TabelaClasses tabela_classes =  51;
-  optional TabelaAneis tabela_aneis = 52;
-  optional TabelaMantos tabela_mantos = 53;
-  optional TabelaBotas tabela_botas = 54;
-  optional TabelaBracadeiras tabela_bracadeiras = 55;
-  optional TabelaLuvas tabela_luvas = 56;
-  optional TabelaAmuletos tabela_amuletos = 58;
-  optional TabelaChapeus tabela_chapeus = 59;
-  optional TabelaVenenos tabela_venenos = 57;
-  optional TabelaDoencas tabela_doencas = 65;
-  optional TabelaDominios tabela_dominios = 60;
-  optional TabelaMunicoes tabela_municoes = 62;
-  optional TabelaItensMundanos tabela_itens_mundanos = 63;
-  optional TabelaVarinhas tabela_varinhas = 64;
-  optional TabelaItensMaravilhosos tabela_itens_maravilhosos = 66;
+  TabelaArmaduraOuEscudo tabela_armaduras = 1;
+  TabelaArmaduraOuEscudo tabela_escudos = 2;
+  TabelaArmas tabela_armas = 3;
+  TabelaEfeitos tabela_efeitos = 4;
+  TabelaTalentos tabela_talentos = 5;
+  TabelaPericias tabela_pericias =  6;
+  TabelaFeiticos tabela_feiticos = 7;
+  TabelaEfeitosModelos tabela_efeitos_modelos = 8;
+  TabelaRacas tabela_racas = 9;
+  TabelaPocoes tabela_pocoes = 50;
+  TabelaPergaminhos tabela_pergaminhos = 61;
+  TabelaClasses tabela_classes =  51;
+  TabelaAneis tabela_aneis = 52;
+  TabelaMantos tabela_mantos = 53;
+  TabelaBotas tabela_botas = 54;
+  TabelaBracadeiras tabela_bracadeiras = 55;
+  TabelaLuvas tabela_luvas = 56;
+  TabelaAmuletos tabela_amuletos = 58;
+  TabelaChapeus tabela_chapeus = 59;
+  TabelaVenenos tabela_venenos = 57;
+  TabelaDoencas tabela_doencas = 65;
+  TabelaDominios tabela_dominios = 60;
+  TabelaMunicoes tabela_municoes = 62;
+  TabelaItensMundanos tabela_itens_mundanos = 63;
+  TabelaVarinhas tabela_varinhas = 64;
+  TabelaItensMaravilhosos tabela_itens_maravilhosos = 66;
 }

@@ -1,4 +1,5 @@
-syntax = "proto2";
+edition = "2023";
+
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
@@ -9,11 +10,11 @@ enum NivelIluminacao {
 }
 
 message Moedas {
-  optional int32 po = 1;
-  optional int32 pp = 2;
-  optional int32 pc = 3;
-  optional int32 pl = 4;
-  optional int32 pe = 5;
+  int32 po = 1;
+  int32 pp = 2;
+  int32 pc = 3;
+  int32 pl = 4;
+  int32 pe = 5;
 }
 
 // Um modelo generico baseado em nivel.
@@ -69,8 +70,8 @@ enum TamanhoEntidade {
 // que cada um faz. Outros sao hardcoded.
 // Proximo id: 156.
 enum TipoEfeito {
-  EFEITO_INVALIDO = -1;
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
+  EFEITO_INVALIDO = -1;
   EFEITO_REFLEXOS = 1;  // complemento: numero de imagens.
   EFEITO_PISCAR = 2;
   EFEITO_NUBLAR = 3;
@@ -380,119 +381,119 @@ enum OperacaoCombinacao {
 // Os tipos de movimento, em quadrados, da entidade.
 message Movimento {
   // valores computados.
-  optional Bonus terrestre_q = 1;
-  optional Bonus aereo_q = 2;
-  optional Bonus aquatico_q = 3;
-  optional Bonus escavando_q = 4;
-  optional Bonus escalando_q = 5;
+  Bonus terrestre_q = 1;
+  Bonus aereo_q = 2;
+  Bonus aquatico_q = 3;
+  Bonus escavando_q = 4;
+  Bonus escalando_q = 5;
   // valores basicos.
-  optional int32 terrestre_basico_q = 10;
-  optional int32 aereo_basico_q = 11;
-  optional int32 aquatico_basico_q = 12;
-  optional int32 escavando_basico_q = 13;
-  optional int32 escalando_basico_q = 14;
+  int32 terrestre_basico_q = 10;
+  int32 aereo_basico_q = 11;
+  int32 aquatico_basico_q = 12;
+  int32 escavando_basico_q = 13;
+  int32 escalando_basico_q = 14;
 }
 
 // Tambem usado como vetor.
 message Posicao {
-  optional float x = 3;
-  optional float y = 4;
-  optional float z = 5;
-  optional int32 id_cenario = 6 [default=-1];
+  float x = 3;
+  float y = 4;
+  float z = 5;
+  int32 id_cenario = 6 [default=-1];
 }
 
 message Cor {
-  optional float r = 1 [default=0.0];
-  optional float g = 2 [default=0.0];
-  optional float b = 3 [default=0.0];
-  optional float a = 4 [default=1.0];
+  float r = 1 [default=0.0];
+  float g = 2 [default=0.0];
+  float b = 3 [default=0.0];
+  float a = 4 [default=1.0];
 }
 
 message IluminacaoPontual {
-  optional Cor cor = 1;
+  Cor cor = 1;
   // Metros. Passar para quadrados.
-  optional float raio_m = 2;
-  optional float atenuacao = 3 [deprecated=true];
+  float raio_m = 2;
+  float atenuacao = 3 [deprecated=true];
   // Para luzes de acao.
-  optional float duracao_ms = 4;
+  float duracao_ms = 4;
 }
 
 message Nevoa {
-  optional float minimo = 1;
-  optional float maximo = 2;
-  optional Posicao referencia = 3;  // coordenadas da camera.
-  optional Cor cor = 4;
+  float minimo = 1;
+  float maximo = 2;
+  Posicao referencia = 3;  // coordenadas da camera.
+  Cor cor = 4;
 }
 
 message InfoTextura {
   // Identificador da textura. Normalmente o nome do arquivo. Para mapeamento de cubo, sera adicionado
   // pos{xyz} e neg{xyz} apos o nome.
-  optional string id = 1;
+  string id = 1;
   // Os valores sao relativos a 1.0. 1.0 x 1.0 eh quadrado.
-  optional float largura = 13 [default = 1.0];
-  optional float altura = 14 [default = 1.0];
+  float largura = 13 [default = 1.0];
+  float altura = 14 [default = 1.0];
   // Se presente, realiza translacao das coordenadas de textura apos a escala.
-  optional float translacao_x = 15 [default = 0.0];
-  optional float translacao_y = 16 [default = 0.0];
+  float translacao_x = 15 [default = 0.0];
+  float translacao_y = 16 [default = 0.0];
   // Se presente, multiplica o ponto pelo valor da escala.
-  optional float escala_x = 21 [default = 1.0];
-  optional float escala_y = 22 [default = 1.0];
+  float escala_x = 21 [default = 1.0];
+  float escala_y = 22 [default = 1.0];
   // Para texturas de mapeamento de cubo.
-  optional bool textura_cubo = 2;
+  bool textura_cubo = 2;
   // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas ou armazenar texturas locais
   // dentro de tabuleiros.
-  optional bytes bits_crus = 6;
-  optional bytes bits_crus_direita = 7;
-  optional bytes bits_crus_frente = 8;
-  optional bytes bits_crus_cima = 9;
-  optional bytes bits_crus_esquerda = 10;
-  optional bytes bits_crus_atras = 11;
-  optional bytes bits_crus_baixo = 12;
+  bytes bits_crus = 6;
+  bytes bits_crus_direita = 7;
+  bytes bits_crus_frente = 8;
+  bytes bits_crus_cima = 9;
+  bytes bits_crus_esquerda = 10;
+  bytes bits_crus_atras = 11;
+  bytes bits_crus_baixo = 12;
   // Um dos valores GL_REPEAT, GL_MIRRERED_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER.
-  optional int32 modo_textura = 17;
-  optional bool textura_bump = 18;
-  optional bool textura_movel = 19 [deprecated=true];
-  optional int32 periodo_s = 20;  // Para texturas moveis, indica quantos segundos leva para dar a volta.
-  optional int32 direcao_graus = 23;  // Para texturas moveis, indica a direcao da rotacao.
-  optional bool direcao_circular = 24;  // Para texturas moveis, indica movimento circular.
+  int32 modo_textura = 17;
+  bool textura_bump = 18;
+  bool textura_movel = 19 [deprecated=true];
+  int32 periodo_s = 20;  // Para texturas moveis, indica quantos segundos leva para dar a volta.
+  int32 direcao_graus = 23;  // Para texturas moveis, indica a direcao da rotacao.
+  bool direcao_circular = 24;  // Para texturas moveis, indica movimento circular.
 }
 
 // A escala nos tres eixos.
 message Escala {
-  optional float x = 1 [default=1.0];
-  optional float y = 2 [default=1.0];
-  optional float z = 3 [default=1.0];
+  float x = 1 [default=1.0];
+  float y = 2 [default=1.0];
+  float z = 3 [default=1.0];
 }
 
 message Modelo3d {
   // Identificador do modelo 3d.
-  optional string id = 1;
+  string id = 1;
   // Para transmissao. Bits do arquivo de modelo.
-  optional bytes bits_crus = 6;
+  bytes bits_crus = 6;
   // Translacao do modelo 3d.
-  optional Posicao translacao = 7;
+  Posicao translacao = 7;
   // Escala aplicada, apos translacao.
-  optional Escala escala = 8;
+  Escala escala = 8;
 }
 
 message Projecao {
-  optional int32 tipo_camera = 1;
-  optional float plano_corte_proximo_m = 2;
-  optional float plano_corte_distante_m = 3;
-  optional float campo_visao_vertical_graus = 4;
-  optional float razao_aspecto = 5;
-  optional float largura_m = 6;
-  optional float altura_m = 7;
+  int32 tipo_camera = 1;
+  float plano_corte_proximo_m = 2;
+  float plano_corte_distante_m = 3;
+  float campo_visao_vertical_graus = 4;
+  float razao_aspecto = 5;
+  float largura_m = 6;
+  float altura_m = 7;
 }
 
 // Os atributos basicos.
 message Atributos {
-  optional Bonus forca = 1;
-  optional Bonus destreza = 2;
-  optional Bonus constituicao = 3;
-  optional Bonus inteligencia = 4;
-  optional Bonus sabedoria = 5;
-  optional Bonus carisma = 6;
+  Bonus forca = 1;
+  Bonus destreza = 2;
+  Bonus constituicao = 3;
+  Bonus inteligencia = 4;
+  Bonus sabedoria = 5;
+  Bonus carisma = 6;
 }
 
 enum TipoCombinacao {
@@ -503,23 +504,23 @@ enum TipoCombinacao {
 // Reducoes de dano de acordo com descritores.
 message ReducaoDano {
   repeated DescritorAtaque descritores = 1;
-  optional int32 valor = 2;
-  optional TipoCombinacao tipo_combinacao = 3;
-  optional int32 id_unico = 4;
-  optional int32 indice_complemento = 5;
-  optional TipoEfeitoModelo id_efeito_modelo = 6;
+  int32 valor = 2;
+  TipoCombinacao tipo_combinacao = 3;
+  int32 id_unico = 4;
+  int32 indice_complemento = 5;
+  TipoEfeitoModelo id_efeito_modelo = 6;
 }
 
 message ResistenciaElementos {
-  optional DescritorAtaque descritor = 1;
-  optional int32 valor = 2;
+  DescritorAtaque descritor = 1;
+  int32 valor = 2;
   // Para casos com valor variavel de templates (modelos).
-  optional int32 indice_complemento = 6;
+  int32 indice_complemento = 6;
   // Para resistencias criadas por efeitos.
-  optional int32 id_unico = 4;
+  int32 id_unico = 4;
   // Para resistencia de modelos.
   // Preenchido automaticamente em tabelas.
-  optional TipoEfeitoModelo id_efeito_modelo = 5;
+  TipoEfeitoModelo id_efeito_modelo = 5;
 }
 
 enum VariacaoRM {
@@ -536,53 +537,53 @@ enum TipoEvasao {
 // Por enquanto, apenas para ranger.
 message InimigoPredileto {
   // ranger.
-  optional string classe = 1;
+  string classe = 1;
   // Quantas vezes foi escolhido.
-  optional int32 vezes = 2;
+  int32 vezes = 2;
   // Qual o tipo.
-  optional TipoDnD tipo = 3;
+  TipoDnD tipo = 3;
   // E o subtipo, se houver.
-  optional SubTipoDnD sub_tipo = 4;
+  SubTipoDnD sub_tipo = 4;
 }
 
 // Independe de ataque especifico.
 message DadosAtaqueGlobal {
-  optional string dano_furtivo = 1;
+  string dano_furtivo = 1;
   // Ver funcao ModificadorAtaque em util.
   // Alguns bonus de ataque genericos.
-  optional bool ataque_menos_1 = 2;
-  optional bool ataque_menos_2 = 3;
-  optional bool ataque_menos_4 = 4;
-  optional bool ataque_menos_8 = 14;
-  optional bool ataque_mais_1 = 5;
-  optional bool ataque_mais_2 = 6;
-  optional bool ataque_mais_4 = 7;
-  optional bool ataque_mais_8 = 15;
-  optional bool ataque_mais_16 = 27;
+  bool ataque_menos_1 = 2;
+  bool ataque_menos_2 = 3;
+  bool ataque_menos_4 = 4;
+  bool ataque_menos_8 = 14;
+  bool ataque_mais_1 = 5;
+  bool ataque_mais_2 = 6;
+  bool ataque_mais_4 = 7;
+  bool ataque_mais_8 = 15;
+  bool ataque_mais_16 = 27;
   // Dano generico.
-  optional bool dano_menos_1 = 8;
-  optional bool dano_menos_2 = 9;
-  optional bool dano_menos_4 = 10;
-  optional bool dano_menos_8 = 19;
-  optional bool dano_mais_1 = 11;
-  optional bool dano_mais_2 = 12;
-  optional bool dano_mais_4 = 13;
-  optional bool dano_mais_8 = 16;
-  optional bool dano_mais_16 = 17;
-  optional bool dano_mais_32 = 18;
+  bool dano_menos_1 = 8;
+  bool dano_menos_2 = 9;
+  bool dano_menos_4 = 10;
+  bool dano_menos_8 = 19;
+  bool dano_mais_1 = 11;
+  bool dano_mais_2 = 12;
+  bool dano_mais_4 = 13;
+  bool dano_mais_8 = 16;
+  bool dano_mais_16 = 17;
+  bool dano_mais_32 = 18;
 
   // Se presente, representa a chance de falha de ataque. Um valor negativo indica que ignora
   // a chance de falha causada pela defesa.
-  optional int32 chance_falha = 25;
+  int32 chance_falha = 25;
   // Algumas criaturas tem isso por serem naturalmente cegas, mas nao sao consideradas cegas.
-  optional int32 chance_falha_permanente = 31;
+  int32 chance_falha_permanente = 31;
   repeated InimigoPredileto inimigos_prediletos = 26;
   // indica modo furtivo, proximo dano dara dano furtivo.
-  optional bool furtivo = 28;
+  bool furtivo = 28;
   // Expulsar/fascinar mortos vivos.
-  optional int32 maximo_expulsoes_por_dia = 29;
-  optional int32 expulsoes_realizadas = 30;
-  optional bool flanqueando = 32;
+  int32 maximo_expulsoes_por_dia = 29;
+  int32 expulsoes_realizadas = 30;
+  bool flanqueando = 32;
   // A chave deveria ser SubTipoDnD mas mapa nao aceita.
   map<int32, int32> bonus_ataque_por_sub_tipo = 33;
   // A chave deveria ser CategoriaArma, mas mapa nao aceita.
@@ -594,45 +595,45 @@ message DadosAtaqueGlobal {
 // Dados de defesa global (independe de ataque).
 // Proximo id: 41.
 message DadosDefesa {
-  optional string tipo_defesa = 1 [deprecated=true];
-  optional bool imune_critico = 3;
-  optional bool imune_furtivo = 20;
-  optional int32 ca_deprecated = 2 [deprecated=true];
+  string tipo_defesa = 1 [deprecated=true];
+  bool imune_critico = 3;
+  bool imune_furtivo = 20;
+  int32 ca_deprecated = 2 [deprecated=true];
   // Para racas que tem bonus contra certos tipos (como anoes).
   // A chave na verdade é TipoDnD, mas o mapa nao permite.
   map<int32, Bonus> bonus_ca_por_tipo = 36;
-  optional Bonus ca = 4;
+  Bonus ca = 4;
   // Para modificar CA.
-  optional int32 modificador_tamanho = 40;
-  optional Bonus salvacao_fortitude = 5;
-  optional Bonus salvacao_reflexo = 6;
-  optional Bonus salvacao_vontade = 7;
+  int32 modificador_tamanho = 40;
+  Bonus salvacao_fortitude = 5;
+  Bonus salvacao_reflexo = 6;
+  Bonus salvacao_vontade = 7;
   // Bonus de salvacoes especificas.
-  optional Bonus bonus_salvacao_veneno = 29;
-  optional Bonus bonus_salvacao_feitico = 30;
-  optional Bonus bonus_salvacao_medo = 31;
-  optional Bonus bonus_salvacao_encantamento = 32;
-  optional Bonus bonus_salvacao_ilusao = 33;
+  Bonus bonus_salvacao_veneno = 29;
+  Bonus bonus_salvacao_feitico = 30;
+  Bonus bonus_salvacao_medo = 31;
+  Bonus bonus_salvacao_encantamento = 32;
+  Bonus bonus_salvacao_ilusao = 33;
 
   // TODO outras salvacoes.
   // Nao eh bom colocar as coisas de CA aqui fora porque nas formas alternativas eh feito merge do bonus.
-  optional string id_armadura = 8;
-  optional string id_armadura_tesouro = 38;
-  optional string id_escudo = 9;
-  optional string id_escudo_tesouro = 39;
-  optional bool armadura_obra_prima = 10;
-  optional bool escudo_obra_prima = 11;
-  optional int32 bonus_magico_armadura = 12;
-  optional int32 bonus_magico_escudo = 13;
-  optional DescritorAtaque material_armadura = 21;
-  optional DescritorAtaque material_escudo = 22;
+  string id_armadura = 8;
+  string id_armadura_tesouro = 38;
+  string id_escudo = 9;
+  string id_escudo_tesouro = 39;
+  bool armadura_obra_prima = 10;
+  bool escudo_obra_prima = 11;
+  int32 bonus_magico_armadura = 12;
+  int32 bonus_magico_escudo = 13;
+  DescritorAtaque material_armadura = 21;
+  DescritorAtaque material_escudo = 22;
   // Aplicar esquiva contra essa entidade.
-  optional uint32 entidade_esquiva = 14;
+  uint32 entidade_esquiva = 14;
   // A reducao de dano do barbaro eh mais simples de ser feita, porque independe de tipo de ataque.
-  optional int32 reducao_dano_barbaro = 15;
-  optional int32 resistencia_magia = 16;
-  optional int32 resistencia_magia_racial = 27;
-  optional Bonus resistencia_magia_variavel = 24;
+  int32 reducao_dano_barbaro = 15;
+  int32 resistencia_magia = 16;
+  int32 resistencia_magia_racial = 27;
+  Bonus resistencia_magia_variavel = 24;
   repeated DescritorAtaque imunidades = 17;
   repeated DescritorAtaque vulnerabilidades = 37;
   // Recomputado.
@@ -640,8 +641,8 @@ message DadosDefesa {
   // Para monstros usarem.
   repeated TipoEfeito imunidade_efeitos_fixas = 35;
   message ImunidadeFeitico {
-    optional string id_feitico = 1;
-    optional int32 id_unico = 2;
+    string id_feitico = 1;
+    int32 id_unico = 2;
   }
   repeated ImunidadeFeitico imunidade_feiticos = 28;
   // Reduz ataques que nao corresponderem aos descritores.
@@ -649,11 +650,11 @@ message DadosDefesa {
   // Para efeitos elementais: reduz tipos especificos de dano de acordo com descritor do ataque.
   repeated ResistenciaElementos resistencia_elementos = 19;
   // A maior cura acelerada é a que vale. Todas serao do mesmo tipo TB_BASE.
-  optional Bonus cura_acelerada = 23;
+  Bonus cura_acelerada = 23;
   // Evasao: dinamico.
-  optional TipoEvasao evasao = 25;
+  TipoEvasao evasao = 25;
   // Para casos de evasao sem ser por classe, exemplo, familiar.
-  optional TipoEvasao evasao_estatica = 26;
+  TipoEvasao evasao_estatica = 26;
 }
 
 // Tipo de terrenos, para bonus condicionais por terreno.
@@ -709,26 +710,26 @@ enum TipoBonus {
 
 // Um tipo de bonus.
 message BonusIndividual {
-  optional TipoBonus tipo = 1;
+  TipoBonus tipo = 1;
   message PorOrigem {
-    optional int32 valor = 1;
-    optional string origem = 2;
+    int32 valor = 1;
+    string origem = 2;
     // Para preenchimento do valor atraves de complemento.
-    optional int32 indice_complemento = 3;
+    int32 indice_complemento = 3;
     // Para associar com eventos.
-    optional int32 id_unico = 4;
+    int32 id_unico = 4;
   }
   repeated PorOrigem por_origem = 2;
 }
 
 message CondicoesBonus {
-  optional bool conjura_magia_arcana = 1;
+  bool conjura_magia_arcana = 1;
 } 
 
 // Diferentes tipos de bonus.
 message Bonus {
   // Se presente, bonus so devera ser aplicado caso o pre requisito seja atendido.
-  optional CondicoesBonus condicoes_bonus = 2;
+  CondicoesBonus condicoes_bonus = 2;
   repeated BonusIndividual bonus_individual = 1;
 }
 
@@ -762,106 +763,106 @@ enum TipoClasse {
 // ATENCAO: se adicionar qualquer campo repeated aqui, deve-se conferir a funcao RecomputaDependenciasClasses
 // que faz merge com o tabelado.
 message InfoClasse {
-  optional string id = 1;
-  optional string nome = 9;
-  optional int32 nivel = 2;
+  string id = 1;
+  string nome = 9;
+  int32 nivel = 2;
   // Este valor é recomputado para conter os aumentos de classes de prestigio.
-  optional int32 nivel_conjurador = 3;
+  int32 nivel_conjurador = 3;
   // Alguns monstros, como Vrock, tem seu proprio nivel de conjurador, independente de HD (12 nivel, 10 HD).
   // Se presente, este campo escreverá o valor do nivel de conjurador.
-  optional int32 nivel_conjurador_nativo = 30;
+  int32 nivel_conjurador_nativo = 30;
   // Bonus base de ataque do nivel.
-  optional int32 bba = 4;
-  optional ProgressaoBba progressao_bba = 8;
+  int32 bba = 4;
+  ProgressaoBba progressao_bba = 8;
   // Exemplo: modificador de sabedoria para clerigos.
-  optional int32 modificador_atributo_conjuracao = 5;
+  int32 modificador_atributo_conjuracao = 5;
   // Qual o atributo de conjuracao da classe.
-  optional TipoAtributo atributo_conjuracao = 6;
+  TipoAtributo atributo_conjuracao = 6;
   // Quais salvacoes sao fortes para a classe.
   repeated TipoSalvacao salvacoes_fortes = 7;
   // Como o nivel de conjurador progride.
-  optional ProgressaoConjurador progressao_conjurador = 10;
+  ProgressaoConjurador progressao_conjurador = 10;
   // Lista das pericias de classe. Caso seja o id de uma classe, herdara dela.
   repeated string pericias = 11;
   // Essas nao vem da tabela de classe, mas sim do modelo do monstro. Ver gaviao-seta como exemplo.
   // Atencao: esta aqui nao eh limpa no merge, portanto NUNCA deve aparecer na tabela de classes.
   repeated string pericias_monstro = 20;
   // Numero de pericias por nivel que a classe ganha.
-  optional int32 pericias_por_nivel = 25;
+  int32 pericias_por_nivel = 25;
   // Qual o tipo de magia para a classe. Exemplo: feiticeiro usa magia de mago. Caso ausente, usara de id.
-  optional string id_para_magia = 12;
+  string id_para_magia = 12;
   // Pode lancar magia arcana? Divina? Nenhum tipo.
-  optional TipoMagia tipo_magia = 28;
+  TipoMagia tipo_magia = 28;
   // Para monstros, que conjuram feiticos como classes. Exemplo: phaerimm usa feiticeiro.
-  optional string id_para_progressao_de_magia = 18;
-  optional bool possui_dominio = 14;
-  optional bool precisa_memorizar = 17;
+  string id_para_progressao_de_magia = 18;
+  bool possui_dominio = 14;
+  bool precisa_memorizar = 17;
   // Representa os slots para cada nivel de magia. Por exemplo, slots[0] eh o numero de slots de nivel zero para o nivel.
   message ProgressaoParaNivel {
-    optional string magias_por_dia = 2;  // Comeca do nivel 0 se a classe possuir feiticos nivel 0, caso contrario, 1.
-    optional string conhecidos = 3;      // Comeca sempre do nivel 0.
+    string magias_por_dia = 2;  // Comeca do nivel 0 se a classe possuir feiticos nivel 0, caso contrario, 1.
+    string conhecidos = 3;      // Comeca sempre do nivel 0.
   }
   // A progressao apresenta os slots para cada nivel da classe. Por exemplo, slots_para_nivel[1] representa os slots para
   // nivel 1 da classe. O indice zero sempre eh vazio.
   message ProgressaoFeitico {
     repeated ProgressaoParaNivel para_nivel = 1;
-    optional bool nao_possui_nivel_zero = 2;
+    bool nao_possui_nivel_zero = 2;
   }
-  optional ProgressaoFeitico progressao_feitico = 16;
+  ProgressaoFeitico progressao_feitico = 16;
   message HabilidadesEspeciaisPorNivel {
     // Chave da habilidade especial na tabela.
-    optional string id = 1;
+    string id = 1;
     // Em qual nivel se ganha.
-    optional int32 nivel = 2;
+    int32 nivel = 2;
   }
   repeated HabilidadesEspeciaisPorNivel habilidades_por_nivel = 19;
   // Indica que na verdade eh uma progressao de classe de monstro.
-  optional bool monstro = 21;
+  bool monstro = 21;
   // Se presente, faz merge com classe ja existente ao inves de criar.
-  optional int32 combinar_com = 22;
+  int32 combinar_com = 22;
   // Se presente, classe pode expulsar morto vivo com a progressao passada.
-  optional ProgressaoExpulsao progressao_expulsao = 23;
+  ProgressaoExpulsao progressao_expulsao = 23;
   // Aumenta o nivel de conjurador da primeira classe que tiver nivel de conjurador. Se quiser especificar,
   // tem que preencher aumenta_nivel_conjurador_de.
-  optional bool aumenta_nivel_conjurador = 27;
+  bool aumenta_nivel_conjurador = 27;
   // Se presente, a classe contribui com nivel de conjurador de outra classe.
-  optional string aumenta_nivel_conjurador_de = 24;
+  string aumenta_nivel_conjurador_de = 24;
   // Indica o tipo da classe tabelada.
-  optional TipoClasse tipo_classe = 26;
+  TipoClasse tipo_classe = 26;
   // Talentos que a classe ganha automaticamente.
   repeated string talentos_automaticos = 29;
   // so id e complemento.
   repeated TalentoProto talentos_com_complemento_automaticos = 31;
-  optional int32 dv = 32;
+  int32 dv = 32;
 }
 
 // Informacao sobre a pericia do personagem.
 // Cada pericia tem a chave e os pontos gastos e um indicador se eh de classe ou nao.
 message InfoPericia {
-  optional string id = 1;
-  optional int32 pontos = 2;
+  string id = 1;
+  int32 pontos = 2;
   // Complemento da pericia.
-  optional string complemento = 4;
+  string complemento = 4;
   // Valor final da pericia.
-  optional Bonus bonus = 5;
+  Bonus bonus = 5;
   // As restricoes de sinergia da pericia.
   repeated string restricoes_sinergia = 6;
   // Se presente, usara este atributo ao inves do padrao para pericia.
-  optional TipoAtributo atributo = 7;
+  TipoAtributo atributo = 7;
   // Monstros podem adicionar pericias_monstro em info_classes para considerar a pericia de classe.
   // Para monstros que usam tamanho diferente para computar pericia, como enxames. Esse valor é aplicado assim: (tamanho - mod) = tamanho usado.
-  optional int32 modificador_tamanho = 8;
+  int32 modificador_tamanho = 8;
 
   // Usado em herancas, para substituir uma pericia por essa.
-  optional string substituir = 9;
+  string substituir = 9;
 }
 
 message RestricaoArma {
   // Uma das restricoes que valem. A ultima é por id.
-  optional string prefixo_arma = 1;
-  optional bool apenas_armas = 3;
+  string prefixo_arma = 1;
+  bool apenas_armas = 3;
   repeated string id_arma = 2;
-  optional bool apenas_armas_para_dano = 4;
+  bool apenas_armas_para_dano = 4;
 }
 
 // Como os efeitos de uma pocao se combinam.
@@ -874,43 +875,43 @@ enum CombinacaoEfeitos {
 
 // Pericias.
 message PericiaProto {
-  optional string id = 1;
-  optional string nome = 2;
-  optional bool sem_treinamento = 3;
-  optional TipoAtributo atributo = 4;
-  optional bool penalidade_armadura = 5;
-  optional string complemento = 6;
+  string id = 1;
+  string nome = 2;
+  bool sem_treinamento = 3;
+  TipoAtributo atributo = 4;
+  bool penalidade_armadura = 5;
+  string complemento = 6;
   message InfoSinergia {
-    optional string id = 1;
+    string id = 1;
     // Uma string descrevendo a restricao. Ausente se nao houver.
-    optional string restricao = 2;
+    string restricao = 2;
   }
   repeated InfoSinergia sinergias = 7;
   // Para pericias resistidas.
-  optional string id_resistido = 8;
-  optional bool resistido_usa_bba = 9;
+  string id_resistido = 8;
+  bool resistido_usa_bba = 9;
   // Para pericias derivadas,
   // fintar -> blefar vs sentir motivacao + BBA
   // rastrear -> sobrevivencia
-  optional string derivada_de = 10;
+  string derivada_de = 10;
   // Não pode receber pontos, vem de habilidade e é computada dinamicamente.
-  optional string de_habilidade = 11;
+  string de_habilidade = 11;
 }
 
 // Talentos.
 message PreRequisitoTalento {
   repeated string talentos = 1;
   message Atributos {
-    optional int32 forca = 1;
-    optional int32 destreza = 2;
-    optional int32 consituicao = 3;
-    optional int32 inteligencia = 4;
-    optional int32 sabedoria = 5;
-    optional int32 carisma = 6;
+    int32 forca = 1;
+    int32 destreza = 2;
+    int32 consituicao = 3;
+    int32 inteligencia = 4;
+    int32 sabedoria = 5;
+    int32 carisma = 6;
   }
-  optional Atributos atributos = 2;
-  optional InfoClasse nivel = 3;
-  optional int32 bba = 4;
+  Atributos atributos = 2;
+  InfoClasse nivel = 3;
+  int32 bba = 4;
   repeated InfoPericia pericias = 5;
 }
 
@@ -933,70 +934,70 @@ enum TipoComplementoTalento {
 
 message TalentoProto {
   // Chave do talento na tabela.
-  optional string id = 1;
+  string id = 1;
   // Nome do talento.
-  optional string nome = 2;
-  optional string nome_ingles = 16;
-  optional string link = 17;
+  string nome = 2;
+  string nome_ingles = 16;
+  string link = 17;
 
-  optional TipoComplementoTalento tipo_complemento = 3;
-  optional string complemento = 4;
-  optional string descricao = 5;
-  optional PreRequisitoTalento pre_requisitos = 6;
+  TipoComplementoTalento tipo_complemento = 3;
+  string complemento = 4;
+  string descricao = 5;
+  PreRequisitoTalento pre_requisitos = 6;
   // Talentos de monstro.
-  optional bool monstro = 7;
+  bool monstro = 7;
 
   // Para talentos que afetam pericias.
   message BonusPericia {
-    optional string id = 1;
-    optional int32 valor = 2;
+    string id = 1;
+    int32 valor = 2;
   }
   repeated BonusPericia bonus_pericias = 8;
 
   // Bonus de testes de resistencia (salvacao).
   message BonusSalvacao {
-    optional TipoSalvacao tipo = 1;
-    optional Bonus bonus = 2;
+    TipoSalvacao tipo = 1;
+    Bonus bonus = 2;
   }
   repeated BonusSalvacao bonus_salvacao = 9;
 
-  optional Bonus bonus_ca = 10;
+  Bonus bonus_ca = 10;
 
   // Talento da bonus de pontos de vida.
-  optional Bonus bonus_pontos_vida = 21;
+  Bonus bonus_pontos_vida = 21;
 
   // Indica talento regional (FR).
-  optional bool regional = 11;
+  bool regional = 11;
 
   // De onde veio o talento.
-  optional string livro = 12;
+  string livro = 12;
 
   // Indica de onde veio o talento (ranger, monge, guerreiro, humano etc).
-  optional string origem = 13;
+  string origem = 13;
 
-  optional bool usado_na_rodada = 14;
+  bool usado_na_rodada = 14;
 
   // Indica que nao pode ser escolhido por jogador.
   // Ou ganha por classe, ou nao tem.
-  optional bool nao_pode_ser_escolhido = 15;
+  bool nao_pode_ser_escolhido = 15;
 
   // Talento pode ser escolhido por guerreiro como bonus.
-  optional bool guerreiro  = 18;
+  bool guerreiro  = 18;
 
   // Talento pode ser adquirido pela classe no nivel passado.
-  optional int32 ranger = 19;
-  optional int32 monge = 20;
+  int32 ranger = 19;
+  int32 monge = 20;
 
   // Talento é metamágico.
-  optional bool metamagico = 22;
+  bool metamagico = 22;
 }
 
 message HabilidadeEspecialProto {
   // Chave da habilidade.
-  optional string id = 1;
+  string id = 1;
   // Nome da habilidade.
-  optional string nome = 2;
-  optional string descricao = 5;
+  string nome = 2;
+  string descricao = 5;
 }
 
 enum TipoItem {
@@ -1030,24 +1031,24 @@ enum NivelUso {
 
 // Municoes em geral.
 message Municao {
-  optional string id = 1;
-  optional string nome = 2;
-  optional int32 quantidade = 3;
-  optional Moedas custo = 4;
+  string id = 1;
+  string nome = 2;
+  int32 quantidade = 3;
+  Moedas custo = 4;
   repeated uint32 ids_efeitos = 5;
-  optional bool em_uso = 6;
+  bool em_uso = 6;
 }
 
 // Vale para anel, pocao etc.
 message ItemMagicoProto {
   // Chave do item na tabela.
-  optional string id = 1;
+  string id = 1;
   // Para gerar link.
-  optional string id_feitico = 23;
+  string id_feitico = 23;
   // O tipo do item, para buscar na tabela (usando id tipo).
-  optional TipoItem tipo = 17;
+  TipoItem tipo = 17;
   // Nome legivel.
-  optional string nome = 2;
+  string nome = 2;
   // Tipo do efeito do item (se causar algum).
   // Pode haver multiplos efeitos, a combinacao eh dada pelo campo combinacao_efeitos.
   repeated TipoEfeito tipo_efeito = 3;
@@ -1056,11 +1057,11 @@ message ItemMagicoProto {
   // quando nao houver.
   repeated string origens = 19;
   // Duracao do efeito.
-  optional int32 duracao_rodadas = 4;
+  int32 duracao_rodadas = 4;
   // Custo em PO.
-  optional int32 custo_po = 5;
+  int32 custo_po = 5;
   // custo generico.
-  optional Moedas custo = 26;
+  Moedas custo = 26;
   // Para efeitos que usam complemento.
   repeated int32 complementos = 6;
   // Se presente, gerara complementos a partir de uma rolagem. Exemplo: 1d8+3.
@@ -1068,170 +1069,171 @@ message ItemMagicoProto {
   // Para efeitos que usam complemento de string (como pericia).
   repeated string complementos_str = 12;
   // Para efeitos de cura.
-  optional string delta_pontos_vida = 7;
-  optional CombinacaoEfeitos combinacao_efeitos = 8;
+  string delta_pontos_vida = 7;
+  CombinacaoEfeitos combinacao_efeitos = 8;
   // Se presente, alterara a descricao do efeito no personagem.
-  optional string descricao = 9;
+  string descricao = 9;
   // Para itens ativados por uso.
-  optional bool em_uso = 10;
+  bool em_uso = 10;
   // Ao usar, item gera este efeito. Util para finalizar o efeito.
   repeated uint32 ids_efeitos = 11;
   // cargas.
   // Indica que o item funciona a base de cargas.
-  optional bool a_base_de_cargas = 13;
+  bool a_base_de_cargas = 13;
   // Indica que o item eh recarregavel.
-  optional bool recarregavel = 14;
+  bool recarregavel = 14;
   // Maximo de cargas do item.
-  optional int32 max_cargas = 15;
+  int32 max_cargas = 15;
   // Cargas correntes do item.
-  optional int32 cargas = 16;
-  optional int32 usos_por_carga = 27;
+  int32 cargas = 16;
+  int32 usos_por_carga = 27;
   // Tipo de complemento requerido pelo item magico. Usado pela UI.
-  optional TipoComplementoItemMagico tipo_complemento = 18;
+  TipoComplementoItemMagico tipo_complemento = 18;
   // Para itens com nivel e modificador.
-  optional int32 nivel_conjurador = 21;
-  optional int32 modificador_atributo = 22;
-  optional NivelUso nivel_uso = 25;
-  optional VenenoProto veneno = 28;
+  int32 nivel_conjurador = 21;
+  int32 modificador_atributo = 22;
+  NivelUso nivel_uso = 25;
+  VenenoProto veneno = 28;
 }
 
 // Alguns estados são mantidos nesta variável.
 message ParametrosDesenho {
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente direcional.
-  optional int32 luz_corrente = 1 [default=1];
+  int32 luz_corrente = 1 [default=1];
   // OpenGL permite até 8 luzes simultaneas.
-  optional int32 max_num_luzes = 2 [default=8];
+  int32 max_num_luzes = 2 [default=8];
   // Usado para fazer sliding: a gente cria um plano na altura do click inicial para fazer o movimento
   // paralelo ao plano XY.
-  optional float offset_terreno = 3 [default=0];
+  float offset_terreno = 3 [default=0];
   // Coordenadas de picking. A presenca de qualquer um destes campos indica picking.
-  optional int32 picking_x = 28;
-  optional int32 picking_y = 29;
+  int32 picking_x = 28;
+  int32 picking_y = 29;
   // Verdadeiro quando se esta desenhando a entidade selecionada.
-  optional bool entidade_selecionada = 4 [default=false];
+  bool entidade_selecionada = 4 [default=false];
   // Verdadeiro quando se quer desenhar as luzes.
-  optional bool iluminacao = 5 [default=true];
+  bool iluminacao = 5 [default=true];
   // Verdadeiro quando se quer desenhar as entidades e as formas.
-  optional bool desenha_entidades = 6 [default=true];
-  optional bool desenha_terreno = 47 [default=true];
+  bool desenha_entidades = 6 [default=true];
+  bool desenha_terreno = 47 [default=true];
   // Uteis para mapa oclusao que ignora transparencias e selecionaveis.
-  optional bool nao_desenha_entidades_translucidas = 42 [default=false];
-  optional bool nao_desenha_entidades_selecionaveis = 43 [default=false];
-  optional bool nao_desenha_entidades_fixas = 44 [default=false];
+  bool nao_desenha_entidades_translucidas = 42 [default=false];
+  bool nao_desenha_entidades_selecionaveis = 43 [default=false];
+  bool nao_desenha_entidades_fixas = 44 [default=false];
   // Essas entidades normalmente sao decorativas, entao ha casos onde eh interessante nao desenha-las para
   // o picking funcionar atraves dela (exemplo, agua).
-  optional bool nao_desenha_entidades_fixas_translucidas = 59 [default=false];
+  bool nao_desenha_entidades_fixas_translucidas = 59 [default=false];
 
-  optional bool desenha_apenas_entidades_colisivas = 48 [default=false];
+  bool desenha_apenas_entidades_colisivas = 48 [default=false];
   // Verdadeiro para desenhar texturas.
-  optional bool desenha_texturas = 7 [default=true];
+  bool desenha_texturas = 7 [default=true];
   // Desenha a grade do tabuleiro.
-  optional bool desenha_grade = 8 [default=true];
+  bool desenha_grade = 8 [default=true];
   // Desenha a aura das entidades.
-  optional bool desenha_aura = 9 [default=true];
+  bool desenha_aura = 9 [default=true];
   // Desenha o indicador de FPS.
-  optional bool desenha_fps = 10 [default=false];
+  bool desenha_fps = 10 [default=false];
   // Operacao de limpeza eh cara, alguns modos nao precisam dela.
-  optional bool limpa_fundo = 11 [default=true];
+  bool limpa_fundo = 11 [default=true];
   // Usar transparencia. Caso contrario, as entidades translucidas serao desenhadas como solidas.
-  optional bool usar_transparencias = 12 [default=true];
+  bool usar_transparencias = 12 [default=true];
   // Desenhar sombras.
-  optional bool desenha_sombras = 13 [default=true];
-  optional bool desenha_mapa_sombras = 45 [default=false];  // quando verdadeiro, estara desenhando mapa de sombras.
-  optional int32 desenha_mapa_oclusao = 46 [default=0];  // o valor indica qual face do mapa, de [0 a 5]. Ausencia significa nao eh pra desenhar nenhuma das faces.
-  optional bool desenha_log_eventos = 58;
+  bool desenha_sombras = 13 [default=true];
+  bool desenha_mapa_sombras = 45 [default=false];  // quando verdadeiro, estara desenhando mapa de sombras.
+  int32 desenha_mapa_oclusao = 46 [default=0];  // o valor indica qual face do mapa, de [0 a 5]. Ausencia significa nao eh pra desenhar nenhuma das faces.
+  bool desenha_log_eventos = 58;
   // Modo de desenho.
-  optional bool modo_mestre = 14 [default=true];
+  bool modo_mestre = 14 [default=true];
   // Alfa para translucidos.
-  optional float alfa_translucidos = 15 [default=0.5];
+  float alfa_translucidos = 15 [default=0.5];
   // Alguns efeitos usam escala e translacao pos transformacoes para desenharem. Sao aplicados na ordem que aparecem abaixo.
-  optional Posicao escala_efeito = 50;
-  optional Posicao rotacao_efeito = 51;  // nesse caso, o angulo esta no eixo.
-  optional Posicao translacao_efeito = 52;
+  Posicao escala_efeito = 50;
+  Posicao rotacao_efeito = 51;  // nesse caso, o angulo esta no eixo.
+  Posicao translacao_efeito = 52;
   // Caso verdadeiro, a textura sempre ficara de frente para a camera.
-  optional bool texturas_sempre_de_frente = 16 [default=true];
+  bool texturas_sempre_de_frente = 16 [default=true];
   // Posicao do olho.
-  optional Posicao pos_olho = 17;
+  Posicao pos_olho = 17;
   // Desenhar acoes de jogadores.
-  optional bool desenha_acoes = 18 [default=true];
+  bool desenha_acoes = 18 [default=true];
   // Se verdadeiro, desenha a lista de pontos de vida.
-  optional bool desenha_lista_pontos_vida = 20 [default=true];
+  bool desenha_lista_pontos_vida = 20 [default=true];
   // Se verdadeiro, desenha o quadrado de selecao.
-  optional bool desenha_quadrado_selecao = 21 [default=true];
+  bool desenha_quadrado_selecao = 21 [default=true];
   // Se verdadeiro, desenha o rastro de movimento das unidades ao se moverem.
-  optional bool desenha_rastro_movimento = 22 [default=false];
+  bool desenha_rastro_movimento = 22 [default=false];
   // Se verdadeiro, as texturas serao viradas sempre para cima.
-  optional bool desenha_texturas_para_cima = 23 [default=false];
+  bool desenha_texturas_para_cima = 23 [default=false];
   // Se verdadeiro, desenha a forma selecionada.
-  optional bool desenha_forma_selecionada = 24 [default=true];
+  bool desenha_forma_selecionada = 24 [default=true];
   // Se verdadeiro, desenha a rosa dos ventos.
-  optional bool desenha_rosa_dos_ventos = 25 [default=true];
+  bool desenha_rosa_dos_ventos = 25 [default=true];
   // Se verdadeiro, desenha os pontos de rolagem do tabuleiro.
-  optional bool desenha_pontos_rolagem = 26 [default=true];
+  bool desenha_pontos_rolagem = 26 [default=true];
   // Se verdadeiro, aplica efeito de nevoa.
-  optional bool desenha_nevoa = 27 [default=true];
+  bool desenha_nevoa = 27 [default=true];
   // Informacoes sobre a nevoa, se houver.
-  optional Nevoa nevoa = 70;
+  Nevoa nevoa = 70;
   // Se verdadeiro, desenha o controle virtual de acoes.
-  optional bool desenha_controle_virtual = 31 [default=true];
+  bool desenha_controle_virtual = 31 [default=true];
   // Se false, os detalhes nao serao desenhados.
-  optional bool desenha_detalhes = 33 [default=true];
+  bool desenha_detalhes = 33 [default=true];
   // Se false, nao desenha as informacoes gerais (coordenadas, id acao etc).
-  optional bool desenha_info_geral = 37 [default=true];
+  bool desenha_info_geral = 37 [default=true];
   // Tipo de visao da entidade presa.
-  optional TipoVisao tipo_visao = 39;
-  optional float multiplicador_visao_penumbra = 40 [default=1.2];
-  optional bool iniciativa_corrente = 57;
+  TipoVisao tipo_visao = 39;
+  float multiplicador_visao_penumbra = 40 [default=1.2];
+  bool iniciativa_corrente = 57;
 
   // Opcoes por entidade.
   // Se verdadeiro, desenha a barra de vida da entidade.
-  optional bool desenha_barra_vida = 19 [default=false];
+  bool desenha_barra_vida = 19 [default=false];
   // Se verdadeiro, desenha o rotulo da entidade.
-  optional bool desenha_rotulo = 32 [default=false];
+  bool desenha_rotulo = 32 [default=false];
   // Se verdadeiro, desenha o rotulo especial da entidade.
-  optional bool desenha_rotulo_especial = 34 [default=false];
+  bool desenha_rotulo_especial = 34 [default=false];
   // Desenha sinalizacao de eventos.
-  optional bool desenha_eventos_entidades = 35 [default=true];
+  bool desenha_eventos_entidades = 35 [default=true];
   // Efeitos das entidades.
-  optional bool desenha_efeitos_entidades = 36 [default=true];
+  bool desenha_efeitos_entidades = 36 [default=true];
   // Se verdadeiro, desenha a lista de objetos (depuracao).
-  optional bool desenha_lista_objetos = 38 [default=false];
+  bool desenha_lista_objetos = 38 [default=false];
   // Se verdadeiro, desenha a lista de jogadores.
-  optional bool desenha_lista_jogadores = 41 [default=false];
+  bool desenha_lista_jogadores = 41 [default=false];
   // Configuracao de projecao de camera.
-  optional Projecao projecao = 49;
+  Projecao projecao = 49;
   // Se verdadeiro, as entidades regerarao os VBOs ao atualizarem.
-  optional bool regera_vbo = 53;
+  bool regera_vbo = 53;
   // se verdadeiro, desenha a lista de iniciativas.
-  optional bool desenha_iniciativas = 54 [default=true];
+  bool desenha_iniciativas = 54 [default=true];
   // Se verdadeiro, ordenara as entidades apos a funcao ConfiguraOlhar.
-  optional bool ordena_entidades_apos_configura_olhar = 55 [default=false];
+  bool ordena_entidades_apos_configura_olhar = 55 [default=false];
 
   // Valor indica qual face esta sendo desenhada. Ausencia indica para nao desenhar.
-  optional int32 desenha_mapa_luzes = 56;
+  int32 desenha_mapa_luzes = 56;
 
   // Se verdadeiro, desenhara a ligacao de agarrar das entidades.
-  optional bool desenha_ligacao_agarrar = 60 [default=true];
+  bool desenha_ligacao_agarrar = 60 [default=true];
 
   // Se presente, apenas a entidade devera ser desenhada e nada mais, de forma decomposta.
-  optional uint32 desenha_objeto_desmembrado = 61;
+  uint32 desenha_objeto_desmembrado = 61;
 
   // Se verdadeiro, mostra entidades invisiveis por causa de invisibilidade.
-  optional bool observador_ve_invisivel = 62;
+  bool observador_ve_invisivel = 62;
 
   // Se presente, indica que esta é a entidade que contem a luz.
-  optional uint32 entidade_referencia_luz = 63;
+  uint32 entidade_referencia_luz = 63;
   // Ignorar entidades com o id passado.
   repeated uint32 nao_desenhar_entidades = 64;
   // Se verdadeiro, nao desenhara caixa do ceu.
-  optional bool nao_desenha_caixa_ceu = 65;
+  bool nao_desenha_caixa_ceu = 65;
   // Se verdadeiro, nao chamara gl::Limpa para limpar o buffer de cores.
-  optional bool nao_limpa_cor = 66;
+  bool nao_limpa_cor = 66;
   // Desenha o screenshot especificado.
-  optional InfoTextura desenha_imagem = 67;
+  InfoTextura desenha_imagem = 67;
 }
 
 enum TipoVeneno {
+  TV_DESCONHECIDO = 0;
   TV_CONTATO = 1;
   TV_INGESTAO = 2;
   TV_FERIMENTO = 3;
@@ -1239,6 +1241,7 @@ enum TipoVeneno {
 }
 
 enum TipoDanoVeneno {
+  TDV_DESCONHECIDO = 0;
   TDV_NENHUM = 1;
   TDV_PONTOS_VIDA = 2;
   TDV_FORCA = 3;
@@ -1251,52 +1254,52 @@ enum TipoDanoVeneno {
 }
 
 message VenenoProto {
-  optional string id = 1;
-  optional string nome = 2;
-  optional TipoVeneno tipo = 3;
+  string id = 1;
+  string nome = 2;
+  TipoVeneno tipo = 3;
   // A cardinalidade eh a mesma para cada par. Alguns venenos tem mais de um tipo de dano.
   repeated string dano_inicial = 4;
   repeated TipoDanoVeneno tipo_dano = 5;
-  optional bool dano_primario_permanente = 6;
+  bool dano_primario_permanente = 6;
   repeated string dano_secundario = 7;
   repeated TipoDanoVeneno tipo_dano_secundario = 8;
-  optional bool dano_secundario_permanente = 9;
+  bool dano_secundario_permanente = 9;
   // Classe de dificuldade.
-  optional int32 cd = 10;
-  optional int32 preco_po = 11;
+  int32 cd = 10;
+  int32 preco_po = 11;
   // Indica pra nao computar CD usando a formula 10 + 1/2 HD + mod CON.
-  optional bool nao_usar_cd_dinamico = 12;
+  bool nao_usar_cd_dinamico = 12;
   // Se verdadeiro, efeito primario ja foi aplicado.
-  optional bool primario_aplicado = 13;
+  bool primario_aplicado = 13;
   // O atributo usado para calcular a CD.
-  optional TipoAtributo atributo_para_cd = 14 [default=TA_CONSTITUICAO];
+  TipoAtributo atributo_para_cd = 14 [default=TA_CONSTITUICAO];
   // Para gases de sono (que ignoram imunidade a sono).
-  optional bool sono = 15;
+  bool sono = 15;
   // Para venenos criados a partir de efeito em armas.
-  optional int32 id_unico_efeito = 16;
+  int32 id_unico_efeito = 16;
   // Se verdadeiro, ataque deixara de ter veneno apos acerto. E causara dano no atacante em caso de 1.
-  optional bool desaparece_apos_acerto = 17;
-  optional bool acertou = 18;
+  bool desaparece_apos_acerto = 17;
+  bool acertou = 18;
 }
 
 message DoencaProto {
-  optional string id = 1;
-  optional string nome = 2;
-  optional TipoVeneno tipo = 3;
-  optional string incubacao_dias = 4;
+  string id = 1;
+  string nome = 2;
+  TipoVeneno tipo = 3;
+  string incubacao_dias = 4;
   repeated string dano = 5;
   repeated TipoDanoVeneno tipo_dano = 6;
-  optional bool dano_permanente = 7;
+  bool dano_permanente = 7;
   // Classe de dificuldade.
-  optional int32 cd = 8;
-  optional bool nao_recupera_com_duas_salvacoes = 10;  // mummy rot
-  optional bool passou_incubacao = 11;
+  int32 cd = 8;
+  bool nao_recupera_com_duas_salvacoes = 10;  // mummy rot
+  bool passou_incubacao = 11;
 }
 
 // Os templates de D&D.
 message ModeloDnD {
-  optional TipoEfeitoModelo id_efeito = 1;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
-  optional bool ativo = 2;                     // Indica modelo ativo, para os que sao desligaveis.
+  TipoEfeitoModelo id_efeito = 1;     // Se o evento for reconhecido como algum efeito, o id estara aqui. (ver EFEITO_*).
+  bool ativo = 2;                     // Indica modelo ativo, para os que sao desligaveis.
   repeated int32 complementos = 3;             // variaveis do modelo.
 }
 
