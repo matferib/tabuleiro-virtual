@@ -28,6 +28,7 @@
 //#define VLOG_NIVEL 1
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
+#include "absl/strings/str_join.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
@@ -1352,6 +1353,12 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
       }
 
       absl::StrAppend(&texto_log.emplace_back(), absl::StrFormat("  => Numero de entidades adicionadas: %d", static_cast<int>(ids_adicionados_.size())));
+      if (ids_adicionados_.empty()) {
+        // Envia mensagem indicando 0 adições.
+        auto n = ntf::NovaNotificacao(ntf::TN_INFO);
+        n->set_erro(absl::StrJoin(texto_log, ","));
+        central_->AdicionaNotificacao(n.release());
+      }
       for (auto rit = texto_log.rbegin(); rit != texto_log.rend(); ++rit) {
         AdicionaLogEvento(*rit);
       }

@@ -5070,10 +5070,48 @@ modelo {
   id: 'Hobgoblin'
   entidade {
     dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    tamanho: TM_MEDIO
+    tipo_dnd: TIPO_HUMANOIDE
+    sub_tipo_dnd: SUBTIPO_GOBLINOIDE
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 1 dano: '1d8+1' margem_critico: 19 ca_normal: 15 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 2 dano: '1d6+1' ca_normal: 14 }
-    modificador_iniciativa: 1
+    info_classes {
+      id: 'humanoide' nivel: 1
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+    }
+    info_pericias { id: 'esconderse' pontos: 4 }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 2 }
+
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'espada_longa' id_arma_tesouro: 'espada_longa' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    tesouro {
+      # Esse valor é so um chute. Segundo o DMG, smattering of coins.
+      moedas { po: 1 pp: 3 }
+      armas { id: 'espada_longa' id_tabela: 'espada_longa' }
+      armas { id: 'azagaia' id_tabela: 'azagaia' }
+      armaduras { id: 'gibao_peles' id_tabela: 'couro_batido' }
+      valor_esperado_po: 150  # CR 1/2, DMG 51. No lar.
+    }
+    movimento {
+      terrestre_basico_q: 6
+    }
+    tendencia { simples: TD_CAOTICO_MAU }
+
   }
 }
 modelo {
