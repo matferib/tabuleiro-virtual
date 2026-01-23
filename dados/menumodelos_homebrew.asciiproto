@@ -47,6 +47,51 @@ sub_menu {
     }
   }
   item_menu {
+    id: 'colinas_tormento'
+    texto: 'Colinas do Tormento'
+    quantidade: '1'
+    aleatorio: true
+    # 90% de nao dar nada.
+    modelos { id: 'NADA' peso: 90 }
+    modelos {
+      id: 'Águia'
+      quantidade: '1d2'
+      peso: 2
+    }
+    modelos {
+      id: 'Hipogrifo'
+      quantidade: '1d2'
+      peso: 2
+    }
+    modelos {
+      texto: 'Gangue Hobgoblin'
+      id_item_menu: 'gangue_hobgoblin'
+      peso: 2
+    }
+    modelos {
+      texto: 'Monges da Abadia do Martelo Justo'
+      id: 'Humano Monge 1'
+      quantidade: '1d6+4'
+      peso: 1
+    }
+    modelos {
+      id: 'Ogro'
+      quantidade: '1d2'
+      peso: 1
+    }
+    modelos {
+      id: 'Grifo'
+      quantidade: '1'
+      peso: 1
+    }
+    modelos {
+      id: 'Troll'
+      quantidade: '1'
+      peso: 1
+    }
+  }
+
+  item_menu {
     id: 'bosque_andalara'
     texto: 'Bosque de Andalara'
     quantidade: '1'

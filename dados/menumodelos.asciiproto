@@ -367,6 +367,10 @@ sub_menu {
 }
 sub_menu {
   id: 'Hobgoblins'
+  item_menu {
+    id: 'gangue_hobgoblin' texto: 'Gangue'
+    modelos { id: 'Hobgoblin' quantidade: '1d6+3' }
+  }
   item_menu { id: 'Hobgoblin' }
   item_menu { id: 'Hobgoblin Sargento' }
   item_menu { id: 'Hobgoblin Tenente 5' }

@@ -10691,7 +10691,53 @@ modelo {
 }
 modelo {
   id: 'Ogro'
-  entidade { dados_vida: '4d8+11' tamanho: TM_GRANDE info_textura { id: 'ogre.png'} cor { r: 0.7 g: 0.5 b: 0.25 } }
+  entidade {
+    dados_vida: '4d8+11'
+    rotulo: 'ogro'
+    tipo_dnd: TIPO_GIGANTE
+    tamanho: TM_GRANDE info_textura { id: 'ogre.png' largura: 0.7 translacao_x: 0.15 } cor { r: 0.7 g: 0.5 b: 0.25 }
+    tipo_visao: VISAO_ESCURO_E_BAIXA_LUMINOSIDADE alcance_visao_m: 18
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'clava_grande' id_arma_tesouro: 'clava_grande' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' }
+    dados_defesa {
+      id_armadura_tesouro: 'gibao_peles'
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } } }
+    }
+
+    info_classes {
+      id: 'gigante' nivel: 4
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    info_talentos {
+      gerais { id: 'vitalidade' }
+      gerais { id: 'foco_em_arma' complemento: 'clava_grande' }
+    }
+    info_pericias { id: 'escalar' pontos: 3 }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 2 }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 21 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+    }
+    tesouro {
+      # Esse valor é so um chute. Segundo o DMG, smattering of coins.
+      moedas { po: 10 pp: 10 }
+      armas { id: 'clava_grande' id_tabela: 'clava_grande' }
+      armas { id: 'azagaia' id_tabela: 'azagaia' }
+      armaduras { id: 'gibao_peles' id_tabela: 'gibao_peles' }
+      valor_esperado_po: 900  # CR 3, DMG 51. No lar.
+    }
+    movimento {
+      terrestre_basico_q: 8
+    }
+    tendencia { simples: TD_CAOTICO_MAU }
+  }
 }
 modelo {
   id: 'Ogro Bárbaro'
