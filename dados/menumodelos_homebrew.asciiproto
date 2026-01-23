@@ -56,7 +56,12 @@ sub_menu {
     modelos {
       id: 'Águia'
       quantidade: '1d2'
-      peso: 2
+      peso: 1
+    }
+    modelos {
+      id: 'Ponei'
+      quantidade: '1d2'
+      peso: 1
     }
     modelos {
       id: 'Hipogrifo'

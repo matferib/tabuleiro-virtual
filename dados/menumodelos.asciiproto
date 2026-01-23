@@ -76,6 +76,7 @@ sub_menu {
   item_menu { id: 'Lobo' }
   item_menu { id: 'Lobo Atroz' }
   item_menu { id: 'Megaraptor' }
+  item_menu { id: 'Ponei' }
   item_menu { id: 'Rato Atroz' }
   item_menu { id: 'Rinoceronte' }
   item_menu { id: 'Sapo' }
