@@ -64,7 +64,8 @@ sub_menu {
       peso: 2
     }
     modelos {
-      id_item_menu: 'gangue_hobgoblin'
+      id: 'Hobgoblin'
+      quantidade: '1d6+3'
       peso: 2
     }
     modelos {

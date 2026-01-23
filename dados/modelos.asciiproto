@@ -5069,7 +5069,7 @@ modelo {
 modelo {
   id: 'Hobgoblin'
   entidade {
-    dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' largura: 0.8 translacao_x: 0.1 } cor { r: 0.6 g: 0.45 b: 0.2 }
     tamanho: TM_MEDIO
     tipo_dnd: TIPO_HUMANOIDE
     sub_tipo_dnd: SUBTIPO_GOBLINOIDE
@@ -5110,7 +5110,7 @@ modelo {
     movimento {
       terrestre_basico_q: 6
     }
-    tendencia { simples: TD_CAOTICO_MAU }
+    tendencia { simples: TD_LEAL_MAU }
 
   }
 }
