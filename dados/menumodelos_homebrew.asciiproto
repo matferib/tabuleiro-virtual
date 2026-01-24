@@ -64,6 +64,11 @@ sub_menu {
       peso: 1
     }
     modelos {
+      id: 'Leucrotta'
+      quantidade: '1'
+      peso: 1
+    }
+    modelos {
       id: 'Hipogrifo'
       quantidade: '1d2'
       peso: 2
@@ -71,7 +76,7 @@ sub_menu {
     modelos {
       id: 'Hobgoblin'
       quantidade: '1d6+3'
-      peso: 2
+      peso: 1
     }
     modelos {
       texto: 'Monges da Abadia do Martelo Justo'
