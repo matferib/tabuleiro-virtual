@@ -1,3 +1,5 @@
+Implementar antitoxina.
+
 Recomputa deve verificar arma ivnertida e aplicar nas duas pontas se setada em alguma.
 Som de cenario.
 Botao para emitir som de criatura.
