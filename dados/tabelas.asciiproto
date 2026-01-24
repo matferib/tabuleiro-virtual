@@ -2873,6 +2873,12 @@ tabela_itens_mundanos {
     nome: 'ferramentas artesão obra-prima'
     custo { po: 55 }
   }
+  itens {
+    id: 'antidoto'
+    nome: 'antídoto'
+    custo { po: 50 }
+    # Da +5 bonus quimica contra fortitude por 1 hora.
+  }
 }
 
 tabela_botas {
