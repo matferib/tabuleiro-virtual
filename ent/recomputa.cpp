@@ -1678,7 +1678,7 @@ void RecomputaDependenciasMagiasParaLancarPorDia(const Tabelas& tabelas, Entidad
 // Reseta todos os campos computados que tem que ser feito no inicio.
 void ResetComputados(EntidadeProto* proto) {
   proto->mutable_dados_defesa()->clear_cura_acelerada();
-  *proto->mutable_dados_defesa()->mutable_imunidade_efeitos() = proto->mutable_dados_defesa()->imunidade_efeitos_fixas();
+  *proto->mutable_dados_defesa()->mutable_imunidade_efeitos() = proto->mutable_dados_defesa()->imunidade_efeitos_fixa();
 }
 
 void RecomputaDependenciasRaciais(const Tabelas& tabelas, TipoTerreno tipo_terreno, EntidadeProto* proto) {

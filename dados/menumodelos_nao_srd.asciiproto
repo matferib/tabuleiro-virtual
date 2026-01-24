@@ -7,6 +7,7 @@ sub_menu {
 }
 sub_menu {
   id: 'Bestas Mágicas'
+  item_menu { id: 'Leucrotta' }
   item_menu { id: 'Veserab' }
   item_menu { id: 'Veserab Avançado' }
 }

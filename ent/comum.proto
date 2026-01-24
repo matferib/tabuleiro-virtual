@@ -639,7 +639,7 @@ message DadosDefesa {
   // Recomputado.
   repeated TipoEfeito imunidade_efeitos = 34;
   // Para monstros usarem.
-  repeated TipoEfeito imunidade_efeitos_fixas = 35;
+  repeated TipoEfeito imunidade_efeitos_fixa = 35;
   message ImunidadeFeitico {
     string id_feitico = 1;
     int32 id_unico = 2;

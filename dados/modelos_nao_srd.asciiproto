@@ -235,6 +235,62 @@ modelo {
     rotulo_especial: 'ini +4\ndano 1d6 for + nausea 1 rodada (salv 20 for)\nca 20/20/16\nincorporal'
   }
 }
+modelo {
+  id: 'Leucrotta'  # Monstros de Faerun
+  entidade {
+    tendencia { simples: TD_CAOTICO_MAU }
+    rotulo_especial: 'critico da mordida danifica armadura'
+    tipo_dnd: TIPO_BESTA_MAGICA
+    dados_vida: '6d10+24' tamanho: TM_GRANDE
+    info_textura { id: 'leucrotta.png'  altura: 0.7 translacao_y: 0.2 } cor { r: 1 g: 0.8 b: 0.7 }
+    tipo_visao: VISAO_ESCURO_E_BAIXA_LUMINOSIDADE alcance_visao_m: 18
+    info_classes {
+      id: 'besta_magica' nivel: 6
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'procurar'
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'sobrevivencia'
+    }
+    info_talentos {
+      gerais { id: 'ataque_poderoso' }
+      gerais { id: 'encontrao_aprimorado' }
+      gerais { id: 'esquiva' }
+    }
+    info_pericias { id: 'escalar' pontos: 8 }
+    info_pericias { id: 'esconderse' pontos: 1 }
+    info_pericias { id: 'observar' pontos: 8 }
+    info_pericias { id: 'procurar' pontos: 2 }
+    info_pericias { id: 'sobrevivencia' pontos: 8 }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+    movimento {
+      terrestre_basico_q: 10
+      escalando_basico_q: 4
+    }
+    dados_defesa {
+      imunidade_efeitos_fixa: EFEITO_ENFEITICADO
+      imunidade_efeitos_fixa: EFEITO_SUGESTAO
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } }
+      }
+    }
+    # Apesar do BBA alto, armas naturais nao dao ataques extras: https://www.d20srd.org/srd/specialAbilities.htm#naturalWeapons.
+    dados_ataque {
+      grupo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '1d8' multiplicador_critico: 3
+      alcance_q: 1
+      empunhadura: EA_2_MAOS
+    }
+  }
+}
 
 modelo {
   id: 'Sniper Drow'  # MM4 pg 56
