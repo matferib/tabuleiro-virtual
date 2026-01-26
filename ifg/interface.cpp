@@ -116,7 +116,7 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO: {
-      TrataEscolherPocao(notificacao);
+      TrataEscolherPocaoOuAntidoto(notificacao);
       return true;
     }
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERGAMINHO: {
@@ -309,7 +309,7 @@ struct IndiceQuantidadeNivel {
   std::string duracao;
 
   void PreencheIncrementando(
-      const ent::Tabelas& tabelas, int indice, const ent::ArmaProto& feitico_tabelado, const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
+      const ent::Tabelas& tabelas, int indice, const ent::ArmaProto& feitico_tabelado = ent::ArmaProto::default_instance(), const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
     this->indice = indice;
     ++quantidade;
     nivel = ic.has_id() ? ent::NivelMagia(feitico_tabelado, ic) :  ent::NivelMaisAltoMagia(feitico_tabelado);
@@ -411,7 +411,7 @@ void InterfaceGrafica::VoltaEscolherPergaminho(const ntf::Notificacao notificaca
 //----------------
 // Escolher Pocao.
 //----------------
-void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
+void InterfaceGrafica::TrataEscolherPocaoOuAntidoto(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
   std::map<std::string, IndiceQuantidadeNivel> mapa_nomes_para_indices;
@@ -422,6 +422,19 @@ void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
     mapa_nomes_para_indices[nome].PreencheIncrementando(
         tabelas_, i++, tabelas_.Feitico(pocao_tabelada.has_id_feitico() ? pocao_tabelada.id_feitico() : pocao_tabelada.id()));
   }
+  for (const auto& item : notificacao.entidade().tesouro().itens_mundanos()) {
+    // por enquanto ta hardcoded para antidoto apenas com poções, mas outros itens mundanos eventualmente podem entrar aqui.
+    if (item.id() != "antidoto") {
+      ++i;
+      continue;
+    }
+    const auto& item_tabelado = tabelas_.ItemMundano(item.id());
+    const std::string& nome = item.nome().empty() ? item_tabelado.nome() : item.nome();
+    auto& iqn = mapa_nomes_para_indices[nome];
+    iqn.PreencheIncrementando(tabelas_, i++);
+    iqn.duracao = absl::StrCat(item_tabelado.duracao_rodadas());
+  }
+
 
   std::vector<std::string> nomes;
   std::vector<int> mapa_indices;
@@ -429,39 +442,58 @@ void InterfaceGrafica::TrataEscolherPocao(const ntf::Notificacao& notificacao) {
   EscolheItemLista(
       "Escolha a poção", "Beber", nomes,
       std::bind(
-          &ifg::InterfaceGrafica::VoltaEscolherPocao,
+          &ifg::InterfaceGrafica::VoltaEscolherPocaoOuAntidoto,
           this, notificacao, mapa_indices,
           _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherPocao(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_selecionado) {
+void InterfaceGrafica::VoltaEscolherPocaoOuAntidoto(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_selecionado) {
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
-  int indice_pocao = mapa_indices[indice_selecionado];
-  if (!ok || indice_pocao >= pocoes_entidade.size()) {
+  const auto& items_entidade = notificacao.entidade().tesouro().itens_mundanos();
+  int indice_pocao_ou_antidoto = mapa_indices[indice_selecionado];
+  if (!ok || indice_pocao_ou_antidoto >= pocoes_entidade.size() + items_entidade.size()) {
+    LOG(ERROR) << "poção ou antidoto invalido, indice: " << indice_pocao_ou_antidoto << ", pocoes: " << pocoes_entidade.size() << ", itens: " << items_entidade.size();
     VoltaEscolherEfeito(notificacao, 0, false, 0);
     return;
   }
-  // Mapaeia o nome para indice. As repeticoes mapearam sempre para o mesmo, mas isso nao importa.
-  const auto& pocao = tabelas_.Pocao(pocoes_entidade.Get(indice_pocao).id());
-  if (pocao.tipo_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
-    VoltaEscolherEfeito(notificacao, indice_pocao, true, 0);
+  if (indice_pocao_ou_antidoto < pocoes_entidade.size()) {
+    // Mapaeia o nome para indice. As repeticoes mapearam sempre para o mesmo, mas isso nao importa.
+    const auto& pocao = tabelas_.Pocao(pocoes_entidade.Get(indice_pocao_ou_antidoto).id());
+    if (pocao.tipo_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
+      VoltaEscolherEfeito(notificacao, indice_pocao_ou_antidoto, true, 0);
+      return;
+    }
+    std::vector<std::string> efeitos;
+    for (auto tipo_efeito : pocao.tipo_efeito()) {
+      efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)tipo_efeito));
+    }
+    EscolheItemLista(
+        "Escolha o efeito", std::nullopt, efeitos,
+        std::bind(
+          &ifg::InterfaceGrafica::VoltaEscolherEfeito,
+          this, notificacao, indice_pocao_ou_antidoto,
+          _1, _2, /*eh_antidoto=*/false));
+  } else {
+    // antidoto.
+    indice_pocao_ou_antidoto -= pocoes_entidade.size();
+    const auto& antidoto = tabelas_.ItemMundano(items_entidade.Get(indice_pocao_ou_antidoto).id());
+    if (antidoto.id() != "antidoto") {
+      LOG(ERROR) << "antidoto invalido: " << antidoto.ShortDebugString();
+      VoltaEscolherEfeito(notificacao, 0, false, 0, /*eh_antidoto=*/true);
+      return;
+    }
+    VoltaEscolherEfeito(notificacao, indice_pocao_ou_antidoto, /*ok=*/true, /*indice_efeito=*/0, /*eh_antidoto=*/true);
     return;
   }
-  std::vector<std::string> efeitos;
-  for (auto tipo_efeito : pocao.tipo_efeito()) {
-    efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)tipo_efeito));
-  }
-  EscolheItemLista(
-      "Escolha o efeito", std::nullopt, efeitos,
-      std::bind(
-        &ifg::InterfaceGrafica::VoltaEscolherEfeito,
-        this, notificacao, indice_pocao,
-        _1, _2));
 }
 
-void InterfaceGrafica::VoltaEscolherEfeito(const ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito) {
+void InterfaceGrafica::VoltaEscolherEfeito(const ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito, bool eh_antidoto) {
   if (ok) {
-    tabuleiro_->BebePocaoNotificando(notificacao.entidade().id(), indice_pocao, indice_efeito);
+    if (eh_antidoto) {
+      tabuleiro_->BebeAntidotoNotificando(notificacao.entidade().id(), indice_pocao);
+    } else {
+     tabuleiro_->BebePocaoNotificando(notificacao.entidade().id(), indice_pocao, indice_efeito);
+    }
   }
   tabuleiro_->ReativaWatchdogSeMestre();
 }

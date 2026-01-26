@@ -582,10 +582,11 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     case CONTROLE_BEBER_POCAO: {
       const auto* e = EntidadePrimeiraPessoaOuSelecionada();
-      if (e == nullptr || e->Proto().tesouro().pocoes().empty()) return;
+      if (e == nullptr || (e->Proto().tesouro().pocoes().empty() && e->Proto().tesouro().itens_mundanos().empty())) return;
       auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO));
       n->mutable_entidade()->set_id(e->Id());
       *n->mutable_entidade()->mutable_tesouro()->mutable_pocoes() = e->Proto().tesouro().pocoes();
+      *n->mutable_entidade()->mutable_tesouro()->mutable_itens_mundanos() = e->Proto().tesouro().itens_mundanos();
       central_->AdicionaNotificacao(n.release());
       break;
     }
@@ -981,11 +982,11 @@ namespace {
 int TranslacaoX(const DadosBotao& db, const GLint* viewport, float unidade_largura) {
   int coluna = db.coluna();
   if (db.alinhamento_horizontal() == ALINHAMENTO_DIREITA) {
-    return viewport[2] + coluna * unidade_largura;
+    return static_cast<int>(viewport[2] + coluna * unidade_largura);
   } else if (db.alinhamento_horizontal() == ALINHAMENTO_CENTRO) {
-    return (viewport[2] / 2) + coluna * unidade_largura;
+    return static_cast<int>((viewport[2] / 2) + coluna * unidade_largura);
   } else {
-    return coluna * unidade_largura;
+    return static_cast<int>(coluna * unidade_largura);
   }
 }
 
@@ -1111,7 +1112,8 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
         }
         case VIS_POCAO: {
           const auto* e = EntidadePrimeiraPessoaOuSelecionada();
-          if (e == nullptr || e->Proto().tesouro().pocoes().empty()) {
+          if (e == nullptr ||
+              (e->Proto().tesouro().pocoes().empty() && c_none_of(e->Proto().tesouro().itens_mundanos(), [](const ItemMagicoProto& mundano) { return mundano.id() == "antidoto"; }))) {
             return false;
           }
           break;
