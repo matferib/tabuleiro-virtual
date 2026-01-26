@@ -716,7 +716,7 @@ fixo {
     textura: "icon_potion.png"
     id: CONTROLE_BEBER_POCAO
     forma: FORMA_RETANGULO
-    dica: "Bebe a poção."
+    dica: "Bebe a poção ou antídoto."
     visibilidade { referencia { tipo: VIS_POCAO } }
   }
   dados_botoes {
