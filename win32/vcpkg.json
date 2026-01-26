@@ -13,7 +13,7 @@
       "name": "boost", "version": "1.86.0#0"
     },
     {
-      "name": "protobuf", "version": "4.25.1"
+      "name": "protobuf", "version": "5.29.5"
     },
     {
       "name": "gtest", "version": "1.17.0"
