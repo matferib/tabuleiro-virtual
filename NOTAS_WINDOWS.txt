@@ -27,7 +27,7 @@ e colocar junto com o binario do protoc vcpkg_installed/x64-windows/tools/protob
 Gerando os proto pb.cc pb.h a partir da raiz do codigo:
 Na solução do visual studio, tem o Pre build event, mas fica desabilitado pra não ficar compilando tudo toda hora. Para fazer na mão:
 
-win32/vcpkg_installed/x64-windows/tools/protobuf/protoc.exe  -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
+win32/vcpkg_installed/x64-windows/x64-windows/tools/protobuf/protoc.exe  -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto ent/comum.proto ent/tabelas.proto
 
 Gerando os MOCs
 ---------------
@@ -58,7 +58,7 @@ Baixar texturas e modelos.
 
 Baixar o icon.ico também.
 
-Colocar as DLLs do abseil, boost, libprotobuf e libprotobuf-lite, msvcp140, Qt5.
+Colocar as DLLs do abseil, boost, libprotobuf e libprotobuf-lite, msvcp140, Qt.
 
 Usar o inno pra gerar o instalador.
 
