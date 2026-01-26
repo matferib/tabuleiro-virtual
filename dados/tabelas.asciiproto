@@ -2278,6 +2278,16 @@ tabela_efeitos {
     }
   }
   efeitos {
+    id: EFEITO_ANTIDOTO
+    nome: 'antídoto'
+    consequencia {
+      dados_defesa {
+        bonus_salvacao_veneno { bonus_individual { tipo: TB_ALQUIMICO por_origem { valor: 5 origem: 'antídito' } } }
+      }
+    }
+  }
+
+  efeitos {
     id: EFEITO_AUMENTAR_PESSOA
     nome: 'aumentar pessoa'
     consequencia {
@@ -2876,8 +2886,10 @@ tabela_itens_mundanos {
   itens {
     id: 'antidoto'
     nome: 'antídoto'
+    tipo_efeito: EFEITO_ANTIDOTO
+    # 1 hora
+    duracao_rodadas: 600
     custo { po: 50 }
-    # Da +5 bonus quimica contra fortitude por 1 hora.
   }
 }
 

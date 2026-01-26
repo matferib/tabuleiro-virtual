@@ -68,7 +68,7 @@ enum TamanhoEntidade {
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
 // que cada um faz. Outros sao hardcoded.
-// Proximo id: 156.
+// Proximo id: 157.
 enum TipoEfeito {
   EFEITO_OUTRO = 0;     // evento sem efeito conhecido.
   EFEITO_INVALIDO = -1;
@@ -245,6 +245,7 @@ enum TipoEfeito {
   EFEITO_TRANSFORMACAO_MOMENTANEA = 153;
   EFEITO_BROCHE_ESCUDO = 154;
   EFEITO_REMOVER_DOENCA = 155;
+  EFEITO_ANTIDOTO = 156;
 }
 
 enum TipoEfeitoModelo {
