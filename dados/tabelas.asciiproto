@@ -5309,6 +5309,7 @@ tabela_classes {
     pericias: 'acrobacias'
     pericias: 'usar_instrumento_magico'
     pericias: 'usar_cordas'
+    habilidades_por_nivel { id: 'ataque_furtivo' nivel: 1 }
     habilidades_por_nivel { id: 'evasao' nivel: 2 }
     habilidades_por_nivel { id: 'esquiva_sobrenatural' nivel: 4 }
     habilidades_por_nivel { id: 'sentir_armadilhas' nivel: 6 }
