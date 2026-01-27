@@ -1244,6 +1244,7 @@ tabela_armas {
     margem_critico: 19
     multiplicador_critico: 2
     categoria: CAT_DISTANCIA
+    categoria: CAT_LEVE
     alcance_quadrados: 6
     peso { medio: '1kg' }
     tipo_dano: TD_PERFURANTE
@@ -14134,7 +14135,7 @@ tabela_feiticos {
       raio_quadrados: 4  # quadrados.
       efeito_area: true
       permite_salvacao: true
-      icone: 'icon_chaos_hammer'
+      icone: 'icon_chaos_hammer.png'
       duracao_s: 0.350
       ignora_luz: false
       dificuldade_salvacao_por_nivel: true
@@ -14202,7 +14203,6 @@ tabela_feiticos {
       raio_quadrados: 4  # quadrados.
       efeito_area: true
       permite_salvacao: true
-      icone: 'icon_chaos_hammer'
       duracao_s: 0.350
       ignora_luz: false
       dificuldade_salvacao_por_nivel: true
@@ -15245,6 +15245,7 @@ tabela_racas {
     tipo: TIPO_HUMANOIDE
     sub_tipo: SUBTIPO_GNOMO
     id: 'gnomo'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     nome: 'Gnomo das Rochas'
     descricao: 'Brincalhões, desconfiados das raças grandes.'
     bonus_atributos {
@@ -15318,6 +15319,7 @@ tabela_racas {
     sub_tipo: SUBTIPO_GNOMO
     id: 'gnomo_floresta'
     nome: 'Gnomo da Floresta'
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     descricao: 'Os menores gnomos (menos de 1m), com cor marrom cinza esverdeado com olhos marrons, verdes ou at[e azuis.'
     bonus_atributos {
       constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
