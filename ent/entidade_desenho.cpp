@@ -675,7 +675,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     raio += sinf(vd_.angulo_disco_luz_rad) * 0.02f;
 
     float multiplicador_cor = 1.0f;
-    if (pd->tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
+    if ((pd->tipo_visao() & VISAO_BAIXA_LUMINOSIDADE) != 0) {
       raio *= 2.0;
       multiplicador_cor = pd->multiplicador_visao_penumbra();
     }
