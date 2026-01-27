@@ -101,6 +101,9 @@ sub_menu {
   item_menu { id: 'Bulette' }
   item_menu { id: 'Cão Teleportador'}
   item_menu { id: 'Coruja Gigante'}
+  item_menu { id: 'Grifo' }
+  item_menu { id: 'Hipogrifo' }
+  item_menu { id: 'Hipogrifo Celestial' }
   item_menu { id: 'Stirge'}
   item_menu { id: 'Urso-Coruja' }
 }
@@ -198,9 +201,6 @@ sub_menu {
   item_menu { id: 'Gigante das Pedras, Ancião' }
   item_menu { id: 'Gigante das Tempestades' }
 }
-item_menu { id: 'Grifo' }
-item_menu { id: 'Hipogrifo' }
-item_menu { id: 'Hipogrifo Celestial' }
 item_menu { id: 'Manto Negro' }
 item_menu { id: 'Medusa' }
 item_menu { id: 'Mephit do Fogo' }
