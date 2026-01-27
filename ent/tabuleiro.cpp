@@ -7096,7 +7096,7 @@ void Tabuleiro::DesenhaLuzes() {
     cor_luz_ambiente[0] = std::max(0.65f, cor_luz_ambiente[0]);
     cor_luz_ambiente[1] = std::max(0.65f, cor_luz_ambiente[1]);
     cor_luz_ambiente[2] = std::max(0.65f, cor_luz_ambiente[2]);
-  } else if (parametros_desenho_.tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
+  } else if ((parametros_desenho_.tipo_visao() & VISAO_BAIXA_LUMINOSIDADE) != 0) {
     cor_luz_ambiente[0] = std::min(1.0f, cor_luz_ambiente[0] * parametros_desenho_.multiplicador_visao_penumbra());
     cor_luz_ambiente[1] = std::min(1.0f, cor_luz_ambiente[1] * parametros_desenho_.multiplicador_visao_penumbra());
     cor_luz_ambiente[2] = std::min(1.0f, cor_luz_ambiente[2] * parametros_desenho_.multiplicador_visao_penumbra());
@@ -7117,7 +7117,7 @@ void Tabuleiro::DesenhaLuzes() {
         cenario_luz.luz_direcional().cor().g(),
         cenario_luz.luz_direcional().cor().b(),
         cenario_luz.luz_direcional().cor().a() };
-    if (parametros_desenho_.tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
+    if ((parametros_desenho_.tipo_visao() & VISAO_BAIXA_LUMINOSIDADE) != 0) {
       cor_luz[0] = std::min(1.0f, cor_luz[0] * parametros_desenho_.multiplicador_visao_penumbra());
       cor_luz[1] = std::min(1.0f, cor_luz[1] * parametros_desenho_.multiplicador_visao_penumbra());
       cor_luz[2] = std::min(1.0f, cor_luz[2] * parametros_desenho_.multiplicador_visao_penumbra());
