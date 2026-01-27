@@ -2284,15 +2284,15 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
     } else {
       proto->mutable_dados_ataque_global()->clear_dano_furtivo_classe();
     }
-    if (!proto->dados_ataque_global().dano_furtivo_classe().empty() && !proto->dados_ataque_global().dano_furtivo_outros().empty()) {
-      proto->mutable_dados_ataque_global()->set_dano_furtivo(absl::StrCat(proto->dados_ataque_global().dano_furtivo_classe(), "+", proto->dados_ataque_global().dano_furtivo_outros()));
-    } else if (!proto->dados_ataque_global().dano_furtivo_classe().empty()) {
-      proto->mutable_dados_ataque_global()->set_dano_furtivo(proto->dados_ataque_global().dano_furtivo_classe());
-    } else if (!proto->dados_ataque_global().dano_furtivo_outros().empty()) {
-      proto->mutable_dados_ataque_global()->set_dano_furtivo(proto->dados_ataque_global().dano_furtivo_outros());
-    } else {
-      proto->mutable_dados_ataque_global()->clear_dano_furtivo();
-    }
+  }
+  if (!proto->dados_ataque_global().dano_furtivo_classe().empty() && !proto->dados_ataque_global().dano_furtivo_outros().empty()) {
+    proto->mutable_dados_ataque_global()->set_dano_furtivo(absl::StrCat(proto->dados_ataque_global().dano_furtivo_classe(), "+", proto->dados_ataque_global().dano_furtivo_outros()));
+  } else if (!proto->dados_ataque_global().dano_furtivo_classe().empty()) {
+    proto->mutable_dados_ataque_global()->set_dano_furtivo(proto->dados_ataque_global().dano_furtivo_classe());
+  } else if (!proto->dados_ataque_global().dano_furtivo_outros().empty()) {
+    proto->mutable_dados_ataque_global()->set_dano_furtivo(proto->dados_ataque_global().dano_furtivo_outros());
+  } else {
+    proto->mutable_dados_ataque_global()->clear_dano_furtivo();
   }
   if (recomputa_base) {
     AtribuiBonus(salvacao_fortitude, TB_BASE, "base", BonusSalvacao(TS_FORTITUDE, proto));

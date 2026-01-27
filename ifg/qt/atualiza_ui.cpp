@@ -493,6 +493,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.label_bba_distancia->setText(QString::number(proto.bba().distancia()));
   gerador.label_bba_distancia->setToolTip(QString::fromUtf8(proto.bba().distancia_detalhes().c_str()));
 
+  gerador.label_dano_furtivo->setText(QString::fromUtf8(proto.dados_ataque_global().dano_furtivo().c_str()));
 
   const bool linha_valida = linha >= 0 && linha < proto.dados_ataque_size();
   const auto& tipo_ataque = linha_valida ? proto.dados_ataque(linha).tipo_ataque() : CurrentData(gerador.combo_tipo_ataque).toString().toStdString();

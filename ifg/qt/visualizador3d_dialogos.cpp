@@ -682,6 +682,20 @@ void PreencheConfiguraEvasao(Visualizador3d* this_,
   });
 }
 
+void PreencheConfiguraDanoFurtivo(Visualizador3d* this_,
+                                  ent::TipoTerreno tipo_terreno,
+                                  ifg::qt::Ui::DialogoEntidade& gerador,
+                                  const ent::EntidadeProto& proto,
+                                  ent::EntidadeProto* proto_retornado) {
+  gerador.linha_furtivo->setText(QString::fromUtf8(proto.dados_ataque_global().dano_furtivo_outros().c_str()));
+  gerador.label_dano_furtivo->setText(QString::fromUtf8(proto.dados_ataque_global().dano_furtivo().c_str()));
+  lambda_connect(gerador.linha_furtivo, SIGNAL(editingFinished()), [this_, tipo_terreno, &gerador, proto_retornado]() {
+    proto_retornado->mutable_dados_ataque_global()->set_dano_furtivo_outros(gerador.linha_furtivo->text().toStdString());
+    ent::RecomputaDependencias(this_->tabelas(), tipo_terreno, proto_retornado);
+    AtualizaUIAtaque(this_->tabelas(), gerador, *proto_retornado);
+   });
+}
+
 void PreencheConfiguraEsquivaSobrenatural(Visualizador3d* this_,
                                           ifg::qt::Ui::DialogoEntidade& gerador,
                                           const ent::EntidadeProto& proto,
@@ -1620,9 +1634,6 @@ void PreencheConfiguraDadosAtaque(
 
   AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
 
-  // Furtivo
-  gerador.linha_furtivo->setText((ent.dados_ataque_global().dano_furtivo().c_str()));
-
   ExpandeComboBox(gerador.combo_empunhadura);
 
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
@@ -2153,6 +2164,8 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   // Inimigos Prediletos.
   PreencheConfiguraInimigosPrediletos(this, tipo_terreno, gerador, entidade, proto_retornado);
 
+  // Furtivo
+  PreencheConfiguraDanoFurtivo(this, tipo_terreno, gerador, entidade, proto_retornado);
   // Evasao estatica e dimamica.
   PreencheConfiguraEvasao(this, tipo_terreno, gerador, entidade, proto_retornado);
   // Esquiva sobrenatural.
@@ -2369,7 +2382,7 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     }
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
-    proto_retornado->mutable_dados_ataque_global()->set_dano_furtivo(gerador.linha_furtivo->text().toStdString());
+    proto_retornado->mutable_dados_ataque_global()->set_dano_furtivo_outros(gerador.linha_furtivo->text().toStdString());
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
       proto_retornado->set_alcance_visao_m(gerador.spin_raio_visao_escuro_quad->value() * ent::QUADRADOS_PARA_METROS);
     }
