@@ -548,8 +548,14 @@ message InimigoPredileto {
 }
 
 // Independe de ataque especifico.
+// Proximo: 38.
 message DadosAtaqueGlobal {
+  // Valor final, recomputado de classe e outros.
   string dano_furtivo = 1;
+  // Recomputado de classe.
+  string dano_furtivo_classe = 36;
+  // Vem da UI.
+  string dano_furtivo_outros = 37;
   // Ver funcao ModificadorAtaque em util.
   // Alguns bonus de ataque genericos.
   bool ataque_menos_1 = 2;

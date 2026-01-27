@@ -6409,6 +6409,14 @@ TEST(TesteModelo, TesteModeloVultoGuerreiro5) {
   auto vulto = NovaEntidadeParaTestes(proto_vulto, TabelasCriando());
   EXPECT_EQ(vulto->Proto().dados_vida(), "4d10+10+10");
   EXPECT_GT(vulto->Proto().max_pontos_vida(), 24);
+  EXPECT_TRUE(vulto->Proto().dados_ataque_global().dano_furtivo().empty());
+}
+
+TEST(TesteModelo, TesteModeloBabau) {
+  EntidadeProto proto;
+  auto modelo = TabelasCriando().ModeloEntidade("Demônio Babau");
+  auto babau = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
+  EXPECT_EQ(babau->Proto().dados_ataque_global().dano_furtivo(), "2d6");
 }
 
 TEST(TesteModelo, TesteModeloVulto) {
@@ -7545,6 +7553,7 @@ TEST(TesteRacas, TesteGnomo) {
   std::unique_ptr<Entidade> gnomo(NovaEntidadeParaTestes(proto, TabelasCriando()));
   EXPECT_EQ(BonusTotal(gnomo->Proto().movimento().terrestre_q()), 4);
   EXPECT_TRUE(TalentoComArma(TabelasCriando().Arma("martelo_gnomo_com_gancho"), gnomo->Proto()));
+  ASSERT_EQ(gnomo->Proto().tipo_visao(), VISAO_BAIXA_LUMINOSIDADE);
 }
 
 TEST(TesteRacas, TesteGnomoDaFlorestaNaFloresta) {
