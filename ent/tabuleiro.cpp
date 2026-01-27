@@ -2728,7 +2728,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_GERAR_MONTANHA: {
-      GeraMontanhaNotificando();
+      GeraMontanhaNotificando(/*suavizacao=*/notificacao.forcado() ? 2.0f : 1.0f);
       return true;
     }
     case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO: {
@@ -4259,7 +4259,7 @@ void GeraPontoAleatorioMontanha(int x, int y, int tam_x, float altura_m, float m
 }  // namespace
 
 // TODO passar esse codigo pro terreno.
-void Tabuleiro::GeraMontanhaNotificando() {
+void Tabuleiro::GeraMontanhaNotificando(float suavizacao) {
   if (!EmModoMestreIncluindoSecundario()) {
     LOG(INFO) << "Apenas mestre pode gerar montanha.";
     return;
@@ -4290,7 +4290,7 @@ void Tabuleiro::GeraMontanhaNotificando() {
   float altura_ponto_inicial_m = proto_corrente_->ponto_terreno(indice);
 
   // Inclinacao e delta de altura por iteracao.
-  float inclinacao_graus = 45.0f;
+  float inclinacao_graus = 45.0f / suavizacao;
   float delta_h_m = TAMANHO_LADO_QUADRADO * tanf(inclinacao_graus * GRAUS_PARA_RAD);
   if (inclinacao_graus < 0 || inclinacao_graus > 85.0f) {
     LOG(INFO) << "Inclinacao invalida: " << inclinacao_graus;

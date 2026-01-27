@@ -363,6 +363,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_GERAR_MONTANHA: {
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_GERAR_MONTANHA);
+      if (alterna_selecao) {
+        n.set_forcado(true);
+      }
       TrataNotificacao(n);
       break;
     }
