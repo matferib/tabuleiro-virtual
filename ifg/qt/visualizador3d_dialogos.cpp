@@ -23,6 +23,8 @@
 #include <string>
 
 #include "absl/strings/str_format.h"
+#include "absl/strings/str_join.h"
+#include "absl/strings/str_split.h"
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
 #include "ent/recomputa.h"
@@ -538,6 +540,12 @@ void PreencheConfiguraComboArmaduraEscudo(
 
   ExpandeComboBox(combo_armadura);
   ExpandeComboBox(combo_escudo);
+}
+
+void PreencheConfiguraIdiomas(
+    Visualizador3d* this_, ent::TipoTerreno tipo_terreno, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto,
+    ent::EntidadeProto* proto_retornado) {
+  gerador.linha_idiomas->setText(QString::fromUtf8(absl::StrJoin(proto.idiomas(), ", ").c_str()));
 }
 
 void PreencheConfiguraEventos(
@@ -2151,6 +2159,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   }
   gerador.lista_rotulos->appendPlainText((rotulos_especiais.c_str()));
 
+  // Indiomas.
+  PreencheConfiguraIdiomas(this, tipo_terreno, gerador, entidade, proto_retornado);
+
   // Eventos.
   PreencheConfiguraEventos(this, tipo_terreno, gerador, entidade, proto_retornado);
 
@@ -2321,6 +2332,13 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, &entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor, forma_corrente, tipo_terreno] () {
     ent::RecomputaDependencias(tabelas(), tipo_terreno, proto_retornado);
+
+    proto_retornado->clear_idiomas();
+    std::vector<std::string> idiomas = absl::StrSplit(gerador.linha_idiomas->text().toStdString(), ',');
+    for (const std::string& idioma : idiomas) {
+      proto_retornado->add_idiomas(idioma);
+    }
+
     if (gerador.campo_rotulo->text().isEmpty()) {
       proto_retornado->clear_rotulo();
     } else {

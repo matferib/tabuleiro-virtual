@@ -26,7 +26,7 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Proximo id: 121.
+// Proximo id: 122.
 message EntidadeProto {
   string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -36,6 +36,8 @@ message EntidadeProto {
 
   // O tipo da entidade segundo as regras de dnd.
   repeated TipoDnD tipo_dnd = 86;
+  // Idiomas que o personagem sabe.
+  repeated string idiomas = 121;
   repeated SubTipoDnD sub_tipo_dnd = 93;
   Movimento movimento = 90;
   // Identificador global da entidade composto pelo id_criador << 28 | id_local.

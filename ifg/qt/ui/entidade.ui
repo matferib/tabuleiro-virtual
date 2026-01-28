@@ -2891,6 +2891,36 @@ QGroupBox::title {
          </property>
         </widget>
        </item>
+       <item row="1" column="3">
+        <layout class="QHBoxLayout" name="horizontalLayout_72">
+         <item>
+          <widget class="QLabel" name="label_96">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Idiomas</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="linha_idiomas">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Idiomas do personagem, separado por vírgula.</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3">
