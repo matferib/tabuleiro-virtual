@@ -4946,7 +4946,7 @@ modelo {
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'bote: carga e ataque total incluindo rasgar'
     modificador_iniciativa: 2
-    info_classes { id: 'grifo' nivel: 7 bba: 7 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO }
+    info_classes { id: 'besta_magica' nivel: 7 bba: 7 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO }
     dados_defesa {
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } }
