@@ -206,7 +206,7 @@ void AbreDialogoForcarDado(int nfaces, ntf::CentralNotificacoes& central) {
   central.AdicionaNotificacao(n.release());
 }
 
-void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id) {
+void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id, bool forcar_selecao) {
   VLOG(1) << "picking id: " << id << ", duplo: " << duplo << ", alterna selecao: " << alterna_selecao;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
@@ -364,6 +364,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_GERAR_MONTANHA);
       if (alterna_selecao) {
+        n.set_id_generico(1);
+      }
+      if (forcar_selecao) {
         n.set_forcado(true);
       }
       TrataNotificacao(n);

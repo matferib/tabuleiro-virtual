@@ -2728,7 +2728,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_GERAR_MONTANHA: {
-      GeraMontanhaNotificando(/*suavizacao=*/notificacao.forcado() ? 2.0f : 1.0f);
+      float fator_suavizacao = 1.0f + notificacao.id_generico();
+      GeraMontanhaNotificando(/*suavizacao=*/notificacao.forcado() ? 1.5f * fator_suavizacao : fator_suavizacao);
       return true;
     }
     case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO: {
@@ -4298,7 +4299,7 @@ void Tabuleiro::GeraMontanhaNotificando(float suavizacao) {
   }
 
   // Fator aleatorio: cada ponto podera ser ate esse fator mais alto.
-  float max_porcentagem_aleatoria = 0.3f;
+  float max_porcentagem_aleatoria = 0.3f / suavizacao;
 
   // Altura inicial: usa o proprio ponto se ja tiver altura suficiente. Senao, gera um de altura constante.
   float altura_m = (altura_ponto_inicial_m > delta_h_m) ? altura_ponto_inicial_m : (10.0f * (1.0f + (max_porcentagem_aleatoria * Aleatorio())));
@@ -4311,10 +4312,9 @@ void Tabuleiro::GeraMontanhaNotificando(float suavizacao) {
 
   // Percorre os pontos ao redor do quadrado, reduzindo a altura de acordo com a inclinacao.
   // Terminar quando chegar em 0.
-  float altura_ajustada_m = altura_m;
+  // Raio da montanha é num_iteracoes.
   for (int i = 1; i <= num_iteracoes; ++i) {
-    altura_ajustada_m -= delta_h_m;
-    // sul e norte.
+    // Para cada x, faz sul e norte.
     {
       int y_base_s = y_quad - i;
       int y_base_n = y_quad + i;
@@ -4324,6 +4324,9 @@ void Tabuleiro::GeraMontanhaNotificando(float suavizacao) {
         if (x_corrente < 0 || x_corrente > TamanhoX()) {
           continue;
         }
+        float distancia = sqrt(powf(x_corrente - x_quad, 2.0f) + powf(y_base_s - y_quad, 2.0f));
+        if (distancia > num_iteracoes) continue;
+        float altura_ajustada_m = altura_m - delta_h_m * distancia;
         if (y_base_s >= 0) {
           GeraPontoAleatorioMontanha(x_corrente, y_base_s, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
         }
@@ -4332,7 +4335,7 @@ void Tabuleiro::GeraMontanhaNotificando(float suavizacao) {
         }
       }
     }
-    // Oeste e leste.
+    // Para cada y, faz oeste e leste.
     {
       int y_s = y_quad - i + 1;
       int x_base_w = x_quad - i;
@@ -4342,6 +4345,9 @@ void Tabuleiro::GeraMontanhaNotificando(float suavizacao) {
         if (y_corrente < 0 || y_corrente > TamanhoY()) {
           continue;
         }
+        float distancia = sqrt(powf(y_corrente - y_quad, 2.0f) + powf(x_base_w - x_quad, 2.0f));
+        if (distancia > powf(num_iteracoes, 2.0f)) continue;
+        float altura_ajustada_m = altura_m - delta_h_m * distancia;
         if (x_base_w >= 0) {
           GeraPontoAleatorioMontanha(x_base_w, y_corrente, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
         }

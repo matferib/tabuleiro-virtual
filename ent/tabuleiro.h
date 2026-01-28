@@ -1125,7 +1125,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaInfoCameraPresa();
 
   /** Faz o picking do controle virtual, recebendo o id do objeto pressionado. */
-  void PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id);
+  void PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id, bool forca_selecao);
 
   /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
   * para botoes com estado. */

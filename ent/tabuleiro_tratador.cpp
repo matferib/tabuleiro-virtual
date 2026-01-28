@@ -962,7 +962,7 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y, bool 
     AlternaSelecaoEntidade(id, forca_selecao);
   } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking alternar selecao no controle virtual " << id;
-    PickingControleVirtual(x, y, true  /*alt*/, false  /*duplo*/, id);
+    PickingControleVirtual(x, y, true  /*alt*/, false  /*duplo*/, id, forca_selecao);
   } else {
     VLOG(1) << "Picking alternar selecao ignorado.";
   }
@@ -3313,7 +3313,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     TrataRolagem(static_cast<dir_rolagem_e>(id));
   } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking no controle virtual " << id;
-    PickingControleVirtual(x, y, alterna_selecao, false  /*duplo*/, id);
+    PickingControleVirtual(x, y, alterna_selecao, false  /*duplo*/, id, forca_selecao);
   } else if (tipo_objeto == OBJ_EVENTO_ENTIDADE) {
     VLOG(1) << "Picking em evento da entidade " << id;
     ApagaEventosZeradosDeEntidadeNotificando(id);
@@ -3468,7 +3468,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y, bool forcar) {
       central_->AdicionaNotificacao(n.release());
     }
   } if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
-    PickingControleVirtual(x, y, false  /*alterna selecao*/, true  /*duplo*/, id);
+    PickingControleVirtual(x, y, false  /*alterna selecao*/, true  /*duplo*/, id, /*forca_selecao=*/forcar);
   } else {
     ;
   }

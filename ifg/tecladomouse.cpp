@@ -499,7 +499,12 @@ void TratadorTecladoMouse::TrataBotaoMousePressionado(botoesmouse_e botao, unsig
         if (modificadores == Modificador_Shift) {
           tabuleiro_->TrataBotaoRotacaoPressionado(x, y);
         } else {
-          tabuleiro_->TrataBotaoEsquerdoPressionado(x, y, /*alterna_selecao=*/false, /*forca_selecao=*/(modificadores & Modificador_AltGr) != 0);
+          // Note que é possível chegar aqui com ctrl, pois o if ali de cima faz comparação exata ao inves de bitwise.
+#if !__APPLE__
+          tabuleiro_->TrataBotaoEsquerdoPressionado(x, y, /*alterna_selecao=*/(modificadores & Modificador_Ctrl) != 0, /*forca_selecao=*/((modificadores & Modificador_AltGr) | (modificadores & Modificador_Meta)) != 0);
+#else
+          tabuleiro_->TrataBotaoEsquerdoPressionado(x, y, /*alterna_selecao=*/(modificadores & Modificador_Ctrl) != 0, /*forca_selecao=*/(modificadores & Modificador_AltGr) != 0);
+#endif
         }
         break;
       case Botao_Direito:
