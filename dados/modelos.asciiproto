@@ -4946,7 +4946,15 @@ modelo {
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     rotulo_especial: 'bote: carga e ataque total incluindo rasgar'
     modificador_iniciativa: 2
-    info_classes { id: 'besta_magica' nivel: 7 bba: 7 salvacoes_fortes: TS_FORTITUDE salvacoes_fortes: TS_REFLEXO }
+    info_classes {
+      id: 'besta_magica' nivel: 7
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    movimento {
+      terrestre_basico_q: 6
+      aereo_basico_q: 19 # mediia manobrabilidade mas tem wingover que consome 2 quadrados.
+    }
     dados_defesa {
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 6 } }
@@ -4962,6 +4970,9 @@ modelo {
     dados_ataque { rotulo: 'mordida_garra_rasgar' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
     dados_ataque { rotulo: 'mordida_garra_rasgar' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
     dados_ataque { rotulo: 'agarrar' tipo_ataque: 'Agarrar' }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'observar' pontos: 5 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'saltar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_talentos {
       gerais { id: 'ataques_multiplos' }
       gerais { id: 'foco_em_arma' complemento: 'mordida' }

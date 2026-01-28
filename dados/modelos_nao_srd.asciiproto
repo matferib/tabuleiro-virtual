@@ -259,11 +259,15 @@ modelo {
       gerais { id: 'encontrao_aprimorado' }
       gerais { id: 'esquiva' }
     }
+    # Esses valores raciais foi para casar com a descrição da errata de monstros de faerun. Como ele so da o valor final, não da para saber.
     info_pericias { id: 'escalar' pontos: 8 }
-    info_pericias { id: 'esconderse' pontos: 1 }
+    info_pericias { id: 'esconderse' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } } }
     info_pericias { id: 'observar' pontos: 8 }
-    info_pericias { id: 'procurar' pontos: 2 }
+    info_pericias { id: 'procurar' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 2 } } } }
     info_pericias { id: 'sobrevivencia' pontos: 8 }
+    info_pericias { id: 'saltar' pontos: 3 }
+
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
