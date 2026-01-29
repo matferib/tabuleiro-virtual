@@ -378,10 +378,14 @@ sub_menu {
   item_menu { id: 'Hobgoblin Tenente 5' }
 }
 sub_menu {
-  id: 'Homem-Rato'
-  item_menu { id: 'Homem-Rato' }
-  item_menu { id: 'Homem-Rato Ladino 3' }
-  item_menu { id: 'Homem-Rato Ladino 5' }
+  id: 'Licantropos'
+  item_menu { id: 'Lobisomem' }
+  sub_menu {
+    id: 'Homem-Rato'
+    item_menu { id: 'Homem-Rato' }
+    item_menu { id: 'Homem-Rato Ladino 3' }
+    item_menu { id: 'Homem-Rato Ladino 5' }
+  }
 }
 item_menu { id: 'Kobold' }
 sub_menu {

@@ -10771,6 +10771,125 @@ modelo {
 }
 
 modelo {
+  id: 'Lobisomem'
+  entidade {
+    rotulo: 'hibrido'
+    rotulo_especial: 'faro'
+    dados_vida: '3d8+7' info_textura { id: 'werewolf.png' translacao_x: 0.07 largura: 0.8 altura: 0.7 translacao_y: 0.2  } cor { r: 0.4 g: 0.2 b: 0.2 }
+    tamanho: TM_MEDIO
+    tipo_dnd: TIPO_HUMANOIDE
+    sub_tipo_dnd: SUBTIPO_METAMORFO
+    tendencia { simples: TD_CAOTICO_MAU }
+    info_classes {
+      id: 'combatente' nivel: 1
+    }
+    info_classes {
+      id: 'animal' nivel: 2
+      pericias_monstro: 'adestrar_animais'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'sobrevivencia'
+    }
+    movimento {
+      terrestre_basico_q: 6
+    }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    modificador_iniciativa: 3
+    dados_ataque { rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO }
+    dados_ataque { rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano_basico: '1d4' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO }
+    dados_ataque { rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 4 dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO }
+    dados_defesa {
+      id_armadura: '' id_escudo: ''
+      ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+      reducao_dano {
+        descritores: DESC_PRATA_ALQUIMICA
+        valor: 10
+      }
+    }
+    info_talentos {
+      gerais { id: 'iniciativa_aprimorada' }
+      gerais { id: 'vontade_ferro' }
+      gerais { id: 'sorrateiro' }
+      gerais { id: 'rastrear' }
+      gerais { id: 'foco_em_arma' complemento: 'mordida' }
+    }
+
+    info_pericias { id: 'adestrar_animais' pontos: 2 }
+    info_pericias { id: 'esconderse' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 1 }
+    info_pericias { id: 'furtividade' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 1 }
+    info_pericias { id: 'sobrevivencia' pontos: 1 }
+
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    formas_alternativas {
+      # A primeira forma deve ser a corrente.
+      rotulo: 'hibrido'
+    }
+    formas_alternativas {
+      # Humano.
+      rotulo: 'humano'
+      info_textura { id: 'warrior.png' } cor { r: 0.898 g: 0.663 b: 0.475 }
+      tamanho: TM_MEDIO
+      movimento {
+        terrestre_basico_q: 6
+      }
+      dados_ataque { grupo: 'cac' rotulo: 'espada longa' id_arma: 'espada_longa' empunhadura: EA_ARMA_ESCUDO }
+      dados_ataque { grupo: 'distancia com escudo' rotulo: 'besta leve' id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO }
+      dados_ataque { grupo: 'distancia' rotulo: 'besta leve' id_arma: 'besta_leve' empunhadura: EA_ARMA_APENAS }
+      dados_defesa {
+        id_armadura: 'brunea' id_escudo: 'leve_madeira'
+        ca {
+	  bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 2 } }
+	}
+        reducao_dano {
+          descritores: DESC_PRATA_ALQUIMICA
+          valor: 0
+        }
+      }
+      atributos {
+        forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+        destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+        constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      }
+    }
+    formas_alternativas {
+      # Lobo.
+      rotulo: 'lobo'
+      tamanho: TM_MEDIO modelo_3d { id: 'wolf' } cor { r: 1 g: 1 b: 1 }
+      movimento {
+        terrestre_basico_q: 10
+      }
+      dados_ataque {
+        rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_2_MAOS
+      }
+      dados_defesa {
+        id_armadura: '' id_escudo: ''
+        ca { bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } } }
+        reducao_dano {
+          descritores: DESC_PRATA_ALQUIMICA
+          valor: 10
+        }
+      }
+      atributos {
+        forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+        destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+        constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      }
+    }
+  }
+}
+
+modelo {
   id: 'Homem-Rato'
   entidade {
     dados_vida: '2d8+3' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.2 g: 0.2 b: 0.2 }
@@ -10835,6 +10954,7 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 3 dano: '1d6' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 9 dano: '1d8' margem_critico: 19 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+
     formas_alternativas {
       # Humano.
       rotulo: 'humano'
