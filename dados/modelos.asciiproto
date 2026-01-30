@@ -5195,6 +5195,232 @@ modelo {
     info_pericias { id: 'observar' pontos: 2 }
   }
 }
+modelo {
+  id: 'Cavalo Leve'
+  entidade {
+    dados_vida: '3d8+6' tamanho: TM_GRANDE
+    info_textura { id: 'horse_light.png' altura: 0.8 translacao_y: 0.1 largura: 0.8 translacao_x: 0.1 }
+    cor { r: 0.4 g: 0.2 b: 0.2 }
+    tendencia { simples: TD_NEUTRO }
+    rotulo: 'cavalo leve'
+    rotulo_especial: 'faro\ncarga 75kg, medio 150 kg, pesado até 225 kg'
+    mais_de_duas_pernas: true
+    info_classes {
+      id: 'animal' nivel: 3
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    movimento {
+      terrestre_basico_q: 12
+    }
+    info_talentos {
+      gerais { id: 'tolerancia' }
+      gerais { id: 'corrida' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } }
+      }
+    }
+    # Ambos considerados secundarios.
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'casco1' id_arma: 'casco'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'casco2' id_arma: 'casco'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 3 }
+  }
+}
+modelo {
+  id: 'Cavalo Pesado'
+  entidade {
+    dados_vida: '3d8+6' tamanho: TM_GRANDE
+    info_textura { id: 'horse_heavy.png' altura: 0.8 largura: 0.8 translacao_y: 0.1 translacao_x: 0.1 }
+    cor { r: 0.5 g: 0.3 b: 0.3 }
+    tendencia { simples: TD_NEUTRO }
+    rotulo: 'cavalo pesado'
+    rotulo_especial: 'faro\ncarga 100 kg, medio 200 kg, pesado até 300 kg'
+    mais_de_duas_pernas: true
+    info_classes {
+      id: 'animal' nivel: 3
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    movimento {
+      terrestre_basico_q: 10
+    }
+    info_talentos {
+      gerais { id: 'tolerancia' }
+      gerais { id: 'corrida' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 3 } }
+      }
+    }
+    # Ambos considerados secundarios.
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'casco1' id_arma: 'casco'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'casco2' id_arma: 'casco'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'observar' pontos: 3 }
+  }
+}
+modelo {
+  id: 'Cavalo Guerra Leve'
+  entidade {
+    dados_vida: '3d8+9' tamanho: TM_GRANDE
+    info_textura { id: 'warhorse_light.png' altura: 0.8 largura: 0.8 translacao_y: 0.1 translacao_x: 0.1 }
+    cor { r: 0.4 g: 0.2 b: 0.2 }
+    tendencia { simples: TD_NEUTRO }
+    rotulo: 'cavalo leve de guerra'
+    rotulo_especial: 'faro\ncarga 150 kg, medio 300 kg, pesado até 450 kg'
+    mais_de_duas_pernas: true
+    info_classes {
+      id: 'animal' nivel: 4
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    movimento {
+      terrestre_basico_q: 10
+    }
+    info_talentos {
+      gerais { id: 'tolerancia' }
+      gerais { id: 'corrida' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'casco1' id_arma: 'casco'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'casco2' id_arma: 'casco'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'mordida' id_arma: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d3'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 3 }
+  }
+}
+
+modelo {
+  id: 'Cavalo Guerra Pesado'
+  entidade {
+    dados_vida: '4d8+12' tamanho: TM_GRANDE
+    info_textura { id: 'warhorse_heavy.png' altura: 0.8 largura: 0.8 translacao_y: 0.1 translacao_x: 0.1 }
+    cor { r: 0.3 g: 0.15 b: 0.15 }
+    tendencia { simples: TD_NEUTRO }
+    rotulo: 'cavalo pesado de guerra'
+    rotulo_especial: 'faro\ncarga 150 kg, medio 300 kg, pesado até 450 kg'
+    mais_de_duas_pernas: true
+    info_classes {
+      id: 'animal' nivel: 4
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
+    }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    movimento {
+      terrestre_basico_q: 10
+    }
+    info_talentos {
+      gerais { id: 'tolerancia' }
+      gerais { id: 'corrida' }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 18 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+    }
+    dados_defesa {
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 4 } }
+      }
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'casco1' id_arma: 'casco'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'casco2' id_arma: 'casco'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'mordida' id_arma: 'mordida'
+      tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d4'
+      alcance_q: 1
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+
+    info_pericias { id: 'ouvir' pontos: 4 }
+    info_pericias { id: 'observar' pontos: 3 }
+  }
+}
+
 
 modelo {
   id: 'Leão'
@@ -13176,7 +13402,7 @@ modelo {
   }
 }
 modelo {
-  id: 'Cavalo'
+  id: 'Cavalo 3d'
   entidade {
     tipo: TE_COMPOSTA
     pos { x: 1.9516985 y: 1.0054268 z: 0 }

@@ -54,6 +54,13 @@ sub_menu {
   item_menu { id: 'Carcajú Atroz' }
   item_menu { id: 'Coruja' }
   sub_menu {
+    id: 'Cavalos'
+    item_menu { id: 'Cavalo Leve'  texto: 'Leve' }
+    item_menu { id: 'Cavalo Pesado' texto: 'Pesado' }
+    item_menu { id: 'Cavalo Guerra Leve' texto: 'Guerra Leve' }
+    item_menu { id: 'Cavalo Guerra Pesado' texto: 'Guerra Pesado' }
+  }
+  sub_menu {
     id: 'Cobras'
     sub_menu {
       id: 'Víboras'
@@ -442,7 +449,7 @@ sub_menu {
   item_menu { id: 'Cactos' }
   item_menu { id: 'Carroça' }
   item_menu { id: 'Casa (8x7)' }
-  item_menu { id: 'Cavalo' }
+  item_menu { id: 'Cavalo 3d' }
   item_menu { id: 'Cogumelo' }
   item_menu { id: 'Moedas' }
   item_menu { id: 'Baú (madeira)' }
