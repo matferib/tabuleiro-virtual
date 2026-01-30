@@ -331,6 +331,7 @@ enum SubTipoDnD {
   SUBTIPO_PLANAR = 21;
   SUBTIPO_ARCONTE = 22;
   SUBTIPO_KOBOLD = 23;  // Nao existe, so pro bonus de gnomo funcionar.
+  SUBTIPO_METAMORFO = 24;
 }
 
 enum DescritorAtaque {
