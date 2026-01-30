@@ -2335,8 +2335,9 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
 
     proto_retornado->clear_idiomas();
     std::vector<std::string> idiomas = absl::StrSplit(gerador.linha_idiomas->text().toStdString(), ',');
-    for (const std::string& idioma : idiomas) {
-      proto_retornado->add_idiomas(idioma);
+    // Copia para trim.
+    for (std::string idioma : idiomas) {
+      proto_retornado->add_idiomas(ent::trim(idioma));
     }
 
     if (gerador.campo_rotulo->text().isEmpty()) {
