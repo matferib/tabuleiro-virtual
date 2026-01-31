@@ -5958,7 +5958,7 @@ TEST(TesteModelo, TesteGuepardo) {
   auto guepardo = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
   EXPECT_TRUE(guepardo->TemTipoDnD(TIPO_ANIMAL));
   ASSERT_EQ(guepardo->NivelClasse("animal"), 3);
-  ASSERT_EQ(guepardo->Proto().tipo_visao(), VISAO_BAIXA_LUMINOSIDADE);
+  ASSERT_TRUE(guepardo->PossuiVisaoBaixaLuminosidade());
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, guepardo->Proto())), 16);
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, guepardo->Proto())), 19);
   EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, guepardo->Proto())), 15);

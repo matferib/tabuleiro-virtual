@@ -613,6 +613,9 @@ BonusIndividual::PorOrigem* OrigemSePresente(TipoBonus tipo, const std::string& 
 // Retorna true se tipo estiver presente em bonus.
 bool PossuiBonus(TipoBonus tipo, const Bonus& bonus);
 
+// Retorna se o proto tem visao de baixa luminosidade.
+inline bool PossuiVisaoBaixaLuminosidade(const EntidadeProto& proto) { return (proto.tipo_visao() & VISAO_BAIXA_LUMINOSIDADE) != 0; }
+
 // Combina os bonus_novos em bonus. Bonus de mesmo tipo e origem serao sobrescritos.
 void CombinaBonus(const Bonus& bonus_novos, Bonus* bonus);
 // Combina atributos_novos em atributos, sobrescrevendo os iguais (prioridade de atributos_depois).

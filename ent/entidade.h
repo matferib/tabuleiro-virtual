@@ -277,7 +277,7 @@ class Entidade {
   bool PossuiTalento(const std::string& talento, const std::optional<std::string>& complemento = std::nullopt) const;
 
   bool PossuiVisaoEscuro() const { return (proto_.tipo_visao() & VISAO_ESCURO) != 0; }
-  bool PossuiVisaoBaixaLuminosidade() const { return (proto_.tipo_visao() & VISAO_BAIXA_LUMINOSIDADE) != 0; }
+  bool PossuiVisaoBaixaLuminosidade() const { return ent::PossuiVisaoBaixaLuminosidade(proto_); }
 
   // Acesso simplificado a alinhamento parcial.
   bool Boa() const;
