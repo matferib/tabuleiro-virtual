@@ -921,7 +921,7 @@ int Tabuleiro::Desenha() {
     tipo_shader = gl::TSH_PRETO_BRANCO;
   } else if (entidade_referencia != nullptr && entidade_referencia->PossuiVisaoBaixaLuminosidade()) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
-    parametros_desenho_.set_multiplicador_visao_penumbra(1.4f);
+    parametros_desenho_.set_multiplicador_visao_penumbra(opcoes_.multiplicador_penumbra());
     tipo_shader = gl::TSH_LUZ;
   } else {
     tipo_shader = gl::TSH_LUZ;

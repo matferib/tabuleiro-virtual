@@ -77,6 +77,8 @@ message OpcoesProto {
   float expessura_grade_m = 30 [default=0.1];
   // Se verdadeiro, usara a detecao de gestos do QT.
   bool usar_gestos_nativos = 31;
+  // Quanto o personagem com visao na penumbra ve mais.
+  float multiplicador_penumbra = 32 [default=1.1];
 }
 
 // Mensagem enviada para os clientes de um jogo.
