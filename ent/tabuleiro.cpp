@@ -4249,10 +4249,12 @@ void Tabuleiro::GeraFramebuffer(bool reinicia) {
 }
 
 namespace {
-void GeraPontoAleatorioMontanha(int x, int y, int tam_x, float altura_m, float max_porcentagem_aleatoria, TabuleiroProto* proto) {
+void GeraPontoAleatorioMontanha(int x, int y, int tam_x, float altura_m, float max_porcentagem_aleatoria, const float kDirecaoIncrementoAltura, TabuleiroProto* proto) {
   float altura_aleatoria_m = altura_m * (1.0f + max_porcentagem_aleatoria * Aleatorio());
   int indice = Terreno::IndicePontoTabuleiro(x, y, tam_x);
-  if (proto->ponto_terreno(indice) < altura_aleatoria_m) {
+  if (kDirecaoIncrementoAltura >= 0.0f && proto->ponto_terreno(indice) < altura_aleatoria_m) {
+    proto->set_ponto_terreno(indice, altura_aleatoria_m);
+  } else if (kDirecaoIncrementoAltura < 0.0f && proto->ponto_terreno(indice) > altura_aleatoria_m) {
     proto->set_ponto_terreno(indice, altura_aleatoria_m);
   }
 }
@@ -4302,10 +4304,11 @@ void Tabuleiro::GeraMontanhaNotificando(float suavizacao) {
   float max_porcentagem_aleatoria = 0.3f / suavizacao;
 
   // Altura inicial: usa o proprio ponto se ja tiver altura suficiente. Senao, gera um de altura constante.
-  float altura_m = (altura_ponto_inicial_m > delta_h_m) ? altura_ponto_inicial_m : (10.0f * (1.0f + (max_porcentagem_aleatoria * Aleatorio())));
+  float altura_m = (fabs(altura_ponto_inicial_m) > delta_h_m) ? altura_ponto_inicial_m : (10.0f * (1.0f + (max_porcentagem_aleatoria * Aleatorio())));
+  const float kDirecaoIncrementoAltura = altura_m > 0.0f ? 1.0f : -1.0f;
 
   // Numero de iteracoes eh calculado ate o terreno chegar no nivel 0, baseado na altura inicial e o delta.
-  int num_iteracoes = altura_m / delta_h_m;
+  int num_iteracoes = fabs(altura_m) / delta_h_m;
 
   // Eleva o ponto inicial na altura.
   proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_quad, y_quad, TamanhoX()), altura_m);
@@ -4326,12 +4329,12 @@ void Tabuleiro::GeraMontanhaNotificando(float suavizacao) {
         }
         float distancia = sqrt(powf(x_corrente - x_quad, 2.0f) + powf(y_base_s - y_quad, 2.0f));
         if (distancia > num_iteracoes) continue;
-        float altura_ajustada_m = altura_m - delta_h_m * distancia;
+        float altura_ajustada_m = altura_m - delta_h_m * distancia * kDirecaoIncrementoAltura;
         if (y_base_s >= 0) {
-          GeraPontoAleatorioMontanha(x_corrente, y_base_s, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
+          GeraPontoAleatorioMontanha(x_corrente, y_base_s, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, kDirecaoIncrementoAltura, proto_corrente_);
         }
         if (y_base_n <= TamanhoY()) {
-          GeraPontoAleatorioMontanha(x_corrente, y_base_n, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
+          GeraPontoAleatorioMontanha(x_corrente, y_base_n, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, kDirecaoIncrementoAltura, proto_corrente_);
         }
       }
     }
@@ -4347,12 +4350,12 @@ void Tabuleiro::GeraMontanhaNotificando(float suavizacao) {
         }
         float distancia = sqrt(powf(y_corrente - y_quad, 2.0f) + powf(x_base_w - x_quad, 2.0f));
         if (distancia > powf(num_iteracoes, 2.0f)) continue;
-        float altura_ajustada_m = altura_m - delta_h_m * distancia;
+        float altura_ajustada_m = altura_m - delta_h_m * distancia * kDirecaoIncrementoAltura;
         if (x_base_w >= 0) {
-          GeraPontoAleatorioMontanha(x_base_w, y_corrente, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
+          GeraPontoAleatorioMontanha(x_base_w, y_corrente, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, kDirecaoIncrementoAltura, proto_corrente_);
         }
         if (x_base_e <= TamanhoX()) {
-          GeraPontoAleatorioMontanha(x_base_e, y_corrente, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
+          GeraPontoAleatorioMontanha(x_base_e, y_corrente, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, kDirecaoIncrementoAltura, proto_corrente_);
         }
       }
     }
