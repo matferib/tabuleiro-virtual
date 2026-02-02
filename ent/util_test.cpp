@@ -336,6 +336,7 @@ TEST(TesteArmas, TesteFunda) {
   EXPECT_TRUE(da->has_acao());
   const AcaoProto& acao = da->acao();
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
+  EXPECT_EQ(acao.geometria(), ACAO_GEO_ESFERA) << "acao: " << acao.DebugString();
 }
 
 TEST(TesteArmas, TesteEspadaLaminaAfiada) {

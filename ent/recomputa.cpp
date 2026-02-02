@@ -2884,17 +2884,25 @@ int NivelFeiticoPergaminho(const Tabelas& tabelas, TipoMagia tipo_pergaminho, co
   return 0;
 }
 
-// Aplica os dados de acoes que forem colocados soltos no ataque.
-void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const EntidadeProto& proto, DadosAtaque* da) {
-  {
+// Aplica os dados de acoes que forem colocados soltos no ataque. Leva em consideração (neste ordem):
+// - Tipo do ataque se presente.
+// - Acao da arma: por id e ação crua.
+// - acao fixa do DA: por id e ação crua.
+void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma_ou_feitico, const EntidadeProto& proto, DadosAtaque* da) {
+
+  if (!da->tipo_ataque().empty()) {
     // O que for tabelado comum do tipo do ataque.
     const auto& acao_tabelada = tabelas.Acao(da->tipo_ataque());
-    // Vamos salvar o icone antes de sobrescreve-lo pelo icone padrao.
-    std::string icone = da->acao().icone();
-    da->mutable_acao()->MergeFrom(acao_tabelada);
-    if (!icone.empty()) {
-      da->mutable_acao()->set_icone(icone);
+    *da->mutable_acao() = acao_tabelada;
+  }
+
+  // Aplica acao da arma.
+  if (arma_ou_feitico.has_acao()) {
+    if (arma_ou_feitico.acao().has_id()) {
+      const auto& acao_tabelada = tabelas.Acao(arma_ou_feitico.acao().id());
+      da->mutable_acao()->MergeFrom(acao_tabelada);
     }
+    da->mutable_acao()->MergeFrom(arma_ou_feitico.acao());
   }
 
   // O que for especifico deste ataque.
@@ -2907,6 +2915,24 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
   }
 
   CombinaEfeitos(da->mutable_acao());
+
+  // Toda acao valida deve ter um tipo. Se comecou sem, ja preenche com alguns automaticos.
+  // A acao fixa sera Merged mais tarde.
+  if (!da->acao().has_tipo()) {
+    // Padrao.
+    if (PossuiCategoria(CAT_PROJETIL_AREA, arma_ou_feitico)) {
+      da->mutable_acao()->set_tipo(ACAO_PROJETIL_AREA);
+    }
+    else if (PossuiCategoria(CAT_DISTANCIA, arma_ou_feitico) && !PossuiCategoria(CAT_CAC, arma_ou_feitico)) {
+      da->mutable_acao()->set_tipo(ACAO_PROJETIL);
+    }
+    else if (!PossuiCategoria(CAT_DISTANCIA, arma_ou_feitico)) {
+      da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
+    }
+    else {
+      ; // Aqui ha um conflito: deixa aberto.
+    }
+  }
 
   // Aqui temos a acao finalizada. Agora passa tudo pro da.
   const AcaoProto& acao = da->acao();
@@ -2948,19 +2974,19 @@ void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& feitico, const
     // enquanto TipoAtaqueParaClasse busca a classe para feitico (mago).
     const auto& ic = InfoClasseParaFeitico(tabelas, da->tipo_ataque(), proto);
     const auto& fc = FeiticosClasse(ic.id(), proto);
-    int mod_especializacao = !fc.especializacao().empty() && feitico.escola() == fc.especializacao() ? 1 : 0;
-    int mod_trama_sombras = PossuiTalento("magia_trama_sombras", proto) && EscolaBoaTramaDasSombras(feitico) ? 1 : 0;
+    int mod_especializacao = !fc.especializacao().empty() && arma_ou_feitico.escola() == fc.especializacao() ? 1 : 0;
+    int mod_trama_sombras = PossuiTalento("magia_trama_sombras", proto) && EscolaBoaTramaDasSombras(arma_ou_feitico) ? 1 : 0;
     int base = 10;
     if (da->acao().has_dificuldade_salvacao_base()) {
       base = da->acao().dificuldade_salvacao_base() + mod_especializacao + mod_trama_sombras;
     } else {
       if (da->has_nivel_conjurador_pergaminho()) {
-        base += NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), feitico);
+        base += NivelFeiticoPergaminho(tabelas, da->tipo_pergaminho(), arma_ou_feitico);
       } else if (PossuiTalento("elevar_magia", proto) && da->has_nivel_slot()) {
         base += da->nivel_slot();
       } else {
         base += da->acao().dificuldade_salvacao_por_nivel()
-          ? NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), feitico) + mod_especializacao
+          ? NivelFeitico(tabelas, TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), arma_ou_feitico) + mod_especializacao
           : NivelConjurador(TipoAtaqueParaClasse(tabelas, da->tipo_ataque()), proto) / 2;
       }
     }
@@ -3040,33 +3066,8 @@ void ArmaTesouroParaDadosAtaque(const Tabelas& tabelas, const EntidadeProto& pro
   }
 }
 
-// Passa alguns dados de acao proto para dados ataque. Preenche o tipo com o tipo da arma se nao houver.
-void ArmaParaDadosAtaqueEAcao(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
-  // Aplica acao da arma.
-  if (arma.has_acao()) {
-    if (arma.acao().has_id()) {
-      const auto& acao_tabelada = tabelas.Acao(arma.acao().id());
-      *da->mutable_acao() = acao_tabelada;
-      da->mutable_acao()->MergeFrom(arma.acao());
-    } else {
-      *da->mutable_acao() = arma.acao();
-    }
-  }
-
-  // Toda acao valida deve ter um tipo. Se comecou sem, ja preenche com alguns automaticos.
-  // A acao fixa sera Merged mais tarde.
-  if (!da->acao().has_tipo()) {
-    // Padrao.
-    if (PossuiCategoria(CAT_PROJETIL_AREA, arma)) {
-      da->mutable_acao()->set_tipo(ACAO_PROJETIL_AREA);
-    } else if (PossuiCategoria(CAT_DISTANCIA, arma) && !PossuiCategoria(CAT_CAC, arma)) {
-      da->mutable_acao()->set_tipo(ACAO_PROJETIL);
-    } else if (!PossuiCategoria(CAT_DISTANCIA, arma)) {
-      da->mutable_acao()->set_tipo(ACAO_CORPO_A_CORPO);
-    } else {
-      ; // Aqui ha um conflito: deixa aberto.
-    }
-  }
+// Passa alguns dados da arma para dados ataque.
+void ArmaParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma, const EntidadeProto& proto, DadosAtaque* da) {
   if (PossuiCategoria(CAT_ARMA, arma)) {
     da->set_eh_arma(true);
   }
@@ -3473,7 +3474,7 @@ void RecomputaDependenciasUmDadoAtaque(
 
   // Passa alguns campos da acao para o ataque.
   const auto& arma = tabelas.ArmaOuFeitico(da->id_arma());
-  ArmaParaDadosAtaqueEAcao(tabelas, arma, proto, da);
+  ArmaParaDadosAtaque(tabelas, arma, proto, da);
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
 
   const auto& arma_outra_mao = ArmaOutraMao(tabelas, *da, proto);
