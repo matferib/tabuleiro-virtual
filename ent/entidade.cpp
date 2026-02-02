@@ -1720,7 +1720,7 @@ bool Entidade::AcaoAnterior() {
   return true;
 }
 
-__declspec(noinline) AcaoProto Entidade::Acao() const {
+AcaoProto Entidade::Acao() const {
   const auto* da = DadoCorrente();
   return da == nullptr ?  AcaoProto::default_instance() : da->acao();
 }
