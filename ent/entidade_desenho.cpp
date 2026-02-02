@@ -676,8 +676,8 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
 
     float multiplicador_cor = 1.0f;
     if ((pd->tipo_visao() & VISAO_BAIXA_LUMINOSIDADE) != 0) {
+      // O raio já é suficiente para aumentar a intensidade da luz pontual.
       raio *= 2.0;
-      //multiplicador_cor = pd->multiplicador_visao_penumbra();
     }
     gl::LuzPontual(id_luz, pos_luz, cor.r() * multiplicador_cor, cor.g() * multiplicador_cor, cor.b() * multiplicador_cor, raio);
     gl::Habilita(GL_LIGHT0 + id_luz);
