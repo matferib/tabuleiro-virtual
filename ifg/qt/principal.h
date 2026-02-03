@@ -60,6 +60,8 @@ class Principal : public QMainWindow, ntf::Receptor {
   /** Indica que a aplicação está fechando. */
   bool Fechando() const { return fechando_; }
 
+  Visualizador3d* v3d() { return v3d_; }
+
  protected:
   /** Handler de fechamento. */
   void closeEvent(QCloseEvent * event) override;
