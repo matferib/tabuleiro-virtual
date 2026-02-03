@@ -194,7 +194,7 @@ void InterfaceGrafica::TrataEscolherTipoTesouro(const ntf::Notificacao& notifica
 }
 
 void InterfaceGrafica::VoltaEscolherTipoTesouro(const ntf::Notificacao notificacao, std::vector<ent::TipoTesouro> mapa_indice_tipo, bool ok, int indice_tipo) {
-  ent::RodaNoRetorno([this] () {
+  ent::RodaNoRetorno r([this] () {
     tabuleiro_->ReativaWatchdogSeMestre();
   });
   if (!ok) {
@@ -380,7 +380,7 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
 }
 
 void InterfaceGrafica::VoltaEscolherPergaminho(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_pergaminho) {
-  ent::RodaNoRetorno([this] () {
+  ent::RodaNoRetorno r([this] () {
     tabuleiro_->ReativaWatchdogSeMestre();
   });
   if (indice_pergaminho < 0 || indice_pergaminho >= (int)mapa_indices.size()) {
@@ -434,8 +434,6 @@ void InterfaceGrafica::TrataEscolherPocaoOuAntidoto(const ntf::Notificacao& noti
     iqn.PreencheIncrementando(tabelas_, i++);
     iqn.duracao = absl::StrCat(item_tabelado.duracao_rodadas());
   }
-
-
   std::vector<std::string> nomes;
   std::vector<int> mapa_indices;
   std::tie(nomes, mapa_indices) = PreencheNomesEMapaIndices(mapa_nomes_para_indices);
@@ -754,7 +752,7 @@ void InterfaceGrafica::TrataEscolherAliados(const ntf::Notificacao& notificacao)
   tabuleiro_->DesativaWatchdogSeMestre();
   EscolheItemsLista(notificacao.acao().aliados_e_inimigos_de_forma_diferente() ? "Escolha os aliados" : "Escolha entidades afetadas", rotulos_entidades,
       [this, notificacao, mapa_indice_id] (bool ok_decisao, const std::vector<int>& indices) {
-    ent::RodaNoRetorno([this]() {
+    ent::RodaNoRetorno r([this]() {
       this->tabuleiro_->ReativaWatchdogSeMestre();
     });
     ent::AcaoProto acao = notificacao.acao();
@@ -816,7 +814,7 @@ void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& no
   }
   tabuleiro_->DesativaWatchdogSeMestre();
   EscolheItemLista("Parâmetros de Lancamento", std::nullopt, lista_parametros, [this, notificacao, lista_parametros, ids] (bool ok_decisao, int indice_decisao) {
-    ent::RodaNoRetorno([this]() {
+    ent::RodaNoRetorno r([this]() {
       this->tabuleiro_->ReativaWatchdogSeMestre();
     });
     ent::AcaoProto acao = notificacao.acao();
@@ -933,7 +931,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
 
   // Esse lambda rodada no final da UI.
   auto funcao_final = [this, notificacao, conversao_espontanea, id_classe, nivel_gasto, items] (int ok, int indice_lista) {
-    ent::RodaNoRetorno([this]() {
+    ent::RodaNoRetorno r([this]() {
       this->tabuleiro_->ReativaWatchdogSeMestre();
     });
     if (!ok) {
