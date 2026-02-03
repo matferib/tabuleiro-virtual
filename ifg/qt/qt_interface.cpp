@@ -16,6 +16,7 @@
 #include "ifg/qt/qt_interface.h"
 #include "ifg/qt/ui/entradastring.h"
 #include "ifg/qt/ui/listapaginada.h"
+#include "ifg/qt/visualizador3d.h"
 #include "ifg/qt/util.h"
 #include "log/log.h"
 
@@ -58,11 +59,18 @@ void InterfaceGraficaQt::EscolheItemLista(
   }
   gerador.lista->setFocus();
   auto lambda_aceito = [this, &gerador, dialogo, lista, funcao_volta] () {
+    // Importantissimo! Esses lambdas rodam dentro do contexto do dialogo, portanto qualquer operação que causar
+    // uma atualização parcial, que cause alguma operação grafica irá corromper o contexto e gerar um erro grafico
+    // totalmente aleatorio.
+    pai_->v3d()->PegaContexto();
     funcao_volta(gerador.lista->currentRow() >= 0 && gerador.lista->currentRow() < (int)lista.size(), gerador.lista->currentRow());
+    pai_->v3d()->LiberaContexto();
     dialogo->accept();
   };
   auto lambda_rejeitado = [this, &gerador, dialogo, lista, funcao_volta] () {
+    pai_->v3d()->PegaContexto();
     funcao_volta(false, -1);
+    pai_->v3d()->LiberaContexto();
     dialogo->reject();
   };
   if (rotulo_ok.has_value()) {
@@ -95,11 +103,15 @@ void InterfaceGraficaQt::EscolheItemsLista(
     for (const auto* item : gerador.lista->selectedItems()) {
       selecionados.push_back(gerador.lista->row(item));
     }
+    pai_->v3d()->PegaContexto();
     funcao_volta(!selecionados.empty(), selecionados);
+    pai_->v3d()->LiberaContexto();
     dialogo->accept();
   };
   auto lambda_rejeitado = [this, &gerador, dialogo, lista, funcao_volta] () {
+    pai_->v3d()->PegaContexto();
     funcao_volta(false, {});
+    pai_->v3d()->LiberaContexto();
     dialogo->reject();
   };
 
@@ -134,16 +146,20 @@ void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
     int tamanho_total = tab_estaticos.size() + tab_dinamicos.size();
     // +2 por causa dos 2 items label adicionados.
     if (indice > 0 && indice < (tamanho_total + 2)) {
+      pai_->v3d()->PegaContexto();
       if (static_cast<unsigned int>(indice - 1) < tab_estaticos.size()) {
         funcao_volta(tab_estaticos[indice - 1], arq::TIPO_TABULEIRO_ESTATICO);
       } else {
         funcao_volta(tab_dinamicos[indice - 2 - tab_estaticos.size()], arq::TIPO_TABULEIRO);
       }
+      pai_->v3d()->LiberaContexto();
       dialogo->accept();
     }
   };
   auto lambda_rejeitado = [this, &gerador, dialogo, tab_estaticos, tab_dinamicos, funcao_volta] () {
+    pai_->v3d()->PegaContexto();
     funcao_volta("", arq::TIPO_TABULEIRO);
+    pai_->v3d()->LiberaContexto();
     dialogo->reject();
   };
   lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
@@ -167,12 +183,16 @@ void InterfaceGraficaQt::EscolheArquivoAbrirImagem(
     int indice = gerador.lista->currentRow();
     int tamanho_total = imagens.size();
     if (indice >= 0 && indice < tamanho_total) {
+      pai_->v3d()->PegaContexto();
       funcao_volta(imagens[indice]);
+      pai_->v3d()->LiberaContexto();
       dialogo->accept();
     }
     };
   auto lambda_rejeitado = [this, &gerador, dialogo, imagens, funcao_volta]() {
+    pai_->v3d()->PegaContexto();
     funcao_volta("");
+    pai_->v3d()->LiberaContexto();
     dialogo->reject();
     };
   lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
@@ -191,7 +211,9 @@ void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
   gerador.nome->setFocus();
   auto lambda_aceito = [this, &gerador, dialogo, funcao_volta] () {
     if (gerador.nome->text().length() > 0) {
+      pai_->v3d()->PegaContexto();
       funcao_volta(gerador.nome->text().toUtf8().constData());
+      pai_->v3d()->LiberaContexto();
       dialogo->accept();
     }
   };
@@ -235,6 +257,7 @@ void InterfaceGraficaQt::EscolheModeloEntidade(const MenuModelos& menu_modelos, 
   }
   gerador.lista->setFocus();
   auto lambda_aceito = [this, &gerador, dialogo, ids_itens, funcao_volta] () {
+    pai_->v3d()->PegaContexto();
     int indice = gerador.lista->currentRow();
     if (indice > 0) {
       auto it = ids_itens.begin();
@@ -244,6 +267,7 @@ void InterfaceGraficaQt::EscolheModeloEntidade(const MenuModelos& menu_modelos, 
     } else {
       funcao_volta("");
     }
+    pai_->v3d()->LiberaContexto();
     //LOG(INFO) << "aceitei: " << (indice > 0 ? modelos.begin() + (indice - 1) : "nada");
     dialogo->accept();
   };
@@ -259,11 +283,13 @@ void InterfaceGraficaQt::EscolheCor(
     std::function<void(bool, float, float, float, float)> funcao_volta) {
   QColor cor_ida(r, g, b);
   QColor cor = QColorDialog::getColor(cor_ida, pai_, QObject::tr("Escolha Cor"));
+  pai_->v3d()->PegaContexto();
   if (!cor.isValid()) {
     funcao_volta(false, r, g, b, a);
   } else {
     funcao_volta(true, cor.redF(), cor.greenF(), cor.blueF(), cor.alphaF());
   }
+  pai_->v3d()->LiberaContexto();
 }
 
 void InterfaceGraficaQt::EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) {
@@ -280,7 +306,9 @@ void InterfaceGraficaQt::EscolheValorDadoForcado(const std::string& titulo, int 
     layout->addWidget(botao, /*row=*/(i-1) / numero_colunas, /*column=*/(i-1) % numero_colunas);
   }
   dialogo->exec();
+  pai_->v3d()->PegaContexto();
   funcao_volta(val);
+  pai_->v3d()->LiberaContexto();
 }
 
 }  // namespace qt
