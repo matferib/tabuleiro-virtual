@@ -549,7 +549,7 @@ message InimigoPredileto {
 }
 
 // Independe de ataque especifico.
-// Proximo: 38.
+// Proximo: 39.
 message DadosAtaqueGlobal {
   // Valor final, recomputado de classe e outros.
   string dano_furtivo = 1;
@@ -598,6 +598,8 @@ message DadosAtaqueGlobal {
   map<int32, int32> bonus_ataque_por_categoria_arma = 34;
   // A chave é o valor do campo escola da tabela de armas. 
   map<string, int32> bonus_ataque_por_escola_magia = 35;
+  // Algumas raças tem bonus de ataques especificos por arma. Exemplo halfing com funda.
+  map<string, int32> bonus_ataque_por_arma = 38;
 }
 
 // Dados de defesa global (independe de ataque).
@@ -770,6 +772,7 @@ enum TipoClasse {
 // Informacoes sobre a classe de um personagem.
 // ATENCAO: se adicionar qualquer campo repeated aqui, deve-se conferir a funcao RecomputaDependenciasClasses
 // que faz merge com o tabelado.
+// Proximo: 34.
 message InfoClasse {
   string id = 1;
   string nome = 9;
@@ -824,6 +827,8 @@ message InfoClasse {
     int32 nivel = 2;
   }
   repeated HabilidadesEspeciaisPorNivel habilidades_por_nivel = 19;
+  // Nao vem da tabela de classe, e sim do monstro. Mergeado em habilidades_por_nivel.
+  repeated HabilidadesEspeciaisPorNivel habilidades_por_nivel_monstro = 33;
   // Indica que na verdade eh uma progressao de classe de monstro.
   bool monstro = 21;
   // Se presente, faz merge com classe ja existente ao inves de criar.
