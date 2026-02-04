@@ -2600,9 +2600,9 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
   }
   if (pericia_origem == "arte_da_fuga") {
     TrataRolarAgarrarNotificando(atraso_s, OutrosBonusPericia(*entidade_destino, pericia_destino, entidade_origem, pericia_origem), *entidade_destino);
-  } else if (pericia_origem == "intimidacao") {
+  } else if (pericia_origem == "intimidacao" || pericia_origem == "desmoralizar") {
     if (total_modificadores.has_value()) {
-      TrataRolarContraIntimidacaoNotificando(atraso_s, *total_modificadores, *entidade_origem, *entidade_destino);
+      TrataRolarContraIntimidacaoNotificando(atraso_s, pericia_origem == "desmoralizar", *total_modificadores, *entidade_origem, *entidade_destino);
     }
   } else if (!pericia_destino.empty()) {
     TrataRolarPericiaNotificando(
@@ -3994,12 +3994,14 @@ void Tabuleiro::TrataRolarAgarrarNotificando(float atraso_s, const Bonus& outros
 }
 
 void Tabuleiro::TrataRolarContraIntimidacaoNotificando(
-    float atraso_s, const std::pair<int, int>& total_modificadores, const Entidade& entidade_origem, const Entidade& entidade_destino) {
+    float atraso_s, bool desmoralizar, const std::pair<int, int>& total_modificadores, const Entidade& entidade_origem, const Entidade& entidade_destino) {
   const auto& da = entidade_origem.DadoCorrenteNaoNull();
-  if (float distancia = DistanciaMinimaAcaoAlvoMetros(entidade_origem, entidade_destino.Pos());
-      !da.ataque_corpo_a_corpo() || distancia > da.alcance_m()) {
-    AdicionaAcaoTextoLogado(entidade_destino.Id(), "alvo não ameaçado", atraso_s);
-    return;
+  if (desmoralizar) {
+    if (float distancia = DistanciaMinimaAcaoAlvoMetros(entidade_origem, entidade_destino.Pos());
+        !da.ataque_corpo_a_corpo() || distancia > da.alcance_m()) {
+      AdicionaAcaoTextoLogado(entidade_destino.Id(), "alvo não ameaçado", atraso_s);
+      return;
+    }
   }
 
   const int d20 = RolaDado(20);

@@ -6158,6 +6158,11 @@ tabela_pericias {
     atributo: TA_CARISMA
   }
   pericias {
+    id: 'desmoralizar'
+    nome: 'Desmoralizar Adversário'
+    derivada_de: 'intimidacao'
+  }
+  pericias {
     id: 'natacao'
     nome: 'Natação'
     # classes: [  'barbaro'  'bardo'  'druida'  'guerreiro'  'monge'  'ranger'  'ladino'  'aristocrata' ]
