@@ -513,8 +513,8 @@ tabela_armas {
   }
   armas {
     id: 'funda'
-    categoria: CAT_ARREMESSO
     nome: 'funda'
+    categoria: CAT_DISTANCIA
     preco: '0 PO'
     dano { medio: '1d4' }
     multiplicador_critico: 2
@@ -15232,6 +15232,10 @@ tabela_racas {
       bonus_ataque_por_categoria_arma {
         key: 5 # CAT_ARREMESSO
         value: 1
+      }
+      bonus_ataque_por_arma {
+        key: 'funda'
+	value: 1
       }
     }
     tamanho: TM_PEQUENO
