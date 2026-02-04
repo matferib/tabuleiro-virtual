@@ -33,9 +33,8 @@ modelo {
       pericias_monstro: 'ouvir'
       pericias_monstro: 'procurar'
       pericias_monstro: 'sobrevivencia'
-      habilidades_por_nivel {
-        id: 'desviar_projetos_normais'  # projeteis normais tem 20% de falha.
-	nivel: 1
+      habilidades_por_nivel_monstro {
+        id: 'desviar_projeteis_normais'  # projeteis normais tem 20% de falha.
       }
     }
     atributos {
