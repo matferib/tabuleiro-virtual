@@ -16,6 +16,97 @@ modelo {
   }
 }
 modelo {
+  id: 'Bocarra'  # Monstros de Faerun
+  entidade {
+    tipo_dnd: TIPO_ABERRACAO
+    dados_vida: '7d8+7' tamanho: TM_GRANDE
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    info_textura { id: 'tall_mouther.png' altura: 0.8 translacao_y: 0.1 largura: 0.9 translacao_x: 0.05 } cor { r: 0.1 g: 0.1 b: 0.3 }
+    movimento {
+      terrestre_basico_q: 8
+    }
+    info_classes {
+      id: 'aberracao' nivel: 7
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'observar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'procurar'
+      pericias_monstro: 'sobrevivencia'
+      habilidades_por_nivel {
+        id: 'desviar_projetos_normais'  # projeteis normais tem 20% de falha.
+	nivel: 1
+      }
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 20 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 19 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo'
+      id_arma: 'pancada'
+      dano_basico: '1d4'
+      alcance_q: 3
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo'
+      id_arma: 'pancada'
+      dano_basico: '1d4'
+      alcance_q: 3
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo'
+      id_arma: 'pancada'
+      dano_basico: '1d4'
+      alcance_q: 3
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'pancada' tipo_ataque: 'Ataque Corpo a Corpo'
+      id_arma: 'pancada'
+      dano_basico: '1d4'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 3
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      id_arma: 'mordida'
+      dano_basico: '2d6'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 2
+    }
+
+    dados_defesa {
+      resistencia_magia_racial: 18
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
+      }
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'reflexos_em_combate' }
+      gerais { id: 'esquiva' }
+    }
+    info_pericias { id: 'escalar' pontos: 1 }
+    info_pericias { id: 'esconderse' pontos: 1 }
+    info_pericias { id: 'observar' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'procurar' pontos: 2 }
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+
+    tendencia { simples: TD_NEUTRO }
+
+    rotulo_especial: 'predadores de halfling'
+  }
+
+}
+modelo {
   id: 'Demônio Flecha'  # MM3 http://archive.wizards.com/default.asp?x=dnd/iw/20040815b&page=4
   entidade {
     tipo_dnd: TIPO_EXTRA_PLANAR

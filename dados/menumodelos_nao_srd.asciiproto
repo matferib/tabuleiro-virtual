@@ -4,6 +4,7 @@ item_menu { id: 'Aranha Armadeira' }
 sub_menu {
   id: 'Aberrações'
   item_menu { id: 'Beholder' }
+  item_menu { id: 'Bocarra' }
 }
 sub_menu {
   id: 'Bestas Mágicas'
