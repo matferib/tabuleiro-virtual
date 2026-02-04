@@ -2242,6 +2242,7 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
       ic.clear_talentos_automaticos();
       ic.clear_talentos_com_complemento_automaticos();
       ic.MergeFrom(classe_tabelada);
+      ic.mutable_habilidades_por_nivel()->MergeFrom(ic.habilidades_por_nivel_monstro());
       if (c_any_of(ic.habilidades_por_nivel(), [&ic](const InfoClasse::HabilidadesEspeciaisPorNivel& h) { return h.id() == "esquiva_sobrenatural" && ic.nivel() >= h.nivel(); } )) {
         if (possui_esquiva_sobrenatural) {
           auto* hn = ic.add_habilidades_por_nivel();
@@ -3524,6 +3525,11 @@ void RecomputaDependenciasUmDadoAtaque(
         AtribuiBonus(valor, TB_RACIAL, "racial", bonus_ataque);
       }
     }
+    for (const auto& [id_arma, valor] : tabelas.Raca(proto.raca()).dados_ataque_global().bonus_ataque_por_arma()) {
+      if (da->id_arma() == id_arma) {
+        AtribuiBonus(valor, TB_RACIAL, "racial", bonus_ataque);
+      }
+    }
     if (PossuiTalento("acuidade_arma", proto) &&
         bba_distancia > bba_cac &&
         (PossuiCategoria(CAT_LEVE, arma) || PossuiCategoria(CAT_ARMA_NATURAL, arma) ||
@@ -3651,6 +3657,8 @@ void RecomputaDependenciasUmDadoAtaque(
         if (modificador_forca < arma.max_forca()) bba -= 2;
         usar_forca_dano = true;
       }
+    } else if (da->id_arma() == "funda") {
+      usar_forca_dano = true;
     } else if (da->ataque_arremesso()) {
       usar_forca_dano = true;
     }
