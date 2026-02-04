@@ -6091,6 +6091,29 @@ int DesviaObjetoSeAplicavel(
   return 0;
 }
 
+int DesviaProjeteisNormaisSeAplicavel(
+    const Tabelas& tabelas, int delta_pontos_vida, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
+    AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer) {
+  //LOG(INFO) << "delta_pontos_vida: " << delta_pontos_vida << ", " << da.eh_arma() << ", " << da.id_arma();
+  if (delta_pontos_vida >= 0 || !da.eh_arma() || da.id_arma().empty()) return delta_pontos_vida;
+  const auto& arma = tabelas.Arma(da.id_arma());
+  //LOG(INFO) << "arma: " << arma.DebugString();
+  // Armas lançadas não são afetadas. Só os projeteis.
+  if (!PossuiCategoria(CAT_DISTANCIA, arma) || PossuiCategoria(CAT_ARREMESSO, arma) || !da.ataque_distancia()) return delta_pontos_vida;
+  if (!DestrezaNaCA(alvo.Proto())) return delta_pontos_vida;
+  if (!PossuiHabilidadeEspecial("desviar_projeteis_normais", alvo.Proto())) return delta_pontos_vida;
+  const int chance_falha = RolaDado(100);
+  if (chance_falha > 20) {
+     ConcatenaString(absl::StrCat("projétil não desviado, d100=", chance_falha, " > 20"), por_entidade->mutable_texto());
+     return delta_pontos_vida;
+  }
+  ConcatenaString(absl::StrCat("projétil desviado, d100=", chance_falha, "<= 20"), por_entidade->mutable_texto());
+  ntf::Notificacao n;
+  PreencheNotificacaoObjetoDesviado(true, alvo, &n, grupo_desfazer->add_notificacao());
+  tabuleiro->TrataNotificacao(n);
+  return 0;
+}
+
 int DesviaMontariaSeAplicavel(
     const Tabelas& tabelas, int delta_pontos_vida, int total_ataque, const Entidade& alvo, const DadosAtaque& da,
     Tabuleiro* tabuleiro, AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer) {

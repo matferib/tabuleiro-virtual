@@ -1163,6 +1163,13 @@ std::optional<std::pair<bool, std::string>> TestaConcentracaoSeConjurando(const 
 int DesviaObjetoSeAplicavel(
     const Tabelas& tabelas, int delta_pontos_vida, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
     AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer);
+
+// Se alvo possuir habilidade especial desviar_projeteis_normais (arrow evasion, do tall mouther ou bocarra).
+// Considera-se como projetil normal todas as armas normais de distancia projetil. Armas lançadas não são consideradas.
+int DesviaProjeteisNormaisSeAplicavel(
+  const Tabelas& tabelas, int delta_pontos_vida, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
+  AcaoProto::PorEntidade* por_entidade, ntf::Notificacao* grupo_desfazer);
+
 // Se alvo for montaria e montador tiver combate montado, pode tentar desviar a montaria.
 int DesviaMontariaSeAplicavel(
     const Tabelas& tabelas, int delta_pontos_vida, int total_ataque, const Entidade& alvo, const DadosAtaque& da, Tabuleiro* tabuleiro,
