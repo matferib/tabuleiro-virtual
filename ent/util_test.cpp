@@ -332,7 +332,7 @@ TEST(TesteArmas, TesteFunda) {
   RecomputaDependencias(TabelasCriando(), TT_NENHUM, &proto);
   EXPECT_TRUE(da->ataque_distancia()) << "DA completo: " << da->DebugString();
   EXPECT_FALSE(da->ataque_toque()) << "DA completo: " << da->DebugString();
-  EXPECT_TRUE(da->ataque_arremesso()) << "DA completo: " << da->DebugString();
+  EXPECT_FALSE(da->ataque_arremesso()) << "DA completo: " << da->DebugString();
   EXPECT_TRUE(da->has_acao());
   const AcaoProto& acao = da->acao();
   EXPECT_EQ(acao.tipo(), ACAO_PROJETIL) << "acao: " << acao.DebugString();
@@ -8071,6 +8071,36 @@ TEST(TesteAtaqueVsDefesa, TesteCritico) {
         AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("ataque_total_machado", orc->Proto()).acao(), *orc, *aguia_celestial, Posicao::default_instance(), /*ataque_oportunidade=*/false);
     EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
     EXPECT_EQ(resultado.vezes, 1) << resultado.texto;
+  }
+}
+
+// Desviar flechas no monstros de faerun, bocarra. Em ingles: arrow evasion.
+TEST(TesteAtaqueVsDefesa, TesteDesviarProjeteisNormais) {
+  DadosAtaque da_ataque;
+  auto bocarra = NovaEntidadeParaTestes(TabelasCriando().ModeloEntidade("Bocarra").entidade(), TabelasCriando());
+  auto halfling_com_funda = NovaEntidadeParaTestes(TabelasCriando().ModeloEntidade("Halfling Ladino 3").entidade(), TabelasCriando());
+  TabuleiroTeste tabuleiro;//({ bocarra, halfling_com_funda });
+
+  int delta_pv = -10;
+  {
+    // Seria afetado.
+    g_dados_forcados[100].push(21);
+    const auto& da = DadosAtaquePorGrupo("funda", halfling_com_funda->Proto());
+    ntf::Notificacao grupo_desfazer;
+    ent::AcaoProto::PorEntidade por_entidade;
+    delta_pv = DesviaProjeteisNormaisSeAplicavel(
+      TabelasCriando(), delta_pv, *bocarra, da, &tabuleiro, &por_entidade, &grupo_desfazer);
+    EXPECT_EQ(delta_pv, -10) << delta_pv << ", proto: " << bocarra->Proto().info_classes(0).DebugString();
+  }
+  {
+    // Nao seria afetado.
+    g_dados_forcados[100].push(20);
+    const auto& da = DadosAtaquePorGrupo("funda", halfling_com_funda->Proto());
+    ntf::Notificacao grupo_desfazer;
+    ent::AcaoProto::PorEntidade por_entidade;
+    delta_pv = DesviaProjeteisNormaisSeAplicavel(
+        TabelasCriando(), delta_pv, *bocarra, da, &tabuleiro, &por_entidade, &grupo_desfazer);
+    EXPECT_EQ(delta_pv, 0) << delta_pv << ", proto: " << bocarra->Proto().info_classes(0).DebugString();
   }
 }
 
