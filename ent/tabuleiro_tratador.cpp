@@ -2239,6 +2239,8 @@ float Tabuleiro::TrataAcaoIndividual(
 
     bool nao_letal = da.nao_letal();
 
+    delta_pv = DesviaProjeteisNormaisSeAplicavel(
+        tabelas_, delta_pv, *entidade_destino, da, this, por_entidade, grupo_desfazer);
     delta_pv = DesviaObjetoSeAplicavel(
         tabelas_, delta_pv, *entidade_destino, da, this, por_entidade, grupo_desfazer);
     delta_pv = DesviaMontariaSeAplicavel(
