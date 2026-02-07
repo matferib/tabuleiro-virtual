@@ -2892,7 +2892,8 @@ int NivelFeiticoPergaminho(const Tabelas& tabelas, TipoMagia tipo_pergaminho, co
 // - acao fixa do DA: por id e ação crua.
 void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma_ou_feitico, const EntidadeProto& proto, DadosAtaque* da) {
 
-  // Aplica acao da arma.
+  // Aplica acao da arma, projeteis e ataques mundanos. Note que eh_arma se aplica apenas a arma mesmo,
+  // e não pegaria agua benta, por exemplo.
   if (!da->eh_feitico() && arma_ou_feitico.has_acao()) {
     if (arma_ou_feitico.acao().has_id()) {
       const auto& acao_tabelada = tabelas.Acao(arma_ou_feitico.acao().id());
