@@ -1269,11 +1269,19 @@ std::vector<Modelo> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const 
   return modelos;
 }
 
+// Primeiro fica com offset 0. Os proximos 8 ficam ao redor dele.
+// Cada anel deve adicionar mais 4 criaturas. Aqui fazemos com cuidado até o terceiro anel.
 Vector2 ComputaOffset(int i) {
   Vector2 offset;
-  if (i > 0) {
-    offset = Vector2(cosf((i-1) * (M_PI / 3.0f)), sinf((i-1) * (M_PI / 3.0f)));
-    offset *= TAMANHO_LADO_QUADRADO * (((i / 6) + 1));
+  if (i >= 1 && i < 9) {
+    offset = Vector2(cosf(i * (M_PI / 4.0f)), sinf(i-1 * (M_PI / 4.0f)));
+    offset *= TAMANHO_LADO_QUADRADO;
+  } else if (i >= 9 && i < 21) {
+    offset = Vector2(cosf(i * (M_PI / 6.0f)), sinf(i * (M_PI / 6.0f)));
+    offset *= TAMANHO_LADO_QUADRADO * 2;
+  } else {
+    offset = Vector2(cosf(i * (M_PI / 8.0f)), sinf(i * (M_PI / 8.0f)));
+    offset *= TAMANHO_LADO_QUADRADO * (3 + ((i - 21) / 16));
   }
   LOG(INFO) << "Offset: x: " << offset.x << ", y: " << offset.y;
   return offset;
