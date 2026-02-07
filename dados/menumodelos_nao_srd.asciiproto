@@ -35,6 +35,15 @@ sub_menu {
 }
 item_menu { id: 'Morcego (Caçador Noturno)' }
 sub_menu {
+  id: 'Humanoides'
+  sub_menu {
+    id: 'Balbuciador'
+    item_menu { id: 'Balbuciador' texto: 'Solitário' }
+    item_menu { id: 'balbuciador_horda' texto: 'Horda (dezenas)' modelos { id: 'Balbuciador' quantidade: '10d8+12' } }
+    item_menu { id: 'balbuciador_onda' texto: 'Onda (centenas)' modelos { id: 'Balbuciador' quantidade: '4d100+97' } }
+  }
+}
+sub_menu {
   id: 'Humanos'
   item_menu { id: 'Humano Bruxo' }
   sub_menu {

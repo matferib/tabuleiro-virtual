@@ -82,7 +82,6 @@ modelo {
     }
 
     dados_defesa {
-      resistencia_magia_racial: 18
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
       }
@@ -325,6 +324,101 @@ modelo {
     rotulo_especial: 'ini +4\ndano 1d6 for + nausea 1 rodada (salv 20 for)\nca 20/20/16\nincorporal'
   }
 }
+modelo {
+  id: 'Balbuciador'  # Monstros de Faerun
+  entidade {
+    tipo_dnd: TIPO_HUMANOIDE_MONSTRUOSO
+    dados_vida: '1d8' tamanho: TM_PEQUENO
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    info_textura { id: 'gibberling.png' altura: 0.8 translacao_y: 0.1 largura: 0.9 translacao_x: 0.05 } cor { r: 0.1 g: 0.1 b: 0.3 }
+    rotulo_especial: 'trabalham em equipe, bonus +2 em agarrar quando em grupo'
+    rotulo_especial: 'vulneraveis a luz'
+    rotulo_especial: 'fogem de fogo quando atingidos'
+    rotulo_especial: 'até 3 por quadrado'
+    movimento {
+      terrestre_basico_q: 6
+    }
+    info_classes {
+      id: 'humanoide_monstruoso' nivel: 1
+      pericias_monstro: 'observar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 5 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+    }
+    dados_ataque {
+      grupo: 'corpo a corpo' rotulo: 'adaga' tipo_ataque: 'Ataque Corpo a Corpo'
+      id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'distancia' rotulo: 'adaga arremesso' tipo_ataque: 'Ataque a Distância'
+      id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
+    }
+    dados_ataque {
+      grupo: 'arma natural' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'
+      id_arma: 'mordida'
+      dano_basico: '1d3' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'balbuciar' rotulo: 'resmungos' tipo_ataque: 'Ataque a Distância'
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        geometria: ACAO_GEO_CONE
+        distancia_quadrados: 40
+        permite_ataque_vs_defesa: false
+        permite_salvacao: true
+        dificuldade_salvacao_base: 10
+        atributo_dificuldade_salvacao: TA_SABEDORIA
+        cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+        icone: 'icon_bardic_music.png'
+        efeitos_adicionais {
+          efeito: EFEITO_ABALADO
+          rodadas: 10  # Não fala quanto dura... imagina que seja enquanto houver resmungo.
+	  descricao: 'abalado enquanto houver resmungos'
+	  afeta_apenas_dados_vida_igual_a: 1
+          afeta_inimigos_apenas: true
+        }
+      }
+    }
+    dados_ataque {
+      grupo: 'balbuciar' rotulo: 'desconcentrar' tipo_ataque: 'Ataque a Distância'
+      acao_fixa {
+        tipo: ACAO_DISPERSAO
+        geometria: ACAO_GEO_CONE
+        distancia_quadrados: 40
+        permite_ataque_vs_defesa: false
+        permite_salvacao: false
+        cor { r: 1.0 g: 1.0 b: 0.0 a: 0.7 }
+        icone: 'icon_bardic_music.png'
+        efeitos_adicionais {
+          efeito: EFEITO_DESCONCENTRADO
+          rodadas: 10
+	  descricao: 'dificil concentrar enquanto houver resmungos'
+          afeta_inimigos_apenas: true
+        }
+      }
+    }
+    dados_defesa {
+      imunidades: DESC_MENTAL
+      vulnerabilidades: DESC_LUZ
+      vulnerabilidades: DESC_FOGO
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 1 } }
+      }
+    }
+    info_talentos {
+      gerais { id: 'foco_em_arma' complemento: 'mordida' }
+    }
+    info_pericias { id: 'observar' pontos: 4 }
+
+    tendencia { simples: TD_CAOTICO_NEUTRO }
+  }
+}
+
 modelo {
   id: 'Leucrotta'  # Monstros de Faerun
   entidade {
