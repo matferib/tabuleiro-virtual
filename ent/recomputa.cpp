@@ -2886,19 +2886,29 @@ int NivelFeiticoPergaminho(const Tabelas& tabelas, TipoMagia tipo_pergaminho, co
 }
 
 // Aplica os dados de acoes que forem colocados soltos no ataque. Leva em consideração (neste ordem):
-// - Tipo do ataque se presente.
 // - Acao da arma: por id e ação crua.
+// - Tipo do ataque se presente.
+// - Acao do feitico: por id e ação crua.
 // - acao fixa do DA: por id e ação crua.
 void AcaoParaDadosAtaque(const Tabelas& tabelas, const ArmaProto& arma_ou_feitico, const EntidadeProto& proto, DadosAtaque* da) {
+
+  // Aplica acao da arma.
+  if (!da->eh_feitico() && arma_ou_feitico.has_acao()) {
+    if (arma_ou_feitico.acao().has_id()) {
+      const auto& acao_tabelada = tabelas.Acao(arma_ou_feitico.acao().id());
+      da->mutable_acao()->MergeFrom(acao_tabelada);
+    }
+    da->mutable_acao()->MergeFrom(arma_ou_feitico.acao());
+  }
 
   if (!da->tipo_ataque().empty()) {
     // O que for tabelado comum do tipo do ataque.
     const auto& acao_tabelada = tabelas.Acao(da->tipo_ataque());
-    *da->mutable_acao() = acao_tabelada;
+    da->mutable_acao()->MergeFrom(acao_tabelada);
   }
 
-  // Aplica acao da arma.
-  if (arma_ou_feitico.has_acao()) {
+  // Aplica acao do feitico.
+  if (da->eh_feitico() && arma_ou_feitico.has_acao()) {
     if (arma_ou_feitico.acao().has_id()) {
       const auto& acao_tabelada = tabelas.Acao(arma_ou_feitico.acao().id());
       da->mutable_acao()->MergeFrom(acao_tabelada);
