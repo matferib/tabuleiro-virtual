@@ -352,13 +352,13 @@ modelo {
     }
     dados_ataque {
       # coloquei acao fixa para desambiguar uso da adaga.
-      grupo: 'corpo a corpo' rotulo: 'adaga' tipo_ataque: 'Ataque Corpo a Corpo'
-      id_arma: 'adaga' empunhadura: EA_ARMA_APENAS acao_fixa { id: 'Ataque Corpo a Corpo' }
+      grupo: 'arma' rotulo: 'adaga' tipo_ataque: 'Ataque Corpo a Corpo'
+      id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
     }
     dados_ataque {
       # coloquei acao fixa para desambiguar uso da adaga.
       grupo: 'distancia' rotulo: 'adaga arremesso' tipo_ataque: 'Ataque a Distância'
-      id_arma: 'adaga' empunhadura: EA_ARMA_APENAS acao_fixa { id: 'Ataque a Distância' }
+      id_arma: 'adaga' empunhadura: EA_ARMA_APENAS
     }
     dados_ataque {
       grupo: 'arma natural' rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo'

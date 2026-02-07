@@ -6234,6 +6234,13 @@ TEST(TesteModelo, TesteEsqueletoLobo) {
   EXPECT_EQ(da->dano(), "1d6+1");
 }
 
+TEST(TesteModelo, TesteBalbuciador) {
+  auto modelo = TabelasCriando().ModeloEntidade("Balbuciador");
+  auto balbuciador = NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando());
+  ASSERT_EQ(DadosAtaquePorGrupo("arma", balbuciador->Proto()).acao().tipo(), ACAO_CORPO_A_CORPO);
+  ASSERT_EQ(DadosAtaquePorGrupo("distancia", balbuciador->Proto()).acao().tipo(), ACAO_PROJETIL);
+}
+
 TEST(TesteModelo, TesteHalflingDruida10) {
   auto modelo_druida = TabelasCriando().ModeloEntidade("Halfling Druida 10");
   auto* ev = modelo_druida.mutable_entidade()->add_evento();
