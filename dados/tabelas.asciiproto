@@ -2508,6 +2508,14 @@ tabela_efeitos {
       }
     }
   }
+  efeitos {
+    id: EFEITO_DESCONCENTRADO
+    nome: 'difícil concentrar'
+    consequencia {
+      dados_pericia { id: 'concentracao' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'murmurio' } } } }
+    }
+  }
+
 }
 tabela_aneis {
   aneis {
@@ -5779,6 +5787,7 @@ tabela_classes {
     progressao_bba: PBBA_TRES_QUARTOS
     salvacoes_fortes: TS_REFLEXO
     pericias_por_nivel: 2
+    talentos_automaticos: 'usar_armas_simples'
     dv: 8
   }
 
@@ -5790,6 +5799,7 @@ tabela_classes {
     salvacoes_fortes: TS_VONTADE
     pericias_por_nivel: 2
     dv: 8
+    talentos_automaticos: 'usar_armas_simples'
     # visao escuro: 12 q
   }
   info_classes {
