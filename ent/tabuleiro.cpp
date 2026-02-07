@@ -1273,7 +1273,9 @@ std::vector<Modelo> SorteiaOuEscolheModelo(const Tabelas& tabelas, int i, const 
 // Cada anel deve adicionar mais 4 criaturas. Aqui fazemos com cuidado até o terceiro anel.
 Vector2 ComputaOffset(int i) {
   Vector2 offset;
-  if (i >= 1 && i < 9) {
+  if (i == 0) {
+    ; // nop.
+  } else if (i >= 1 && i < 9) {
     offset = Vector2(cosf(i * (M_PI / 4.0f)), sinf(i-1 * (M_PI / 4.0f)));
     offset *= TAMANHO_LADO_QUADRADO;
   } else if (i >= 9 && i < 21) {
