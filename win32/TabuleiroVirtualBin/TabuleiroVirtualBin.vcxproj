@@ -134,7 +134,7 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)..\tabvirt.exe"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)..\tabvirtd.exe"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copia saida para diretorio</Message>
