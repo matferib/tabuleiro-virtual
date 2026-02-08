@@ -2515,6 +2515,19 @@ tabela_efeitos {
       dados_pericia { id: 'concentracao' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'murmurio' } } } }
     }
   }
+  efeitos {
+    id: EFEITO_ADOECIDO  # sickened.
+    nome: 'penalidades ataque, resistencia, pericia e habilidades.'
+    consequencia {
+      jogada_ataque { bonus_individual { tipo: TB_MORAL por_origem { valor: -2 origem: 'adoecido' } } }
+      dados_pericia { id: '*' bonus { bonus_individual { tipo: TB_SEM_NOME por_origem { valor: -2 origem: 'adoecido' } } } }
+      dados_defesa {
+        salvacao_fortitude { bonus_individual { tipo: TB_MORAL por_origem { valor: -2 origem: 'adoecido' } } }
+        salvacao_reflexo   { bonus_individual { tipo: TB_MORAL por_origem { valor: -2 origem: 'adoecido' } } }
+        salvacao_vontade   { bonus_individual { tipo: TB_MORAL por_origem { valor: -2 origem: 'adoecido' } } }
+      }
+    }
+  }
 
 }
 tabela_aneis {
