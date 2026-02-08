@@ -39,6 +39,7 @@ sub_menu {
   sub_menu {
     id: 'Balbuciador'
     item_menu { id: 'Balbuciador' texto: 'Solitário' }
+    item_menu { id: 'balbuciador_subhorda' texto: 'Sub Horda (10-20)' modelos { id: 'Balbuciador' quantidade: '1d10+10' } }
     item_menu { id: 'balbuciador_horda' texto: 'Horda (dezenas)' modelos { id: 'Balbuciador' quantidade: '10d8+12' } }
     item_menu { id: 'balbuciador_onda' texto: 'Onda (centenas)' modelos { id: 'Balbuciador' quantidade: '4d100+97' } }
   }
