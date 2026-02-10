@@ -641,6 +641,30 @@ gl::VboNaoGravado VboFumaca(const Entidade& entidade, const ParametrosDesenho& p
   vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
   return vbo_ng;
 }
+
+gl::VboNaoGravado VboChama(const Entidade& entidade, const ParametrosDesenho& pd) {
+  const float tamanho = 0.2f * MultiplicadorTamanho(entidade);
+  gl::VboNaoGravado vbo_ng = gl::VboRetangulo(tamanho);
+  Vector3 camera = PosParaVector3(pd.pos_olho());
+  Vector3 dc = camera - PosParaVector3(entidade.Pos());
+  // transforma em losango.
+  vbo_ng.RodaZ(45.0f);
+  vbo_ng.Translada(0.0f, tamanho / 2.0f, 0.0f);
+  // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
+  // mais a diferenca de angulo.
+  float inclinacao_graus = 0.0f;
+  float dc_len = dc.length();
+  if (dc_len < 0.001f) {
+    inclinacao_graus = 0.0f;
+  } else {
+    inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
+  }
+  vbo_ng.Escala(1.0f, 2.0f, 1.0f);
+  vbo_ng.RodaX(90.0f - inclinacao_graus);
+  // Agora roda no eixo z.
+  vbo_ng.RodaZ(90 + VetorParaRotacaoGraus(dc.x, dc.y));
+  return vbo_ng;
+}
 }  // namespace
 
 void Entidade::AtualizaFumaca(int intervalo_ms) {
@@ -668,6 +692,33 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
 
   RemoveAtualizaEmissoes(intervalo_ms, &f);
   RecriaVboEmissoes([this]() { return VboFumaca(*this, *parametros_desenho_); }, &f);
+}
+
+void Entidade::AtualizaFogo(int intervalo_ms) {
+  auto& f = vd_.fogo;
+  f.duracao_ms -= intervalo_ms;
+  if (f.duracao_ms < 0) {
+    f.duracao_ms = 0;
+  }
+  bool fim = f.duracao_ms == 0;
+  if (fim && proto_.pegando_fogo()) {
+    AtivaPegandoFogo(1000);
+    // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
+    // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
+    // Ai sera considerado fim do fogo, a atualizacao chama de novo com intervalo gigante e da recursao infinita.
+    // Para resolver, usamos intervalo 0.
+    AtualizaFogo(/*intervalo_ms=*/0);
+    return;
+  }
+  if (!fim && intervalo_ms >= f.proxima_emissao_ms) {
+    EmiteNovaChama();
+    f.proxima_emissao_ms = f.intervalo_emissao_ms;
+  } else {
+    f.proxima_emissao_ms -= intervalo_ms;
+  }
+
+  RemoveAtualizaEmissoes(intervalo_ms, &f);
+  RecriaVboEmissoes([this]() { return VboChama(*this, *parametros_desenho_); }, &f);
 }
 
 void Entidade::EmiteNovaBolha() {
@@ -702,6 +753,24 @@ void Entidade::EmiteNovaNuvem() {
   fumaca.emissoes.emplace_back(std::move(nuvem));
 }
 
+void Entidade::EmiteNovaChama() {
+  auto& fogo = vd_.fogo;
+  DadosUmaEmissao chama;
+  chama.direcao.z = 1.0f;
+  chama.pos = PosParaVector3(PosicaoAltura(0.0f));
+  chama.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  chama.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  chama.pos.z += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  chama.escala += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  //chama.rotacao_graus.z = (Aleatorio() - 0.5f) * 90.0f;
+
+  chama.duracao_ms = fogo.duracao_nuvem_ms;
+  chama.velocidade_m_s = 0.0f;
+  chama.escala = 1.0f;
+  chama.incremento_escala_s = 1.01f;
+  fogo.emissoes.emplace_back(std::move(chama));
+}
+
 void Entidade::RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const {
   std::set<unsigned int, std::greater<int>> a_remover;
   float intervalo_s = intervalo_ms / 1000.0f;
@@ -714,7 +783,7 @@ void Entidade::RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* d
     }
     emissao.pos += emissao.direcao * emissao.velocidade_m_s * intervalo_s;
     emissao.escala += emissao.incremento_escala_s * intervalo_s;
-    emissao.cor[3] = static_cast<float>(emissao.duracao_ms) / dados_emissao->intervalo_emissao_ms;
+    emissao.cor[3] = dados_emissao->cor[3] * std::min(static_cast<float>(emissao.duracao_ms) / dados_emissao->intervalo_emissao_ms, 1.0f);
   }
   // Remove as que tem que remover.
   for (int i : a_remover) {
@@ -735,6 +804,9 @@ void Entidade::RecriaVboEmissoes(const std::function<const gl::VboNaoGravado()> 
   for (const auto& emissao: dados_emissao->emissoes) {
     gl::VboNaoGravado vbo_ng = vbo_base;
     vbo_ng.Escala(emissao.escala, emissao.escala, emissao.escala);
+    if (emissao.rotacao_graus.x != 0) { vbo_ng.RodaX(emissao.rotacao_graus.x); }
+    if (emissao.rotacao_graus.y != 0) { vbo_ng.RodaY(emissao.rotacao_graus.y); }
+    if (emissao.rotacao_graus.z != 0) { vbo_ng.RodaZ(emissao.rotacao_graus.z); }
     vbo_ng.Translada(emissao.pos.x, emissao.pos.y, emissao.pos.z);
     vbo_ng.AtribuiCor(emissao.cor[0], emissao.cor[1], emissao.cor[2], emissao.cor[3]);
     vbos.emplace_back(std::move(vbo_ng));
@@ -885,6 +957,7 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
 #endif
   AtualizaEfeitos();
   AtualizaFumaca(intervalo_ms);
+  AtualizaFogo(intervalo_ms);
   AtualizaBolhas(intervalo_ms);
   AtualizaLuzAcao(intervalo_ms);
 
@@ -1238,6 +1311,39 @@ float Entidade::AlturaOlho() const {
   }
   Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
   return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, false  /*z*/, proto_, vd_) * ponto).z);
+}
+
+Posicao Entidade::PosicaoLuz(const ParametrosDesenho* pd) const {
+  gl::MatrizEscopo salva_matriz;
+  if (Tipo() == TE_ENTIDADE) {
+    bool achatado = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
+    if (achatado) {
+      // So translada para a posicao do objeto.
+      gl::Translada(X(), Y(), Z());
+    }
+    else {
+      MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
+    }
+    // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
+    Posicao vetor_camera_objeto;
+    ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
+    gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
+
+    // Um quadrado para direcao da camera para luz iluminar o proprio objeto.
+    gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA);
+  } else {
+    gl::Translada(X(), Y(), Z() + (proto_.pegando_fogo() ? TAMANHO_LADO_QUADRADO : 0.0f));
+  }
+  float glm[16];
+  gl::Le(GL_MODELVIEW_MATRIX, glm);
+  Matrix4 m(glm);
+  Vector4 vp(0.0f, 0.0f, 0.0f, 1.0f);
+  vp = m * vp;
+  Posicao pos;
+  pos.set_x(vp[0]);
+  pos.set_y(vp[1]);
+  pos.set_z(vp[2]);
+  return pos;
 }
 
 int Entidade::IdCenario() const {
@@ -2601,7 +2707,9 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   {
     // TODO remover essa textura.
     auto n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    n_tex->add_info_textura()->set_id("fire_trans.png");
     n_tex->add_info_textura()->set_id("smoke.png");
+    n_tex->add_info_textura()->set_id("smoke_white.png");
     n_tex->add_info_textura()->set_id("wood.png");
     n_tex->add_info_textura()->set_id("metal.png");
     n_tex->add_info_textura()->set_id("rainbow.png");
@@ -2722,6 +2830,15 @@ void Entidade::AtivaFumegando(int duracao_ms) {
   f.intervalo_emissao_ms = 1000;
   f.duracao_nuvem_ms = 3000;
   f.proxima_emissao_ms = 0;
+}
+
+void Entidade::AtivaPegandoFogo(int duracao_ms) {
+  auto& f = vd_.fogo;
+  f.duracao_ms = duracao_ms;
+  f.intervalo_emissao_ms = 3000;
+  f.duracao_nuvem_ms = 5000;
+  f.proxima_emissao_ms = 0;
+  f.cor[3] = 0.4f;
 }
 
 void Entidade::AtivaBolhas(int duracao_ms, const float* cor) {
