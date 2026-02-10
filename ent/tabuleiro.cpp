@@ -6020,13 +6020,57 @@ const Entidade* Tabuleiro::BuscaEntidade(unsigned int id) const {
   return (it != entidades_.end()) ? it->second.get() : nullptr;
 }
 
-void Tabuleiro::CopiaEntidadesSelecionadas() {
+namespace {
+
+EntidadeProto FormificaSubForma(const EntidadeProto& psf) {
+  EntidadeProto sf;
+  if (psf.has_tipo()) {
+    sf.set_tipo(psf.tipo());
+  }
+  if (psf.has_sub_tipo()) {
+    sf.set_sub_tipo(psf.sub_tipo());
+  }
+  if (psf.has_pos()) {
+    *sf.mutable_pos() = psf.pos();
+    sf.mutable_pos()->clear_id_cenario();
+  }
+  if (psf.has_escala()) {
+    *sf.mutable_escala() = psf.escala();
+  }
+  if (psf.has_rotacao_x_graus()) {
+    sf.set_rotacao_x_graus(psf.rotacao_x_graus());
+  }
+  if (psf.has_rotacao_y_graus()) {
+    sf.set_rotacao_y_graus(psf.rotacao_y_graus());
+  }
+  if (psf.has_rotacao_z_graus()) {
+    sf.set_rotacao_z_graus(psf.rotacao_z_graus());
+  }
+  if (psf.has_cor()) {
+    *sf.mutable_cor() = psf.cor();
+  }
+  return sf;
+}
+
+// Copia apenas os campos de forma da entidade. Util para exportar modelos para formas.
+EntidadeProto FormificaEntidade(const EntidadeProto& proto) {
+  EntidadeProto formificada;
+  formificada = FormificaSubForma(proto);
+  for (const auto& sf : proto.sub_forma()) {
+    *formificada.add_sub_forma() = FormificaSubForma(sf);
+  }
+  return formificada;
+}
+
+}  // namespace
+
+void Tabuleiro::CopiaEntidadesSelecionadas(bool apenas_formas) {
 #if USAR_QT
   ent::EntidadesCopiadas entidades_copiadas;
   for (const unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade = BuscaEntidade(id);
     if (entidade != nullptr) {
-      entidades_copiadas.add_entidade()->CopyFrom(entidade->Proto());
+      entidades_copiadas.add_entidade()->CopyFrom(apenas_formas ? FormificaEntidade(entidade->Proto()) : entidade->Proto());
       VLOG(1) << "Copiando: " << entidade->Proto().ShortDebugString();
     }
   }

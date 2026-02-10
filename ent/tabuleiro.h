@@ -443,8 +443,10 @@ class Tabuleiro : public ntf::Receptor {
   const Entidade* BuscaEntidade(unsigned int id) const;
   inline const MapaEntidades& TodasEntidades() const { return entidades_; }
 
-  /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
-  void CopiaEntidadesSelecionadas();
+  /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. 
+  * Se apenas_forma for verdadeiro, exportara apenas as informações de forma da entidade.
+  */
+  void CopiaEntidadesSelecionadas(bool apenas_forma);
 
   /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. Se ref_camera, as entidades serao
   * coladas referentes a camera.
