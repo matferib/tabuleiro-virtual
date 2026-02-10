@@ -366,8 +366,8 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       teclas_.push_back(tecla);
       return;
     case Tecla_C:
-      if (modificadores == Modificador_Ctrl) {
-        tabuleiro_->CopiaEntidadesSelecionadas();
+      if ((modificadores & Modificador_Ctrl) != 0) {
+        tabuleiro_->CopiaEntidadesSelecionadas((modificadores & Modificador_Shift) != 0);
       } else {
         MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
         teclas_.push_back(tecla);

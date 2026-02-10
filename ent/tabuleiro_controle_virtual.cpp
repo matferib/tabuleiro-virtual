@@ -842,7 +842,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     }
     case CONTROLE_COPIAR: {
-      CopiaEntidadesSelecionadas();
+      CopiaEntidadesSelecionadas(/*formas_apenas=*/alterna_selecao);
       break;
     }
     case CONTROLE_COLAR: {
