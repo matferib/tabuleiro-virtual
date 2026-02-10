@@ -13774,6 +13774,163 @@ modelo {
   }
 }
 modelo {
+  id: 'Fogueira'
+  entidade {
+    tipo: TE_COMPOSTA
+    pos {
+      x: 14.0569201
+      y: -17.0689297
+      z: 0.03
+    }
+    escala {
+      x: 0.885
+      y: 0.885
+      z: 0.885
+    }
+    rotacao_z_graus: 0
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.768428802
+        y: -0.69207
+        z: 0
+      }
+      cor {
+        r: 0.321568638
+        g: 0.176470593
+        b: 0.0196078438
+        a: 1
+      }
+      sub_tipo: TF_CILINDRO
+      escala {
+        x: 0.255
+        y: 0.285
+        z: 1.5
+      }
+      rotacao_z_graus: 32
+      rotacao_y_graus: 98
+      rotacao_x_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.980373383
+        y: 0.0266723633
+        z: 0
+      }
+      cor {
+        r: 0.321568638
+        g: 0.176470593
+        b: 0.0196078438
+        a: 1
+      }
+      sub_tipo: TF_CILINDRO
+      escala {
+        x: 0.255
+        y: 0.285
+        z: 1.5
+      }
+      rotacao_z_graus: -172
+      rotacao_y_graus: 98
+      rotacao_x_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.699943542
+        y: 0.747322083
+        z: 0
+      }
+      cor {
+        r: 0.321568638
+        g: 0.176470593
+        b: 0.0196078438
+        a: 1
+      }
+      sub_tipo: TF_CILINDRO
+      escala {
+        x: 0.255
+        y: 0.285
+        z: 1.5
+      }
+      rotacao_z_graus: -42
+      rotacao_y_graus: 98
+      rotacao_x_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.689586639
+        y: 0.752418518
+        z: 0
+      }
+      cor {
+        r: 0.321568638
+        g: 0.176470593
+        b: 0.0196078438
+        a: 1
+      }
+      sub_tipo: TF_CILINDRO
+      escala {
+        x: 0.255
+        y: 0.285
+        z: 1.5
+      }
+      rotacao_z_graus: -128
+      rotacao_y_graus: 98
+      rotacao_x_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.679050446
+        y: -0.809295654
+        z: 0
+      }
+      cor {
+        r: 0.321568638
+        g: 0.176470593
+        b: 0.0196078438
+        a: 1
+      }
+      sub_tipo: TF_CILINDRO
+      escala {
+        x: 0.255
+        y: 0.285
+        z: 1.5
+      }
+      rotacao_z_graus: 128
+      rotacao_y_graus: 98
+      rotacao_x_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.880647659
+        y: -0.0250358582
+        z: 0
+      }
+      cor {
+        r: 0.321568638
+        g: 0.176470593
+        b: 0.0196078438
+        a: 1
+      }
+      sub_tipo: TF_CILINDRO
+      escala {
+        x: 0.255
+        y: 0.285
+        z: 1.5
+      }
+      rotacao_z_graus: 0
+      rotacao_y_graus: 98
+      rotacao_x_graus: 0
+    }
+    rotacao_y_graus: 0
+    rotacao_x_graus: 0
+  }
+}
+modelo {
   id: 'Alarme'
   entidade {
     tipo: TE_FORMA
