@@ -316,6 +316,13 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="3">
+           <widget class="QCheckBox" name="checkbox_pegando_fogo">
+            <property name="text">
+             <string>Pegando fogo</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

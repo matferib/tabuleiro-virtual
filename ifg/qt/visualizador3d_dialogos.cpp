@@ -3118,6 +3118,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
 
   // Fumegando.
   gerador.checkbox_fumegando->setCheckState(entidade.fumegando() ? Qt::Checked : Qt::Unchecked);
+  // Pegando fogo.
+  gerador.checkbox_pegando_fogo->setCheckState(entidade.pegando_fogo() ? Qt::Checked : Qt::Unchecked);
 
   // Textura do objeto.
   PreencheComboTextura(entidade.info_textura().id(),
@@ -3317,6 +3319,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       proto_retornado->set_fumegando(true);
     } else {
       proto_retornado->clear_fumegando();
+    }
+    if (gerador.checkbox_pegando_fogo->checkState() == Qt::Checked) {
+      proto_retornado->set_pegando_fogo(true);
+    } else {
+      proto_retornado->clear_pegando_fogo();
     }
 
     proto_retornado->set_pode_ser_afetada_por_acao(gerador.checkbox_afetado_por_efeitos->checkState() == Qt::Checked);
