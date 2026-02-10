@@ -26,7 +26,7 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Proximo id: 122.
+// Proximo id: 123.
 message EntidadeProto {
   string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -396,6 +396,8 @@ message EntidadeProto {
   bool naturalmente_cego = 111;
   // Indica entidade emitindo fumaca.
   bool fumegando = 112;
+  // Indica entidade emitindo fogo.
+  bool pegando_fogo = 122;
   // Se verdadeiro, entidade foi conjurada.
   bool conjurada = 114;
   // Ultima pericia rolada pelo personagem.
