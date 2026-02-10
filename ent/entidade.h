@@ -79,6 +79,9 @@ class Entidade {
   /** faz alvo fumegar. */
   void AtivaFumegando(int duracao_ms);
 
+  /** faz alvo pegar fogo. */
+  void AtivaPegandoFogo(int duracao_ms);
+
   /** Faz o alvo soltar bolhas, como nausea. */
   void AtivaBolhas(int duracao_ms, const float* cor);
 
@@ -188,6 +191,8 @@ class Entidade {
   float ZOlho() const;
   /** Diferentemente da altura, considera apenas a altura do olho, sem deslocamento da entidade. */
   float AlturaOlho() const;
+  /** Posicao da luz da entidade. */
+  Posicao PosicaoLuz(const ParametrosDesenho* pd) const;
 
   /** Retorna um valor de -1.0f ate 1.0f referente a espiada. */
   float Espiada() const { return vd_.progresso_espiada_; }
@@ -478,6 +483,7 @@ class Entidade {
     // Vetor de direcao da fumaca. Unitario.
     Vector3 direcao;
     Vector3 pos;
+    Vector3 rotacao_graus;
     float escala = 1.0f;
     int duracao_ms = 0;
     float velocidade_m_s = 0.0f;
@@ -500,7 +506,7 @@ class Entidade {
     // O vbo da fumaca.
     gl::VbosNaoGravados vbo;
     // Cor base da emissao.
-    float cor[3] = {0};
+    float cor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
   };
 
   // Para luzes temporarias, como disparo de arma de fogo.
@@ -544,7 +550,9 @@ class Entidade {
     unsigned int ultimo_ataque_ms = 0;
     DadosEmissao fumaca;
     DadosEmissao bolhas;
+    DadosEmissao fogo;
     DadosLuzAcao luz_acao;
+
 
     // Alguns tipos de entidade possuem VBOs.
     bool atualiza_matriz_vbo = true;
@@ -570,6 +578,7 @@ class Entidade {
   // Apos o intervalo de emissao, emite nova bolha ou nuvem.
   void EmiteNovaBolha();
   void EmiteNovaNuvem();
+  void EmiteNovaChama();
   /** Atualiza os dados da emissao, baseado no intervalo. Remove as emissoes mortas, atualiza as existentes. */
   void RemoveAtualizaEmissoes(unsigned int intervalo_ms, DadosEmissao* dados_emissao) const;
   /** Recria os VBOs da emissao. */
@@ -606,6 +615,8 @@ class Entidade {
   void AtualizaFumaca(int intervalo_ms);
   /** Atualiza as bolhas da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaBolhas(int intervalo_ms);
+  /** Atualiza o fogo da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
+  void AtualizaFogo(int intervalo_ms);
 
   /** Atualiza a iluminacao por acao. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
   void AtualizaLuzAcao(int intervalo_ms);
