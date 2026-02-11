@@ -228,6 +228,7 @@ void LimpaDadosAcumulados(int nfaces);
 int RolaDado(unsigned int nfaces, bool ignora_forcado = false);
 /** Gera um aleatorio entre [0.0 e 1.0]. Os valores tem precisao de duas casas. */
 float Aleatorio();
+inline Vector3 Aleatorio3() { return Vector3{Aleatorio(), Aleatorio(), Aleatorio()};}
 
 /** Adiciona o delta ao dados_vida. */
 void AtualizaStringDadosVida(int delta, std::string* dados_vida);
