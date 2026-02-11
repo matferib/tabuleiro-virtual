@@ -337,8 +337,8 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, cons
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   //const auto& pos = proto.pos();
   if (proto.info_textura().id().empty()) {
-    gl::VboNaoGravado vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
-    gl::VboNaoGravado vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
+    gl::VboNaoGravado vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2f, ALTURA, NUM_FACES, NUM_LINHAS);
+    gl::VboNaoGravado vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4f, NUM_FACES, static_cast<int>(NUM_FACES / 2.0f));
     // Translada todos os Z da esfera em ALTURA.
     for (unsigned int i = 2; i < vbo_esfera.coordenadas().size(); i += vbo_esfera.NumDimensoes()) {
       vbo_esfera.coordenadas()[i] += ALTURA;
@@ -695,28 +695,32 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
 }
 
 void Entidade::AtualizaFogo(int intervalo_ms) {
+  constexpr float intervalo_atualizacao_offset_ms = 333.0f;
   auto& f = vd_.fogo;
-  f.duracao_ms -= intervalo_ms;
-  if (f.duracao_ms < 0) {
+  bool fim = !proto_.pegando_fogo();
+  if (fim) {
     f.duracao_ms = 0;
-  }
-  bool fim = f.duracao_ms == 0;
-  if (fim && proto_.pegando_fogo()) {
-    AtivaPegandoFogo(1000);
-    // Aqui a gente chama com intervalo minimo, para evitar loop infinito.
-    // Por exemplo, quando esta na UI, isso sera chamado com intervalo gigante.
-    // Ai sera considerado fim do fogo, a atualizacao chama de novo com intervalo gigante e da recursao infinita.
-    // Para resolver, usamos intervalo 0.
-    AtualizaFogo(/*intervalo_ms=*/0);
-    return;
-  }
-  if (!fim && intervalo_ms >= f.proxima_emissao_ms) {
-    EmiteNovaChama();
-    f.proxima_emissao_ms = f.intervalo_emissao_ms;
   } else {
+    if (f.duracao_ms == 0) {
+      // usa o 1 so para indicar que já emitiu primeira.
+      AtivaPegandoFogo(intervalo_atualizacao_offset_ms);
+    }
+    f.intervalo_atualizacao_offset_ms -= intervalo_atualizacao_offset_ms;
+    if (f.intervalo_atualizacao_offset_ms < 0.0f) {
+      // Atualiza a posicao da luz.
+      Vector3 offset = (Aleatorio3() - Vector3(0.5f, 0.5f, 0.5f)) * (TAMANHO_LADO_QUADRADO_10 / 5.0f);
+      f.offset_luz[0] = offset.x;
+      f.offset_luz[1] = offset.y;
+      f.offset_luz[2] = offset.z,
+      f.offset_luz[3] = 1.0f;
+      f.intervalo_atualizacao_offset_ms = intervalo_atualizacao_offset_ms;
+    }
     f.proxima_emissao_ms -= intervalo_ms;
+    if (f.proxima_emissao_ms < 0.0f) {
+      EmiteNovaChama();
+      f.proxima_emissao_ms = f.intervalo_emissao_ms;
+    }
   }
-
   RemoveAtualizaEmissoes(intervalo_ms, &f);
   RecriaVboEmissoes([this]() { return VboChama(*this, *parametros_desenho_); }, &f);
 }
@@ -731,8 +735,8 @@ void Entidade::EmiteNovaBolha() {
   bolha.duracao_ms = bolhas.duracao_nuvem_ms;
   bolha.velocidade_m_s = 0.25f;
   bolha.escala = 1.0f;
-  float aleatorio_r = Aleatorio() * 0.3;
-  float aleatorio_g = (Aleatorio() * 0.2) - 0.10f;
+  float aleatorio_r = Aleatorio() * 0.3f;
+  float aleatorio_g = (Aleatorio() * 0.2f) - 0.10f;
   bolha.cor[0] = COR_LARANJA[0] - aleatorio_r;
   bolha.cor[1] = COR_LARANJA[1] + aleatorio_g;
   bolha.cor[2] = COR_LARANJA[2];
@@ -758,10 +762,10 @@ void Entidade::EmiteNovaChama() {
   DadosUmaEmissao chama;
   chama.direcao.z = 1.0f;
   chama.pos = PosParaVector3(PosicaoAltura(0.0f));
-  chama.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
-  chama.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
-  chama.pos.z += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
-  chama.escala += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho();
+  chama.pos.x += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho() * 0.5f;
+  chama.pos.y += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho() * 0.5f;
+  chama.pos.z += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho() * 0.5f;
+  chama.escala += (Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_10 * MultiplicadorTamanho() * 0.5f;
   //chama.rotacao_graus.z = (Aleatorio() - 0.5f) * 90.0f;
 
   chama.duracao_ms = fogo.duracao_nuvem_ms;
@@ -891,7 +895,7 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
         m.scale(proto.escala().x() / proto.info_textura().escala_x(), proto.escala().y() / proto.info_textura().escala_y(), 1.0f);
         m.translate(0.5f, 0.5f, 0.0f);
       } else {
-        m.rotateZ(-proto.info_textura().direcao_graus());
+        m.rotateZ(static_cast<float>(-proto.info_textura().direcao_graus()));
         m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y() + vd.deslocamento_textura, 0.0f);
         m.scale(proto.escala().x() / proto.info_textura().escala_x(), proto.escala().y() / proto.info_textura().escala_y(), 1.0f);
       }
@@ -962,7 +966,7 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
   AtualizaLuzAcao(intervalo_ms);
 
   if (parametros_desenho_->entidade_selecionada() && Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d()) {
-    vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
+    vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0f, 360.0f);
   }
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
@@ -1059,7 +1063,7 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
       double dx = proto_.pos().x() - parametros_desenho_->pos_olho().x();
       double dy = proto_.pos().y() - parametros_desenho_->pos_olho().y();
       double r = sqrt(pow(dx, 2) + pow(dy, 2));
-      angulo = r > 0.1f ? (acosf(dx / r) * RAD_PARA_GRAUS) : 0.0f;
+      angulo = r > 0.1f ? (acosf(static_cast<float>(dx / r)) * RAD_PARA_GRAUS) : 0.0f;
       if (dy < 0) {
         angulo = -angulo;
       }
@@ -1073,7 +1077,7 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
   }
 
   // Queda.
-  const double DURACAO_QUEDA_MS = 500.0f;
+  const float DURACAO_QUEDA_MS = 500.0f;
   const float DELTA_QUEDA = (static_cast<float>(intervalo_ms) / DURACAO_QUEDA_MS) * 90.0f;
   if (proto_.caida()) {
     if (vd_.angulo_disco_queda_graus < 90.0f) {
@@ -1338,10 +1342,14 @@ Posicao Entidade::PosicaoLuz(const ParametrosDesenho* pd) const {
     matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
     pos = matriz * pos;
     if (proto_.pegando_fogo()) {
-      pos.z += TAMANHO_LADO_QUADRADO_2;
+      pos.x += vd_.fogo.offset_luz.x;
+      pos.y += vd_.fogo.offset_luz.y;
+      pos.z += vd_.fogo.offset_luz.z + TAMANHO_LADO_QUADRADO_2;
     }
   }
-  return Vector4ParaPosicao(pos);
+  Posicao posicao_com_cenario = Vector4ParaPosicao(pos);
+  posicao_com_cenario.set_id_cenario(IdCenario());
+  return posicao_com_cenario;
 }
 
 int Entidade::IdCenario() const {
@@ -2513,7 +2521,7 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   {
     auto& vbo = vbos_nao_gravados[VBO_PEAO];
     vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2f, ALTURA, NUM_FACES, NUM_LINHAS);
-    auto vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4f, NUM_FACES, NUM_FACES / 2.0f);
+    auto vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4f, NUM_FACES, static_cast<int>(NUM_FACES / 2.0f));
     // Translada todos os Z da esfera em ALTURA.
     for (unsigned int i = 2; i < vbo_esfera.coordenadas().size(); i += vbo_esfera.NumDimensoes()) {
       vbo_esfera.coordenadas()[i] += ALTURA;
@@ -2816,7 +2824,7 @@ bool Entidade::TemLuz() const {
 
 void Entidade::AtivaLuzAcao(const IluminacaoPontual& luz) {
   auto& luz_acao = vd_.luz_acao;
-  luz_acao.duracao_ms = luz.duracao_ms();
+  luz_acao.duracao_ms = static_cast<int>(luz.duracao_ms());
   luz_acao.tempo_desde_inicio_ms = 0;
   luz_acao.inicio.set_raio_m(luz.raio_m());
   *luz_acao.inicio.mutable_cor() = luz.cor();
@@ -2830,12 +2838,13 @@ void Entidade::AtivaFumegando(int duracao_ms) {
   f.proxima_emissao_ms = 0;
 }
 
-void Entidade::AtivaPegandoFogo(int duracao_ms) {
+void Entidade::AtivaPegandoFogo(float intervalo_atualizacao_luz_ms) {
   auto& f = vd_.fogo;
-  f.duracao_ms = duracao_ms;
-  f.intervalo_emissao_ms = 3000;
-  f.duracao_nuvem_ms = 5000;
-  f.proxima_emissao_ms = 0;
+  f.duracao_ms = 1.0f;  // apenas indica que esta ativo.
+  f.intervalo_emissao_ms = 200;
+  f.duracao_nuvem_ms = 1000;
+  f.proxima_emissao_ms = 0;  // emite agora.
+  f.intervalo_atualizacao_offset_ms = intervalo_atualizacao_luz_ms;
   f.cor[3] = 0.4f;
 }
 

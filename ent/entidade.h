@@ -79,8 +79,8 @@ class Entidade {
   /** faz alvo fumegar. */
   void AtivaFumegando(int duracao_ms);
 
-  /** faz alvo pegar fogo. */
-  void AtivaPegandoFogo(int duracao_ms);
+  /** faz alvo pegar fogo. intervalo_atualizacao_offset_ms é quando atualizamos o offset de luz. */
+  void AtivaPegandoFogo(float intervalo_atualizacao_offset_ms);
 
   /** Faz o alvo soltar bolhas, como nausea. */
   void AtivaBolhas(int duracao_ms, const float* cor);
@@ -507,6 +507,9 @@ class Entidade {
     gl::VbosNaoGravados vbo;
     // Cor base da emissao.
     float cor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    // Se a emissão tiver luz, pode aplicar esse offset para cintilar.
+    float intervalo_atualizacao_offset_ms = 0.0f;
+    Vector3 offset_luz;
   };
 
   // Para luzes temporarias, como disparo de arma de fogo.
