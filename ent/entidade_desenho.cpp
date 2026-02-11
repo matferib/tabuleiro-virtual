@@ -462,7 +462,7 @@ void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
   // Aqui a chamada eh feita apos os solidos.
   if (!vd_.fumaca.emissoes.empty() && pd->has_alfa_translucidos()) {
     gl::Habilita(GL_TEXTURE_2D);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("smoke.png"));
+    gl::LigacaoComTextura(GL_TEXTURE_2D, (Tipo() == TE_FORMA && proto_.has_cor())? vd_.texturas->Textura("smoke_white.png") : vd_.texturas->Textura("smoke.png"));
     vd_.fumaca.vbo.Desenha();
     gl::Desabilita(GL_TEXTURE_2D);
   }

@@ -754,6 +754,12 @@ void Entidade::EmiteNovaNuvem() {
   nuvem.velocidade_m_s = 0.25f;
   nuvem.escala = 1.0f;
   nuvem.incremento_escala_s = 1.5f;
+  if (Tipo() == TE_FORMA && proto_.has_cor()) {
+    nuvem.cor[0] = proto_.cor().r();
+    nuvem.cor[1] = proto_.cor().g();
+    nuvem.cor[2] = proto_.cor().b();
+    nuvem.cor[3] = proto_.cor().a();
+  }
   fumaca.emissoes.emplace_back(std::move(nuvem));
 }
 
