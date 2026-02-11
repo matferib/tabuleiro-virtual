@@ -3,7 +3,10 @@ item_menu { id: 'Padrão' }
 sub_menu {
   id: 'Armadilhas'
   item_menu { id: 'Estátua Executora Móvel' }
-  item_menu { id: 'Bloco de Pedra Solto no Teto' }
+  item_menu { id: 'Telhas Soltas ND2' }
+  item_menu { id: 'Bloco de Pedra Solto no Teto ND3' }
+  item_menu { id: 'Rajada de Agulhas ND3' }
+  item_menu { id: 'Bloco de Pedra Solto no Teto ND5' }
   item_menu { id: 'Parede Instável' }
 }
 sub_menu {

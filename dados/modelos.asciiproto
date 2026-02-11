@@ -1357,7 +1357,43 @@ modelo {
   }
 }
 modelo {
-  id: 'Bloco de Pedra Solto no Teto'  # falling block trap 5.
+  id: 'Telhas Soltas ND2'  # bricks from ceiling
+  entidade {
+    modelo_3d { id: 'builtin:cubo' escala { x: 2 y: 1  z: 1 } }
+    rotulo_especial: 'dois quadrado adjacentes. ND 2; mecanica; gatilho local; reativação por reparo; Procurar CD 20; Operar Mecanismo: CD 20. Preço de mercado: 2400 PO.'
+    dados_ataque {
+      rotulo: 'telhas' tipo_ataque: 'Pedrada (gigante)' bonus_ataque_final: 12 dano: '2d6' incrementa_proximo_ataque: false
+      alcance_q: 10
+    }
+  }
+}
+
+modelo {
+  id: 'Bloco de Pedra Solto no Teto ND3'  # stone blocks from ceiling
+  entidade {
+    modelo_3d { id: 'builtin:cubo' escala { x: 1 y: 1  z: 1 } }
+    rotulo_especial: 'um ataque por quadrado. ND 3; mecanica; gatilho local; reativação por reparo; ataque corporal bloco de pedra + 10 dano 4d6; Procurar CD 25; Operar Mecanismo: CD 20. Preço de mercado: 5400 PO.'
+    dados_ataque {
+      rotulo: 'blocos' tipo_ataque: 'Pedrada (gigante)' bonus_ataque_final: 10 dano: '4d6' incrementa_proximo_ataque: false
+      alcance_q: 10
+    }
+  }
+}
+
+modelo {
+  id: 'Rajada de Agulhas ND3'  # falling block trap 5.
+  entidade {
+    modelo_3d { id: 'builtin:cubo' escala { x: 1 y: 1  z: 1 } }
+    rotulo_especial: 'um ataque por quadrado. ND 3; mecanica; gatilho local; reativação manual; um alvo; Procurar CD 22; Operar Mecanismo: CD 22. Preço de mercado: 5400 PO.'
+    dados_ataque {
+      rotulo: 'agulhas' tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 20 dano: '2d4' incrementa_proximo_ataque: false
+      alcance_q: 10
+    }
+  }
+}
+
+modelo {
+  id: 'Bloco de Pedra Solto no Teto ND5'  # falling block trap 5.
   entidade {
     modelo_3d { id: 'builtin:cubo' escala { x: 2 y: 1  z: 1 } }
     rotulo_especial: 'um ataque por quadrado. ND 5; mecanica; gatilho local; reativação manual; multiplos alvos (dois quadrados); Procurar CD 20; Operar Mecanismo: CD 25. Preço de mercado: 15000 PO.'
@@ -1367,6 +1403,7 @@ modelo {
     }
   }
 }
+
 modelo {
   id: 'Parede Instável'  # built to collapse wall 6.
   entidade {
