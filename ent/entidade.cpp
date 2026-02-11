@@ -772,6 +772,20 @@ void Entidade::EmiteNovaChama() {
   chama.velocidade_m_s = 0.0f;
   chama.escala = 1.0f;
   chama.incremento_escala_s = 1.01f;
+  // Ver VboRetangulo.
+  constexpr float kMaxAl = 0.3f;
+#define FATOR_AL (Aleatorio() * kMaxAl)
+  const float coordenadas_texel[12] = {
+    0.0f + FATOR_AL, 1.0f - FATOR_AL,  // x1, y1
+    1.0f - FATOR_AL, 1.0f - FATOR_AL,  // x2, y1
+    1.0f - FATOR_AL, 0.0f + FATOR_AL,  // x2, y2
+    0.0f + FATOR_AL, 1.0f - FATOR_AL,  // x1, y1
+    1.0f - FATOR_AL, 0.0f + FATOR_AL,  // x2, y2
+    0.0f + FATOR_AL, 0.0f + FATOR_AL,  // x1, y2
+  };
+#undef FATOR_AL
+  chama.coordenadas_textura_aleatorias.resize(12);
+  memcpy(chama.coordenadas_textura_aleatorias.data(), coordenadas_texel, sizeof(coordenadas_texel));
   fogo.emissoes.emplace_back(std::move(chama));
 }
 
@@ -813,6 +827,17 @@ void Entidade::RecriaVboEmissoes(const std::function<const gl::VboNaoGravado()> 
     if (emissao.rotacao_graus.z != 0) { vbo_ng.RodaZ(emissao.rotacao_graus.z); }
     vbo_ng.Translada(emissao.pos.x, emissao.pos.y, emissao.pos.z);
     vbo_ng.AtribuiCor(emissao.cor[0], emissao.cor[1], emissao.cor[2], emissao.cor[3]);
+    if (!emissao.coordenadas_textura_aleatorias.empty()) {
+      int mod = emissao.coordenadas_textura_aleatorias.size();
+      // cada vertice tem duas coordenadas de textura.
+      std::vector<float> texturas(vbo_ng.NumVertices() * 2);
+      for (int i = 0; i < vbo_ng.NumVertices(); ++i) {
+        int iv = i * 2;
+        texturas[iv] = emissao.coordenadas_textura_aleatorias[iv % mod];
+        texturas[iv + 1] = emissao.coordenadas_textura_aleatorias[(iv + 1) % mod];
+      }
+      vbo_ng.AtribuiTexturas(texturas.data());
+    }
     vbos.emplace_back(std::move(vbo_ng));
   }
   dados_emissao->vbo = gl::VbosNaoGravados(std::move(vbos));

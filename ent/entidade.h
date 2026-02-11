@@ -484,6 +484,7 @@ class Entidade {
     Vector3 direcao;
     Vector3 pos;
     Vector3 rotacao_graus;
+    std::vector<float> coordenadas_textura_aleatorias;
     float escala = 1.0f;
     int duracao_ms = 0;
     float velocidade_m_s = 0.0f;
