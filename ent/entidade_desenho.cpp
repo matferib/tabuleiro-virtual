@@ -466,6 +466,13 @@ void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
     vd_.fumaca.vbo.Desenha();
     gl::Desabilita(GL_TEXTURE_2D);
   }
+  if (!vd_.fogo.emissoes.empty() && pd->has_alfa_translucidos()) {
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+    gl::HabilitaEscopo textura_escopo(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("fire_trans.png"));
+    vd_.fogo.vbo.Desenha();
+  }
+
   if (!vd_.bolhas.emissoes.empty() && pd->has_alfa_translucidos()) {
     vd_.bolhas.vbo.Desenha();
   }
@@ -617,24 +624,8 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   }
 
   gl::MatrizEscopo salva_matriz;
-  if (Tipo() == TE_ENTIDADE) {
-    bool achatado = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
-    if (achatado) {
-      // So translada para a posicao do objeto.
-      gl::Translada(X(), Y(), Z());
-    } else {
-      MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
-    }
-    // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
-    Posicao vetor_camera_objeto;
-    ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
-    gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
-
-    // Um quadrado para direcao da camera para luz iluminar o proprio objeto.
-    gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA);
-  } else {
-    gl::Translada(X(), Y(), Z());
-  }
+  Posicao pos = PosicaoLuz(pd);
+  gl::Translada(pos.x(), pos.y(), pos.z());
 
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {

@@ -7058,8 +7058,8 @@ void Tabuleiro::AtualizaLuzesPontuais() {
 
   if (!luzes_pontuais_.empty()) {
     // Se ja ha luzes pontuais, ve se houve mudanca de posicao significativa dela (ou e mudou a entidade[0] com a luz).
-    Posicao pos = entidades_com_luz[0]->Pos();
-    pos.set_z(entidades_com_luz[0]->ZOlho());
+    Posicao pos = entidades_com_luz[0]->PosicaoLuz(nullptr);
+
     Vector3 pv = PosParaVector3(pos);
     Vector3 pt = PosParaVector3(luzes_pontuais_[0].pos);
     if ((pv - pt).length() > TAMANHO_LADO_QUADRADO_10 || luzes_pontuais_[0].id != entidades_com_luz[0]->Id()) {
@@ -7075,8 +7075,7 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   for (unsigned int i = 0; i < num; ++i) {
     luzes_pontuais_[i].id = entidades_com_luz[i]->Id();
     if (atualizar_mapa || i > 0) {
-      luzes_pontuais_[i].pos = entidades_com_luz[i]->Pos();
-      luzes_pontuais_[i].pos.set_z(entidades_com_luz[i]->ZOlho());
+      luzes_pontuais_[i].pos = entidades_com_luz[i]->PosicaoLuz(nullptr);
     }
   }
 

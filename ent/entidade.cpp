@@ -1314,36 +1314,34 @@ float Entidade::AlturaOlho() const {
 }
 
 Posicao Entidade::PosicaoLuz(const ParametrosDesenho* pd) const {
-  gl::MatrizEscopo salva_matriz;
+  Vector4 pos = { 0.0f, 0.0f, 0.0f, 1.0f };
+  Matrix4 matriz;
   if (Tipo() == TE_ENTIDADE) {
     bool achatado = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
     if (achatado) {
       // So translada para a posicao do objeto.
-      gl::Translada(X(), Y(), Z());
+      pos = PosParaVector4(Pos());
+      pos.z += TAMANHO_LADO_QUADRADO;  // luz acima.
+    } else {
+      pos.z = ALTURA;
+      matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      pos = matriz * pos;
+      // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
+      if (pd != nullptr) {
+        Vector4 vetor_camera_objeto_4 = PosParaVector4(Pos()) - PosParaVector4(pd->pos_olho());
+        vetor_camera_objeto_4.normalize();
+        vetor_camera_objeto_4 *= TAMANHO_LADO_QUADRADO_2;
+        pos -= vetor_camera_objeto_4;
+      }
     }
-    else {
-      MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
+  } else  {
+    matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
+    pos = matriz * pos;
+    if (proto_.pegando_fogo()) {
+      pos.z += TAMANHO_LADO_QUADRADO_2;
     }
-    // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
-    Posicao vetor_camera_objeto;
-    ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
-    gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
-
-    // Um quadrado para direcao da camera para luz iluminar o proprio objeto.
-    gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA);
-  } else {
-    gl::Translada(X(), Y(), Z() + (proto_.pegando_fogo() ? TAMANHO_LADO_QUADRADO : 0.0f));
   }
-  float glm[16];
-  gl::Le(GL_MODELVIEW_MATRIX, glm);
-  Matrix4 m(glm);
-  Vector4 vp(0.0f, 0.0f, 0.0f, 1.0f);
-  vp = m * vp;
-  Posicao pos;
-  pos.set_x(vp[0]);
-  pos.set_y(vp[1]);
-  pos.set_z(vp[2]);
-  return pos;
+  return Vector4ParaPosicao(pos);
 }
 
 int Entidade::IdCenario() const {
