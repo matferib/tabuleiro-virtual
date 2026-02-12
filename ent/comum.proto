@@ -461,6 +461,8 @@ message InfoTextura {
   int32 periodo_s = 20;  // Para texturas moveis, indica quantos segundos leva para dar a volta.
   int32 direcao_graus = 23;  // Para texturas moveis, indica a direcao da rotacao.
   bool direcao_circular = 24;  // Para texturas moveis, indica movimento circular.
+  // Entidades compostas: se verdadeiro, ira texturizar apenas sub objetos que tenham textura.
+  bool respeitar_texturas_sub_objetos = 25;
 }
 
 // A escala nos tres eixos.
