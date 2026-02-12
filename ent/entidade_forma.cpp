@@ -33,7 +33,7 @@ void Entidade::AtualizaProtoForma(
 #endif
 }
 
-gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
+gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool respeita_texturas, bool mundo) {
   gl::VboNaoGravado vbo;
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
@@ -107,7 +107,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
   }
   const auto& c = proto.cor();
   vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
-  if (!proto.has_info_textura()) {
+  if (respeita_texturas && !proto.has_info_textura()) {
     vbo.AtribuiSemTextura();
   }
   if (mundo) {

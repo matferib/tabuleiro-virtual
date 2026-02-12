@@ -599,7 +599,7 @@ class Entidade {
   static gl::VbosNaoGravados ExtraiVbo(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
   // Extracao de VBO por tipo.
   static gl::VbosNaoGravados ExtraiVboEntidade(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
-  static gl::VbosNaoGravados ExtraiVboForma(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVboForma(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool respeitar_texturas, bool mundo);
   static gl::VbosNaoGravados ExtraiVboComposta(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
 
   // Inicializacao por tipo.

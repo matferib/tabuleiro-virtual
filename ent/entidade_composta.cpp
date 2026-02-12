@@ -38,7 +38,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto,
     if (sub.tipo() == TE_COMPOSTA) {
       sub_vbos = ExtraiVboComposta(sub, vd, pd, true  /*mundo*/);
     } else if (sub.tipo() == TE_FORMA) {
-      sub_vbos = ExtraiVboForma(sub, vd, pd, true   /*mundo*/);
+      sub_vbos = ExtraiVboForma(sub, vd, pd, proto.info_textura().respeitar_texturas_sub_objetos(), true   /*mundo*/);
     }
     vbos.Concatena(&sub_vbos);
   }

@@ -314,7 +314,7 @@ gl::VbosNaoGravados Entidade::ExtraiVbo(const EntidadeProto& proto, const Variav
   } else if (proto.tipo() == TE_COMPOSTA) {
     return ExtraiVboComposta(proto, vd, pd, mundo);
   } else {
-    return ExtraiVboForma(proto, vd, pd, mundo);
+    return ExtraiVboForma(proto, vd, pd, /*respeita_texturas_sub_objetos=*/false, mundo);
   }
 }
 
