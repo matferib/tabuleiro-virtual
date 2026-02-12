@@ -52,6 +52,9 @@
     <Filter Include="ent\Proto">
       <UniqueIdentifier>{b8ab15ce-a4c2-41a3-845a-7355d41ede93}</UniqueIdentifier>
     </Filter>
+    <Filter Include="gl\Headers">
+      <UniqueIdentifier>{274cd0a5-fd87-4b50-97cb-d646f84a3856}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ent\acoes.cpp">
@@ -231,9 +234,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\gltab\gl.h">
-      <Filter>gl</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\log\log.h">
       <Filter>log</Filter>
     </ClInclude>
@@ -305,6 +305,12 @@
     </ClInclude>
     <ClInclude Include="..\..\ifg\qt\armas_util.h">
       <Filter>ifg\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gltab\gl.h">
+      <Filter>gl\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gltab\gl_vbo.h">
+      <Filter>gl\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -134,6 +134,7 @@
     <ClInclude Include="..\..\ent\tabuleiro.h" />
     <ClInclude Include="..\..\ent\util.h" />
     <ClInclude Include="..\..\gltab\gl.h" />
+    <ClInclude Include="..\..\gltab\gl_vbo.h" />
     <ClInclude Include="..\..\ifg\interface.h" />
     <ClInclude Include="..\..\ifg\qt\armas_util.h" />
     <ClInclude Include="..\..\ifg\qt\atualiza_ui.h" />
