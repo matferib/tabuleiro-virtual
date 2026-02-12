@@ -3131,6 +3131,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       : Qt::Unchecked);
   gerador.checkbox_bump->setCheckState(
       entidade.info_textura().textura_bump() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_respeitar_sub_objetos->setEnabled(entidade.tipo() == ent::TE_COMPOSTA);
+  gerador.checkbox_respeitar_sub_objetos->setCheckState(entidade.info_textura().respeitar_texturas_sub_objetos() ? Qt::Checked : Qt::Unchecked);
   gerador.spin_tex_periodo->setValue(entidade.info_textura().periodo_s());
   gerador.spin_tex_escala_x->setValue(entidade.info_textura().escala_x());
   gerador.spin_tex_escala_y->setValue(entidade.info_textura().escala_y());
@@ -3386,6 +3388,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
         proto_retornado->mutable_info_textura()->set_modo_textura(GL_REPEAT);
       } else {
         proto_retornado->mutable_info_textura()->clear_modo_textura();
+      }
+      if (gerador.checkbox_respeitar_sub_objetos->checkState() == Qt::Checked) {
+        proto_retornado->mutable_info_textura()->set_respeitar_texturas_sub_objetos(true);
+      } else {
+        proto_retornado->mutable_info_textura()->clear_respeitar_texturas_sub_objetos();
       }
       if (gerador.checkbox_textura_circular->checkState() == Qt::Checked) {
         proto_retornado->mutable_info_textura()->set_direcao_circular(true);

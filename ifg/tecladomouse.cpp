@@ -582,8 +582,8 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaMouse() {
 #if USAR_QT
   // No QT, o picking tem que ser feito dentro de contexto.
   auto n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR_MOUSE);
-  n->mutable_pos()->set_x(ultimo_x_);
-  n->mutable_pos()->set_y(ultimo_y_);
+  n->mutable_pos()->set_x(static_cast<float>(ultimo_x_));
+  n->mutable_pos()->set_y(static_cast<float>(ultimo_y_));
   central_->AdicionaNotificacao(n.release());
 #else
   tabuleiro_->TrataMouseParadoEm(ultimo_x_, ultimo_y_);

@@ -443,37 +443,7 @@
              <string>Textura</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_6">
-             <item row="0" column="0">
-              <widget class="QComboBox" name="combo_textura"/>
-             </item>
-             <item row="0" column="1">
-              <layout class="QHBoxLayout" name="horizontalLayout_25">
-               <item>
-                <widget class="QCheckBox" name="checkbox_ladrilho">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
-                 </property>
-                 <property name="text">
-                  <string>ladrilho</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="checkbox_bump">
-                 <property name="text">
-                  <string>Bump</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item row="1" column="0">
+             <item row="2" column="0">
               <layout class="QHBoxLayout" name="horizontalLayout_20">
                <item>
                 <widget class="QLabel" name="label_4">
@@ -491,25 +461,7 @@
                </item>
               </layout>
              </item>
-             <item row="1" column="1">
-              <layout class="QHBoxLayout" name="horizontalLayout_8">
-               <item>
-                <widget class="QLabel" name="label_16">
-                 <property name="text">
-                  <string>Escala Y</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QDoubleSpinBox" name="spin_tex_escala_y">
-                 <property name="maximum">
-                  <double>1000.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item row="0" column="2" rowspan="2">
+             <item row="0" column="2" rowspan="3">
               <widget class="QGroupBox" name="groupBox">
                <property name="title">
                 <string>Direção e Período de Repetição</string>
@@ -617,6 +569,64 @@
                  </layout>
                 </item>
                </layout>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <layout class="QHBoxLayout" name="horizontalLayout_25">
+               <item>
+                <widget class="QCheckBox" name="checkbox_ladrilho">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+                 </property>
+                 <property name="text">
+                  <string>ladrilho</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkbox_bump">
+                 <property name="text">
+                  <string>Bump</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="0" column="0">
+              <widget class="QComboBox" name="combo_textura"/>
+             </item>
+             <item row="2" column="1">
+              <layout class="QHBoxLayout" name="horizontalLayout_8">
+               <item>
+                <widget class="QLabel" name="label_16">
+                 <property name="text">
+                  <string>Escala Y</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QDoubleSpinBox" name="spin_tex_escala_y">
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="1" column="1">
+              <widget class="QCheckBox" name="checkbox_respeitar_sub_objetos">
+               <property name="toolTip">
+                <string>Se verdadeiro, apenas sub objetos com texturas serão texturizados. Default é texturizar todos.</string>
+               </property>
+               <property name="text">
+                <string>Respeitar Sub Objetos</string>
+               </property>
               </widget>
              </item>
             </layout>
