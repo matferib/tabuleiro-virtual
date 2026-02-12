@@ -779,7 +779,7 @@ void Entidade::EmiteNovaChama() {
   chama.escala = 1.0f;
   chama.incremento_escala_s = 1.01f;
   // Ver VboRetangulo.
-  constexpr float kMaxAl = 0.3f;
+  constexpr float kMaxAl = 0.45f;
 #define FATOR_AL (Aleatorio() * kMaxAl)
   const float coordenadas_texel[12] = {
     0.0f + FATOR_AL, 1.0f - FATOR_AL,  // x1, y1
@@ -837,7 +837,7 @@ void Entidade::RecriaVboEmissoes(const std::function<const gl::VboNaoGravado()> 
       int mod = emissao.coordenadas_textura_aleatorias.size();
       // cada vertice tem duas coordenadas de textura.
       std::vector<float> texturas(vbo_ng.NumVertices() * 2);
-      for (int i = 0; i < vbo_ng.NumVertices(); ++i) {
+      for (unsigned int i = 0; i < vbo_ng.NumVertices(); ++i) {
         int iv = i * 2;
         texturas[iv] = emissao.coordenadas_textura_aleatorias[iv % mod];
         texturas[iv + 1] = emissao.coordenadas_textura_aleatorias[(iv + 1) % mod];
@@ -2871,7 +2871,7 @@ void Entidade::AtivaFumegando(int duracao_ms) {
 
 void Entidade::AtivaPegandoFogo(float intervalo_atualizacao_luz_ms) {
   auto& f = vd_.fogo;
-  f.duracao_ms = 1.0f;  // apenas indica que esta ativo.
+  f.duracao_ms = 1;  // apenas indica que esta ativo.
   f.intervalo_emissao_ms = 200;
   f.duracao_nuvem_ms = 1000;
   f.proxima_emissao_ms = 0;  // emite agora.
