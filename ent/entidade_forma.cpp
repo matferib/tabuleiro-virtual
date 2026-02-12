@@ -107,6 +107,9 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
   }
   const auto& c = proto.cor();
   vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
+  if (!proto.has_info_textura()) {
+    vbo.AtribuiSemTextura();
+  }
   if (mundo) {
     vbo.Multiplica(MontaMatrizModelagemForma(true, true, proto, vd, pd, true));
   }

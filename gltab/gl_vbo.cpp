@@ -638,6 +638,12 @@ void VboNaoGravado::AtribuiTexturas(std::vector<float>* dados) {
   texturas_.swap(*dados);
 }
 
+void VboNaoGravado::AtribuiSemTextura() {
+  for (float& f : texturas_) {
+    f = -1;
+  }
+}
+
 void VboNaoGravado::AtribuiCor(float r, float g, float b, float a) {
   cores_.clear();
   int num_vertices = coordenadas_.size() / num_dimensoes_;

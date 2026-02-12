@@ -46,6 +46,9 @@ class VboNaoGravado {
 
   void AtribuiTexturas(const float* dados);
   void AtribuiTexturas(std::vector<float>* dados);
+  // Preenche as coordenadas de textura com valores negativos.
+  // Requer que texturas tenham sido atribuidas antes.
+  void AtribuiSemTextura();
 
   void AtribuiMatrizModelagem(const Matrix4& matriz_modelagem);
 
