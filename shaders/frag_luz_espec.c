@@ -31,6 +31,7 @@ varying lowp vec3 v_Bitangent;  // normalizado.
 varying lowp mat4 v_Matriz_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
+varying lowp float v_Tex_presenca;  // tem textura.
 uniform bool gltab_oclusao_ligada;          // true se oclusao estiver ligada.
 uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
 varying highp vec4 v_Pos_sombra;   // Posicao do fragmento na perspectiva de sombra.
@@ -191,7 +192,7 @@ void main() {
   }
 
   // Aplica textura.
-  if (gltab_textura > 0.0 && v_Tex.s >= 0) {
+  if (gltab_textura > 0.0 && v_Tex_presenca >= 0) {
     if (gltab_textura_bump > 0.0) {
       highp vec3 desvio = ((vec3(2.0, 2.0, 2.0) * texture2D(gltab_unidade_textura, v_Tex.st).xyz) - vec3(1.0, 1.0, 1.0));
       mediump mat3 tbn = mat3(v_Tangent, v_Bitangent, v_Normal);

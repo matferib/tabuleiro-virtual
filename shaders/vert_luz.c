@@ -28,6 +28,7 @@ varying highp vec4 v_Pos_sombra;
 varying highp vec3 v_Pos_oclusao;
 varying highp vec3 v_Pos_luz;
 varying lowp vec2 v_Tex;  // coordenada texel.
+varying lowp float v_Tex_presenca;  // tem textura.
 // Uniformes nao variam por vertice, vem de fora.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform highp mat4 gltab_prm;           // projecao.
@@ -59,6 +60,7 @@ void main() {
   v_Pos = v_Pos / v_Pos.w;
   v_Pos_model = gltab_vertice;
   v_Tex.st = (gltab_mvm_ajuste_textura * vec4(gltab_texel.st, 1.0, 1.0)).st;
+  v_Tex_presenca = gltab_texel.s;
   gl_Position = gltab_prm * v_Pos;
   v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * vertice_mundo;
   // Oclusao.
