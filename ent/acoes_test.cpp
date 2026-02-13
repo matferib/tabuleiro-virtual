@@ -79,8 +79,8 @@ TEST(TesteAcoes, TesteAreaAfetadaRaio) {
     ponto.set_y(-7.3323421f);
 
     AcaoProto acao(acao_proto);
-    acao.mutable_pos_tabuleiro()->set_x(-0.23085393);
-    acao.mutable_pos_tabuleiro()->set_y(-10.466313);
+    acao.mutable_pos_tabuleiro()->set_x(-0.23085393f);
+    acao.mutable_pos_tabuleiro()->set_y(-10.466313f);
 
     Posicao origem;
     origem.set_x(-5.25f);
