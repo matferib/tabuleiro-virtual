@@ -2551,8 +2551,10 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     gerador.linha_nevoa_min->setText(QString().setNum(tab_proto.nevoa().minimo()));
     gerador.linha_nevoa_max->setEnabled(true);
     gerador.linha_nevoa_max->setText(QString().setNum(tab_proto.nevoa().maximo()));
+    gerador.checkbox_cor_nevoa->setCheckState(tab_proto.nevoa().has_cor() ? Qt::Checked : Qt::Unchecked);
   } else {
     gerador.checkbox_nevoa->setCheckState(Qt::Unchecked);
+    gerador.checkbox_cor_nevoa->setCheckState(Qt::Unchecked);
   }
   ent::Cor cor_nevoa_proto(tab_proto.nevoa().cor());
   gerador.botao_cor_nevoa->setStyleSheet(CorParaEstilo(cor_nevoa_proto));
@@ -2562,6 +2564,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     if (!cor.isValid()) {
       return;
     }
+    gerador.checkbox_nevoa->setCheckState(Qt::Checked);
     gerador.checkbox_cor_nevoa->setCheckState(Qt::Checked);
     gerador.botao_cor_nevoa->setStyleSheet(CorParaEstilo(cor));
     cor_nevoa_proto = CorParaProto(cor);
