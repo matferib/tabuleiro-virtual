@@ -1343,7 +1343,7 @@ fixo {
   }
   # Slider luz.
   dados_botoes {
-    altura: 0.3
+    altura: 1
     largura: 3
     linha: -5
     coluna: -3
