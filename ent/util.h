@@ -1274,6 +1274,10 @@ int PrecoArmaduraOuEscudoTabeladaPo(const ArmaProto& arma_tabelada);
 // Converte de '10PO' para moedas.po = 10.
 Moedas ConvertePreco(const std::string& preco);
 
+// Funções de conversão de cor
+Vector3 CorParaHSV(const Cor& cor);
+Cor HSVParaCor(Vector3 hsv);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

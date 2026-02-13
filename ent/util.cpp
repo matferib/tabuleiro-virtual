@@ -7233,4 +7233,99 @@ std::optional<int> DadoAcumulado(int nfaces) {
   if (it == g_dados_forcados.end() || it->second.empty()) return std::nullopt;
   return it->second.front();
 }
+
+// Funcoes de cores direto do gemini. So converti os tipos.
+Vector3 CorParaHSV(const Cor& cor) {
+  float r = cor.r(), g = cor.g(), b = cor.b();
+  float min = std::min({ r, g, b });
+  float max = std::max({ r, g, b });
+  float delta = max - min;
+
+  Vector3 hsv;
+  hsv.z = max;
+
+  if (delta == 0.0f) { // Achromatic case
+    hsv.x = 0.0f;
+    hsv.y = 0.0f;
+    return hsv;
+  }
+
+  hsv.y = delta / max;
+
+  if (r == max) {
+    hsv.x = (g - b) / delta; // Between yellow and magenta
+  } else if (g == max) {
+    hsv.x = 2.0f + (b - r) / delta; // Between cyan and yellow
+  } else {
+    hsv.x = 4.0f + (r - g) / delta; // Between magenta and cyan
+  }
+
+  hsv.x *= 60.0f; // Convert to degrees
+
+  if (hsv.x < 0.0f) { // Ensure hue is positive
+    hsv.x += 360.0f;
+  }
+
+  // Ensure hue is within [0, 360) range
+  hsv.x = fmod(hsv.x, 360.0f);
+
+  return hsv;
+}
+
+Cor HSVParaCor(Vector3 hsv) {
+  double      hh, p, q, t, ff;
+  long        i;
+  Cor         out;
+
+  if (hsv.y <= 0.0) {       // < is bogus, just goes straight to grayscale
+    out.set_r(hsv.z);
+    out.set_g(hsv.z);
+    out.set_b(hsv.z);
+    return out;
+  }
+  hh = hsv.x;
+  if (hh >= 360.0) hh = 0.0;
+  hh /= 60.0;
+  i = (long)hh;
+  ff = hh - i;
+  p = hsv.z * (1.0 - hsv.y);
+  q = hsv.z * (1.0 - (hsv.y * ff));
+  t = hsv.z * (1.0 - (hsv.y * (1.0 - ff)));
+
+  switch (i) {
+  case 0:
+    out.set_r(hsv.z);
+    out.set_g(t);
+    out.set_b(p);
+    break;
+  case 1:
+    out.set_r(q);
+    out.set_g(hsv.z);
+    out.set_b(p);
+    break;
+  case 2:
+    out.set_r(p);
+    out.set_g(hsv.z);
+    out.set_b(t);
+    break;
+  case 3:
+    out.set_r(p);
+    out.set_g(q);
+    out.set_b(hsv.z);
+    break;
+  case 4:
+    out.set_r(t);
+    out.set_g(p);
+    out.set_b(hsv.z);
+    break;
+  case 5:
+  default:
+    out.set_r(hsv.z);
+    out.set_g(p);
+    out.set_b(q);
+    break;
+  }
+  return out;
+}
+
 }  // namespace ent
