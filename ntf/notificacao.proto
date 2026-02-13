@@ -105,7 +105,7 @@ enum Tipo {
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
-// Proximo id: 25.
+// Proximo id: 26.
 message Notificacao {
   Tipo tipo = 1;
   // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Toda notificacao deste tipo
@@ -161,4 +161,5 @@ message Notificacao {
   // Para mensagens poderem usar de forma generica.
   int32 id_generico = 23;
   string str_generica = 24;
+  ent.Cor cor_generica = 25;
 }
