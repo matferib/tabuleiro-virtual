@@ -1341,6 +1341,22 @@ fixo {
     mestre_apenas: true
     dica: "Gera uma montanha."
   }
+  # Slider luz.
+  dados_botoes {
+    altura: 0.3
+    largura: 3
+    linha: -5
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "-  LUZ  +"
+    id: CONTROLE_LUZ_TABULEIRO
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    dica: "Controla a iluminação."
+  }
+
+  # Outros controles.
   dados_botoes {
     tamanho: 1
     linha: -7
