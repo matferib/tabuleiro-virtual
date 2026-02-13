@@ -16,6 +16,8 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 using std::placeholders::_4;
 using std::placeholders::_5;
+using std::placeholders::_6;
+using std::placeholders::_7;
 
 namespace ifg {
 
@@ -501,13 +503,32 @@ void InterfaceGrafica::VoltaEscolherEfeito(const ntf::Notificacao notificacao, u
 //----
 void InterfaceGrafica::TrataEscolheCor(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
-  const ent::Cor& c = notificacao.tabuleiro().luz_ambiente();
-  EscolheCor(c.r(), c.g(), c.b(), c.a(), std::bind(&InterfaceGrafica::VoltaEscolheCor, this, _1, _2, _3, _4, _5));
+  const ent::Cor* c = nullptr;
+  TipoCor tc = TipoCor::COR_GENERICA;
+  if (notificacao.has_cor_generica()) {
+    c = &notificacao.cor_generica();
+  } else if (notificacao.tabuleiro().has_luz_ambiente()) {
+    c = &notificacao.tabuleiro().luz_ambiente();
+    tc = TipoCor::COR_LUZ_AMBIENTE;
+  } else if (notificacao.tabuleiro().has_luz_direcional()) {
+    c = &notificacao.tabuleiro().luz_direcional().cor();
+    tc = TipoCor::COR_LUZ_DIRECIONAL;
+  }
+  EscolheCor(tc, notificacao.tabuleiro().has_id_cenario() ? std::make_optional<int>(notificacao.tabuleiro().id_cenario()) : std::nullopt,
+             c->r(), c->g(), c->b(), c->a(), std::bind(&InterfaceGrafica::VoltaEscolheCor, this, _1, _2, _3, _4, _5, _6, _7));
 }
 
-void InterfaceGrafica::VoltaEscolheCor(bool ok, float r, float g, float b, float a) {
+void InterfaceGrafica::VoltaEscolheCor(bool ok, TipoCor tc, std::optional<int> id_cenario, float r, float g, float b, float a) {
   if (ok) {
-    tabuleiro_->SelecionaCorPersonalizada(r, g, b, a);
+    if (tc == TipoCor::COR_GENERICA) {
+      tabuleiro_->SelecionaCorPersonalizada(r, g, b, a);
+    } else if (id_cenario.has_value()) {
+      if (tc == TipoCor::COR_LUZ_AMBIENTE) {
+        tabuleiro_->SelecionaLuzAmbiente(*id_cenario, r, g, b, a);
+      } else if (tc == TipoCor::COR_LUZ_DIRECIONAL) {
+        tabuleiro_->SelecionaLuzDirecional(*id_cenario, r, g, b, a);
+      }
+    }
   }
   tabuleiro_->ReativaWatchdogSeMestre();
 }

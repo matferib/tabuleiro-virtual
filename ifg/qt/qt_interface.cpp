@@ -279,15 +279,15 @@ void InterfaceGraficaQt::EscolheModeloEntidade(const MenuModelos& menu_modelos, 
 }
 
 void InterfaceGraficaQt::EscolheCor(
-    float r, float g, float b, float a, 
-    std::function<void(bool, float, float, float, float)> funcao_volta) {
+    TipoCor tc, std::optional<int> id_cenario, float r, float g, float b, float a, 
+    std::function<void(bool, TipoCor, std::optional<int>, float, float, float, float)> funcao_volta) {
   QColor cor_ida(r, g, b);
   QColor cor = QColorDialog::getColor(cor_ida, pai_, QObject::tr("Escolha Cor"));
   pai_->v3d()->PegaContexto();
   if (!cor.isValid()) {
-    funcao_volta(false, r, g, b, a);
+    funcao_volta(false, tc, id_cenario, r, g, b, a);
   } else {
-    funcao_volta(true, cor.redF(), cor.greenF(), cor.blueF(), cor.alphaF());
+    funcao_volta(true, tc, id_cenario, cor.redF(), cor.greenF(), cor.blueF(), cor.alphaF());
   }
   pai_->v3d()->LiberaContexto();
 }

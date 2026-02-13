@@ -81,13 +81,18 @@ class InterfaceGrafica : public ntf::Receptor {
       const MenuModelos& modelos,
       std::function<void(const std::string& nome)> funcao_volta) = 0;
 
+  enum class TipoCor {
+    COR_GENERICA,
+    COR_LUZ_AMBIENTE,
+    COR_LUZ_DIRECIONAL
+  };
   // Mostra o dialogo de selecao de cor. A funcao de volta recebe se houve selecao de cor e caso positivo,
   // os componentes rgba. A versao aqui apresentada nao faz nada, pois no android e IOS nao implementei.
   // No QT ela eh overriden.
   virtual void EscolheCor(
-      float r, float g, float b, float a,
-      std::function<void(bool, float, float, float, float)> funcao_volta) {
-    funcao_volta(true, r, g, b, a);
+      TipoCor tc, std::optional<int> id_cenario, float r, float g, float b, float a,
+      std::function<void(bool, TipoCor, std::optional<int>, float, float, float, float)> funcao_volta) {
+    funcao_volta(true, tc, id_cenario, r, g, b, a);
   }
 
  protected:
@@ -117,7 +122,7 @@ class InterfaceGrafica : public ntf::Receptor {
   void TrataEscolherFeitico(const ntf::Notificacao& notificacao);
 
   void TrataEscolheCor(const ntf::Notificacao& notificacao);
-  void VoltaEscolheCor(bool ok, float r, float g, float b, float a);
+  void VoltaEscolheCor(bool ok, TipoCor tc, std::optional<int> id_cenario, float r, float g, float b, float a);
 
   void TrataMostraMensagem(bool erro, const std::string& mensagem);
 

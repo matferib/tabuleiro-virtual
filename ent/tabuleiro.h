@@ -86,6 +86,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Uma cor personalizada foi escolhida. */
   void SelecionaCorPersonalizada(float r, float g, float b, float a);
+  void SelecionaLuzAmbiente(int id_cenario, float r, float g, float b, float a);
+  void SelecionaLuzDirecional(int id_cenario, float r, float g, float b, float a);
 
   /** adiciona entidades ao tabuleiro, através de uma notificação. Notifica clientes se a notificacao
   * for local.

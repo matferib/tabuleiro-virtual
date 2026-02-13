@@ -41,8 +41,8 @@ class InterfaceGraficaQt : public ifg::InterfaceGrafica {
 
 
   void EscolheCor(
-      float r, float g, float b, float a,
-      std::function<void(bool, float, float, float, float)> funcao_volta) override;
+      TipoCor tc, std::optional<int> id_cenario, float r, float g, float b, float a,
+      std::function<void(bool, TipoCor, std::optional<int>, float, float, float, float)> funcao_volta) override;
 
   void EscolheArquivoAbrirTabuleiro(
       const std::vector<std::string>& tab_estaticos,

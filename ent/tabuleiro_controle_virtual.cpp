@@ -875,7 +875,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     {
       if (duplo || alterna_selecao) {
         auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_COR_PERSONALIZADA);
-        *n->mutable_tabuleiro()->mutable_luz_ambiente() = cor_personalizada_;
+        *n->mutable_cor_generica() = cor_personalizada_;
         central_->AdicionaNotificacao(n.release());
         break;
       }
@@ -921,6 +921,18 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         mostrar_luz_ambiente_ = !mostrar_luz_ambiente_;
         break;
       }
+      if (duplo) {
+        auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_COR_PERSONALIZADA);
+        const TabuleiroProto& cenario = CenarioIluminacao(*proto_corrente_);
+        n->mutable_tabuleiro()->set_id_cenario(cenario.id_cenario());
+        if (mostrar_luz_ambiente_) {
+          *n->mutable_tabuleiro()->mutable_luz_ambiente() = cenario.luz_ambiente();
+        } else {
+          *n->mutable_tabuleiro()->mutable_luz_direcional()->mutable_cor() = cenario.luz_direcional().cor();
+        }
+        central_->AdicionaNotificacao(std::move(n));
+        break;
+      }
       auto it = mapa_botoes_controle_virtual_.find(CONTROLE_LUZ_TABULEIRO);
       if (it != mapa_botoes_controle_virtual_.end()) {
         const auto* db = it->second;
@@ -944,7 +956,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         float total = ur.x - bl.x;
         float luminancia = std::clamp(from_x / total, 0.0f, 1.0f);
         auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
-        *n->mutable_tabuleiro() = *proto_corrente_;
+        *n->mutable_tabuleiro() = CenarioIluminacao(*proto_corrente_);
         Cor* cor;
         Vector3 hsv;
         if (mostrar_luz_ambiente_) {
@@ -1931,6 +1943,28 @@ void Tabuleiro::SelecionaCorPersonalizada(float r, float g, float b, float a) {
   cor_personalizada_.set_g(g);
   cor_personalizada_.set_b(b);
   cor_personalizada_.set_a(a);
+}
+
+void Tabuleiro::SelecionaLuzAmbiente(int id_cenario, float r, float g, float b, float a) {
+  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+  *n->mutable_tabuleiro() = CenarioIluminacao(*proto_corrente_);
+  Cor* cor = n->mutable_tabuleiro()->mutable_luz_ambiente();
+  cor->set_r(r);
+  cor->set_g(g);
+  cor->set_b(b);
+  cor->set_a(a);
+  central_->AdicionaNotificacao(std::move(n));
+}
+
+void Tabuleiro::SelecionaLuzDirecional(int id_cenario, float r, float g, float b, float a) {
+  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+  *n->mutable_tabuleiro() = CenarioIluminacao(*proto_corrente_);
+  Cor* cor = n->mutable_tabuleiro()->mutable_luz_direcional()->mutable_cor();
+  cor->set_r(r);
+  cor->set_g(g);
+  cor->set_b(b);
+  cor->set_a(a);
+  central_->AdicionaNotificacao(std::move(n));
 }
 
 }  // namespace ent
