@@ -1351,7 +1351,7 @@ fixo {
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "-  LUZ  +"
     id: CONTROLE_LUZ_TABULEIRO
-    forma: FORMA_RETANGULO
+    forma: FORMA_SLIDER
     mestre_apenas: true
     dica: "Controla a iluminação."
   }

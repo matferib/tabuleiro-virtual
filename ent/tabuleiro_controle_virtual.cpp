@@ -253,6 +253,25 @@ Matrix4 MatrizBotao(const DadosBotao& db, const GLint* viewport, float padding, 
   return m;
 }
 
+Matrix4 MatrizSlider(const DadosBotao& db, float estado, const GLint* viewport, float padding, float unidade_largura, float unidade_altura) {
+  float xi, xf, yi, yf;
+  xi = TranslacaoX(db, viewport, unidade_largura);
+  float largura_botao = db.has_tamanho() ? db.tamanho() : db.largura();
+  float altura_botao = db.has_tamanho() ? db.tamanho() : db.altura();
+  xf = xi + largura_botao * unidade_largura;
+  yi = TranslacaoY(db, viewport, unidade_altura);
+  yf = (yi + altura_botao * unidade_altura);
+
+  float trans_x = (db.translacao_x() * unidade_largura);
+  float trans_y = (db.translacao_y() * unidade_altura);
+  float tam_x = xf - (2.0f * padding) - xi;
+  float tam_y = yf - (2.0f * padding) - yi;
+  Matrix4 m;
+  m.scale(tam_x / 4.0f, tam_y / 0.8f, 1.0f);
+  m.translate(xi + (xf - xi) * estado, yi + padding + trans_y, 1.0f);
+  return m;
+}
+
 }  // namespace
 
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id, bool forcar_selecao) {
@@ -1122,7 +1141,25 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
   } else if (db.forma() == FORMA_SLIDER) {
-    // TODO.
+    {
+      gl::MatrizEscopo salva;
+      unsigned int id_textura = TexturaBotao(db, entidade);
+      if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
+        gl::Habilita(GL_TEXTURE_2D);
+        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      }
+      Matrix4 matriz_botao = MatrizBotao(db, viewport, padding, unidade_largura, unidade_altura);
+      gl::MultiplicaMatriz(matriz_botao.get());
+      gl::AtualizaMatrizes();
+      gl::RetanguloUnitario();
+      gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+      gl::Desabilita(GL_TEXTURE_2D);
+    }
+    gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
+    Matrix4 matriz_slider = MatrizSlider(db, EstadoSlider(db.id()), viewport, padding, unidade_largura, unidade_altura);
+    gl::MultiplicaMatriz(matriz_slider.get());
+    gl::AtualizaMatrizes();
+    gl::TrianguloUnitario();     
   } else {
     float xi, xf, yi, yf;
     xi = TranslacaoX(db, viewport, unidade_largura);
@@ -1174,6 +1211,15 @@ bool Tabuleiro::EstadoBotao(IdBotao id) const {
       return mostrar_dados_forcados_;
     default:
       return false;
+  }
+}
+
+float Tabuleiro::EstadoSlider(IdBotao id) const {
+  switch (id) {
+  case CONTROLE_LUZ_TABULEIRO:
+    return CorParaHSV(mostrar_luz_ambiente_ ? CenarioIluminacao(*proto_corrente_).luz_ambiente() : CenarioIluminacao(*proto_corrente_).luz_direcional().cor()).z;
+  default:
+    return 0.0f;
   }
 }
 

@@ -1140,6 +1140,7 @@ class Tabuleiro : public ntf::Receptor {
   bool BotaoVisivel(const DadosBotao& db) const;
   /** Caso o botao tenha um estado associado (como uma variavel booleana), retorna. Caso contrario, retorna false. */
   bool EstadoBotao(IdBotao id_botao) const;
+  float EstadoSlider(IdBotao id_botao) const;
 
   /** Retorna o rotulo de um botao do controle virtual. */
   std::string RotuloBotaoControleVirtual(const DadosBotao& db, const Entidade* entidade) const;
