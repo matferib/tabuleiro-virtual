@@ -200,11 +200,60 @@ void Tabuleiro::LiberaControleVirtual() {
   central_->AdicionaNotificacao(n.release());
 }
 
+namespace {
+
 void AbreDialogoForcarDado(int nfaces, ntf::CentralNotificacoes& central) {
   auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_FORCAR_DADO));
   n->set_id_generico(nfaces);
   central.AdicionaNotificacao(n.release());
 }
+
+int TranslacaoX(const DadosBotao& db, const GLint* viewport, float unidade_largura) {
+  int coluna = db.coluna();
+  if (db.alinhamento_horizontal() == ALINHAMENTO_DIREITA) {
+    return static_cast<int>(viewport[2] + coluna * unidade_largura);
+  }
+  else if (db.alinhamento_horizontal() == ALINHAMENTO_CENTRO) {
+    return static_cast<int>((viewport[2] / 2) + coluna * unidade_largura);
+  }
+  else {
+    return static_cast<int>(coluna * unidade_largura);
+  }
+}
+
+float TranslacaoY(const DadosBotao& db, const GLint* viewport, float unidade_altura) {
+  int linha = db.linha();
+  if (db.alinhamento_vertical() == ALINHAMENTO_CIMA) {
+    return viewport[3] + linha * unidade_altura;
+  }
+  else if (db.alinhamento_vertical() == ALINHAMENTO_CENTRO) {
+    return (viewport[3] / 2) + linha * unidade_altura;
+  }
+  else {
+    return linha * unidade_altura;
+  }
+}
+
+Matrix4 MatrizBotao(const DadosBotao& db, const GLint* viewport, float padding, float unidade_largura, float unidade_altura) {
+  float xi, xf, yi, yf;
+  xi = TranslacaoX(db, viewport, unidade_largura);
+  float largura_botao = db.has_tamanho() ? db.tamanho() : db.largura();
+  float altura_botao = db.has_tamanho() ? db.tamanho() : db.altura();
+  xf = xi + largura_botao * unidade_largura;
+  yi = TranslacaoY(db, viewport, unidade_altura);
+  yf = yi + altura_botao * unidade_altura;
+
+  float trans_x = (db.translacao_x() * unidade_largura);
+  float trans_y = (db.translacao_y() * unidade_altura);
+  float tam_x = xf - (2.0f * padding) - xi;
+  float tam_y = yf - (2.0f * padding) - yi;
+  Matrix4 m;
+  m.scale(tam_x, tam_y, 1.0f);
+  m.translate(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f);
+  return m;
+}
+
+}  // namespace
 
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id, bool forcar_selecao) {
   VLOG(1) << "picking id: " << id << ", duplo: " << duplo << ", alterna selecao: " << alterna_selecao;
@@ -867,6 +916,49 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       // EntraModoMostrarImagem();
       break;
     }
+    case CONTROLE_LUZ_TABULEIRO: {
+      if (forcar_selecao) {
+        mostrar_luz_ambiente_ = !mostrar_luz_ambiente_;
+        break;
+      }
+      auto it = mapa_botoes_controle_virtual_.find(CONTROLE_LUZ_TABULEIRO);
+      if (it != mapa_botoes_controle_virtual_.end()) {
+        const auto* db = it->second;
+        int fonte_x_int, fonte_y_int;
+        float escala;
+        gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
+        fonte_x_int *= escala;
+        fonte_y_int *= escala;
+        const float fonte_x = fonte_x_int;
+        const float fonte_y = fonte_y_int;
+        const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
+        const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
+        GLint viewport[4];
+        gl::Le(GL_VIEWPORT, viewport);
+        Matrix4 mb = MatrizBotao(*db, viewport, /*padding=*/0, largura_botao, altura_botao);
+        Vector4 bl(-0.5f, -0.5f, 0.0f, 1.0f);
+        bl = mb * bl;
+        Vector4 ur(0.5f, 0.5f, 0.0f, 1.0f);
+        ur = mb * ur;
+        float from_x = x - bl.x;
+        float total = ur.x - bl.x;
+        float luminancia = std::clamp(from_x / total, 0.0f, 1.0f);
+        auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+        *n->mutable_tabuleiro() = *proto_corrente_;
+        Cor* cor;
+        Vector3 hsv;
+        if (mostrar_luz_ambiente_) {
+          cor = n->mutable_tabuleiro()->mutable_luz_ambiente();
+        } else {
+          cor = n->mutable_tabuleiro()->mutable_luz_direcional()->mutable_cor();
+        }
+        hsv = CorParaHSV(*cor);
+        hsv.z = luminancia;
+        *cor = HSVParaCor(hsv);
+        central_->AdicionaNotificacao(std::move(n));
+      }
+      break;
+    }
     default:
       if (id >= CONTROLE_JOGADORES) {
         // Isso acontece pela UI. O mestre aperta a tecla J, que mostra todos os jogadores como
@@ -892,6 +984,12 @@ bool Tabuleiro::AtualizaBotaoControleVirtual(
   }
   if (db->id() == CONTROLE_DESENHO_COR_PERSONALIZADA) {
     *db->mutable_cor_fundo() = cor_personalizada_;
+  } else if (db->id() == CONTROLE_LUZ_TABULEIRO) {
+    if (mostrar_luz_ambiente_) {
+      *db->mutable_cor_fundo() = proto_corrente_->luz_ambiente();
+    } else {
+      *db->mutable_cor_fundo() = proto_corrente_->luz_direcional().cor();
+    }
   }
   const auto& it = mapa_botoes.find(db->id());
   if (it != mapa_botoes.end()) {
@@ -983,32 +1081,6 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entid
   return GL_INVALID_VALUE;
 }
 
-namespace {
-
-int TranslacaoX(const DadosBotao& db, const GLint* viewport, float unidade_largura) {
-  int coluna = db.coluna();
-  if (db.alinhamento_horizontal() == ALINHAMENTO_DIREITA) {
-    return static_cast<int>(viewport[2] + coluna * unidade_largura);
-  } else if (db.alinhamento_horizontal() == ALINHAMENTO_CENTRO) {
-    return static_cast<int>((viewport[2] / 2) + coluna * unidade_largura);
-  } else {
-    return static_cast<int>(coluna * unidade_largura);
-  }
-}
-
-float TranslacaoY(const DadosBotao& db, const GLint* viewport, float unidade_altura) {
-  int linha = db.linha();
-  if (db.alinhamento_vertical() == ALINHAMENTO_CIMA) {
-    return viewport[3] + linha * unidade_altura;
-  } else if (db.alinhamento_vertical() == ALINHAMENTO_CENTRO) {
-    return (viewport[3] / 2) + linha * unidade_altura;
-  } else {
-    return linha * unidade_altura;
-  }
-}
-
-}  // namespace
-
 void Tabuleiro::DesenhaBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float padding, float unidade_largura, float unidade_altura, const Entidade* entidade) {
   if ((db.picking_apenas() && !parametros_desenho_.has_picking_x()) ||
@@ -1017,33 +1089,30 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
     return;
   }
   gl::CarregaNome(db.id());
-  float xi, xf, yi, yf;
-  xi = TranslacaoX(db, viewport, unidade_largura);
-  float largura_botao = db.has_tamanho() ? db.tamanho() : db.largura();
-  float altura_botao = db.has_tamanho() ? db.tamanho() : db.altura();
-  xf = xi + largura_botao * unidade_largura;
-  yi = TranslacaoY(db, viewport, unidade_altura);
-  yf = yi + altura_botao * unidade_altura;
   gl::MatrizEscopo salva;
   if (db.forma() == FORMA_RETANGULO) {
-    float trans_x = (db.translacao_x() * unidade_largura);
-    float trans_y = (db.translacao_y() * unidade_altura);
     unsigned int id_textura = TexturaBotao(db, entidade);
     if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
       gl::Habilita(GL_TEXTURE_2D);
       gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     }
-    float tam_x = xf - (2.0f * padding) - xi;
-    float tam_y = yf - (2.0f * padding) - yi;
-    Matrix4 m;
-    m.scale(tam_x, tam_y, 1.0f);
-    m.translate(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f);
-    gl::MultiplicaMatriz(m.get());
+    Matrix4 matriz_botao = MatrizBotao(db, viewport, padding, unidade_largura, unidade_altura);
+    gl::MultiplicaMatriz(matriz_botao.get());
     gl::AtualizaMatrizes();
     gl::RetanguloUnitario();
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
+  } else if (db.forma() == FORMA_SLIDER) {
+    // TODO.
   } else {
+    float xi, xf, yi, yf;
+    xi = TranslacaoX(db, viewport, unidade_largura);
+    float largura_botao = db.has_tamanho() ? db.tamanho() : db.largura();
+    float altura_botao = db.has_tamanho() ? db.tamanho() : db.altura();
+    xf = xi + largura_botao * unidade_largura;
+    yi = TranslacaoY(db, viewport, unidade_altura);
+    yf = yi + altura_botao * unidade_altura;
+
     Matrix4 m;
     float transx = ((xi + xf) / 2.0f) + (db.translacao_x() * unidade_largura);
     float transy = ((yi + yf) / 2.0f) + (db.translacao_y() * unidade_altura);
@@ -1250,6 +1319,8 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db, const En
     case CONTROLE_MODELO_ENTIDADE: {
       return item_selecionado_.id.empty() ? "-" : item_selecionado_.id;
     }
+    case CONTROLE_LUZ_TABULEIRO:
+      return mostrar_luz_ambiente_ ? "- LUZ A +" : "- LUZ D +";
     case CONTROLE_USAR_FEITICO_0:
     case CONTROLE_USAR_FEITICO_1:
     case CONTROLE_USAR_FEITICO_2:
