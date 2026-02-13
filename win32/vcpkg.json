@@ -3,6 +3,7 @@
     "abseil",
     "boost",
     "protobuf",
+    "gflags",
     "gtest",
     {
       "name": "imgui", "features": ["opengl2-binding", "win32-binding"]
@@ -14,6 +15,9 @@
     },
     {
       "name": "protobuf", "version": "5.29.5"
+    },
+    {
+      "name": "gflags", "version": "2.3.0"
     },
     {
       "name": "gtest", "version": "1.17.0"
