@@ -1005,8 +1005,8 @@ bool Tabuleiro::AtualizaBotaoControleVirtual(
     Vector3 hsv = CorParaHSV(db->cor_fundo());
     if (hsv.z >= 0.8f) {
       hsv.z = 0.6;
-    } else {
-      hsv.z *= 1.2f;
+    } else if (hsv.z < 0.2f) {
+      hsv.z = 0.4f;
     }
     *db->mutable_cor_fundo() = HSVParaCor(hsv);
   }
