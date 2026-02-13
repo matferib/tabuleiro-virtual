@@ -6650,7 +6650,7 @@ TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
     PreencheNotificacaoReducaoLuzComConsequencia(
         NivelConjuradorParaAcao(acao, TabelasCriando().Feitico(proto.dados_ataque(2).id_arma()), *entidade), *alvo, &acao, &n, nullptr);
     alvo->AtualizaParcial(n.entidade());
-    EXPECT_FLOAT_EQ(alvo->Proto().luz().raio_m(), 12 * 0.4);
+    EXPECT_FLOAT_EQ(alvo->Proto().luz().raio_m(), 12 * 0.4f);
     EXPECT_EQ(acao.consequencia(), TC_REDUZ_LUZ_ALVO);
     EXPECT_FLOAT_EQ(acao.reducao_luz(), 0.4f);
   }
