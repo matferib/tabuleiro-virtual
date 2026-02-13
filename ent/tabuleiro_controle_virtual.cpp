@@ -1017,9 +1017,9 @@ bool Tabuleiro::AtualizaBotaoControleVirtual(
     *db->mutable_cor_fundo() = cor_personalizada_;
   } else if (db->id() == CONTROLE_LUZ_TABULEIRO) {
     if (mostrar_luz_ambiente_) {
-      *db->mutable_cor_fundo() = proto_corrente_->luz_ambiente();
+      *db->mutable_cor_fundo() = CenarioIluminacao(*proto_corrente_).luz_ambiente();
     } else {
-      *db->mutable_cor_fundo() = proto_corrente_->luz_direcional().cor();
+      *db->mutable_cor_fundo() = CenarioIluminacao(*proto_corrente_).luz_direcional().cor();
     }
     Vector3 hsv = CorParaHSV(db->cor_fundo());
     if (hsv.z >= 0.8f) {
