@@ -4,7 +4,7 @@ package ent;
 
 import "ent/comum.proto";
 
-// Proximo id: 173, mas conferir pq ha gaps.
+// Proximo id: 174, mas conferir pq ha gaps.
 enum IdBotao {
   CONTROLE_DESCONHECIDO = 0;
   CONTROLE_ACAO = 1;
@@ -186,6 +186,7 @@ enum IdBotao {
   CONTROLE_FORCAR_D8 = 166;
   CONTROLE_FORCAR_D10 = 167;
   CONTROLE_FORCAR_D12 = 168;
+  CONTROLE_LUZ_TABULEIRO = 173;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
@@ -207,7 +208,8 @@ enum FormaBotao {
   FORMA_TRIANGULO = 1;
   FORMA_RETANGULO = 2;
   FORMA_DISCO     = 3;
-  FORMA_NULA      = 4;  // Botoes sem forma, apenas rotulo.
+  FORMA_SLIDER    = 4;
+  FORMA_NULA      = 5;  // Botoes sem forma, apenas rotulo.
 }
 
 enum TipoVisibilidade {
