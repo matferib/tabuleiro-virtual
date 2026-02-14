@@ -3073,7 +3073,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   // Pontos de vida.
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
-  // Rotulos especiais.
+  // Rotulos.
+  gerador.rotulo->setText(entidade.rotulo().c_str());
   std::string rotulos_especiais;
   for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
     rotulos_especiais += rotulo_especial + "\n";
@@ -3283,6 +3284,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       proto_retornado->clear_max_pontos_vida();
       proto_retornado->clear_pontos_vida();
     }
+    proto_retornado->set_rotulo(gerador.rotulo->text().toStdString());
     QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", Qt::SkipEmptyParts);
     proto_retornado->clear_rotulo_especial();
     for (const auto& rotulo : lista_rotulos) {

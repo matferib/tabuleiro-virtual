@@ -281,8 +281,54 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) const {
 }
 
 void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
+  if ((pd->desenha_rotulo() && !proto_.rotulo().empty()) ||
+    (pd->desenha_rotulo_especial() && !proto_.rotulo_especial().empty())) {
+    gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+    gl::MatrizEscopo salva_matriz;
+    MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+    gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
+    bool desenhou_rotulo = false;
+    if (pd->desenha_rotulo() && !proto_.rotulo().empty()) {
+      gl::DesabilitaEscopo salva_nevoa(GL_FOG);
+      gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
+      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+        MudaCorAplicandoNevoa(COR_AMARELA, pd);
+        gl::DesenhaString(StringSemUtf8(proto_.rotulo()));
+        desenhou_rotulo = true;
+      }
+    }
+    if (pd->desenha_rotulo_especial() && !proto_.rotulo_especial().empty()) {
+      gl::DesabilitaEscopo salva_nevoa(GL_FOG);
+      gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
+      MudaCorAplicandoNevoa(COR_AMARELA, pd);
+      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+        std::string rotulo(desenhou_rotulo ? std::string("\n") : std::string(""));
+        for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
+          rotulo += rotulo_especial + "\n";
+        }
+        if (proto_.proxima_salvacao() != RS_FALHOU) {
+          rotulo += "\nprox. salv.: ";
+          switch (proto_.proxima_salvacao()) {
+          case RS_MEIO:
+            rotulo += "1/2";
+            break;
+          case RS_QUARTO:
+            rotulo += "1/4";
+            break;
+          case RS_ANULOU:
+            rotulo += "ANULA";
+            break;
+          default:
+            rotulo += "VALOR INVALIDO";
+          }
+        }
+        gl::DesenhaString(StringSemUtf8(rotulo));
+      }
+    }
+  }
+
   if (proto_.tipo() != TE_ENTIDADE) {
-    // Apenas entidades tem decoracoes.
+    // Apenas entidades tem o resto das decorações.
     return;
   }
   DesenhaArmas(pd);
@@ -397,52 +443,6 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
       gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA / 1.5f);
       gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
-    }
-  }
-
-  if ((pd->desenha_rotulo() && !proto_.rotulo().empty()) ||
-      (pd->desenha_rotulo_especial() && !proto_.rotulo_especial().empty())) {
-    gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
-    gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-    gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
-    bool desenhou_rotulo = false;
-    if (pd->desenha_rotulo() && !proto_.rotulo().empty()) {
-      gl::DesabilitaEscopo salva_nevoa(GL_FOG);
-      gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
-      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
-        MudaCorAplicandoNevoa(COR_AMARELA, pd);
-        gl::DesenhaString(StringSemUtf8(proto_.rotulo()));
-        desenhou_rotulo = true;
-      }
-    }
-    if (pd->desenha_rotulo_especial() && !proto_.rotulo_especial().empty()) {
-      gl::DesabilitaEscopo salva_nevoa(GL_FOG);
-      gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
-      MudaCorAplicandoNevoa(COR_AMARELA, pd);
-      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
-        std::string rotulo(desenhou_rotulo ? std::string("\n") : std::string(""));
-        for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
-          rotulo += rotulo_especial + "\n";
-        }
-        if (proto_.proxima_salvacao() != RS_FALHOU) {
-          rotulo += "\nprox. salv.: ";
-          switch (proto_.proxima_salvacao()) {
-            case RS_MEIO:
-              rotulo += "1/2";
-              break;
-            case RS_QUARTO:
-              rotulo += "1/4";
-              break;
-            case RS_ANULOU:
-              rotulo += "ANULA";
-              break;
-            default:
-              rotulo += "VALOR INVALIDO";
-          }
-        }
-        gl::DesenhaString(StringSemUtf8(rotulo));
-      }
     }
   }
 }
