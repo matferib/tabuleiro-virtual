@@ -1355,6 +1355,20 @@ fixo {
     mestre_apenas: true
     dica: "Controla a iluminação."
   }
+  # Slider direcao luz.
+  dados_botoes {
+    altura: 1
+    largura: 3
+    linha: -6
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "P   ^   N"
+    id: CONTROLE_INCLINACAO_LUZ_TABULEIRO
+    forma: FORMA_SLIDER
+    mestre_apenas: true
+    dica: "Controla a inclinação da luz direcional."
+  }
 
   # Outros controles.
   dados_botoes {

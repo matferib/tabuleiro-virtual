@@ -936,7 +936,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     }
     case CONTROLE_LUZ_TABULEIRO: {
-      if (forcar_selecao) {
+      if (forcar_selecao || alterna_selecao) {
         mostrar_luz_ambiente_ = !mostrar_luz_ambiente_;
         break;
       }
@@ -986,6 +986,36 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         hsv = CorParaHSV(*cor);
         hsv.z = luminancia;
         *cor = HSVParaCor(hsv);
+        central_->AdicionaNotificacao(std::move(n));
+      }
+      break;
+    }
+    case CONTROLE_INCLINACAO_LUZ_TABULEIRO: {
+      auto it = mapa_botoes_controle_virtual_.find(CONTROLE_INCLINACAO_LUZ_TABULEIRO);
+      if (it != mapa_botoes_controle_virtual_.end()) {
+        const auto* db = it->second;
+        int fonte_x_int, fonte_y_int;
+        float escala;
+        gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
+        fonte_x_int *= escala;
+        fonte_y_int *= escala;
+        const float fonte_x = fonte_x_int;
+        const float fonte_y = fonte_y_int;
+        const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
+        const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
+        GLint viewport[4];
+        gl::Le(GL_VIEWPORT, viewport);
+        Matrix4 mb = MatrizBotao(*db, viewport, /*padding=*/0, largura_botao, altura_botao);
+        Vector4 bl(-0.5f, -0.5f, 0.0f, 1.0f);
+        bl = mb * bl;
+        Vector4 ur(0.5f, 0.5f, 0.0f, 1.0f);
+        ur = mb * ur;
+        float from_x = x - bl.x;
+        float total = ur.x - bl.x;
+        float inclinacao = std::clamp(from_x / total, 0.0f, 1.0f);
+        auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+        *n->mutable_tabuleiro() = CenarioIluminacao(*proto_corrente_);
+        n->mutable_tabuleiro()->mutable_luz_direcional()->set_inclinacao_graus(180.0f - inclinacao * 180.0f);
         central_->AdicionaNotificacao(std::move(n));
       }
       break;
@@ -1218,6 +1248,8 @@ float Tabuleiro::EstadoSlider(IdBotao id) const {
   switch (id) {
   case CONTROLE_LUZ_TABULEIRO:
     return CorParaHSV(mostrar_luz_ambiente_ ? CenarioIluminacao(*proto_corrente_).luz_ambiente() : CenarioIluminacao(*proto_corrente_).luz_direcional().cor()).z;
+  case CONTROLE_INCLINACAO_LUZ_TABULEIRO:
+    return std::clamp(180.0f - CenarioIluminacao(*proto_corrente_).luz_direcional().inclinacao_graus(), 0.0f, 180.0f) / 180.0f;
   default:
     return 0.0f;
   }
