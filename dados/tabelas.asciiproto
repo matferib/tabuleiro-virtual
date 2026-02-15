@@ -11348,6 +11348,34 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'profanar'
+    nome_ingles: 'desecrate'
+    nome: 'profanar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mal'
+      nivel: 2
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço a Distância'
+      tipo: ACAO_DISPERSAO
+      raio_quadrados: 4  # quadrados.
+      geometria: ACAO_GEO_ESFERA
+      cor { r: 0.2 g: 0.2 b: 0.2 a: 0.5 }
+      icone: 'icon_touch.png'
+      permite_salvacao: false
+      permite_ataque_vs_defesa: false
+    }
+    escola: 'evocacao'
+  }
+
+  armas {
     id: 'despedacar'
     nome_ingles: 'shatter'
     nome: 'despedaçar'
@@ -11360,6 +11388,7 @@ tabela_feiticos {
     info_classes {
       id: 'caos'
       nivel: 2
+      dominio: true
     }
     info_classes {
       id: 'clerigo'
@@ -11368,6 +11397,7 @@ tabela_feiticos {
     info_classes {
       id: 'destruicao'
       nivel: 2
+      dominio: true
     }
     info_classes {
       id: 'mago'
