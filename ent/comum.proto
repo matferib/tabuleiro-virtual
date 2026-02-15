@@ -335,6 +335,11 @@ enum SubTipoDnD {
   SUBTIPO_ARCONTE = 22;
   SUBTIPO_KOBOLD = 23;  // Nao existe, so pro bonus de gnomo funcionar.
   SUBTIPO_METAMORFO = 24;
+  // Feitico despedacao (shatter) afeta apenas entidades cristalinas.
+  // As regras não definem bem o que isso quer dizer, mas procurando nos forums achei:
+  // If it has 'crystal', 'gem', 'glass', or 'ice' in the name, it is most likely the kind of crystalline the writer had in mind.
+  // https://forums.giantitp.com/showsinglepost.php?p=11733612&postcount=9
+  SUBTIPO_CRISTALINO = 25;
 }
 
 enum DescritorAtaque {

@@ -404,7 +404,7 @@ message DanoAdicionalPorTendencia {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 113.
+// Proximo id: 114.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   string rotulo = 9;
@@ -597,6 +597,8 @@ message DadosAtaque {
   bool requer_entidade_montada = 111;
   // Para armas duplas, inverte o lado da arma.
   bool inverter_arma = 112;
+  // Para ataques que afetam ou não afetam alguns tipos.
+  repeated SubTipoDnD afeta_apenas_subtipo = 113;
 }
 
 message ConsequenciaEvento {

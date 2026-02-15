@@ -202,6 +202,7 @@ message ArmaProto {
     CURA_10_POR_NIVEL_MAX_150 = 18;
     DANO_10_POR_NIVEL_MAX_150 = 19;
     DANO_1D6_POR_NIVEL_MAX_20D6 = 20;
+    DANO_1D6_POR_NIVEL_MAX_10D6_CRISTAL_APENAS = 21;
   }
   // Se a arma for criada por feitico.
   ModeloDano modelo_dano = 25;
