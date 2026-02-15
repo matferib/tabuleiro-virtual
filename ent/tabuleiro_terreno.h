@@ -149,7 +149,7 @@ class Terreno {
     if (x_quad > num_x_quad || y_quad > num_y_quad) {
       throw std::logic_error("ponto invalido para altura");
     }
-    return pontos[y_quad * (num_x_quad + 1) + x_quad];
+    return static_cast<float>(pontos[y_quad * (num_x_quad + 1) + x_quad]);
   }
 
   /** Retorna a altura do chao em determinado ponto do terreno. Retorna 0 se ponto for invalido. */
@@ -164,9 +164,9 @@ class Terreno {
       // Poe x e y com origem em 0,0.
       x += lim_x;
       y += lim_y;
-      int x_quad0 = x / TAMANHO_LADO_QUADRADO;
-      int x_quad1 = std::min<int>(x_quad0 + 1, num_x_quad);
-      int y_quad0 = y / TAMANHO_LADO_QUADRADO;
+      int x_quad0 = static_cast<int>(x / TAMANHO_LADO_QUADRADO);
+      int x_quad1 = static_cast<int>(std::min<int>(x_quad0 + 1, num_x_quad));
+      int y_quad0 = static_cast<int>(y / TAMANHO_LADO_QUADRADO);
       int y_quad1 = std::min<int>(y_quad0 + 1, num_y_quad);
       float zx0y0 = AlturaPonto(x_quad0, y_quad0, num_x_quad, num_y_quad, pontos);
       float zx1y0 = AlturaPonto(x_quad1, y_quad0, num_x_quad, num_y_quad, pontos);
@@ -206,7 +206,7 @@ class Terreno {
     DadosPonto dp;
     dp.x = ConverteXQuad(x_quad);
     dp.y = ConverteYQuad(y_quad);
-    dp.z = altura;
+    dp.z = static_cast<float>(altura);
     dp.s = x_quad * inc_s_;
     dp.t = 1.0f - (y_quad * inc_t_);
     dp.indice = static_cast<int>(pontos_.size());
