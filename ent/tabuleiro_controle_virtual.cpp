@@ -208,16 +208,16 @@ void AbreDialogoForcarDado(int nfaces, ntf::CentralNotificacoes& central) {
   central.AdicionaNotificacao(n.release());
 }
 
-int TranslacaoX(const DadosBotao& db, const GLint* viewport, float unidade_largura) {
+float TranslacaoX(const DadosBotao& db, const GLint* viewport, float unidade_largura) {
   int coluna = db.coluna();
   if (db.alinhamento_horizontal() == ALINHAMENTO_DIREITA) {
-    return static_cast<int>(viewport[2] + coluna * unidade_largura);
+    return viewport[2] + coluna * unidade_largura;
   }
   else if (db.alinhamento_horizontal() == ALINHAMENTO_CENTRO) {
-    return static_cast<int>((viewport[2] / 2) + coluna * unidade_largura);
+    return (viewport[2] / 2) + coluna * unidade_largura;
   }
   else {
-    return static_cast<int>(coluna * unidade_largura);
+    return coluna * unidade_largura;
   }
 }
 
@@ -236,10 +236,10 @@ float TranslacaoY(const DadosBotao& db, const GLint* viewport, float unidade_alt
 
 Matrix4 MatrizBotao(const DadosBotao& db, const GLint* viewport, float padding, float unidade_largura, float unidade_altura) {
   float xi, xf, yi, yf;
-  xi = TranslacaoX(db, viewport, unidade_largura);
+  xi = static_cast<float>(TranslacaoX(db, viewport, unidade_largura));
   float largura_botao = db.has_tamanho() ? db.tamanho() : db.largura();
   float altura_botao = db.has_tamanho() ? db.tamanho() : db.altura();
-  xf = xi + largura_botao * unidade_largura;
+  xf = static_cast<float>(xi + largura_botao * unidade_largura);
   yi = TranslacaoY(db, viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
 
@@ -952,72 +952,19 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         central_->AdicionaNotificacao(std::move(n));
         break;
       }
-      auto it = mapa_botoes_controle_virtual_.find(CONTROLE_LUZ_TABULEIRO);
-      if (it != mapa_botoes_controle_virtual_.end()) {
-        const auto* db = it->second;
-        int fonte_x_int, fonte_y_int;
-        float escala;
-        gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
-        fonte_x_int *= escala;
-        fonte_y_int *= escala;
-        const float fonte_x = fonte_x_int;
-        const float fonte_y = fonte_y_int;
-        const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
-        const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
-        GLint viewport[4];
-        gl::Le(GL_VIEWPORT, viewport);
-        Matrix4 mb = MatrizBotao(*db, viewport, /*padding=*/0, largura_botao, altura_botao);
-        Vector4 bl(-0.5f, -0.5f, 0.0f, 1.0f);
-        bl = mb * bl;
-        Vector4 ur(0.5f, 0.5f, 0.0f, 1.0f);
-        ur = mb * ur;
-        float from_x = x - bl.x;
-        float total = ur.x - bl.x;
-        float luminancia = std::clamp(from_x / total, 0.0f, 1.0f);
-        auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
-        *n->mutable_tabuleiro() = CenarioIluminacao(*proto_corrente_);
-        Cor* cor;
-        Vector3 hsv;
-        if (mostrar_luz_ambiente_) {
-          cor = n->mutable_tabuleiro()->mutable_luz_ambiente();
-        } else {
-          cor = n->mutable_tabuleiro()->mutable_luz_direcional()->mutable_cor();
-        }
-        hsv = CorParaHSV(*cor);
-        hsv.z = luminancia;
-        *cor = HSVParaCor(hsv);
-        central_->AdicionaNotificacao(std::move(n));
-      }
+      estado_anterior_ = estado_;
+      estado_ = ETAB_DESLIZANDO_CONTROLE_VIRTUAL;
+      deslize_controle_virtual_.id_controle = CONTROLE_LUZ_TABULEIRO;
+      primeiro_x_ = x;
+      primeiro_y_ = y;
       break;
     }
     case CONTROLE_INCLINACAO_LUZ_TABULEIRO: {
-      auto it = mapa_botoes_controle_virtual_.find(CONTROLE_INCLINACAO_LUZ_TABULEIRO);
-      if (it != mapa_botoes_controle_virtual_.end()) {
-        const auto* db = it->second;
-        int fonte_x_int, fonte_y_int;
-        float escala;
-        gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
-        fonte_x_int *= escala;
-        fonte_y_int *= escala;
-        const float fonte_x = fonte_x_int;
-        const float fonte_y = fonte_y_int;
-        const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
-        const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
-        GLint viewport[4];
-        gl::Le(GL_VIEWPORT, viewport);
-        Matrix4 mb = MatrizBotao(*db, viewport, /*padding=*/0, largura_botao, altura_botao);
-        Vector4 bl(-0.5f, -0.5f, 0.0f, 1.0f);
-        bl = mb * bl;
-        Vector4 ur(0.5f, 0.5f, 0.0f, 1.0f);
-        ur = mb * ur;
-        float from_x = x - bl.x;
-        float total = ur.x - bl.x;
-        float inclinacao = std::clamp(from_x / total, 0.0f, 1.0f);
-        auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
-        *n->mutable_tabuleiro() = CenarioIluminacao(*proto_corrente_);
-        n->mutable_tabuleiro()->mutable_luz_direcional()->set_inclinacao_graus(180.0f - inclinacao * 180.0f);
-        central_->AdicionaNotificacao(std::move(n));
-      }
+      estado_anterior_ = estado_;
+      estado_ = ETAB_DESLIZANDO_CONTROLE_VIRTUAL;
+      deslize_controle_virtual_.id_controle = CONTROLE_INCLINACAO_LUZ_TABULEIRO;
+      primeiro_x_ = x;
+      primeiro_y_ = y;
       break;
     }
     default:
@@ -1032,6 +979,103 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       } else {
         LOG(WARNING) << "Controle invalido: " << id;
       }
+  }
+}
+
+void Tabuleiro::ModificarLuminanciaTabuleiro(const DadosBotao& db, int x, TabuleiroProto* tabuleiro) const {
+  int fonte_x_int, fonte_y_int;
+  float escala;
+  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
+  fonte_x_int *= escala;
+  fonte_y_int *= escala;
+  const float fonte_x = fonte_x_int;
+  const float fonte_y = fonte_y_int;
+  const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
+  const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  Matrix4 mb = MatrizBotao(db, viewport, /*padding=*/0, largura_botao, altura_botao);
+  Vector4 bl(-0.5f, -0.5f, 0.0f, 1.0f);
+  bl = mb * bl;
+  Vector4 ur(0.5f, 0.5f, 0.0f, 1.0f);
+  ur = mb * ur;
+  float from_x = x - bl.x;
+  float total = ur.x - bl.x;
+  float luminancia = std::clamp(from_x / total, 0.0f, 1.0f);
+  *tabuleiro = CenarioIluminacao(*proto_corrente_);
+  Cor* cor;
+  Vector3 hsv;
+  if (mostrar_luz_ambiente_) {
+    cor = tabuleiro->mutable_luz_ambiente();
+  }
+  else {
+    cor = tabuleiro->mutable_luz_direcional()->mutable_cor();
+  }
+  hsv = CorParaHSV(*cor);
+  hsv.z = luminancia;
+  *cor = HSVParaCor(hsv);
+}
+
+void Tabuleiro::ModificarInclinacaoLuzDirecionalTabuleiro(const DadosBotao& db, int x, TabuleiroProto* tabuleiro) const {
+  int fonte_x_int, fonte_y_int;
+  float escala;
+  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
+  fonte_x_int *= escala;
+  fonte_y_int *= escala;
+  const float fonte_x = fonte_x_int;
+  const float fonte_y = fonte_y_int;
+  const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
+  const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  Matrix4 mb = MatrizBotao(db, viewport, /*padding=*/0, largura_botao, altura_botao);
+  Vector4 bl(-0.5f, -0.5f, 0.0f, 1.0f);
+  bl = mb * bl;
+  Vector4 ur(0.5f, 0.5f, 0.0f, 1.0f);
+  ur = mb * ur;
+  float from_x = x - bl.x;
+  float total = ur.x - bl.x;
+  float inclinacao = std::clamp(from_x / total, 0.0f, 1.0f);
+  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+  *tabuleiro = CenarioIluminacao(*proto_corrente_);
+  tabuleiro->mutable_luz_direcional()->set_inclinacao_graus(180.0f - inclinacao * 180.0f);
+}
+
+std::unique_ptr<ntf::Notificacao> Tabuleiro::NotificacaoLuminanciaTabuleiro(const DadosBotao &db, int x) const {
+  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+  ModificarLuminanciaTabuleiro(db, x, n->mutable_tabuleiro());
+  // O desfazer sera gerado so na ultima notificacao.
+  n->set_nao_gerar_desfazer(true);
+  return n;
+}
+
+std::unique_ptr<ntf::Notificacao> Tabuleiro::NotificacaoInclinacaoLuzTabuleiro(const DadosBotao& db, int x) const {
+  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+  ModificarInclinacaoLuzDirecionalTabuleiro(db, x, n->mutable_tabuleiro());
+  // O desfazer sera gerado so na ultima notificacao.
+  n->set_nao_gerar_desfazer(true);
+  return n;
+}
+
+void Tabuleiro::DeslizandoControleVirtual(int x, int y) {
+  ultimo_x_ = x;
+  ultimo_y_ = y;
+  switch (deslize_controle_virtual_.id_controle) {
+    case CONTROLE_LUZ_TABULEIRO: {
+      auto it = mapa_botoes_controle_virtual_.find(CONTROLE_LUZ_TABULEIRO);
+      if (it != mapa_botoes_controle_virtual_.end()) {
+        central_->AdicionaNotificacao(NotificacaoLuminanciaTabuleiro(*it->second, x));
+      }
+      break;
+    }
+    case CONTROLE_INCLINACAO_LUZ_TABULEIRO: {
+      auto it = mapa_botoes_controle_virtual_.find(CONTROLE_INCLINACAO_LUZ_TABULEIRO);
+      if (it != mapa_botoes_controle_virtual_.end()) {
+        central_->AdicionaNotificacao(NotificacaoInclinacaoLuzTabuleiro(*it->second, x));
+      }
+      break;
+    }
+    default: ;
   }
 }
 
@@ -1975,8 +2019,8 @@ void Tabuleiro::DesenhaInfoCameraPresa() {
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
   fonte_x_int *= escala;
   fonte_y_int *= escala;
-  const float fonte_x = fonte_x_int;
-  const float fonte_y = fonte_y_int;
+  const float fonte_x = static_cast<float>(fonte_x_int);
+  const float fonte_y = static_cast<float>(fonte_y_int);
   const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
   const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
 
@@ -2013,10 +2057,10 @@ void Tabuleiro::DesenhaInfoCameraPresa() {
   }
 
   MudaCor(COR_AMARELA);
-  PosicionaRaster2d(largura_botao, bottom_y - (fonte_y * 1.1f));
+  PosicionaRaster2d(static_cast<int>(largura_botao), static_cast<int>(bottom_y - (fonte_y * 1.1f)));
   gl::DesenhaStringAlinhadoEsquerda(net::to_string(entidade->PontosVida()) + "/" + net::to_string(entidade->MaximoPontosVida()), true  /*inverte vertical*/);
   if (!entidade->Proto().rotulo().empty()) {
-    PosicionaRaster2d(largura_botao, top_y);
+    PosicionaRaster2d(static_cast<int>(largura_botao), static_cast<int>(top_y));
     gl::DesenhaStringAlinhadoEsquerda(StringSemUtf8(entidade->Proto().rotulo()));
   }
   //PosicionaRaster2d(largura_botao, top_y + (fonte_y * 0.5f));

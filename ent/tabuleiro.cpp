@@ -122,6 +122,8 @@ const std::string StringEstado(ent::etab_t estado) {
       return "ETAB_DESENHANDO";
     case ent::ETAB_RELEVO:
       return "ETAB_RELEVO";
+    case ent::ETAB_DESLIZANDO_CONTROLE_VIRTUAL:
+      return "ETAB_DESLIZANDO_CONTROLE_VIRTUAL";
     default:
       return "DESCONHECIDO";
   }
@@ -2674,13 +2676,19 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ATUALIZAR_TABULEIRO: {
       auto n_desfazer = NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
-      *n_desfazer->mutable_tabuleiro_antes() = *proto_corrente_;
+      if (notificacao.local() && !notificacao.nao_gerar_desfazer()) {
+        // Tem que copiar antes de aplicar as propriedades.
+        *n_desfazer->mutable_tabuleiro_antes() = *proto_corrente_;
+      }
       DeserializaPropriedades(notificacao.tabuleiro());
-      *n_desfazer->mutable_tabuleiro() = *proto_corrente_;
 
       if (notificacao.local()) {
+        // Para pular o desfazer, setar bool_generico.
         // So adicionamos essa notificacao a lista de desfazer pq a inversa chamara todas as atualizações de entidade.
-        AdicionaNotificacaoListaEventos(*n_desfazer);
+        if (!notificacao.nao_gerar_desfazer()) {
+          *n_desfazer->mutable_tabuleiro() = *proto_corrente_;
+          AdicionaNotificacaoListaEventos(*n_desfazer);
+        }
         // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando
         // infinitamente.
         auto* n_remota = new ntf::Notificacao(notificacao);

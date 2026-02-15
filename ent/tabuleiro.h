@@ -53,6 +53,7 @@ enum etab_t {
   ETAB_DESENHANDO,
   ETAB_RELEVO,
   ETAB_ESCALANDO_ROTACIONANDO_ENTIDADE_PINCA,
+  ETAB_DESLIZANDO_CONTROLE_VIRTUAL
 };
 
 struct Sinalizador {
@@ -1130,6 +1131,13 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Faz o picking do controle virtual, recebendo o id do objeto pressionado. */
   void PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id, bool forca_selecao);
+  void ModificarLuminanciaTabuleiro(const DadosBotao& db, int x, TabuleiroProto* tabuleiro) const;
+  void ModificarInclinacaoLuzDirecionalTabuleiro(const DadosBotao& db, int x, TabuleiroProto* tabuleiro) const;
+
+  std::unique_ptr<ntf::Notificacao> NotificacaoLuminanciaTabuleiro(const DadosBotao& db, int x) const;
+  std::unique_ptr<ntf::Notificacao> NotificacaoInclinacaoLuzTabuleiro(const DadosBotao& db, int x) const;
+
+  void DeslizandoControleVirtual(int x, int y);
 
   /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
   * para botoes com estado. */
@@ -1535,6 +1543,10 @@ class Tabuleiro : public ntf::Receptor {
   // Controle virtual.
   ControleVirtualProto controle_virtual_;
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
+  struct DeslizeControleVirtual {
+    int id_controle;
+  };
+  DeslizeControleVirtual deslize_controle_virtual_;
   std::set<std::string> texturas_entidades_;
   std::set<std::string> modelos_entidades_;
   std::set<std::string> itens_menu_;

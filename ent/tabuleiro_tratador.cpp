@@ -710,6 +710,9 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       TrataNivelamentoTerreno(x, y);
       break;
     }
+    case ETAB_DESLIZANDO_CONTROLE_VIRTUAL:
+      DeslizandoControleVirtual(x, y);
+      break;
     case ETAB_QUAD_PRESSIONADO:
       if (modo_clique_ == MODO_TERRENO) {
         estado_ = ETAB_RELEVO;
@@ -928,6 +931,23 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       *cenario_depois->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
       AdicionaNotificacaoListaEventos(notificacao_desfazer_);
       notificacao_desfazer_.Clear();
+      return;
+    }
+    case ETAB_DESLIZANDO_CONTROLE_VIRTUAL: {
+      if (primeiro_x_ == ultimo_x_ && primeiro_y_ == ultimo_y_) return;
+      auto it = mapa_botoes_controle_virtual_.find(CONTROLE_LUZ_TABULEIRO);
+      if (it == mapa_botoes_controle_virtual_.end()) break;
+      const DadosBotao& db = *it->second;
+      if (deslize_controle_virtual_.id_controle == CONTROLE_LUZ_TABULEIRO) {
+        auto notificacao_desfazer = NotificacaoLuminanciaTabuleiro(db, ultimo_x_);
+        ModificarLuminanciaTabuleiro(db, primeiro_x_, notificacao_desfazer->mutable_tabuleiro_antes());
+        AdicionaNotificacaoListaEventos(*notificacao_desfazer);
+      } else if (deslize_controle_virtual_.id_controle == CONTROLE_INCLINACAO_LUZ_TABULEIRO) {
+        auto notificacao_desfazer = NotificacaoInclinacaoLuzTabuleiro(db, ultimo_x_);
+        ModificarInclinacaoLuzDirecionalTabuleiro(db, primeiro_x_, notificacao_desfazer->mutable_tabuleiro_antes());
+        AdicionaNotificacaoListaEventos(*notificacao_desfazer);
+      }
+      estado_ = estado_anterior_;
       return;
     }
     default:
