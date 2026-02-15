@@ -33,6 +33,12 @@ class Texturas {
   virtual unsigned int TipoTextura(const std::string& id) const = 0;
 };
 
+enum class AplicaAlfaTranslucidos {
+  DEFAULT_APLICAR = 0,
+  NAO_APLICAR_SE_TRANSLUCIDO = 1,
+};
+void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd, AplicaAlfaTranslucidos aplicar_alfa_translucidos = AplicaAlfaTranslucidos::DEFAULT_APLICAR);
+
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
 std::unique_ptr<Entidade> NovaEntidade(
     const EntidadeProto& proto,

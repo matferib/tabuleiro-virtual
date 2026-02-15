@@ -29,12 +29,14 @@ bool MortaInconscienteIncapaz(const EntidadeProto& proto) {
 
 }  // namespace
 
-// Eh usada em outros arquivos tambem.
-void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd) {
+void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd, AplicaAlfaTranslucidos aplicar_alfa_translucidos) {
   const auto& cp = proto.cor();
   float cor[4] = { cp.r(), cp.g(), cp.b(), 1.0f };
   if (pd->has_alfa_translucidos()) {
-    cor[3] = cp.a() * pd->alfa_translucidos();
+    cor[3] = cp.a();
+    if (aplicar_alfa_translucidos == AplicaAlfaTranslucidos::DEFAULT_APLICAR || (aplicar_alfa_translucidos == AplicaAlfaTranslucidos::NAO_APLICAR_SE_TRANSLUCIDO && cp.a() == 1.0f)) {
+      cor[3] *= pd->alfa_translucidos();
+    }
   }
   if (pd->entidade_selecionada()) {
     RealcaCor(cor);

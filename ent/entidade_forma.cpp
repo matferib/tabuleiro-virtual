@@ -10,8 +10,6 @@
 
 namespace ent {
 
-void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd);
-
 void Entidade::InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
 }
 
@@ -234,7 +232,7 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                                        const VariaveisDerivadas& vd,
                                        ParametrosDesenho* pd) {
-  AjustaCor(proto, pd);
+  AjustaCor(proto, pd, AplicaAlfaTranslucidos::NAO_APLICAR_SE_TRANSLUCIDO);
   bool usar_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() &&
                       (proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
                        proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO || proto.sub_tipo() == TF_ESFERA ||
@@ -245,7 +243,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     gl::TexturaBump(proto.info_textura().textura_bump());
-    float periodo_s = proto.info_textura().periodo_s();
+    float periodo_s = static_cast<float>(proto.info_textura().periodo_s());
     if (proto.info_textura().has_modo_textura() || periodo_s > 0) {
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura());
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura());
