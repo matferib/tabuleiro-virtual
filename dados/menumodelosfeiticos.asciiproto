@@ -1,6 +1,10 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
 item_menu { id: 'Área Escorregadia' }
 sub_menu {
+  id: 'Constructos'
+  item_menu { id: 'Golem de Rubi' }
+}
+sub_menu {
   id: 'Invocar Criaturas I'
   item_menu { id: 'Cachorro Celestial ICI' texto: 'Cachorro Celestial' }
   item_menu { id: 'Coruja Celestial ICI' texto: 'Coruja Celestial' }

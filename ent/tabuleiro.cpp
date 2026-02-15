@@ -3178,6 +3178,7 @@ void Tabuleiro::ProximaIniciativaModoMestre() {
       AtualizaEsquivaAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
       AtualizaMovimentoAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
       AtualizaCuraAceleradaAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
+      AtualizaRegeneracaoAoPassarRodada(*entidade_iniciativa, grupo.get(), grupo_desfazer.get());
     }
   }
   if (passar_rodada_para_sem_iniciativas) {
@@ -8119,6 +8120,21 @@ void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, nt
   AdicionaAcaoDeltaPontosVidaSemAfetar(entidade.Id(), CuraAcelerada(entidade.Proto()));
 }
 
+void Tabuleiro::AtualizaRegeneracaoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
+  if (entidade.DanoNaoLetal() == 0) return;
+  if (entidade.Proto().morta()) return;
+  if (Regeneracao(entidade.Proto()) == 0) {
+    return;
+  }
+
+  auto* n = grupo->add_notificacao();
+  PreencheNotificacaoRegeneracao(entidade, n);
+  if (grupo_desfazer != nullptr) {
+    *grupo_desfazer->add_notificacao() = *n;
+  }
+  AdicionaAcaoDeltaPontosVidaSemAfetar(entidade.Id(), CuraAcelerada(entidade.Proto()));
+}
+
 // TODO Pra desfazer, tem que salvar muita coisa. Por enquanto nao muda nada.
 void Tabuleiro::ReiniciaAtaqueAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
   auto e_depois = std::get<1>(ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, grupo->add_notificacao()));
@@ -8139,6 +8155,7 @@ void Tabuleiro::PreenchePassaUmaRodada(bool passar_para_todos, ntf::Notificacao*
       AtualizaEsquivaAoPassarRodada(entidade, grupo, grupo_desfazer);
       AtualizaMovimentoAoPassarRodada(entidade, grupo, grupo_desfazer);
       AtualizaCuraAceleradaAoPassarRodada(entidade, grupo, grupo_desfazer);
+      AtualizaRegeneracaoAoPassarRodada(entidade, grupo, grupo_desfazer);
       PreencheNotificacaoAtaqueAoPassarRodada(entidade, grupo, grupo_desfazer);
       ReiniciaAtaqueAoPassarRodada(entidade, grupo, grupo_desfazer);
     }

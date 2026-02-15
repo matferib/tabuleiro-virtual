@@ -2362,6 +2362,33 @@ void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao
   }
 }
 
+// Criaturas com regeneracao consideram danos como não letal. A regeneração cura os danos nao letais.
+// TODO: curar apenas danos que não sao de fogo ou acido.
+void PreencheNotificacaoRegeneracao(const Entidade& entidade, ntf::Notificacao* n) {
+  const auto& proto = entidade.Proto();
+  int cura = Regeneracao(proto);
+  if (cura == 0) {
+    return;
+  }
+
+  EntidadeProto* entidade_antes, *entidade_depois;
+  std::tie(entidade_antes, entidade_depois) = PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade, n);
+
+  if (proto.dano_nao_letal() > 0) {
+    if (cura >= proto.dano_nao_letal()) {
+      // Cura tirou tudo e pode ate sobrar.
+      cura -= proto.dano_nao_letal();
+      entidade_depois->set_dano_nao_letal(0);
+      VLOG(2) << "curando todo dano nao letal";
+    } else {
+      // Cura parte do dano nao letal.
+      entidade_depois->set_dano_nao_letal(proto.dano_nao_letal() - cura);
+      cura = 0;
+      VLOG(2) << "curando apenas dano nao letal";
+    }
+    entidade_antes->set_dano_nao_letal(proto.dano_nao_letal());
+  }
+}
 
 std::pair<EntidadeProto*, EntidadeProto*> PreencheNotificacaoEntidade(
     ntf::Tipo tipo, const Entidade& entidade, ntf::Notificacao* n) {
@@ -5512,6 +5539,18 @@ std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
 int CuraAcelerada(const EntidadeProto& proto) {
   // Rodar manualmente os bonus e retornar o maior?
   return BonusTotal(proto.dados_defesa().cura_acelerada());
+}
+
+int Regeneracao(const EntidadeProto& proto, google::protobuf::RepeatedField<int> descritores) {
+  for (int v : proto.dados_defesa().regeneracao().vulnerabilidades()) {
+    // Vulneravel ao ataque, nao tem regeneracao.
+    for (int da : descritores) {
+      if (da == v) return 0;
+    }
+  }
+
+  // Rodar manualmente os bonus e retornar o maior?
+  return BonusTotal(proto.dados_defesa().regeneracao().valor());
 }
 
 Vector3 RotationMatrixToAngles(const Matrix3& matrix) {

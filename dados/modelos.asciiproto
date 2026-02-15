@@ -12402,6 +12402,11 @@ modelo {
     }
 
     dados_defesa {
+      regeneracao {
+        valor { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 5 } } }
+        vulnerabilidades: DESC_FOGO
+        vulnerabilidades: DESC_ACIDO
+      }
       ca {
         bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 5 } }
       }

@@ -506,6 +506,7 @@ void PreencheNotificacaoAtualizacaoPontosVida(
 void PreencheNotificacaoAtualizacaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, tipo_dano_e td, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
 void PreencheNotificacaoCuraAcelerada(const Entidade& entidade, ntf::Notificacao* n);
+void PreencheNotificacaoRegeneracao(const Entidade& entidade, ntf::Notificacao* n);
 
 void PreencheNotificacaoAtualizacaoXp(
     const Entidade& entidade, int delta_xp, ntf::Notificacao* n, ntf::Notificacao* n_desfazer);
@@ -1079,8 +1080,10 @@ std::vector<const ItemMagicoProto*> TodosItens(const EntidadeProto& proto);
 // Remove o item de proto.
 void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto);
 
-// Retorna a cura acelerada do alvo, ou 0 se houver.
+// Retorna a cura acelerada do alvo, ou 0.
 int CuraAcelerada(const EntidadeProto& proto);
+// Retorna a regeneracao do alvo, ou 0.
+int Regeneracao(const EntidadeProto& proto, google::protobuf::RepeatedField<int> da = {});
 
 // https://www.learnopencv.com/rotation-matrix-to-euler-angles/
 Vector3 RotationMatrixToAngles(const Matrix3& matrix);

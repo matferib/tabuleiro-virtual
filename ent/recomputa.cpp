@@ -317,6 +317,7 @@ void AplicaEfeitoComum(const ConsequenciaEvento& consequencia, EntidadeProto* pr
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_reflexo(), proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().salvacao_vontade(), proto->mutable_dados_defesa()->mutable_salvacao_vontade());
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().cura_acelerada(), proto->mutable_dados_defesa()->mutable_cura_acelerada());
+  AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().regeneracao().valor(), proto->mutable_dados_defesa()->mutable_regeneracao()->mutable_valor());
   AplicaBonusPenalidadeOuRemove(consequencia.dados_defesa().resistencia_magia_variavel(), proto->mutable_dados_defesa()->mutable_resistencia_magia_variavel());
   for (const auto& re : consequencia.dados_defesa().resistencia_elementos()) {
     if (!re.has_id_efeito_modelo()) continue;
@@ -1188,6 +1189,7 @@ ConsequenciaEvento PreencheConsequencia(
   if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
   if (c.dados_defesa().has_cura_acelerada())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_cura_acelerada());
+  if (c.dados_defesa().regeneracao().has_valor())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_regeneracao()->mutable_valor());
   if (c.dados_defesa().has_resistencia_magia_variavel())   PreencheOrigemValor(origem, complementos, c.mutable_dados_defesa()->mutable_resistencia_magia_variavel());
   for (auto& re : *c.mutable_dados_defesa()->mutable_resistencia_elementos()) {
     if (!re.has_indice_complemento() || (re.indice_complemento() < 0) || (re.indice_complemento() >= complementos.size())) continue;
@@ -1222,6 +1224,7 @@ ConsequenciaEvento PreencheConsequenciaFim(const std::string& origem, const Cons
   if (c.dados_defesa().has_salvacao_vontade())   PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_salvacao_vontade());
   if (c.dados_defesa().has_salvacao_reflexo())   PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_salvacao_reflexo());
   if (c.dados_defesa().has_cura_acelerada())     PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_cura_acelerada());
+  if (c.dados_defesa().regeneracao().has_valor())        PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_regeneracao()->mutable_valor());
   if (c.dados_defesa().has_resistencia_magia_variavel())     PreencheOrigemZeraValor(origem, c.mutable_dados_defesa()->mutable_resistencia_magia_variavel());
   if (c.has_jogada_ataque())            PreencheOrigemZeraValor(origem, c.mutable_jogada_ataque());
   if (c.has_jogada_dano())              PreencheOrigemZeraValor(origem, c.mutable_jogada_dano());
@@ -3649,6 +3652,9 @@ void RecomputaDependenciasUmDadoAtaque(
   if (da->alinhamento_ordem_caos() != DESC_NENHUM) da->add_descritores(da->alinhamento_ordem_caos());
   if (BonusIndividualTotal(TB_MELHORIA, da->bonus_dano()) > 0 || da->bonus_magico() > 0) {
     da->add_descritores(DESC_MAGICO);
+  }
+  if (da->has_elemento()) {
+    da->add_descritores(da->elemento());
   }
   if (!da->tipo_ataque_fisico().empty()) {
     std::copy(da->tipo_ataque_fisico().begin(),

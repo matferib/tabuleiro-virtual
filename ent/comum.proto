@@ -613,7 +613,7 @@ message DadosAtaqueGlobal {
 }
 
 // Dados de defesa global (independe de ataque).
-// Proximo id: 41.
+// Proximo id: 42.
 message DadosDefesa {
   string tipo_defesa = 1 [deprecated=true];
   bool imune_critico = 3;
@@ -671,6 +671,11 @@ message DadosDefesa {
   repeated ResistenciaElementos resistencia_elementos = 19;
   // A maior cura acelerada é a que vale. Todas serao do mesmo tipo TB_BASE.
   Bonus cura_acelerada = 23;
+  message Regeneracao {
+    Bonus valor = 1;
+    repeated DescritorAtaque vulnerabilidades = 2;
+  }
+  Regeneracao regeneracao = 41;
   // Evasao: dinamico.
   TipoEvasao evasao = 25;
   // Para casos de evasao sem ser por classe, exemplo, familiar.
