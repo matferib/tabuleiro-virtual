@@ -1698,6 +1698,24 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesa(
     resultado.texto = "Ataque sem bonus ou defensor sem armadura";
     return resultado;
   }
+
+  // Realiza um ataque de toque.
+  if (!da.afeta_apenas_subtipo().empty()) {
+    bool tem_subtipo = false;
+    for (int st : da.afeta_apenas_subtipo()) {
+      if (TemSubTipoDnD(static_cast<SubTipoDnD>(st), ed.Proto())) {
+        tem_subtipo = true;
+        break;
+      }
+    }
+    if (!tem_subtipo) {
+      VLOG(1) << "Entidade não pode ser afetada por ataque por subtipo tipo errado.";
+      resultado.texto = "Alvo não é do subtipo correto";
+      resultado.resultado = RA_FALHA_NORMAL;
+      return resultado;
+    }
+  }
+
   auto [d20_defesa, modificadores_defesa] = *opt_modificadores_defesa;
 
   int modificador_incrementos = ModificadorAlcance(distancia_m, ap, ea);
@@ -4677,6 +4695,11 @@ void ComputaDano(ArmaProto::ModeloDano modelo_dano, int nivel_conjurador, DadosA
       da->set_cura(false);
       return;
     }
+    case ArmaProto::DANO_1D6_POR_NIVEL_MAX_10D6_CRISTAL_APENAS: {
+      da->set_dano_basico_fixo(absl::StrFormat("%d", std::min(150, nivel_conjurador * 10)));
+      da->add_afeta_apenas_subtipo(SUBTIPO_CRISTALINO);
+      return;
+    }
     default:
       ;
   }
@@ -7197,8 +7220,8 @@ int PrecoArmaPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_person
     valor += 300;
     if (PossuiCategoria(CAT_ARMA_DUPLA, arma_tabelada)) valor += 300;
   }
-  valor += 2 * pow(arma_personagem.bonus_magico(), 2) * 1000;
-  valor += 2 * pow(arma_personagem.bonus_magico_secundario(), 2) * 1000;
+  valor += static_cast<int>(2.0f * powf(arma_personagem.bonus_magico(), 2.0f) * 1000.0f);
+  valor += static_cast<int>(2.0f * powf(arma_personagem.bonus_magico_secundario(), 2.0f) * 1000.0f);
   return valor;
 }
 
@@ -7295,34 +7318,34 @@ Cor HSVParaCor(Vector3 hsv) {
   switch (i) {
   case 0:
     out.set_r(hsv.z);
-    out.set_g(t);
-    out.set_b(p);
+    out.set_g(static_cast<float>(t));
+    out.set_b(static_cast<float>(p));
     break;
   case 1:
-    out.set_r(q);
+    out.set_r(static_cast<float>(q));
     out.set_g(hsv.z);
-    out.set_b(p);
+    out.set_b(static_cast<float>(p));
     break;
   case 2:
-    out.set_r(p);
+    out.set_r(static_cast<float>(p));
     out.set_g(hsv.z);
-    out.set_b(t);
+    out.set_b(static_cast<float>(t));
     break;
   case 3:
-    out.set_r(p);
-    out.set_g(q);
+    out.set_r(static_cast<float>(p));
+    out.set_g(static_cast<float>(q));
     out.set_b(hsv.z);
     break;
   case 4:
-    out.set_r(t);
-    out.set_g(p);
+    out.set_r(static_cast<float>(t));
+    out.set_g(static_cast<float>(p));
     out.set_b(hsv.z);
     break;
   case 5:
   default:
     out.set_r(hsv.z);
-    out.set_g(p);
-    out.set_b(q);
+    out.set_g(static_cast<float>(p));
+    out.set_b(static_cast<float>(q));
     break;
   }
   return out;

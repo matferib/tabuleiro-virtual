@@ -8308,6 +8308,36 @@ TEST(TesteAtaqueVsDefesa, TesteDerrubarNaoPermiteContraAtaque) {
   }
 }
 
+TEST(TesteAtaqueVsDefesa, AfetaApenasSubTipoDnD) {
+  auto proto_golem = TabelasCriando().ModeloEntidade("Golem de Rubi").entidade();
+  proto_golem.set_proxima_salvacao(RS_FALHOU);
+  auto golem_rubi = NovaEntidadeParaTestes(proto_golem, TabelasCriando());
+
+  DadosAtaque da_ataque;
+  auto proto = TabelasCriando().ModeloEntidade("Humano Clérigo 3 (Neutro)").entidade();
+  {
+    auto* da = DadosAtaquePorGrupoOuCria("despedacar", &proto);
+    da->set_id_arma("despedacar");
+    da->set_eh_feitico(true);
+  }
+  auto clerigoa = NovaEntidadeParaTestes(proto, TabelasCriando());
+  auto clerigod = NovaEntidadeParaTestes(proto, TabelasCriando());
+
+  const auto& da = DadosAtaquePorGrupo("despedacar", clerigoa->Proto());
+  LOG(INFO) << "da: " << da.ShortDebugString();
+  {
+    ResultadoAtaqueVsDefesa resultado =
+       AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("despedacar", clerigoa->Proto()).acao(), *clerigoa, da, *clerigod, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+    EXPECT_FALSE(resultado.Sucesso()) << resultado.texto;
+  }
+  {
+    g_dados_teste.push(1);
+    ResultadoAtaqueVsDefesa resultado =
+      AtaqueVsDefesa(0.0f, DadosAtaquePorGrupo("despedacar", clerigoa->Proto()).acao(), *clerigoa, da, *golem_rubi, Posicao::default_instance(), /*ataque_oportunidade=*/false);
+    EXPECT_TRUE(resultado.Sucesso()) << resultado.texto;
+  }
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {
