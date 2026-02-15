@@ -8117,7 +8117,7 @@ void Tabuleiro::AtualizaCuraAceleradaAoPassarRodada(const Entidade& entidade, nt
   if (grupo_desfazer != nullptr) {
     *grupo_desfazer->add_notificacao() = *n;
   }
-  AdicionaAcaoDeltaPontosVidaSemAfetar(entidade.Id(), CuraAcelerada(entidade.Proto()));
+  AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), CuraAcelerada(entidade.Proto()), "cura acelerada");
 }
 
 void Tabuleiro::AtualizaRegeneracaoAoPassarRodada(const Entidade& entidade, ntf::Notificacao* grupo, ntf::Notificacao* grupo_desfazer) {
@@ -8132,7 +8132,7 @@ void Tabuleiro::AtualizaRegeneracaoAoPassarRodada(const Entidade& entidade, ntf:
   if (grupo_desfazer != nullptr) {
     *grupo_desfazer->add_notificacao() = *n;
   }
-  AdicionaAcaoDeltaPontosVidaSemAfetar(entidade.Id(), CuraAcelerada(entidade.Proto()));
+  AdicionaAcaoDeltaPontosVidaSemAfetarComTexto(entidade.Id(), Regeneracao(entidade.Proto()), "regeneração");
 }
 
 // TODO Pra desfazer, tem que salvar muita coisa. Por enquanto nao muda nada.
