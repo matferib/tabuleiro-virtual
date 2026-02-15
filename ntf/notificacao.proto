@@ -105,7 +105,7 @@ enum Tipo {
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
-// Proximo id: 26.
+// Proximo id: 27.
 message Notificacao {
   Tipo tipo = 1;
   // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Toda notificacao deste tipo
@@ -156,6 +156,9 @@ message Notificacao {
   // Indica que a mensagem eh local, ou seja, veio do proprio jogo e nao de um cliente remoto.
   // Este campo eh preenchido para false durante recebimento de notificacoes pela rede.
   bool local = 11 [default=true];
+
+  // Para notificacoes que geram desfazer automaticamente, setar esse bit deve implicar em nao desfazer.
+  bool nao_gerar_desfazer = 26;
   // Para notificacoes do tipo TN_GRUPO_NOTIFICACOES. Apenas alguns tipos de notificacoes sao suportadas.
   repeated Notificacao notificacao = 14;
   // Para mensagens poderem usar de forma generica.
