@@ -515,6 +515,41 @@ modelo {
   }
 }
 modelo {
+  id: 'Golem de Rubi'  # Monstros de Faerun, pag 49
+  entidade {
+    tipo_dnd: TIPO_CONSTRUCTO
+    sub_tipo_dnd: SUBTIPO_CRISTALINO
+    dados_vida: '10d10' tamanho: TM_GRANDE info_textura { id: 'ruby_golem.png' } cor { r: 0.1 g: 0.0 b: 0.0 }
+    movimento {
+      terrestre_basico_q: 6
+      escavando_basico_q: 2
+    }
+    info_classes {
+      id: 'constructo' nivel: 10
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 23 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 1 } } }
+    }
+    dados_ataque {
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'pancada'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      alcance_q: 2
+    }
+    dados_defesa {
+      reducao_dano { descritores: DESC_MAGICO valor: 30 }
+      imunidades: DESC_FRIO
+      ca {
+        bonus_individual { tipo: TB_ARMADURA_NATURAL por_origem { origem: 'racial' valor: 15 } }
+      }
+    }
+
+  }
+}
+modelo {
   id: 'Guarda de Bane'  # Monstros de Faerun
   entidade {
     tipo_dnd: TIPO_MORTO_VIVO

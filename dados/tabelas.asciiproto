@@ -11348,6 +11348,45 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'despedacar'
+    nome_ingles: 'shatter'
+    nome: 'despedaçar'
+    alcance_quadrados: 5
+    modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'bardo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'caos'
+      nivel: 2
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 2
+    }
+    info_classes {
+      id: 'destruicao'
+      nivel: 2
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 2
+    }
+    modelo_dano: DANO_1D6_POR_NIVEL_MAX_10D6_CRISTAL_APENAS
+    acao {
+      id: 'Feitiço de Toque a Distância'
+      cor { r: 1.0 g: 1.0 b: 1.0 a: 0.5 }
+      icone: 'icon_touch.png'
+      permite_salvacao: true
+      permite_ataque_vs_defesa: false
+      tipo_salvacao: TS_FORTITUDE
+      elemento: DESC_SONICO
+    }
+    escola: 'evocacao'
+  }
+
+  armas {
     id: 'flecha_acida'
     nome_ingles: ' acid arrow'
     nome: 'flecha ácida'
