@@ -515,6 +515,54 @@ modelo {
   }
 }
 modelo {
+  id: 'Tressym'  # Cenário de Campanha de Forgotten Realms
+  entidade {
+    tendencia { simples: TD_CAOTICO_BOM }
+    tipo_dnd: TIPO_BESTA_MAGICA
+    dados_vida: '1d4' tamanho: TM_MIUDO info_textura { id: 'tressym.png' } cor { r: 0.5 g: 0.5 b: 0.5 }
+    rotulo_especial: 'voo bom'
+    movimento {
+      terrestre_basico_q: 6
+      aereo_basico_q: 10 # bom
+    }
+    info_classes {
+      id: 'besta_magica' nivel: 1
+      pericias_monstro: 'equilibrio'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'furtividade'
+    }
+    info_talentos {
+      gerais { id: 'acuidade_arma' }
+    }
+    dados_ataque {
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    info_pericias { id: 'equilibrio' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'escalar' pontos: 3 }
+    info_pericias { id: 'equilibrio' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 3 }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 3 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Golem de Rubi'  # Monstros de Faerun, pag 49
   entidade {
     tipo_dnd: TIPO_CONSTRUCTO
