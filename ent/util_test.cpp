@@ -5393,6 +5393,23 @@ TEST(TesteCuraAcelerada, TesteCuraAcelerada2) {
   EXPECT_EQ(e->MaximoPontosVida(), 15);
 }
 
+TEST(TesteRegeneracao, TesteRegeneracao) {
+  auto proto = TabelasCriando().ModeloEntidade("Troll").entidade();
+  proto.set_max_pontos_vida(20);
+  // Tem que curar 5 do dano nao letal e nao tocar no dano letal.
+  proto.set_pontos_vida(13);
+  proto.set_dano_nao_letal(10);
+
+  ntf::Notificacao n;
+  std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(proto, TabelasCriando()));
+  PreencheNotificacaoRegeneracao(*e, &n);
+  e->AtualizaParcial(n.entidade());
+
+  EXPECT_EQ(e->DanoNaoLetal(), 5);
+  EXPECT_EQ(e->PontosVida(), 13);
+  EXPECT_EQ(e->MaximoPontosVida(), 20);
+}
+
 TEST(TesteModelo, TesteEspecialista7) {
   auto proto = TabelasCriando().ModeloEntidade("Humana Especialista (Tecelã) 7").entidade();
   auto esp = NovaEntidadeParaTestes(proto, TabelasCriando());
