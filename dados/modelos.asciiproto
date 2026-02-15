@@ -7316,7 +7316,7 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' } # 50
       pocoes { id: 'curar_ferimentos_leves' } # 50
       pocoes { id: 'arma_magica' } # 50
-      pocoes { id: 'pele_arvore' } # 300 cheio
+      pocoes { id: 'pele_arvore_2' } # 300 cheio
       pocoes { id: 'ajuda' } # 300.
       pergaminhos_divinos { id: 'infligir_ferimentos_leves' } # 25
       pergaminhos_divinos { id: 'infligir_ferimentos_leves' } # 25
@@ -7387,7 +7387,7 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' } # 50
       pocoes { id: 'curar_ferimentos_leves' } # 50
       pocoes { id: 'arma_magica' } # 50
-      pocoes { id: 'pele_arvore' } # 300 cheio
+      pocoes { id: 'pele_arvore_2' } # 300 cheio
       pergaminhos_divinos { id: 'arma_espiritual' } # 150
 
       tesouro: 'simbolo sagrado\n6tochas'
@@ -7422,6 +7422,79 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Humano Clérigo 3 (Caótico e Mau)'
+  id_entidade_base: 'Humano Clérigo Base'
+  entidade {
+    tendencia { simples: TD_CAOTICO_MAU }
+    dados_vida: '2d8+8+6' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    info_classes { id: 'clerigo' nivel: 3 }
+    cor { r: 0.3 g: 0.2 b: 0.2 }
+    dados_defesa { id_armadura: 'armadura_batalha' id_escudo: 'pesado_aco' }
+    dados_ataque {
+      id_arma: 'maca_estrela' obra_prima: true empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
+      municao: 10
+    }
+    dados_ataque {
+      id_arma: 'agua_benta' empunhadura: EA_ARMA_ESCUDO
+      municao: 1
+    }
+    dados_ataque {
+      id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO
+      municao: 1
+    }
+    info_talentos {
+      gerais { id: 'preparar_pocao' }
+      gerais { id: 'reflexos_rapidos' }
+    }
+    info_pericias { id: 'concentracao' pontos: 6 }
+    info_pericias { id: 'ouvir' pontos: 6 }
+    info_pericias { id: 'identificar_magia' pontos: 6 }
+    tesouro {
+      # 75%.
+      pocoes { id: 'curar_ferimentos_leves' } # 50
+      pocoes { id: 'curar_ferimentos_leves' } # 50
+      pocoes { id: 'arma_magica' } # 50
+      pocoes { id: 'pele_arvore_2' } # 300 cheio
+      pergaminhos_divinos { id: 'arma_espiritual' } # 150
+
+      tesouro: 'simbolo sagrado\n6tochas'
+      moedas { po: 2 }
+    }
+
+    feiticos_classes {
+      id_classe: 'clerigo'
+      dominios: 'mal'
+      dominios: 'caos'
+      feiticos_por_nivel_deprecated {
+        nivel: 0
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 1
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 2
+        conhecidos { id: 'ajuda' }
+        conhecidos { id: 'forca_touro' }
+        conhecidos { id: 'arma_espiritual' }
+        conhecidos { id: 'auto' }
+      }
+    }
+  }
+}
+
 modelo {
   id: 'Humano Clérigo 4 (Neutro)'
   id_entidade_base: 'Humano Clérigo Base'
@@ -7463,7 +7536,7 @@ modelo {
       pocoes { id: 'curar_ferimentos_leves' } # 50
       pocoes { id: 'curar_ferimentos_moderados' } # 300
       pocoes { id: 'arma_magica' } # 50
-      pocoes { id: 'pele_arvore' } # 300 cheio
+      pocoes { id: 'pele_arvore_2' } # 300 cheio
       # Pergaminhos.
       pergaminhos_divinos { id: 'escudo_entropico' } # 25
       pergaminhos_divinos { id: 'infligir_ferimentos_leves' } # 25
