@@ -30,6 +30,7 @@ varying lowp vec4 v_ColorSemDirecional;
 varying mediump vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
+varying lowp float v_Tex_presenca;  // tem textura.
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 varying highp float v_Bias;
 varying lowp vec2 v_Tex;  // coordenada texel.
@@ -89,7 +90,7 @@ void main() {
 #endif
   lowp vec4 cor_final = mix(v_ColorSemDirecional, v_Color, aplicar_luz_direcional);
 
-  if (gltab_textura > 0.0) {
+  if (gltab_textura > 0.0 && v_Tex_presenca >= 0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
   }
   cor_final *= cor_oclusao * gltab_cor_mistura_pre_nevoa;
