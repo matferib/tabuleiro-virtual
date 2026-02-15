@@ -129,7 +129,6 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 void GeraDadosVidaSeAutomatico(EntidadeProto* proto) {
   // TODO nao elite.
   if (!proto->dados_vida().empty() || !proto->dados_vida_automatico()) return;
-  LOG(INFO) << "ali";
   bool elite = true;
   bool primeiro = true;
   std::string dv;
