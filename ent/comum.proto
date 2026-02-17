@@ -55,15 +55,15 @@ enum TendenciaSimplificada {
 }
 
 enum TamanhoEntidade {
-  TM_MINUSCULO = 0;
-  TM_DIMINUTO = 1;
-  TM_MIUDO = 2;
-  TM_PEQUENO = 3;
-  TM_MEDIO = 4;
-  TM_GRANDE = 5;
-  TM_ENORME = 6;
-  TM_IMENSO = 7;
-  TM_COLOSSAL = 8;
+  TM_MINUSCULO = 0;  // fine
+  TM_DIMINUTO = 1;   // diminutive
+  TM_MIUDO = 2;      // miudo
+  TM_PEQUENO = 3;    // small
+  TM_MEDIO = 4;      // medium
+  TM_GRANDE = 5;     // large
+  TM_ENORME = 6;     // huge
+  TM_IMENSO = 7;     // gargantuan
+  TM_COLOSSAL = 8;   // colossal
 }
 
 // Os efeitos sao tabelados. Na tabela, existe uma tabela de efeito que define o
