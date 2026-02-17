@@ -170,31 +170,46 @@ void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
 }
 
 void InterfaceGraficaQt::EscolheArquivoAbrirImagem(
-  const std::vector<std::string>& imagens, std::function<void(const std::string& nome)> funcao_volta) {
+  const std::vector<std::string>& imagens_locais, const std::vector<std::string>& imagens_globais, std::function<void(const std::string& nome, arq::tipo_e)> funcao_volta) {
   // Popula.
   ifg::qt::Ui::ListaPaginada gerador;
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
-  for (const auto& imagem : imagens) {
+  {
+    auto* wie = new QListWidgetItem(pai_->tr("Locais"), gerador.lista);
+    wie->setFlags(Qt::NoItemFlags);
+  }
+  for (const auto& imagem : imagens_locais) {
+    new QListWidgetItem(imagem.c_str(), gerador.lista);
+  }
+  {
+    auto* wie = new QListWidgetItem(pai_->tr("Estáticos"), gerador.lista);
+    wie->setFlags(Qt::NoItemFlags);
+  }
+  for (const auto& imagem : imagens_globais) {
     new QListWidgetItem(imagem.c_str(), gerador.lista);
   }
   gerador.lista->setFocus();
-  auto lambda_aceito = [this, &gerador, dialogo, imagens, funcao_volta]() {
+  auto lambda_aceito = [this, &gerador, dialogo, imagens_locais, imagens_globais, funcao_volta]() {
     int indice = gerador.lista->currentRow();
-    int tamanho_total = imagens.size();
-    if (indice >= 0 && indice < tamanho_total) {
+    int tamanho_total = imagens_locais.size() + imagens_globais.size();
+    if (indice != 0 && indice != (imagens_locais.size() + 1) && indice < (tamanho_total + 2)) {
       pai_->v3d()->PegaContexto();
-      funcao_volta(imagens[indice]);
+      if (indice < (imagens_locais.size() + 1)) {
+        funcao_volta(imagens_locais[indice - 1], arq::TIPO_TEXTURA_LOCAL);
+      } else {
+        funcao_volta(imagens_globais[indice - 2 - imagens_locais.size()], arq::TIPO_TEXTURA);
+      }
       pai_->v3d()->LiberaContexto();
       dialogo->accept();
     }
     };
-  auto lambda_rejeitado = [this, &gerador, dialogo, imagens, funcao_volta]() {
+  auto lambda_rejeitado = [this, &gerador, dialogo, imagens_locais, funcao_volta]() {
     pai_->v3d()->PegaContexto();
-    funcao_volta("");
+    funcao_volta("", arq::TIPO_TEXTURA);
     pai_->v3d()->LiberaContexto();
     dialogo->reject();
-    };
+  };
   lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
   lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
   lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);

@@ -62,8 +62,8 @@ class InterfaceGrafica : public ntf::Receptor {
 
   // Mostra dialogo para escolher uma imagem local.
   virtual void EscolheArquivoAbrirImagem(
-    const std::vector<std::string>& imagens,
-    std::function<void(const std::string& nome)> funcao_volta) = 0;
+    const std::vector<std::string>& imagens_locais, const std::vector<std::string>& imagens_globais,
+    std::function<void(const std::string& nome, arq::tipo_e)> funcao_volta) = 0;
 
   // Mostra dialogo para salvar tabuleiro, chamando a funcao de volta ao terminar.
   virtual void EscolheArquivoSalvarTabuleiro(
@@ -133,7 +133,7 @@ class InterfaceGrafica : public ntf::Receptor {
 
   // A saida sempre sera TEXTURA_LOCAL.
   void TrataAbrirImagem(const ntf::Notificacao& notificacao);
-  void VoltaAbrirImagem(const std::string& nome);
+  void VoltaAbrirImagem(const std::string& nome, arq::tipo_e);
 
   void TrataSalvarTabuleiro(const ntf::Notificacao& notificacao);
   void VoltaSalvarTabuleiro(bool modelo_3d, bool versionar, const std::string& nome);

@@ -745,10 +745,11 @@ class ElementoSalvarTabuleiro : public ElementoInterface {
 class ElementoAbrirImagem : public ElementoInterface {
  public:
   ElementoAbrirImagem(InterfaceGraficaOpengl* interface_grafica,
-                      const std::vector<std::string>& texs,
-                      std::function<void(const std::string& nome)> funcao_volta)
+                      const std::vector<std::string>& texs_locais, const std::vector<std::string>& texs_globais,
+                      std::function<void(const std::string& nome, arq::tipo_e)> funcao_volta)
     : interface_grafica_(interface_grafica),
-      texs_(texs),
+      texs_locais_(texs_locais),
+      texs_globais_(texs_globais),
       funcao_volta_(funcao_volta) {
     int fonte_x_int, fonte_y_int;
     gl::TamanhoFonteComEscala(&fonte_x_int, &fonte_y_int);
@@ -760,20 +761,20 @@ class ElementoAbrirImagem : public ElementoInterface {
     Posiciona(xc - (largura / 2), yc - (altura / 2));
     Dimensoes(largura, altura);
     std::function<void()> volta_cancela = [this, funcao_volta] () {
-      funcao_volta("");
+      funcao_volta("", arq::TIPO_TEXTURA);
       interface_grafica_->FechaElemento();
     };
     std::function<void()> volta_ok = [this, funcao_volta] () {
       unsigned int indice = lista_paginada_->ItemSelecionado();
       //LOG(INFO) << "1: " << indice << ", " << tab_estaticos_[indice];
-      funcao_volta(texs_[indice]);
+      funcao_volta(texs_locais_[indice], arq::TIPO_TEXTURA_LOCAL);
       interface_grafica_->FechaElemento();
     };
     barra_ok_cancela_.reset(
         new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx), std::nullopt,
                                    volta_ok, volta_cancela, this));
     std::vector<std::string> lista;
-    lista.insert(lista.end(), texs.begin(), texs.end());
+    lista.insert(lista.end(), texs_locais_.begin(), texs_locais_.end());
     lista_paginada_.reset(new ElementoListaPaginada(
           lista,
           X(), Y() + barra_ok_cancela_->Altura(),
@@ -799,10 +800,11 @@ class ElementoAbrirImagem : public ElementoInterface {
 
  private:
   InterfaceGraficaOpengl* interface_grafica_ = nullptr;
-  const std::vector<std::string> texs_;
+  const std::vector<std::string> texs_locais_;
+  const std::vector<std::string> texs_globais_;
   std::unique_ptr<ElementoListaPaginada> lista_paginada_;
   std::unique_ptr<ElementoBarraOkCancela> barra_ok_cancela_;
-  std::function<void(const std::string& nome)> funcao_volta_;
+  std::function<void(const std::string& nome, arq::tipo_e)> funcao_volta_;
 };
 
 #if 0
@@ -1053,13 +1055,13 @@ void InterfaceGraficaOpengl::EscolheArquivoSalvarTabuleiro(
 }
 
 void InterfaceGraficaOpengl::EscolheArquivoAbrirImagem(
-    const std::vector<std::string>& imagens,
-    std::function<void(const std::string& nome)> funcao_volta) {
+    const std::vector<std::string>& imagens_locais, const std::vector<std::string>& imagens_globais,
+    std::function<void(const std::string& nome, arq::tipo_e)> funcao_volta) {
   if (elemento_.get() != nullptr) {
     LOG(WARNING) << "So pode haver um elemento por vez.";
     return;
   }
-  elemento_.reset(new ElementoAbrirImagem(this, imagens, funcao_volta));
+  elemento_.reset(new ElementoAbrirImagem(this, imagens_locais, imagens_globais, funcao_volta));
 }
 
 void InterfaceGraficaOpengl::EscolheValorDadoForcado(

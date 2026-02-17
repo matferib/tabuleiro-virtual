@@ -50,8 +50,8 @@ class InterfaceGraficaQt : public ifg::InterfaceGrafica {
       std::function<void(const std::string& nome, arq::tipo_e tipo)> funcao_volta) override;
 
   void EscolheArquivoAbrirImagem(
-    const std::vector<std::string>& imagens,
-    std::function<void(const std::string& nome)> funcao_volta) override;
+    const std::vector<std::string>& imagens_locais, const std::vector<std::string>& imagens_globais,
+    std::function<void(const std::string& nome, arq::tipo_e)> funcao_volta) override;
 
   void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) override;

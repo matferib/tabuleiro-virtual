@@ -622,33 +622,36 @@ void InterfaceGrafica::VoltaSalvarTabuleiro(
 //----------------
 void InterfaceGrafica::TrataAbrirImagem(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
-  std::vector<std::string> texs;
+  std::vector<std::string> tex_locais;
+  std::vector<std::string> tex_globais;
   try {
-    texs = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL);
+    tex_locais = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL);
+    tex_globais = arq::ConteudoDiretorio(arq::TIPO_TEXTURA);
   }
   catch (...) {
   }
 
-  if (texs.empty()) {
+  if (tex_locais.empty() && tex_globais.empty()) {
     central_->AdicionaNotificacao(ntf::NovaNotificacaoErroTipada(ntf::TN_ERRO, "Nao existem texturas salvas"));
     tabuleiro_->ReativaWatchdogSeMestre();
     return;
   }
-  std::sort(texs.begin(), texs.end());
+  std::sort(tex_locais.begin(), tex_locais.end());
+  std::sort(tex_globais.begin(), tex_globais.end());
   EscolheArquivoAbrirImagem(
-    texs,
+    tex_locais, tex_globais,
     std::bind(
       &ifg::InterfaceGrafica::VoltaAbrirImagem,
-      this, _1));
+      this, _1, _2));
 }
 
-void InterfaceGrafica::VoltaAbrirImagem(const std::string& nome) {
+void InterfaceGrafica::VoltaAbrirImagem(const std::string& nome, arq::tipo_e tipo) {
   if (!nome.empty()) {
     auto notificacao = ntf::NovaNotificacao(ntf::TN_MOSTRAR_IMAGEM_CLIENTES);
     auto* textura = notificacao->add_info_textura();
     try {
       unsigned int largura, altura;
-      tex::Texturas::LeDecodificaImagemTipo(arq::TIPO_TEXTURA_LOCAL, nome, textura, &largura, &altura);
+      tex::Texturas::LeDecodificaImagemTipo(tipo, nome, textura, &largura, &altura);
     } catch (...) {
       return;
     }
