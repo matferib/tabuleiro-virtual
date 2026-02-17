@@ -519,38 +519,45 @@ modelo {
   entidade {
     tendencia { simples: TD_CAOTICO_BOM }
     tipo_dnd: TIPO_BESTA_MAGICA
-    dados_vida: '1d4' tamanho: TM_MIUDO info_textura { id: 'tressym.png' } cor { r: 0.5 g: 0.5 b: 0.5 }
+    dados_vida: '1d4' menos_de_um_dado_vida: true  # o original é 1/2d8.
+    tamanho: TM_MIUDO
+    info_textura { id: 'tressym.png' largura: 0.6 translacao_x: 0.2 altura: 0.9 translacao_y: 0.1 } cor { r: 0.5 g: 0.5 b: 0.5 }
     rotulo_especial: 'voo bom'
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    mais_de_duas_pernas: true
     movimento {
       terrestre_basico_q: 6
       aereo_basico_q: 10 # bom
     }
     info_classes {
       id: 'besta_magica' nivel: 1
-      pericias_monstro: 'equilibrio'
-      pericias_monstro: 'escalar'
       pericias_monstro: 'esconderse'
       pericias_monstro: 'furtividade'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'observar'
     }
     info_talentos {
-      gerais { id: 'acuidade_arma' }
+      gerais { id: 'sorrateiro' }
+      outros { id: 'acuidade_arma' origem: 'bonus' }
     }
     dados_ataque {
-      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra'
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra' dano_basico: '1d2'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra'
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra' dano_basico: '1d2'
       empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida'
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '1d3'
       empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
     }
-    info_pericias { id: 'equilibrio' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
-    info_pericias { id: 'escalar' pontos: 3 }
-    info_pericias { id: 'equilibrio' pontos: 3 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
-    info_pericias { id: 'furtividade' pontos: 3 }
+    info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'escalar' pontos: 5 atributo: TA_DESTREZA }  # nao é de classe
+    info_pericias { id: 'esconderse' pontos: 2  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 1 }
+    info_pericias { id: 'ouvir' pontos: 2 }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 3 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
