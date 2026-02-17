@@ -26,7 +26,7 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Proximo id: 124.
+// Proximo id: 125.
 message EntidadeProto {
   string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -409,6 +409,16 @@ message EntidadeProto {
   uint32 familiar = 118;
   // Times representam aliados. Usado para feiticos que afetam apenas aliados e controles automaticos.
   repeated uint32 times = 119;
+
+  // Para entidades que seguem uma rota.
+  // A posicao é relativa ao personagem.
+  message Rota {
+    string id = 1;
+    bool ativo = 3;
+    Posicao referencia = 4;
+    repeated Posicao pos = 2;
+  }
+  Rota rota = 124;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.
