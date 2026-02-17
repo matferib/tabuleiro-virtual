@@ -55,6 +55,18 @@ void AtualizaUIMovimento(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntida
     botao->setText(QString::number(BonusTotal(*bonus)));
     botao->blockSignals(false);
   }
+
+  if (!proto.rota().id().empty()) {
+    if (proto.rota().id() == "circular") {
+      gerador.radio_rota_circular->setChecked(true);
+    } else if (proto.rota().id() == "leste_oeste") {
+      gerador.radio_rota_leste_oeste->setChecked(true);
+    } else if (proto.rota().id() == "norte_sul") {
+      gerador.radio_rota_norte_sul->setChecked(true);
+    } else {
+      gerador.radio_rota_nenhuma->setChecked(true);
+    }
+  }
 }
 
 int TipoEvasaoParaIndiceCombo(ent::TipoEvasao te) {
