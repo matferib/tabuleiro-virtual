@@ -78,6 +78,7 @@ sub_menu {
     item_menu { id: 'Tiranossauro' }
   }
   item_menu { id: 'Falcão' }
+  item_menu { id: 'Gato' }
   item_menu { id: 'Guepardo' }
   item_menu { id: 'Gorila' }
   item_menu { id: 'Hiena' }

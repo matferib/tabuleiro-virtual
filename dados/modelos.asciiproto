@@ -5183,7 +5183,68 @@ modelo {
     modificador_iniciativa: 1
   }
 }
-
+modelo {
+  id: 'Gato'
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    tipo_dnd: TIPO_ANIMAL
+    rotulo_especial: 'faro'
+    dados_vida: '1d4' menos_de_um_dado_vida: true  # o original é 1/2d8.
+    tamanho: TM_MIUDO
+    info_textura { id: 'cat.png' largura: 0.6 translacao_x: 0.2 altura: 0.9 translacao_y: 0.1 } cor { r: 0.5 g: 0.5 b: 0.5 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    mais_de_duas_pernas: true
+    movimento {
+      terrestre_basico_q: 6
+    }
+    info_classes {
+      id: 'animal' nivel: 1
+      pericias_monstro: 'equilibrio'
+      pericias_monstro: 'escalar'
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'saltar'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+    }
+    info_talentos {
+      gerais { id: 'sorrateiro' }
+      outros { id: 'acuidade_arma' origem: 'bonus' }
+    }
+    dados_ataque {
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra' dano_basico: '1d2'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'garra' dano_basico: '1d2'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_ataque {
+      grupo: 'cac' tipo_ataque: 'Ataque Corpo a Corpo' id_arma: 'mordida' dano_basico: '1d3'
+      empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
+    }
+    info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    info_pericias { id: 'escalar' atributo: TA_DESTREZA bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }  # nao é de classe
+    info_pericias { id: 'esconderse'
+      bonus {
+        bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } }
+        bonus_individual { tipo: TB_TERRENO por_origem { valor: 4 origem: 'TT_MATAGAL'} }  # grama alta.
+      }
+    }
+    info_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 2 }
+    info_pericias { id: 'ouvir' pontos: 2 }
+    info_pericias { id: 'saltar' atributo: TA_DESTREZA bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 3 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+    }
+  }
+}
 modelo {
   id: 'Ponei'
   entidade {
