@@ -687,6 +687,8 @@ enum TipoTerreno {
   TT_NENHUM = 0;
   TT_SUBTERRANEO = 1;
   TT_FLORESTA = 2;
+  // Terrenos com grama alta.
+  TT_MATAGAL = 3;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).

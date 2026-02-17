@@ -554,7 +554,12 @@ modelo {
     }
     info_pericias { id: 'equilibrio' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 8 } } } }
     info_pericias { id: 'escalar' pontos: 5 atributo: TA_DESTREZA }  # nao é de classe
-    info_pericias { id: 'esconderse' pontos: 2  bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'esconderse' pontos: 2
+      bonus {
+        bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } }
+        bonus_individual { tipo: TB_TERRENO por_origem { valor: 4 origem: 'TT_MATAGAL'} }  # grama alta.
+      }
+    }
     info_pericias { id: 'furtividade' pontos: 2 bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'observar' pontos: 1 }
     info_pericias { id: 'ouvir' pontos: 2 }
