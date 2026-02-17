@@ -767,7 +767,11 @@ class ElementoAbrirImagem : public ElementoInterface {
     std::function<void()> volta_ok = [this, funcao_volta] () {
       unsigned int indice = lista_paginada_->ItemSelecionado();
       //LOG(INFO) << "1: " << indice << ", " << tab_estaticos_[indice];
-      funcao_volta(texs_locais_[indice], arq::TIPO_TEXTURA_LOCAL);
+      if (indice < texs_locais_.size()) {
+        funcao_volta(texs_locais_[indice], arq::TIPO_TEXTURA_LOCAL);
+      } else {
+        funcao_volta(texs_globais_[indice - texs_locais_.size()], arq::TIPO_TEXTURA);
+      }
       interface_grafica_->FechaElemento();
     };
     barra_ok_cancela_.reset(
@@ -775,6 +779,7 @@ class ElementoAbrirImagem : public ElementoInterface {
                                    volta_ok, volta_cancela, this));
     std::vector<std::string> lista;
     lista.insert(lista.end(), texs_locais_.begin(), texs_locais_.end());
+    lista.insert(lista.end(), texs_globais_.begin(), texs_globais_.end());
     lista_paginada_.reset(new ElementoListaPaginada(
           lista,
           X(), Y() + barra_ok_cancela_->Altura(),
