@@ -26,7 +26,7 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Proximo id: 123.
+// Proximo id: 124.
 message EntidadeProto {
   string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -57,6 +57,9 @@ message EntidadeProto {
   int32 max_pontos_vida = 12;
   // Exemplo: 4d8 + 8.
   string dados_vida = 19;
+  // Algumas criaturas tem dados de vida fracionarios (gato, tressym). Não encontrei a regra exata, mas elas acabam tendo -1 de BBA.
+  // Como o tabuleiro nao reconhece 1/2d8, este campo indica que é fracionario.
+  bool menos_de_um_dado_vida = 123;
   // Se true, os dados_vida serao gerados automaticamente.
   bool dados_vida_automatico = 120;
   // Armazena os bonus de dados de vida do personagem (como vitalidade).

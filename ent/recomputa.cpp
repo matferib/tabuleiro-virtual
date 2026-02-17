@@ -3922,9 +3922,14 @@ void RecomputaDependencias(
     const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
     const int niveis_negativos = proto->niveis_negativos();
     // Note que é importante separar o bba no nivel negativo por razões de numero de ataques.
-    const int bba = proto->info_classes_size() > 0 ? CalculaBonusBaseAtaque(*proto) : proto->bba().base();
+    int bba = proto->info_classes_size() > 0 ? CalculaBonusBaseAtaque(*proto) : proto->bba().base();
+    std::string bba_menos_um;
+    if (proto->menos_de_um_dado_vida()) {
+      bba -= 1;
+      bba_menos_um = ", -1 dado de vida fracionário";
+    }
     proto->mutable_bba()->set_base_detalhes(
-        absl::StrFormat("classe: %+d", bba));
+        absl::StrFormat("classe: %+d%s", bba, bba_menos_um.c_str()));
     proto->mutable_bba()->set_base(bba);
 
     proto->mutable_bba()->set_cac(modificador_forca + modificador_tamanho + bba - niveis_negativos);
