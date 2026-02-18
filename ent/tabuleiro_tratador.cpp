@@ -864,6 +864,9 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         if (entidade_selecionada == nullptr) {
           continue;
         }
+        EntidadeProto::Rota rota_antes = entidade_selecionada->Proto().rota();
+        Posicao destino_antes = entidade_selecionada->Destino();
+        entidade_selecionada->DesativaRota();
         {
           auto n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
           auto* e = n->mutable_entidade();
@@ -873,6 +876,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
           destino->set_y(entidade_selecionada->Y());
           destino->set_z(entidade_selecionada->Z());
           destino->set_id_cenario(entidade_selecionada->IdCenario());
+          e->mutable_rota()->set_ativo(false);
           central_->AdicionaNotificacaoRemota(n.release());
         }
         // Para desfazer.
@@ -880,7 +884,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         n_desfazer->set_tipo(ntf::TN_MOVER_ENTIDADE);
         n_desfazer->mutable_entidade()->set_id(id);
         n_desfazer->mutable_entidade_antes()->set_id(id);
-        auto* pos_final = n_desfazer->mutable_entidade()->mutable_destino();
+        auto* pos_final = n_desfazer->mutable_entidade()->mutable_pos();
         pos_final->set_x(entidade_selecionada->X());
         pos_final->set_y(entidade_selecionada->Y());
         pos_final->set_z(entidade_selecionada->Z());
@@ -890,6 +894,10 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         pos_original->set_y(entidade_selecionada->Y() - vetor_delta.y());
         pos_original->set_z(entidade_selecionada->Z() - vetor_delta.z());
         pos_original->set_id_cenario(entidade_selecionada->IdCenario());
+        *n_desfazer->mutable_entidade()->mutable_rota() = entidade_selecionada->Proto().rota();
+        *n_desfazer->mutable_entidade_antes()->mutable_rota() = rota_antes;
+        *n_desfazer->mutable_entidade()->mutable_destino() = entidade_selecionada->Proto().destino();
+        *n_desfazer->mutable_entidade_antes()->mutable_destino() = destino_antes;
       }
       AdicionaNotificacaoListaEventos(g_desfazer);
       estado_ = ETAB_ENTS_SELECIONADAS;
@@ -3713,6 +3721,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadasOuCamera(bool frente_atras, f
     p->set_y(entidade_selecionada->Y());
     p->set_z(entidade_selecionada->Z());
     p->set_id_cenario(entidade_selecionada->IdCenario());
+    *e_antes->mutable_rota() = entidade_selecionada->Proto().rota();
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.

@@ -1129,7 +1129,19 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
 
   // Daqui pra baixo, tratamento de destino.
   if (!proto_.has_destino()) {
-    return false;  // sem atualização de sombras.
+    if (proto_.rota().ativo() && !proto_.rota().pos().empty()) {
+      Vector4 pos_rota = PosParaVector4(proto_.rota().pos(vd_.indice_rota % proto_.rota().pos().size()));
+      float deslocamento_m = std::max(1, BonusTotal(proto_.voadora() ? proto_.movimento().aereo_q() : proto_.movimento().terrestre_q())) * TAMANHO_LADO_QUADRADO;
+      pos_rota *= deslocamento_m;
+      pos_rota += PosParaVector4(proto_.rota().referencia());
+      auto* destino = proto_.mutable_destino();
+      pos_rota.w = 1.0f;
+      *destino = Vector4ParaPosicao(pos_rota);
+      destino->set_id_cenario(IdCenario());
+      return false;
+    } else {
+      return false;  // sem atualização de sombras.
+    }
   }
 
   vd_.atualiza_matriz_vbo = true;
@@ -1148,18 +1160,22 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
   }
   bool chegou = true;
   // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
-  const float DESLOCAMENTO = TAMANHO_LADO_QUADRADO * (intervalo_ms / 1000.0f);  // anda 4 quadrados em 1s.
+  float deslocamento = TAMANHO_LADO_QUADRADO * (intervalo_ms / 1000.0f);  // anda 4 quadrados em 1s.
+  if (proto_.rota().ativo()) {
+    // Pela regra, deslocamento é quanto se anda a cada 6 segundos, mas vou dividir por 3 tb pq não quero rapido demais.
+    deslocamento = std::max(1, BonusTotal(proto_.voadora() ? proto_.movimento().aereo_q() : proto_.movimento().terrestre_q())) * TAMANHO_LADO_QUADRADO / 6000.0f * (intervalo_ms / 10.0f);
+  }
   VLOG(3) << "po antes: " << po->ShortDebugString() << ", pd antes: " << pd.ShortDebugString();
   Vector3 d(pd.x(), pd.y(), pd.z());
   Vector3 o(po->x(), po->y(), po->z());
   d -= o;
   float falta = d.length();
-  if (falta <= DESLOCAMENTO) {
-  } else if (falta > 5.0f * DESLOCAMENTO) {
-    d *= 5.0f * DESLOCAMENTO / falta;  // anda 5 * DESLOCAMENTO.
+  if (falta <= deslocamento) {
+  } else if (falta > 5.0f * deslocamento) {
+    d *= 5.0f * deslocamento / falta;  // anda 5 * DESLOCAMENTO.
     chegou = false;
   } else {
-    d *= DESLOCAMENTO / falta;  // anda DESLOCAMENTO.
+    d *= deslocamento / falta;  // anda DESLOCAMENTO.
     chegou = false;
   }
   po->set_x(o.x + d.x);
@@ -1169,6 +1185,9 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
 
   if (chegou) {
     proto_.clear_destino();
+    if (proto_.rota().ativo() && !proto_.rota().pos().empty()) {
+      vd_.indice_rota = (vd_.indice_rota + 1)  % proto_.rota().pos().size();
+    }
   }
   return true;
 }
@@ -1243,6 +1262,17 @@ void Entidade::MoveDelta(float dx, float dy, float dz) {
 
 void Entidade::Destino(const Posicao& pos) {
   *proto_.mutable_destino() = pos;
+}
+
+void Entidade::Rota(const EntidadeProto::Rota& rota) {
+  *proto_.mutable_rota() = rota;
+}
+
+void Entidade::DesativaRota() {
+  if (proto_.rota().ativo()) {
+    proto_.mutable_rota()->set_ativo(false);
+    proto_.clear_destino();
+  }
 }
 
 void Entidade::IncrementaZ(float delta) {

@@ -6651,6 +6651,9 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       if (n_original.entidade_antes().has_apoiada()) {
         n_inversa.mutable_entidade()->set_apoiada(n_original.entidade_antes().apoiada());
       }
+      if (n_original.entidade_antes().has_rota()) {
+        *n_inversa.mutable_entidade()->mutable_rota() = n_original.entidade_antes().rota();
+      }
       if (n_original.tabuleiro_antes().has_camera_inicial()) {
         *n_inversa.mutable_tabuleiro()->mutable_camera_inicial() = n_original.tabuleiro_antes().camera_inicial();
       }
@@ -6762,14 +6765,24 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     return;
   }
   const bool apoiada_antes = entidade->Apoiada();
-  if (proto.has_destino()) {
+  if (proto.destino().has_x()) {
     entidade->Destino(proto.destino());
-  } else {
+  }
+  Posicao pos_antes = entidade->Pos();
+  if (proto.pos().has_x()) {
     entidade->MovePara(proto.pos());
   }
   if (proto.has_apoiada()) {
     entidade->Apoia(proto.apoiada());
   }
+  EntidadeProto::Rota rota_antes = entidade->Proto().rota();
+  Posicao destino_antes = entidade->Proto().destino();
+  if (proto.has_rota()) {
+    entidade->Rota(proto.rota());
+  } else {
+    entidade->DesativaRota();
+  }
+
   if (notificacao.local()) {
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
     // Para desfazer: salva a posicao original e destino.
@@ -6777,12 +6790,14 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     n_desfazer.set_tipo(ntf::TN_MOVER_ENTIDADE);
     n_desfazer.mutable_entidade()->set_id(entidade->Id());
     n_desfazer.mutable_entidade_antes()->set_id(entidade->Id());
-    n_desfazer.mutable_entidade_antes()->mutable_pos()->CopyFrom(entidade->Proto().pos());
     n_desfazer.mutable_entidade()->mutable_destino()->CopyFrom(proto.pos());
-    if (proto.has_apoiada()) {
-      n_desfazer.mutable_entidade()->set_apoiada(entidade->Apoiada());
-      n_desfazer.mutable_entidade_antes()->set_apoiada(apoiada_antes);
-    }
+    n_desfazer.mutable_entidade_antes()->mutable_pos()->CopyFrom(pos_antes);
+    n_desfazer.mutable_entidade()->set_apoiada(entidade->Apoiada());
+    n_desfazer.mutable_entidade_antes()->set_apoiada(apoiada_antes);
+    *n_desfazer.mutable_entidade()->mutable_rota() = entidade->Proto().rota();
+    *n_desfazer.mutable_entidade_antes()->mutable_rota() = rota_antes;
+    *n_desfazer.mutable_entidade()->mutable_destino() = entidade->Proto().destino();
+    *n_desfazer.mutable_entidade_antes()->mutable_destino() = destino_antes;
     AdicionaNotificacaoListaEventos(n_desfazer);
   }
   RequerAtualizacaoLuzesPontuais();

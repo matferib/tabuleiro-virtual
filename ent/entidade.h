@@ -143,6 +143,10 @@ class Entidade {
   /** Atribui um destino a entidade. A cada atualizacao ela se movera em direcao ao destino. */
   void Destino(const Posicao& pos);
 
+  /** Atribui uma rota a entidade. */
+  void Rota(const EntidadeProto::Rota& rota);
+  void DesativaRota();
+
   /** Incrementa Z da entidade por um delta. */
   void IncrementaZ(float delta_z);
 
@@ -558,6 +562,7 @@ class Entidade {
     // Numero de ataques realizado na rodada.
     int ataques_na_rodada = 0;
     unsigned int ultimo_ataque_ms = 0;
+    int indice_rota = 0;
     DadosEmissao fumaca;
     DadosEmissao bolhas;
     DadosEmissao fogo;
