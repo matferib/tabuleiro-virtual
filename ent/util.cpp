@@ -2056,7 +2056,7 @@ std::string RotuloEntidade(const Entidade& entidade) {
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
   switch (n.tipo()) {
     case ntf::TN_GRUPO_NOTIFICACOES: {
-      std::string resumo;
+      std::string resumo = "GRUPO: ";
       for (const auto& nf : n.notificacao()) {
         auto resumo_parcial = ResumoNotificacao(tabuleiro, nf);
         if (!resumo_parcial.empty()) {
@@ -2069,7 +2069,10 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
       return "";
     }
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL: {
-      return std::string("entidade ") + EntidadeNotificacao(tabuleiro, n) + " atualizada: " + n.entidade().ShortDebugString();
+      return std::string("ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO: entidade ") + EntidadeNotificacao(tabuleiro, n) + " atualizada: " + n.entidade().ShortDebugString();
+    }
+    case ntf::TN_MOVER_ENTIDADE: {
+      return std::string("MOVER_ENTIDADE: entidade ") + EntidadeNotificacao(tabuleiro, n) + " pos: " + n.entidade().pos().ShortDebugString() + ", destino: " + n.entidade().destino().ShortDebugString() + ", rota: " + n.entidade().rota().ShortDebugString();
     }
     default:
       return "";
