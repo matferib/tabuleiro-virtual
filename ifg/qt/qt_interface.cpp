@@ -28,6 +28,7 @@ namespace {
 
 void InterfaceGraficaQt::MostraMensagem(
     bool erro, const std::string& mensagem, std::function<void()> funcao_volta) {
+  pai_->v3d()->LiberaContexto();
   // Com qt fechando, não se deve mais mostrar mensagens.
   if (!pai_->Fechando()) {
     if (erro) {
@@ -36,6 +37,7 @@ void InterfaceGraficaQt::MostraMensagem(
       QMessageBox::information(pai_, pai_->tr("Informação"), pai_->tr(mensagem.c_str()));
     }
   }
+  pai_->v3d()->PegaContexto();
   funcao_volta();
 }
 
@@ -44,6 +46,7 @@ void InterfaceGraficaQt::EscolheItemLista(
     const std::optional<std::string>& rotulo_ok,
     const std::vector<std::string>& lista,
     std::function<void(bool, int)> funcao_volta) {
+  pai_->v3d()->LiberaContexto();
   // Popula.
   ifg::qt::Ui::ListaPaginada gerador;
   auto* dialogo = new QDialog(pai_);
@@ -82,12 +85,14 @@ void InterfaceGraficaQt::EscolheItemLista(
   lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
   dialogo->exec();
   delete dialogo;
+  pai_->v3d()->PegaContexto();
 }
 
 void InterfaceGraficaQt::EscolheItemsLista(
     const std::string& titulo,
     const std::vector<std::string>& lista,
     std::function<void(bool, std::vector<int>)> funcao_volta) {
+  pai_->v3d()->LiberaContexto();
   // Popula.
   ifg::qt::Ui::ListaPaginada gerador;
   auto* dialogo = new QDialog(pai_);
@@ -120,12 +125,14 @@ void InterfaceGraficaQt::EscolheItemsLista(
   lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
   dialogo->exec();
   delete dialogo;
+  pai_->v3d()->PegaContexto();
 }
 
 void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
     const std::vector<std::string>& tab_estaticos,
     const std::vector<std::string>& tab_dinamicos,
     std::function<void(const std::string& nome, arq::tipo_e tipo)> funcao_volta) {
+  pai_->v3d()->LiberaContexto();
   // Popula.
   ifg::qt::Ui::ListaPaginada gerador;
   auto* dialogo = new QDialog(pai_);
@@ -167,10 +174,12 @@ void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
   lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
   dialogo->exec();
   delete dialogo;
+  pai_->v3d()->PegaContexto();
 }
 
 void InterfaceGraficaQt::EscolheArquivoAbrirImagem(
   const std::vector<std::string>& imagens_locais, const std::vector<std::string>& imagens_globais, std::function<void(const std::string& nome, arq::tipo_e)> funcao_volta) {
+  pai_->v3d()->LiberaContexto();
   // Popula.
   ifg::qt::Ui::ListaPaginada gerador;
   auto* dialogo = new QDialog(pai_);
@@ -215,10 +224,12 @@ void InterfaceGraficaQt::EscolheArquivoAbrirImagem(
   lambda_connect(gerador.botoes, SIGNAL(rejected()), lambda_rejeitado);
   dialogo->exec();
   delete dialogo;
+  pai_->v3d()->PegaContexto();
 }
 
 void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
     std::function<void(const std::string& nome)> funcao_volta) {
+  pai_->v3d()->LiberaContexto();
   ifg::qt::Ui::EntradaString gerador;
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
@@ -236,6 +247,7 @@ void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
   QObject::connect(gerador.botoes, SIGNAL(rejected()), dialogo, SLOT(reject()));
   dialogo->exec();
   delete dialogo;
+  pai_->v3d()->PegaContexto();
 }
 
 namespace {
@@ -261,6 +273,7 @@ std::set<std::string> ExtraiItensMenu(const MenuModelos& menu_modelos) {
 }  // namespace
 
 void InterfaceGraficaQt::EscolheModeloEntidade(const MenuModelos& menu_modelos, std::function<void(const std::string& nome)> funcao_volta) {
+  pai_->v3d()->LiberaContexto();
   ifg::qt::Ui::ListaPaginada gerador;
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
@@ -291,11 +304,13 @@ void InterfaceGraficaQt::EscolheModeloEntidade(const MenuModelos& menu_modelos, 
   QObject::connect(gerador.botoes, SIGNAL(rejected()), dialogo, SLOT(reject()));
   dialogo->exec();
   delete dialogo;
+  pai_->v3d()->PegaContexto();
 }
 
 void InterfaceGraficaQt::EscolheCor(
     TipoCor tc, std::optional<int> id_cenario, float r, float g, float b, float a, 
     std::function<void(bool, TipoCor, std::optional<int>, float, float, float, float)> funcao_volta) {
+  pai_->v3d()->LiberaContexto();
   QColor cor_ida(r, g, b);
   QColor cor = QColorDialog::getColor(cor_ida, pai_, QObject::tr("Escolha Cor"));
   pai_->v3d()->PegaContexto();
@@ -304,10 +319,10 @@ void InterfaceGraficaQt::EscolheCor(
   } else {
     funcao_volta(true, tc, id_cenario, cor.redF(), cor.greenF(), cor.blueF(), cor.alphaF());
   }
-  pai_->v3d()->LiberaContexto();
 }
 
 void InterfaceGraficaQt::EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) {
+  pai_->v3d()->LiberaContexto();
   auto* dialogo = new QDialog(pai_);
   int numero_colunas = nfaces == 100
       ? 10
@@ -323,7 +338,6 @@ void InterfaceGraficaQt::EscolheValorDadoForcado(const std::string& titulo, int 
   dialogo->exec();
   pai_->v3d()->PegaContexto();
   funcao_volta(val);
-  pai_->v3d()->LiberaContexto();
 }
 
 }  // namespace qt

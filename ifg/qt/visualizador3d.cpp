@@ -173,6 +173,7 @@ void Visualizador3d::paintGL() {
   glFlush();
 }
 
+DECLSPEC_NOINLINE
 void Visualizador3d::PegaContexto() {
   // Nota sobre assimetria de PegaContexto e LiberaContexto:
   // A funcao nao empilha nada, apenas seta qual o FB o OpenGL vai usar.
@@ -192,6 +193,7 @@ void Visualizador3d::PegaContexto() {
   ++contexto_cref_;
 }
 
+DECLSPEC_NOINLINE
 void Visualizador3d::LiberaContexto() {
   if (--contexto_cref_ == 0) {
     doneCurrent();
@@ -257,9 +259,11 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return false;
       }
       DesativadorWatchdogEscopo dw(tabuleiro_);
+      LiberaContexto();
       std::unique_ptr<ent::EntidadeProto> entidade_proto(AbreDialogoEntidade(notificacao));
       if (entidade_proto == nullptr) {
         VLOG(1) << "Alterações descartadas";
+        PegaContexto();
         break;
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);
@@ -267,7 +271,6 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // Como abriu outra janela, ela pode ter mexido no contexto.
       PegaContexto();
       tabuleiro_->TrataNotificacao(*n);
-      LiberaContexto();
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO: {
@@ -276,16 +279,17 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return false;
       }
       DesativadorWatchdogEscopo dw(tabuleiro_);
+      LiberaContexto();
       auto* tabuleiro = AbreDialogoCenario(notificacao);
       if (tabuleiro == nullptr) {
         VLOG(1) << "Alterações de tabuleiro descartadas";
+        PegaContexto();
         break;
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
       n->mutable_tabuleiro()->Swap(tabuleiro);
       PegaContexto();
       tabuleiro_->TrataNotificacao(*n);
-      LiberaContexto();
       break;
     }
     case ntf::TN_ABRIR_DIALOGO_OPCOES: {
@@ -295,8 +299,10 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       DesativadorWatchdogEscopo dw(tabuleiro_);
       std::unique_ptr<ent::OpcoesProto> opcoes(AbreDialogoOpcoes(notificacao));
+      LiberaContexto();
       if (opcoes.get() == nullptr) {
         VLOG(1) << "Alterações de opcoes descartadas";
+        PegaContexto();
         break;
       }
       auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
@@ -304,7 +310,6 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       PegaContexto();
       TrataNotificacao(*n);
       tabuleiro_->TrataNotificacao(*n);
-      LiberaContexto();
       break;
     }
     case ntf::TN_TEMPORIZADOR:
