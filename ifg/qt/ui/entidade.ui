@@ -2190,6 +2190,26 @@ QGroupBox::title {
             </property>
            </widget>
           </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_73">
+            <item>
+             <widget class="QLabel" name="label_98">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Raio (q)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spin_rota_raio"/>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
        </item>
