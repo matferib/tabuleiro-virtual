@@ -9694,6 +9694,49 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Guerreiro 3 Montado'
+  entidade {
+    # Elite.
+    rotulo: 'guerreiro 3 montado'
+    dados_vida: '2d10+10+10'
+    raca: 'humano'
+    info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 3 }
+    tesouro {
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'curar_ferimentos_leves' }
+      armas { id: 'Lança Montada OP' id_tabela: 'lanca_montada' obra_prima: true }
+      armas { id: 'Espada Longa OP' id_tabela: 'espada_longa' obra_prima: true }
+      armaduras { id: 'Armadura de Batalha' id_tabela: 'armadura_batalha' }
+    }
+    # Ao montar com lanca, pode usar apenas uma mão. Se usar 2, tem que fazer teste de cavalgar.
+    dados_ataque { rotulo: 'lanca montada' id_arma_tesouro: 'Lança Montada OP' empunhadura: EA_ARMA_APENAS }
+    dados_ataque { rotulo: 'espada longa' id_arma_tesouro: 'Espada Longa OP' empunhadura: EA_2_MAOS }
+    dados_defesa { id_armadura: 'armadura_batalha' id_escudo: 'pesado_aco' }
+    info_talentos {
+      gerais { id: 'investida_montada' }
+      outros { id: 'ataque_poderoso' origem: 'humano' }
+      outros { id: 'combate_montado' origem: 'guerreiro' }
+      outros { id: 'foco_em_arma' complemento: 'lanca_montada' origem: 'guerreiro' }
+    }
+    info_pericias { id: 'cavalgar' pontos: 6 bonus { bonus_individual { tipo: TB_CIRCUNSTANCIA por_origem { origem: 'sela militar' valor: 2 } } } }
+    info_pericias { id: 'adestrar_animais' pontos: 6 }
+    info_pericias { id: 'saltar' pontos: 3 }
+    info_pericias { id: 'intimidacao' pontos: 3 }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 16 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
+modelo {
   id: 'Humano Guerreiro 5 Montado'
   entidade {
     # Elite.

@@ -337,7 +337,9 @@ sub_menu {
     id: 'Guerreiros'
     item_menu { id: 'Humana Guerreira' texto: 'Humana 1' }
     item_menu { id: 'Humano Guerreiro' texto: 'Humano 1' }
+    item_menu { id: 'Humano Guerreiro 3 Montado' texto: 'Humano 3 Montado' }
     item_menu { id: 'Humano Guerreiro 5' texto: 'Humano 5' }
+    item_menu { id: 'Humano Guerreiro 5 Montado' texto: 'Humano 5 Montado' }
     item_menu { id: 'Humana Guerreira 5' texto: 'Humana 5' }
     item_menu { id: 'Humano Guerreiro 7' texto: 'Humano 7' }
   }
