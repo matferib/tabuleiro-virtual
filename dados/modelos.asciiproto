@@ -13386,6 +13386,1716 @@ modelo {
     }
   }
 }
+
+modelo {
+  id: 'Mato'
+  entidade {
+    info_textura { id: 'terrain_grass.png' }
+    tipo: TE_COMPOSTA
+    pos {
+      x: -20.368103
+      y: -14.142168
+      z: 0.0149999885
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.0405540466
+        y: -0.281194687
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.324481964
+        y: -0.0828104
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: -9.00000095
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.22385788
+        y: 0.239537239
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104
+        y: 0.0511104
+        z: 1.02220798
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.293970108
+        y: -0.772791862
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: -34.0000038
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.349742889
+        y: -0.631940842
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -45
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.649721146
+        y: 0.375687599
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0384481959
+        y: 0.0384481959
+        z: 0.768964
+      }
+      rotacao_z_graus: 20.0000076
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.298505783
+        y: 0.0248613358
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.257032394
+        y: -0.276387215
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.666404724
+        y: 0.274796486
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.700796127
+        y: -0.0162229538
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 23.0000038
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.386007309
+        y: 0.16172123
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104
+        y: 0.0511104
+        z: 1.02220798
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.706163406
+        y: -0.240773201
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 17
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.580266953
+        y: 0.118924141
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 12.0000019
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.422966
+        y: -0.157279968
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.106990814
+        y: -0.0376338959
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104092
+        y: 0.0511104092
+        z: 1.02220798
+      }
+      rotacao_z_graus: 3.99999976
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.486644745
+        y: -0.214828491
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.511407852
+        y: 0.297745705
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.365018845
+        y: -0.378454208
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 37
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.614816666
+        y: -0.063325882
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+      rotacao_z_graus: -10.999999
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.126808167
+        y: 0.21816349
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.561574936
+        y: -0.346891403
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.687093735
+        y: 0.271862984
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0390099399
+        y: 0.0390099399
+        z: 0.780198812
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.429014206
+        y: 0.423314095
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0572436489
+        y: 0.0572436489
+        z: 1.1448729
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.508173
+        y: 0.374131203
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.591629
+        y: -0.00385570526
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104
+        y: 0.0511104
+        z: 1.02220798
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.587245941
+        y: 0.522648811
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0572436489
+        y: 0.0572436489
+        z: 1.1448729
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.246160507
+        y: 0.443684578
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0489340648
+        y: 0.0489340648
+        z: 0.978681386
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.074010849
+        y: 0.463200569
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0489340648
+        y: 0.0489340648
+        z: 0.978681386
+      }
+      rotacao_z_graus: 17
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.33008194
+        y: 0.591591835
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0572436489
+        y: 0.0572436489
+        z: 1.1448729
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.264734268
+        y: -0.0579471588
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.243169785
+        y: 0.556710243
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0390099399
+        y: 0.0390099399
+        z: 0.780198812
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.311231613
+        y: 0.109219551
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.466228485
+        y: 0.13216877
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.171850204
+        y: 0.492257118
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0572436489
+        y: 0.0572436489
+        z: 1.1448729
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.397369385
+        y: -0.0466518402
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 12.0000019
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.308071136
+        y: 0.308999062
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0489340648
+        y: 0.0489340648
+        z: 0.978681386
+      }
+      rotacao_z_graus: 36.9999962
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.638046265
+        y: -0.465087891
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.087928772
+        y: 0.344349861
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0489340648
+        y: 0.0489340648
+        z: 0.978681386
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.520898819
+        y: -0.240048409
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.562372208
+        y: -0.541298866
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.362819672
+        y: -0.228901863
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+      rotacao_z_graus: -10.999999
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.152999878
+        y: 0.00988483429
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.118608475
+        y: -0.281133652
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 23.0000038
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.433397293
+        y: -0.103188515
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104
+        y: 0.0511104
+        z: 1.02220798
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.113241196
+        y: -0.505684853
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 17
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.23913765
+        y: -0.14598465
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 12.0000019
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.396438599
+        y: -0.422193527
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.494922638
+        y: -0.347723
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: -9.00000095
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.332759857
+        y: -0.479741096
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.595546722
+        y: -0.0253734589
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104
+        y: 0.0511104
+        z: 1.02220798
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.30799675
+        y: 0.032834053
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.454385757
+        y: -0.643364906
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 37
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.204587936
+        y: -0.328237534
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+      rotacao_z_graus: -10.999999
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.692596436
+        y: -0.0467472076
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.257829666
+        y: -0.611802101
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.713237762
+        y: 0.435799599
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0449771583
+        y: 0.0449771583
+        z: 0.899543047
+      }
+      rotacao_z_graus: 31.0000038
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.140274048
+        y: 0.124196053
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.117677689
+        y: -0.181858063
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.0988006592
+        y: -0.177051544
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.416061401
+        y: -0.512468338
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.542564392
+        y: 0.083111763
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 23.0000038
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.227775574
+        y: 0.261055946
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104
+        y: 0.0511104
+        z: 1.02220798
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.547931671
+        y: -0.141437531
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 17
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.422035217
+        y: 0.218258858
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 12.0000019
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.051240921
+        y: 0.0616998672
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104092
+        y: 0.0511104092
+        z: 1.02220798
+      }
+      rotacao_z_graus: 3.99999976
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.166250229
+        y: 0.0165224075
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: -9.00000095
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.328411102
+        y: -0.115494728
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.0656261444
+        y: 0.338871956
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104
+        y: 0.0511104
+        z: 1.02220798
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.353176117
+        y: 0.397080421
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.206787109
+        y: -0.279119492
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 37
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.45658493
+        y: 0.0360078812
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+      rotacao_z_graus: -10.999999
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.0314235687
+        y: 0.317498207
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.403343201
+        y: -0.247555733
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.0842208862
+        y: 0.562535286
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0489340648
+        y: 0.0489340648
+        z: 0.978681386
+      }
+      rotacao_z_graus: 17
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.466302872
+        y: 0.408333778
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0489340648
+        y: 0.0489340648
+        z: 0.978681386
+      }
+      rotacao_z_graus: 36.9999962
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.679130554
+        y: -0.140712738
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.27684021
+        y: -0.181797028
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 23.0000038
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.271472931
+        y: -0.406351089
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 17
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.679586411
+        y: -0.376172066
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.545137405
+        y: 0.240094185
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: -9.00000095
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.608356476
+        y: 0.543606758
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: -11.000001
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.612617493
+        y: -0.54403019
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 37
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.084400177
+        y: 0.201102257
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0511104055
+        y: 0.0511104055
+        z: 1.02220798
+      }
+      rotacao_z_graus: 18.9999981
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.411800385
+        y: 0.512043953
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0436911322
+        y: 0.0436911322
+        z: 0.873822689
+      }
+      rotacao_z_graus: 37
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.750707626
+        y: 0.173760414
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0449771583
+        y: 0.0449771583
+        z: 0.899543047
+      }
+      rotacao_z_graus: 35.0000038
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.0873355865
+        y: 0.609303474
+        z: 1.11758709e-08
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.0348303057
+        y: 0.0348303057
+        z: 0.6966061
+      }
+    }
+  }
+}
+
 modelo {
   id: 'Moedas'
   entidade {

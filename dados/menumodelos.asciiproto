@@ -460,6 +460,7 @@ sub_menu {
   item_menu { id: 'Moedas' }
   item_menu { id: 'Baú (madeira)' }
   item_menu { id: 'Barras' }
+  item_menu { id: 'Mato' }
 }
 #sub_menu {
 #  id: 'Teste'
