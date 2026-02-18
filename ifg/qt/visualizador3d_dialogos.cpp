@@ -2438,10 +2438,12 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
     // Gera as rotas.
     proto_retornado->mutable_rota()->clear_pos();
     *proto_retornado->mutable_rota()->mutable_referencia() = proto_retornado->pos();
+    int raio_q = gerador.spin_rota_raio->value();
+    float deslocamento_m = raio_q > 0 ? static_cast<float>(raio_q) * TAMANHO_LADO_QUADRADO : std::max(1, BonusTotal(proto_retornado->voadora() ? proto_retornado->movimento().aereo_q() : proto_retornado->movimento().terrestre_q())) * TAMANHO_LADO_QUADRADO;
     if (gerador.radio_rota_circular->isChecked()) {
       proto_retornado->mutable_rota()->set_id("circular");
       for (int i = 0; i < 12; ++i) {
-        Vector4 v(1.0f, 0.0f, 0.0f, 1.0f);
+        Vector4 v(deslocamento_m, 0.0f, 0.0f, 1.0f);
         Matrix4 m;
         m.rotateZ((360.0f / 12.0f) * i);
         *proto_retornado->mutable_rota()->add_pos() = ent::Vector4ParaPosicao(m * v);
@@ -2449,13 +2451,13 @@ std::unique_ptr<ent::EntidadeProto> Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->mutable_rota()->set_ativo(true);
     } else if (gerador.radio_rota_norte_sul->isChecked()) {
       proto_retornado->mutable_rota()->set_id("norte_sul");
-      proto_retornado->mutable_rota()->add_pos()->set_y(1.0f);
-      proto_retornado->mutable_rota()->add_pos()->set_y(-1.0f);
+      proto_retornado->mutable_rota()->add_pos()->set_y(deslocamento_m);
+      proto_retornado->mutable_rota()->add_pos()->set_y(-deslocamento_m);
       proto_retornado->mutable_rota()->set_ativo(true);
     } else if (gerador.radio_rota_leste_oeste->isChecked()) {
       proto_retornado->mutable_rota()->set_id("leste_oeste");
-      proto_retornado->mutable_rota()->add_pos()->set_x(1.0f);
-      proto_retornado->mutable_rota()->add_pos()->set_x(-1.0f);
+      proto_retornado->mutable_rota()->add_pos()->set_x(deslocamento_m);
+      proto_retornado->mutable_rota()->add_pos()->set_x(-deslocamento_m);
       proto_retornado->mutable_rota()->set_ativo(true);
     } else if (gerador.radio_rota_outra->isChecked()) {
       proto_retornado->mutable_rota()->set_id("outra");

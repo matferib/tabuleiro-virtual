@@ -59,9 +59,12 @@ void AtualizaUIMovimento(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntida
   if (!proto.rota().id().empty()) {
     if (proto.rota().id() == "circular") {
       gerador.radio_rota_circular->setChecked(true);
+      gerador.spin_rota_raio->setValue(proto.rota().pos().empty() ? 0 : proto.rota().pos(0).x() / TAMANHO_LADO_QUADRADO);
     } else if (proto.rota().id() == "leste_oeste") {
+      gerador.spin_rota_raio->setValue(proto.rota().pos().empty() ? 0 : proto.rota().pos(0).x() / TAMANHO_LADO_QUADRADO);
       gerador.radio_rota_leste_oeste->setChecked(true);
     } else if (proto.rota().id() == "norte_sul") {
+      gerador.spin_rota_raio->setValue(proto.rota().pos().empty() ? 0 : proto.rota().pos(0).y() / TAMANHO_LADO_QUADRADO);
       gerador.radio_rota_norte_sul->setChecked(true);
     } else {
       gerador.radio_rota_nenhuma->setChecked(true);

@@ -1131,8 +1131,6 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
   if (!proto_.has_destino()) {
     if (proto_.rota().ativo() && !proto_.rota().pos().empty()) {
       Vector4 pos_rota = PosParaVector4(proto_.rota().pos(vd_.indice_rota % proto_.rota().pos().size()));
-      float deslocamento_m = std::max(1, BonusTotal(proto_.voadora() ? proto_.movimento().aereo_q() : proto_.movimento().terrestre_q())) * TAMANHO_LADO_QUADRADO;
-      pos_rota *= deslocamento_m;
       pos_rota += PosParaVector4(proto_.rota().referencia());
       auto* destino = proto_.mutable_destino();
       pos_rota.w = 1.0f;
