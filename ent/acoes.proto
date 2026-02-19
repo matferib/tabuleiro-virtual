@@ -404,7 +404,7 @@ message DanoAdicionalPorTendencia {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 114.
+// Proximo id: 115.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   string rotulo = 9;
@@ -568,6 +568,16 @@ message DadosAtaque {
   bool agarrar_aprimorado = 85;
   // Como agarrar_aprimoradoagarrar_aprimorado, mas depende de outro ataque ter acertado tb (shambling mound com seus 2 tentaculos).
   bool agarrar_aprimorado_se_acertou_anterior = 106;
+  // Troll tem dilacerar se acertar os dois ataques.
+  message DanoAdicionalSeAcertouAnterior {
+    StringPorTamanho dano_basico = 1;
+    EmpunhaduraArma empunhadura = 2;
+    // Valor final recomputado.
+    string dano = 3;
+    // Para fins de log.
+    string descricao = 4;
+  }
+  DanoAdicionalSeAcertouAnterior dano_adicional_se_acertou_anterior = 114;
   // Se verdadeiro, este ataque acertou na rodada.
   bool acertou_ataque = 108;
   // Se o agarrar aprimorado funcionar, da o dano de constrição como esmagamento.
