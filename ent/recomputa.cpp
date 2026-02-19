@@ -77,6 +77,28 @@ std::string CalculaDanoParaAtaque(const DadosAtaque& da, const EntidadeProto& pr
   return da.dano_basico().c_str() + (mod_final != 0 ? absl::StrFormat("%+d", mod_final) : "");
 }
 
+// modificador_forca é o modificador de força original da entidade.
+// modificador_forca_dano é o modificador com as modificações da arma (exemplo, arcos que permitem um máximo).
+// Nota: na minha opinião, caso o modificador seja negativo, EA_2_MAOS deveria dividir a penalidade no meio.
+int ModificadorForcaPorEmpunhadura(EmpunhaduraArma ea, int modificador_forca, int modificador_forca_dano) {
+   if (modificador_forca_dano < 0) {
+    return modificador_forca;
+  } else if (ea == EA_2_MAOS) {
+    return static_cast<int>(floorf(modificador_forca_dano * 1.5f));
+  } else if (ea == EA_MAO_RUIM || ea == EA_MONSTRO_ATAQUE_SECUNDARIO) {
+    return modificador_forca_dano / 2;
+  } else {
+    return modificador_forca_dano;
+  }
+}
+
+// Retorna a string de dano para uma arma.
+std::string CalculaDanoAdicionalParaAtaque(const DadosAtaque::DanoAdicionalSeAcertouAnterior& dad, TamanhoEntidade tamanho, int modificador_forca, const EntidadeProto& proto) {
+  // O certo aqui é transformar por tamanho, mas como isso é raro, vou deixar simples.
+  std::string base = DanoBasicoPorTamanhoOuConverteDoMedio(dad.dano_basico(), tamanho);
+  return absl::StrFormat("%s%+d", base.c_str(), ModificadorForcaPorEmpunhadura(dad.empunhadura(), modificador_forca, modificador_forca));
+}
+
 std::string CalculaDanoConstricaoParaAtaque(const DadosAtaque& da, const EntidadeProto& proto) {
   if (!da.constricao()) return "";
   // Acoes sem dano nao podem causar dano nem com modificadores adicionais.
@@ -85,24 +107,6 @@ std::string CalculaDanoConstricaoParaAtaque(const DadosAtaque& da, const Entidad
   int mod_forca = ModificadorAtributo(TA_FORCA, proto);
   const int mod_final = da.agarrar_aprimorado_se_acertou_anterior() ? static_cast<int>(mod_forca * 1.5f) : mod_forca;
   return dano_basico_constricao.c_str() + (mod_final != 0 ? absl::StrFormat("%+d", mod_final) : "");
-}
-
-std::string DanoBasicoPorTamanho(TamanhoEntidade tamanho, const StringPorTamanho& dano) {
-  if (dano.has_invariavel()) {
-    return dano.invariavel();
-  }
-  switch (tamanho) {
-    case TM_MINUSCULO: return dano.minusculo();
-    case TM_DIMINUTO: return dano.diminuto();
-    case TM_MIUDO: return dano.miudo();
-    case TM_PEQUENO: return dano.pequeno();
-    case TM_MEDIO: return dano.medio();
-    case TM_GRANDE: return dano.grande();
-    case TM_ENORME: return dano.enorme();
-    case TM_IMENSO: return dano.imenso();
-    case TM_COLOSSAL: return dano.colossal();
-    default: return "";
-  }
 }
 
 // Retorna a arma da outra mao.
@@ -3568,21 +3572,21 @@ void RecomputaDependenciasUmDadoAtaque(
     } else if ((da->empunhadura() == EA_MAO_RUIM) && PossuiCategoria(CAT_ARMA_DUPLA, arma)) {
       if (!da->inverter_arma() && arma.has_dano_secundario()) {
         // Usa o lado secundario.
-        da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano_secundario()));
+        da->set_dano_basico(DanoBasicoPorTamanho(arma.dano_secundario(), tamanho));
         da->set_margem_critico(arma.margem_critico());
         da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
       } else {
         // Usa o lado primario como ruim.
-        da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano()));
+        da->set_dano_basico(DanoBasicoPorTamanho(arma.dano(), tamanho));
         da->set_margem_critico(arma.margem_critico());
         da->set_multiplicador_critico(arma.multiplicador_critico());
       }
     } else if (PossuiCategoria(CAT_ARMA_DUPLA, arma) && da->inverter_arma()) {
-      da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano_secundario()));
+      da->set_dano_basico(DanoBasicoPorTamanho(arma.dano_secundario(), tamanho));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico_secundario());
     } else if (arma.has_dano()) {
-      da->set_dano_basico(DanoBasicoPorTamanho(tamanho, arma.dano()));
+      da->set_dano_basico(DanoBasicoPorTamanho(arma.dano(), tamanho));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
     }
@@ -3735,19 +3739,10 @@ void RecomputaDependenciasUmDadoAtaque(
     AtribuiOuRemoveBonus(-da->ordem_ataque() * 5, TB_SEM_NOME, "multiplos_ataque", bonus_ataque);
   }
   // Forca no dano.
+  int modificador_forca_dano = 0;
   if (usar_forca_dano) {
-    int modificador_forca_dano = arma.has_max_forca() ? std::min(modificador_forca, arma.max_forca()) : modificador_forca;
-    int dano_forca = 0;
-    EmpunhaduraArma ea = da->empunhadura();
-    if (modificador_forca_dano < 0) {
-      dano_forca = modificador_forca;
-    } else if (ea == EA_2_MAOS) {
-      dano_forca = static_cast<int>(floorf(modificador_forca_dano * 1.5f));
-    } else if (ea == EA_MAO_RUIM || ea == EA_MONSTRO_ATAQUE_SECUNDARIO) {
-      dano_forca = modificador_forca_dano / 2;
-    } else {
-      dano_forca = modificador_forca_dano;
-    }
+    modificador_forca_dano = arma.has_max_forca() ? std::min(modificador_forca, arma.max_forca()) : modificador_forca;
+    int dano_forca = ModificadorForcaPorEmpunhadura(da->empunhadura(), modificador_forca, modificador_forca_dano);
     AtribuiBonus(dano_forca, TB_ATRIBUTO, "forca", da->mutable_bonus_dano());
   } else {
     RemoveBonus(TB_ATRIBUTO, "forca", da->mutable_bonus_dano());
@@ -3763,6 +3758,10 @@ void RecomputaDependenciasUmDadoAtaque(
   }
   if (da->ataque_derrubar()) da->clear_dano();
   else if (da->has_dano_basico() || !da->has_dano()) da->set_dano(CalculaDanoParaAtaque(*da, proto));
+
+  if (da->has_dano_adicional_se_acertou_anterior()) {
+    da->mutable_dano_adicional_se_acertou_anterior()->set_dano(CalculaDanoAdicionalParaAtaque(da->dano_adicional_se_acertou_anterior(), tamanho, modificador_forca, proto));
+  }
 
   if (da->constricao()) da->set_dano_constricao(CalculaDanoConstricaoParaAtaque(*da, proto));
 

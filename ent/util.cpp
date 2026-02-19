@@ -3131,6 +3131,29 @@ std::string DanoDesarmadoPorTamanho(TamanhoEntidade tamanho) {
   }
 }
 
+std::string DanoBasicoPorTamanho(const StringPorTamanho& por_tamanho, TamanhoEntidade tamanho) {
+  if (por_tamanho.has_invariavel()) {
+    return por_tamanho.invariavel();
+  }
+  switch (tamanho) {
+    case TM_MINUSCULO: return por_tamanho.minusculo();
+    case TM_DIMINUTO: return por_tamanho.diminuto();
+    case TM_MIUDO: return por_tamanho.miudo();
+    case TM_PEQUENO: return por_tamanho.pequeno();
+    case TM_MEDIO: return por_tamanho.medio();
+    case TM_GRANDE: return por_tamanho.grande();
+    case TM_ENORME: return por_tamanho.enorme();
+    case TM_IMENSO: return por_tamanho.imenso();
+    case TM_COLOSSAL: return por_tamanho.colossal();
+    default: return "";
+  }
+}
+
+std::string DanoBasicoPorTamanhoOuConverteDoMedio(const StringPorTamanho& por_tamanho, TamanhoEntidade tamanho) {
+  std::string dano_basico = DanoBasicoPorTamanho(por_tamanho, tamanho);
+  return dano_basico.empty() ? ConverteDanoBasicoMedioParaTamanho(por_tamanho.medio(), tamanho) : dano_basico;
+}
+
 std::string ConverteDanoBasicoMedioParaTamanho(const std::string& dano_basico_medio, TamanhoEntidade tamanho) {
   // Chaveado por dano medio.
   const static std::unordered_map<std::string, std::unordered_map<int, std::string>> mapa_danos {

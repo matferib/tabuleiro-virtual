@@ -2188,6 +2188,15 @@ float Tabuleiro::TrataAcaoIndividual(
     }
     if (resultado.Sucesso()) {
       entidade_origem->MarcaAtaqueCorrenteComoAcertado();
+      if (!da.dano_adicional_se_acertou_anterior().dano().empty() && entidade_origem->AcertouAtaqueAnterior()) {
+        int dano_adicional = RolaValor(da.dano_adicional_se_acertou_anterior().dano());
+        std::string texto_adicional =
+            absl::StrFormat("%s: %d", da.dano_adicional_se_acertou_anterior().descricao().c_str(), dano_adicional);
+        AdicionaLogEvento(entidade_destino->Id(), texto_adicional);
+        delta_pv -= dano_adicional;
+        ConcatenaString(texto_adicional, por_entidade->mutable_texto());
+      }
+
       const bool agarrar_aprimorado = da.agarrar_aprimorado() || (da.agarrar_aprimorado_se_acertou_anterior() && entidade_origem->AcertouAtaqueAnterior());
       if (da.adesao() ||
           (agarrar_aprimorado && entidade_destino->Proto().tamanho() < entidade_origem->Proto().tamanho())) {

@@ -5314,6 +5314,29 @@ TEST(TesteModelo, TesteOtyugh) {
   EXPECT_EQ(ValorFinalPericia("observar", otyugh->Proto()), 6) << BonusPericia("observar", otyugh->Proto()).DebugString();
 }
 
+TEST(TesteModelo, TesteTroll) {
+  auto proto = TabelasCriando().ModeloEntidade("Troll").entidade();
+  auto troll = NovaEntidadeParaTestes(proto, TabelasCriando());
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque_total", troll->Proto(), 0);
+    EXPECT_EQ(da.bonus_ataque_final(), 9);
+    EXPECT_EQ(da.dano(), "1d6+6");
+    EXPECT_FALSE(da.has_dano_adicional_se_acertou_anterior());
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque_total", troll->Proto(), 1);
+    EXPECT_EQ(da.bonus_ataque_final(), 9);
+    EXPECT_EQ(da.dano(), "1d6+6");
+    EXPECT_EQ(da.dano_adicional_se_acertou_anterior().dano(), "2d6+9");
+    EXPECT_FLOAT_EQ(da.alcance_m(), 3.0f);
+  }
+  {
+    const auto& da = DadosAtaquePorGrupo("ataque_total", troll->Proto(), 2);
+    EXPECT_EQ(da.bonus_ataque_final(), 4);
+    EXPECT_EQ(da.dano(), "1d6+3");
+    EXPECT_FALSE(da.has_dano_adicional_se_acertou_anterior());
+  }
+}
 
 TEST(TesteModelo, TesteEnxameCentepeias) {
   auto proto = TabelasCriando().ModeloEntidade("Enxame (centopéias)").entidade();

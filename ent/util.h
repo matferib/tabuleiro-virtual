@@ -645,6 +645,10 @@ int ModificadorTamanhoEsconderse(TamanhoEntidade tamanho);
 // Dano da entidade por tamanho.
 std::string DanoDesarmadoPorTamanho(TamanhoEntidade tamanho);
 std::string ConverteDanoBasicoMedioParaTamanho(const std::string& dano_basico_medio, TamanhoEntidade tamanho);
+// Retorna o dano de acordo com tamanho, ou vazio.
+std::string DanoBasicoPorTamanho(const StringPorTamanho& por_tamanho, TamanhoEntidade tamanho);
+// Caso o dano do tamanho seja vazio, converte do medio.
+std::string DanoBasicoPorTamanhoOuConverteDoMedio(const StringPorTamanho& por_tamanho, TamanhoEntidade tamanho);
 
 // Retorna o alcance de acordo com tamanho.
 int AlcanceTamanhoQuadrados(TamanhoEntidade tamanho);
