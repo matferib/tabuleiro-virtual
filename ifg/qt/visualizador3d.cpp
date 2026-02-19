@@ -173,7 +173,6 @@ void Visualizador3d::paintGL() {
   glFlush();
 }
 
-DECLSPEC_NOINLINE
 void Visualizador3d::PegaContexto() {
   // Nota sobre assimetria de PegaContexto e LiberaContexto:
   // A funcao nao empilha nada, apenas seta qual o FB o OpenGL vai usar.
@@ -193,7 +192,6 @@ void Visualizador3d::PegaContexto() {
   ++contexto_cref_;
 }
 
-DECLSPEC_NOINLINE
 void Visualizador3d::LiberaContexto() {
   if (--contexto_cref_ == 0) {
     doneCurrent();
