@@ -12578,16 +12578,17 @@ modelo {
     info_textura { id: 'troll.png' largura: 0.6 translacao_x: 0.2 altura: 0.85 translacao_y: 0.1 } cor { g: 1.0 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     dados_ataque {
+      grupo: 'ataque_total'
       rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
+      grupo: 'ataque_total'
       rotulo: 'garra' id_arma: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+      dano_adicional_se_acertou_anterior { dano_basico { medio: '2d4' grande: '2d6' } descricao: 'dilacerar' empunhadura: EA_2_MAOS }
     }
     dados_ataque {
+      grupo: 'ataque_total'
       rotulo: 'mordida' id_arma: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '1d6' empunhadura: EA_MONSTRO_ATAQUE_SECUNDARIO
-    }
-    dados_ataque {
-      rotulo: 'dilacerar' tipo_ataque: 'Ataque Corpo a Corpo' dano_basico: '2d6' empunhadura: EA_2_MAOS
     }
 
     dados_defesa {
