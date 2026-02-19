@@ -7029,7 +7029,7 @@ modelo {
   id_entidade_base: 'Humano Combatente Base'
   entidade {
     rotulo: 'humano combatente 1'
-    dados_vida: '1d8+4' info_textura { id: 'warrior1.png'} cor { r: 0.898 g: 0.663 b: 0.475 }
+    dados_vida: '1d8+4' info_textura { id: 'warrior.png'} cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'combatente' nivel: 1 }
     dados_ataque { grupo: 'cac' id_arma: 'espada_curta' tipo_ataque: 'Ataque Corpo a Corpo' }
     dados_ataque { grupo: 'dist' id_arma: 'besta_leve' tipo_ataque: 'Ataque a Distância' municao: 20 }
@@ -9615,6 +9615,89 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Guerreiro 1 Montado'
+  entidade {
+    # Elite.
+    rotulo: 'guerreiro 1'
+    dados_vida: '12'
+    raca: 'humano'
+    info_textura { id: 'knight.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 1 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      armas { id: 'Lança Montada OP' id_tabela: 'lanca_montada' obra_prima: true }
+      armas { id: 'Espada Longa' id_tabela: 'espada_longa' }
+      armaduras { id: 'Cota de Talas' id_tabela: 'cota_talas' }
+      moedas {
+        po: 5
+      }
+    }
+    dados_ataque { rotulo: 'lança' id_arma_tesouro: 'Lança Montada OP' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { rotulo: 'espada longa' id_arma_tesouro: 'Espada Longa' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'besta_pesada' obra_prima: true }
+    dados_defesa { id_armadura: 'cota_talas' id_escudo: 'pesado_aco' }
+    info_pericias { id: 'cavalgar' pontos: 4 bonus { bonus_individual { tipo: TB_CIRCUNSTANCIA por_origem { origem: 'sela militar' valor: 2 } } } }
+    info_pericias { id: 'adestrar_animais' pontos: 4 }
+    info_talentos {
+      gerais { id: 'investida_montada' }
+      outros { id: 'ataque_poderoso' origem: 'humano' }
+      outros { id: 'combate_montado' origem: 'guerreiro' }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+modelo {
+  id: 'Humana Guerreira 1 Montada'
+  entidade {
+    # Elite.
+    dados_vida: '12'
+    raca: 'humano'
+    info_textura { id: 'knight_female.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_classes { id: 'guerreiro' nivel: 1 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      armas { id: 'Lança Montada OP' id_tabela: 'lanca_montada' obra_prima: true }
+      armas { id: 'Espada Longa' id_tabela: 'espada_longa' }
+      armaduras { id: 'Cota de Talas' id_tabela: 'cota_talas' }
+      itens_mundanos { id: 'acido' }
+      itens_mundanos { id: 'acido' }
+      moedas {
+        po: 5
+      }
+    }
+    dados_ataque { rotulo: 'lança' id_arma_tesouro: 'Lança Montada OP' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { rotulo: 'espada longa' id_arma_tesouro: 'Espada Longa' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'besta_pesada' obra_prima: true }
+    dados_defesa { id_armadura: 'cota_talas' id_escudo: 'pesado_aco' }
+    info_pericias { id: 'cavalgar' pontos: 4 bonus { bonus_individual { tipo: TB_CIRCUNSTANCIA por_origem { origem: 'sela militar' valor: 2 } } } }
+    info_pericias { id: 'adestrar_animais' pontos: 4 }
+    info_talentos {
+      gerais { id: 'investida_montada' }
+      outros { id: 'ataque_poderoso' origem: 'humano' }
+      outros { id: 'combate_montado' origem: 'guerreiro' }
+    }
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
+
+modelo {
   id: 'Humana Guerreira 5'
   entidade {
     # Elite.
@@ -9700,13 +9783,15 @@ modelo {
     rotulo: 'guerreiro 3 montado'
     dados_vida: '2d10+10+10'
     raca: 'humano'
-    info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_textura { id: 'knight3.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'guerreiro' nivel: 3 }
     tesouro {
       pocoes { id: 'escudo_fe_2' }
       pocoes { id: 'curar_ferimentos_leves' }
       armas { id: 'Lança Montada OP' id_tabela: 'lanca_montada' obra_prima: true }
       armas { id: 'Espada Longa OP' id_tabela: 'espada_longa' obra_prima: true }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'fogo_alquimico' }
       armaduras { id: 'Armadura de Batalha' id_tabela: 'armadura_batalha' }
     }
     # Ao montar com lanca, pode usar apenas uma mão. Se usar 2, tem que fazer teste de cavalgar.

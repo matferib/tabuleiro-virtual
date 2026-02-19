@@ -59,12 +59,16 @@ sub_menu {
     item_menu { id: 'Humano Dragão Púrpura: Arcano de Guerra 4' texto: 'Arcano de Guerra 4' }
     item_menu { id: 'Humano Dragão Púrpura: Arcano de Guerra 5' texto: 'Arcano de Guerra 5' }
   }
-  sub_menu {
-    id: 'Marchaéreos do Vale da Borla'
-    item_menu { id: 'Humano Guerreiro 3 Montado' texto: 'Marchaéreo Líder' }
-    # TODO
-    # item_menu { id: 'Humano Combatente 2 Montado' texto: 'Marchaéreo Experiente' }
-    # item_menu { id: 'Humano Combatente 1 Montado' texto: 'Marchaéreo' }
+  item_menu {
+    id: 'Grupo Marchaéreo'
+    modelos { id: 'Humano Guerreiro 3 Montado' }
+    modelos { id: 'Cavalo Guerra Pesado' }
+    modelos { id: 'Humana Guerreira 1 Montada' }
+    modelos { id: 'Cavalo Guerra Leve' }
+    modelos { id: 'Humano Guerreiro 1 Montado' }
+    modelos { id: 'Cavalo Guerra Leve' }
+    modelos { id: 'Humano Combatente 1' }
+    modelos { id: 'Cavalo Leve' }
   }
 }
 sub_menu {
