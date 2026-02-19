@@ -1355,3 +1355,18 @@ enum TipoModificadorSalvacao {
   // Nao modifica pelo atributo.
   TMS_NENHUM = 1;
 }
+
+// O medio vem de tabela e os outros gerados automaticamente.
+message StringPorTamanho {
+  string minusculo = 8;
+  string diminuto = 9;
+  string miudo = 10;
+  string pequeno = 2;
+  string medio = 1;
+  string grande = 3;
+  string enorme = 5;
+  string imenso = 6;
+  string colossal = 7;
+  // Dano nao varia por tamanho.
+  string invariavel = 4;
+}
