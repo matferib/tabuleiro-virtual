@@ -861,6 +861,18 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
       }
     }
     break;
+    case EFEITO_PRATEADO: {
+      if (evento->complementos_str().empty()) return false;
+      int valor = 1;
+      if (!evento->complementos().empty()) {
+        valor = std::max(0, std::min(evento->complementos(0), 5));
+      }
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
+      for (auto* da : das) {
+        da->add_descritores(DESC_PRATA_ALQUIMICA);
+      }
+    }
+    break;
     case EFEITO_TENDENCIA_EM_ARMA: {
       if (evento->complementos_str().size() != 2) return false;
       DescritorAtaque desc = StringParaDescritorAlinhamento(evento->complementos_str(1));
@@ -1125,6 +1137,9 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
         LimpaBonus(TB_MELHORIA, evento.id_efeito() == EFEITO_ARMA_MAGICA ? "arma_magica_magia" : "presa_magica_magia", da->mutable_bonus_ataque());
       }
     }
+    break;
+    case EFEITO_PRATEADO:
+      // nao precisa fazer nada pq descritores é computado dinamicamente.
     break;
     case EFEITO_RESISTENCIA_ELEMENTOS: {
       if (evento.complementos_str().empty()) {
@@ -1812,13 +1827,13 @@ void RecomputaDependenciasPericias(const Tabelas& tabelas, EntidadeProto* proto)
   const bool heroismo = PossuiEvento(EFEITO_HEROISMO, *proto);
   const auto& itens_mundanos = ItensProto(TIPO_ITEM_MUNDANO, *proto);
   const int bonus_ferramenta_ladino =
-      c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_ladino_op";})
+      c_any_of(itens_mundanos, [](const ItemTesouroProto& item) { return item.id() == "ferramentas_ladino_op";})
       ? 2
-      : c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_ladino";}) ? 0 : -2;
+      : c_any_of(itens_mundanos, [](const ItemTesouroProto& item) { return item.id() == "ferramentas_ladino";}) ? 0 : -2;
   const int bonus_ferramenta_artesao =
-      c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_artesao_op";})
+      c_any_of(itens_mundanos, [](const ItemTesouroProto& item) { return item.id() == "ferramentas_artesao_op";})
       ? 2
-      : c_any_of(itens_mundanos, [](const ItemMagicoProto& item) { return item.id() == "ferramentas_artesao";}) ? 0 : -2;
+      : c_any_of(itens_mundanos, [](const ItemTesouroProto& item) { return item.id() == "ferramentas_artesao";}) ? 0 : -2;
 
   for (const auto& pt : tabelas.todas().tabela_pericias().pericias()) {
     // Graduacoes.
@@ -2649,8 +2664,8 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
   for (auto& item : *proto->mutable_tesouro()->mutable_chapeus()) item.set_tipo(TIPO_CHAPEU);
 
   // Adiciona efeitos nao existentes e expira os que ja foram.
-  std::vector<ItemMagicoProto*> itens;
-  std::vector<ItemMagicoProto*> itens_a_expirar;
+  std::vector<ItemTesouroProto*> itens;
+  std::vector<ItemTesouroProto*> itens_a_expirar;
   for (auto& item : *proto->mutable_tesouro()->mutable_aneis()) {
     if (item.em_uso() && item.ids_efeitos().empty()) itens.push_back(&item);
     else if (!item.em_uso() && !item.ids_efeitos().empty()) itens_a_expirar.push_back(&item);
@@ -2691,7 +2706,7 @@ void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* pr
 
 std::unordered_set<unsigned int> IdsItensComEfeitos(const EntidadeProto& proto) {
   std::unordered_set<unsigned int> ids;
-  std::vector<const ItemMagicoProto*> itens = TodosItensExcetoPocoes(proto);
+  std::vector<const ItemTesouroProto*> itens = TodosItensExcetoPocoes(proto);
   for (const auto* item : itens) {
     //LOG(INFO) << "-> item: " << item->ShortDebugString();
     if (!item->em_uso()) {
@@ -3237,7 +3252,7 @@ DadosAtaque* DadosAtaquePorIdArmaCriando(const std::string& id_arma, EntidadePro
   return da;
 }
 
-DadosAtaque* DadosAtaqueVarinhaCriando(const ItemMagicoProto& varinha_tabelada, EntidadeProto* proto) {
+DadosAtaque* DadosAtaqueVarinhaCriando(const ItemTesouroProto& varinha_tabelada, EntidadeProto* proto) {
   for (auto& da : *proto->mutable_dados_ataque()) {
     if (!da.varinha().empty() && da.varinha() == varinha_tabelada.id()) {
       return &da;
