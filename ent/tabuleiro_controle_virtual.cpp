@@ -1329,7 +1329,7 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
         case VIS_POCAO: {
           const auto* e = EntidadePrimeiraPessoaOuSelecionada();
           if (e == nullptr ||
-              (e->Proto().tesouro().pocoes().empty() && c_none_of(e->Proto().tesouro().itens_mundanos(), [](const ItemMagicoProto& mundano) { return mundano.id() == "antidoto"; }))) {
+              (e->Proto().tesouro().pocoes().empty() && c_none_of(e->Proto().tesouro().itens_mundanos(), [](const ItemTesouroProto& mundano) { return mundano.id() == "antidoto"; }))) {
             return false;
           }
           break;
