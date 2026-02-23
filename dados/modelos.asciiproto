@@ -11136,6 +11136,153 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Monge 2'
+  id_entidade_base: 'Monge Base'
+  entidade {
+    raca: 'humano'
+    dados_vida: '1d8+10'
+    info_classes { id: 'monge' nivel: 2 }
+    cor { r: 0.3 g: 0.1 b: 0.1 }
+    info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 }
+    # Rajada com kama.
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma_tesouro: 'kama_op' empunhadura: EA_ARMA_APENAS
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+      ataque_derrubar: true
+    }
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma_tesouro: 'kama_op' empunhadura: EA_ARMA_APENAS
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+      ataque_derrubar: true
+    }
+    # Desarmado rajada.
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d6'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+    }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'desarmado rajada' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d6'
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
+    }
+    # Kama normal.
+    dados_ataque {
+      grupo: 'kama normal' rotulo: 'kama' id_arma_tesouro: 'kama_op' empunhadura: EA_ARMA_APENAS
+      ataque_derrubar: true
+    }
+    # Desarmado normal.
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo'
+      grupo: 'desarmado normal' rotulo: 'desarmado' empunhadura: EA_ARMA_APENAS dano_basico: '1d6'
+    }
+    # Funda.
+    dados_ataque {
+      tipo_ataque: 'Ataque a Distância' id_arma_tesouro: 'funda_op' municao: 20
+    }
+    dados_defesa { }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      outros { id: 'ataque_atordoante' origem: 'monge' }
+      outros { id: 'vitalidade' origem: 'humano' }
+    }
+    info_pericias { id: 'equilibrio' pontos: 3 }
+    info_pericias { id: 'escalar' pontos: 3 }
+    info_pericias { id: 'esconderse' pontos: 3 }
+    info_pericias { id: 'saltar' pontos: 3 }
+    info_pericias { id: 'acrobacias' pontos: 3 }
+    tesouro {
+      mantos { id: 'manto_resistencia_1' em_uso: true }
+      pocoes { id: 'curar_ferimentos_leves' nivel_uso: NU_USAR_SE_FERIDO }
+      pocoes { id: 'curar_ferimentos_leves' }
+      pocoes { id: 'invisibilidade_contra_mortos_vivos' }
+      pocoes { id: 'escudo_fe_2' nivel_uso: NU_BATALHA }
+      pocoes { id: 'escudo_fe_2' }
+      pocoes { id: 'armadura_arcana' nivel_uso: NU_BASICO }
+      itens_maravilhosos { id: 'reflexo_prateado' }
+      itens_mundanos { id: 'fogo_alquimico' }
+      itens_mundanos { id: 'acido' }
+      armas { id: 'kama' obra_prima: true id_tabela: 'kama_op' }
+      armas { id: 'funda' id_tabela: 'funda' }
+    }
+  }
+}
+
+modelo {
+  id: 'Humano Monge 3'
+  entidade {
+    # Elite.
+    dados_vida: '2d8+11'
+    raca: 'humano'
+    info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 1 g: 0.8 b: 0.6 }
+    info_classes { id: 'monge' nivel: 3 }
+    # Os ataques desarmados nao tem id_arma para poderem ter dano proprio.
+    # Rajada com kama.
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma_tesouro: 'kama+1' empunhadura: EA_ARMA_APENAS
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+      ataque_derrubar: true
+    }
+    dados_ataque {
+      grupo: 'kama rajada' rotulo: 'kama' id_arma_tesouro: 'kama+1' empunhadura: EA_ARMA_APENAS
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+      ataque_derrubar: true
+    }
+    # Desarmado rajada.
+    dados_ataque {
+      grupo: 'desarmado rajada' rotulo: 'desarmado' id_arma: 'desarmado' empunhadura: EA_ARMA_APENAS
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    dados_ataque {
+      grupo: 'desarmado rajada' rotulo: 'desarmado' id_arma: 'desarmado' empunhadura: EA_ARMA_APENAS
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -1 } } }
+    }
+    # Kama normal.
+    dados_ataque {
+      grupo: 'kama normal' rotulo: 'kama' id_arma_tesouro: 'kama+1' empunhadura: EA_ARMA_APENAS
+      ataque_derrubar: true
+    }
+    # Desarmado normal.
+    dados_ataque {
+      grupo: 'desarmado normal' rotulo: 'desarmado' id_arma: 'desarmado' empunhadura: EA_ARMA_APENAS
+    }
+    # Funda.
+    dados_ataque {
+      tipo_ataque: 'Ataque a Distância' id_arma_tesouro: 'funda_op' municao: 20
+    }
+
+    dados_defesa { }
+    info_talentos {
+      gerais { id: 'esquiva' }
+      outros { id: 'foco_em_arma' complemento: 'kama' }
+      outros { id: 'ataque_atordoante' }
+      outros { id: 'desviar_objetos' }
+    }
+    info_pericias { id: 'equilibrio' pontos: 4 }
+    info_pericias { id: 'escalar' pontos: 4 }
+    info_pericias { id: 'esconderse' pontos: 4 }
+    info_pericias { id: 'saltar' pontos: 4 }
+    info_pericias { id: 'acrobacias' pontos: 4 }
+    tesouro {
+      pocoes { id: 'curar_ferimentos_leves' }
+      armas { id: 'kama' bonus_magico: 1 id_tabela: 'kama+1' }
+      armas { id: 'funda' obra_prima: true id_tabela: 'funda_op' }
+    }
+
+    atributos {
+      # Usa o array elite 15, 14, 13, 12, 10, 8.
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+  }
+}
+
+
+modelo {
   id: 'Humano Monge 5'
   entidade {
     # Elite.
