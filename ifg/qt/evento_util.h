@@ -36,6 +36,7 @@ bool ComplementoEventoString(const ent::EntidadeProto::Evento& evento) {
     case ent::EFEITO_PRESA_MAGICA:
     case ent::EFEITO_CONJURANDO:
     case ent::EFEITO_ARMA_ENVENENADA:
+    case ent::EFEITO_PRATEADO:
       return true;
     default: return false;
   }
