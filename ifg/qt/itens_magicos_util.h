@@ -17,16 +17,16 @@ namespace qt {
 int MaximoEmUso(ent::TipoItem tipo);
 
 // Retorna os itens da tabela.
-const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabela(
+const google::protobuf::RepeatedPtrField<ent::ItemTesouroProto>& ItensTabela(
     const ent::Tabelas& tabelas, ent::TipoItem tipo);
 
 // Retorna a string de descricao do item.
 std::string DescricaoParaLista(
-    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc);
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemTesouroProto& item_pc);
 
 // Retorna o nome do item seguido por 'em uso' ou 'não usado'.
 std::string NomeParaLista(
-    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc);
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemTesouroProto& item_pc);
 
 // Responsavel por tratar a edicao do tipo de efeito.
 class ItemMagicoDelegate : public QItemDelegate {
@@ -101,24 +101,24 @@ class ItemMagicoDelegate : public QItemDelegate {
     return combo->itemData(indice).toString().toStdString().c_str();
   }
 
-  const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensPersonagem() const {
+  const google::protobuf::RepeatedPtrField<ent::ItemTesouroProto>& ItensPersonagem() const {
     return ent::ItensProto(tipo_, *proto_);
   }
 
-  google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensPersonagemMutavel() const {
+  google::protobuf::RepeatedPtrField<ent::ItemTesouroProto>* ItensPersonagemMutavel() const {
     return ent::ItensProtoMutavel(tipo_, proto_);
   }
 
   // Retorna o item do personagem.
-  const ent::ItemMagicoProto& ItemCorrenteDoProto() const {
+  const ent::ItemTesouroProto& ItemCorrenteDoProto() const {
     return ItemDoProto(lista_->currentRow());
   }
 
-  const ent::ItemMagicoProto& ItemDoProto(int indice_proto) const {
+  const ent::ItemTesouroProto& ItemDoProto(int indice_proto) const {
     const auto& itens = ItensPersonagem();
     if (indice_proto < 0 || indice_proto >= itens.size()) {
       LOG(ERROR) << "indice invalido em ItemDoPRoto: " << indice_proto;
-      return ent::ItemMagicoProto::default_instance();
+      return ent::ItemTesouroProto::default_instance();
     }
     return itens.Get(indice_proto);
   }
@@ -165,7 +165,7 @@ class ItemMagicoDelegate : public QItemDelegate {
   ent::TipoItem tipo_;
 };
 
-inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabela(
+inline const google::protobuf::RepeatedPtrField<ent::ItemTesouroProto>& ItensTabela(
     const ent::Tabelas& tabelas, ent::TipoItem tipo) {
   switch (tipo) {
     case ent::TipoItem::TIPO_ITEM_MUNDANO: return tabelas.todas().tabela_itens_mundanos().itens();
@@ -187,7 +187,7 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensTabe
 }
 
 inline std::string NomeParaLista(
-    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemTesouroProto& item_pc) {
   const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
   const std::string cargas = item_pc.has_cargas()
       ? absl::StrFormat(", com %d cargas", item_pc.cargas()) : "";
@@ -209,7 +209,7 @@ inline std::string NomeParaLista(
 }
 
 inline std::string DescricaoParaLista(
-    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemMagicoProto& item_pc) {
+    const ent::Tabelas& tabelas, ent::TipoItem tipo, const ent::ItemTesouroProto& item_pc) {
   const auto& item_tabela = ent::ItemTabela(tabelas, tipo, item_pc.id());
   return item_tabela.descricao().c_str();
 }
