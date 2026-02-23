@@ -2837,6 +2837,7 @@ tabela_itens_maravilhosos {
     id: 'reflexo_prateado'  # silversheen
     nome: 'reflexo prateado'
     tipo_efeito: EFEITO_PRATEADO
+    complementos_str: ''
     pocao_ou_oleo: true
     # 1 hora
     duracao_rodadas: 600
