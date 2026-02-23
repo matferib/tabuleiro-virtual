@@ -978,7 +978,7 @@ void ConfiguraListaItensMagicos(
       bool em_uso_antes = item->em_uso();
       if (!em_uso_antes) {
         int num_em_uso = std::count_if(
-          itens_personagem->begin(), itens_personagem->end(), [] (const ent::ItemMagicoProto& item) {
+          itens_personagem->begin(), itens_personagem->end(), [] (const ent::ItemTesouroProto& item) {
              return item.em_uso();
           });
         if (num_em_uso >= MaximoEmUso(tipo)) {
@@ -1100,7 +1100,7 @@ void OrdenaItens(const ent::Tabelas& tabelas, Gerador& gerador, ent::TipoItem ti
   if (indice_antes >= 0 && indice_antes < itens->size()) {
     id_selecionado = itens->Get(indice_antes).id();
   }
-  std::sort(itens->begin(), itens->end(), [&tabelas, tipo](const ent::ItemMagicoProto& lhs, const ent::ItemMagicoProto& rhs) {
+  std::sort(itens->begin(), itens->end(), [&tabelas, tipo](const ent::ItemTesouroProto& lhs, const ent::ItemTesouroProto& rhs) {
       const auto& tlhs = ent::ItemTabela(tabelas, tipo, lhs.id());
       const auto& trhs = ent::ItemTabela(tabelas, tipo, rhs.id());
       if (tlhs.nivel_conjurador() > trhs.nivel_conjurador()) {
