@@ -314,13 +314,13 @@ struct IndiceQuantidadeNivel {
 
   // Caso o item seja repetido, ira incremenatar. O proposito é evitar entradas repetidas na interface (apenas dizer quantos, exemplo: antidoto 3).
   void PreencheIncrementando(
-      const ent::Tabelas& tabelas, int indice, std::optional<ent::TipoTesouro> tipo_tesouro, const ent::ArmaProto& feitico_tabelado = ent::ArmaProto::default_instance(), const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
+      const ent::Tabelas& tabelas, int indice, std::optional<ent::TipoTesouro> tt, const ent::ArmaProto& feitico_tabelado = ent::ArmaProto::default_instance(), const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
     this->indice = indice;
     ++quantidade;
     nivel = ic.has_id() ? ent::NivelMagia(feitico_tabelado, ic) :  ent::NivelMaisAltoMagia(feitico_tabelado);
     link = feitico_tabelado.link();
     duracao = StringDuracao(tabelas, feitico_tabelado);
-    tipo_tesouro = tipo_tesouro;
+    tipo_tesouro = tt;
   }
 };
 
