@@ -742,7 +742,7 @@ void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, co
       gerador.lista_amuletos, gerador.lista_botas, gerador.lista_chapeus,
       gerador.lista_pergaminhos_arcanos, gerador.lista_pergaminhos_divinos,
       gerador.spin_po, gerador.spin_pp, gerador.spin_pc, gerador.spin_pl, gerador.spin_pe,
-      gerador.lista_itens_mundanos, gerador.lista_armas, gerador.lista_armaduras, gerador.lista_escudos,
+      gerador.lista_itens_mundanos, gerador.lista_itens_maravilhosos, gerador.lista_armas, gerador.lista_armaduras, gerador.lista_escudos,
   };
   for (auto* obj : objs) obj->blockSignals(true);
 
@@ -765,6 +765,7 @@ void AtualizaUITesouroGenerica(const ent::Tabelas& tabelas, Dialogo& gerador, co
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_PERGAMINHO_DIVINO, gerador.lista_pergaminhos_divinos, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_VARINHA, gerador.lista_varinhas, proto);
   AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_ITEM_MUNDANO, gerador.lista_itens_mundanos, proto);
+  AtualizaListaItemMagico(tabelas, ent::TipoItem::TIPO_ITEM_MARAVILHOSO, gerador.lista_itens_maravilhosos, proto);
   AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMA, gerador.lista_armas, gerador.checkbox_arma_op, gerador.spin_bonus_arma, gerador.spin_bonus_arma_secundario, proto);
   AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ARMADURA, gerador.lista_armaduras, nullptr, nullptr, nullptr, proto);
   AtualizaListaArmaArmaduraOuEscudo(tabelas, ITEM_ESCUDO, gerador.lista_escudos, nullptr, nullptr, nullptr, proto);

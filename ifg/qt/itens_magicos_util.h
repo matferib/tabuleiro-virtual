@@ -180,6 +180,7 @@ inline const google::protobuf::RepeatedPtrField<ent::ItemTesouroProto>& ItensTab
     case ent::TipoItem::TIPO_PERGAMINHO_ARCANO: return tabelas.todas().tabela_pergaminhos().pergaminhos_arcanos();
     case ent::TipoItem::TIPO_PERGAMINHO_DIVINO: return tabelas.todas().tabela_pergaminhos().pergaminhos_divinos();
     case ent::TipoItem::TIPO_VARINHA: return tabelas.todas().tabela_varinhas().varinhas();
+    case ent::TipoItem::TIPO_ITEM_MARAVILHOSO: return tabelas.todas().tabela_itens_maravilhosos().itens();
     default: ;
   }
   LOG(ERROR) << "Tipo invalido (" << (int)tipo << ") para ItensTabela, retornando aneis";

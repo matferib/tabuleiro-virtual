@@ -513,11 +513,11 @@ void InterfaceGrafica::VoltaEscolherPocaoOuSimilar(const ntf::Notificacao notifi
       indice_pocao_ou_similar -= pocoes_entidade.size();
       indice_pocao_ou_similar -= itens_mundanos.size();
       if (indice_pocao_ou_similar < 0 && indice_pocao_ou_similar >= itens_maravilhosos.size()) {
-        LOG(ERROR) << "item marvilhoso invalido, indice: " << indice_pocao_ou_similar << " possui: " << itens_maravilhosos.size();
+        LOG(ERROR) << "item maravilhoso invalido, indice: " << indice_pocao_ou_similar << " possui: " << itens_maravilhosos.size();
         VoltaEscolherEfeito(notificacao, 0, false, 0, ent::TT_ITEM_MARAVILHOSO);
         return;
       } else {
-        const auto& mundano = tabelas_.ItemMundano(itens_maravilhosos.Get(indice_pocao_ou_similar).id());
+        const auto& maravilhoso = tabelas_.ItemMaravilhoso(itens_maravilhosos.Get(indice_pocao_ou_similar).id());
         VoltaEscolherEfeito(notificacao, indice_pocao_ou_similar, /*ok=*/true, /*indice_efeito=*/0, ent::TT_ITEM_MARAVILHOSO);
       }
     }

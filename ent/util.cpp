@@ -5350,6 +5350,7 @@ const ItemTesouroProto& ItemTabela(
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return tabelas.PergaminhoDivino(id);
     case TipoItem::TIPO_ITEM_MUNDANO: return tabelas.ItemMundano(id);
     case TipoItem::TIPO_VARINHA: return tabelas.Varinha(id);
+    case TipoItem::TIPO_ITEM_MARAVILHOSO: return tabelas.ItemMaravilhoso(id);
     default: ;
   }
   LOG(ERROR) << "tipo de item invalido: " << TipoItem_Name(tipo);
@@ -5459,6 +5460,7 @@ const RepeatedPtrField<ent::ItemTesouroProto>& ItensProto(
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return proto.tesouro().pergaminhos_divinos();
     case TipoItem::TIPO_ITEM_MUNDANO: return proto.tesouro().itens_mundanos();
     case TipoItem::TIPO_VARINHA: return proto.tesouro().varinhas();
+    case TipoItem::TIPO_ITEM_MARAVILHOSO: return proto.tesouro().itens_maravilhosos();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";
@@ -5492,6 +5494,7 @@ RepeatedPtrField<ent::ItemTesouroProto>* ItensProtoMutavel(
     case TipoItem::TIPO_PERGAMINHO_DIVINO: return proto->mutable_tesouro()->mutable_pergaminhos_divinos();
     case TipoItem::TIPO_ITEM_MUNDANO: return proto->mutable_tesouro()->mutable_itens_mundanos();
     case TipoItem::TIPO_VARINHA: return proto->mutable_tesouro()->mutable_varinhas();
+    case TipoItem::TIPO_ITEM_MARAVILHOSO: return proto->mutable_tesouro()->mutable_itens_maravilhosos();
     default: ;
   }
   LOG(ERROR) << "Tipo de item invalido (" << (int)tipo << "), retornando anel";

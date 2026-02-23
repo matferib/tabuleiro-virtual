@@ -661,6 +661,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       n->mutable_entidade()->set_id(e->Id());
       *n->mutable_entidade()->mutable_tesouro()->mutable_pocoes() = e->Proto().tesouro().pocoes();
       *n->mutable_entidade()->mutable_tesouro()->mutable_itens_mundanos() = e->Proto().tesouro().itens_mundanos();
+      *n->mutable_entidade()->mutable_tesouro()->mutable_itens_maravilhosos() = e->Proto().tesouro().itens_maravilhosos();
       central_->AdicionaNotificacao(n.release());
       break;
     }

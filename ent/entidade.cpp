@@ -1448,6 +1448,7 @@ void LimpaTesourosNaoVazios(const EntidadeProto::DadosTesouro& tesouro_parcial, 
   LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_arcanos(), tesouro_final->mutable_pergaminhos_arcanos());
   LimpaSeParcialNaoVazio(tesouro_parcial.pergaminhos_divinos(), tesouro_final->mutable_pergaminhos_divinos());
   LimpaSeParcialNaoVazio(tesouro_parcial.itens_mundanos(), tesouro_final->mutable_itens_mundanos());
+  LimpaSeParcialNaoVazio(tesouro_parcial.itens_maravilhosos(), tesouro_final->mutable_itens_maravilhosos());
   LimpaSeParcialNaoVazio(tesouro_parcial.varinhas(), tesouro_final->mutable_varinhas());
 }
 
@@ -1475,6 +1476,7 @@ void LimpaTesourosComSoUmVazio(EntidadeProto::DadosTesouro* tesouro) {
   LimpaSeTemSoUmVazio(tesouro->mutable_escudos());
   LimpaSeTemSoUmVazio(tesouro->mutable_municoes());
   LimpaSeTemSoUmVazio(tesouro->mutable_itens_mundanos());
+  LimpaSeTemSoUmVazio(tesouro->mutable_itens_maravilhosos());
   LimpaSeTemSoUmVazio(tesouro->mutable_varinhas());
 }
 

@@ -1298,6 +1298,14 @@ void PreencheConfiguraTesouro(
       gerador.botao_remover_item_mundano, gerador.botao_ordenar_item_mundano,
       gerador.botao_doar_item_mundano,
       proto, proto_retornado, central);
+  // Itens maravilhosos.
+  ConfiguraListaPergaminhosMundanosOuPocoes(
+    dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ent::TipoItem::TIPO_ITEM_MARAVILHOSO,
+    gerador.lista_itens_maravilhosos, /*usar=*/nullptr,
+    gerador.botao_adicionar_item_maravilhoso, gerador.botao_duplicar_item_maravilhoso,
+    gerador.botao_remover_item_maravilhoso, gerador.botao_ordenar_item_maravilhoso,
+    gerador.botao_doar_item_maravilhoso,
+    proto, proto_retornado, central);
   // Armas.
   ConfiguraArmasArmaduraOuEscudo(
       dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ITEM_ARMA,
