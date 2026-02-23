@@ -480,6 +480,7 @@ enum TipoTesouro {
   TT_PERGAMINHO_ARCANO = ent::TIPO_PERGAMINHO_ARCANO,
   TT_PERGAMINHO_DIVINO = ent::TIPO_PERGAMINHO_DIVINO,
   TT_ITEM_MUNDANO = ent::TIPO_ITEM_MUNDANO,
+  TT_ITEM_MARAVILHOSO = ent::TIPO_ITEM_MARAVILHOSO,
   TT_VARINHA = ent::TIPO_VARINHA,
   TT_ARMA = ent::TipoItem_MAX + 1,
   TT_ARMADURA = ent::TipoItem_MAX + 2,
@@ -868,26 +869,26 @@ EntidadeProto::Evento* AdicionaEventoEfeitoAdicional(
 // Indice eh usado para itens com multiplos efeito de combinacao exclusiva. Ignorado para outros tipos.
 // TODO: rodadas automatico?
 void AdicionaEventoItemMagico(
-    const ItemMagicoProto& item, int indice, int rodadas, bool continuo,
+    const ItemTesouroProto& item, int indice, int rodadas, bool continuo,
     std::vector<int>* ids_unicos, EntidadeProto* proto);
 
 inline void AdicionaEventoItemMagicoEfeitoSimples(
-    const ItemMagicoProto& item, int rodadas, bool continuo,
+    const ItemTesouroProto& item, int rodadas, bool continuo,
     std::vector<int>* ids_unicos, EntidadeProto* proto) {
   AdicionaEventoItemMagico(item, /*indice=*/-1, rodadas, continuo, ids_unicos, proto);
 }
 inline void AdicionaEventoItemMagicoContinuo(
-    const ItemMagicoProto& item, std::vector<int>* ids_unicos, EntidadeProto* proto) {
+    const ItemTesouroProto& item, std::vector<int>* ids_unicos, EntidadeProto* proto) {
   AdicionaEventoItemMagico(item, /*indice=*/-1, /*rodadas=*/1, /*continuo=*/true, ids_unicos, proto);
 }
 // Aqui o item eh do proto, e nao da tabela.
 void AdicionaEventosItemMagicoContinuo(
-    const Tabelas& tabelas, ItemMagicoProto* item, std::vector<int>* ids_unicos, EntidadeProto* proto);
+    const Tabelas& tabelas, ItemTesouroProto* item, std::vector<int>* ids_unicos, EntidadeProto* proto);
 
 // Marca a duracao do evento para -1.
 void ExpiraEventoItemMagico(int id_unico, EntidadeProto* proto);
 // Expira todos os eventos do item.
-void ExpiraEventosItemMagico(ItemMagicoProto* item, EntidadeProto* proto);
+void ExpiraEventosItemMagico(ItemTesouroProto* item, EntidadeProto* proto);
 
 // Retorna todos os talentos da entidade em um vector, para facilitar.
 std::vector<const TalentoProto*> TodosTalentos(const EntidadeProto& proto);
@@ -1056,9 +1057,9 @@ bool AcaoAfetaAlvo(const AcaoProto& acao_proto, const Entidade& entidade, std::s
 int NumeroReflexos(const EntidadeProto& proto);
 
 // Retorna o item tabelado pelo tipo e id.
-const ItemMagicoProto& ItemTabela(
+const ItemTesouroProto& ItemTabela(
     const Tabelas& tabelas, TipoItem tipo, const std::string& id);
-const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item);
+const ItemTesouroProto& ItemTabela(const Tabelas& tabelas, const ItemTesouroProto& item);
 
 // Retorna a arma tabelada pelo id.
 const ArmaProto& ArmaTabela(
@@ -1075,14 +1076,14 @@ const ArmaduraOuEscudoProto& EscudoTabela(const Tabelas& tabelas, const std::str
 std::string NomeTipoItem(TipoItem tipo);
 const google::protobuf::RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& ArmasArmadurasOuEscudosProto(TipoTesouro tipo, const EntidadeProto& proto);
 google::protobuf::RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>* ArmasArmadurasOuEscudosProtoMutavel(TipoTesouro tipo, EntidadeProto* proto);
-const google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
-google::protobuf::RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
+const google::protobuf::RepeatedPtrField<ent::ItemTesouroProto>& ItensProto(TipoItem tipo, const EntidadeProto& proto);
+google::protobuf::RepeatedPtrField<ent::ItemTesouroProto>* ItensProtoMutavel(TipoItem tipo, EntidadeProto* proto);
 // Retorna todos os itens do proto, exceto pocoes. Usado para computar efeitos orfãos (a poção ou ja foi consumida ou ainda não tem efeito).
-std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto);
-std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto);
-std::vector<const ItemMagicoProto*> TodosItens(const EntidadeProto& proto);
+std::vector<const ItemTesouroProto*> TodosItensExcetoPocoes(const EntidadeProto& proto);
+std::vector<ItemTesouroProto*> TodosItensExcetoPocoes(EntidadeProto* proto);
+std::vector<const ItemTesouroProto*> TodosItens(const EntidadeProto& proto);
 // Remove o item de proto.
-void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto);
+void RemoveItem(const ItemTesouroProto& item, EntidadeProto* proto);
 
 // Retorna a cura acelerada do alvo, ou 0.
 int CuraAcelerada(const EntidadeProto& proto);
@@ -1271,8 +1272,8 @@ bool EhFeitico(const ArmaProto& arma);
 bool Indefeso(const EntidadeProto& proto);
 
 // Retorna o preco do item como string (exemplo '10 PO').
-std::string PrecoItem(const ItemMagicoProto& item_tabelado);
-int PrecoItemPo(const ItemMagicoProto& item_tabelado);
+std::string PrecoItem(const ItemTesouroProto& item_tabelado);
+int PrecoItemPo(const ItemTesouroProto& item_tabelado);
 int PrecoArmaPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_personagem);
 int PrecoArmaduraOuEscudoPo(const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& aoe_personagem);
 int PrecoArmaTabeladaPo(const ArmaProto& arma_tabelada);

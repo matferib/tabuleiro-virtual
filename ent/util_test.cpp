@@ -7146,7 +7146,7 @@ TEST(TesteTesouro, TesteTesouroEsperado) {
     std::unique_ptr<Entidade> e(NovaEntidadeParaTestes(modelo.entidade(), TabelasCriando()));
     const auto& tesouro = e->Proto().tesouro();
     if (!tesouro.has_valor_esperado_po()) continue;
-    std::vector<std::pair<const google::protobuf::RepeatedPtrField<ItemMagicoProto>*, TipoItem>> itens_agrupados = {
+    std::vector<std::pair<const google::protobuf::RepeatedPtrField<ItemTesouroProto>*, TipoItem>> itens_agrupados = {
       {&tesouro.aneis(), TIPO_ANEL}, {&tesouro.mantos(), TIPO_MANTO}, {&tesouro.luvas(), TIPO_LUVAS},
       {&tesouro.bracadeiras(), TIPO_BRACADEIRAS}, {&tesouro.amuletos(), TIPO_AMULETO}, {&tesouro.botas(), TIPO_BOTAS},
       {&tesouro.chapeus(), TIPO_CHAPEU}, {&tesouro.itens_mundanos(), TIPO_ITEM_MUNDANO},

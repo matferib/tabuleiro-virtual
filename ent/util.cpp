@@ -2080,7 +2080,7 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
 }
 
 namespace {
-void PreencheCargasVarinha(bool decrementa, int limite_vezes, const ItemMagicoProto& varinha_tabelada, const Entidade& entidade, EntidadeProto* proto) {
+void PreencheCargasVarinha(bool decrementa, int limite_vezes, const ItemTesouroProto& varinha_tabelada, const Entidade& entidade, EntidadeProto* proto) {
   bool atualizou = false;
   for (const auto& vp : entidade.Proto().tesouro().varinhas()) {
     auto* varinha = proto->mutable_tesouro()->mutable_varinhas()->Add();
@@ -4273,7 +4273,7 @@ void ExpiraEventoItemMagico(int id_unico, EntidadeProto* proto) {
   }
 }
 
-void ExpiraEventosItemMagico(ItemMagicoProto* item, EntidadeProto* proto) {
+void ExpiraEventosItemMagico(ItemTesouroProto* item, EntidadeProto* proto) {
   for (int id_unico : item->ids_efeitos()) {
     ExpiraEventoItemMagico(id_unico, proto);
   }
@@ -4359,7 +4359,7 @@ void LimpaReducaoDanoEfeitoModelo(TipoEfeitoModelo id_efeito_modelo, EntidadePro
 }
 
 void AdicionaEventoItemMagico(
-    const ItemMagicoProto& item, int indice, int rodadas, bool continuo,
+    const ItemTesouroProto& item, int indice, int rodadas, bool continuo,
     std::vector<int>* ids_unicos, EntidadeProto* proto) {
   std::vector<std::pair<TipoEfeito, std::string>> efeitos_origens;
   if (item.combinacao_efeitos() == COMB_EXCLUSIVO) {
@@ -5335,7 +5335,7 @@ int NumeroReflexos(const EntidadeProto& proto) {
   return num_reflexos;
 }
 
-const ItemMagicoProto& ItemTabela(
+const ItemTesouroProto& ItemTabela(
     const Tabelas& tabelas, TipoItem tipo, const std::string& id) {
   switch (tipo) {
     case TipoItem::TIPO_ANEL: return tabelas.Anel(id);
@@ -5353,10 +5353,10 @@ const ItemMagicoProto& ItemTabela(
     default: ;
   }
   LOG(ERROR) << "tipo de item invalido: " << TipoItem_Name(tipo);
-  return ItemMagicoProto::default_instance();
+  return ItemTesouroProto::default_instance();
 }
 
-const ItemMagicoProto& ItemTabela(const Tabelas& tabelas, const ItemMagicoProto& item) {
+const ItemTesouroProto& ItemTabela(const Tabelas& tabelas, const ItemTesouroProto& item) {
   return ItemTabela(tabelas, item.tipo(), item.id());
 }
 
@@ -5408,7 +5408,7 @@ const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaPersonagem(const std::s
 
 
 void AdicionaEventosItemMagicoContinuo(
-    const Tabelas& tabelas, ItemMagicoProto* item, std::vector<int>* ids_unicos, EntidadeProto* proto) {
+    const Tabelas& tabelas, ItemTesouroProto* item, std::vector<int>* ids_unicos, EntidadeProto* proto) {
   int tam_antes = ids_unicos->size();
   AdicionaEventoItemMagicoContinuo(ItemTabela(tabelas, *item), ids_unicos, proto);
   std::vector<int> ids_adicionados(ids_unicos->begin() + tam_antes, ids_unicos->end());
@@ -5418,7 +5418,7 @@ void AdicionaEventosItemMagicoContinuo(
 }
 
 void PreencheComTesourosEmUso(const EntidadeProto& proto, bool manter_uso, EntidadeProto* proto_alvo) {
-  const std::vector<const ItemMagicoProto*> todos_itens = TodosItensExcetoPocoes(proto);
+  const std::vector<const ItemTesouroProto*> todos_itens = TodosItensExcetoPocoes(proto);
   for (const auto* item : todos_itens) {
     if (!item->em_uso()) continue;
     auto* item_novo = ItensProtoMutavel(item->tipo(), proto_alvo)->Add();
@@ -5444,7 +5444,7 @@ const RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>& Arma
   return proto.tesouro().armas();
 }
 
-const RepeatedPtrField<ent::ItemMagicoProto>& ItensProto(
+const RepeatedPtrField<ent::ItemTesouroProto>& ItensProto(
     TipoItem tipo, const EntidadeProto& proto) {
   switch (tipo) {
     case TipoItem::TIPO_ANEL: return proto.tesouro().aneis();
@@ -5477,7 +5477,7 @@ RepeatedPtrField<ent::EntidadeProto::ArmaArmaduraOuEscudoPersonagem>* ArmasArmad
   return proto->mutable_tesouro()->mutable_armas();
 }
 
-RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
+RepeatedPtrField<ent::ItemTesouroProto>* ItensProtoMutavel(
     TipoItem tipo, EntidadeProto* proto) {
   switch (tipo) {
     case TipoItem::TIPO_ANEL: return proto->mutable_tesouro()->mutable_aneis();
@@ -5499,7 +5499,7 @@ RepeatedPtrField<ent::ItemMagicoProto>* ItensProtoMutavel(
 }
 
 // Retorna true se os itens forem do mesmo tipo, tiverem os mesmos efeitos e complementos.
-bool MesmoItem(const ItemMagicoProto& item1, const ItemMagicoProto& item2) {
+bool MesmoItem(const ItemTesouroProto& item1, const ItemTesouroProto& item2) {
   if (item1.id() != item2.id() || item1.tipo() != item2.tipo() ||
       item1.ids_efeitos().size() != item2.ids_efeitos().size() ||
       item1.complementos().size() != item2.complementos().size() ||
@@ -5518,7 +5518,7 @@ bool MesmoItem(const ItemMagicoProto& item1, const ItemMagicoProto& item2) {
   return true;
 }
 
-void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto) {
+void RemoveItem(const ItemTesouroProto& item, EntidadeProto* proto) {
   auto* itens_do_tipo = ItensProtoMutavel(item.tipo(), proto);
   for (int i = 0; i < itens_do_tipo->size(); ++i) {
     const auto& item_proto = itens_do_tipo->Get(i);
@@ -5529,33 +5529,33 @@ void RemoveItem(const ItemMagicoProto& item, EntidadeProto* proto) {
   }
 }
 
-std::vector<const ItemMagicoProto*> TodosItensExcetoPocoes(const EntidadeProto& proto) {
+std::vector<const ItemTesouroProto*> TodosItensExcetoPocoes(const EntidadeProto& proto) {
   const auto& tesouro = proto.tesouro();
-  std::vector<const RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
+  std::vector<const RepeatedPtrField<ItemTesouroProto>*> itens_agrupados = {
     &tesouro.aneis(), &tesouro.mantos(), &tesouro.luvas(), &tesouro.bracadeiras(), &tesouro.amuletos(), &tesouro.botas(), &tesouro.chapeus(), &tesouro.itens_mundanos(), &tesouro.varinhas(), &tesouro.pergaminhos_divinos(), &tesouro.pergaminhos_arcanos(),
   };
-  std::vector<const ItemMagicoProto*> itens;
+  std::vector<const ItemTesouroProto*> itens;
   for (const auto* itens_grupo : itens_agrupados) {
     std::copy(itens_grupo->pointer_begin(), itens_grupo->pointer_end(), std::back_inserter(itens));
   }
   return itens;
 }
 
-std::vector<const ItemMagicoProto*> TodosItens(const EntidadeProto& proto) {
-  std::vector<const ItemMagicoProto*> itens = TodosItensExcetoPocoes(proto);
+std::vector<const ItemTesouroProto*> TodosItens(const EntidadeProto& proto) {
+  std::vector<const ItemTesouroProto*> itens = TodosItensExcetoPocoes(proto);
   const auto& tesouro = proto.tesouro();
   std::copy(tesouro.pocoes().pointer_begin(), tesouro.pocoes().pointer_end(), std::back_inserter(itens));
   return itens;
 }
 
-std::vector<ItemMagicoProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
+std::vector<ItemTesouroProto*> TodosItensExcetoPocoes(EntidadeProto* proto) {
   auto* tesouro = proto->mutable_tesouro();
-  std::vector<RepeatedPtrField<ItemMagicoProto>*> itens_agrupados = {
+  std::vector<RepeatedPtrField<ItemTesouroProto>*> itens_agrupados = {
     tesouro->mutable_aneis(), tesouro->mutable_mantos(), tesouro->mutable_luvas(), tesouro->mutable_bracadeiras(),
     tesouro->mutable_amuletos(), tesouro->mutable_botas(), tesouro->mutable_chapeus(), tesouro->mutable_itens_mundanos(),
     tesouro->mutable_varinhas(), tesouro->mutable_pergaminhos_divinos(), tesouro->mutable_pergaminhos_arcanos(),
   };
-  std::vector<ItemMagicoProto*> itens;
+  std::vector<ItemTesouroProto*> itens;
   for (auto* itens_grupo : itens_agrupados) {
     std::copy(itens_grupo->pointer_begin(), itens_grupo->pointer_end(), std::back_inserter(itens));
   }
@@ -6538,7 +6538,7 @@ void MergeTesouroTodo(const EntidadeProto::DadosTesouro& tesouro_receptor, const
   MergeMoedas(tesouro_receptor.moedas(), tesouro_receber.moedas(), tesouro_final->mutable_moedas());
 }
 
-// T normalmente é ItemMagicoProto, mas pode ser outros tipo, como armas e armaduras.
+// T normalmente é ItemTesouroProto, mas pode ser outros tipo, como armas e armaduras.
 template <class T>
 void RemoveTesouroDoado(const RepeatedPtrField<T>& tesouro_doado,
                         RepeatedPtrField<T>* tesouro_final) {
@@ -6604,7 +6604,7 @@ void RemoveTesourosDoados(const EntidadeProto::DadosTesouro& tesouro_doado, Enti
   RemoveMoedasDoadas(tesouro_doado.moedas(), tesouro_final->mutable_moedas());
 }
 
-void MergeMensagemTesouro(TipoItem tipo, const RepeatedPtrField<ItemMagicoProto>& tesouro, std::string* texto) {
+void MergeMensagemTesouro(TipoItem tipo, const RepeatedPtrField<ItemTesouroProto>& tesouro, std::string* texto) {
   for (const auto& item : tesouro) {
     texto->append("\n");
     texto->append(item.nome().empty() ? ItemTabela(Tabelas::Unica(), tipo, item.id()).nome() : item.nome());
@@ -7243,14 +7243,14 @@ std::string PrecoString(const Moedas& moedas) {
   return preco;
 }
 
-int PrecoItemPo(const ItemMagicoProto& item_tabelado) {
+int PrecoItemPo(const ItemTesouroProto& item_tabelado) {
   if (item_tabelado.custo_po() > 0) {
     return item_tabelado.custo_po();
   }
   return item_tabelado.custo().po();
 }
 
-std::string PrecoItem(const ItemMagicoProto& item_tabelado) {
+std::string PrecoItem(const ItemTesouroProto& item_tabelado) {
   if (item_tabelado.custo_po() > 0) {
     return absl::StrFormat("%d PO", item_tabelado.custo_po());
   }
