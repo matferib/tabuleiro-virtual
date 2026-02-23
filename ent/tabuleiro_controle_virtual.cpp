@@ -656,7 +656,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     case CONTROLE_BEBER_POCAO: {
       const auto* e = EntidadePrimeiraPessoaOuSelecionada();
-      if (e == nullptr || (e->Proto().tesouro().pocoes().empty() && e->Proto().tesouro().itens_mundanos().empty())) return;
+      if (e == nullptr || (e->Proto().tesouro().pocoes().empty() && e->Proto().tesouro().itens_mundanos().empty() && e->Proto().tesouro().itens_maravilhosos().empty())) return;
       auto n(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO));
       n->mutable_entidade()->set_id(e->Id());
       *n->mutable_entidade()->mutable_tesouro()->mutable_pocoes() = e->Proto().tesouro().pocoes();
@@ -1330,7 +1330,9 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
         case VIS_POCAO: {
           const auto* e = EntidadePrimeiraPessoaOuSelecionada();
           if (e == nullptr ||
-              (e->Proto().tesouro().pocoes().empty() && c_none_of(e->Proto().tesouro().itens_mundanos(), [](const ItemTesouroProto& mundano) { return mundano.id() == "antidoto"; }))) {
+              (e->Proto().tesouro().pocoes().empty() &&
+               c_none_of(e->Proto().tesouro().itens_mundanos(), [this](const ItemTesouroProto& mundano) { return tabelas_.ItemMundano(mundano.id()).pocao_ou_oleo(); }) &&
+               c_none_of(e->Proto().tesouro().itens_maravilhosos(), [this](const ItemTesouroProto& maravilhoso) { return tabelas_.ItemMaravilhoso(maravilhoso.id()).pocao_ou_oleo(); }))) {
             return false;
           }
           break;
