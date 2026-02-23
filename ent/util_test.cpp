@@ -3749,6 +3749,29 @@ TEST(TesteEfeitos, NeutralizarVeneno) {
   // TODO pq ha duas notificacoes de acao de beber pocao.
 }
 
+TEST(TesteEfeitos, ReflexoPrateado) {
+  const auto& modelo = TabelasCriando().ModeloEntidade("Orc");
+  EntidadeProto proto = modelo.entidade();
+  proto.set_id(1);
+  proto.mutable_tesouro()->add_itens_maravilhosos()->set_id("reflexo_prateado");
+  Entidade* orc = NovaEntidadeParaTestes(proto, TabelasCriando()).release();
+  TabuleiroTeste tabuleiro({ orc });  // dono de orc agora.
+  {
+    tabuleiro.BebeOuAplicaItemMaravilhosoNotificando(orc->Id(), /*indice_pocao=*/0);
+    EXPECT_TRUE(PossuiEvento(EFEITO_PRATEADO, orc->Proto()));
+    EXPECT_TRUE(orc->Proto().tesouro().itens_maravilhosos().empty());
+  }
+
+  // Desfazer.
+  {
+    ASSERT_GE(CentralColetoraCriando().NotificacoesRemotas().size(), 1ULL);
+    orc->AtualizaParcial(CentralColetoraCriando().NotificacoesRemotas()[0]->entidade_antes());
+    EXPECT_FALSE(PossuiEvento(EFEITO_PRATEADO, orc->Proto()));
+    EXPECT_EQ(orc->Proto().tesouro().itens_maravilhosos().size(), 1);
+  }
+  // TODO pq ha duas notificacoes de acao de beber pocao.
+}
+
 TEST(TesteEfeitos, BeberPocaoDesfazInconscienteEAfins) {
   const auto& modelo = TabelasCriando().ModeloEntidade("Orc");
   EntidadeProto proto = modelo.entidade();
