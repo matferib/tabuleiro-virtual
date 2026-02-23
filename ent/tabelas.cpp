@@ -157,7 +157,7 @@ const Tabelas& Tabelas::Unica() {
 
 // Quando nao houver origem no item, usa o id dele como a origem do efeito.
 // So funcionara mesmo quando o id do item for igual ao do feitico.
-void AdicionaOrigemImplicita(ItemMagicoProto* item) {
+void AdicionaOrigemImplicita(ItemTesouroProto* item) {
   if (item->tipo_efeito().size() == 1 && item->origens().empty()) {
     item->add_origens(item->id());
   }
@@ -288,6 +288,7 @@ void Tabelas::RecarregaMapas() {
   aneis_.clear();
   //municoes_.clear();
   itens_mundanos_.clear();
+  itens_maravilhosos_.clear();
   varinhas_.clear();
   mantos_.clear();
   luvas_.clear();
@@ -423,7 +424,7 @@ void Tabelas::RecarregaMapas() {
       mapa_classe[ic.nivel()].push_back(&feitico);
     }
     for (const auto& ic : feitico.info_classes()) {
-      ItemMagicoProto* pergaminho = nullptr;
+      ItemTesouroProto* pergaminho = nullptr;
       if (c_any(classes_arcanas, ic.id())) {
         pergaminho = &pergaminhos_arcanos_[feitico.id()];
       } else if (c_any(classes_divinas, ic.id())) {
@@ -465,6 +466,7 @@ void Tabelas::RecarregaMapas() {
 
   for (auto& pocao : *tabelas_.mutable_tabela_pocoes()->mutable_pocoes()) {
     pocao.set_tipo(TIPO_POCAO);
+    pocao.set_pocao_ou_oleo(true);
     AdicionaOrigemImplicita(&pocao);
     pocoes_[pocao.id()] = &pocao;
   }
@@ -495,6 +497,10 @@ void Tabelas::RecarregaMapas() {
 
   for (auto& item : *tabelas_.mutable_tabela_itens_mundanos()->mutable_itens()) {
     itens_mundanos_[item.id()] = &item;
+  }
+
+  for (auto& item : *tabelas_.mutable_tabela_itens_maravilhosos()->mutable_itens()) {
+    itens_maravilhosos_[item.id()] = &item;
   }
 
   for (auto& item : *tabelas_.mutable_tabela_varinhas()->mutable_varinhas()) {
@@ -713,29 +719,34 @@ const ifg::ItemMenu& Tabelas::ItemMenu(const std::string& id) const {
   return it == itens_menu_.end() ? ifg::ItemMenu::default_instance() : it->second;
 }
 
-const ItemMagicoProto& Tabelas::Pocao(const std::string& id) const {
+const ItemTesouroProto& Tabelas::Pocao(const std::string& id) const {
   auto it = pocoes_.find(id);
-  return it == pocoes_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == pocoes_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
-const ItemMagicoProto& Tabelas::Varinha(const std::string& id) const {
+const ItemTesouroProto& Tabelas::Varinha(const std::string& id) const {
   auto it = varinhas_.find(id);
-  return it == varinhas_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == varinhas_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
-const ItemMagicoProto& Tabelas::PergaminhoArcano(const std::string& id) const {
+const ItemTesouroProto& Tabelas::PergaminhoArcano(const std::string& id) const {
   auto it = pergaminhos_arcanos_.find(id);
-  return it == pergaminhos_arcanos_.end() ? ItemMagicoProto::default_instance() : it->second;
+  return it == pergaminhos_arcanos_.end() ? ItemTesouroProto::default_instance() : it->second;
 }
 
-const ItemMagicoProto& Tabelas::PergaminhoDivino(const std::string& id) const {
+const ItemTesouroProto& Tabelas::PergaminhoDivino(const std::string& id) const {
   auto it = pergaminhos_divinos_.find(id);
-  return it == pergaminhos_divinos_.end() ? ItemMagicoProto::default_instance() : it->second;
+  return it == pergaminhos_divinos_.end() ? ItemTesouroProto::default_instance() : it->second;
 }
 
-const ItemMagicoProto& Tabelas::ItemMundano(const std::string& id) const {
+const ItemTesouroProto& Tabelas::ItemMundano(const std::string& id) const {
   auto it = itens_mundanos_.find(id);
-  return it == itens_mundanos_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == itens_mundanos_.end() ? ItemTesouroProto::default_instance() : *it->second;
+}
+
+const ItemTesouroProto& Tabelas::ItemMaravilhoso(const std::string& id) const {
+  auto it = itens_maravilhosos_.find(id);
+  return it == itens_maravilhosos_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
 //const Municao& Tabelas::Municao(const std::string& id) const {
@@ -743,39 +754,39 @@ const ItemMagicoProto& Tabelas::ItemMundano(const std::string& id) const {
 //  return it == municoes_.end() ? MunicaoProto::default_instance() : *it->second;
 //}
 
-const ItemMagicoProto& Tabelas::Anel(const std::string& id) const {
+const ItemTesouroProto& Tabelas::Anel(const std::string& id) const {
   auto it = aneis_.find(id);
-  return it == aneis_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == aneis_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
-const ItemMagicoProto& Tabelas::Manto(const std::string& id) const {
+const ItemTesouroProto& Tabelas::Manto(const std::string& id) const {
   auto it = mantos_.find(id);
-  return it == mantos_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == mantos_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
-const ItemMagicoProto& Tabelas::Luvas(const std::string& id) const {
+const ItemTesouroProto& Tabelas::Luvas(const std::string& id) const {
   auto it = luvas_.find(id);
-  return it == luvas_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == luvas_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
-const ItemMagicoProto& Tabelas::Botas(const std::string& id) const {
+const ItemTesouroProto& Tabelas::Botas(const std::string& id) const {
   auto it = botas_.find(id);
-  return it == botas_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == botas_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
-const ItemMagicoProto& Tabelas::Amuleto(const std::string& id) const {
+const ItemTesouroProto& Tabelas::Amuleto(const std::string& id) const {
   auto it = amuletos_.find(id);
-  return it == amuletos_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == amuletos_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
-const ItemMagicoProto& Tabelas::Chapeu(const std::string& id) const {
+const ItemTesouroProto& Tabelas::Chapeu(const std::string& id) const {
   auto it = chapeus_.find(id);
-  return it == chapeus_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == chapeus_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
-const ItemMagicoProto& Tabelas::Bracadeiras(const std::string& id) const {
+const ItemTesouroProto& Tabelas::Bracadeiras(const std::string& id) const {
   auto it = bracadeiras_.find(id);
-  return it == bracadeiras_.end() ? ItemMagicoProto::default_instance() : *it->second;
+  return it == bracadeiras_.end() ? ItemTesouroProto::default_instance() : *it->second;
 }
 
 const TalentoProto& Tabelas::Talento(const std::string& id) const {
