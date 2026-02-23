@@ -2833,6 +2833,15 @@ tabela_itens_maravilhosos {
     nome: 'amuleto de quaal (chicote)'
     custo { po: 500 }
   }
+  itens {
+    id: 'reflexo_prateado'  # silversheen
+    nome: 'reflexo prateado'
+    tipo_efeito: EFEITO_PRATEADO
+    pocao_ou_oleo: true
+    # 1 hora
+    duracao_rodadas: 600
+    custo { po: 250 }
+  }
 }
 tabela_itens_mundanos {
   itens {
@@ -2911,6 +2920,7 @@ tabela_itens_mundanos {
     tipo_efeito: EFEITO_ANTIDOTO
     # 1 hora
     duracao_rodadas: 600
+    pocao_ou_oleo: true
     custo { po: 50 }
   }
 }
