@@ -8711,7 +8711,7 @@ void Tabuleiro::BebePocaoNotificando(unsigned int id_entidade, int indice_pocao,
   }
 }
 
-void Tabuleiro::BebeAntidotoNotificando(unsigned int id_entidade, int indice_antidoto) {
+void Tabuleiro::BebeOuAplicaItemMundanoNotificando(unsigned int id_entidade, int indice_antidoto) {
   Entidade* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr || indice_antidoto >= entidade->Proto().tesouro().itens_mundanos().size()) return;
   ent::EntidadeProto* e_antes, * e_depois;
@@ -8732,6 +8732,54 @@ void Tabuleiro::BebeAntidotoNotificando(unsigned int id_entidade, int indice_ant
   }
   {
     *e_antes->mutable_tesouro()->mutable_itens_mundanos() = entidade->Proto().tesouro().itens_mundanos();
+    // Os eventos a gente pega do que foi gerado e zera as rodadas para desfazer.
+    if (!e_depois->evento().empty()) {
+      *e_antes->mutable_evento() = e_depois->evento();
+      for (auto& ev : *e_antes->mutable_evento()) {
+        ev.set_rodadas(EVENTO_DESFEITO);
+      }
+    }
+  }
+
+  // Vai notificar remoto (atualizacao parcial).
+  TrataNotificacao(*notificacao);
+  // Desfazer.
+  AdicionaNotificacaoListaEventos(*notificacao);
+  {
+    auto n_efeito(ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO));
+    n_efeito->mutable_acao()->set_tipo(ACAO_POCAO);;
+    *n_efeito->mutable_acao()->mutable_pos_entidade() = entidade->PosicaoAltura(1.2f);
+    Cor c;
+    c.set_r(0.8f);
+    c.set_g(0.6f);
+    c.set_b(0.6f);
+    c.set_a(0.5f);
+    n_efeito->mutable_acao()->mutable_cor()->Swap(&c);
+    // Aqui enviara para os clientes tb.
+    TrataNotificacao(*n_efeito);
+  }
+}
+
+void Tabuleiro::BebeOuAplicaItemMaravilhosoNotificando(unsigned int id_entidade, int indice_item_maravilhoso) {
+  Entidade* entidade = BuscaEntidade(id_entidade);
+  if (entidade == nullptr || indice_item_maravilhoso >= entidade->Proto().tesouro().itens_maravilhosos().size()) return;
+  ent::EntidadeProto* e_antes, * e_depois;
+  std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
+  std::tie(e_antes, e_depois) = ent::PreencheNotificacaoEntidade(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, *entidade, notificacao.get());
+  const auto& item = tabelas_.ItemMaravilhoso(entidade->Proto().tesouro().itens_maravilhosos(indice_item_maravilhoso).id());
+  {
+    *e_depois->mutable_tesouro()->mutable_itens_maravilhosos() = entidade->Proto().tesouro().itens_maravilhosos();
+    e_depois->mutable_tesouro()->mutable_itens_maravilhosos()->DeleteSubrange(indice_item_maravilhoso, 1);
+    if (e_depois->tesouro().itens_maravilhosos().empty()) {
+      e_depois->mutable_tesouro()->add_itens_maravilhosos();
+    }
+    std::vector<int> ids_unicos = IdsUnicosEntidade(*entidade);
+    if (!item.tipo_efeito().empty()) {
+      AdicionaEventoItemMagico(item, /*indice_efeito=*/0, item.duracao_rodadas(), false, &ids_unicos, e_depois);
+    }
+  }
+  {
+    *e_antes->mutable_tesouro()->mutable_itens_maravilhosos() = entidade->Proto().tesouro().itens_maravilhosos();
     // Os eventos a gente pega do que foi gerado e zera as rodadas para desfazer.
     if (!e_depois->evento().empty()) {
       *e_antes->mutable_evento() = e_depois->evento();

@@ -113,7 +113,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Faz a entidade beber a pocao, recebendo seus efeitos. Indice da pocao indica qual pocao a entidade esta bebendo (na ordem do tesouro). */
   void BebePocaoNotificando(unsigned int id_entidade, int indice_pocao, unsigned int indice_efeito = 0);
-  void BebeAntidotoNotificando(unsigned int id_entidade, int indice_antidoto);
+  void BebeOuAplicaItemMundanoNotificando(unsigned int id_entidade, int indice_item);
+  void BebeOuAplicaItemMaravilhosoNotificando(unsigned int id_entidade, int indice_item);
   /** Faz a entidade usar o pergaminho, consumindo-o como se fosse uma magia. */
   void UsaPergaminhoNotificando(unsigned int id_entidade, TipoMagia tipo_pergaminho, int indice_pergaminho);
 

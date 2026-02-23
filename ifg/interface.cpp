@@ -118,7 +118,7 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_POCAO: {
-      TrataEscolherPocaoOuAntidoto(notificacao);
+      TrataEscolherPocaoOuSimilar(notificacao);
       return true;
     }
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_PERGAMINHO: {
@@ -168,7 +168,7 @@ std::string NomeTesouro(ent::TipoTesouro tipo) {
 //----------------------
 void InterfaceGrafica::TrataEscolherTipoTesouro(const ntf::Notificacao& notificacao) {
   std::vector<ent::TipoTesouro> mapa_indice_tipo;
-  std::vector<std::string> nomes_itens;
+  std::vector<ifg::InterfaceGrafica::RotuloTipoTesouro> nomes_itens;
   for (ent::TipoTesouro tipo : { ent::TT_ANEL, ent::TT_MANTO, ent::TT_LUVAS, ent::TT_BRACADEIRAS,
                               ent::TT_POCAO, ent::TT_AMULETO, ent::TT_BOTAS, ent::TT_CHAPEU,
                               ent::TT_PERGAMINHO_ARCANO, ent::TT_PERGAMINHO_DIVINO, ent::TT_ITEM_MUNDANO,
@@ -176,12 +176,12 @@ void InterfaceGrafica::TrataEscolherTipoTesouro(const ntf::Notificacao& notifica
     if (ent::TipoItem_IsValid(tipo)) {
       const auto& itens = ent::ItensProto(static_cast<ent::TipoItem>(tipo), notificacao.entidade());
       if (itens.empty()) continue;
-      nomes_itens.push_back(NomeTesouro(tipo));
+      nomes_itens.push_back({NomeTesouro(tipo), tipo});
       mapa_indice_tipo.push_back(tipo);
     } else {
       const auto& itens = ArmasArmadurasOuEscudosProto(tipo, notificacao.entidade());
       if (itens.empty()) continue;
-      nomes_itens.push_back(NomeTesouro(tipo));
+      nomes_itens.push_back({NomeTesouro(tipo), tipo});
       mapa_indice_tipo.push_back(tipo);
     }
   }
@@ -303,26 +303,31 @@ std::string StringDuracao(const ent::Tabelas& tabelas, const ent::ArmaProto& fei
   }
 }
 
+// Informação sobre algum item do personagem.
 struct IndiceQuantidadeNivel {
   int indice = 0;
   int quantidade = 0;
   int nivel = 0;
   std::string link;
   std::string duracao;
+  std::optional<ent::TipoTesouro> tipo_tesouro;
 
+  // Caso o item seja repetido, ira incremenatar. O proposito é evitar entradas repetidas na interface (apenas dizer quantos, exemplo: antidoto 3).
   void PreencheIncrementando(
-      const ent::Tabelas& tabelas, int indice, const ent::ArmaProto& feitico_tabelado = ent::ArmaProto::default_instance(), const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
+      const ent::Tabelas& tabelas, int indice, std::optional<ent::TipoTesouro> tipo_tesouro, const ent::ArmaProto& feitico_tabelado = ent::ArmaProto::default_instance(), const ent::InfoClasse& ic = ent::InfoClasse::default_instance()) {
     this->indice = indice;
     ++quantidade;
     nivel = ic.has_id() ? ent::NivelMagia(feitico_tabelado, ic) :  ent::NivelMaisAltoMagia(feitico_tabelado);
     link = feitico_tabelado.link();
     duracao = StringDuracao(tabelas, feitico_tabelado);
+    tipo_tesouro = tipo_tesouro;
   }
 };
 
-std::pair<std::vector<std::string>, std::vector<int>>
+// Retorna dois vetores com a mesma cardinalidade, um com os nomes e tipo de tesouro, outro com os indices.
+std::pair<std::vector<ifg::InterfaceGrafica::RotuloTipoTesouro>, std::vector<int>>
 PreencheNomesEMapaIndices(const std::map<std::string, IndiceQuantidadeNivel>& mapa_nomes_para_indices) {
-  std::vector<std::string> nomes;
+  std::vector<ifg::InterfaceGrafica::RotuloTipoTesouro> nomes;
   std::vector<int> mapa_indices;
   for (auto it : mapa_nomes_para_indices) {
     const std::string& nome = it.first;
@@ -336,7 +341,7 @@ PreencheNomesEMapaIndices(const std::map<std::string, IndiceQuantidadeNivel>& ma
         nivel,
         it.second.duracao.c_str(),
         link.empty() ? "" : absl::StrFormat(", <a href='%s'>link</a>", link.c_str()).c_str());
-    nomes.push_back(texto);
+    nomes.push_back({texto, it.second.tipo_tesouro});
     int indice = it.second.indice;
     mapa_indices.push_back(indice);
   }
@@ -367,11 +372,11 @@ void InterfaceGrafica::TrataEscolherPergaminho(const ntf::Notificacao& notificac
     if (ic.id().empty()) {
       LOG(WARNING) << "Nao achei classe de conjuracao para pergaminho: " << pergaminho.id();
     }
-    mapa_nomes_para_indices[nome].PreencheIncrementando(tabelas_, i++, tabelas_.Feitico(pergaminho.id()), ic);
+    mapa_nomes_para_indices[nome].PreencheIncrementando(tabelas_, i++, arcano ? ent::TipoTesouro::TT_PERGAMINHO_ARCANO : ent::TipoTesouro::TT_PERGAMINHO_DIVINO, tabelas_.Feitico(pergaminho.id()), ic);
   }
 
   std::vector<int> mapa_indices;
-  std::vector<std::string> nomes;
+  std::vector<RotuloTipoTesouro> nomes;
   std::tie(nomes, mapa_indices) = PreencheNomesEMapaIndices(mapa_nomes_para_indices);
   EscolheItemLista(
       "Escolha o pergaminho", "Usar Pergaminho", nomes,
@@ -413,7 +418,7 @@ void InterfaceGrafica::VoltaEscolherPergaminho(const ntf::Notificacao notificaca
 //----------------
 // Escolher Pocao.
 //----------------
-void InterfaceGrafica::TrataEscolherPocaoOuAntidoto(const ntf::Notificacao& notificacao) {
+void InterfaceGrafica::TrataEscolherPocaoOuSimilar(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdogSeMestre();
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
   std::map<std::string, IndiceQuantidadeNivel> mapa_nomes_para_indices;
@@ -422,77 +427,116 @@ void InterfaceGrafica::TrataEscolherPocaoOuAntidoto(const ntf::Notificacao& noti
     const auto& pocao_tabelada = tabelas_.Pocao(pocao.id());
     const std::string& nome = pocao.nome().empty() ? pocao_tabelada.nome() : pocao.nome();
     mapa_nomes_para_indices[nome].PreencheIncrementando(
-        tabelas_, i++, tabelas_.Feitico(pocao_tabelada.has_id_feitico() ? pocao_tabelada.id_feitico() : pocao_tabelada.id()));
+        tabelas_, i++, ent::TT_POCAO, tabelas_.Feitico(pocao_tabelada.has_id_feitico() ? pocao_tabelada.id_feitico() : pocao_tabelada.id()));
   }
   for (const auto& item : notificacao.entidade().tesouro().itens_mundanos()) {
     // por enquanto ta hardcoded para antidoto apenas com poções, mas outros itens mundanos eventualmente podem entrar aqui.
-    if (item.id() != "antidoto") {
+    const auto& item_tabelado = tabelas_.ItemMundano(item.id());
+    if (!item_tabelado.pocao_ou_oleo()) {
       ++i;
       continue;
     }
-    const auto& item_tabelado = tabelas_.ItemMundano(item.id());
-    const std::string& nome = item.nome().empty() ? item_tabelado.nome() : item.nome();
+    const std::string& nome = absl::StrCat("item mundano: ", item.nome().empty() ? item_tabelado.nome() : item.nome());
     auto& iqn = mapa_nomes_para_indices[nome];
-    iqn.PreencheIncrementando(tabelas_, i++);
+    iqn.PreencheIncrementando(tabelas_, i++, ent::TT_ITEM_MUNDANO);
     iqn.duracao = absl::StrCat(item_tabelado.duracao_rodadas());
   }
-  std::vector<std::string> nomes;
+  for (const auto& item : notificacao.entidade().tesouro().itens_maravilhosos()) {
+    const auto& item_tabelado = tabelas_.ItemMaravilhoso(item.id());
+    // por enquanto ta hardcoded para antidoto apenas com poções, mas outros itens mundanos eventualmente podem entrar aqui.
+    if (!item_tabelado.pocao_ou_oleo()) {
+      ++i;
+      continue;
+    }
+    const std::string& nome = absl::StrCat("item maravilhoso: ", item.nome().empty() ? item_tabelado.nome() : item.nome());
+    auto& iqn = mapa_nomes_para_indices[nome];
+    iqn.PreencheIncrementando(tabelas_, i++, ent::TT_ITEM_MARAVILHOSO);
+    iqn.duracao = absl::StrCat(item_tabelado.duracao_rodadas());
+  }
+  std::vector<ifg::InterfaceGrafica::RotuloTipoTesouro> nomes;
   std::vector<int> mapa_indices;
   std::tie(nomes, mapa_indices) = PreencheNomesEMapaIndices(mapa_nomes_para_indices);
   EscolheItemLista(
-      "Escolha a poção", "Beber", nomes,
+      "Escolha a poção ou similar", "Beber/Usar", nomes,
       std::bind(
-          &ifg::InterfaceGrafica::VoltaEscolherPocaoOuAntidoto,
+          &ifg::InterfaceGrafica::VoltaEscolherPocaoOuSimilar,
           this, notificacao, mapa_indices,
-          _1, _2));
+          _1, _2, _3));
 }
 
-void InterfaceGrafica::VoltaEscolherPocaoOuAntidoto(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_selecionado) {
+void InterfaceGrafica::VoltaEscolherPocaoOuSimilar(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_selecionado, std::optional<ent::TipoTesouro> tipo_tesouro) {
+  if (!tipo_tesouro.has_value()) {
+    LOG(ERROR) << "Tipo de tesouro ausente";
+    VoltaEscolherEfeito(notificacao, 0, false, 0, std::nullopt);
+    return;
+  }
   const auto& pocoes_entidade = notificacao.entidade().tesouro().pocoes();
-  const auto& items_entidade = notificacao.entidade().tesouro().itens_mundanos();
-  int indice_pocao_ou_antidoto = mapa_indices[indice_selecionado];
-  if (!ok || indice_pocao_ou_antidoto >= pocoes_entidade.size() + items_entidade.size()) {
-    LOG(ERROR) << "poção ou antidoto invalido, indice: " << indice_pocao_ou_antidoto << ", pocoes: " << pocoes_entidade.size() << ", itens: " << items_entidade.size();
-    VoltaEscolherEfeito(notificacao, 0, false, 0);
-    return;
-  }
-  if (indice_pocao_ou_antidoto < pocoes_entidade.size()) {
-    // Mapaeia o nome para indice. As repeticoes mapearam sempre para o mesmo, mas isso nao importa.
-    const auto& pocao = tabelas_.Pocao(pocoes_entidade.Get(indice_pocao_ou_antidoto).id());
-    if (pocao.tipo_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
-      VoltaEscolherEfeito(notificacao, indice_pocao_ou_antidoto, true, 0);
+  const auto& itens_mundanos = notificacao.entidade().tesouro().itens_mundanos();
+  const auto& itens_maravilhosos = notificacao.entidade().tesouro().itens_maravilhosos();
+  int indice_pocao_ou_similar = mapa_indices[indice_selecionado];
+  switch (*tipo_tesouro) {
+    case ent::TT_POCAO: {
+      if (indice_pocao_ou_similar < pocoes_entidade.size()) {
+        // Mapaeia o nome para indice. As repeticoes mapearam sempre para o mesmo, mas isso nao importa.
+        const auto& pocao = tabelas_.Pocao(pocoes_entidade.Get(indice_pocao_ou_similar).id());
+        if (pocao.tipo_efeito_size() == 1 || pocao.combinacao_efeitos() != ent::COMB_EXCLUSIVO) {
+          VoltaEscolherEfeito(notificacao, indice_pocao_ou_similar, true, 0, ent::TT_POCAO);
+          return;
+        }
+        std::vector<std::string> efeitos;
+        for (auto tipo_efeito : pocao.tipo_efeito()) {
+          efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)tipo_efeito));
+        }
+        EscolheItemLista(
+          "Escolha o efeito", std::nullopt, efeitos,
+          std::bind(
+            &ifg::InterfaceGrafica::VoltaEscolherEfeito,
+            this, notificacao, indice_pocao_ou_similar,
+            _1, _2, tipo_tesouro));
+        return;
+      }
+    }
+    break;
+    case ent::TT_ITEM_MUNDANO: {
+      indice_pocao_ou_similar -= pocoes_entidade.size();
+      if (indice_pocao_ou_similar < 0 && indice_pocao_ou_similar >= itens_mundanos.size()) {
+        LOG(ERROR) << "item mundano invalido, indice: " << indice_pocao_ou_similar << ", possui: " << itens_mundanos.size();
+        VoltaEscolherEfeito(notificacao, 0, false, 0, ent::TT_ITEM_MUNDANO);
+        return;
+      } else {
+        const auto& mundano = tabelas_.ItemMundano(itens_mundanos.Get(indice_pocao_ou_similar).id());
+        VoltaEscolherEfeito(notificacao, indice_pocao_ou_similar, /*ok=*/true, /*indice_efeito=*/0, ent::TT_ITEM_MUNDANO);
+      }
+    }
+    break;
+    case ent::TT_ITEM_MARAVILHOSO: {
+      indice_pocao_ou_similar -= pocoes_entidade.size();
+      indice_pocao_ou_similar -= itens_mundanos.size();
+      if (indice_pocao_ou_similar < 0 && indice_pocao_ou_similar >= itens_maravilhosos.size()) {
+        LOG(ERROR) << "item marvilhoso invalido, indice: " << indice_pocao_ou_similar << " possui: " << itens_maravilhosos.size();
+        VoltaEscolherEfeito(notificacao, 0, false, 0, ent::TT_ITEM_MARAVILHOSO);
+        return;
+      } else {
+        const auto& mundano = tabelas_.ItemMundano(itens_maravilhosos.Get(indice_pocao_ou_similar).id());
+        VoltaEscolherEfeito(notificacao, indice_pocao_ou_similar, /*ok=*/true, /*indice_efeito=*/0, ent::TT_ITEM_MARAVILHOSO);
+      }
+    }
+    break;
+    default:
+      LOG(ERROR) << "Tipo de tesouro invalido: " << static_cast<int>(*tipo_tesouro);
+      VoltaEscolherEfeito(notificacao, 0, false, 0, tipo_tesouro);
       return;
-    }
-    std::vector<std::string> efeitos;
-    for (auto tipo_efeito : pocao.tipo_efeito()) {
-      efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)tipo_efeito));
-    }
-    EscolheItemLista(
-        "Escolha o efeito", std::nullopt, efeitos,
-        std::bind(
-          &ifg::InterfaceGrafica::VoltaEscolherEfeito,
-          this, notificacao, indice_pocao_ou_antidoto,
-          _1, _2, /*eh_antidoto=*/false));
-  } else {
-    // antidoto.
-    indice_pocao_ou_antidoto -= pocoes_entidade.size();
-    const auto& antidoto = tabelas_.ItemMundano(items_entidade.Get(indice_pocao_ou_antidoto).id());
-    if (antidoto.id() != "antidoto") {
-      LOG(ERROR) << "antidoto invalido: " << antidoto.ShortDebugString();
-      VoltaEscolherEfeito(notificacao, 0, false, 0, /*eh_antidoto=*/true);
-      return;
-    }
-    VoltaEscolherEfeito(notificacao, indice_pocao_ou_antidoto, /*ok=*/true, /*indice_efeito=*/0, /*eh_antidoto=*/true);
-    return;
   }
 }
 
-void InterfaceGrafica::VoltaEscolherEfeito(const ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito, bool eh_antidoto) {
-  if (ok) {
-    if (eh_antidoto) {
-      tabuleiro_->BebeAntidotoNotificando(notificacao.entidade().id(), indice_pocao);
+void InterfaceGrafica::VoltaEscolherEfeito(const ntf::Notificacao notificacao, unsigned int indice, bool ok, unsigned int indice_efeito, std::optional<ent::TipoTesouro> tipo_tesouro) {
+  if (ok && tipo_tesouro.has_value()) {
+    if (tipo_tesouro == ent::TT_ITEM_MUNDANO) {
+      tabuleiro_->BebeOuAplicaItemMundanoNotificando(notificacao.entidade().id(), indice);
+    } else if (tipo_tesouro == ent::TT_ITEM_MARAVILHOSO) {
+      tabuleiro_->BebeOuAplicaItemMaravilhosoNotificando(notificacao.entidade().id(), indice);
     } else {
-     tabuleiro_->BebePocaoNotificando(notificacao.entidade().id(), indice_pocao, indice_efeito);
+     tabuleiro_->BebePocaoNotificando(notificacao.entidade().id(), indice, indice_efeito);
     }
   }
   tabuleiro_->ReativaWatchdogSeMestre();

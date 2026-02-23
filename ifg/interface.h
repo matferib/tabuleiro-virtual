@@ -34,6 +34,12 @@ class InterfaceGrafica : public ntf::Receptor {
 
   bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
+  // Um rotulo para escolha, junto com seu tipo, caso apropriado.
+  struct RotuloTipoTesouro {
+    std::string rotulo;
+    std::optional<ent::TipoTesouro> tipo_tesouro;
+  };
+
  protected:
   // Mostra um dialogo de erro ou informacao.
   virtual void MostraMensagem(bool erro, const std::string& mensagem, std::function<void()> funcao_volta) = 0;
@@ -43,8 +49,23 @@ class InterfaceGrafica : public ntf::Receptor {
   virtual void EscolheItemLista(
       const std::string& titulo,
       const std::optional<std::string>& rotulo_ok,
-      const std::vector<std::string>& lista,
-      std::function<void(bool, int)> funcao_volta) = 0;
+      const std::vector<RotuloTipoTesouro>& lista,
+      std::function<void(bool, int, std::optional<ent::TipoTesouro>)> funcao_volta) = 0;
+  // Adaptador para função acima sem tipo de tesouro.
+  void EscolheItemLista(
+    const std::string& titulo,
+    const std::optional<std::string>& rotulo_ok,
+    const std::vector<std::string>& lista,
+    std::function<void(bool, int)> funcao_volta) {
+    std::vector<RotuloTipoTesouro> lista_adaptada;
+    for (const std::string& rotulo : lista) {
+      lista_adaptada.push_back(RotuloTipoTesouro{rotulo, std::nullopt});
+    }
+    auto funcao_volta_adaptada = [funcao_volta](bool b, int i, std::optional<ent::TipoTesouro>) {
+      funcao_volta(b, i);
+    };
+    EscolheItemLista(titulo, rotulo_ok, lista_adaptada, funcao_volta_adaptada);
+  }
 
   // Funcao generica para retorno da escolha de um ou mais items da lista. funcao_volta eh chamada com false
   // em caso de cancelamento, ou com os indices escolhidos caso contrario.
@@ -112,9 +133,9 @@ class InterfaceGrafica : public ntf::Receptor {
   void TrataEscolherTipoTesouro(const ntf::Notificacao& notificacao);
   void VoltaEscolherTipoTesouro(const ntf::Notificacao notificacao, std::vector<ent::TipoTesouro> mapa_indice_id, bool ok, int indice_tipo);
 
-  void TrataEscolherPocaoOuAntidoto(const ntf::Notificacao& notificacao);
-  void VoltaEscolherPocaoOuAntidoto(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_selecionado);
-  void VoltaEscolherEfeito(const ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito, bool eh_antidoto = false);
+  void TrataEscolherPocaoOuSimilar(const ntf::Notificacao& notificacao);
+  void VoltaEscolherPocaoOuSimilar(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_selecionado, std::optional<ent::TipoTesouro> tipo_tesouro);
+  void VoltaEscolherEfeito(const ntf::Notificacao notificacao, unsigned int indice_pocao, bool ok, unsigned int indice_efeito, std::optional<ent::TipoTesouro> tipo_tesouro);
 
   void TrataEscolherPergaminho(const ntf::Notificacao& notificacao);
   void VoltaEscolherPergaminho(const ntf::Notificacao notificacao, const std::vector<int> mapa_indices, bool ok, int indice_selecionado);

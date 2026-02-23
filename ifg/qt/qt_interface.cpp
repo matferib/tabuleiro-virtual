@@ -44,15 +44,15 @@ void InterfaceGraficaQt::MostraMensagem(
 void InterfaceGraficaQt::EscolheItemLista(
     const std::string& titulo,
     const std::optional<std::string>& rotulo_ok,
-    const std::vector<std::string>& lista,
-    std::function<void(bool, int)> funcao_volta) {
+    const std::vector<RotuloTipoTesouro>& lista,
+    std::function<void(bool, int, std::optional<ent::TipoTesouro>)> funcao_volta) {
   pai_->v3d()->LiberaContexto();
   // Popula.
   ifg::qt::Ui::ListaPaginada gerador;
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
   dialogo->setWindowTitle(QString::fromUtf8(titulo.c_str()));
-  for (const auto& item_str : lista) {
+  for (const auto& [item_str, tipo_tesouro] : lista) {
     auto* item = new QListWidgetItem(gerador.lista);
     auto* label = new QLabel(QString::fromUtf8(item_str.c_str()));
     label->setTextFormat(Qt::RichText);
@@ -66,13 +66,17 @@ void InterfaceGraficaQt::EscolheItemLista(
     // uma atualização parcial, que cause alguma operação grafica irá corromper o contexto e gerar um erro grafico
     // totalmente aleatorio.
     pai_->v3d()->PegaContexto();
-    funcao_volta(gerador.lista->currentRow() >= 0 && gerador.lista->currentRow() < (int)lista.size(), gerador.lista->currentRow());
+    if (gerador.lista->currentRow() >= 0 && gerador.lista->currentRow() < (int)lista.size()) {
+      funcao_volta(/*ok=*/true, gerador.lista->currentRow(), lista[gerador.lista->currentRow()].tipo_tesouro);
+    } else {
+      funcao_volta(false, -1, std::nullopt);
+    }
     pai_->v3d()->LiberaContexto();
     dialogo->accept();
   };
   auto lambda_rejeitado = [this, &gerador, dialogo, lista, funcao_volta] () {
     pai_->v3d()->PegaContexto();
-    funcao_volta(false, -1);
+    funcao_volta(false, -1, std::nullopt);
     pai_->v3d()->LiberaContexto();
     dialogo->reject();
   };

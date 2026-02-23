@@ -506,8 +506,8 @@ class ElementoItemLista : public ElementoInterface {
  public:
   ElementoItemLista(InterfaceGraficaOpengl* interface_grafica,
                     const std::optional<std::string>& rotulo_ok,
-                    const std::vector<std::string>& lista,
-                    std::function<void(bool, int)> funcao_volta)
+                    const std::vector<ifg::InterfaceGrafica::RotuloTipoTesouro>& lista,
+                    std::function<void(bool, int, std::optional<ent::TipoTesouro>)> funcao_volta)
     : interface_grafica_(interface_grafica) {
     int fonte_x_int, fonte_y_int;
     gl::TamanhoFonteComEscala(&fonte_x_int, &fonte_y_int);
@@ -519,19 +519,23 @@ class ElementoItemLista : public ElementoInterface {
     Posiciona(xc - (largura / 2), yc - (altura / 2));
     Dimensoes(largura, altura);
     std::function<void()> volta_cancela = [this, funcao_volta] () {
-      funcao_volta(false, -1);
+      funcao_volta(false, -1, std::nullopt);
       interface_grafica_->FechaElemento();
     };
-    std::function<void()> volta_ok = [this, funcao_volta] () {
+    std::function<void()> volta_ok = [this, lista, funcao_volta] () {
       unsigned int indice = lista_paginada_->ItemSelecionado();
-      funcao_volta(true, indice);
+      funcao_volta(true, indice, lista[indice].tipo_tesouro);
       interface_grafica_->FechaElemento();
     };
     barra_ok_cancela_.reset(
         new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx), rotulo_ok, 
                                    volta_ok, volta_cancela, this));
+    std::vector<std::string> lista_rotulos;
+    for (const auto& [rotulo, tt] : lista) {
+      lista_rotulos.push_back(rotulo);
+    }
     lista_paginada_.reset(new ElementoListaPaginada(
-          lista,
+          lista_rotulos,
           X(), Y() + barra_ok_cancela_->Altura(),
           Largura(), Altura() - barra_ok_cancela_->Altura(), this));
   }
@@ -1019,8 +1023,8 @@ class ElementoMostraMensagem : public ElementoInterface {
 void InterfaceGraficaOpengl::EscolheItemLista(
     const std::string& titulo,
     const std::optional<std::string>& rotulo_ok,
-    const std::vector<std::string>& lista,
-    std::function<void(bool, int)> funcao_volta) {
+    const std::vector<RotuloTipoTesouro>& lista,
+    std::function<void(bool, int, std::optional<ent::TipoTesouro>)> funcao_volta) {
   if (elemento_.get() != nullptr) {
     LOG(WARNING) << "So pode haver um elemento por vez.";
     return;
