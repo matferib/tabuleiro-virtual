@@ -252,16 +252,16 @@ message TabelaEfeitosModelos {
 }
 
 message TabelaPocoes {
-  repeated ItemMagicoProto pocoes = 1;
+  repeated ItemTesouroProto pocoes = 1;
 }
 
 message TabelaPergaminhos {
-  repeated ItemMagicoProto pergaminhos_arcanos = 1;
-  repeated ItemMagicoProto pergaminhos_divinos = 2;
+  repeated ItemTesouroProto pergaminhos_arcanos = 1;
+  repeated ItemTesouroProto pergaminhos_divinos = 2;
 }
 
 message TabelaVarinhas {
-  repeated ItemMagicoProto varinhas = 1;
+  repeated ItemTesouroProto varinhas = 1;
 }
 
 message TabelaTalentos {
@@ -277,15 +277,15 @@ message TabelaPericias {
 }
 
 message TabelaAneis {
-  repeated ItemMagicoProto aneis = 1;
+  repeated ItemTesouroProto aneis = 1;
 }
 
 message TabelaMantos {
-  repeated ItemMagicoProto mantos = 1;
+  repeated ItemTesouroProto mantos = 1;
 }
 
 message TabelaBotas {
-  repeated ItemMagicoProto botas = 1;
+  repeated ItemTesouroProto botas = 1;
 }
 
 message TabelaMunicoes {
@@ -293,27 +293,27 @@ message TabelaMunicoes {
 }
 
 message TabelaItensMundanos {
-  repeated ItemMagicoProto itens = 1;
+  repeated ItemTesouroProto itens = 1;
 }
 
 message TabelaItensMaravilhosos {
-  repeated ItemMagicoProto itens = 1;
+  repeated ItemTesouroProto itens = 1;
 }
 
 message TabelaBracadeiras {
-  repeated ItemMagicoProto bracadeiras = 1;
+  repeated ItemTesouroProto bracadeiras = 1;
 }
 
 message TabelaLuvas {
-  repeated ItemMagicoProto luvas = 1;
+  repeated ItemTesouroProto luvas = 1;
 }
 
 message TabelaAmuletos {
-  repeated ItemMagicoProto amuletos = 1;
+  repeated ItemTesouroProto amuletos = 1;
 }
 
 message TabelaChapeus {
-  repeated ItemMagicoProto chapeus = 1;
+  repeated ItemTesouroProto chapeus = 1;
 }
 
 message TabelaVenenos {

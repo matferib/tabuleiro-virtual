@@ -239,27 +239,27 @@ message EntidadeProto {
   // TrataBotaoTransicaoPressionadoPosPicking.
   message DadosTesouro {
     string tesouro = 1;
-    repeated ItemMagicoProto pocoes = 2;
-    repeated ItemMagicoProto aneis = 3;
-    repeated ItemMagicoProto mantos = 4;
-    repeated ItemMagicoProto luvas = 5;
-    repeated ItemMagicoProto bracadeiras = 6;
-    repeated ItemMagicoProto amuletos = 7;
-    repeated ItemMagicoProto botas = 8;
-    repeated ItemMagicoProto chapeus = 9;
-    repeated ItemMagicoProto pergaminhos_arcanos  = 10;
-    repeated ItemMagicoProto pergaminhos_divinos = 11;
-    repeated ItemMagicoProto varinhas = 12;
+    repeated ItemTesouroProto pocoes = 2;
+    repeated ItemTesouroProto aneis = 3;
+    repeated ItemTesouroProto mantos = 4;
+    repeated ItemTesouroProto luvas = 5;
+    repeated ItemTesouroProto bracadeiras = 6;
+    repeated ItemTesouroProto amuletos = 7;
+    repeated ItemTesouroProto botas = 8;
+    repeated ItemTesouroProto chapeus = 9;
+    repeated ItemTesouroProto pergaminhos_arcanos  = 10;
+    repeated ItemTesouroProto pergaminhos_divinos = 11;
+    repeated ItemTesouroProto varinhas = 12;
     repeated ArmaArmaduraOuEscudoPersonagem armas = 20;
     repeated ArmaArmaduraOuEscudoPersonagem armaduras = 21;
     repeated ArmaArmaduraOuEscudoPersonagem escudos = 22;
     repeated Municao municoes = 23;
-    repeated ItemMagicoProto itens_mundanos = 25;
+    repeated ItemTesouroProto itens_mundanos = 25;
     Moedas moedas = 24;
     OperacaoCombinacao operacao = 100;
     // Apenas para conferencia.
     int32 valor_esperado_po = 26;
-    repeated ItemMagicoProto itens_maravilhosos = 27;
+    repeated ItemTesouroProto itens_maravilhosos = 27;
   }
   DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.
