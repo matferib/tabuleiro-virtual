@@ -863,10 +863,6 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
     break;
     case EFEITO_PRATEADO: {
       if (evento->complementos_str().empty()) return false;
-      int valor = 1;
-      if (!evento->complementos().empty()) {
-        valor = std::max(0, std::min(evento->complementos(0), 5));
-      }
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
       for (auto* da : das) {
         da->add_descritores(DESC_PRATA_ALQUIMICA);
