@@ -4031,43 +4031,59 @@ QGroupBox::title {
        <string>Tesouro</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_7">
-       <item row="1" column="2">
-        <widget class="QGroupBox" name="groupBox_22">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_14">
          <property name="title">
-          <string>Braçadeiras</string>
+          <string>Poções</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_67">
+         <layout class="QHBoxLayout" name="horizontalLayout_59">
           <item>
-           <widget class="QListWidget" name="lista_bracadeiras"/>
+           <widget class="QListWidget" name="lista_pocoes"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_7">
+           <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
-             <widget class="QPushButton" name="botao_usar_bracadeiras">
-              <property name="toolTip">
-               <string>Usar/retirar anel</string>
+             <widget class="QPushButton" name="botao_adicionar_pocao">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_adicionar_bracadeiras">
               <property name="text">
                <string>+</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_remover_bracadeiras">
+             <widget class="QPushButton" name="botao_duplicar_pocao">
+              <property name="text">
+               <string>Duplicar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_remover_pocao">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>-</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_doar_bracadeiras">
+             <widget class="QPushButton" name="botao_ordenar_pocoes">
+              <property name="text">
+               <string>Ordenar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_pocao">
               <property name="text">
                <string>Doar</string>
               </property>
@@ -4078,97 +4094,40 @@ QGroupBox::title {
          </layout>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QGroupBox" name="groupBox_24">
+       <item row="0" column="1">
+        <widget class="QGroupBox" name="groupBox_12">
          <property name="title">
-          <string>Armas</string>
+          <string>Botas</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_36">
+         <layout class="QHBoxLayout" name="horizontalLayout_44">
           <item>
-           <widget class="QListWidget" name="lista_armas"/>
+           <widget class="QListWidget" name="lista_botas"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_28">
+           <layout class="QVBoxLayout" name="verticalLayout_22">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_30">
-              <item>
-               <widget class="QPushButton" name="botao_adicionar_arma">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>+</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="botao_remover_arma">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>-</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_duplicar_arma">
+             <widget class="QPushButton" name="botao_usar_botas">
               <property name="text">
-               <string>Duplicar</string>
+               <string/>
               </property>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_27">
-              <item>
-               <widget class="QCheckBox" name="checkbox_arma_op">
-                <property name="toolTip">
-                 <string>Marca arma como obra prima</string>
-                </property>
-                <property name="text">
-                 <string>OP</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="spin_bonus_arma">
-                <property name="toolTip">
-                 <string>Bônus mágico da arma.</string>
-                </property>
-                <property name="maximum">
-                 <number>5</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="spin_bonus_arma_secundario">
-                <property name="toolTip">
-                 <string>Bônus mágico da segunda cabeça da arma, se aplicável.</string>
-                </property>
-                <property name="maximum">
-                 <number>5</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_ordenar_armas">
+             <widget class="QPushButton" name="botao_adicionar_botas">
               <property name="text">
-               <string>Ordenar</string>
+               <string>+</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_doar_arma">
+             <widget class="QPushButton" name="botao_remover_botas">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_botas">
               <property name="text">
                <string>Doar</string>
               </property>
@@ -4223,58 +4182,7 @@ QGroupBox::title {
          </layout>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QGroupBox" name="groupBox_23">
-         <property name="title">
-          <string>Items Mundanos</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_68">
-          <item>
-           <widget class="QListWidget" name="lista_itens_mundanos"/>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_25">
-            <item>
-             <widget class="QPushButton" name="botao_adicionar_item_mundano">
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_duplicar_item_mundano">
-              <property name="text">
-               <string>Duplicar</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_remover_item_mundano">
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_ordenar_item_mundano">
-              <property name="text">
-               <string>Ordenar</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_doar_item_mundano">
-              <property name="text">
-               <string>Doar</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="3" colspan="2">
+       <item row="0" column="3">
         <widget class="QGroupBox" name="groupBox_19">
          <property name="title">
           <string>Chapéus</string>
@@ -4318,75 +4226,47 @@ QGroupBox::title {
          </layout>
         </widget>
        </item>
-       <item row="3" column="2">
-        <widget class="QGroupBox" name="groupBox_26">
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_15">
          <property name="title">
-          <string>Escudos</string>
+          <string>Pergaminhos Arcanos</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_71">
+         <layout class="QHBoxLayout" name="horizontalLayout_60">
           <item>
-           <widget class="QListWidget" name="lista_escudos"/>
+           <widget class="QListWidget" name="lista_pergaminhos_arcanos"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_31">
+           <layout class="QVBoxLayout" name="verticalLayout_23">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_51">
-              <item>
-               <widget class="QPushButton" name="botao_adicionar_escudo">
-                <property name="text">
-                 <string>+</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="botao_remover_escudo">
-                <property name="text">
-                 <string>-</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <widget class="QPushButton" name="botao_adicionar_pergaminho_arcano">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_duplicar_escudo">
+             <widget class="QPushButton" name="botao_duplicar_pergaminho_arcano">
               <property name="text">
                <string>Duplicar</string>
               </property>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_45">
-              <item>
-               <widget class="QCheckBox" name="checkbox_escudo_op">
-                <property name="toolTip">
-                 <string>Marca armadura como obra prima</string>
-                </property>
-                <property name="text">
-                 <string>OP</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="spin_bonus_escudo">
-                <property name="toolTip">
-                 <string>Bônus mágico da armadura.</string>
-                </property>
-                <property name="maximum">
-                 <number>5</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <widget class="QPushButton" name="botao_remover_pergaminho_arcano">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_ordenar_escudos">
+             <widget class="QPushButton" name="botao_ordenar_pergaminhos_arcanos">
               <property name="text">
                <string>Ordenar</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_doar_escudo">
+             <widget class="QPushButton" name="botao_doar_pergaminho_arcano">
               <property name="text">
                <string>Doar</string>
               </property>
@@ -4397,7 +4277,101 @@ QGroupBox::title {
          </layout>
         </widget>
        </item>
-       <item row="1" column="3" colspan="2">
+       <item row="1" column="1">
+        <widget class="QGroupBox" name="groupBox_18">
+         <property name="title">
+          <string>Luvas e Manoplas</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_63">
+          <item>
+           <widget class="QListWidget" name="lista_luvas"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <widget class="QPushButton" name="botao_usar_luvas">
+              <property name="toolTip">
+               <string>Usar/retirar anel</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_adicionar_luvas">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_remover_luvas">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_luvas">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QGroupBox" name="groupBox_22">
+         <property name="title">
+          <string>Braçadeiras</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_67">
+          <item>
+           <widget class="QListWidget" name="lista_bracadeiras"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <widget class="QPushButton" name="botao_usar_bracadeiras">
+              <property name="toolTip">
+               <string>Usar/retirar anel</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_adicionar_bracadeiras">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_remover_bracadeiras">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_bracadeiras">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="3">
         <widget class="QGroupBox" name="groupBox_20">
          <property name="title">
           <string>Mantos</string>
@@ -4513,6 +4487,268 @@ QGroupBox::title {
          </layout>
         </widget>
        </item>
+       <item row="2" column="1">
+        <widget class="QGroupBox" name="groupBox_23">
+         <property name="title">
+          <string>Items Mundanos</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_68">
+          <item>
+           <widget class="QListWidget" name="lista_itens_mundanos"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_25">
+            <item>
+             <widget class="QPushButton" name="botao_adicionar_item_mundano">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_duplicar_item_mundano">
+              <property name="text">
+               <string>Duplicar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_remover_item_mundano">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_ordenar_item_mundano">
+              <property name="text">
+               <string>Ordenar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_item_mundano">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QGroupBox" name="groupBox_17">
+         <property name="title">
+          <string>Anéis</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_62">
+          <item>
+           <widget class="QListWidget" name="lista_aneis"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QPushButton" name="botao_usar_anel">
+              <property name="toolTip">
+               <string>Usar/retirar anel</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_adicionar_anel">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_remover_anel">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_anel">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="QGroupBox" name="groupBox_27">
+         <property name="title">
+          <string>Varinhas</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_70">
+          <item>
+           <widget class="QListWidget" name="lista_varinhas"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_26">
+            <item>
+             <widget class="QPushButton" name="botao_adicionar_varinha">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_duplicar_varinha">
+              <property name="text">
+               <string>Duplicar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_remover_varinha">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_ordenar_varinhas">
+              <property name="text">
+               <string>Ordenar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_varinha">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="groupBox_24">
+         <property name="title">
+          <string>Armas</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_36">
+          <item>
+           <widget class="QListWidget" name="lista_armas"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_28">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_30">
+              <item>
+               <widget class="QPushButton" name="botao_adicionar_arma">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="botao_remover_arma">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_duplicar_arma">
+              <property name="text">
+               <string>Duplicar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_27">
+              <item>
+               <widget class="QCheckBox" name="checkbox_arma_op">
+                <property name="toolTip">
+                 <string>Marca arma como obra prima</string>
+                </property>
+                <property name="text">
+                 <string>OP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_bonus_arma">
+                <property name="toolTip">
+                 <string>Bônus mágico da arma.</string>
+                </property>
+                <property name="maximum">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_bonus_arma_secundario">
+                <property name="toolTip">
+                 <string>Bônus mágico da segunda cabeça da arma, se aplicável.</string>
+                </property>
+                <property name="maximum">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_ordenar_armas">
+              <property name="text">
+               <string>Ordenar</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="botao_doar_arma">
+              <property name="text">
+               <string>Doar</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item row="3" column="1">
         <widget class="QGroupBox" name="groupBox_25">
          <property name="title">
@@ -4604,311 +4840,75 @@ QGroupBox::title {
          </layout>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox_14">
+       <item row="3" column="2">
+        <widget class="QGroupBox" name="groupBox_26">
          <property name="title">
-          <string>Poções</string>
+          <string>Escudos</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_59">
+         <layout class="QHBoxLayout" name="horizontalLayout_71">
           <item>
-           <widget class="QListWidget" name="lista_pocoes"/>
+           <widget class="QListWidget" name="lista_escudos"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_6">
+           <layout class="QVBoxLayout" name="verticalLayout_31">
             <item>
-             <widget class="QPushButton" name="botao_adicionar_pocao">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_51">
+              <item>
+               <widget class="QPushButton" name="botao_adicionar_escudo">
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="botao_remover_escudo">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_duplicar_pocao">
+             <widget class="QPushButton" name="botao_duplicar_escudo">
               <property name="text">
                <string>Duplicar</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_remover_pocao">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_45">
+              <item>
+               <widget class="QCheckBox" name="checkbox_escudo_op">
+                <property name="toolTip">
+                 <string>Marca armadura como obra prima</string>
+                </property>
+                <property name="text">
+                 <string>OP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spin_bonus_escudo">
+                <property name="toolTip">
+                 <string>Bônus mágico da armadura.</string>
+                </property>
+                <property name="maximum">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_ordenar_pocoes">
-              <property name="text">
-               <string>Ordenar</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_doar_pocao">
-              <property name="text">
-               <string>Doar</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QGroupBox" name="groupBox_12">
-         <property name="title">
-          <string>Botas</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_44">
-          <item>
-           <widget class="QListWidget" name="lista_botas"/>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_22">
-            <item>
-             <widget class="QPushButton" name="botao_usar_botas">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_adicionar_botas">
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_remover_botas">
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_doar_botas">
-              <property name="text">
-               <string>Doar</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QGroupBox" name="groupBox_15">
-         <property name="title">
-          <string>Pergaminhos Arcanos</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_60">
-          <item>
-           <widget class="QListWidget" name="lista_pergaminhos_arcanos"/>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_23">
-            <item>
-             <widget class="QPushButton" name="botao_adicionar_pergaminho_arcano">
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_duplicar_pergaminho_arcano">
-              <property name="text">
-               <string>Duplicar</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_remover_pergaminho_arcano">
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_ordenar_pergaminhos_arcanos">
+             <widget class="QPushButton" name="botao_ordenar_escudos">
               <property name="text">
                <string>Ordenar</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="botao_doar_pergaminho_arcano">
-              <property name="text">
-               <string>Doar</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QGroupBox" name="groupBox_17">
-         <property name="title">
-          <string>Anéis</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_62">
-          <item>
-           <widget class="QListWidget" name="lista_aneis"/>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_10">
-            <item>
-             <widget class="QPushButton" name="botao_usar_anel">
-              <property name="toolTip">
-               <string>Usar/retirar anel</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_adicionar_anel">
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_remover_anel">
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_doar_anel">
-              <property name="text">
-               <string>Doar</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QGroupBox" name="groupBox_18">
-         <property name="title">
-          <string>Luvas e Manoplas</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_63">
-          <item>
-           <widget class="QListWidget" name="lista_luvas"/>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_8">
-            <item>
-             <widget class="QPushButton" name="botao_usar_luvas">
-              <property name="toolTip">
-               <string>Usar/retirar anel</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_adicionar_luvas">
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_remover_luvas">
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_doar_luvas">
-              <property name="text">
-               <string>Doar</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="2" column="3">
-        <widget class="QGroupBox" name="groupBox_27">
-         <property name="title">
-          <string>Varinhas</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_70">
-          <item>
-           <widget class="QListWidget" name="lista_varinhas"/>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_26">
-            <item>
-             <widget class="QPushButton" name="botao_adicionar_varinha">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_duplicar_varinha">
-              <property name="text">
-               <string>Duplicar</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_remover_varinha">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_ordenar_varinhas">
-              <property name="text">
-               <string>Ordenar</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_doar_varinha">
+             <widget class="QPushButton" name="botao_doar_escudo">
               <property name="text">
                <string>Doar</string>
               </property>
@@ -4920,111 +4920,60 @@ QGroupBox::title {
         </widget>
        </item>
        <item row="3" column="3">
-        <widget class="QGroupBox" name="groupBox_11">
+        <widget class="QGroupBox" name="groupBox_29">
          <property name="title">
-          <string>Moedas</string>
+          <string>Outros Itens Maravilhoso</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_21">
+         <layout class="QHBoxLayout" name="horizontalLayout_74">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_53">
-            <item>
-             <widget class="QLabel" name="label_107">
-              <property name="text">
-               <string>Ouro</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="spin_po">
-              <property name="maximum">
-               <number>10000000</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QListWidget" name="lista_itens_maravilhosos"/>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_54">
+           <layout class="QVBoxLayout" name="verticalLayout_32">
             <item>
-             <widget class="QLabel" name="label_108">
+             <widget class="QPushButton" name="botao_adicionar_item_maravilhoso">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
-               <string>Prata</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               <string>+</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spin_pp">
-              <property name="maximum">
-               <number>10000000</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_56">
-            <item>
-             <widget class="QLabel" name="label_109">
+             <widget class="QPushButton" name="botao_duplicar_item_maravilhoso">
               <property name="text">
-               <string>Cobre</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               <string>Duplicar</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spin_pc">
-              <property name="maximum">
-               <number>10000000</number>
+             <widget class="QPushButton" name="botao_remover_item_maravilhoso">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_57">
-            <item>
-             <widget class="QLabel" name="label_110">
               <property name="text">
-               <string>Platina</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               <string>-</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spin_pl">
-              <property name="maximum">
-               <number>10000000</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_55">
-            <item>
-             <widget class="QLabel" name="labelpe">
+             <widget class="QPushButton" name="botao_ordenar_item_maravilhoso">
               <property name="text">
-               <string>Electrum</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               <string>Ordenar</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spin_pe">
-              <property name="maximum">
-               <number>10000000</number>
+             <widget class="QPushButton" name="botao_doar_item_maravilhoso">
+              <property name="text">
+               <string>Doar</string>
               </property>
              </widget>
             </item>
@@ -5044,6 +4993,120 @@ QGroupBox::title {
             <property name="toolTip">
              <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
             </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_11">
+            <property name="title">
+             <string>Moedas</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_21">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_53">
+               <item>
+                <widget class="QLabel" name="label_107">
+                 <property name="text">
+                  <string>Ouro</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="spin_po">
+                 <property name="maximum">
+                  <number>10000000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_54">
+               <item>
+                <widget class="QLabel" name="label_108">
+                 <property name="text">
+                  <string>Prata</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="spin_pp">
+                 <property name="maximum">
+                  <number>10000000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_56">
+               <item>
+                <widget class="QLabel" name="label_109">
+                 <property name="text">
+                  <string>Cobre</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="spin_pc">
+                 <property name="maximum">
+                  <number>10000000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_57">
+               <item>
+                <widget class="QLabel" name="label_110">
+                 <property name="text">
+                  <string>Platina</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="spin_pl">
+                 <property name="maximum">
+                  <number>10000000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_55">
+               <item>
+                <widget class="QLabel" name="labelpe">
+                 <property name="text">
+                  <string>Electrum</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="spin_pe">
+                 <property name="maximum">
+                  <number>10000000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
