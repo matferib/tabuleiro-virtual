@@ -555,6 +555,8 @@ class Entidade {
     float deslocamento_textura = 0.0f;
     // Para texturas que se movem de forma circular.
     float angulo_textura_rad = 0.0f;
+    // Roda a entidade ao fazer acrobacia.
+    float angulo_acrobacias_graus = 0.0f;
     // Efeitos da criatura e algum complemento.
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
@@ -701,6 +703,7 @@ class Entidade {
   * @param pd os parametros de desenho.
   */
   static void MontaMatriz(bool queda,
+                          bool acrobacia,
                           bool transladar_z,
                           const EntidadeProto& proto,
                           const VariaveisDerivadas& vd,
@@ -708,12 +711,12 @@ class Entidade {
                           bool posicao_mundo = true);
 
   static Matrix4 MontaMatrizModelagem(
-      bool queda, translacao_z_e tz, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr,
+      bool queda, bool acrobacia, translacao_z_e tz, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr,
       bool posicao_mundo = true);
   static Matrix4 MontaMatrizModelagem(
-      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd,
+      bool queda, bool acrobacia, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd,
       const ParametrosDesenho* pd = nullptr, bool posicao_mundo = true) {
-    return MontaMatrizModelagem(queda, transladar_z ? TZ_COMPLETA : TZ_NENHUMA, proto, vd, pd, posicao_mundo);
+    return MontaMatrizModelagem(queda, acrobacia, transladar_z ? TZ_COMPLETA : TZ_NENHUMA, proto, vd, pd, posicao_mundo);
   }
   static Matrix4 MontaMatrizModelagemForma(
       bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd,

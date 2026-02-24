@@ -2637,6 +2637,13 @@ void Tabuleiro::TrataBotaoPericiaPressionadoPosPicking(unsigned int id, unsigned
       entidade_origem->SalvaUltimaPericia(pericia_origem);
     }
   }
+  if (pericia_origem == "acrobacias" && total_modificadores.has_value() && total_modificadores->first >= 15) {
+    // Nao precisa desfazer, visual apenas.
+    auto n = NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE_NOTIFICANDO_SE_LOCAL, entidade_origem->Proto());
+    n->mutable_entidade()->set_em_acrobacia(true);
+    TrataNotificacao(*n);
+  }
+
   if (entidade_destino == nullptr || (entidade_origem != nullptr && entidade_origem->Id() == entidade_destino->Id())) {
     LOG(INFO) << "entidade_destino_nullptr: " << (entidade_destino == nullptr);
     return;

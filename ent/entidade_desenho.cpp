@@ -239,7 +239,7 @@ void Entidade::DesenhaArma(
 
   VLOG(3) << "desenhando " << da.id_arma();
   gl::MatrizEscopo salva_matriz;
-  MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, pd);
+  MontaMatriz(/*queda=*/true, /*acrobacia=*/true, /*transladar_z=*/true, proto_, vd_, pd);
   gl::Translada(posicao_acao.x() + translacao.x(), posicao_acao.y() + translacao.y(), posicao_acao.z() + translacao.z());
   gl::Escala(escala.x(), escala.y(), escala.z());
   gl::MultiplicaMatriz(matriz_acao.get());
@@ -274,7 +274,7 @@ void Entidade::DesenhaArmas(ParametrosDesenho* pd) const {
       }
       const auto posicao = PosicaoAcaoSecundariaSemTransformacoes();
       gl::MatrizEscopo salva_matriz;
-      MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
+      MontaMatriz(/*queda=*/true, /*acrobacia=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
       gl::Translada(posicao.x(), posicao.y(), posicao.z());
       modelo->vbos_gravados.Desenha();
       gl::Desabilita(GL_TEXTURE_2D);
@@ -287,7 +287,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     (pd->desenha_rotulo_especial() && !proto_.rotulo_especial().empty())) {
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+    MontaMatriz(false  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
     bool desenhou_rotulo = false;
     if (pd->desenha_rotulo() && !proto_.rotulo().empty()) {
@@ -349,7 +349,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   // Desenha a barra de vida.
   if (pd->desenha_barra_vida() && proto_.max_pontos_vida() > 0) {
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+    MontaMatriz(false  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
     // Total.
     {
@@ -413,7 +413,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::DesabilitaEscopo de(GL_LIGHTING);
       MudaCor(COR_AMARELA);
       gl::MatrizEscopo salva_matriz;
-      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      MontaMatriz(false  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
       gl::Translada(pd->desenha_barra_vida() && proto_.max_pontos_vida() > 0 ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
       gl::EsferaSolida(0.2f, 4, 2);
       gl::Translada(0.0f, 0.0f, 0.3f);
@@ -438,7 +438,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::DesabilitaEscopo de(GL_LIGHTING);
       MudaCor(COR_BRANCA);
       gl::MatrizEscopo salva_matriz;
-      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      MontaMatriz(false  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
       float escala = 1.0f + sinf(vd_.angulo_disco_iniciativa_rad) * 0.05f;
       gl::Escala(escala, escala, escala);
       gl::Translada(0.0f, 0.0f, pd->desenha_barra_vida() ? ALTURA * 1.5f + TAMANHO_BARRA_VIDA * 1.2f: ALTURA * 1.5f);
@@ -495,7 +495,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       gl::MatrizEscopo salva_matriz;
       ParametrosDesenho pd_sem_texturas_de_frente;
       pd_sem_texturas_de_frente.set_texturas_sempre_de_frente(false);
-      MontaMatriz(/*queda=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
+      MontaMatriz(/*queda=*/true, /*acrobacia=*/true, /*transladar_z=*/true, proto_, vd_, &pd_sem_texturas_de_frente);
       gl::Translada(posicao.x(), posicao.y(), posicao.z());
       modelo->vbos_gravados.Desenha();
       gl::Desabilita(GL_TEXTURE_2D);
@@ -507,7 +507,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       const auto* nuvem = vd_.m3d->Modelo("cloud");
       if (nuvem == nullptr) return;
       gl::MatrizEscopo salva_matriz;
-      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      MontaMatriz(false  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
       gl::Translada(0, 0, TAMANHO_LADO_QUADRADO_2);
       gl::Escala(0.8f, 0.8f, 0.8f);
       Cor cor;
@@ -522,7 +522,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       const auto* rede = vd_.m3d->Modelo("builtin:piramide");
       if (rede == nullptr) return;
       gl::MatrizEscopo salva_matriz;
-      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      MontaMatriz(false  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
       gl::Escala(1.5f, 1.5f, 1.0f);
       rede->vbos_gravados.Desenha();
     }
@@ -536,7 +536,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       gl::CarregaNome(Id());
       gl::DesabilitaEscopo de(GL_LIGHTING);
       gl::MatrizEscopo salva_matriz;
-      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      MontaMatriz(false  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
       // Hack para ajustar a aureola. O centro de gravidade dela eh um pouco desviado.
       gl::Translada(-0.1f, 0.0f, ALTURA * 1.5f);
       aureola->vbos_gravados.Desenha();
@@ -555,7 +555,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       gl::CarregaNome(Id());
       gl::DesabilitaEscopo de(GL_LIGHTING);
       gl::MatrizEscopo salva_matriz;
-      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      MontaMatriz(false  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
       gl::Translada(0.0f, 0.0f, ALTURA * 1.5f);
       MisturaPreNevoaEscopo blend_escopo(CorParaProto(COR_VERMELHA), pd);
       coracao->vbos_gravados.Desenha();

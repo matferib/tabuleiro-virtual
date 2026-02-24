@@ -26,7 +26,7 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Proximo id: 125.
+// Proximo id: 126.
 message EntidadeProto {
   string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -125,6 +125,8 @@ message EntidadeProto {
   float z_antes_voo = 49;
   // Entidade esta caida.
   bool caida = 14 [default=false];
+  // Entidade fazendo acrobacia.
+  bool em_acrobacia = 125;
   // Entidade esta morta.
   bool morta = 15 [default=false];
   // Entidade esta a beira da morte.

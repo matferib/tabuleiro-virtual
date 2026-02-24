@@ -326,7 +326,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, cons
       vbos.CopiaDe(modelo_3d->vbos_nao_gravados);
       //LOG_EVERY_N(INFO, 10) << "VBO: " << vbos.ParaString(true);
       if (mundo) {
-        vbos.Multiplica(MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd));
+        vbos.Multiplica(MontaMatrizModelagem(true  /*queda*/, /*acrobacia=*/true, true /*trans z*/, proto, vd, pd));
       }
     }
     // Aqui pode retornar o vbo vazio, para o caso de nao ter carregado ainda.
@@ -345,7 +345,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, cons
     vbo.Concatena(vbo_esfera);
     vbo.AtribuiCor(proto.cor().r(), proto.cor().g(), proto.cor().b(), proto.cor().a());
     if (mundo) {
-      vbo.Multiplica(MontaMatrizModelagem(true /*queda*/, true /*trans z*/, proto, vd, pd));
+      vbo.Multiplica(MontaMatrizModelagem(true /*queda*/, /*acrobacia=*/ true, true /*trans z*/, proto, vd, pd));
     }
     return gl::VbosNaoGravados(std::move(vbo));
   }
@@ -358,7 +358,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, cons
     vbo_moldura.Translada(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()));
     if (mundo) {
       vbo_moldura.RodaZ(vd.angulo_rotacao_textura_graus);
-      vbo_moldura.Multiplica(MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd));
+      vbo_moldura.Multiplica(MontaMatrizModelagem(true  /*queda*/, /*acrobacia=*/true, true /*trans z*/, proto, vd, pd));
     }
   }
 
@@ -372,6 +372,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const EntidadeProto& proto, cons
     vbo_base.Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 4);
     vbo_base.Multiplica(MontaMatrizModelagem(
         true,  // queda.
+        /*acrobacia=*/ true,
         (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
         proto, vd, pd));
     vbo_moldura.Concatena(vbo_base);
@@ -910,7 +911,7 @@ void Entidade::AtualizaMatrizes() {
 // static
 Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   MatrizesDesenho md;
-  Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, proto, vd, pd);
+  Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, true, proto, vd, pd);
   md.modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd.angulo_rotacao_textura_graus);
 
   if (proto.tipo() != TE_ENTIDADE || (proto.has_modelo_3d() && !proto.desenha_base())) {
@@ -939,7 +940,7 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
     if (pd != nullptr && pd->entidade_selecionada()) {
       m.rotateZ(vd.angulo_disco_selecao_graus);
     }
-    md.tijolo_base = MontaMatrizModelagem(true  /*queda*/, TZ_SEM_VOO  /*z*/, proto, vd, pd) * m;
+    md.tijolo_base = MontaMatrizModelagem(true  /*queda*/, /*acrobacia=*/false, TZ_SEM_VOO  /*z*/, proto, vd, pd) * m;
   }
   if (!proto.info_textura().id().empty()) {
     bool achatar = Achatar(proto, pd);
@@ -1107,7 +1108,7 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
   }
 
   // Queda.
-  const float DURACAO_QUEDA_MS = 500.0f;
+  constexpr float DURACAO_QUEDA_MS = 500.0f;
   const float DELTA_QUEDA = (static_cast<float>(intervalo_ms) / DURACAO_QUEDA_MS) * 90.0f;
   if (proto_.caida()) {
     if (vd_.angulo_disco_queda_graus < 90.0f) {
@@ -1123,6 +1124,15 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
         vd_.angulo_disco_queda_graus = 0.0f;
       }
     }
+  }
+
+  // Acrobacias.
+  constexpr float DURACAO_ACROBACIA_MS = 1000.0f;
+  const float DELTA_ACROBACIA = (static_cast<float>(intervalo_ms) / DURACAO_ACROBACIA_MS) * 360.0f;
+  if (vd_.angulo_acrobacias_graus > 0.0f && vd_.angulo_acrobacias_graus < 360.0f) {
+    vd_.angulo_acrobacias_graus += DELTA_ACROBACIA;
+  } else {
+    vd_.angulo_acrobacias_graus = 0;
   }
 
   AtualizaMatrizes();
@@ -1364,7 +1374,7 @@ float Entidade::ZOlho() const {
     return Pos().z();
   }
   Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
-  return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * ponto).z);
+  return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, /*acrobacia=*/true, true  /*z*/, proto_, vd_) * ponto).z);
 }
 
 float Entidade::AlturaOlho() const {
@@ -1372,7 +1382,7 @@ float Entidade::AlturaOlho() const {
     return 0.0f;
   }
   Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
-  return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, false  /*z*/, proto_, vd_) * ponto).z);
+  return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/,/*acrobacia=*/false, false  /*z*/, proto_, vd_) * ponto).z);
 }
 
 Posicao Entidade::PosicaoLuz(const ParametrosDesenho* pd) const {
@@ -1386,7 +1396,7 @@ Posicao Entidade::PosicaoLuz(const ParametrosDesenho* pd) const {
       pos.z += TAMANHO_LADO_QUADRADO;  // luz acima.
     } else {
       pos.z = ALTURA;
-      matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      matriz = MontaMatrizModelagem(true  /*queda*/, /*acrobacia=*/true, true  /*z*/, proto_, vd_, pd);
       pos = matriz * pos;
       // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
       if (pd != nullptr) {
@@ -1397,7 +1407,7 @@ Posicao Entidade::PosicaoLuz(const ParametrosDesenho* pd) const {
       }
     }
   } else  {
-    matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
+    matriz = MontaMatrizModelagem(true  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
     pos = matriz * pos;
     if (proto_.pegando_fogo()) {
       pos.x += vd_.fogo.offset_luz.x;
@@ -1641,6 +1651,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial_orig) {
 
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  if (proto_.em_acrobacia()) {
+    vd_.angulo_acrobacias_graus = 0.0001f;
+    proto_.clear_em_acrobacia();
+  }
 
   if (!ic_backup.empty()) {
     ic_backup.Swap(proto_.mutable_feiticos_classes());
@@ -1964,7 +1979,7 @@ std::string Entidade::TipoAcaoExecutada(int indice_acao, const std::vector<std::
 
 const Posicao Entidade::PosicaoAltura(float fator) const {
   Matrix4 matriz;
-  matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
+  matriz = MontaMatrizModelagem(true  /*queda*/, /*acrobacia=*/true, true  /*z*/, proto_, vd_);
   //GLfloat matriz[16];
   //gl::Le(GL_MODELVIEW_MATRIX, matriz);
   //VLOG(2) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
@@ -1995,7 +2010,7 @@ const Posicao Entidade::PosicaoAlturaSemTransformacoes(float fator) const {
 const Posicao Entidade::PosicaoAcao() const {
   if (proto_.has_posicao_acao()) {
     Matrix4 matriz;
-    matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
+    matriz = MontaMatrizModelagem(true  /*queda*/, /*acrobacia=*/true, true  /*z*/, proto_, vd_);
     Vector4 ponto(PosParaVector4(proto_.posicao_acao()));
     auto pos = Vector4ParaPosicao(matriz * ponto);
     pos.set_id_cenario(IdCenario());
@@ -2041,12 +2056,13 @@ float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
 
 // static
 void Entidade::MontaMatriz(bool queda,
+                           bool acrobacia,
                            bool transladar_z,
                            const EntidadeProto& proto,
                            const VariaveisDerivadas& vd,
                            const ParametrosDesenho* pd,
                            bool posicao_mundo) {
-  Matrix4 matriz(MontaMatrizModelagem(queda, transladar_z, proto, vd, pd));
+  Matrix4 matriz(MontaMatrizModelagem(queda, acrobacia, transladar_z, proto, vd, pd));
   gl::MultiplicaMatriz(matriz.get());
 #if 0
   const auto& pos = proto.pos();
@@ -2107,6 +2123,7 @@ void Entidade::MontaMatriz(bool queda,
 // static
 Matrix4 Entidade::MontaMatrizModelagem(
     bool queda,
+    bool acrobacia,
     translacao_z_e tz,
     const EntidadeProto& proto,
     const VariaveisDerivadas& vd,
@@ -2150,6 +2167,18 @@ Matrix4 Entidade::MontaMatrizModelagem(
   matrix.scale(multiplicador);
 
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) && !proto.caida() && !proto.has_modelo_3d();
+
+  if (acrobacia && vd.angulo_acrobacias_graus > 0) {
+    if (achatar) {
+      matrix.rotateZ(vd.angulo_acrobacias_graus);
+    }
+    else {
+      matrix.translate(0.0f, 0.0f, -0.5f * multiplicador);
+      matrix.rotateY(vd.angulo_acrobacias_graus);
+      matrix.translate(0.0f, 0.0f, 0.5f * multiplicador);
+    }
+  }
+
   bool computar_queda = queda && (vd.angulo_disco_queda_graus > 0);
   if (computar_queda) {
     if (!achatar) {
@@ -2285,7 +2314,7 @@ std::string Entidade::StringCAParaAcao() const {
 }
 
 Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {
-  return MontaMatrizModelagem(true, true, proto_, vd_, pd);
+  return MontaMatrizModelagem(true, true, true, proto_, vd_, pd);
 }
 
 float Entidade::MultiplicadorTamanho() const {
