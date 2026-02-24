@@ -3761,6 +3761,8 @@ TEST(TesteEfeitos, ReflexoPrateado) {
     EXPECT_TRUE(PossuiEvento(EFEITO_PRATEADO, orc->Proto()));
     EXPECT_TRUE(orc->Proto().tesouro().itens_maravilhosos().empty());
     EXPECT_TRUE(c_any(DadosAtaquePorGrupo("|falcione", orc->Proto()).descritores(), DESC_PRATA_ALQUIMICA)) << "da: " << DadosAtaquePorGrupo("|falcione", orc->Proto()).DebugString();
+    // Prata quimica perde 1 de dano.
+    EXPECT_EQ(DadosAtaquePorGrupo("|falcione", orc->Proto()).dano(), "2d4+3") << "da: " << DadosAtaquePorGrupo("|falcione", orc->Proto()).DebugString();
   }
 
   // Desfazer.
@@ -3770,6 +3772,7 @@ TEST(TesteEfeitos, ReflexoPrateado) {
     EXPECT_FALSE(PossuiEvento(EFEITO_PRATEADO, orc->Proto()));
     EXPECT_EQ(orc->Proto().tesouro().itens_maravilhosos().size(), 1);
     EXPECT_FALSE(c_any(DadosAtaquePorGrupo("|falcione", orc->Proto()).descritores(), DESC_PRATA_ALQUIMICA)) << "da: " << DadosAtaquePorGrupo("|falcione", orc->Proto()).DebugString();
+    EXPECT_EQ(DadosAtaquePorGrupo("|falcione", orc->Proto()).dano(), "2d4+4") << "da: " << DadosAtaquePorGrupo("|falcione", orc->Proto()).DebugString();
   }
 }
 

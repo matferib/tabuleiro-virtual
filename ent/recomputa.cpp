@@ -3747,6 +3747,13 @@ void RecomputaDependenciasUmDadoAtaque(
       RemoveBonus(TB_MELHORIA, "arma_magica", bonus_dano);
     }
     AtribuiOuRemoveBonus(da->obra_prima() ? 1 : 0, TB_MELHORIA, "obra_prima", bonus_ataque);
+    // Prata tira 1 de dano.
+    if (c_any(da->descritores(), DESC_PRATA_ALQUIMICA)) {
+      AtribuiBonus(-1, TB_SEM_NOME, "prata_alquimica", bonus_dano);
+    } else {
+      RemoveBonus(TB_SEM_NOME, "prata_alquimica", bonus_dano);
+    }
+
     // Talentos.
     AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma", arma.has_id() ? IdArmaBase(arma) : da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma", bonus_ataque);
     AtribuiOuRemoveBonus(PossuiTalento("foco_em_arma_maior", arma.has_id() ? IdArmaBase(arma) : da->id_arma(), proto) ? 1 : 0, TB_SEM_NOME, "foco_em_arma_maior", bonus_ataque);
