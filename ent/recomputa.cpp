@@ -862,12 +862,13 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
     }
     break;
     case EFEITO_PRATEADO: {
-      std::string complemento;
-      if (!evento->complementos_str().empty()) {
+      std::string complemento = entidade->DadoCorrente(/*ignora_ataques_na_rodada=*/true)->rotulo();
+      if (evento->complementos_str().empty()) {
+        evento->add_complementos_str(complemento);
+      } else if (evento->complementos_str(0).empty())  {
+        *evento->mutable_complementos_str(0) = complemento;
+      } else {
         complemento = evento->complementos_str(0);
-      }
-      if (complemento.empty()) {
-        complemento = entidade->DadoCorrente(/*ignora_ataques_na_rodada=*/true)->rotulo();
       }
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(complemento, proto);
       for (auto* da : das) {
@@ -1141,12 +1142,10 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
     }
     break;
     case EFEITO_PRATEADO: {
-      std::string complemento;
-      if (!evento.complementos_str().empty()) {
+      // Para desfazer, pode acontecer de nao ter complemento no efeito, então aqui computamos como ao Aplicar.
+      std::string complemento = entidade->DadoCorrente(/*ignora_ataques_na_rodada=*/true)->rotulo();
+      if (!evento.complementos_str().empty() && !evento.complementos_str(0).empty()) {
         complemento = evento.complementos_str(0);
-      }
-      if (complemento.empty()) {
-        complemento = entidade->DadoCorrente(/*ignora_ataques_na_rodada=*/true)->rotulo();
       }
       std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(complemento, proto);
       for (auto* da : das) {
