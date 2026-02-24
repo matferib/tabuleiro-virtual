@@ -404,7 +404,7 @@ message DanoAdicionalPorTendencia {
 
 // Dados para um ataque especifico.
 // Ataques geram acao. A acao final é computada dinamicamente através de varios campos do dado de ataque.
-// Proximo id: 115.
+// Proximo id: 116.
 message DadosAtaque {
   // O rotulo de um ataque, para identificacao. Identifica uma arma.
   string rotulo = 9;
@@ -521,6 +521,8 @@ message DadosAtaque {
   // Bem, mal, caos, leal.
   DescritorAtaque alinhamento_bem_mal = 48;
   DescritorAtaque alinhamento_ordem_caos = 77;
+  // Descritores provenientes de efeitos.
+  repeated DescritorAtaque descritores_efeitos = 115;
 
   // Para armas que tem que ser carregadas.
   bool requer_carregamento = 49;
@@ -538,6 +540,7 @@ message DadosAtaque {
   TipoMagia tipo_pergaminho = 55;
   // Computado dinamicamente.
   repeated DescritorAtaque descritores = 57;
+  // Descritores provenientes de acoes.
   DescritorAtaque elemento = 58;
   int32 dificuldade_salvacao = 59;
   string icone = 60;
