@@ -862,10 +862,16 @@ bool AplicaEfeito(const Tabelas& tabelas, EntidadeProto::Evento* evento, const C
     }
     break;
     case EFEITO_PRATEADO: {
-      if (evento->complementos_str().empty()) return false;
-      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(evento->complementos_str(0), proto);
+      std::string complemento;
+      if (!evento->complementos_str().empty()) {
+        complemento = evento->complementos_str(0);
+      }
+      if (complemento.empty()) {
+        complemento = entidade->DadoCorrente(/*ignora_ataques_na_rodada=*/true)->rotulo();
+      }
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(complemento, proto);
       for (auto* da : das) {
-        da->add_descritores(DESC_PRATA_ALQUIMICA);
+        da->add_descritores_efeitos(DESC_PRATA_ALQUIMICA);
       }
     }
     break;
@@ -1134,8 +1140,24 @@ void AplicaFimEfeito(const EntidadeProto::Evento& evento, const ConsequenciaEven
       }
     }
     break;
-    case EFEITO_PRATEADO:
-      // nao precisa fazer nada pq descritores é computado dinamicamente.
+    case EFEITO_PRATEADO: {
+      std::string complemento;
+      if (!evento.complementos_str().empty()) {
+        complemento = evento.complementos_str(0);
+      }
+      if (complemento.empty()) {
+        complemento = entidade->DadoCorrente(/*ignora_ataques_na_rodada=*/true)->rotulo();
+      }
+      std::vector<DadosAtaque*> das = DadosAtaquePorRotulo(complemento, proto);
+      for (auto* da : das) {
+        for (int i = 0; i < da->descritores_efeitos_size(); ++i) {
+          if (da->descritores_efeitos(i) == DESC_PRATA_ALQUIMICA) {
+            da->mutable_descritores_efeitos()->erase(da->descritores_efeitos().begin() + i, da->descritores_efeitos().begin() + i + 1);
+            break;
+          }
+        }
+      }
+    }
     break;
     case EFEITO_RESISTENCIA_ELEMENTOS: {
       if (evento.complementos_str().empty()) {
@@ -3674,6 +3696,11 @@ void RecomputaDependenciasUmDadoAtaque(
   if (!da->tipo_ataque_fisico().empty()) {
     std::copy(da->tipo_ataque_fisico().begin(),
               da->tipo_ataque_fisico().end(),
+              google::protobuf::RepeatedFieldBackInserter(da->mutable_descritores()));
+  }
+  if (!da->descritores_efeitos().empty()) {
+    std::copy(da->descritores_efeitos().begin(),
+              da->descritores_efeitos().end(),
               google::protobuf::RepeatedFieldBackInserter(da->mutable_descritores()));
   }
   RecomputaAlcanceArma(tabelas, arma, proto, da);

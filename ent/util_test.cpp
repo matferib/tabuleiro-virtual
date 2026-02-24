@@ -3760,6 +3760,7 @@ TEST(TesteEfeitos, ReflexoPrateado) {
     tabuleiro.BebeOuAplicaItemMaravilhosoNotificando(orc->Id(), /*indice_pocao=*/0);
     EXPECT_TRUE(PossuiEvento(EFEITO_PRATEADO, orc->Proto()));
     EXPECT_TRUE(orc->Proto().tesouro().itens_maravilhosos().empty());
+    EXPECT_TRUE(c_any(DadosAtaquePorGrupo("|falcione", orc->Proto()).descritores(), DESC_PRATA_ALQUIMICA)) << "da: " << DadosAtaquePorGrupo("|falcione", orc->Proto()).DebugString();
   }
 
   // Desfazer.
@@ -3768,8 +3769,8 @@ TEST(TesteEfeitos, ReflexoPrateado) {
     orc->AtualizaParcial(CentralColetoraCriando().NotificacoesRemotas()[0]->entidade_antes());
     EXPECT_FALSE(PossuiEvento(EFEITO_PRATEADO, orc->Proto()));
     EXPECT_EQ(orc->Proto().tesouro().itens_maravilhosos().size(), 1);
+    EXPECT_FALSE(c_any(DadosAtaquePorGrupo("|falcione", orc->Proto()).descritores(), DESC_PRATA_ALQUIMICA)) << "da: " << DadosAtaquePorGrupo("|falcione", orc->Proto()).DebugString();
   }
-  // TODO pq ha duas notificacoes de acao de beber pocao.
 }
 
 TEST(TesteEfeitos, BeberPocaoDesfazInconscienteEAfins) {
