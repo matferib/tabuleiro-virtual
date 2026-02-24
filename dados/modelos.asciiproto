@@ -11077,7 +11077,7 @@ modelo {
     raca: 'humano'
     dados_vida: '9'
     info_classes { id: 'monge' nivel: 1 }
-    cor { r: 0.3 g: 0.1 b: 0.1 }
+    cor { r: 0.15 g: 0.05 b: 0.05 }
     info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 }
     # Rajada com kama.
     dados_ataque {

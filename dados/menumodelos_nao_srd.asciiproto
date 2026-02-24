@@ -70,6 +70,17 @@ sub_menu {
     modelos { id: 'Humano Combatente 1' }
     modelos { id: 'Cavalo Leve' }
   }
+  item_menu {
+    id: 'Monges da Abadia do Martelo Justo'
+    modelos { id: 'Humano Monge 3' }
+    modelos { id: 'Humano Monge 2' }
+    modelos { id: 'Humano Monge 2' }
+    modelos { id: 'Humano Monge 1' }
+    modelos { id: 'Humano Monge 1' }
+    modelos { id: 'Humano Monge 1' }
+    modelos { id: 'Humano Monge 1' }
+  }
+
 }
 sub_menu {
   id: 'Phaerimm'
