@@ -2577,6 +2577,26 @@ std::pair<float, float> GeraTendenciaAleatoria(TendenciaSimplificada td) {
       peso_mal = 3;
       break;
     }
+    case TD_QUALQUER_CAOTICO: {
+      peso_ordem = 0;
+      peso_neutro_oc = 0;
+      break;
+    }
+    case TD_QUALQUER_LEAL: {
+      peso_caos = 0;
+      peso_neutro_oc = 0;
+      break;
+    }
+    case TD_QUALQUER_MAU: {
+      peso_bem = 0;
+      peso_neutro_bm = 0;
+      break;
+    }
+    case TD_QUALQUER_BOM: {
+      peso_mal = 0;
+      peso_neutro_bm = 0;
+      break;
+    }
     default: break;
   }
   std::vector<float> bem_mal;

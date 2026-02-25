@@ -8405,6 +8405,14 @@ TEST(TesteAtaqueVsDefesa, AfetaApenasSubTipoDnD) {
   }
 }
 
+TEST(TesteTendenciaAleatoria, QualquerLeal) {
+  for (int i = 0; i < 10; ++i) {
+    auto monge_proto = TabelasCriando().ModeloEntidade("Humano Monge 1").entidade();
+    auto monge = NovaEntidadeParaTestes(monge_proto, TabelasCriando());
+    EXPECT_EQ(monge->Proto().tendencia().eixo_ordem_caos(), 1.0f);
+  }
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {
