@@ -2319,6 +2319,7 @@ void RecomputaDependenciasClasses(const Tabelas& tabelas, EntidadeProto* proto) 
     if (ic.id() == "barbaro") {
       proto->mutable_dados_defesa()->set_reducao_dano_barbaro(ReducaoDanoBarbaro(ic.nivel()));
     }
+
     if (ic.id() == "ladino") {
       proto->mutable_dados_ataque_global()->set_dano_furtivo_classe(absl::StrCat((ic.nivel() + 1)/ 2, "d6"));
     } else {
@@ -3262,16 +3263,16 @@ std::string DanoBasicoMonge(int nivel) {
   if (nivel > 3 && nivel <= 7) {
     mult = 1;
     dado = 8;
-  } else if (nivel <= 11) {
+  } else if (nivel > 7 && nivel <= 11) {
     mult = 1;
     dado = 10;
-  } else if (nivel <= 15) {
+  } else if (nivel > 11 && nivel <= 15) {
     mult = 2;
     dado = 6;
-  } else if (nivel <= 19) {
+  } else if (nivel > 15 && nivel <= 19) {
     mult = 2;
     dado = 8;
-  } else {
+  } else if (nivel >= 20) {
     mult = 2;
     dado = 10;
   }

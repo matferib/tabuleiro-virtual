@@ -6730,6 +6730,38 @@ TEST(TesteComposicaoEntidade, TesteClerigo5Adepto1) {
   }
 }
 
+TEST(TesteComposicaoEntidade, TesteMonge3) {
+  const auto& modelo_m5 = TabelasCriando().ModeloEntidade("Humano Monge 3");
+  EntidadeProto proto = modelo_m5.entidade();
+  RecomputaDependencias(TabelasCriando(), TT_NENHUM, &proto);
+
+  // 10 + 2 sab + 1 des + 0 de monge.
+  EXPECT_EQ(BonusTotal(proto.dados_defesa().ca()), 13) << proto.dados_defesa().DebugString();
+  ASSERT_GE(proto.dados_ataque().size(), 8);
+  // Desarmado atordoante.
+  EXPECT_EQ(proto.dados_ataque(0).bonus_ataque_final(), 4) << "id_arma: " << proto.dados_ataque(0).id_arma() << ", bonus ataque: " << proto.dados_ataque(0).bonus_ataque().DebugString();
+  EXPECT_EQ(proto.dados_ataque(0).dano(), "1d6+2");
+  // 10 + 3/2 + 2 sabedoria.
+  EXPECT_EQ(proto.dados_ataque(0).dificuldade_salvacao(), 13);
+  // Kama +1: derrubar, +3 ataque, +2 força, +1 arma, +1 foco em arma, -1 rajada. Dano: +2 de força, +1 arma.
+  EXPECT_EQ(proto.dados_ataque(1).bonus_ataque_final(), 5) << "id_arma: " << proto.dados_ataque(1).id_arma() << ", bonus ataque: " << proto.dados_ataque(1).bonus_ataque().DebugString();
+  EXPECT_TRUE(proto.dados_ataque(1).dano().empty());
+  EXPECT_TRUE(proto.dados_ataque(1).ataque_derrubar());
+  // Desarmado: +2 ataque, +2 força, -1 rajada. Dano: +2 de força.
+  EXPECT_EQ(proto.dados_ataque(3).bonus_ataque_final(), 3) << proto.dados_ataque(2).bonus_ataque().DebugString();
+  EXPECT_EQ(proto.dados_ataque(3).dano(), "1d6+2") << proto.dados_ataque(2).bonus_dano().DebugString();
+  // Kama +1 sem rajada: derrubar, +2 ataque, +2 força, +1 foco em arma, +1 aarma magica. Dano: +2 de força, +1 arma.
+  EXPECT_EQ(proto.dados_ataque(5).bonus_ataque_final(), 6) << proto.dados_ataque(5).bonus_ataque().DebugString();;
+  EXPECT_TRUE(proto.dados_ataque(5).dano().empty());
+  EXPECT_TRUE(proto.dados_ataque(5).ataque_derrubar());
+  // Desarmado sem rajada: +2 ataque, +2 força. Dano +2 de força.
+  EXPECT_EQ(proto.dados_ataque(6).bonus_ataque_final(), 4);
+  EXPECT_EQ(proto.dados_ataque(6).dano(), "1d6+2");
+  // Funda OP: +2 ataque, +1 destreza, +1 OP. Dano: +2 de força.
+  EXPECT_EQ(proto.dados_ataque(7).bonus_ataque_final(), 4);
+  EXPECT_EQ(proto.dados_ataque(7).dano(), "1d4+2");
+}
+
 TEST(TesteComposicaoEntidade, TesteMonge5) {
   const auto& modelo_m5 = TabelasCriando().ModeloEntidade("Humano Monge 5");
   EntidadeProto proto = modelo_m5.entidade();

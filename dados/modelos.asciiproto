@@ -11076,6 +11076,7 @@ modelo {
   id_entidade_base: 'Monge Base'
   entidade {
     raca: 'humano'
+    rotulo_especial: 'monge 1'
     dados_vida: '9'
     info_classes { id: 'monge' nivel: 1 }
     cor { r: 0.15 g: 0.05 b: 0.05 }
@@ -11142,6 +11143,7 @@ modelo {
   id_entidade_base: 'Monge Base'
   entidade {
     raca: 'humano'
+    rotulo_especial: 'monge 2'
     dados_vida: '1d8+10'
     info_classes { id: 'monge' nivel: 2 }
     cor { r: 0.3 g: 0.1 b: 0.1 }
@@ -11183,6 +11185,7 @@ modelo {
     info_talentos {
       gerais { id: 'esquiva' }
       outros { id: 'ataque_atordoante' origem: 'monge' }
+      outros { id: 'desviar_objetos' origem: 'monge' }
       outros { id: 'vitalidade' origem: 'humano' }
     }
     info_pericias { id: 'equilibrio' pontos: 3 }
@@ -11212,6 +11215,7 @@ modelo {
   entidade {
     # Elite.
     dados_vida: '2d8+11'
+    rotulo_especial: 'monge 3'
     raca: 'humano'
     info_textura { id: 'monk_with_kama.png' translacao_x: 0.25 largura: 0.5 } cor { r: 1 g: 0.8 b: 0.6 }
     info_classes { id: 'monge' nivel: 3 }
@@ -11253,9 +11257,9 @@ modelo {
     dados_defesa { }
     info_talentos {
       gerais { id: 'esquiva' }
-      outros { id: 'foco_em_arma' complemento: 'kama' }
-      outros { id: 'ataque_atordoante' }
-      outros { id: 'desviar_objetos' }
+      outros { id: 'foco_em_arma' complemento: 'kama' origem: 'humano' }
+      outros { id: 'ataque_atordoante' origem: 'monge' }
+      outros { id: 'desviar_objetos' origem: 'monge' }
     }
     info_pericias { id: 'equilibrio' pontos: 4 }
     info_pericias { id: 'escalar' pontos: 4 }
@@ -11265,7 +11269,7 @@ modelo {
     tesouro {
       pocoes { id: 'curar_ferimentos_leves' }
       armas { id: 'kama+1' bonus_magico: 1 id_tabela: 'kama' }
-      armas { id: 'funda´_op' obra_prima: true id_tabela: 'funda' }
+      armas { id: 'funda_op' obra_prima: true id_tabela: 'funda' }
     }
 
     atributos {
@@ -11286,6 +11290,7 @@ modelo {
   entidade {
     # Elite.
     dados_vida: '4d8+13'
+    rotulo_especial: 'monge 5'
     raca: 'humano'
     info_textura { id: 'monk_with_kama.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'monge' nivel: 5 }
