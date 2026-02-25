@@ -8,6 +8,43 @@ modelo {
   entidade { max_pontos_vida: 1 tamanho: TM_MINUSCULO info_textura { id: 'sword_spider.png' } cor { r: 0 g: 0 b: 0 } }
 }
 modelo {
+  id: 'Galinha'  # gerada por gemini.
+  entidade {
+    tendencia { simples: TD_NEUTRO }
+    tipo_dnd: TIPO_ANIMAL
+    dados_vida: '1d4+1' menos_de_um_dado_vida: true tamanho: TM_MIUDO
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    info_textura { id: 'chicken.png' largura: 0.63 translacao_x: 0.2 altura: 0.85 translacao_y: 0.15 }
+    movimento {
+      terrestre_basico_q: 4 
+      aereo_basico_q: 4  # clumsy
+    }
+    info_classes {
+      id: 'animal' nivel: 1
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 3 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 2 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+    }
+    dados_ataque {
+      grupo: 'ataque total' rotulo: 'bicada' tipo_ataque: 'Ataque Corpo a Corpo'
+      id_arma: 'bicada'
+      dano_basico: '1d3'
+      empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
+    }
+    dados_defesa {
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+    }
+  }
+}
+
+modelo {
   id: 'Beholder'
   entidade {
     dados_vida: '11d8+44' tamanho: TM_GRANDE voadora: true modelo_3d { id: 'beholder' }

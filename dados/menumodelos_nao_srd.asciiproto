@@ -3,6 +3,7 @@ item_menu { id: 'Aarakocra' }
 item_menu { id: 'Aranha Armadeira' }
 sub_menu {
   id: 'Animais'
+  item_menu { id: 'Galinha' }
   item_menu { id: 'Tressym' }
 }
 sub_menu {
