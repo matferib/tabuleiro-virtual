@@ -11058,6 +11058,7 @@ modelo {
 modelo {
   id: 'Monge Base'
   entidade {
+    tendencia { simples: TD_QUALQUER_LEAL }
     info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
     atributos {
       # Usa o array elite 15, 14, 13, 12, 10, 8.
@@ -11081,12 +11082,12 @@ modelo {
     info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 }
     # Rajada com kama.
     dados_ataque {
-      grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS obra_prima: true
+      grupo: 'rajada arma' rotulo: 'bordao' id_arma_tesouro: 'bordao_op' empunhadura: EA_ARMA_APENAS
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
       ataque_derrubar: true
     }
     dados_ataque {
-      grupo: 'kama rajada' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS obra_prima: true
+      grupo: 'rajada arma' rotulo: 'bordao' id_arma_tesouro: 'bordao_op' empunhadura: EA_ARMA_APENAS
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
       ataque_derrubar: true
     }
@@ -11103,8 +11104,7 @@ modelo {
     }
     # Kama normal.
     dados_ataque {
-      grupo: 'kama normal' rotulo: 'kama' id_arma: 'kama' empunhadura: EA_ARMA_APENAS obra_prima: true
-      ataque_derrubar: true
+      grupo: 'normal' rotulo: 'bordao' id_arma_tesouro: 'bordao_op' empunhadura: EA_2_MAOS
     }
     # Desarmado normal.
     dados_ataque {
@@ -11113,7 +11113,7 @@ modelo {
     }
     # Funda.
     dados_ataque {
-      tipo_ataque: 'Ataque a Distância' id_arma: 'funda' obra_prima: true municao: 20
+      tipo_ataque: 'Ataque a Distância' id_arma_tesouro: 'funda' obra_prima: true municao: 20
     }
     dados_defesa { }
     info_talentos {
@@ -11132,6 +11132,8 @@ modelo {
       pocoes { id: 'escudo_fe_2' nivel_uso: NU_BATALHA }
       pocoes { id: 'escudo_fe_2' }
       pocoes { id: 'armadura_arcana' nivel_uso: NU_BASICO }
+      armas { id: 'bordao_op' obra_prima: true id_tabela: 'bordao' }
+      armas { id: 'funda' id_tabela: 'funda' }
     }
   }
 }
@@ -11146,14 +11148,12 @@ modelo {
     info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 }
     # Rajada com kama.
     dados_ataque {
-      grupo: 'kama rajada' rotulo: 'kama' id_arma_tesouro: 'kama_op' empunhadura: EA_ARMA_APENAS
+      grupo: 'rajada arma' rotulo: 'bordao' id_arma_tesouro: 'bordao_op' empunhadura: EA_ARMA_APENAS
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
-      ataque_derrubar: true
     }
     dados_ataque {
-      grupo: 'kama rajada' rotulo: 'kama' id_arma_tesouro: 'kama_op' empunhadura: EA_ARMA_APENAS
+      grupo: 'rajada arma' rotulo: 'bordao' id_arma_tesouro: 'bordao_op' empunhadura: EA_ARMA_APENAS
       bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'rajada de golpes' valor: -2 } } }
-      ataque_derrubar: true
     }
     # Desarmado rajada.
     dados_ataque {
@@ -11168,8 +11168,7 @@ modelo {
     }
     # Kama normal.
     dados_ataque {
-      grupo: 'kama normal' rotulo: 'kama' id_arma_tesouro: 'kama_op' empunhadura: EA_ARMA_APENAS
-      ataque_derrubar: true
+      grupo: 'normal' rotulo: 'bordao' id_arma_tesouro: 'bordao_op' empunhadura: EA_ARMA_APENAS
     }
     # Desarmado normal.
     dados_ataque {
@@ -11202,7 +11201,7 @@ modelo {
       itens_maravilhosos { id: 'reflexo_prateado' }
       itens_mundanos { id: 'fogo_alquimico' }
       itens_mundanos { id: 'acido' }
-      armas { id: 'kama' obra_prima: true id_tabela: 'kama_op' }
+      armas { id: 'bordao_op' obra_prima: true id_tabela: 'bordao' }
       armas { id: 'funda' id_tabela: 'funda' }
     }
   }
@@ -11214,7 +11213,7 @@ modelo {
     # Elite.
     dados_vida: '2d8+11'
     raca: 'humano'
-    info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 1 g: 0.8 b: 0.6 }
+    info_textura { id: 'monk_with_kama.png' translacao_x: 0.25 largura: 0.5 } cor { r: 1 g: 0.8 b: 0.6 }
     info_classes { id: 'monge' nivel: 3 }
     # Os ataques desarmados nao tem id_arma para poderem ter dano proprio.
     # Rajada com kama.
@@ -11265,8 +11264,8 @@ modelo {
     info_pericias { id: 'acrobacias' pontos: 4 }
     tesouro {
       pocoes { id: 'curar_ferimentos_leves' }
-      armas { id: 'kama' bonus_magico: 1 id_tabela: 'kama+1' }
-      armas { id: 'funda' obra_prima: true id_tabela: 'funda_op' }
+      armas { id: 'kama+1' bonus_magico: 1 id_tabela: 'kama' }
+      armas { id: 'funda´_op' obra_prima: true id_tabela: 'funda' }
     }
 
     atributos {
@@ -11288,7 +11287,7 @@ modelo {
     # Elite.
     dados_vida: '4d8+13'
     raca: 'humano'
-    info_textura { id: 'monk.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
+    info_textura { id: 'monk_with_kama.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 }
     info_classes { id: 'monge' nivel: 5 }
     # Os ataques desarmados nao tem id_arma para poderem ter dano proprio.
     # Rajada com kama.
