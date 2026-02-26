@@ -26,7 +26,7 @@ enum TipoForma {
   TF_HEMISFERIO = 9;
 }
 
-// Proximo id: 126.
+// Proximo id: 127.
 message EntidadeProto {
   string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -101,6 +101,8 @@ message EntidadeProto {
   // Algumas formas permitem a transicao de um cenario para outro. Quando presente, esta forma tera a capacidade de transitar
   // entidades e a camera para outro cenario. Valor de -1 eh usado para cenario principal e -2 eh reservado para limpar a transicao.
   Posicao transicao_cenario = 35;
+  // Para transicoes para cenarios em arquivos. Ira carregar o arquivo ao transicionar.
+  string nome_arquivo_cenario_transicao = 126;
 
   // Destino da entidade.
   Posicao destino = 5;
