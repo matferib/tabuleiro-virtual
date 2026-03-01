@@ -3024,16 +3024,43 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forc
       n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
       n->mutable_entidade()->CopyFrom(entidade_transicao->Proto());
       n->mutable_entidade()->clear_id();
+      n->mutable_entidade()->set_id(GeraIdEntidade(id_cliente_));
       n->mutable_entidade()->mutable_destino()->CopyFrom(pos_destino);
       n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
       // A volta, posicao do objeto de origem.
       n->mutable_entidade()->mutable_transicao_cenario()->CopyFrom(entidade_transicao->Pos());
       n->mutable_entidade()->mutable_transicao_cenario()->set_id_cenario(proto_corrente_->id_cenario());
+      n->set_forcado(true);  // mantem os bits de visivel, selecionavel etc.
     }
     {
       auto* n = grupo_notificacoes.add_notificacao();
       n->set_tipo(ntf::TN_CRIAR_CENARIO);
       n->mutable_tabuleiro()->set_id_cenario(id_cenario);
+      if (!entidade_transicao->Proto().nome_arquivo_cenario_transicao().empty()) {
+        try {
+          ntf::Notificacao tabuleiro_salvo;
+          arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, entidade_transicao->Proto().nome_arquivo_cenario_transicao(), &tabuleiro_salvo);
+          *n->mutable_tabuleiro() = tabuleiro_salvo.tabuleiro();
+          n->mutable_tabuleiro()->clear_sub_cenario();
+          int id_cenario_carregado = n->tabuleiro().id_cenario();
+          n->mutable_tabuleiro()->set_id_cenario(id_cenario);
+          for (const EntidadeProto& ep : n->tabuleiro().entidade()) {
+            if (ep.pos().id_cenario() != id_cenario_carregado) continue;
+            // Adiciona entidade.
+            auto* n = grupo_notificacoes.add_notificacao();
+            n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+            n->set_forcado(true);  // mantem os bits de visivel, selecionavel etc.
+            *n->mutable_entidade( ) = ep;
+            n->mutable_entidade()->mutable_destino()->CopyFrom(ep.pos());
+            n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
+            n->mutable_entidade()->set_id(GeraIdEntidade(id_cliente_));
+          }
+          n->mutable_tabuleiro()->clear_entidade();
+          n->mutable_tabuleiro()->set_nome(entidade_transicao->Proto().nome_arquivo_cenario_transicao());
+        } catch (const arq::ParseProtoException& pee) {
+          LOG(ERROR) << "CriaSubCenarioNotificando, falha ao ler arquivo estatico: " << entidade_transicao->Proto().nome_arquivo_cenario_transicao() << ", criando sem carregar de arquivo: " << pee.what();
+        }
+      }
     }
   }
 
