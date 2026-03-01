@@ -61,7 +61,7 @@ enum TendenciaSimplificada {
 enum TamanhoEntidade {
   TM_MINUSCULO = 0;  // fine
   TM_DIMINUTO = 1;   // diminutive
-  TM_MIUDO = 2;      // miudo
+  TM_MIUDO = 2;      // tiny
   TM_PEQUENO = 3;    // small
   TM_MEDIO = 4;      // medium
   TM_GRANDE = 5;     // large
