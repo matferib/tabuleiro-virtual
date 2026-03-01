@@ -278,15 +278,21 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       DesativadorWatchdogEscopo dw(tabuleiro_);
       LiberaContexto();
-      auto* tabuleiro = AbreDialogoCenario(notificacao);
+      std::unique_ptr<ent::TabuleiroProto> tabuleiro = AbreDialogoCenario(notificacao);
       if (tabuleiro == nullptr) {
         VLOG(1) << "Alterações de tabuleiro descartadas";
         PegaContexto();
         break;
       }
-      auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
-      n->mutable_tabuleiro()->Swap(tabuleiro);
       PegaContexto();
+      if (!tabuleiro->ponto_terreno().empty()) {
+        auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+        n->mutable_tabuleiro()->set_id_cenario(tabuleiro->id_cenario());
+        n->mutable_tabuleiro()->mutable_ponto_terreno()->Swap(tabuleiro->mutable_ponto_terreno());
+        tabuleiro_->TrataNotificacao(*n);
+      }
+      auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
+      n->mutable_tabuleiro()->Swap(tabuleiro.get());
       tabuleiro_->TrataNotificacao(*n);
       break;
     }

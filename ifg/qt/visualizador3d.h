@@ -105,8 +105,8 @@ class Visualizador3d :
   // TODO fazer todos unique ou do tipo mesmo sem ser pointer.
   std::unique_ptr<ent::EntidadeProto> AbreDialogoEntidade(const ntf::Notificacao& notificacao);
   ent::EntidadeProto* AbreDialogoTipoForma(const ntf::Notificacao& notificacao);
-  ent::TabuleiroProto* AbreDialogoCenario(const ntf::Notificacao& notificacao);
-  ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
+  std::unique_ptr<ent::TabuleiroProto> AbreDialogoCenario(const ntf::Notificacao& notificacao);
+  std::unique_ptr<ent::OpcoesProto> AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
   ent::Bonus AbreDialogoBonus(const ent::Bonus& bonus);
 
  private:
