@@ -5903,10 +5903,14 @@ void Tabuleiro::CriaSubCenarioNotificando(const ntf::Notificacao& notificacao) {
     return;
   }
   auto* cenario = proto_.add_sub_cenario();
+  cenario->set_id_cenario(id_cenario);
   if (!notificacao.tabuleiro().nome().empty()) {
     try {
       ntf::Notificacao tabuleiro_salvo;
       arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, notificacao.tabuleiro().nome(), &tabuleiro_salvo);
+      // Precisa setar antes para as funções abaixo funcionarem. Elas irão carregar as texturas, mas so funcionam
+      // se o cenario ainda não tiver nada setado.
+      tabuleiro_salvo.mutable_tabuleiro()->set_id_cenario(id_cenario);
       if (tabuleiro_salvo.tabuleiro().has_luz_ambiente()) {
         // Notificacao possui campos de tabuleiro, deserializa.
         DeserializaPropriedades(tabuleiro_salvo.tabuleiro());
@@ -5915,14 +5919,11 @@ void Tabuleiro::CriaSubCenarioNotificando(const ntf::Notificacao& notificacao) {
         ReiniciaIluminacao(cenario);
       }
       *cenario = tabuleiro_salvo.tabuleiro();
+      cenario->clear_sub_cenario();
+      cenario->clear_entidade();
     } catch (const arq::ParseProtoException& pee) {
       LOG(ERROR) << "CriaSubCenarioNotificando, falha ao ler arquivo estatico: " << notificacao.tabuleiro().nome() << ", criando sem carregar de arquivo: " << pee.what();
     }
-    cenario->clear_sub_cenario();
-    int id_cenario_carregado = cenario->id_cenario();
-    cenario->set_id_cenario(id_cenario);
-    // Note que as entidades foram criadas em mensagens separadas.
-    cenario->clear_entidade();
   } else {
     cenario->set_id_cenario(id_cenario);
     if (notificacao.tabuleiro().has_luz_ambiente()) {

@@ -3053,7 +3053,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forc
             *n->mutable_entidade( ) = ep;
             n->mutable_entidade()->mutable_destino()->CopyFrom(ep.pos());
             n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
-            n->mutable_entidade()->set_id(GeraIdEntidade(id_cliente_));
+            n->mutable_entidade()->clear_id();
           }
           n->mutable_tabuleiro()->clear_entidade();
           n->mutable_tabuleiro()->set_nome(entidade_transicao->Proto().nome_arquivo_cenario_transicao());
@@ -3082,10 +3082,12 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forc
 
   if (grupo_notificacoes.notificacao_size() > 0) {
     TrataNotificacao(grupo_notificacoes);
-    if (ids_adicionados_.size() == 1) {
+    if (int i = 0; !ids_adicionados_.empty()) {
+      // Preenche os ids adicionados.
       for (auto& n : *grupo_notificacoes.mutable_notificacao()) {
         if (n.tipo() == ntf::TN_ADICIONAR_ENTIDADE) {
-          n.mutable_entidade()->set_id(ids_adicionados_[0]);
+          n.mutable_entidade()->set_id(ids_adicionados_[i++]);
+          if (i == ids_adicionados_.size()) break;
         }
       }
     }
