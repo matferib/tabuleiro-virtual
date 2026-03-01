@@ -1160,19 +1160,28 @@ std::unique_ptr<Entidade> Tabuleiro::CriaUmaEntidadePorNotificacao(
     // Se nao estiver desfazendo, poe a entidade no cenario corrente.
     if (notificacao.entidade().has_pos()) {
       *entidade_modelo.mutable_pos() = notificacao.entidade().pos();
+      // Forca os campos a existirem.
       entidade_modelo.mutable_pos()->set_x(entidade_modelo.pos().x());
       entidade_modelo.mutable_pos()->set_y(entidade_modelo.pos().y());
       entidade_modelo.mutable_pos()->set_z(entidade_modelo.pos().z());
+    } else {
+      entidade_modelo.mutable_pos()->set_x(x);
+      entidade_modelo.mutable_pos()->set_y(y);
+      entidade_modelo.mutable_pos()->set_z(z);
     }
-    entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
+    if (!notificacao.forcado()) {
+      entidade_modelo.mutable_pos()->set_id_cenario(IdCenario());
+    }
   }
   unsigned int id_entidade = GeraIdEntidade(id_cliente_);
   // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
   // se a entidade eh visivel e selecionavel para os jogadores.
   if (!Desfazendo()) {
     bool modo_mestre = EmModoMestreIncluindoSecundario();
-    entidade_modelo.set_visivel(!modo_mestre);
-    entidade_modelo.set_selecionavel_para_jogador(!modo_mestre);
+    if (!notificacao.forcado()) {
+      entidade_modelo.set_visivel(!modo_mestre);
+      entidade_modelo.set_selecionavel_para_jogador(!modo_mestre);
+    }
     entidade_modelo.set_id(id_entidade);
     if (camera_presa_) {
       ids_camera_presa_.push_back(id_entidade);
@@ -1374,7 +1383,9 @@ void Tabuleiro::AdicionaEntidadesNotificando(const ntf::Notificacao& notificacao
       for (auto rit = texto_log.rbegin(); rit != texto_log.rend(); ++rit) {
         AdicionaLogEvento(*rit);
       }
-      SelecionaEntidadesAdicionadas();
+      if (!notificacao.forcado()) {
+        SelecionaEntidadesAdicionadas();
+      }
       if (!Desfazendo() && !grupo_desfazer.notificacao().empty()) {
         AdicionaNotificacaoListaEventos(grupo_desfazer);
       }
@@ -5892,13 +5903,35 @@ void Tabuleiro::CriaSubCenarioNotificando(const ntf::Notificacao& notificacao) {
     return;
   }
   auto* cenario = proto_.add_sub_cenario();
-  cenario->set_id_cenario(id_cenario);
-  if (notificacao.tabuleiro().has_luz_ambiente()) {
-    // Notificacao possui campos de tabuleiro, deserializa.
-    DeserializaPropriedades(notificacao.tabuleiro());
+  if (!notificacao.tabuleiro().nome().empty()) {
+    try {
+      ntf::Notificacao tabuleiro_salvo;
+      arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, notificacao.tabuleiro().nome(), &tabuleiro_salvo);
+      if (tabuleiro_salvo.tabuleiro().has_luz_ambiente()) {
+        // Notificacao possui campos de tabuleiro, deserializa.
+        DeserializaPropriedades(tabuleiro_salvo.tabuleiro());
+      } else {
+        // Padrao, apenas reinicia a iluminacao para nao ficar tudo escuro.
+        ReiniciaIluminacao(cenario);
+      }
+      *cenario = tabuleiro_salvo.tabuleiro();
+    } catch (const arq::ParseProtoException& pee) {
+      LOG(ERROR) << "CriaSubCenarioNotificando, falha ao ler arquivo estatico: " << notificacao.tabuleiro().nome() << ", criando sem carregar de arquivo: " << pee.what();
+    }
+    cenario->clear_sub_cenario();
+    int id_cenario_carregado = cenario->id_cenario();
+    cenario->set_id_cenario(id_cenario);
+    // Note que as entidades foram criadas em mensagens separadas.
+    cenario->clear_entidade();
   } else {
-    // Padrao, apenas reinicia a iluminacao para nao ficar tudo escuro.
-    ReiniciaIluminacao(cenario);
+    cenario->set_id_cenario(id_cenario);
+    if (notificacao.tabuleiro().has_luz_ambiente()) {
+      // Notificacao possui campos de tabuleiro, deserializa.
+      DeserializaPropriedades(notificacao.tabuleiro());
+    } else {
+      // Padrao, apenas reinicia a iluminacao para nao ficar tudo escuro.
+      ReiniciaIluminacao(cenario);
+    }
   }
   LOG(INFO) << "Cenario criado";
   if (!notificacao.local()) {
