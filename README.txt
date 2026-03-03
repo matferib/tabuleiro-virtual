@@ -1,4 +1,4 @@
-Logging INFO: --stderrthreshold=0
+Logging INFO: --stderrthreshold=0. Com vmodule precisa disso tb.
 
 Icones: http://www.flaticon.com
 <a href="https://www.flaticon.com/free-icons/screenshot" title="screenshot icons">Screenshot icons created by Freepik - Flaticon</a>
