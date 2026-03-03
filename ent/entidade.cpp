@@ -1177,6 +1177,13 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
   Vector3 d(pd.x(), pd.y(), pd.z());
   Vector3 o(po->x(), po->y(), po->z());
   d -= o;
+  Vector3 dir(d.x, d.y, 0.0f);
+  if (Tipo() == TE_ENTIDADE && dir.length() > 0.05f) {
+    dir.normalize();
+    // so atualiza a direção se houver movimento significativo.
+    // Vai ter um frame de atraso, mas tudo bem.
+    AlteraRotacaoZGraus(VetorParaRotacaoGraus(dir.x, dir.y));
+  }
   float falta = d.length();
   if (falta <= deslocamento) {
   } else if (falta > 5.0f * deslocamento) {
