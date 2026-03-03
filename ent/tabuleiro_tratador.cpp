@@ -2275,7 +2275,6 @@ float Tabuleiro::TrataAcaoIndividual(
     delta_pv += delta_pv_adicional;
 
     bool nao_letal = da.nao_letal();
-    LOG(ERROR) << "da: " << da.ShortDebugString();
     if (Regeneracao(entidade_destino->Proto(), da.descritores()) > 0) {
       nao_letal = true;
     }
