@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
 #endif
 
 #if USAR_GLOG
-  meulog::Inicializa(&argc, &argv);
+  meulog::Inicializa(argc, argv);
 #endif
 
   //MyApp q_app(argc, argv);
