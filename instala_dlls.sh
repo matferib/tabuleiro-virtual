@@ -21,11 +21,14 @@ if test -z "${VERSAO}"; then
   exit 1
 fi
 
-rm *dll
+rm *dll platforms/qwindows*dll
+
 if [ "${VERSAO}" == "d" ]; then
   echo "Instalando debug..."
-  cp debug/*dll .
+  cp -f debug/*dll .
+  cp debug/platforms/qwindowsd.dll platforms
 else
   echo "Instalando release..."
-  cp release/*dll .
+  cp -f release/*dll .
+  cp release/platforms/qwindows.dll platforms
 fi
