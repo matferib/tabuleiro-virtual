@@ -1008,13 +1008,13 @@ void Tabuleiro::ModificarLuminanciaTabuleiro(const DadosBotao& db, int x, Tabule
   Vector3 hsv;
   if (mostrar_luz_ambiente_) {
     cor = tabuleiro->mutable_luz_ambiente();
-  }
-  else {
+  } else {
     cor = tabuleiro->mutable_luz_direcional()->mutable_cor();
   }
   hsv = CorParaHSV(*cor);
   hsv.z = luminancia;
   *cor = HSVParaCor(hsv);
+  tabuleiro->clear_ponto_terreno();
 }
 
 void Tabuleiro::ModificarInclinacaoLuzDirecionalTabuleiro(const DadosBotao& db, int x, TabuleiroProto* tabuleiro) const {
@@ -1040,6 +1040,7 @@ void Tabuleiro::ModificarInclinacaoLuzDirecionalTabuleiro(const DadosBotao& db, 
   auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
   *tabuleiro = CenarioIluminacao(*proto_corrente_);
   tabuleiro->mutable_luz_direcional()->set_inclinacao_graus(180.0f - inclinacao * 180.0f);
+  tabuleiro->clear_ponto_terreno();
 }
 
 std::unique_ptr<ntf::Notificacao> Tabuleiro::NotificacaoLuminanciaTabuleiro(const DadosBotao &db, int x) const {
