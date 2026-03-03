@@ -10,6 +10,6 @@
     <LocalDebuggerCommand>$(SolutionDir)..\tabvirtd.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)..</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerCommandArguments>teste.binproto</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>teste.binproto --vmodule=entidade=1 --stderrthreshold=0</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>
