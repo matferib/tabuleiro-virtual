@@ -65,14 +65,18 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>X64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>X64;_DEBUG;WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_QT5=0;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;_HAS_AUTO_PTR_ETC=1;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING=1;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)..\;$(QTDIR)\msvc2022_64\include;$(QTDIR)\msvc2022_64\include\QtOpenGL;$(QTDIR)\msvc2022_64\include\QtCore;$(QTDIR)\msvc2022_64\include\QtWidgets;$(QTDIR)\msvc2022_64\include\QtMultimedia;$(QTDIR)\msvc2022_64\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>Qt6Widgetsd.lib;Qt6Opengld.lib;Qt6OpenglWidgetsd.lib;Qt6Guid.lib;Qt6Cored.lib;Qt6Multimediad.lib;glu32.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\msvc2022_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,7 +118,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ent\util_test.cpp" />
+    <ClCompile Include="..\..\ent\util_test.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TabuleiroVirtual\Project1.vcxproj">
