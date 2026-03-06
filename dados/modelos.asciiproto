@@ -15676,27 +15676,10 @@ modelo {
     }
     sub_forma {
       tipo: TE_FORMA
-      pos { x: 1.3276377 y: 2.2773182 z: 0 }
-      cor { r: 1 g: 1 b: 1 }
-      sub_tipo: TF_CUBO
-      escala { x: 0 y: 0 z: 0 }
-    }
-    sub_forma {
-      tipo: TE_FORMA
       pos { x: 3.5255058 y: -1.7137246 z: 0.64000005 }
       cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_ESFERA
       escala { x: 1.4 y: 0.2 z: 1.4 }
-    }
-    sub_forma {
-      tipo: TE_FORMA
-      pos {
-        x: 8.1212063
-        y: -0.31381941
-      }
-      cor { r: 1 g: 1 b: 1 }
-      sub_tipo: TF_CILINDRO
-      escala { x: 0 y: 0 z: 0 }
     }
     sub_forma {
       tipo: TE_FORMA
@@ -15712,26 +15695,6 @@ modelo {
       sub_tipo: TF_CILINDRO
       escala { x: 2 y: 3.9 z: 4.5 }
       rotacao_y_graus: 90
-    }
-    sub_forma {
-      tipo: TE_FORMA
-      pos {
-        x: 1.2950243
-        y: -1.7223883
-      }
-      cor { r: 1 g: 1 b: 1 }
-      sub_tipo: TF_CUBO
-      escala { x: 0 y: 0 z: 0 }
-    }
-    sub_forma {
-      tipo: TE_FORMA
-      pos {
-        x: -4.0354624
-        y: -3.6287422
-      }
-      cor { r: 1 g: 1 b: 1 }
-      sub_tipo: TF_CUBO
-      escala { x: 0 y: 0 z: 0 }
     }
     sub_forma {
       tipo: TE_FORMA
