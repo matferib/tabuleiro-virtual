@@ -6080,13 +6080,13 @@ EntidadeProto FormificaSubForma(const EntidadeProto& psf) {
   if (psf.has_escala()) {
     *sf.mutable_escala() = psf.escala();
   }
-  if (psf.has_rotacao_x_graus()) {
+  if (psf.rotacao_x_graus() != 0.0f) {
     sf.set_rotacao_x_graus(psf.rotacao_x_graus());
   }
-  if (psf.has_rotacao_y_graus()) {
+  if (psf.rotacao_y_graus() != 0.0f) {
     sf.set_rotacao_y_graus(psf.rotacao_y_graus());
   }
-  if (psf.has_rotacao_z_graus()) {
+  if (psf.rotacao_z_graus() != 0.0f) {
     sf.set_rotacao_z_graus(psf.rotacao_z_graus());
   }
   if (psf.has_cor()) {
