@@ -454,6 +454,7 @@ sub_menu {
   item_menu { id: 'Árvore (genérica)' }
   item_menu { id: 'Árvore (pinheiro)' }
   item_menu { id: 'Árvore (seca)' }
+  item_menu { id: 'Bigorna' }
   item_menu { id: 'Cactos' }
   item_menu { id: 'Carroça' }
   item_menu { id: 'Casa (8x7)' }

@@ -15656,6 +15656,150 @@ modelo {
   }
 }
 modelo {
+  id: 'Bigorna'
+  entidade {
+    tipo: TE_COMPOSTA
+    pos {
+      x: -0.641273439
+      y: -6.56731319
+      z: 0.345
+    }
+    cor {
+      r: 0.494117647
+      g: 0.494117647
+      b: 0.494117647
+      a: 1
+    }
+    escala {
+      x: 1.005
+      y: 1.005
+      z: 1.005
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.463212788
+        y: -0.013589859
+        z: -0.266487479
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+        a: 1
+      }
+      sub_tipo: TF_CUBO
+      escala {
+        x: 0.3
+        y: 0.3
+        z: 0.45
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.0244859457
+        y: 0.0111398697
+        z: 0.183512479
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+        a: 1
+      }
+      sub_tipo: TF_CUBO
+      escala {
+        x: 1.5
+        y: 0.6
+        z: 0.3
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.40545249
+        y: -0.00461101532
+        z: -0.266487479
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+        a: 1
+      }
+      sub_tipo: TF_CUBO
+      escala {
+        x: 0.3
+        y: 0.3
+        z: 0.45
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 0.740426421
+        y: 0.0151109695
+        z: 0.333512515
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+        a: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.3
+        y: 0.6
+        z: 0.6
+      }
+      rotacao_y_graus: 75
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.685979962
+        y: -0.00440406799
+        z: 0.333512515
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+        a: 1
+      }
+      sub_tipo: TF_PIRAMIDE
+      escala {
+        x: 0.3
+        y: 0.6
+        z: 0.6
+      }
+      rotacao_y_graus: -75
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -0.0211719871
+        y: -0.00364685059
+        z: -0.317562521
+      }
+      cor {
+        r: 1
+        g: 1
+        b: 1
+        a: 1
+      }
+      sub_tipo: TF_CUBO
+      escala {
+        x: 1.50749993
+        y: 0.603000045
+        z: 0.0753750056
+      }
+    }
+  }
+}
+modelo {
   id: 'Carroça'
   entidade {
     tipo: TE_COMPOSTA
