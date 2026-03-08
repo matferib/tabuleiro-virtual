@@ -4026,7 +4026,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
           grade_nao_gravada.Concatena(&grade_vertical);
           coordenadas_grade.clear();
           indices_grade.clear();
-          indice = 0;          
+          indice = 0;
+          flush_count = 0; 
         } else {
           indice += 4;
         }
@@ -4073,6 +4074,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
           grade_nao_gravada.Concatena(&grade_horizontal);
           coordenadas_grade.clear();
           indices_grade.clear();
+          flush_count = 0;
         } else {
           indice += 4;
         }
