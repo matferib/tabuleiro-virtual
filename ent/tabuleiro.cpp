@@ -3994,6 +3994,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
   const float expessura_linha_2 = expessura_linha / 2.0f;
   // Linhas verticais (S-N).
   {
+    int flush_count = 0;
+    gl::VboNaoGravado grade_vertical;
     for (int xcorrente = 0; xcorrente <= TamanhoX(); ++xcorrente) {
       float x_inicial = (xcorrente * TAMANHO_LADO_QUADRADO) - expessura_linha_2 + deslocamento_x;
       float x_final = x_inicial + expessura_linha;
@@ -4018,18 +4020,28 @@ void Tabuleiro::RegeraVboTabuleiro() {
         indices_grade.push_back(indice);
         indices_grade.push_back(indice + 2);
         indices_grade.push_back(indice + 3);
-        indice += 4;
+        if (++flush_count >= 100) {
+          grade_vertical.AtribuiIndices(&indices_grade);
+          grade_vertical.AtribuiCoordenadas(3, &coordenadas_grade);
+          grade_nao_gravada.Concatena(&grade_vertical);
+          coordenadas_grade.clear();
+          indices_grade.clear();
+          indice = 0;          
+        } else {
+          indice += 4;
+        }
       }
     }
-    gl::VboNaoGravado grade_vertical;
     grade_vertical.AtribuiIndices(&indices_grade);
     grade_vertical.AtribuiCoordenadas(3, &coordenadas_grade);
     grade_nao_gravada.Concatena(&grade_vertical);
+    coordenadas_grade.clear();
+    indices_grade.clear();
   }
   indice = 0;
-  coordenadas_grade.clear();
-  indices_grade.clear();
   {
+    int flush_count = 0;
+    gl::VboNaoGravado grade_horizontal;
     for (int ycorrente = 0; ycorrente <= TamanhoY(); ++ycorrente) {
       float y_inicial = (ycorrente * TAMANHO_LADO_QUADRADO) - expessura_linha_2 + deslocamento_y;
       float y_final = y_inicial + expessura_linha;
@@ -4054,13 +4066,18 @@ void Tabuleiro::RegeraVboTabuleiro() {
         indices_grade.push_back(indice);
         indices_grade.push_back(indice + 2);
         indices_grade.push_back(indice + 3);
-        indice += 4;
+        if (++flush_count >= 100) {
+          indice = 0;
+          grade_horizontal.AtribuiIndices(&indices_grade);
+          grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
+          grade_nao_gravada.Concatena(&grade_horizontal);
+          coordenadas_grade.clear();
+          indices_grade.clear();
+        } else {
+          indice += 4;
+        }
       }
     }
-    gl::VboNaoGravado grade_horizontal;
-    grade_horizontal.AtribuiIndices(&indices_grade);
-    grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
-    grade_nao_gravada.Concatena(&grade_horizontal);
   }
   grade_nao_gravada.AtribuiMatrizModelagem(Matrix4());
   vbos_grade_.Desgrava();
