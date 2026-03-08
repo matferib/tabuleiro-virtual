@@ -6500,7 +6500,37 @@ tabela_feiticos {
     }
     escola: 'encantamento'
   }
-
+  armas {
+    id: 'respirar_agua'
+    nome: 'respirar na água'
+    nome_ingles: 'water breathing'
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 3
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 3
+    }
+    info_classes {
+      id: 'agua'
+      nivel: 3
+      dominio: true
+    }
+    acao {
+      id: 'Feitiço de Toque Aliado'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'respirar agua.'
+        modificador_rodadas: MR_2_HORAS_NIVEL
+      }
+    }
+    escola: 'transmutacao'
+  }
   armas {
     id: 'abencoar_agua'
     nome: 'abençoar água'
