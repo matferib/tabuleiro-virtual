@@ -4027,6 +4027,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
     grade_nao_gravada.Concatena(&grade_vertical);
   }
   indice = 0;
+  coordenadas_grade.clear();
+  indices_grade.clear();
   {
     for (int ycorrente = 0; ycorrente <= TamanhoY(); ++ycorrente) {
       float y_inicial = (ycorrente * TAMANHO_LADO_QUADRADO) - expessura_linha_2 + deslocamento_y;
