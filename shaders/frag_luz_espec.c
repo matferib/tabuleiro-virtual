@@ -192,7 +192,7 @@ void main() {
   }
 
   // Aplica textura.
-  if (gltab_textura > 0.0 && v_Tex_presenca >= 0) {
+  if (gltab_textura > 0.0 && v_Tex_presenca != -1) {
     if (gltab_textura_bump > 0.0) {
       highp vec3 desvio = ((vec3(2.0, 2.0, 2.0) * texture2D(gltab_unidade_textura, v_Tex.st).xyz) - vec3(1.0, 1.0, 1.0));
       mediump mat3 tbn = mat3(v_Tangent, v_Bitangent, v_Normal);
@@ -200,6 +200,9 @@ void main() {
     } else {
       cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
     }
+  // Util para detectar artefatos de borda.
+  //} else if (v_Tex_presenca == -1) {
+  //  cor_final.rgb = vec3(1.0, 0.0, 0.0);
   }
 
   // luzes.
