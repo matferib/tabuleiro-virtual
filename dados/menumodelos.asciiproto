@@ -240,6 +240,7 @@ sub_menu {
     id: 'Clérigos'
     item_menu { id: 'Humano Clérigo 1 (Leal e Neutro)' }
     item_menu { id: 'Humano Clérigo 2 (Neutro)' }
+    item_menu { id: 'Humano Clérigo 2 (Leal e Neutro)' }
     item_menu { id: 'Humano Clérigo 3 (Neutro)' }
     item_menu { id: 'Humano Clérigo 3 (Caótico e Mau)' }
     item_menu { id: 'Humano Clérigo 4 (Neutro)' }

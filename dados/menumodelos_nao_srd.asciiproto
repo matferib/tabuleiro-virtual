@@ -80,6 +80,7 @@ sub_menu {
     modelos { id: 'Humano Monge 1' }
     modelos { id: 'Humano Monge 1' }
     modelos { id: 'Humano Monge 1' }
+    modelos { id: 'Humano Clérigo 2 (Leal e Neutro)' }
   }
 
 }

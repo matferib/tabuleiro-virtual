@@ -7266,7 +7266,6 @@ modelo {
     }
   }
 }
-
 modelo {
   id: 'Humano Clérigo 1 (Leal e Neutro)'
   id_entidade_base: 'Humano Clérigo Base'
@@ -7337,6 +7336,81 @@ modelo {
     }
   }
 }
+modelo {
+  id: 'Humano Clérigo 2 (Leal e Neutro)'
+  id_entidade_base: 'Humano Clérigo Base'
+  entidade {
+    tendencia { simples: TD_LEAL_NEUTRO }
+    dados_vida: '1d8+8+4' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    info_classes { id: 'clerigo' nivel: 2 }
+    cor { r: 0.95 g: 0.75 b: 0.55 }
+    dados_defesa { id_armadura: 'armadura_batalha' id_escudo: 'pesado_aco' }
+    dados_ataque {
+      id_arma: 'maca_estrela' obra_prima: true empunhadura: EA_ARMA_ESCUDO
+    }
+    dados_ataque {
+      id_arma: 'besta_leve' empunhadura: EA_ARMA_ESCUDO
+      bonus_ataque { bonus_individual { tipo: TB_SEM_NOME por_origem { origem: 'besta_com_escudo' valor: -2 } } }
+      municao: 20
+    }
+    dados_ataque {
+      id_arma: 'agua_benta' empunhadura: EA_ARMA_ESCUDO
+      municao: 1
+    }
+    dados_ataque {
+      id_arma: 'acido' empunhadura: EA_ARMA_ESCUDO
+      municao: 1
+    }
+    dados_ataque {
+      id_arma: 'fogo_alquimico' empunhadura: EA_ARMA_ESCUDO
+      municao: 3
+    }
+    info_talentos {
+      gerais { id: 'preparar_pocao' }
+    }
+    info_pericias { id: 'concentracao' pontos: 5 }
+    info_pericias { id: 'ouvir' pontos: 5 }
+    info_pericias { id: 'identificar_magia' pontos: 5 }
+    tesouro {
+      # 75%.
+      pocoes { id: 'curar_ferimentos_leves' } # 50
+      pocoes { id: 'curar_ferimentos_leves' } # 50
+      pocoes { id: 'arma_magica' } # 50
+      pocoes { id: 'pele_arvore_2' } # 300 cheio
+      pocoes { id: 'ajuda' } # 300.
+      pergaminhos_divinos { id: 'infligir_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'infligir_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'maldicao_menor' } # 25
+      pergaminhos_divinos { id: 'escudo_entropico' } # 25
+      pergaminhos_divinos { id: 'causar_medo' } # 25
+      pergaminhos_divinos { id: 'arma_magica' } # 25
+
+      tesouro: 'simbolo sagrado\n6tochas'
+      moedas { po: 5 }
+    }
+    feiticos_classes {
+      id_classe: 'clerigo'
+      dominios: 'forca'
+      dominios: 'ordem'
+      feiticos_por_nivel_deprecated {
+        nivel: 0
+        conhecidos { id: 'orientacao' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+      }
+      feiticos_por_nivel_deprecated {
+        nivel: 1
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+        conhecidos { id: 'auto' }
+      }
+    }
+  }
+}
+
+
 modelo {
   id: 'Humano Clérigo 2 (Neutro)'
   id_entidade_base: 'Humano Clérigo Base'
