@@ -1135,6 +1135,19 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
     vd_.angulo_acrobacias_graus = 0;
   }
 
+  if (proto_.afetada_por_vento()){
+    if (vd_.ultimo_atualizacao_vento_ms == 0) {
+      float kForcaVento = 0.15f * Aleatorio();
+      vd_.ultima_forca_vento = (3.0f * vd_.ultima_forca_vento + kForcaVento) * 0.25f;
+      vd_.ultimo_atualizacao_vento_ms = 100;
+      vd_.atualiza_matriz_vbo = true;
+    } else {
+      vd_.ultimo_atualizacao_vento_ms =
+          vd_.ultimo_atualizacao_vento_ms > intervalo_ms
+          ? vd_.ultimo_atualizacao_vento_ms - intervalo_ms : 0.0f;
+    }
+  }
+
   AtualizaMatrizes();
 
   // Daqui pra baixo, tratamento de destino.

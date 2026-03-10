@@ -557,6 +557,11 @@ class Entidade {
     float angulo_textura_rad = 0.0f;
     // Roda a entidade ao fazer acrobacia.
     float angulo_acrobacias_graus = 0.0f;
+    // Ultima força do vento computada.
+    float ultima_forca_vento = 0.0f;
+    // Vento deve atualizar a cada x ms.
+    unsigned int ultimo_atualizacao_vento_ms = 0;
+
     // Efeitos da criatura e algum complemento.
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
