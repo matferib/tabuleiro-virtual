@@ -203,6 +203,63 @@
           <string>Atributos</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkbox_respeita_solo">
+            <property name="toolTip">
+             <string>Se verdadeiro, a entidade não afundará no solo.</string>
+            </property>
+            <property name="text">
+             <string>Respeita Solo</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="checkbox_dois_lados">
+            <property name="toolTip">
+             <string>Se verdadeiro, nos dois lados da primitiva serão desenhados.</string>
+            </property>
+            <property name="text">
+             <string>Dois Lados</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QCheckBox" name="checkbox_ignora_luz">
+            <property name="toolTip">
+             <string>Se verdadeiro, a entidade será desenhada com iluminação total.</string>
+            </property>
+            <property name="text">
+             <string>Ignora Luz</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QCheckBox" name="checkbox_especular">
+            <property name="toolTip">
+             <string>Se verdadeiro, objeto brilhará como metal</string>
+            </property>
+            <property name="text">
+             <string>Especular</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QCheckBox" name="checkbox_vento">
+            <property name="text">
+             <string>Afetado por vento</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkbox_selecionavel">
+            <property name="toolTip">
+             <string>Se verdadeiro, a entidade poderá ser selecionada por jogadores.</string>
+            </property>
+            <property name="text">
+             <string>Selecionável para jogadores</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QCheckBox" name="checkbox_fixa">
             <property name="toolTip">
@@ -213,13 +270,30 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="checkbox_respeita_solo">
+          <item row="1" column="2">
+           <widget class="QCheckBox" name="checkbox_faz_sombra">
             <property name="toolTip">
-             <string>Se verdadeiro, a entidade não afundará no solo.</string>
+             <string>Se verdadeiro, a entidade não fará sombra.</string>
             </property>
             <property name="text">
-             <string>Respeita Solo</string>
+             <string>Faz Sombra</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QCheckBox" name="checkbox_fumegando">
+            <property name="text">
+             <string>Fumegando</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkbox_afetado_por_efeitos">
+            <property name="toolTip">
+             <string>Marque se objeto pode ser afetado por efeitos.</string>
+            </property>
+            <property name="text">
+             <string>Afetado por Efeitos</string>
             </property>
            </widget>
           </item>
@@ -246,73 +320,6 @@
             </property>
             <property name="text">
              <string>Visível</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="checkbox_selecionavel">
-            <property name="toolTip">
-             <string>Se verdadeiro, a entidade poderá ser selecionada por jogadores.</string>
-            </property>
-            <property name="text">
-             <string>Selecionável para jogadores</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="checkbox_afetado_por_efeitos">
-            <property name="toolTip">
-             <string>Marque se objeto pode ser afetado por efeitos.</string>
-            </property>
-            <property name="text">
-             <string>Afetado por Efeitos</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QCheckBox" name="checkbox_ignora_luz">
-            <property name="toolTip">
-             <string>Se verdadeiro, a entidade será desenhada com iluminação total.</string>
-            </property>
-            <property name="text">
-             <string>Ignora Luz</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="checkbox_dois_lados">
-            <property name="toolTip">
-             <string>Se verdadeiro, nos dois lados da primitiva serão desenhados.</string>
-            </property>
-            <property name="text">
-             <string>Dois Lados</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QCheckBox" name="checkbox_faz_sombra">
-            <property name="toolTip">
-             <string>Se verdadeiro, a entidade não fará sombra.</string>
-            </property>
-            <property name="text">
-             <string>Faz Sombra</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QCheckBox" name="checkbox_especular">
-            <property name="toolTip">
-             <string>Se verdadeiro, objeto brilhará como metal</string>
-            </property>
-            <property name="text">
-             <string>Especular</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QCheckBox" name="checkbox_fumegando">
-            <property name="text">
-             <string>Fumegando</string>
             </property>
            </widget>
           </item>
