@@ -6302,7 +6302,7 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
   }
   x_medio /= num_entidades;
   y_medio /= num_entidades;
-  z_medio /= num_entidades;
+  z_medio = 0; // Vamos manter sempre o z = 0 como base de objetos agrupados.
   nova_entidade.mutable_pos()->set_x(x_medio);
   nova_entidade.mutable_pos()->set_y(y_medio);
   nova_entidade.mutable_pos()->set_z(z_medio);
