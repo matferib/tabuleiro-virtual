@@ -3165,6 +3165,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   }
 
   gerador.checkbox_afetado_por_efeitos->setCheckState(entidade.pode_ser_afetada_por_acao() ? Qt::Checked : Qt::Unchecked);
+  if (entidade.tipo() == ent::TE_COMPOSTA) {
+    gerador.checkbox_vento->setCheckState(entidade.afetada_por_vento() ? Qt::Checked : Qt::Unchecked);
+  } else {
+    gerador.checkbox_vento->setEnabled(false);
+  }
   gerador.checkbox_respeita_solo->setCheckState(entidade.forcar_respeita_solo() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_ignora_luz->setCheckState(entidade.ignora_luz() ? Qt::Checked : Qt::Unchecked);
 
@@ -3408,6 +3413,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     }
 
     proto_retornado->set_pode_ser_afetada_por_acao(gerador.checkbox_afetado_por_efeitos->checkState() == Qt::Checked);
+    if (proto_retornado->tipo() == ent::TE_COMPOSTA && gerador.checkbox_vento->checkState() == Qt::Checked) {
+      proto_retornado->set_afetada_por_vento(true);
+    } else {
+      proto_retornado->clear_afetada_por_vento();
+    }
     proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
     proto_retornado->set_dois_lados(gerador.checkbox_dois_lados->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
