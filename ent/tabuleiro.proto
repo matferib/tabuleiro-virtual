@@ -82,7 +82,7 @@ message OpcoesProto {
 }
 
 // Mensagem enviada para os clientes de um jogo.
-// Proximo id: 33.
+// Proximo id: 37.
 message TabuleiroProto {
   // Identificador do cenario. Um tabuleiro pode ser composto por varios cenarios. O principal sera sempre o -1.
   int32 id_cenario = 17 [default = -1];
@@ -149,6 +149,7 @@ message TabuleiroProto {
   int32 herdar_ceu_de = 27;
   int32 herdar_iluminacao_de = 28;
   int32 herdar_nevoa_de = 29;
+  int32 herdar_vento_de = 36;
   // Para poderes que dependem de luz e chances de falha.
   NivelIluminacao nivel_iluminacao = 31;
   // Informacao sobre times.
@@ -160,6 +161,9 @@ message TabuleiroProto {
   float expessura_grade_m = 33 [default=0.1];
   // Tipo de terreno do tabuleiro.
   TipoTerreno tipo_terreno = 34;
+
+  // Direcao e forca do vento. Unitario para força maxima.
+  Posicao vetor_vento = 35;
 }
 
 // Para copiar e colar.
