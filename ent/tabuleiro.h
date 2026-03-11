@@ -1084,6 +1084,9 @@ class Tabuleiro : public ntf::Receptor {
   // Retorna o cenario que contem as informacoes de nevoa para o sub cenario.
   const TabuleiroProto& CenarioNevoa(const TabuleiroProto& sub_cenario) const;
 
+  // Retorna o cenario que contem as informações de vento para o subcenario.
+  const TabuleiroProto& CenarioVento(const TabuleiroProto& sub_cenario) const;
+
   // Retorna se a nevoa sera usada na renderizacao.
   bool UsaNevoa() const;
 

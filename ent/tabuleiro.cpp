@@ -3031,6 +3031,15 @@ void Tabuleiro::AtualizaPorTemporizacao() {
   }
 
   *parametros_desenho_.mutable_pos_olho() = olho_.pos();
+  // Opcoes de cenario.
+  if (const auto& cenario = CenarioVento(*proto_corrente_); true /*cenario.has_vetor_vento()*/) {
+    //*parametros_desenho_.mutable_vetor_vento() = cenario.vetor_vento();
+    parametros_desenho_.mutable_vetor_vento()->set_x(0.1f);
+    parametros_desenho_.mutable_vetor_vento()->set_y(0.1f);
+  } else {
+    parametros_desenho_.clear_vetor_vento();
+  }
+
   AtualizaEntidades(passou_ms);
   AtualizaLuzesPontuais();
 
@@ -6979,6 +6988,10 @@ const TabuleiroProto& Tabuleiro::CenarioPiso(const TabuleiroProto& sub_cenario) 
 // Retorna o cenario que contem as informacoes de ceu para o sub cenario.
 const TabuleiroProto& Tabuleiro::CenarioCeu(const TabuleiroProto& sub_cenario) const {
   return sub_cenario.has_herdar_ceu_de() ? ent::BuscaSubCenario(sub_cenario.herdar_ceu_de(), proto_) : sub_cenario;
+}
+
+const TabuleiroProto& Tabuleiro::CenarioVento(const TabuleiroProto& sub_cenario) const {
+  return sub_cenario.has_herdar_vento_de() ? ent::BuscaSubCenario(sub_cenario.herdar_vento_de(), proto_) : sub_cenario;
 }
 
 const TabuleiroProto& Tabuleiro::CenarioIluminacao(const TabuleiroProto& sub_cenario) const {
