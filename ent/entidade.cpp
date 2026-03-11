@@ -1135,17 +1135,23 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
     vd_.angulo_acrobacias_graus = 0;
   }
 
-  if (proto_.afetada_por_vento()){
-    if (vd_.ultimo_atualizacao_vento_ms == 0) {
-      float kForcaVento = 0.15f * Aleatorio();
-      vd_.ultima_forca_vento = (3.0f * vd_.ultima_forca_vento + kForcaVento) * 0.25f;
-      vd_.ultimo_atualizacao_vento_ms = 100;
+  if (proto_.elasticidade_vento() > 0.0f && parametros_desenho_ != nullptr && parametros_desenho_->has_vetor_vento()) {
+    if (vd_.proxima_atualizacao_vento_ms == 0) {
+      const Vector3 vetor_vento = PosParaVector3(parametros_desenho_->vetor_vento());
+      Vector2 vetor_modificado(vetor_vento.x, vetor_vento.y);
+      vetor_modificado *= proto_.elasticidade_vento() * Aleatorio();
+      // Essa media ponderada é para tender mais para a posicao atual.
+      vd_.vetor_vento = (3.0f * vd_.vetor_vento + vetor_modificado) * 0.25f;
+      vd_.proxima_atualizacao_vento_ms = 100;
       vd_.atualiza_matriz_vbo = true;
     } else {
-      vd_.ultimo_atualizacao_vento_ms =
-          vd_.ultimo_atualizacao_vento_ms > intervalo_ms
-          ? vd_.ultimo_atualizacao_vento_ms - intervalo_ms : 0.0f;
+      vd_.proxima_atualizacao_vento_ms =
+          vd_.proxima_atualizacao_vento_ms > static_cast<unsigned int>(intervalo_ms)
+          ? vd_.proxima_atualizacao_vento_ms - static_cast<unsigned int>(intervalo_ms) : 0;
     }
+  } else {
+    vd_.proxima_atualizacao_vento_ms = 0;
+    vd_.vetor_vento.x = vd_.vetor_vento.y = 0.0f;
   }
 
   AtualizaMatrizes();

@@ -223,10 +223,11 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
       matrix.rotateY(proto.rotacao_y_graus());
       matrix.rotateZ(proto.rotacao_z_graus());
     }
-    if (proto.afetada_por_vento()) {
-      Matrix4 shear(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                    vd.ultima_forca_vento, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                    1.0f);
+    if (proto.elasticidade_vento() > 0.0f) {
+      Matrix4 shear(1.0f, 0.0f, 0.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f, 0.0f,
+                    vd.vetor_vento.x, vd.vetor_vento.y, 1.0f, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
       matrix = shear * matrix;
     }
     const auto& pos = proto.pos();

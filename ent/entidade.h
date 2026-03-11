@@ -558,9 +558,9 @@ class Entidade {
     // Roda a entidade ao fazer acrobacia.
     float angulo_acrobacias_graus = 0.0f;
     // Ultima força do vento computada.
-    float ultima_forca_vento = 0.0f;
+    Vector2 vetor_vento;
     // Vento deve atualizar a cada x ms.
-    unsigned int ultimo_atualizacao_vento_ms = 0;
+    unsigned int proxima_atualizacao_vento_ms = 0;
 
     // Efeitos da criatura e algum complemento.
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
