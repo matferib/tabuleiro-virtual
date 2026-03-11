@@ -3032,10 +3032,8 @@ void Tabuleiro::AtualizaPorTemporizacao() {
 
   *parametros_desenho_.mutable_pos_olho() = olho_.pos();
   // Opcoes de cenario.
-  if (const auto& cenario = CenarioVento(*proto_corrente_); true /*cenario.has_vetor_vento()*/) {
-    //*parametros_desenho_.mutable_vetor_vento() = cenario.vetor_vento();
-    parametros_desenho_.mutable_vetor_vento()->set_x(0.1f);
-    parametros_desenho_.mutable_vetor_vento()->set_y(0.1f);
+  if (const auto& cenario = CenarioVento(*proto_corrente_); cenario.has_vetor_vento()) {
+    *parametros_desenho_.mutable_vetor_vento() = cenario.vetor_vento();
   } else {
     parametros_desenho_.clear_vetor_vento();
   }
@@ -5537,6 +5535,11 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
       *tabuleiro->mutable_info_textura_ceu() = proto_corrente_->info_textura_ceu();
     }
   }
+  if (proto_corrente_->has_herdar_vento_de()) {
+    tabuleiro->set_herdar_ceu_de(proto_corrente_->herdar_vento_de());
+  } else {
+    *tabuleiro->mutable_vetor_vento() = proto_corrente_->vetor_vento();
+  }
   if (proto_corrente_->has_herdar_iluminacao_de()) {
     tabuleiro->set_herdar_iluminacao_de(proto_corrente_->herdar_iluminacao_de());
   } else {
@@ -5683,6 +5686,13 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->set_herdar_ceu_de(novo_proto.herdar_ceu_de());
   } else {
     proto_a_atualizar->clear_herdar_ceu_de();
+  }
+  if (novo_proto.has_herdar_vento_de()) {
+    proto_a_atualizar->set_herdar_vento_de(novo_proto.herdar_vento_de());
+    proto_a_atualizar->clear_vetor_vento();
+  } else {
+    proto_a_atualizar->clear_herdar_vento_de();
+    *proto_a_atualizar->mutable_vetor_vento() = novo_proto.vetor_vento();
   }
   if (novo_proto.has_herdar_iluminacao_de()) {
     proto_a_atualizar->set_herdar_iluminacao_de(novo_proto.herdar_iluminacao_de());

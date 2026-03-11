@@ -434,6 +434,7 @@ std::tuple<bool, std::string> AtaqueVsResistenciaMagia(
 // Gera um resumo sobre a notificacao, ou vazio.
 std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
 
+inline Vector2 PosParaVector2(const Posicao& pos) { return Vector2(pos.x(), pos.y()); }
 inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.y(), pos.z()); }
 inline Vector4 PosParaVector4(const Posicao& pos) { return Vector4(pos.x(), pos.y(), pos.z(), 1.0f); }
 inline Posicao Vector3ParaPosicao(const Vector3& v) {

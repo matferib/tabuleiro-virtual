@@ -2598,6 +2598,15 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
   // Inclinacao: o zero do slider fica para baixo enquanto no proto ele fica para direita.
   gerador.dial_inclinacao->setSliderPosition(tab_proto.luz_direcional().inclinacao_graus() + 90.0f);
 
+  if (tab_proto.has_vetor_vento() && tab_proto.vetor_vento().x() != 0.0f && tab_proto.vetor_vento().y() != 0.0f) {
+    Vector2 vento = ent::PosParaVector2(tab_proto.vetor_vento());
+    gerador.dial_vento->setSliderPosition(ent::VetorParaRotacaoGraus(vento.x, vento.y) + 90.0f);
+    gerador.slider_vento->setValue(static_cast<int>(vento.length() * 100.0f));
+  } else {
+    gerador.dial_vento->setSliderPosition(0.0f);
+    gerador.slider_vento->setValue(0);
+  }
+
   // Nevoa.
   if (tab_proto.has_nevoa()) {
     gerador.checkbox_nevoa->setCheckState(Qt::Checked);
@@ -2647,6 +2656,10 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
   PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_nevoa);
   if (tab_proto.has_herdar_nevoa_de()) {
     gerador.combo_herdar_nevoa->setCurrentIndex(gerador.combo_herdar_nevoa->findData(QVariant(tab_proto.herdar_nevoa_de())));
+  }
+  PreencheComboCenarioPai(tabuleiro_->Proto(), gerador.combo_herdar_vento);
+  if (tab_proto.has_herdar_vento_de()) {
+    gerador.combo_herdar_nevoa->setCurrentIndex(gerador.combo_herdar_vento->findData(QVariant(tab_proto.herdar_vento_de())));
   }
 
   // Ladrilho de textura.
@@ -2816,6 +2829,22 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
       proto_retornado->mutable_luz_ambiente()->Swap(&cor_ambiente_proto);
       proto_retornado->set_aplicar_luz_ambiente_textura_ceu(gerador.checkbox_luz_ceu->checkState() == Qt::Checked);
     }
+
+    if (gerador.combo_herdar_vento->currentData().toInt() != CENARIO_INVALIDO) {
+      proto_retornado->set_herdar_vento_de(gerador.combo_herdar_vento->currentData().toInt());
+    } else {
+      proto_retornado->clear_herdar_vento_de();
+      if (gerador.slider_vento->value() > 0.0f) {
+        float rad = (gerador.dial_vento->sliderPosition() - 90.0f) * GRAUS_PARA_RAD;
+        Vector2 vetor(cosf(rad), sinf(rad));
+        vetor *= gerador.slider_vento->value() / 100.0f;
+        proto_retornado->mutable_vetor_vento()->set_x(vetor.x);
+        proto_retornado->mutable_vetor_vento()->set_y(vetor.y);
+      } else {
+        proto_retornado->clear_vetor_vento();
+      }
+    }
+
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
       int indice = gerador.combo_fundo->currentIndex();
