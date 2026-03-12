@@ -1074,6 +1074,7 @@ int Tabuleiro::Desenha() {
   gl::CarregaIdentidade();
   ConfiguraProjecao();
 
+  parametros_desenho_.set_desenha_clima(true);
   if (opcoes_.renderizacao_em_framebuffer_fixo()) {
     ParametrosDesenho salva_pd(parametros_desenho_);
     DesenhaFramebufferPrincipal();
@@ -3032,10 +3033,42 @@ void Tabuleiro::AtualizaPorTemporizacao() {
 
   *parametros_desenho_.mutable_pos_olho() = olho_.pos();
   // Opcoes de cenario.
-  if (const auto& cenario = CenarioVento(*proto_corrente_); cenario.has_vetor_vento()) {
-    *parametros_desenho_.mutable_vetor_vento() = cenario.vetor_vento();
+  const auto& cenario_vento = CenarioVento(*proto_corrente_);
+  if (const auto& cenario_vento = CenarioVento(*proto_corrente_); cenario_vento.has_vetor_vento()) {
+    *parametros_desenho_.mutable_vetor_vento() = cenario_vento.vetor_vento();
   } else {
     parametros_desenho_.clear_vetor_vento();
+  }
+  if (cenario_vento.chuva() > 0.0f) {
+    if (variaveis_clima_.proximo_update == 0 ||
+        variaveis_clima_.proximo_update < passou_ms) {
+      variaveis_clima_.vetor = Vector3(cenario_vento.vetor_vento().x(),
+                                       cenario_vento.vetor_vento().y(), -1.0f);
+      variaveis_clima_.vetor.normalize() *= cenario_vento.chuva();
+
+      // Atualiza as existentes e mata as que estiverem abaixo de 0.
+      std::vector<Vector4> objetos;
+      objetos.swap(variaveis_clima_.objetos);
+      Matrix4 mt;
+      mt.translate(variaveis_clima_.vetor);
+      for (Vector4& v : objetos) {
+        v = mt * v;
+        if (v.z > 0.0f) {
+          variaveis_clima_.objetos.emplace_back(v);
+        }
+      }
+      // Cria novas entidades.
+      int num_novas = 100 - variaveis_clima_.objetos.size();
+      for (int i = 0; i < num_novas; ++i) {
+        float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
+        float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
+        float z = olho_.pos().z() + Aleatorio() * 5.0f;
+        variaveis_clima_.objetos.emplace_back(x, y, z, 1.0f);
+      }
+      variaveis_clima_.proximo_update = 30;
+    } else {
+      variaveis_clima_.proximo_update -= passou_ms;
+    }
   }
 
   AtualizaEntidades(passou_ms);
@@ -3698,6 +3731,30 @@ void Tabuleiro::DesenhaCena(bool debug) {
     }
   }
   V_ERRO("desenhando entidades alfa");
+
+  if (parametros_desenho_.desenha_clima() && proto_.chuva() > 0.0f) {
+    gl::VboGravado vbo;
+    vbo.Grava(GL_TRIANGLES, gl::VboPiramideSolida(0.03f, 0.5f));
+    Vector3 dir(variaveis_clima_.vetor);
+    Matrix4 mr;
+    if (dir.x != 0 || dir.y != 0) {
+      dir.normalize();
+      Vector3 up(0.0f, 0.0f, 1.0f);
+      Vector3 eixo = up.cross(dir);
+      float angulo_rad = acosf(up.dot(dir));
+      mr.rotate(angulo_rad * RAD_PARA_GRAUS, eixo);
+    } else if (dir.z < 0.0f) {
+      mr.rotateX(180.0f);
+    }
+    MudaCor(COR_VERMELHA);
+    for (const Vector4& v : variaveis_clima_.objetos) {
+      gl::MatrizEscopo salva(gl::MATRIZ_MODELAGEM);
+      Matrix4 m(mr);
+      m.translate(v.x, v.y, v.z);
+      gl::MultiplicaMatriz(m.get());
+      gl::DesenhaVboGravado(vbo);
+    }
+  }
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||
       (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) ||
@@ -5539,6 +5596,7 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
     tabuleiro->set_herdar_ceu_de(proto_corrente_->herdar_vento_de());
   } else {
     *tabuleiro->mutable_vetor_vento() = proto_corrente_->vetor_vento();
+    tabuleiro->set_chuva(proto_corrente_->chuva());
   }
   if (proto_corrente_->has_herdar_iluminacao_de()) {
     tabuleiro->set_herdar_iluminacao_de(proto_corrente_->herdar_iluminacao_de());
@@ -5693,6 +5751,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
   } else {
     proto_a_atualizar->clear_herdar_vento_de();
     *proto_a_atualizar->mutable_vetor_vento() = novo_proto.vetor_vento();
+    proto_a_atualizar->set_chuva(novo_proto.chuva());
   }
   if (novo_proto.has_herdar_iluminacao_de()) {
     proto_a_atualizar->set_herdar_iluminacao_de(novo_proto.herdar_iluminacao_de());
