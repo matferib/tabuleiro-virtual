@@ -386,7 +386,7 @@
    <item row="1" column="5">
     <widget class="QGroupBox" name="groupBox_6">
      <property name="title">
-      <string>Vento</string>
+      <string>Chuva e Vento</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
@@ -423,6 +423,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkbox_chuva">
+          <property name="text">
+           <string>Chuva</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

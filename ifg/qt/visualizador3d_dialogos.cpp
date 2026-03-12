@@ -2606,6 +2606,7 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
     gerador.dial_vento->setSliderPosition(0.0f);
     gerador.slider_vento->setValue(0);
   }
+  gerador.checkbox_chuva->setCheckState(tab_proto.chuva() > 0.0f ? Qt::Checked : Qt::Unchecked);
 
   // Nevoa.
   if (tab_proto.has_nevoa()) {
@@ -2843,6 +2844,11 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
       } else {
         proto_retornado->clear_vetor_vento();
       }
+    }
+    if (gerador.checkbox_chuva->checkState() == Qt::Checked) {
+      proto_retornado->set_chuva(0.3f);
+    } else {
+      proto_retornado->clear_chuva();
     }
 
     // Tamanho do tabuleiro.
