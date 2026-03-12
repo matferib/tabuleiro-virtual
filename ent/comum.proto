@@ -1135,7 +1135,7 @@ message ItemTesouroProto {
 }
 
 // Alguns estados são mantidos nesta variável.
-// Proximo id: 69.
+// Proximo id: 70.
 message ParametrosDesenho {
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente direcional.
   int32 luz_corrente = 1 [default=1];
@@ -1272,6 +1272,8 @@ message ParametrosDesenho {
 
   // Direcao e forca do vento (unitario para forca maxima).
   Posicao vetor_vento = 68;
+
+  bool desenha_clima = 69;
 }
 
 enum TipoVeneno {
