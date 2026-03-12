@@ -1587,6 +1587,13 @@ class Tabuleiro : public ntf::Receptor {
   // A imagem mostrada pelo mestre.
   InfoTextura imagem_mostrada_;
 
+  struct VariaveisClima {
+    Vector3 vetor;
+    std::vector<Vector4> objetos;
+    unsigned int proximo_update = 0;
+  };
+  VariaveisClima variaveis_clima_;
+
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
   Tabuleiro& operator=(Tabuleiro&);
