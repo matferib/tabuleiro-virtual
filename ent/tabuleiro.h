@@ -748,6 +748,9 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaCenaVbos();
   void GeraVbosCena();
 
+  // Desenha efeitos de clima, como chuva e neve.
+  void DesenhaClima();
+
   /** Desenha o alvo do olho. */
   void DesenhaOlho();
 

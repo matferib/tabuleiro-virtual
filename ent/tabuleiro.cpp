@@ -3564,6 +3564,31 @@ void Tabuleiro::AcaoAnterior() {
 }
 
 // privadas
+void Tabuleiro::DesenhaClima() {
+  if (proto_.chuva() == 0.0f) return;
+  gl::VboGravado vbo;
+  vbo.Grava(GL_TRIANGLES, gl::VboPiramideSolida(0.03f, 0.5f));
+  Vector3 dir(variaveis_clima_.vetor);
+  Matrix4 mr;
+  if (dir.x != 0 || dir.y != 0) {
+    dir.normalize();
+    Vector3 up(0.0f, 0.0f, 1.0f);
+    Vector3 eixo = up.cross(dir);
+    float angulo_rad = acosf(up.dot(dir));
+    mr.rotate(angulo_rad * RAD_PARA_GRAUS, eixo);
+  } else if (dir.z < 0.0f) {
+    mr.rotateX(180.0f);
+  }
+  MudaCor(proto_.cor_clima());
+  for (const Vector4& v : variaveis_clima_.objetos) {
+    gl::MatrizEscopo salva(gl::MATRIZ_MODELAGEM);
+    Matrix4 m(mr);
+    m.translate(v.x, v.y, v.z);
+    gl::MultiplicaMatriz(m.get());
+    gl::DesenhaVboGravado(vbo);
+  }
+}
+
 void Tabuleiro::DesenhaCena(bool debug) {
   //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
@@ -3765,28 +3790,8 @@ void Tabuleiro::DesenhaCena(bool debug) {
   }
   V_ERRO("desenhando entidades alfa");
 
-  if (parametros_desenho_.desenha_clima() && proto_.chuva() > 0.0f) {
-    gl::VboGravado vbo;
-    vbo.Grava(GL_TRIANGLES, gl::VboPiramideSolida(0.03f, 0.5f));
-    Vector3 dir(variaveis_clima_.vetor);
-    Matrix4 mr;
-    if (dir.x != 0 || dir.y != 0) {
-      dir.normalize();
-      Vector3 up(0.0f, 0.0f, 1.0f);
-      Vector3 eixo = up.cross(dir);
-      float angulo_rad = acosf(up.dot(dir));
-      mr.rotate(angulo_rad * RAD_PARA_GRAUS, eixo);
-    } else if (dir.z < 0.0f) {
-      mr.rotateX(180.0f);
-    }
-    MudaCor(COR_VERMELHA);
-    for (const Vector4& v : variaveis_clima_.objetos) {
-      gl::MatrizEscopo salva(gl::MATRIZ_MODELAGEM);
-      Matrix4 m(mr);
-      m.translate(v.x, v.y, v.z);
-      gl::MultiplicaMatriz(m.get());
-      gl::DesenhaVboGravado(vbo);
-    }
+  if (parametros_desenho_.desenha_clima()) {
+    DesenhaClima();
   }
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||
