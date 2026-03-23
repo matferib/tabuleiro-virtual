@@ -2606,7 +2606,18 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
     gerador.dial_vento->setSliderPosition(0.0f);
     gerador.slider_vento->setValue(0);
   }
-  gerador.checkbox_chuva->setCheckState(tab_proto.chuva() > 0.0f ? Qt::Checked : Qt::Unchecked);
+
+  ent::Cor cor_clima = tab_proto.cor_clima();
+  lambda_connect(gerador.botao_cor_chuva, SIGNAL(clicked()), [this, dialogo, &gerador, &cor_clima] {
+        QColor cor = QColorDialog::getColor(ProtoParaCor(cor_clima), dialogo, QObject::tr("Cor do efeito de clima"));
+        if (!cor.isValid()) {
+          return;
+        }
+        gerador.botao_cor_chuva->setStyleSheet(CorParaEstilo(cor));
+        cor_clima.CopyFrom(CorParaProto(cor));
+      });
+  gerador.slider_chuva->setValue(tab_proto.chuva() * 100.0f);
+  gerador.slider_neve->setValue(tab_proto.neve() * 100.0f);
 
   // Nevoa.
   if (tab_proto.has_nevoa()) {
@@ -2743,7 +2754,7 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
   gerador.combo_tipo_terreno->setCurrentIndex(gerador.combo_tipo_terreno->findData(QVariant(static_cast<int>(tab_proto.tipo_terreno()))));
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
-                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, &cor_nevoa_proto, &proto_retornado] {
+                 [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, &cor_piso_proto, &cor_nevoa_proto, &cor_clima, &proto_retornado] {
     // Descricao.
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
     // Nevoa.
@@ -2845,11 +2856,14 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
         proto_retornado->clear_vetor_vento();
       }
     }
-    if (gerador.checkbox_chuva->checkState() == Qt::Checked) {
-      proto_retornado->set_chuva(0.3f);
+    if (gerador.slider_chuva->value() > 0) {
+      proto_retornado->set_chuva(gerador.slider_chuva->value() / 100.0f);
+    } else if (gerador.slider_neve->value() > 0) {
+      proto_retornado->set_neve(gerador.slider_neve->value() / 100.0f);
     } else {
-      proto_retornado->clear_chuva();
+      proto_retornado->clear_Clima();
     }
+    proto_retornado->mutable_cor_clima()->Swap(&cor_clima);
 
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {

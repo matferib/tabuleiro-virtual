@@ -3020,19 +3020,48 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
 }
 
 void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
-  const auto& cenario_vento = CenarioVento(*proto_corrente_);
-  if (const auto& cenario_vento = CenarioVento(*proto_corrente_);
-      cenario_vento.has_vetor_vento()) {
-    *parametros_desenho_.mutable_vetor_vento() = cenario_vento.vetor_vento();
+  const auto& cenario_clima = CenarioVento(*proto_corrente_);
+  if (cenario_clima.has_vetor_vento()) {
+    *parametros_desenho_.mutable_vetor_vento() = cenario_clima.vetor_vento();
   } else {
     parametros_desenho_.clear_vetor_vento();
   }
-  if (cenario_vento.chuva() > 0.0f) {
+  if (cenario_clima.chuva() > 0.0f) {
     if (variaveis_clima_.proximo_update == 0 ||
         variaveis_clima_.proximo_update < passou_ms) {
-      variaveis_clima_.vetor = Vector3(cenario_vento.vetor_vento().x(),
-                                       cenario_vento.vetor_vento().y(), -1.0f);
-      variaveis_clima_.vetor.normalize() *= cenario_vento.chuva();
+      variaveis_clima_.vetor = Vector3(cenario_clima.vetor_vento().x(),
+                                       cenario_clima.vetor_vento().y(), -1.0f);
+      variaveis_clima_.vetor.normalize() *= cenario_clima.chuva();
+
+      // Atualiza as existentes e mata as que estiverem abaixo de 0.
+      std::vector<Vector4> objetos;
+      objetos.swap(variaveis_clima_.objetos);
+      Matrix4 mt;
+      mt.translate(variaveis_clima_.vetor);
+      for (Vector4& v : objetos) {
+        v = mt * v;
+        if (v.z > 0.0f) {
+          variaveis_clima_.objetos.emplace_back(v);
+        }
+      }
+      // Cria novas entidades.
+      int num_novas = 100 - variaveis_clima_.objetos.size();
+      for (int i = 0; i < num_novas; ++i) {
+        float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
+        float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
+        float z = olho_.pos().z() + Aleatorio() * 5.0f;
+        variaveis_clima_.objetos.emplace_back(x, y, z, 1.0f);
+      }
+      variaveis_clima_.proximo_update = 30;
+    } else {
+      variaveis_clima_.proximo_update -= passou_ms;
+    }
+  } else if (cenario_clima.neve() > 0.0f) {
+    if (variaveis_clima_.proximo_update == 0 ||
+        variaveis_clima_.proximo_update < passou_ms) {
+      variaveis_clima_.vetor = Vector3(cenario_clima.vetor_vento().x(),
+                                       cenario_clima.vetor_vento().y(), -1.0f);
+      variaveis_clima_.vetor.normalize() *= cenario_clima.chuva();
 
       // Atualiza as existentes e mata as que estiverem abaixo de 0.
       std::vector<Vector4> objetos;
@@ -5600,7 +5629,12 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
     tabuleiro->set_herdar_ceu_de(proto_corrente_->herdar_vento_de());
   } else {
     *tabuleiro->mutable_vetor_vento() = proto_corrente_->vetor_vento();
-    tabuleiro->set_chuva(proto_corrente_->chuva());
+    if (tabuleiro->chuva() > 0.0f) {
+      tabuleiro->set_chuva(proto_corrente_->chuva());
+    } else if (tabuleiro->neve() > 0.0f) {
+      tabuleiro->set_chuva(proto_corrente_->neve());
+    }
+    *tabuleiro->mutable_cor_clima() = proto_corrente_->cor_clima();
   }
   if (proto_corrente_->has_herdar_iluminacao_de()) {
     tabuleiro->set_herdar_iluminacao_de(proto_corrente_->herdar_iluminacao_de());
@@ -5755,7 +5789,14 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
   } else {
     proto_a_atualizar->clear_herdar_vento_de();
     *proto_a_atualizar->mutable_vetor_vento() = novo_proto.vetor_vento();
-    proto_a_atualizar->set_chuva(novo_proto.chuva());
+    *proto_a_atualizar->mutable_cor_clima() = novo_proto.cor_clima();
+    if (novo_proto.chuva() > 0.0f) {
+      proto_a_atualizar->set_chuva(novo_proto.chuva());
+    } else if (novo_proto.neve() > 0.0f) {
+      proto_a_atualizar->set_neve(novo_proto.chuva());
+    } else {
+      proto_a_atualizar->clear_Clima();
+    }
   }
   if (novo_proto.has_herdar_iluminacao_de()) {
     proto_a_atualizar->set_herdar_iluminacao_de(novo_proto.herdar_iluminacao_de());
