@@ -82,7 +82,7 @@ message OpcoesProto {
 }
 
 // Mensagem enviada para os clientes de um jogo.
-// Proximo id: 38.
+// Proximo id: 39.
 message TabuleiroProto {
   // Identificador do cenario. Um tabuleiro pode ser composto por varios cenarios. O principal sera sempre o -1.
   int32 id_cenario = 17 [default = -1];
@@ -165,7 +165,10 @@ message TabuleiroProto {
   // Direcao e forca do vento. Unitario para força maxima.
   Posicao vetor_vento = 35;
   // Chuva: se 0, sem chuva.
-  float chuva = 37;
+  oneof Clima {
+    float chuva = 37;
+    float neve = 38;
+  }
 }
 
 // Para copiar e colar.
