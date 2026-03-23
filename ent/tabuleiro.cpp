@@ -3045,7 +3045,7 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
         }
       }
       // Cria novas entidades.
-      int num_novas = 100 - variaveis_clima_.objetos.size();
+      int num_novas = cenario_clima.chuva() * 1000 - variaveis_clima_.objetos.size();
       for (int i = 0; i < num_novas; ++i) {
         float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
         float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
@@ -3075,7 +3075,7 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
         }
       }
       // Cria novas entidades.
-      int num_novas = 100 - variaveis_clima_.objetos.size();
+      int num_novas = cenario_clima.neve() - variaveis_clima_.objetos.size();
       for (int i = 0; i < num_novas; ++i) {
         float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
         float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
