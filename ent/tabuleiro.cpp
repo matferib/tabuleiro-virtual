@@ -5629,10 +5629,10 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
     tabuleiro->set_herdar_ceu_de(proto_corrente_->herdar_vento_de());
   } else {
     *tabuleiro->mutable_vetor_vento() = proto_corrente_->vetor_vento();
-    if (tabuleiro->chuva() > 0.0f) {
+    if (proto_corrente_->chuva() > 0.0f) {
       tabuleiro->set_chuva(proto_corrente_->chuva());
-    } else if (tabuleiro->neve() > 0.0f) {
-      tabuleiro->set_chuva(proto_corrente_->neve());
+    } else if (proto_corrente_->neve() > 0.0f) {
+      tabuleiro->set_neve(proto_corrente_->neve());
     }
     *tabuleiro->mutable_cor_clima() = proto_corrente_->cor_clima();
   }
