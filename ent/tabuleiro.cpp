@@ -3019,22 +3019,10 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
   }
 }
 
-void Tabuleiro::AtualizaPorTemporizacao() {
-#if DEBUG
-  glFinish();
-#endif
-  // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
-  auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / DIV_NANO_PARA_MS;
-  timer_entre_atualizacoes_.start();
-  timer_uma_atualizacao_.start();
-  if (regerar_vbos_entidades_) {
-    parametros_desenho_.set_regera_vbo(true);
-  }
-
-  *parametros_desenho_.mutable_pos_olho() = olho_.pos();
-  // Opcoes de cenario.
+void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
   const auto& cenario_vento = CenarioVento(*proto_corrente_);
-  if (const auto& cenario_vento = CenarioVento(*proto_corrente_); cenario_vento.has_vetor_vento()) {
+  if (const auto& cenario_vento = CenarioVento(*proto_corrente_);
+      cenario_vento.has_vetor_vento()) {
     *parametros_desenho_.mutable_vetor_vento() = cenario_vento.vetor_vento();
   } else {
     parametros_desenho_.clear_vetor_vento();
@@ -3070,7 +3058,23 @@ void Tabuleiro::AtualizaPorTemporizacao() {
       variaveis_clima_.proximo_update -= passou_ms;
     }
   }
+}
 
+void Tabuleiro::AtualizaPorTemporizacao() {
+#if DEBUG
+  glFinish();
+#endif
+  // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
+  auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / DIV_NANO_PARA_MS;
+  timer_entre_atualizacoes_.start();
+  timer_uma_atualizacao_.start();
+  if (regerar_vbos_entidades_) {
+    parametros_desenho_.set_regera_vbo(true);
+  }
+
+  *parametros_desenho_.mutable_pos_olho() = olho_.pos();
+  // Opcoes de cenario.
+  AtualizaClima(passou_ms);
   AtualizaEntidades(passou_ms);
   AtualizaLuzesPontuais();
 

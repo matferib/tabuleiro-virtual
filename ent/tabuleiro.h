@@ -126,6 +126,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza tudo dependente de timer apos o intervalo. */
   void AtualizaPorTemporizacao();
 
+  void AtualizaClima(unsigned int passou_ms);
+
   /** Atualiza uma entidade, notificando clientes. */
   void AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
