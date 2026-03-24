@@ -3061,7 +3061,6 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
         variaveis_clima_.proximo_update < passou_ms) {
       variaveis_clima_.vetor = Vector3(cenario_clima.vetor_vento().x(),
                                        cenario_clima.vetor_vento().y(), -0.2f);
-      variaveis_clima_.vetor.normalize() *= cenario_clima.neve();
 
       // Atualiza as existentes e mata as que estiverem abaixo de 0.
       std::vector<Vector4> objetos;
