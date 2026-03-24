@@ -3060,14 +3060,14 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
     if (variaveis_clima_.proximo_update == 0 ||
         variaveis_clima_.proximo_update < passou_ms) {
       variaveis_clima_.vetor = Vector3(cenario_clima.vetor_vento().x(),
-                                       cenario_clima.vetor_vento().y(), -1.0f);
-      variaveis_clima_.vetor.normalize() *= cenario_clima.chuva();
+                                       cenario_clima.vetor_vento().y(), -0.2f);
+      variaveis_clima_.vetor.normalize() *= cenario_clima.neve();
 
       // Atualiza as existentes e mata as que estiverem abaixo de 0.
       std::vector<Vector4> objetos;
       objetos.swap(variaveis_clima_.objetos);
       Matrix4 mt;
-      mt.translate(variaveis_clima_.vetor);
+      mt.translate(variaveis_clima_.vetor.x + Aleatorio() * 0.1f, variaveis_clima_.vetor.y + Aleatorio() * 0.1f, variaveis_clima_.vetor.z);
       for (Vector4& v : objetos) {
         v = mt * v;
         if (v.z > 0.0f) {
@@ -3075,7 +3075,7 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
         }
       }
       // Cria novas entidades.
-      int num_novas = cenario_clima.neve() - variaveis_clima_.objetos.size();
+      int num_novas = cenario_clima.neve() * 100 - variaveis_clima_.objetos.size();
       for (int i = 0; i < num_novas; ++i) {
         float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
         float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
@@ -3565,27 +3565,67 @@ void Tabuleiro::AcaoAnterior() {
 
 // privadas
 void Tabuleiro::DesenhaClima() {
-  if (proto_.chuva() == 0.0f) return;
-  gl::VboGravado vbo;
-  vbo.Grava(GL_TRIANGLES, gl::VboPiramideSolida(0.03f, 0.5f));
-  Vector3 dir(variaveis_clima_.vetor);
-  Matrix4 mr;
-  if (dir.x != 0 || dir.y != 0) {
-    dir.normalize();
-    Vector3 up(0.0f, 0.0f, 1.0f);
-    Vector3 eixo = up.cross(dir);
-    float angulo_rad = acosf(up.dot(dir));
-    mr.rotate(angulo_rad * RAD_PARA_GRAUS, eixo);
-  } else if (dir.z < 0.0f) {
-    mr.rotateX(180.0f);
-  }
-  MudaCor(proto_.cor_clima());
-  for (const Vector4& v : variaveis_clima_.objetos) {
-    gl::MatrizEscopo salva(gl::MATRIZ_MODELAGEM);
-    Matrix4 m(mr);
-    m.translate(v.x, v.y, v.z);
-    gl::MultiplicaMatriz(m.get());
-    gl::DesenhaVboGravado(vbo);
+  if (proto_.chuva() > 0.0f) {
+    gl::VboGravado vbo;
+    vbo.Grava(GL_TRIANGLES, gl::VboPiramideSolida(0.03f, 0.5f));
+    Vector3 dir(variaveis_clima_.vetor);
+    Matrix4 mr;
+    if (dir.x != 0 || dir.y != 0) {
+      dir.normalize();
+      Vector3 up(0.0f, 0.0f, 1.0f);
+      Vector3 eixo = up.cross(dir);
+      float angulo_rad = acosf(up.dot(dir));
+      mr.rotate(angulo_rad * RAD_PARA_GRAUS, eixo);
+    } else if (dir.z < 0.0f) {
+      mr.rotateX(180.0f);
+    }
+    MudaCor(proto_.cor_clima());
+    for (const Vector4& v : variaveis_clima_.objetos) {
+      gl::MatrizEscopo salva(gl::MATRIZ_MODELAGEM);
+      Matrix4 m(mr);
+      m.translate(v.x, v.y, v.z);
+      gl::MultiplicaMatriz(m.get());
+      gl::DesenhaVboGravado(vbo);
+    }
+  } else if (proto_.neve() > 0.0f) {
+    // O floco é semelhante a uma cruz de malta 3d, composta por 4 piramides.
+    const float kRaioFloco = 0.2f;
+    const float kLarguraFloco = 0.05f;
+    gl::VboNaoGravado floco1 = gl::VboPiramideSolida(kLarguraFloco, kRaioFloco);
+    floco1.Translada(0.0f, 0.0f, -kRaioFloco);
+    gl::VboNaoGravado floco2 = gl::VboPiramideSolida(kLarguraFloco, kRaioFloco);
+    floco2.RodaX(180.0f);
+    floco2.Translada(0.0f, 0.0f, kRaioFloco);
+    gl::VboNaoGravado floco3 = gl::VboPiramideSolida(kLarguraFloco, kRaioFloco);
+    floco3.RodaY(90.0f);
+    floco3.Translada(-kRaioFloco, 0.0f, 0.0f);
+    gl::VboNaoGravado floco4 = gl::VboPiramideSolida(kLarguraFloco, kRaioFloco);
+    floco4.RodaY(-90.0f);
+    floco4.Translada(kRaioFloco, 0.0f, 0.0f);
+    floco1.Concatena(floco2);
+    floco1.Concatena(floco3);
+    floco1.Concatena(floco4);
+    gl::VboGravado vbo;
+    vbo.Grava(GL_TRIANGLES, floco1);
+    Vector3 dir(variaveis_clima_.vetor);
+    Matrix4 mr;
+    if (dir.x != 0 || dir.y != 0) {
+      dir.normalize();
+      Vector3 up(0.0f, 0.0f, 1.0f);
+      Vector3 eixo = up.cross(dir);
+      float angulo_rad = acosf(up.dot(dir));
+      mr.rotate(angulo_rad * RAD_PARA_GRAUS, eixo);
+    } else if (dir.z < 0.0f) {
+      mr.rotateX(180.0f);
+    }
+    MudaCor(proto_.cor_clima());
+    for (const Vector4& v : variaveis_clima_.objetos) {
+      gl::MatrizEscopo salva(gl::MATRIZ_MODELAGEM);
+      Matrix4 m(mr);
+      m.translate(v.x, v.y, v.z);
+      gl::MultiplicaMatriz(m.get());
+      gl::DesenhaVboGravado(vbo);
+    }
   }
 }
 
@@ -5798,7 +5838,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     if (novo_proto.chuva() > 0.0f) {
       proto_a_atualizar->set_chuva(novo_proto.chuva());
     } else if (novo_proto.neve() > 0.0f) {
-      proto_a_atualizar->set_neve(novo_proto.chuva());
+      proto_a_atualizar->set_neve(novo_proto.neve());
     } else {
       proto_a_atualizar->clear_Clima();
     }
