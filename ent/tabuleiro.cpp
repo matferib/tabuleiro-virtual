@@ -3830,7 +3830,14 @@ void Tabuleiro::DesenhaCena(bool debug) {
   V_ERRO("desenhando entidades alfa");
 
   if (parametros_desenho_.desenha_clima()) {
+    if (proto_corrente_->neve() > 0.0f) {
+      gl::DirecaoClima(Vector3(variaveis_clima_.vetor).normalize());
+    } else {
+      gl::DirecaoClima(std::nullopt);
+    }
     DesenhaClima();
+  } else {
+    gl::DirecaoClima(std::nullopt);
   }
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||
