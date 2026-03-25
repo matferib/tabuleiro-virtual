@@ -492,8 +492,8 @@ bool OclusaoLigada();
 /** Passa para o shader o valor do plano de corte distante durante a oclusao. */
 void PlanoDistanteOclusao(GLfloat distancia);
 
-/** Indica a direcao do clima, se houver. */
-void DirecaoClima(std::optional<Vector3> direcao = std::nullopt);
+/** Indica a direcao do clima. Componente w indica o fator de transicao, 0 desligando, 1 total. */
+void DirecaoClima(const Vector4& direcao);
 
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);

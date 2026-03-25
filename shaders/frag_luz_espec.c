@@ -211,7 +211,7 @@ void main() {
     // Fator de branquidao.
     // dot me da o cos do angulo entre os vetores.
     lowp vec3 ddd = vec3(0.0, 0.0, -1.0);
-    lowp float fator = max(0.0, -dot(normal, v_Clima.xyz));
+    lowp float fator = max(0.0, v_Clima.w * -dot(normal, v_Clima.xyz));
     lowp vec3 branco = vec3(1.0, 1.0, 1.0);
     cor_final.xyz = mix(cor_final.xyz, branco, fator);
   }

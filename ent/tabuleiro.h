@@ -1596,6 +1596,7 @@ class Tabuleiro : public ntf::Receptor {
     Vector3 vetor;
     std::vector<Vector4> objetos;
     unsigned int proximo_update = 0;
+    float transicao = 0.0;
   };
   VariaveisClima variaveis_clima_;
 

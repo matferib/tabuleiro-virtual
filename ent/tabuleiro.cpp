@@ -3026,6 +3026,13 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
   } else {
     parametros_desenho_.clear_vetor_vento();
   }
+  constexpr unsigned int kTransicaoMs = 5000;
+  float incremento_transicao = static_cast<float>(passou_ms) / kTransicaoMs;
+  if (variaveis_clima_.transicao == 0.0f || variaveis_clima_.transicao == 1.0f) {
+    // A primeira transicao normalmente ocorre apos UI, então vem com valor
+    // gigante.
+    incremento_transicao = std::min(incremento_transicao, 0.05f);
+  }
   if (cenario_clima.chuva() > 0.0f) {
     if (variaveis_clima_.proximo_update == 0 ||
         variaveis_clima_.proximo_update < passou_ms) {
@@ -3057,6 +3064,7 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
       variaveis_clima_.proximo_update -= passou_ms;
     }
   } else if (cenario_clima.neve() > 0.0f) {
+    variaveis_clima_.transicao = std::min(variaveis_clima_.transicao + incremento_transicao, 1.0f);
     if (variaveis_clima_.proximo_update == 0 ||
         variaveis_clima_.proximo_update < passou_ms) {
       variaveis_clima_.vetor = Vector3(cenario_clima.vetor_vento().x(),
@@ -3085,6 +3093,8 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
     } else {
       variaveis_clima_.proximo_update -= passou_ms;
     }
+  } else {
+    variaveis_clima_.transicao = std::max(variaveis_clima_.transicao - incremento_transicao, 0.0f);
   }
 }
 
@@ -3830,14 +3840,13 @@ void Tabuleiro::DesenhaCena(bool debug) {
   V_ERRO("desenhando entidades alfa");
 
   if (parametros_desenho_.desenha_clima()) {
-    if (proto_corrente_->neve() > 0.0f) {
-      gl::DirecaoClima(Vector3(variaveis_clima_.vetor).normalize());
-    } else {
-      gl::DirecaoClima(std::nullopt);
-    }
+    Vector4 v(variaveis_clima_.vetor.x, variaveis_clima_.vetor.y, variaveis_clima_.vetor.z, 0.0f);
+    v.normalize();
+    v.w = variaveis_clima_.transicao;
+    gl::DirecaoClima(v);
     DesenhaClima();
   } else {
-    gl::DirecaoClima(std::nullopt);
+    gl::DirecaoClima(Vector4());
   }
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||

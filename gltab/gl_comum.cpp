@@ -999,11 +999,9 @@ void PlanoDistanteOclusao(GLfloat distancia) {
   c->plano_distante = distancia;  // salva no contexto, caso haja alguma mudanca de shaders.
 }
 
-void DirecaoClima(std::optional<Vector3> direcao) {
-  bool ligado = direcao.has_value();
-  Vector3 dd = ligado ? *direcao : Vector3{};
+void DirecaoClima(const Vector4& direcao) {
   const auto& shader = interno::BuscaShader();
-  GLfloat dados_raster[4] = {dd.x, dd.y, dd.z, ligado ? 1.0f : 0.0f};
+  GLfloat dados_raster[4] = {direcao.x, direcao.y, direcao.z, direcao.w};
   interno::UniformeSeValido(shader.uni_gltab_direcao_clima, dados_raster[0], dados_raster[1], dados_raster[2], dados_raster[3]);
 }
 
