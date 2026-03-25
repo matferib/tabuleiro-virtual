@@ -440,6 +440,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_dados_raster", &shader->uni_gltab_dados_raster },
           {"gltab_oclusao_ligada", &shader->uni_gltab_oclusao_ligada },
           {"gltab_plano_distante_oclusao", &shader->uni_gltab_plano_distante },
+          {"gltab_direcao_clima", &shader->uni_gltab_direcao_clima },
   }) {
     *p_local_atributo = LocalUniforme(shader->programa, nome);
     if (*p_local_atributo == -1) {
@@ -996,6 +997,14 @@ void PlanoDistanteOclusao(GLfloat distancia) {
   interno::UniformeSeValido(shader.uni_gltab_plano_distante, distancia);
   auto* c = interno::BuscaContexto();
   c->plano_distante = distancia;  // salva no contexto, caso haja alguma mudanca de shaders.
+}
+
+void DirecaoClima(std::optional<Vector3> direcao) {
+  bool ligado = direcao.has_value();
+  Vector3 dd = ligado ? *direcao : Vector3{};
+  const auto& shader = interno::BuscaShader();
+  GLfloat dados_raster[4] = {dd.x, dd.y, dd.z, ligado ? 1.0f : 0.0f};
+  interno::UniformeSeValido(shader.uni_gltab_direcao_clima, dados_raster[0], dados_raster[1], dados_raster[2], dados_raster[3]);
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {

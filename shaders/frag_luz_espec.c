@@ -41,6 +41,7 @@ varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform lowp vec4 gltab_cor_mistura_pre_nevoa;      // Mistura antes de aplicar nevoa.
 uniform bool gltab_especularidade_ligada;
+varying lowp vec4 v_Clima;
 
 // Luz ambiente e direcional.
 struct InfoLuzDirecional {
@@ -203,6 +204,16 @@ void main() {
   // Util para detectar artefatos de borda.
   //} else if (v_Tex_presenca == -1) {
   //  cor_final.rgb = vec3(1.0, 0.0, 0.0);
+  }
+
+  if (v_Clima.w != 0) {
+    // Angulo entre normal e direcao do clima.
+    // Fator de branquidao.
+    // dot me da o cos do angulo entre os vetores.
+    lowp vec3 ddd = vec3(0.0, 0.0, -1.0);
+    lowp float fator = max(0.0, -dot(normal, v_Clima.xyz));
+    lowp vec3 branco = vec3(1.0, 1.0, 1.0);
+    cor_final.xyz = mix(cor_final.xyz, branco, fator);
   }
 
   // luzes.

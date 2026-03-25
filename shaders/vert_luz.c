@@ -29,6 +29,7 @@ varying highp vec3 v_Pos_oclusao;
 varying highp vec3 v_Pos_luz;
 varying lowp vec2 v_Tex;  // coordenada texel.
 varying lowp float v_Tex_presenca;  // tem textura.
+varying lowp vec4 v_Clima;
 // Uniformes nao variam por vertice, vem de fora.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform highp mat4 gltab_prm;           // projecao.
@@ -40,6 +41,7 @@ uniform highp mat4 gltab_mvm_ajuste_textura;    // modelagem ajuste textura.
 uniform highp mat4 gltab_view;          // Matriz de view.
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
 uniform bool gltab_especularidade_ligada;
+uniform lowp vec4 gltab_direcao_clima;  // Direcao da queda de chuva ou neve. O w indicara se esta ligado ou não.
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
 attribute mediump vec3 gltab_normal;
@@ -51,6 +53,8 @@ attribute highp mat3 gltab_nm_i;
 
 void main() {
   highp mat3 nm = mat3(gltab_view) * gltab_nm_i;
+  v_Clima.xyz = mat3(gltab_view) * gltab_direcao_clima.xyz;
+  v_Clima.w = gltab_direcao_clima.w;
   v_Normal = normalize(nm * gltab_normal);
   v_Tangent = normalize(nm * gltab_tangent);
   v_Bitangent = cross(v_Normal, v_Tangent);

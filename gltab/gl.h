@@ -4,6 +4,7 @@
 #include <cmath>
 #include <memory>
 #include <functional>
+#include <optional>
 #include <string>
 #include <stdexcept>
 #include <vector>
@@ -490,6 +491,9 @@ void Oclusao(bool valor);
 bool OclusaoLigada();
 /** Passa para o shader o valor do plano de corte distante durante a oclusao. */
 void PlanoDistanteOclusao(GLfloat distancia);
+
+/** Indica a direcao do clima, se houver. */
+void DirecaoClima(std::optional<Vector3> direcao = std::nullopt);
 
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);

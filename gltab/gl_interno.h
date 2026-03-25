@@ -56,6 +56,8 @@ struct VarShader {
   GLint uni_gltab_plano_distante;       // Distancia do plano de corte distante.
   GLint uni_gltab_oclusao_ligada;       // Distancia do plano de corte distante.
   GLint uni_gltab_cor_mistura_pre_nevoa;// Cor de mistura antes de aplicacao de nevoa.
+  GLint uni_gltab_direcao_clima;        // Direção do clima.
+
   // Atributos do vertex shader.
   GLint atr_gltab_vertice;
   GLint atr_gltab_normal;
