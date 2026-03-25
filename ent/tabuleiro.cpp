@@ -3617,7 +3617,7 @@ void Tabuleiro::DesenhaClima() {
     } else if (dir.z < 0.0f) {
       mr.rotateX(180.0f);
     }
-    MudaCor(proto_.cor_clima());
+    MudaCor(COR_BRANCA);
     for (const Vector4& v : variaveis_clima_.objetos) {
       gl::MatrizEscopo salva(gl::MATRIZ_MODELAGEM);
       Matrix4 m(mr);
