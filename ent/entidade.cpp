@@ -2597,7 +2597,7 @@ std::vector<gl::VboGravado> Entidade::g_vbos;
 
 // static
 void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
-  LOG(INFO) << "Entidade::IniciaGl";
+  //LOG(INFO) << "Entidade::IniciaGl";
   std::vector<gl::VboNaoGravado> vbos_nao_gravados(NUM_VBOS);
   // VBOs de efeitos.
   {
