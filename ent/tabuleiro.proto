@@ -169,8 +169,8 @@ message TabuleiroProto {
     float chuva = 37;
     float neve = 38;
   }
-  // Cor do efeito do clima.
-  Cor cor_clima = 39;
+  // Cor da chuva.
+  Cor cor_chuva = 39;
 }
 
 // Para copiar e colar.

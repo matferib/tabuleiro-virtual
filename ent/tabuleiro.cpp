@@ -3590,7 +3590,7 @@ void Tabuleiro::DesenhaClima() {
       // Sem vento, apenas aponta para baixo.
       mr.rotateX(180.0f);
     }
-    Cor cor_chuva(proto_.cor_clima());
+    Cor cor_chuva(proto_.cor_chuva());
     cor_chuva.set_a(parametros_desenho_.alfa_translucidos());
     MudaCor(cor_chuva);
     for (const Vector4& v : variaveis_clima_.objetos) {
@@ -5715,7 +5715,9 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
     } else if (proto_corrente_->neve() > 0.0f) {
       tabuleiro->set_neve(proto_corrente_->neve());
     }
-    *tabuleiro->mutable_cor_clima() = proto_corrente_->cor_clima();
+    if (proto_corrente_->has_cor_chuva()) {
+      *tabuleiro->mutable_cor_chuva() = proto_corrente_->cor_chuva();
+    }
   }
   if (proto_corrente_->has_herdar_iluminacao_de()) {
     tabuleiro->set_herdar_iluminacao_de(proto_corrente_->herdar_iluminacao_de());
@@ -5870,7 +5872,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
   } else {
     proto_a_atualizar->clear_herdar_vento_de();
     *proto_a_atualizar->mutable_vetor_vento() = novo_proto.vetor_vento();
-    *proto_a_atualizar->mutable_cor_clima() = novo_proto.cor_clima();
+    *proto_a_atualizar->mutable_cor_chuva() = novo_proto.cor_chuva();
     if (novo_proto.chuva() > 0.0f) {
       proto_a_atualizar->set_chuva(novo_proto.chuva());
     } else if (novo_proto.neve() > 0.0f) {
