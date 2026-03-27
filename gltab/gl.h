@@ -484,6 +484,10 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
 
 /* Liga desliga especularidade. */
 void Especularidade(bool ligado);
+/** Forca um minimo para o cos da luz com a normal nos objetos: max(fator, cos(luz, normal)).
+* Efetivamente: 0 -> luz toda computada por normal. 1 -> incidencia da luz independe da normal.
+*/
+void MinimoCosLuz(float fator);
 /** Funcoes de nevoa. */
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia);
 /** Liga e desliga oclusao. */

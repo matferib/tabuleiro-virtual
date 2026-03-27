@@ -41,6 +41,7 @@ varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform lowp vec4 gltab_cor_mistura_pre_nevoa;      // Mistura antes de aplicar nevoa.
 uniform bool gltab_especularidade_ligada;
+uniform lowp float gltab_min_cos_luz;  // Para objetos que recebem luz maxima (como se a normal fosse sempre oposta a direcao da luz) como flocos de neve e chuva.
 varying lowp vec4 v_Clima;
 
 // Luz ambiente e direcional.
@@ -83,7 +84,7 @@ uniform highp vec4 gltab_nevoa_referencia;      // Ponto de referencia para comp
 //-------------------------------
 lowp vec4 CorLuzDirecionalDifusa(in lowp vec3 normal) {
   // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-  lowp float cos_ref = max(0.0, dot(normal, gltab_luz_direcional.pos.xyz));
+  lowp float cos_ref = max(gltab_min_cos_luz, dot(normal, gltab_luz_direcional.pos.xyz));
   lowp vec4 cor_final = clamp(gltab_luz_direcional.cor * cos_ref, 0.0, 1.0);
   return cor_final * step(0.1, gltab_luz_direcional.cor.a);
 }
@@ -91,7 +92,7 @@ lowp vec4 CorLuzDirecionalDifusa(in lowp vec3 normal) {
 lowp vec4 CorLuzDirecionalEspecular(
     in lowp vec3 vetor_olho_objeto_refletido) {
   // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-  lowp float cos_ref = max(0.0, dot(vetor_olho_objeto_refletido, gltab_luz_direcional.pos.xyz));
+  lowp float cos_ref = max(gltab_min_cos_luz, dot(vetor_olho_objeto_refletido, gltab_luz_direcional.pos.xyz));
   cos_ref = pow(cos_ref, 8.0);
   lowp vec4 cor_final = clamp(gltab_luz_direcional.cor * cos_ref, 0.0, 1.0);
   return cor_final * step(0.1, gltab_luz_direcional.cor.a);
@@ -108,7 +109,7 @@ lowp vec4 CorLuzPontualDifusa(
   highp vec3 objeto_luz = objeto_luz_homogeneo.xyz;
   highp float distancia_objeto_luz = length(objeto_luz);
   // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-  lowp float cos_ref = max(0.0, dot(normal, normalize(objeto_luz)));
+  lowp float cos_ref = max(gltab_min_cos_luz, dot(normal, normalize(objeto_luz)));
   return luz.cor * cos_ref * atenuacao;
 }
 
@@ -120,7 +121,7 @@ lowp vec4 CorLuzPontualEspecular(
   highp vec3 objeto_luz = objeto_luz_homogeneo.xyz;
   highp float distancia_objeto_luz = length(objeto_luz);
   // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-  lowp float cos_ref = max(0.0, dot(vetor_olho_objeto_refletido, normalize(objeto_luz)));
+  lowp float cos_ref = max(gltab_min_cos_luz, dot(vetor_olho_objeto_refletido, normalize(objeto_luz)));
   //cos_ref = smoothstep(0.95, 0.98, cos_ref);
   cos_ref = pow(cos_ref, 8.0);
   return atenuacao * cos_ref * luz.cor * cos_ref;

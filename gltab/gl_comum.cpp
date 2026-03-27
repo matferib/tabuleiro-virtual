@@ -430,6 +430,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
           {"gltab_especularidade_ligada", &shader->uni_gltab_especularidade_ligada },
+          {"gltab_min_cos_luz", &shader->uni_gltab_min_cos_luz},
           {"gltab_view", &shader->uni_gltab_camera },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
@@ -960,6 +961,14 @@ void Especularidade(bool ligado) {
   }
   const auto& shader = interno::BuscaShader();
   Uniforme(shader.uni_gltab_especularidade_ligada, ligado);
+}
+
+void MinimoCosLuz(float fator) {
+  if (!interno::UsandoShaderLuz()) {
+    return;
+  }
+  const auto& shader = interno::BuscaShader();
+  Uniforme(shader.uni_gltab_min_cos_luz, fator);
 }
 
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia) {

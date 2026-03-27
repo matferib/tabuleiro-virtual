@@ -45,6 +45,7 @@ struct VarShader {
   GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
   GLint uni_gltab_especularidade_ligada;// Objeto especular.
+  GLint uni_gltab_min_cos_luz;          // Valor minimo para cos normal com luz.
   GLint uni_gltab_dados_raster;         // p = Tamanho do ponto.
   GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
   GLint uni_gltab_mvm_oclusao;          // Matrix modelview oclusao.
