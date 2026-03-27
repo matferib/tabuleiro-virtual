@@ -882,6 +882,8 @@ void ConfiguraVao(GLenum modo, const VboGravado& vbo, int shader) {
   //    << ", num dimensoes: " << vbo.NumDimensoes()
   //    << ", modo: " << vbo.Modo() << ", tamanho buffer: " << (vbo.BufferUnico().size() * sizeof(float))
   //    << ", num vertices: " << vbo.NumVertices()
+  //    << ", tem_matriz_modelagem: " << tem_matriz_modelagem
+  //    << ", tem_matriz_normal: " << tem_matriz_normal
   //    << ", nome: " << vbo.nome();
   HabilitaAtributosVertice(
       vbo.NumVertices(), vbo.NumDimensoes(), nullptr,
@@ -931,7 +933,7 @@ void VboGravado::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
       GL_ARRAY_BUFFER, DeslocamentoMatrizModelagem(),
       sizeof(GL_FLOAT) * 16,
       matriz_modelagem.get());
-  V_ERRO("ao bufferizar");
+  V_ERRO("ao bufferizar modelagem");
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
 
   if (!tem_matriz_normal()) {
@@ -943,7 +945,7 @@ void VboGravado::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
   }
 
   // Ver comentarios em AtualizaMatrizNormal para explicação.
-  Matrix3 matriz_normal = interno::ExtraiMatrizNormal(interno::BuscaContexto()->pilha_model.top());
+  Matrix3 matriz_normal = interno::ExtraiMatrizNormal(matriz_modelagem);
   const float* mn = matriz_normal.get();
 
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
@@ -956,7 +958,7 @@ void VboGravado::AtualizaMatrizes(const Matrix4& matriz_modelagem) {
       GL_ARRAY_BUFFER, DeslocamentoMatrizNormal(),
       sizeof(GL_FLOAT) * 9,
       mn);
-  V_ERRO("ao bufferizar");
+  V_ERRO("ao bufferizar normal");
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
 }
 
