@@ -3085,7 +3085,7 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
       for (int i = 0; i < num_novas; ++i) {
         float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
         float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
-        float z = olho_.pos().z() + Aleatorio() * 5.0f;
+        float z = olho_.pos().z() * 2.0f + Aleatorio() * 5.0f;
         variaveis_clima_.objetos.emplace_back(x, y, z, 1.0f);
       }
       variaveis_clima_.proximo_update = 30;
