@@ -3038,7 +3038,6 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
         variaveis_clima_.proximo_update < passou_ms) {
       variaveis_clima_.vetor = Vector3(cenario_clima.vetor_vento().x(),
                                        cenario_clima.vetor_vento().y(), -1.0f);
-      variaveis_clima_.vetor.normalize() *= cenario_clima.chuva();
 
       // Atualiza as existentes e mata as que estiverem abaixo de 0.
       std::vector<Vector4> objetos;
@@ -3052,7 +3051,7 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
         }
       }
       // Cria novas entidades.
-      int num_novas = cenario_clima.chuva() * 1000 - variaveis_clima_.objetos.size();
+      int num_novas = cenario_clima.chuva() * TamanhoX() * TamanhoY() * 2.0f - variaveis_clima_.objetos.size();
       for (int i = 0; i < num_novas; ++i) {
         float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
         float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
@@ -3081,8 +3080,8 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
           variaveis_clima_.objetos.emplace_back(v);
         }
       }
-      // Cria novas entidades.
-      int num_novas = cenario_clima.neve() * 100 - variaveis_clima_.objetos.size();
+      // Cria novos flocos.
+      int num_novas = cenario_clima.neve() * TamanhoX() * TamanhoY() - variaveis_clima_.objetos.size();
       for (int i = 0; i < num_novas; ++i) {
         float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
         float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
@@ -3574,21 +3573,26 @@ void Tabuleiro::AcaoAnterior() {
 
 // privadas
 void Tabuleiro::DesenhaClima() {
+  gl::MinimoCosLuz(1.0f);
   if (proto_.chuva() > 0.0f) {
     gl::VboGravado vbo;
     vbo.Grava(GL_TRIANGLES, gl::VboPiramideSolida(0.03f, 0.5f));
     Vector3 dir(variaveis_clima_.vetor);
     Matrix4 mr;
     if (dir.x != 0 || dir.y != 0) {
+      // Inclina para direcao do vento.
       dir.normalize();
       Vector3 up(0.0f, 0.0f, 1.0f);
       Vector3 eixo = up.cross(dir);
       float angulo_rad = acosf(up.dot(dir));
       mr.rotate(angulo_rad * RAD_PARA_GRAUS, eixo);
     } else if (dir.z < 0.0f) {
+      // Sem vento, apenas aponta para baixo.
       mr.rotateX(180.0f);
     }
-    MudaCor(proto_.cor_clima());
+    Cor cor_chuva(proto_.cor_clima());
+    cor_chuva.set_a(parametros_desenho_.alfa_translucidos());
+    MudaCor(cor_chuva);
     for (const Vector4& v : variaveis_clima_.objetos) {
       gl::MatrizEscopo salva(gl::MATRIZ_MODELAGEM);
       Matrix4 m(mr);
@@ -3618,14 +3622,25 @@ void Tabuleiro::DesenhaClima() {
     vbo.Grava(GL_TRIANGLES, floco1);
     Vector3 dir(variaveis_clima_.vetor);
     Matrix4 mr;
+    // Roda para camera. O floco é montado com a face paralela ao eixo X.
+    Vector3 alvo(PosParaVector3(olho_.alvo()));
+    Vector3 olho(PosParaVector3(olho_.pos()));
+    Vector3 olhar = alvo - olho;
+    Vector2 olhar2d(olhar.x, olhar.y);
+    if (olhar2d.x != 0.0f) {
+      olhar2d.normalize();
+      Vector2 y(0.0f, 1.0f);
+      float angulo_rad = acosf(olhar2d.dot(y));
+      mr.rotateZ(angulo_rad * RAD_PARA_GRAUS);
+    }
+
     if (dir.x != 0 || dir.y != 0) {
+      // Inclina para direcao do vento.
       dir.normalize();
       Vector3 up(0.0f, 0.0f, 1.0f);
       Vector3 eixo = up.cross(dir);
       float angulo_rad = acosf(up.dot(dir));
       mr.rotate(angulo_rad * RAD_PARA_GRAUS, eixo);
-    } else if (dir.z < 0.0f) {
-      mr.rotateX(180.0f);
     }
     MudaCor(COR_BRANCA);
     for (const Vector4& v : variaveis_clima_.objetos) {
@@ -3636,6 +3651,7 @@ void Tabuleiro::DesenhaClima() {
       gl::DesenhaVboGravado(vbo);
     }
   }
+  gl::MinimoCosLuz(0.0f);
 }
 
 void Tabuleiro::DesenhaCena(bool debug) {
@@ -3844,6 +3860,11 @@ void Tabuleiro::DesenhaCena(bool debug) {
     v.normalize();
     v.w = variaveis_clima_.transicao;
     gl::DirecaoClima(v);
+    gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
+    gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
+    parametros_desenho_.set_alfa_translucidos(0.5);
+    gl::HabilitaEscopo blend_escopo(GL_BLEND);
+    gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
     DesenhaClima();
   } else {
     gl::DirecaoClima(Vector4());
