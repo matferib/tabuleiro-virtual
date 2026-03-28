@@ -1135,7 +1135,7 @@ message ItemTesouroProto {
 }
 
 // Alguns estados são mantidos nesta variável.
-// Proximo id: 70.
+// Proximo id: 72.
 message ParametrosDesenho {
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente direcional.
   int32 luz_corrente = 1 [default=1];
@@ -1178,6 +1178,7 @@ message ParametrosDesenho {
   // Desenhar sombras.
   bool desenha_sombras = 13 [default=true];
   bool desenha_mapa_sombras = 45 [default=false];  // quando verdadeiro, estara desenhando mapa de sombras.
+  bool desenha_mapa_neve = 71 [default=false];  // quando verdadeiro, estara desenhando mapa de neve.
   int32 desenha_mapa_oclusao = 46 [default=0];  // o valor indica qual face do mapa, de [0 a 5]. Ausencia significa nao eh pra desenhar nenhuma das faces.
   bool desenha_log_eventos = 58;
   // Modo de desenho.
