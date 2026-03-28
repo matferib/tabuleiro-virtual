@@ -936,7 +936,8 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
   Vector3 vp(pos[0], pos[1], pos[2]);
   vp = nm * vp;
   vp.normalize();
-  //LOG(ERROR) << "vp: " << vp.x << ", " << vp.y << ", " << vp.z;
+  //LOG(INFO) << "vp: " << vp.x << ", " << vp.y << ", " << vp.z;
+  //LOG(INFO) << "ovp: " << pos[0] << ", " << pos[1] << ", " << pos[2];
 
 //  float glm[16];
 //  gl::Le(GL_MODELVIEW_MATRIX, glm);
