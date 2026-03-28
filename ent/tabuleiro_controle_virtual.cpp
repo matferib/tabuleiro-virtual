@@ -262,7 +262,6 @@ Matrix4 MatrizSlider(const DadosBotao& db, float estado, const GLint* viewport, 
   yi = TranslacaoY(db, viewport, unidade_altura);
   yf = (yi + altura_botao * unidade_altura);
 
-  float trans_x = (db.translacao_x() * unidade_largura);
   float trans_y = (db.translacao_y() * unidade_altura);
   float tam_x = xf - (2.0f * padding) - xi;
   float tam_y = yf - (2.0f * padding) - yi;
