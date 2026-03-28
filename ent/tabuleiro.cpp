@@ -394,7 +394,7 @@ void Tabuleiro::ConfiguraOlhar() {
       !parametros_desenho_.has_desenha_mapa_luzes() &&
       !parametros_desenho_.has_desenha_imagem()) {
     // Mapa de sombras.
-    if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
+    if (MapeamentoSombraLuzDirecional() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
       gl::CarregaIdentidade();
       ConfiguraOlharMapeamentoSombrasLuzDirecional();
@@ -450,7 +450,7 @@ void Tabuleiro::ConfiguraOlhar() {
     return;
   }
 
-  if (MapeamentoSombras() && parametros_desenho_.desenha_mapa_sombras()) {
+  if (MapeamentoSombraLuzDirecional() && parametros_desenho_.desenha_mapa_sombras()) {
     ConfiguraOlharMapeamentoSombrasLuzDirecional();
     return;
   }
@@ -735,7 +735,6 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_desenha_rastro_movimento(false);
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_nevoa(false);
-  parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
@@ -803,7 +802,6 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
   parametros_desenho_.set_desenha_rastro_movimento(false);
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_nevoa(false);
-  parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
@@ -867,7 +865,6 @@ void Tabuleiro::DesenhaMapaNeve() {
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_mapa_sombras(false);
   parametros_desenho_.set_desenha_mapa_neve(true);
-  parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
@@ -898,9 +895,6 @@ void Tabuleiro::DesenhaMapaNeve() {
 
 
 void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
-  if (!parametros_desenho_.desenha_sombras()) {
-    return;
-  }
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   // Zera as coisas nao usadas na sombra.
@@ -927,7 +921,6 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_mapa_sombras(true);
   parametros_desenho_.set_desenha_mapa_neve(false);
-  parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
@@ -981,7 +974,6 @@ int Tabuleiro::DesenhaModoMostrarImagem() {
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_mapa_sombras(false);
   parametros_desenho_.set_desenha_mapa_neve(false);
-  parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
@@ -1028,7 +1020,6 @@ int Tabuleiro::Desenha() {
   if (entidade_referencia != nullptr && entidade_referencia->PossuiVisaoEscuro() && visao_escuro_ &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
-    parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_mapa_sombras(false);
     tipo_shader = gl::TSH_PRETO_BRANCO;
   } else if (entidade_referencia != nullptr && entidade_referencia->PossuiVisaoBaixaLuminosidade()) {
@@ -1073,7 +1064,6 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_grade(false);
     parametros_desenho_.set_desenha_fps(true);
     parametros_desenho_.set_desenha_aura(false);
-    parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_mapa_sombras(false);
     parametros_desenho_.set_desenha_mapa_neve(false);
     parametros_desenho_.clear_desenha_mapa_oclusao();
@@ -1122,7 +1112,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_ = salva_pd;
   }
 
-  if (parametros_desenho_.desenha_sombras() && !modo_debug_) {
+  if (MapeamentoSombraLuzDirecional() && !modo_debug_) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
@@ -1154,6 +1144,7 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(tipo_shader);
     gl::UnidadeTextura(GL_TEXTURE0);
   }
+
   if (MapeamentoNeve() && !modo_debug_) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
@@ -4026,7 +4017,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
   //-------------
 #if 0
   // Nao funciona mais porque o tipo da textura eh sombra, provavelmente.
-  if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
+  if (MapeamentoSombraLuzDirecional() && !parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.

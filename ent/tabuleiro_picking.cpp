@@ -74,7 +74,6 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_grade(false);
   parametros_desenho_.set_desenha_fps(false);
   parametros_desenho_.set_desenha_aura(false);
-  parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_desenha_mapa_sombras(false);
   parametros_desenho_.clear_desenha_mapa_oclusao();
   parametros_desenho_.set_limpa_fundo(false);
