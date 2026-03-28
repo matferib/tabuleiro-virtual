@@ -2826,7 +2826,7 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   }
   // Texturas globais.
   {
-    // TODO remover essa textura.
+    // TODO remover essa textura ao finalizar.
     auto n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     n_tex->add_info_textura()->set_id("fire_trans.png");
     n_tex->add_info_textura()->set_id("smoke.png");

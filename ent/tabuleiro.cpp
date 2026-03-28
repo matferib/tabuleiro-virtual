@@ -1141,6 +1141,8 @@ int Tabuleiro::Desenha() {
     gl::Desabilita(GL_TEXTURE_2D);
     parametros_desenho_ = salva_pd;
   } else {
+    gl::UnidadeTextura(GL_TEXTURE1);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, texturas_->Textura("white.png"));
     gl::UsaShader(tipo_shader);
     gl::UnidadeTextura(GL_TEXTURE0);
   }
@@ -1175,6 +1177,8 @@ int Tabuleiro::Desenha() {
     parametros_desenho_ = salva_pd;
   } else {
     gl::UsaShader(tipo_shader);
+    gl::UnidadeTextura(GL_TEXTURE5);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, texturas_->Textura("white.png"));
     gl::UnidadeTextura(GL_TEXTURE0);
   }
 
@@ -3517,6 +3521,14 @@ void Tabuleiro::IniciaGL(bool reinicio  /*bom pra debug de leak*/) {
   RegeraVboTabuleiro();
   IniciaGlControleVirtual();
   GeraFramebuffer(reinicio);
+
+  // Texturas globais.
+  {
+    // TODO remover essa textura ao finalizar.
+    auto n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    n_tex->add_info_textura()->set_id("white.png");
+    central_->AdicionaNotificacao(n_tex.release());
+  }
 
   Entidade::IniciaGl(central_);
   regerar_vbos_entidades_ = true;
