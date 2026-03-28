@@ -3217,7 +3217,7 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
       std::vector<Vector4> objetos;
       objetos.swap(variaveis_clima_.objetos);
       Matrix4 mt;
-      mt.translate(variaveis_clima_.vetor.x + Aleatorio() * 0.1f, variaveis_clima_.vetor.y + Aleatorio() * 0.1f, variaveis_clima_.vetor.z);
+      mt.translate(variaveis_clima_.vetor.x + (Aleatorio() - 0.5f) * 0.1f, variaveis_clima_.vetor.y + (Aleatorio() - 0.5f) * 0.1f, variaveis_clima_.vetor.z);
       for (Vector4& v : objetos) {
         v = mt * v;
         if (v.z > 0.0f) {
