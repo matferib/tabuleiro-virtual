@@ -32,6 +32,7 @@ message Olho {
 }
 
 // Opcoes pessoais.
+// Next id: 34
 message OpcoesProto {
   bool mostra_fps = 1 [default=false];
   bool texturas_sempre_de_frente = 2 [default=true];
@@ -47,6 +48,7 @@ message OpcoesProto {
   // Estas opcoes nao podem ser alteradas durante o jogo. ie deve-se reiniciar.
   // TODO mudar para mapeamento_luz_direcional.
   bool mapeamento_sombras = 11 [default=true];
+  bool mapeamento_neve = 33 [default=true];
   bool iluminacao_por_pixel = 12 [default=false, deprecated=true];
   enum TipoIluminacao {
     TI_VERTICE = 0;
