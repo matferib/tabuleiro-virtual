@@ -38,6 +38,7 @@ struct VarShader {
   GLint uni_gltab_unidade_textura;
   //GLint uni_gltab_unidade_textura_bump;
   GLint uni_gltab_unidade_textura_sombra;
+  GLint uni_gltab_unidade_textura_neve;
   GLint uni_gltab_unidade_textura_cubo;
   GLint uni_gltab_unidade_textura_oclusao;
   GLint uni_gltab_unidade_textura_luz;
@@ -48,12 +49,14 @@ struct VarShader {
   GLint uni_gltab_min_cos_luz;          // Valor minimo para cos normal com luz.
   GLint uni_gltab_dados_raster;         // p = Tamanho do ponto.
   GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
+  GLint uni_gltab_mvm_neve;             // Matrix modelview neve.
   GLint uni_gltab_mvm_oclusao;          // Matrix modelview oclusao.
   GLint uni_gltab_mvm_luz;              // Matrix modelview luz.
   GLint uni_gltab_mvm_ajuste_textura;   // Matrix modelview ajuste de textura.
   GLint uni_gltab_camera;               // Matrix view.
   GLint uni_gltab_prm;                  // Matrix projecao.
   GLint uni_gltab_prm_sombra;           // Matrix projecao sombra.
+  GLint uni_gltab_prm_neve;             // Matrix projecao neve.
   GLint uni_gltab_plano_distante;       // Distancia do plano de corte distante.
   GLint uni_gltab_oclusao_ligada;       // Distancia do plano de corte distante.
   GLint uni_gltab_cor_mistura_pre_nevoa;// Cor de mistura antes de aplicacao de nevoa.
@@ -111,7 +114,9 @@ class Contexto {
   std::stack<Matrix4> pilha_camera;
   std::stack<Matrix4> pilha_prj;
   std::stack<Matrix4> pilha_mvm_sombra;
+  std::stack<Matrix4> pilha_mvm_neve;
   std::stack<Matrix4> pilha_prj_sombra;
+  std::stack<Matrix4> pilha_prj_neve;
   std::stack<Matrix4> pilha_mvm_oclusao;
   std::stack<Matrix4> pilha_mvm_luz;
   std::stack<Matrix4> pilha_mvm_ajuste_textura;

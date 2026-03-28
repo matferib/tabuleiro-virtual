@@ -423,6 +423,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_unidade_textura", &shader->uni_gltab_unidade_textura },
           //{"gltab_unidade_textura_bump", &shader->uni_gltab_unidade_textura_bump },
           {"gltab_unidade_textura_sombra", &shader->uni_gltab_unidade_textura_sombra },
+          {"gltab_unidade_textura_neve", &shader->uni_gltab_unidade_textura_neve },
           {"gltab_unidade_textura_cubo", &shader->uni_gltab_unidade_textura_cubo },
           {"gltab_unidade_textura_oclusao", &shader->uni_gltab_unidade_textura_oclusao },
           {"gltab_unidade_textura_luz", &shader->uni_gltab_unidade_textura_luz },
@@ -433,11 +434,13 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_min_cos_luz", &shader->uni_gltab_min_cos_luz},
           {"gltab_view", &shader->uni_gltab_camera },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
+          {"gltab_mvm_neve", &shader->uni_gltab_mvm_neve},
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
           {"gltab_mvm_luz", &shader->uni_gltab_mvm_luz },
           {"gltab_mvm_ajuste_textura", &shader->uni_gltab_mvm_ajuste_textura },
           {"gltab_prm", &shader->uni_gltab_prm },
           {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
+          {"gltab_prm_neve", &shader->uni_gltab_prm_neve},
           {"gltab_dados_raster", &shader->uni_gltab_dados_raster },
           {"gltab_oclusao_ligada", &shader->uni_gltab_oclusao_ligada },
           {"gltab_plano_distante_oclusao", &shader->uni_gltab_plano_distante },
@@ -526,7 +529,9 @@ void IniciaComum(TipoLuz tipo_luz, float escala, interno::Contexto* contexto) {
   contexto->pilha_camera.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_mvm_sombra.push(Matrix4());
+  contexto->pilha_mvm_neve.push(Matrix4());
   contexto->pilha_prj_sombra.push(Matrix4());
+  contexto->pilha_prj_neve.push(Matrix4());
   contexto->pilha_mvm_oclusao.push(Matrix4());
   contexto->pilha_mvm_luz.push(Matrix4());
   contexto->pilha_mvm_ajuste_textura.push(Matrix4());
@@ -713,7 +718,9 @@ int ModoMatrizCorrente() {
   else if (c->pilha_corrente == &c->pilha_camera) { return MATRIZ_CAMERA; }
   else if (c->pilha_corrente == &c->pilha_prj) { return MATRIZ_PROJECAO; }
   else if (c->pilha_corrente == &c->pilha_prj_sombra) { return MATRIZ_PROJECAO_SOMBRA; }
+  else if (c->pilha_corrente == &c->pilha_prj_neve) { return MATRIZ_PROJECAO_NEVE; }
   else if (c->pilha_corrente == &c->pilha_mvm_sombra) { return MATRIZ_SOMBRA; }
+  else if (c->pilha_corrente == &c->pilha_mvm_neve) { return MATRIZ_NEVE; }
   else if (c->pilha_corrente == &c->pilha_mvm_oclusao) { return MATRIZ_OCLUSAO; }
   else if (c->pilha_corrente == &c->pilha_mvm_luz) { return MATRIZ_LUZ; }
   else if (c->pilha_corrente == &c->pilha_mvm_ajuste_textura) { return MATRIZ_AJUSTE_TEXTURA; }
@@ -733,8 +740,12 @@ void MudaModoMatriz(int modo) {
     c->pilha_corrente = &c->pilha_prj;
   } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
     c->pilha_corrente = &c->pilha_prj_sombra;
+  } else if (modo == MATRIZ_PROJECAO_NEVE) {
+    c->pilha_corrente = &c->pilha_prj_neve;
   } else if (modo == MATRIZ_SOMBRA) {
     c->pilha_corrente = &c->pilha_mvm_sombra;
+  } else if (modo == MATRIZ_NEVE) {
+    c->pilha_corrente = &c->pilha_mvm_neve;
   } else if (modo == MATRIZ_OCLUSAO) {
     c->pilha_corrente = &c->pilha_mvm_oclusao;
   } else if (modo == MATRIZ_LUZ) {
@@ -1131,6 +1142,10 @@ Matrix4 LeMatriz(matriz_e modo) {
     return c->pilha_mvm_sombra.top();
   } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
     return c->pilha_prj_sombra.top();
+  } else if (modo == MATRIZ_NEVE) {
+    return c->pilha_mvm_neve.top();
+  } else if (modo == MATRIZ_PROJECAO_NEVE) {
+    return c->pilha_prj_neve.top();
   } else if (modo == MATRIZ_OCLUSAO) {
     return c->pilha_mvm_oclusao.top();
   } else if (modo == MATRIZ_LUZ) {
@@ -1163,6 +1178,8 @@ void Le(GLenum nome_parametro, GLfloat* valor) {
     memcpy(valor, c->pilha_mvm_ajuste_textura.top().get(), 16 * sizeof(float));
   } else if (nome_parametro == MATRIZ_SOMBRA) {
     memcpy(valor, c->pilha_mvm_sombra.top().get(), 16 * sizeof(float));
+  } else if (nome_parametro == MATRIZ_NEVE) {
+    memcpy(valor, c->pilha_mvm_neve.top().get(), 16 * sizeof(float));
   } else {
     glGetFloatv(nome_parametro, valor);
   }
@@ -1288,6 +1305,7 @@ void UsaShader(TipoShader ts) {
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_oclusao, 3);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_luz, 4);
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura_neve, 5);
   //interno::UniformeSeValido(shader->uni_gltab_unidade_textura_bump, 5);
 
   interno::UniformeSeValido(shader->uni_gltab_plano_distante, c->plano_distante);
@@ -1309,9 +1327,11 @@ GLint IdMatrizCorrente(const interno::VarShader& shader) {
     case MATRIZ_AJUSTE_TEXTURA:   return shader.uni_gltab_mvm_ajuste_textura;
     case MATRIZ_PROJECAO:         return shader.uni_gltab_prm;
     case MATRIZ_PROJECAO_SOMBRA:  return shader.uni_gltab_prm_sombra;
+    case MATRIZ_PROJECAO_NEVE:    return shader.uni_gltab_prm_neve;
     case MATRIZ_OCLUSAO:          return shader.uni_gltab_mvm_oclusao;
     case MATRIZ_LUZ:              return shader.uni_gltab_mvm_luz;
     case MATRIZ_SOMBRA:           return shader.uni_gltab_mvm_sombra;
+    case MATRIZ_NEVE:             return shader.uni_gltab_mvm_neve;
     default:
       LOG(INFO) << "id corrente invalido: " << ModoMatrizCorrente();
       return shader.uni_gltab_mvm_sombra;
@@ -1431,7 +1451,9 @@ void AtualizaTodasMatrizes() {
   std::vector<DadosMatriz> dados_matriz = {
     { shader.uni_gltab_prm, &c->pilha_prj.top() },
     { shader.uni_gltab_mvm_sombra, &c->pilha_mvm_sombra.top() },
+    { shader.uni_gltab_mvm_neve, &c->pilha_mvm_neve.top() },
     { shader.uni_gltab_prm_sombra, &c->pilha_prj_sombra.top() },
+    { shader.uni_gltab_prm_neve, &c->pilha_prj_neve.top() },
     { shader.uni_gltab_mvm_oclusao, &c->pilha_mvm_oclusao.top() },
     { shader.uni_gltab_mvm_luz, &c->pilha_mvm_luz.top() },
     { shader.uni_gltab_mvm_ajuste_textura, &c->pilha_mvm_ajuste_textura.top() },

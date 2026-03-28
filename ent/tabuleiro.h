@@ -254,6 +254,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha o mundo do ponto de vista da luz, gerando o framebuffer de sombra projetada. */
   void DesenhaMapaSombraLuzDirecional();
+  void DesenhaMapaNeve();
   void DesenhaMapaOclusao();
   void DesenhaMapaLuz(unsigned int indice_luz);
   void DesenhaFramebufferPrincipal();
@@ -1209,10 +1210,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Configura a matriz de projecao de acordo com o tipo de camera. */
   void ConfiguraProjecao();
   void ConfiguraProjecaoMapeamentoSombras();
+  void ConfiguraProjecaoMapeamentoNeve();
   void ConfiguraProjecaoMapeamentoOclusaoLuzes();
   /** Configura o olho, de acordo com o tipo de camera. */
   void ConfiguraOlhar();
   void ConfiguraOlharMapeamentoSombrasLuzDirecional();
+  void ConfiguraOlharMapeamentoNeve();
   void ConfiguraOlharMapeamentoOclusao();
   void ConfiguraOlharMapeamentoLuzes();
 
@@ -1255,6 +1258,7 @@ class Tabuleiro : public ntf::Receptor {
 
   bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
   bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
+  bool MapeamentoNeve() const { return opcoes_.mapeamento_neve() && CenarioVento(*proto_corrente_).neve() > 0.0f; }
   bool MapeamentoLuzes() const { return opcoes_.mapeamento_luzes(); }
 
   void EscreveInfoGeral(const std::string& info_geral);
@@ -1522,6 +1526,7 @@ class Tabuleiro : public ntf::Receptor {
   gl::VboGravado vbo_cubo_;
   gl::VboGravado vbo_rosa_;
   DadosFramebuffer dfb_luz_direcional_;
+  DadosFramebuffer dfb_neve_;
   DadosFramebuffer dfb_oclusao_;
   DadosFramebuffer dfb_colisao_;
   DadosFramebuffer dfb_principal_;

@@ -341,6 +341,14 @@ void Tabuleiro::ConfiguraProjecaoMapeamentoSombras() {
   gl::AtualizaMatrizes();
 }
 
+void Tabuleiro::ConfiguraProjecaoMapeamentoNeve() {
+  float lado_maior = std::max(TamanhoX(), TamanhoY());
+  float val = lado_maior * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
+  gl::Ortogonal(-val, val, -val, val,
+                0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, DISTANCIA_LUZ_DIRECIONAL_METROS + lado_maior * TAMANHO_LADO_QUADRADO_2);
+  gl::AtualizaMatrizes();
+}
+
 void Tabuleiro::ConfiguraProjecaoMapeamentoOclusaoLuzes() {
   gl::Perspectiva(90.0f, 1.0f,
                   DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
@@ -381,6 +389,7 @@ void Tabuleiro::ConfiguraProjecao() {
 void Tabuleiro::ConfiguraOlhar() {
   // Desenho normal, tem que configurar as matrizes de sombra e oclusao.
   if (!parametros_desenho_.desenha_mapa_sombras() &&
+      !parametros_desenho_.desenha_mapa_neve() &&
       !parametros_desenho_.has_desenha_mapa_oclusao() &&
       !parametros_desenho_.has_desenha_mapa_luzes() &&
       !parametros_desenho_.has_desenha_imagem()) {
@@ -389,6 +398,14 @@ void Tabuleiro::ConfiguraOlhar() {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
       gl::CarregaIdentidade();
       ConfiguraOlharMapeamentoSombrasLuzDirecional();
+      gl::AtualizaMatrizes();
+      gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
+    }
+    // Mapa de neve.
+    if (MapeamentoNeve() && !parametros_desenho_.has_picking_x()) {
+      gl::MudaModoMatriz(gl::MATRIZ_NEVE);
+      gl::CarregaIdentidade();
+      ConfiguraOlharMapeamentoNeve();
       gl::AtualizaMatrizes();
       gl::MudaModoMatriz(gl::MATRIZ_CAMERA);
     }
@@ -437,6 +454,11 @@ void Tabuleiro::ConfiguraOlhar() {
     ConfiguraOlharMapeamentoSombrasLuzDirecional();
     return;
   }
+  if (MapeamentoNeve() && parametros_desenho_.desenha_mapa_neve()) {
+    ConfiguraOlharMapeamentoNeve();
+    return;
+  }
+
   if (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) {
     ConfiguraOlharMapeamentoOclusao();
     return;
@@ -445,6 +467,35 @@ void Tabuleiro::ConfiguraOlhar() {
     ConfiguraOlharMapeamentoLuzes();
     return;
   }
+}
+
+void Tabuleiro::ConfiguraOlharMapeamentoNeve() {
+  Vector4 vl(-variaveis_clima_.vetor.x, -variaveis_clima_.vetor.y, -variaveis_clima_.vetor.z, 1.0f);
+  Matrix4 ms;
+  ms.scale(DISTANCIA_LUZ_DIRECIONAL_METROS);
+  vl = ms * vl;
+  Vector4 up(0.0f, 0.0f, 1.0f, 1.0f);
+  if (fabs(vl.x) < 0.001f && fabs(vl.y) < 0.001f) {
+    up.x = 0.0f;
+    up.y = 1.0f;
+    up.z = 0.0f;
+  }
+  // Para usar a posicao alvo do olho como referencia.
+  //const Posicao& alvo = olho_.alvo();
+  gl::OlharPara(
+      // from.
+      //alvo.x() + vl.x, alvo.y() + vl.y, alvo.z() + vl.z,
+      vl.x, vl.y, vl.z,
+      // to.
+      //alvo.x(), alvo.y(), alvo.z(),
+      0, 0, 0,
+      // up
+      up.x, up.y, up.z);
+  //Matrix4 mt = gl::LeMatriz(gl::MATRIZ_NEVE);
+  //LOG(INFO) << "mt: " << mt;
+  //Vector4 vt(10.0f, 0.0f, 0.0f, 1.0f);
+  //vt = vt * mt;
+  //LOG(INFO) << "vt: " << (vt * mt);
 }
 
 void Tabuleiro::ConfiguraOlharMapeamentoSombrasLuzDirecional() {
@@ -789,6 +840,63 @@ void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
   V_ERRO("LigacaoComFramebufferOclusao");
 }
 
+void Tabuleiro::DesenhaMapaNeve() {
+  parametros_desenho_.Clear();
+  parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  // Zera as coisas nao usadas na sombra.
+  parametros_desenho_.set_limpa_fundo(false);
+  parametros_desenho_.set_usar_transparencias(false);
+  parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_iniciativas(false);
+  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_info_geral(false);
+  parametros_desenho_.set_desenha_detalhes(false);
+  parametros_desenho_.set_desenha_eventos_entidades(false);
+  parametros_desenho_.set_desenha_efeitos_entidades(false);
+  parametros_desenho_.set_desenha_lista_objetos(false);
+  parametros_desenho_.set_desenha_lista_jogadores(false);
+  parametros_desenho_.set_desenha_fps(false);
+  parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
+  parametros_desenho_.set_iluminacao(false);
+  parametros_desenho_.set_desenha_texturas(false);
+  parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_desenha_aura(false);
+  parametros_desenho_.set_desenha_quadrado_selecao(false);
+  parametros_desenho_.set_desenha_rastro_movimento(false);
+  parametros_desenho_.set_desenha_forma_selecionada(false);
+  parametros_desenho_.set_desenha_nevoa(false);
+  parametros_desenho_.set_desenha_mapa_sombras(false);
+  parametros_desenho_.set_desenha_mapa_neve(true);
+  parametros_desenho_.set_desenha_sombras(false);
+  parametros_desenho_.set_modo_mestre(VisaoMestre());
+  parametros_desenho_.set_desenha_controle_virtual(false);
+  parametros_desenho_.set_desenha_pontos_rolagem(false);
+  parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
+
+  if (usar_sampler_sombras_) {
+    gl::UsaShader(gl::TSH_SIMPLES);
+  } else {
+    gl::UsaShader(gl::TSH_PROFUNDIDADE);
+  }
+  gl::UnidadeTextura(GL_TEXTURE5);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2, opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2);
+  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::CarregaIdentidade();
+  ConfiguraProjecaoMapeamentoNeve();
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_neve_.framebuffer);
+  V_ERRO("LigacaoComFramebufferSombraProjetada");
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+  gl::BufferDesenho(GL_NONE);
+#endif
+  //LOG(INFO) << "sombra projetada";
+  OrdenaEntidades(parametros_desenho_);
+  DesenhaCena();
+}
+
+
 void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   if (!parametros_desenho_.desenha_sombras()) {
     return;
@@ -818,6 +926,7 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_mapa_sombras(true);
+  parametros_desenho_.set_desenha_mapa_neve(false);
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
@@ -871,6 +980,7 @@ int Tabuleiro::DesenhaModoMostrarImagem() {
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_mapa_sombras(false);
+  parametros_desenho_.set_desenha_mapa_neve(false);
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
@@ -965,6 +1075,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_aura(false);
     parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_mapa_sombras(false);
+    parametros_desenho_.set_desenha_mapa_neve(false);
     parametros_desenho_.clear_desenha_mapa_oclusao();
     parametros_desenho_.clear_desenha_mapa_luzes();
     parametros_desenho_.set_limpa_fundo(false);
@@ -1043,6 +1154,39 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(tipo_shader);
     gl::UnidadeTextura(GL_TEXTURE0);
   }
+  if (MapeamentoNeve() && !modo_debug_) {
+    GLint original;
+    gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+    ParametrosDesenho salva_pd(parametros_desenho_);
+    DesenhaMapaNeve();
+
+    V_ERRO_RET("Depois DesenhaMapaNeve");
+    // Restaura os valores e usa a textura como sombra.
+    gl::UsaShader(tipo_shader);
+    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+    // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
+    gl::MudaModoMatriz(gl::MATRIZ_PROJECAO_NEVE);
+    gl::CarregaIdentidade();
+    Matrix4 bias(
+        0.5, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 0.5, 0.0,
+        0.5, 0.5, 0.5, 1.0);
+    gl::MultiplicaMatriz(bias.get());
+    ConfiguraProjecaoMapeamentoNeve();  // antes de parametros_desenho_.set_desenha_mapa_sombras para configurar para luz.
+    gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
+    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+    gl::UnidadeTextura(GL_TEXTURE5);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, dfb_neve_.textura);
+    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::Desabilita(GL_TEXTURE_2D);
+    parametros_desenho_ = salva_pd;
+  } else {
+    gl::UsaShader(tipo_shader);
+    gl::UnidadeTextura(GL_TEXTURE0);
+  }
+
 #if DEBUG
   glFinish();
 #endif
@@ -3055,7 +3199,7 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
       for (int i = 0; i < num_novas; ++i) {
         float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
         float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
-        float z = olho_.pos().z() * 2.0f + Aleatorio() * 5.0f;
+        float z = (1.0f + Aleatorio()) * olho_.pos().z();
         variaveis_clima_.objetos.emplace_back(x, y, z, 1.0f);
       }
       variaveis_clima_.proximo_update = 30;
@@ -3085,7 +3229,7 @@ void Tabuleiro::AtualizaClima(unsigned int passou_ms) {
       for (int i = 0; i < num_novas; ++i) {
         float x = (Aleatorio() - 0.5f) * TamanhoX() * 2.5f;
         float y = (Aleatorio() - 0.5f) * TamanhoY() * 2.5f;
-        float z = olho_.pos().z() * 2.0f + Aleatorio() * 5.0f;
+        float z = (1.0f + Aleatorio()) * olho_.pos().z();
         variaveis_clima_.objetos.emplace_back(x, y, z, 1.0f);
       }
       variaveis_clima_.proximo_update = 30;
@@ -3670,6 +3814,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
   // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes
   // da janela para cobrir o fundo todo.
   if (!parametros_desenho_.desenha_mapa_sombras() &&
+      !parametros_desenho_.desenha_mapa_neve() &&
       !parametros_desenho_.has_desenha_mapa_oclusao() &&
       !parametros_desenho_.has_desenha_mapa_luzes() &&
       !parametros_desenho_.has_picking_x() &&
@@ -3870,7 +4015,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     gl::DirecaoClima(Vector4());
   }
 
-  if ((parametros_desenho_.desenha_mapa_sombras()) ||
+  if ((parametros_desenho_.desenha_mapa_sombras() || parametros_desenho_.desenha_mapa_neve()) ||
       (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) ||
        parametros_desenho_.has_desenha_mapa_luzes()) {
     return;
@@ -4461,6 +4606,12 @@ void Tabuleiro::GeraFramebuffer(bool reinicia) {
     GeraFramebufferLocal(
         opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2, false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
   }
+  if (opcoes_.mapeamento_neve()) {
+    // Por nao ser cubica, pode ter o dobro do tamanho.
+    GeraFramebufferLocal(
+        opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2, false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_neve_);
+  }
+
   if (opcoes_.mapeamento_oclusao()) {
     GeraFramebufferLocal(
         opcoes_.tamanho_framebuffer_texturas_mapeamento(), true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_oclusao_);
@@ -4845,7 +4996,7 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
 
 namespace {
 bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
-  if (!proto.faz_sombra() && (pd.desenha_mapa_sombras() || pd.has_desenha_mapa_luzes())) {
+  if (!proto.faz_sombra() && (pd.desenha_mapa_sombras() || pd.desenha_mapa_neve() || pd.has_desenha_mapa_luzes())) {
     return true;
   }
   if (!proto.causa_colisao() && pd.desenha_apenas_entidades_colisivas()) {
@@ -4937,6 +5088,25 @@ Tabuleiro::IdCenarioComFuncaoOrdenacao(const ParametrosDesenho& pd) const {
     posicao.z = vl.z;
     id_cenario = IdCenario();
     funcao = [posicao](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, lhs, rhs); };
+  } else if (pd.desenha_mapa_neve()) {
+    Matrix4 mr;
+    Vector3 dir(variaveis_clima_.vetor);
+    if (dir.x != 0 || dir.y != 0) {
+      // Inclina para direcao do vento.
+      dir.normalize();
+      Vector3 down(0.0f, 0.0f, -1.0f);
+      Vector3 eixo = down.cross(dir);
+      float angulo_rad = acosf(down.dot(dir));
+      mr.rotate(angulo_rad * RAD_PARA_GRAUS, eixo);
+    }
+    mr.scale(DISTANCIA_LUZ_DIRECIONAL_METROS);
+    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
+    vl = mr * vl;
+    posicao.x = vl.x;
+    posicao.y = vl.y;
+    posicao.z = vl.z;
+    id_cenario = IdCenario();
+    funcao = [posicao](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, lhs, rhs); };
   } else {
     funcao = [posicao](const Entidade* lhs, const Entidade* rhs) { return MaisPertoOlho(posicao, lhs, rhs); };
   }
@@ -4980,6 +5150,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
     parametros_desenho_.set_iniciativa_corrente(IdIniciativaCorrente() == entidade->Id());
     bool detalhar_tudo = !(parametros_desenho_.desenha_mapa_sombras() ||
+                           parametros_desenho_.desenha_mapa_neve() ||
                            parametros_desenho_.has_desenha_mapa_oclusao() ||
                            parametros_desenho_.has_desenha_mapa_luzes()) &&
                          (detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO);
@@ -4993,6 +5164,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
         entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
     parametros_desenho_.set_desenha_eventos_entidades(
         !(parametros_desenho_.desenha_mapa_sombras() ||
+          parametros_desenho_.desenha_mapa_neve() ||
           parametros_desenho_.has_desenha_mapa_oclusao() ||
           parametros_desenho_.has_desenha_mapa_luzes()) &&
         (VisaoMestre() || entidade->SelecionavelParaJogador()));
@@ -6241,6 +6413,7 @@ void Tabuleiro::AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto) {
   dfb_principal_.Apaga();
   dfb_oclusao_.Apaga();
   dfb_luz_direcional_.Apaga();
+  dfb_neve_.Apaga();
   dfb_luzes_.resize(1);
   dfb_luzes_[0].Apaga();
   dfb_colisao_.Apaga();

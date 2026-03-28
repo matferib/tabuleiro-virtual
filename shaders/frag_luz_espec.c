@@ -35,6 +35,7 @@ varying lowp float v_Tex_presenca;  // tem textura.
 uniform bool gltab_oclusao_ligada;          // true se oclusao estiver ligada.
 uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
 varying highp vec4 v_Pos_sombra;   // Posicao do fragmento na perspectiva de sombra.
+varying highp vec4 v_Pos_neve;     // Posicao do fragmento na perspectiva da neve.
 varying highp vec3 v_Pos_oclusao;  // Posicao do fragmento com relacao a primeira pesssoa.
 varying highp vec3 v_Pos_luz;      // Posicao do fragmento com relacao a luz.
 varying lowp vec2 v_Tex;  // coordenada texel.
@@ -68,8 +69,10 @@ uniform lowp sampler2D gltab_unidade_textura;    // handler da textura.
 //uniform lowp sampler2D gltab_unidade_textura_bump;    // handler da textura de bump.
 #if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_shadow_samplers)
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
+uniform highp sampler2DShadow gltab_unidade_textura_neve;   // handler da textura do mapa de neve.
 #else
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
+uniform highp sampler2D gltab_unidade_textura_neve;   // handler da textura do mapa de neve.
 #endif
 uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 uniform highp samplerCube gltab_unidade_textura_luz;       // handler da textura do mapa da luz.
@@ -148,6 +151,28 @@ mediump vec4 VetorLuzObjeto(in InfoLuzPontual luz) {
   return (luz.pos / luz.pos.w) - v_Pos;
 }
 
+lowp float VisibilidadeNeve(in lowp vec3 normal) {
+  //lowp vec4 cor_luz = gltab_luz_ambiente;
+  highp float cos_theta = clamp(dot(normal, v_Clima.xyz), 0.0, 1.0);
+  highp float bias = 0.002 * tan(acos(cos_theta));
+  bias = clamp(bias, 0.00, 0.0035);
+#if __VERSION__ == 130
+  lowp float aplicar_neve = texture(gltab_unidade_textura_neve, vec3(v_Pos_neve.xy, v_Pos_neve.z - bias));
+#elif __VERSION__ == 120
+  lowp float aplicar_neve = shadow2D(gltab_unidade_textura_neve, vec3(v_Pos_neve.xy, v_Pos_neve.z - bias)).r;
+#elif defined(GL_EXT_shadow_samplers)
+  lowp float aplicar_neve = shadow2DEXT(
+      gltab_unidade_textura_neve, vec3(v_Pos_neve.xy, v_Pos_neve.z - bias));
+#else
+  // OpenGL ES 2.0.
+  lowp vec4 texprofcor = texture2D(gltab_unidade_textura_neve, v_Pos_neve.xy);
+  lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
+  // Se texz menor que valor computado, retorna 0.
+  lowp float aplicar_luz_direcional = step((v_Pos_neve.z - bias), texz);
+#endif
+  return max(0.5, aplicar_neve);
+}
+
 lowp float VisibilidadeLuzDirecional(in lowp vec3 normal) {
   //lowp vec4 cor_luz = gltab_luz_ambiente;
   highp float cos_theta = clamp(dot(normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
@@ -208,11 +233,13 @@ void main() {
   }
 
   if (v_Clima.w != 0) {
+    lowp float nevado = VisibilidadeNeve(normal);
+
     // Angulo entre normal e direcao do clima.
     // Fator de branquidao.
     // dot me da o cos do angulo entre os vetores.
     lowp vec3 ddd = vec3(0.0, 0.0, -1.0);
-    lowp float fator = max(0.0, v_Clima.w * -dot(normal, v_Clima.xyz));
+    lowp float fator = max(0.0, v_Clima.w * -dot(normal, v_Clima.xyz)) * nevado;
     lowp vec3 branco = vec3(1.0, 1.0, 1.0);
     cor_final.xyz = mix(cor_final.xyz, branco, fator);
   }
