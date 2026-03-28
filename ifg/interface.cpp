@@ -517,7 +517,6 @@ void InterfaceGrafica::VoltaEscolherPocaoOuSimilar(const ntf::Notificacao notifi
         VoltaEscolherEfeito(notificacao, 0, false, 0, ent::TT_ITEM_MARAVILHOSO);
         return;
       } else {
-        const auto& maravilhoso = tabelas_.ItemMaravilhoso(itens_maravilhosos.Get(indice_pocao_ou_similar).id());
         VoltaEscolherEfeito(notificacao, indice_pocao_ou_similar, /*ok=*/true, /*indice_efeito=*/0, ent::TT_ITEM_MARAVILHOSO);
       }
     }
