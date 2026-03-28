@@ -34,6 +34,7 @@ varying highp vec4 v_Pos_model;
 varying lowp float v_Tex_presenca;  // tem textura.
 uniform bool gltab_oclusao_ligada;          // true se oclusao estiver ligada.
 uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
+uniform highp float gltab_plano_proximo_oclusao;  // distancia do plano de corte proximo durante o mapeamento de oclusao.
 varying highp vec4 v_Pos_sombra;   // Posicao do fragmento na perspectiva de sombra.
 varying highp vec4 v_Pos_neve;     // Posicao do fragmento na perspectiva da neve.
 varying highp vec3 v_Pos_oclusao;  // Posicao do fragmento com relacao a primeira pesssoa.
@@ -151,11 +152,23 @@ mediump vec4 VetorLuzObjeto(in InfoLuzPontual luz) {
   return (luz.pos / luz.pos.w) - v_Pos;
 }
 
-lowp float VisibilidadeNeve(in lowp vec3 normal) {
+// Retorna o vies para zfight (um pequeno offset variavel de acordo com os angulos da normal e da direcao inversa da incidencia).
+highp float Bias(in lowp vec3 v, in lowp vec3 normal, in lowp float fator, in lowp float min_bias, in lowp float max_bias) {
+  highp float cos_theta = clamp(dot(normal, v.xyz), 0.0, 1.0);
+  return fator * clamp(tan(acos(cos_theta)), min_bias, max_bias);
+}
+
+highp float Bias(in lowp vec3 v, in lowp vec3 normal, in lowp float fator) {
+  return Bias(v, normal, fator, 0.001, 1.0);
+}
+
+highp float Bias(in lowp vec3 v, in lowp vec3 normal) {
+  return Bias(v, normal, 0.002, 0.001, 1.0);
+}
+
+lowp float VisibilidadeNeve(vec3 normal) {
   //lowp vec4 cor_luz = gltab_luz_ambiente;
-  highp float cos_theta = clamp(dot(normal, v_Clima.xyz), 0.0, 1.0);
-  highp float bias = 0.002 * tan(acos(cos_theta));
-  bias = clamp(bias, 0.00, 0.0035);
+  highp float bias = Bias(v_Clima.xyz, normal);
 #if __VERSION__ == 130
   lowp float aplicar_neve = texture(gltab_unidade_textura_neve, vec3(v_Pos_neve.xy, v_Pos_neve.z - bias));
 #elif __VERSION__ == 120
@@ -175,9 +188,7 @@ lowp float VisibilidadeNeve(in lowp vec3 normal) {
 
 lowp float VisibilidadeLuzDirecional(in lowp vec3 normal) {
   //lowp vec4 cor_luz = gltab_luz_ambiente;
-  highp float cos_theta = clamp(dot(normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
-  highp float bias = 0.002 * tan(acos(cos_theta));
-  bias = clamp(bias, 0.00, 0.0035);
+  highp float bias = Bias(gltab_luz_direcional.pos.xyz, normal);
 #if __VERSION__ == 130
   lowp float aplicar_luz_direcional = texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
 #elif __VERSION__ == 120
@@ -195,13 +206,13 @@ lowp float VisibilidadeLuzDirecional(in lowp vec3 normal) {
   return aplicar_luz_direcional;
 }
 
-// Retorna quao visivel o ponto eh para a luz (mapeamento de sombras).
-lowp float Visivel(samplerCube sampler, highp vec3 pos) {
-  highp float bias = 0.5;
-  highp vec4 texprofcor = textureCube(sampler, pos, 0.0);
+// Retorna quao visivel o ponto eh para a luz pontual.
+lowp float Visivel(in lowp vec3 normal, samplerCube sampler, highp vec3 pos) {
+  // Para luzes pontuais, o vies deve ser maior.
+  highp float bias = Bias(pos.xyz, normal);
+  highp vec4 texprofcor = textureCube(sampler, pos);
   highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
-  //gl_FragColor = vec4(mais_proximo, 0.0, 0.0, 1.0);
-  mais_proximo *= gltab_plano_distante_oclusao;
+  mais_proximo = gltab_plano_proximo_oclusao + mais_proximo * (gltab_plano_distante_oclusao - gltab_plano_proximo_oclusao);
   // Se mais_proximo menor que valor computado, retorna 0.
   //return step((length(pos) - bias), mais_proximo);
   return 1.0 - smoothstep(mais_proximo, mais_proximo + bias, length(pos));
@@ -214,7 +225,7 @@ void main() {
   // Se houver oclusao, verifica se o ponto é visivel. Se nao for, corrige a oclusao.
   lowp vec4 cor_oclusao = vec4(1.0, 1.0, 1.0, 1.0);
   if (gltab_oclusao_ligada) {
-    lowp float visivel = Visivel(gltab_unidade_textura_oclusao, v_Pos_oclusao);
+    lowp float visivel = Visivel(normal, gltab_unidade_textura_oclusao, v_Pos_oclusao);
     cor_oclusao = vec4(visivel, visivel, visivel, 1.0);
   }
 
@@ -289,7 +300,7 @@ void main() {
     // Obs: deixando pronto para quando tiver mais.
     lowp vec4 visibilidades_1 = vec4(
         VisibilidadeLuzDirecional(normal),
-        Visivel(gltab_unidade_textura_luz, v_Pos_luz),
+        Visivel(normal, gltab_unidade_textura_luz, v_Pos_luz),
         1.0,
         1.0);
     lowp vec4 visibilidades_2 = vec4(
