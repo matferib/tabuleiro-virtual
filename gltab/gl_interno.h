@@ -57,8 +57,9 @@ struct VarShader {
   GLint uni_gltab_prm;                  // Matrix projecao.
   GLint uni_gltab_prm_sombra;           // Matrix projecao sombra.
   GLint uni_gltab_prm_neve;             // Matrix projecao neve.
+  GLint uni_gltab_plano_proximo;        // Distancia do plano de corte proximo.
   GLint uni_gltab_plano_distante;       // Distancia do plano de corte distante.
-  GLint uni_gltab_oclusao_ligada;       // Distancia do plano de corte distante.
+  GLint uni_gltab_oclusao_ligada;
   GLint uni_gltab_cor_mistura_pre_nevoa;// Cor de mistura antes de aplicacao de nevoa.
   GLint uni_gltab_direcao_clima;        // Direção do clima.
 
@@ -122,6 +123,7 @@ class Contexto {
   std::stack<Matrix4> pilha_mvm_ajuste_textura;
 
   std::stack<Matrix4>* pilha_corrente = nullptr;
+  float plano_proximo;    // distancia de corte do plano proximo.
   float plano_distante;   // distancia de corte do plano distante.
 
   std::unique_ptr<ContextoDependente> interno;

@@ -444,6 +444,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_dados_raster", &shader->uni_gltab_dados_raster },
           {"gltab_oclusao_ligada", &shader->uni_gltab_oclusao_ligada },
           {"gltab_plano_distante_oclusao", &shader->uni_gltab_plano_distante },
+          {"gltab_plano_proximo_oclusao", &shader->uni_gltab_plano_proximo },
           {"gltab_direcao_clima", &shader->uni_gltab_direcao_clima },
   }) {
     *p_local_atributo = LocalUniforme(shader->programa, nome);
@@ -1013,11 +1014,14 @@ bool OclusaoLigada() {
   return oclusao > 0.0f;
 }
 
-void PlanoDistanteOclusao(GLfloat distancia) {
+void PlanosCorte(GLfloat distancia_proximo, GLfloat distancia_longe) {
   const auto& shader = interno::BuscaShader();
-  interno::UniformeSeValido(shader.uni_gltab_plano_distante, distancia);
+  interno::UniformeSeValido(shader.uni_gltab_plano_proximo, distancia_proximo);
+  interno::UniformeSeValido(shader.uni_gltab_plano_distante, distancia_longe);
   auto* c = interno::BuscaContexto();
-  c->plano_distante = distancia;  // salva no contexto, caso haja alguma mudanca de shaders.
+  // salva no contexto, caso haja alguma mudanca de shaders.
+  c->plano_proximo = distancia_proximo;
+  c->plano_distante = distancia_longe;
 }
 
 void DirecaoClima(const Vector4& direcao) {
@@ -1310,6 +1314,7 @@ void UsaShader(TipoShader ts) {
   //interno::UniformeSeValido(shader->uni_gltab_unidade_textura_bump, 5);
 
   interno::UniformeSeValido(shader->uni_gltab_plano_distante, c->plano_distante);
+  interno::UniformeSeValido(shader->uni_gltab_plano_proximo, c->plano_proximo);
 
   shader->cache_textura.clear();
 

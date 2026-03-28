@@ -353,7 +353,7 @@ void Tabuleiro::ConfiguraProjecaoMapeamentoOclusaoLuzes() {
   gl::Perspectiva(90.0f, 1.0f,
                   DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
                   DistanciaPlanoCorteDistante());
-  gl::PlanoDistanteOclusao(DistanciaPlanoCorteDistante());
+  gl::PlanosCorte(DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA, DistanciaPlanoCorteDistante());
   gl::AtualizaMatrizes();
 }
 
@@ -9424,9 +9424,6 @@ bool Tabuleiro::UsaNevoa() const {
 }
 
 float Tabuleiro::DistanciaPlanoCorteDistante() const {
-  //const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
-  // Apesar de otimizar, causa um efeito de objetos surgindo que nao eh legal.
-  //return UsaNevoa() ? cenario_nevoa.nevoa().maximo() : DISTANCIA_PLANO_CORTE_DISTANTE;
   return DISTANCIA_PLANO_CORTE_DISTANTE;
 }
 

@@ -495,8 +495,8 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
 /** Liga e desliga oclusao. */
 void Oclusao(bool valor);
 bool OclusaoLigada();
-/** Passa para o shader o valor do plano de corte distante durante a oclusao. */
-void PlanoDistanteOclusao(GLfloat distancia);
+/** Passa para o shader o valor do plano de corte distante durante mapeamento pontual. */
+void PlanosCorte(GLfloat distancia_proximo, GLfloat distancia_longe);
 
 /** Indica a direcao do clima. Componente w indica o fator de transicao, 0 desligando, 1 total. */
 void DirecaoClima(const Vector4& direcao);
