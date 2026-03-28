@@ -3721,7 +3721,8 @@ void Tabuleiro::AcaoAnterior() {
 // privadas
 void Tabuleiro::DesenhaClima() {
   gl::MinimoCosLuz(1.0f);
-  if (proto_.chuva() > 0.0f) {
+  const auto& cenario_clima = CenarioVento(*proto_corrente_);
+  if (cenario_clima.chuva() > 0.0f) {
     gl::VboGravado vbo;
     vbo.Grava(GL_TRIANGLES, gl::VboPiramideSolida(0.03f, 0.5f));
     Vector3 dir(variaveis_clima_.vetor);
@@ -3737,7 +3738,7 @@ void Tabuleiro::DesenhaClima() {
       // Sem vento, apenas aponta para baixo.
       mr.rotateX(180.0f);
     }
-    Cor cor_chuva(proto_.cor_chuva());
+    Cor cor_chuva(cenario_clima.cor_chuva());
     cor_chuva.set_a(parametros_desenho_.alfa_translucidos());
     MudaCor(cor_chuva);
     for (const Vector4& v : variaveis_clima_.objetos) {
@@ -3747,7 +3748,7 @@ void Tabuleiro::DesenhaClima() {
       gl::MultiplicaMatriz(m.get());
       gl::DesenhaVboGravado(vbo);
     }
-  } else if (proto_.neve() > 0.0f) {
+  } else if (cenario_clima.neve() > 0.0f) {
     // O floco é semelhante a uma cruz de malta 3d, composta por 4 piramides.
     const float kRaioFloco = 0.2f;
     const float kLarguraFloco = 0.05f;
