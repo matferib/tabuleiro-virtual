@@ -5011,8 +5011,9 @@ bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   if (proto.selecionavel_para_jogador() && pd.nao_desenha_entidades_selecionaveis()) {
     return true;
   }
-  if (proto.tipo() == TE_ENTIDADE && pd.has_desenha_mapa_oclusao()) {
+  if (proto.tipo() == TE_ENTIDADE && (pd.has_desenha_mapa_oclusao() || pd.desenha_mapa_neve())) {
     // Para oclusao, entidades nao contam (performance).
+    // Para neve, entidades não contam (para não ficar gerando buracos dinamicamente).
     return true;
   }
   if (proto.tipo() == TE_ENTIDADE && pd.has_desenha_mapa_luzes() && pd.entidade_referencia_luz() == proto.id()) {
