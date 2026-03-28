@@ -15,6 +15,8 @@
 #include <QtWidgets/QApplication>
 #include <boost/asio.hpp>
 
+#include "absl/strings/match.h"
+#include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "arq/arquivo.h"
 #include "ent/tabelas.h"
@@ -143,11 +145,24 @@ int main(int argc, char** argv) {
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &modelos3d, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(tabelas, p.get(), &teclado_mouse, &tabuleiro, &central);
-  if (argc >= 2 && argv[1][0] != '-') {
+  bool tentou_carregar = false;
+  for (int i = 1; i < argc; ++i) {
+    if (argv[i][0] == '-') continue;
     // Carrega o tabuleiro.
     auto n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-    n->set_endereco(std::string("://") + argv[1]);
+    std::string nome(argv[i]);
+    if (!absl::StrContains(nome, "://")) {
+      // Tabuleiros estaticos devem começar com estatico://. Por padrão, carregamos dinamicos.
+      nome = absl::StrCat("dinamico://", nome);
+    }
+    n->set_endereco(nome);
     central.AdicionaNotificacao(n.release());
+    LOG(INFO) << "Carregando: " << nome;
+    tentou_carregar = true;
+    break;
+  }
+  if (!tentou_carregar) {
+    LOG(INFO) << "Iniciando sem tabuleiro carregado, argc: " << argc;
   }
   // As vezes o carregamento falha por diretorios errados. Conferir se tabela carregou (pois nao da erro apos construcao).
   if (tabelas.todas().tabela_classes().info_classes().empty()) {
