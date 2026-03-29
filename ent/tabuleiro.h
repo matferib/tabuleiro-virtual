@@ -1258,7 +1258,7 @@ class Tabuleiro : public ntf::Receptor {
 
   bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
   bool MapeamentoSombraLuzDirecional() const { return opcoes_.mapeamento_sombras(); }
-  bool MapeamentoNeve() const { return opcoes_.mapeamento_neve() && CenarioVento(*proto_corrente_).neve() > 0.0f; }
+  bool MapeamentoNeve() const { return opcoes_.mapeamento_neve() && variaveis_clima_.transicao > 0.0f; }
   bool MapeamentoLuzes() const { return opcoes_.mapeamento_luzes(); }
 
   void EscreveInfoGeral(const std::string& info_geral);
