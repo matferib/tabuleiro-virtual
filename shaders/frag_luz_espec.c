@@ -215,7 +215,7 @@ lowp float Visivel(in lowp vec3 normal, samplerCube sampler, highp vec3 pos) {
   mais_proximo = gltab_plano_proximo_oclusao + mais_proximo * (gltab_plano_distante_oclusao - gltab_plano_proximo_oclusao);
   // Se mais_proximo menor que valor computado, retorna 0.
   //return step((length(pos) - bias), mais_proximo);
-  return 1.0 - smoothstep(mais_proximo, mais_proximo + bias, length(pos));
+  return 1.0 - smoothstep(mais_proximo, mais_proximo + bias, length(pos) - bias);
 }
 
 void main() {
