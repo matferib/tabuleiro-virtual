@@ -326,6 +326,8 @@ void Tabuleiro::EstadoInicial() {
   indice_iniciativa_ = -1;
   iniciativa_valida_ = false;
   iniciativas_.clear();
+
+  variaveis_clima_ = VariaveisClima();
 }
 
 void Tabuleiro::EscreveInfoGeral(const std::string& info_geral) {
@@ -6167,6 +6169,8 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
   }
+  const auto& cenario_clima = CenarioVento(*proto_corrente_);
+  variaveis_clima_ = VariaveisClima((cenario_clima.neve() + cenario_clima.chuva()) > 0.0f ? 1.0f : 0.0f);
   proto_.clear_manter_entidades();  // Os clientes nao devem receber isso.
   proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
   proto_.clear_id_cliente();
