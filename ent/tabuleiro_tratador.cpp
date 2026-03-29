@@ -827,6 +827,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       }
       estado_ = estado_anterior_;
       translacoes_rotacoes_escalas_antes_.clear();
+      RequerAtualizacaoLuzesPontuais();
       return;
     }
     case ETAB_ROTACAO:
@@ -906,6 +907,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       //parametros_desenho_.Clear();
       parametros_desenho_.clear_offset_terreno();
       parametros_desenho_.clear_desenha_entidades();
+      RequerAtualizacaoLuzesPontuais();
       return;
     }
     case ETAB_SELECIONANDO_ENTIDADES: {
