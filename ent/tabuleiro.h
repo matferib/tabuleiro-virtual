@@ -1598,6 +1598,7 @@ class Tabuleiro : public ntf::Receptor {
   InfoTextura imagem_mostrada_;
 
   struct VariaveisClima {
+    VariaveisClima(float transicao = 0.0f) : transicao(transicao) {}
     Vector3 vetor;
     std::vector<Vector4> objetos;
     unsigned int proximo_update = 0;

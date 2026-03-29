@@ -6456,6 +6456,9 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
   AtualizaOlho(0, true  /*forcar*/);
   // Atualiza luzes e oclusao.
   RequerAtualizacaoLuzesPontuais();
+  // Reseta o clima para a condição do cenário.
+  const auto& cenario_clima = CenarioVento(*cenario);
+  variaveis_clima_ = VariaveisClima(cenario_clima.neve() > 0.0f || cenario_clima.chuva() > 0.0f ? 1.0f : 0.0f);
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
