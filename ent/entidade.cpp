@@ -1279,6 +1279,7 @@ void Entidade::MovePara(float x, float y, float z) {
   p->set_z(z /*std::max(ZChao(x, y), z)*/);
   proto_.clear_destino();
   vd_.atualiza_matriz_vbo = true;
+  AtualizaMatrizes();
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
 }
 
@@ -1287,6 +1288,7 @@ void Entidade::MovePara(const Posicao& pos) {
   *proto_.mutable_pos() = pos;
   proto_.clear_destino();
   vd_.atualiza_matriz_vbo = true;
+  AtualizaMatrizes();
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
 }
 
@@ -1299,6 +1301,7 @@ void Entidade::Destino(const Posicao& pos) {
 }
 
 void Entidade::Rota(const EntidadeProto::Rota& rota) {
+  VLOG(1) << "Adicionando rota a entidade: " << rota.ShortDebugString();
   *proto_.mutable_rota() = rota;
 }
 
