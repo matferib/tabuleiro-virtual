@@ -933,7 +933,7 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   } else {
     gl::UsaShader(gl::TSH_PROFUNDIDADE);
   }
-  gl::UnidadeTextura(GL_TEXTURE1);
+  gl::UnidadeTextura(gl::UNITEX_SOMBRA_DIRECIONAL);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(gl::UNITEX_TEX);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -1136,14 +1136,14 @@ int Tabuleiro::Desenha() {
     ConfiguraProjecaoMapeamentoSombras();  // antes de parametros_desenho_.set_desenha_mapa_sombras para configurar para luz.
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-    gl::UnidadeTextura(GL_TEXTURE1);
+    gl::UnidadeTextura(gl::UNITEX_SOMBRA_DIRECIONAL);
     gl::LigacaoComTextura(GL_TEXTURE_2D, dfb_luz_direcional_.textura);
     gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
     parametros_desenho_ = salva_pd;
   } else {
-    gl::UnidadeTextura(GL_TEXTURE1);
+    gl::UnidadeTextura(gl::UNITEX_SOMBRA_DIRECIONAL);
     gl::LigacaoComTextura(GL_TEXTURE_2D, texturas_->Textura("white.png"));
     gl::UsaShader(tipo_shader);
     gl::UnidadeTextura(gl::UNITEX_TEX);
@@ -4044,7 +4044,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
 
     MudaCor(COR_BRANCA);
     gl::Habilita(GL_TEXTURE_2D);
-    //gl::UnidadeTextura(GL_TEXTURE1);
+    //gl::UnidadeTextura(gl::UNITEX_SOMBRA_DIRECIONAL);
     //gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
