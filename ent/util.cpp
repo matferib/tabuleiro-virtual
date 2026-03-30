@@ -5388,6 +5388,17 @@ void GeraNomeArma(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPer
   arma_pc.set_nome(nome);
 }
 
+void GeraNomeArmadura(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& armadura_pc) {
+  std::string nome = ArmaduraTabela(tabelas, armadura_pc.id_tabela()).nome();
+  if (armadura_pc.bonus_magico() > 0) {
+    // Se entrou aqui, é no mínimo obra prima.
+    absl::StrAppend(&nome, " +", armadura_pc.bonus_magico());
+  } else if (armadura_pc.obra_prima()) {
+    absl::StrAppend(&nome, "[op]");
+  }
+  armadura_pc.set_nome(nome);
+}
+
 const ArmaduraOuEscudoProto& ArmaduraTabela(
   const Tabelas& tabelas, const std::string& id) {
   return tabelas.Armadura(id);
