@@ -5369,7 +5369,8 @@ const ArmaProto& ArmaTabela(
 }
 
 void GeraNomeArma(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc) {
-  std::string nome = ArmaTabela(tabelas, arma_pc.id_tabela()).nome();
+  const auto& arma_tabela = ArmaTabela(tabelas, arma_pc.id_tabela());
+  std::string nome = arma_tabela.nome();
   if (arma_pc.bonus_magico() > 0 || arma_pc.bonus_magico_secundario() > 0) {
     // Se entrou aqui, é no mínimo obra prima.
     if (arma_pc.bonus_magico() > 0) {
@@ -5377,10 +5378,12 @@ void GeraNomeArma(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPer
     } else {
       absl::StrAppend(&nome, " [op]");
     }
-    if (arma_pc.bonus_magico_secundario() > 0) {
-      absl::StrAppend(&nome, "/+", arma_pc.bonus_magico_secundario());
-    } else {
-      absl::StrAppend(&nome, "/[op]");
+    if (arma_tabela.has_dano_secundario()) {
+      if (arma_pc.bonus_magico_secundario() > 0) {
+        absl::StrAppend(&nome, "/+", arma_pc.bonus_magico_secundario());
+      } else {
+        absl::StrAppend(&nome, "/[op]");
+      }
     }
   } else if (arma_pc.obra_prima()) {
     absl::StrAppend(&nome, "[op]");
