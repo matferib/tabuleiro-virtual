@@ -745,7 +745,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   gl::UsaShader(gl::TSH_PONTUAL);
 
-  gl::UnidadeTextura(GL_TEXTURE3);
+  gl::UnidadeTextura(gl::UNITEX_OCLUSAO);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
   gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento(), opcoes_.tamanho_framebuffer_texturas_mapeamento());
   parametros_desenho_.set_desenha_mapa_oclusao(0);
@@ -1106,7 +1106,7 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(tipo_shader);
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-    gl::UnidadeTextura(GL_TEXTURE3);
+    gl::UnidadeTextura(gl::UNITEX_OCLUSAO);
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_oclusao_.textura);
     gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -4066,7 +4066,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
 
     MudaCor(COR_BRANCA);
     gl::Habilita(GL_TEXTURE_2D);
-    gl::UnidadeTextura(GL_TEXTURE3);
+    gl::UnidadeTextura(gl::UNITEX_OCLUSAO);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_oclusao_);
