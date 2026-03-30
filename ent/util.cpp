@@ -19,8 +19,10 @@
 #include <tuple>
 #include <unordered_map>
 
+#include "absl/strings/match.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
+#include "absl/strings/str_replace.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
 #include "ent/comum.pb.h"
@@ -7417,6 +7419,13 @@ Cor HSVParaCor(Vector3 hsv) {
     break;
   }
   return out;
+}
+
+std::string TexturaAlbedo(const std::string& bump) {
+  if (absl::StartsWith(bump, "bump_")) {
+    return absl::StrReplaceAll(bump, {{"bump_", "albedo_"}});
+  }
+  return "white.png";
 }
 
 }  // namespace ent

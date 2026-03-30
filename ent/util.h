@@ -1287,6 +1287,9 @@ Moedas ConvertePreco(const std::string& preco);
 Vector3 CorParaHSV(const Cor& cor);
 Cor HSVParaCor(Vector3 hsv);
 
+// Retorna o nome da textura albedo para uma textura bump.
+std::string TexturaAlbedo(const std::string& bump);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
