@@ -1162,6 +1162,12 @@ void ConfiguraArmasArmaduraOuEscudo(
     auto* delegado = new ArmaDelegate(tabelas, lista, proto_retornado);
     lista->setItemDelegate(delegado);
     delegado->deleteLater();
+  } else if (tipo == arma_armadura_ou_escudo_e::ITEM_ARMADURA) {
+    // Delegado.
+    std::unique_ptr<QAbstractItemDelegate> delete_old(lista->itemDelegate());
+    auto* delegado = new ArmaduraDelegate(tabelas, lista, proto_retornado);
+    lista->setItemDelegate(delegado);
+    delegado->deleteLater();
   }
 
   lambda_connect(lista, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado]() {
@@ -1333,7 +1339,7 @@ void PreencheConfiguraTesouro(
       dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ITEM_ARMADURA,
       gerador.lista_armaduras,
       gerador.botao_adicionar_armadura, gerador.botao_duplicar_armadura,
-      nullptr, nullptr, nullptr,
+      gerador.checkbox_armadura_op, gerador.spin_bonus_armadura, nullptr,
       gerador.botao_remover_armadura, gerador.botao_ordenar_armaduras,
       gerador.botao_doar_armadura,
       proto, proto_retornado, central);
@@ -1342,7 +1348,7 @@ void PreencheConfiguraTesouro(
       dialogo, tabelas, tipo_terreno, gerador, f_atualiza_ui, ITEM_ESCUDO,
       gerador.lista_escudos,
       gerador.botao_adicionar_escudo, gerador.botao_duplicar_escudo,
-      nullptr, nullptr, nullptr,
+      gerador.checkbox_escudo_op, gerador.spin_bonus_escudo, nullptr,
       gerador.botao_remover_escudo, gerador.botao_ordenar_escudos,
       gerador.botao_doar_escudo,
       proto, proto_retornado, central);
@@ -1549,14 +1555,12 @@ void ConfiguraComboArma(
   lambda_connect(combo_arma, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_arma, tipo_terreno] () {
     const int index_combo = gerador.combo_arma->currentIndex();
     const std::string id_combo = index_combo < 0 ? "nenhuma" : combo_arma->itemData(index_combo).toString().toStdString();
-    bool do_equipamento = false;
     std::string id_tabela = id_combo;
     std::string id_tesouro;
     if (id_combo.find(kPrefixoEquipamento) == 0) {
       id_tesouro = id_combo.substr(strlen(kPrefixoEquipamento));
       const auto& arma_personagem = ent::ArmaPersonagem(id_tesouro, *proto_retornado);
       id_tabela = arma_personagem.has_id_tabela() ? arma_personagem.id_tabela() : "nenhuma";
-      do_equipamento = true;
     }
     LOG(ERROR) << "id_combo: " << id_combo << ", id_tabela: " << id_tabela << ", id_tesouro: " << id_tesouro;
 
