@@ -877,7 +877,7 @@ void Tabuleiro::DesenhaMapaNeve() {
   } else {
     gl::UsaShader(gl::TSH_PROFUNDIDADE);
   }
-  gl::UnidadeTextura(GL_TEXTURE5);
+  gl::UnidadeTextura(gl::UNITEX_NEVE);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(gl::UNITEX_TEX);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -1171,7 +1171,7 @@ int Tabuleiro::Desenha() {
     ConfiguraProjecaoMapeamentoNeve();  // antes de parametros_desenho_.set_desenha_mapa_sombras para configurar para luz.
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-    gl::UnidadeTextura(GL_TEXTURE5);
+    gl::UnidadeTextura(gl::UNITEX_NEVE);
     gl::LigacaoComTextura(GL_TEXTURE_2D, dfb_neve_.textura);
     gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -1179,7 +1179,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_ = salva_pd;
   } else {
     gl::UsaShader(tipo_shader);
-    gl::UnidadeTextura(GL_TEXTURE5);
+    gl::UnidadeTextura(gl::UNITEX_NEVE);
     gl::LigacaoComTextura(GL_TEXTURE_2D, texturas_->Textura("white.png"));
     gl::UnidadeTextura(gl::UNITEX_TEX);
   }
