@@ -36,7 +36,7 @@ struct VarShader {
   GLint uni_gltab_textura_bump;         // Ha textura bump: 1, nao ha: 0.
   GLint uni_gltab_textura_cubo;         // Ha textura cubo: 1, nao ha: 0.
   GLint uni_gltab_unidade_textura;
-  //GLint uni_gltab_unidade_textura_bump;
+  GLint uni_gltab_unidade_textura_bump;
   GLint uni_gltab_unidade_textura_sombra;
   GLint uni_gltab_unidade_textura_neve;
   GLint uni_gltab_unidade_textura_cubo;
