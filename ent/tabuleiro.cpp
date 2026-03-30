@@ -668,7 +668,7 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   parametros_desenho_.set_desenha_fps(false);
   parametros_desenho_.set_desenha_info_geral(false);
 
-  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::UnidadeTextura(gl::UNITEX_TEX);
   auto tipo_anterior = gl::TipoShaderCorrente();
   DesenhaCena();
 
@@ -692,7 +692,7 @@ void Tabuleiro::DesenhaFramebufferPrincipal() {
   gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
 
   gl::DesligaEscritaProfundidadeEscopo desliga_escopo;
-  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::UnidadeTextura(gl::UNITEX_TEX);
   gl::Habilita(GL_TEXTURE_2D);
   gl::LigacaoComTextura(GL_TEXTURE_2D, dfb_principal_.textura);
   gl::MudaCor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -879,7 +879,7 @@ void Tabuleiro::DesenhaMapaNeve() {
   }
   gl::UnidadeTextura(GL_TEXTURE5);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::UnidadeTextura(gl::UNITEX_TEX);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2, opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
@@ -935,7 +935,7 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   }
   gl::UnidadeTextura(GL_TEXTURE1);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::UnidadeTextura(gl::UNITEX_TEX);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2, opcoes_.tamanho_framebuffer_texturas_mapeamento() * 2);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
@@ -1108,7 +1108,7 @@ int Tabuleiro::Desenha() {
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
     gl::UnidadeTextura(GL_TEXTURE3);
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_oclusao_.textura);
-    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
     parametros_desenho_ = salva_pd;
@@ -1138,7 +1138,7 @@ int Tabuleiro::Desenha() {
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
     gl::UnidadeTextura(GL_TEXTURE1);
     gl::LigacaoComTextura(GL_TEXTURE_2D, dfb_luz_direcional_.textura);
-    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
     parametros_desenho_ = salva_pd;
@@ -1146,7 +1146,7 @@ int Tabuleiro::Desenha() {
     gl::UnidadeTextura(GL_TEXTURE1);
     gl::LigacaoComTextura(GL_TEXTURE_2D, texturas_->Textura("white.png"));
     gl::UsaShader(tipo_shader);
-    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::UnidadeTextura(gl::UNITEX_TEX);
   }
 
   if (MapeamentoNeve() && !modo_debug_) {
@@ -1173,7 +1173,7 @@ int Tabuleiro::Desenha() {
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
     gl::UnidadeTextura(GL_TEXTURE5);
     gl::LigacaoComTextura(GL_TEXTURE_2D, dfb_neve_.textura);
-    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
     parametros_desenho_ = salva_pd;
@@ -1181,7 +1181,7 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(tipo_shader);
     gl::UnidadeTextura(GL_TEXTURE5);
     gl::LigacaoComTextura(GL_TEXTURE_2D, texturas_->Textura("white.png"));
-    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::UnidadeTextura(gl::UNITEX_TEX);
   }
 
 #if DEBUG
@@ -4046,7 +4046,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     gl::Habilita(GL_TEXTURE_2D);
     //gl::UnidadeTextura(GL_TEXTURE1);
     //gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
     gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -4068,7 +4068,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::UnidadeTextura(GL_TEXTURE3);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::UnidadeTextura(gl::UNITEX_TEX);
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_oclusao_);
     gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -7600,7 +7600,7 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   gl::UnidadeTextura(GL_TEXTURE4);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_luzes_[0].textura);
-  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::UnidadeTextura(gl::UNITEX_TEX);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Desabilita(GL_TEXTURE_2D);
   parametros_desenho_ = salva_pd;
@@ -7725,7 +7725,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   //gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::FuncaoProfundidade(GL_LEQUAL);  // O shader vai escrever pro mais longe.
   gl::FaceNula(GL_FRONT);
-  gl::UnidadeTextura(tipo_textura == GL_TEXTURE_CUBE_MAP ? GL_TEXTURE2 : GL_TEXTURE0);
+  gl::UnidadeTextura(tipo_textura == GL_TEXTURE_CUBE_MAP ? GL_TEXTURE2 : gl::UNITEX_TEX);
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(tipo_textura);
     gl::LigacaoComTextura(tipo_textura, id_textura);
@@ -7745,7 +7745,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::DesenhaVboGravado(vbo_caixa_ceu_);
   gl::LigacaoComTextura(tipo_textura, 0);
   gl::Desabilita(tipo_textura);
-  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::UnidadeTextura(gl::UNITEX_TEX);
   gl::FaceNula(GL_BACK);
   gl::FuncaoProfundidade(GL_LESS);
   gl::UsaShader(tipo_anterior);
@@ -7771,7 +7771,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::CuboUnitario();
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
   gl::Desabilita(GL_TEXTURE_CUBE_MAP);
-  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::UnidadeTextura(gl::UNITEX_TEX);
   // Religa luzes.
   gl::UsaShader(tipo_anterior);
 #endif
