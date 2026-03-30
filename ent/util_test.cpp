@@ -289,8 +289,10 @@ TEST(TesteArmas, TesteMarteloGnomoInvertido) {
     da->set_inverter_arma(true);
   }
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
+  EXPECT_TRUE(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).inverter_arma());
   EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).dano(), "1d6");
   EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).multiplicador_critico(), 4);
+  EXPECT_TRUE(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).inverter_arma());
   EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).dano(), "1d8");
   EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).multiplicador_critico(), 3);
 }
@@ -317,8 +319,10 @@ TEST(TesteArmas, TesteMarteloGnomoInvertidoSoPrimarioSetado) {
     da->set_id_arma("martelo_gnomo_com_gancho");
   }
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
+  EXPECT_TRUE(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).inverter_arma());
   EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).dano(), "1d6");
   EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).multiplicador_critico(), 4);
+  EXPECT_TRUE(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).inverter_arma());
   EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).dano(), "1d8");
   EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).multiplicador_critico(), 3);
 }
@@ -345,12 +349,14 @@ TEST(TesteArmas, TesteMarteloGnomoInvertidoSoSecundarioSetado) {
     da->set_inverter_arma(true);
   }
   std::unique_ptr<Entidade> entidade(NovaEntidadeParaTestes(proto, TabelasCriando()));
-  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).dano(), "1d6");
-  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).multiplicador_critico(), 4);
-  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).dano(), "1d8");
-  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).multiplicador_critico(), 3);
+  // Como a mao boa que manda, a invertida sera ignorada.
+  EXPECT_FALSE(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).inverter_arma());
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).dano(), "1d8");
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 0).multiplicador_critico(), 3);
+  EXPECT_FALSE(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).inverter_arma());
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).dano(), "1d6");
+  EXPECT_EQ(DadosAtaquePorGrupo("martelo_gnomo_com_gancho", entidade->Proto(), 1).multiplicador_critico(), 4);
 }
-
 
 TEST(TesteArmas, TesteChicote) {
   auto modelo = TabelasCriando().ModeloEntidade("Humano Plebeu 1");

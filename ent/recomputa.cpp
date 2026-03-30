@@ -109,16 +109,17 @@ std::string CalculaDanoConstricaoParaAtaque(const DadosAtaque& da, const Entidad
   return dano_basico_constricao.c_str() + (mod_final != 0 ? absl::StrFormat("%+d", mod_final) : "");
 }
 
-const DadosAtaque& DadosAtaqueOutraMao(const DadosAtaque& da_mao, const EntidadeProto& proto) {
+// Retorna os DadosAtaque da mao principal.
+const DadosAtaque& DadosAtaqueMaoPrincipal(const DadosAtaque& da_mao, const EntidadeProto& proto) {
   for (const auto& da : proto.dados_ataque()) {
-    if (da.grupo() == da_mao.grupo() && da.empunhadura() != da_mao.empunhadura()) {
+    if (da.grupo() == da_mao.grupo() && da.empunhadura() != EA_MAO_RUIM) {
       return da;
     }
   }
-  return DadosAtaque::default_instance();
+  return da_mao;
 }
 
-// Retorna a arma da outra mao.
+// Retorna a arma da outra mao se nao for a principal.
 const ArmaProto& ArmaOutraMao(
     const Tabelas& tabelas, const DadosAtaque& da_mao, const EntidadeProto& proto) {
   const DadosAtaque* da_outra_mao = &da_mao;
@@ -3558,8 +3559,7 @@ void RecomputaDependenciasUmDadoAtaque(
   ArmaParaDadosAtaque(tabelas, arma, proto, da);
   AcaoParaDadosAtaque(tabelas, arma, proto, da);
 
-  const auto& da_outra_mao = DadosAtaqueOutraMao(*da, proto);
-  const bool usando_arma_invertida = da->inverter_arma() || da_outra_mao.inverter_arma();
+  const auto& da_mao_principal = DadosAtaqueMaoPrincipal(*da, proto);
   const auto& arma_outra_mao = ArmaOutraMao(tabelas, *da, proto);
   const bool usando_escudo_na_defesa = da->empunhadura() == EA_ARMA_ESCUDO;
   const int penalidade_ataque_escudo = usando_escudo_na_defesa ? PenalidadeEscudo(tabelas, proto) : 0;
@@ -3593,6 +3593,9 @@ void RecomputaDependenciasUmDadoAtaque(
   }
   if (tamanho > TM_COLOSSAL) {
     tamanho = TM_COLOSSAL;
+  }
+  if (da_mao_principal.inverter_arma() != da->inverter_arma()) {
+    da->set_inverter_arma(da_mao_principal.inverter_arma());
   }
 
   if (arma.has_id()) {
@@ -3634,7 +3637,7 @@ void RecomputaDependenciasUmDadoAtaque(
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico());
     } else if ((da->empunhadura() == EA_MAO_RUIM) && PossuiCategoria(CAT_ARMA_DUPLA, arma)) {
-      if (!usando_arma_invertida && arma.has_dano_secundario()) {
+      if (!da->inverter_arma() && arma.has_dano_secundario()) {
         // Usa o lado secundario.
         da->set_dano_basico(DanoBasicoPorTamanho(arma.dano_secundario(), tamanho));
         da->set_margem_critico(arma.margem_critico());
@@ -3645,7 +3648,7 @@ void RecomputaDependenciasUmDadoAtaque(
         da->set_margem_critico(arma.margem_critico());
         da->set_multiplicador_critico(arma.multiplicador_critico());
       }
-    } else if (PossuiCategoria(CAT_ARMA_DUPLA, arma) && usando_arma_invertida) {
+    } else if (PossuiCategoria(CAT_ARMA_DUPLA, arma) && da->inverter_arma()) {
       da->set_dano_basico(DanoBasicoPorTamanho(arma.dano_secundario(), tamanho));
       da->set_margem_critico(arma.margem_critico());
       da->set_multiplicador_critico(arma.multiplicador_critico_secundario());

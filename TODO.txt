@@ -9,8 +9,6 @@ Presets de luz/hora/clima/skybox.
 
 Idiomas automaticos por raca.
 
-Recomputa deve verificar arma ivnertida e aplicar nas duas pontas se setada em alguma.
-  - exemplo: se a primaria é invertida, a secundaria deve ser tambem.
 Som de cenario.
 Botao para emitir som de criatura.
 
