@@ -4409,6 +4409,11 @@ void Tabuleiro::RegeraVboTabuleiro() {
         }
       }
     }
+    grade_horizontal.AtribuiIndices(&indices_grade);
+    grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
+    grade_nao_gravada.Concatena(&grade_horizontal);
+    coordenadas_grade.clear();
+    indices_grade.clear();
   }
   grade_nao_gravada.AtribuiMatrizModelagem(Matrix4());
   vbos_grade_.Desgrava();
