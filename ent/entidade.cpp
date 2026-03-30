@@ -457,6 +457,12 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
     auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
     nl->add_info_textura()->set_id(proto_atual->info_textura().id());
     central->AdicionaNotificacao(nl.release());
+    if (proto_atual->info_textura().textura_bump()) {
+      VLOG(1) << "Liberando textura albedo: " << TexturaAlbedo(proto_atual->info_textura().id());
+      auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+      nl->add_info_textura()->set_id(TexturaAlbedo(proto_atual->info_textura().id()));
+      central->AdicionaNotificacao(nl.release());
+    }
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_proto.has_info_textura() && !novo_proto.info_textura().id().empty() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
@@ -472,6 +478,12 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
     }
     *proto_atual->mutable_info_textura() = nc->info_textura(0);
     central->AdicionaNotificacao(nc.release());
+    if (novo_proto.info_textura().textura_bump()) {
+      VLOG(1) << "Carregando textura albedo: " << TexturaAlbedo(novo_proto.info_textura().id());
+      auto nl = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+      nl->add_info_textura()->set_id(TexturaAlbedo(novo_proto.info_textura().id()));
+      central->AdicionaNotificacao(nl.release());
+    }
   }
   if (novo_proto.info_textura().id().empty()) {
     proto_atual->clear_info_textura();
