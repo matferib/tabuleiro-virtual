@@ -813,7 +813,7 @@ void Tabuleiro::DesenhaMapaSombraLuzPontual(unsigned int indice_luz) {
 
   gl::UsaShader(gl::TSH_PONTUAL);
 
-  gl::UnidadeTextura(GL_TEXTURE4);
+  gl::UnidadeTextura(gl::UNITEX_SOMBRA_PONTUAL);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
   gl::Viewport(0, 0, opcoes_.tamanho_framebuffer_texturas_mapeamento(), opcoes_.tamanho_framebuffer_texturas_mapeamento());
   // Face a ser desenhada. Aqui setada apenas configucao funcionar (alguma face tem que ser setada).
@@ -7598,7 +7598,7 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   // Note que ao mudar o shader, o valor do plano distante de corte para oclusao permanecera o mesmo.
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-  gl::UnidadeTextura(GL_TEXTURE4);
+  gl::UnidadeTextura(gl::UNITEX_SOMBRA_PONTUAL);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_luzes_[0].textura);
   gl::UnidadeTextura(gl::UNITEX_TEX);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
