@@ -92,12 +92,14 @@ void Entidade::DesenhaObjetoCompostoProto(
   GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
+    gl::UnidadeTextura(proto.info_textura().textura_bump() ? gl::UNITEX_BUMP : gl::UNITEX_TEX);
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     gl::TexturaBump(proto.info_textura().textura_bump());
     // Para num pegar lixo de outros objetos.
     gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
     gl::AtualizaMatrizes();
+    gl::UnidadeTextura(gl::UNITEX_TEX);
   }
   vd.vbos_gravados.Desenha();
   gl::TexturaBump(false);

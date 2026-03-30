@@ -247,6 +247,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   GLuint id_textura = usar_textura ? vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
 
   if (id_textura != GL_INVALID_VALUE) {
+    gl::UnidadeTextura(proto.info_textura().textura_bump() ? gl::UNITEX_BUMP : gl::UNITEX_TEX);
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     gl::TexturaBump(proto.info_textura().textura_bump());
@@ -268,6 +269,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::CarregaIdentidade();
       gl::AtualizaMatrizes();
     }
+    gl::UnidadeTextura(gl::UNITEX_TEX);
   }
 
   gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
