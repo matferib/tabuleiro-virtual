@@ -7725,7 +7725,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   //gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::FuncaoProfundidade(GL_LEQUAL);  // O shader vai escrever pro mais longe.
   gl::FaceNula(GL_FRONT);
-  gl::UnidadeTextura(tipo_textura == GL_TEXTURE_CUBE_MAP ? GL_TEXTURE2 : gl::UNITEX_TEX);
+  gl::UnidadeTextura(tipo_textura == GL_TEXTURE_CUBE_MAP ? gl::UNITEX_CUBO : gl::UNITEX_TEX);
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(tipo_textura);
     gl::LigacaoComTextura(tipo_textura, id_textura);
@@ -7762,7 +7762,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   //gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
-  gl::UnidadeTextura(GL_TEXTURE2);
+  gl::UnidadeTextura(gl::UNITEX_CUBO);
   gl::Habilita(GL_TEXTURE_CUBE_MAP);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, textura_framebuffer_oclusao_);
   vbo_caixa_ceu_.forca_texturas(true);
