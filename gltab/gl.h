@@ -223,7 +223,17 @@ inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) {
   glViewport(x, y, largura, altura);
 }
 
-// Texturas.
+// Texturas. Não vou usar class para poder mapear direto para inteiro.
+// Ver gl_comum.cpp, UsaShader para entender os bindings.
+enum UniTex {
+  UNITEX_TEX = GL_TEXTURE0,
+  UNITEX_SOMBRA_DIRECIONAL = GL_TEXTURE1,
+  UNITEX_CUBO = GL_TEXTURE2,
+  UNITEX_OCLUSAO = GL_TEXTURE3,
+  UNITEX_SOMBRA_PONTUAL = GL_TEXTURE4,
+  UNITEX_NEVE = GL_TEXTURE5,
+  UNITEX_BUMP = GL_TEXTURE6,
+};
 void UnidadeTextura(GLenum unidade);
 void TexturaBump(bool estado);
 inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, texturas); }
