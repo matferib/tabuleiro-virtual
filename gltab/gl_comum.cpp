@@ -421,7 +421,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_textura_bump", &shader->uni_gltab_textura_bump },
           {"gltab_textura_cubo", &shader->uni_gltab_textura_cubo },
           {"gltab_unidade_textura", &shader->uni_gltab_unidade_textura },
-          //{"gltab_unidade_textura_bump", &shader->uni_gltab_unidade_textura_bump },
+          {"gltab_unidade_textura_bump", &shader->uni_gltab_unidade_textura_bump },
           {"gltab_unidade_textura_sombra", &shader->uni_gltab_unidade_textura_sombra },
           {"gltab_unidade_textura_neve", &shader->uni_gltab_unidade_textura_neve },
           {"gltab_unidade_textura_cubo", &shader->uni_gltab_unidade_textura_cubo },
@@ -1305,13 +1305,14 @@ void UsaShader(TipoShader ts) {
   auto* shader = c->shader_corrente = &c->shaders[ts];
   // Atualiza as variaveis de shader.
   AtualizaTodasMatrizes();
+  // Esse binding aqui que associa o sampler uni_gltab_unidade_textura* com GL_TEXTUREN.
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura, 0);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_sombra, 1);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_oclusao, 3);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_luz, 4);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_neve, 5);
-  //interno::UniformeSeValido(shader->uni_gltab_unidade_textura_bump, 5);
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura_bump, 6);
 
   interno::UniformeSeValido(shader->uni_gltab_plano_distante, c->plano_distante);
   interno::UniformeSeValido(shader->uni_gltab_plano_proximo, c->plano_proximo);
