@@ -256,7 +256,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaMapaSombraLuzDirecional();
   void DesenhaMapaNeve();
   void DesenhaMapaOclusao();
-  void DesenhaMapaLuz(unsigned int indice_luz);
+  void DesenhaMapaSombraLuzPontual(unsigned int indice_luz);
   void DesenhaFramebufferPrincipal();
 
   /** Desenha um screenshot na tela e nada mais. Retorna o tempo em ms. */

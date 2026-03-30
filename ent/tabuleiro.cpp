@@ -769,7 +769,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   V_ERRO("LigacaoComFramebufferOclusao");
 }
 
-void Tabuleiro::DesenhaMapaLuz(unsigned int indice_luz) {
+void Tabuleiro::DesenhaMapaSombraLuzPontual(unsigned int indice_luz) {
   if (indice_luz >= luzes_pontuais_.size() || indice_luz >= dfb_luzes_.size()) {
     LOG(WARNING) << "Alguma coisa errada na configuracao da luz, indice_luz: " << indice_luz
                  << ", luzes_pontuais_.size(): " << luzes_pontuais_.size()
@@ -7588,7 +7588,7 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     gl::MatrizEscopo salva_proj(gl::MATRIZ_PROJECAO);
     gl::MatrizEscopo salva_view(gl::MATRIZ_CAMERA);
     gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM);
-    DesenhaMapaLuz(/*indice_luz=*/i);
+    DesenhaMapaSombraLuzPontual(/*indice_luz=*/i);
     // Para as funcoes de configuracao funcionarem.
     parametros_desenho_.set_desenha_mapa_luzes(0);
   }
