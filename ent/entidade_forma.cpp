@@ -247,29 +247,47 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   GLuint id_textura = usar_textura ? vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
 
   if (id_textura != GL_INVALID_VALUE) {
-    gl::UnidadeTextura(proto.info_textura().textura_bump() ? gl::UNITEX_BUMP : gl::UNITEX_TEX);
-    gl::Habilita(GL_TEXTURE_2D);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-    gl::TexturaBump(proto.info_textura().textura_bump());
-    float periodo_s = static_cast<float>(proto.info_textura().periodo_s());
-    if (proto.info_textura().has_modo_textura() || periodo_s > 0) {
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura());
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura());
-      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
-      if (vd.matriz_deslocamento_textura != Matrix4()) {
-        gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
-      } else {
-        gl::CarregaIdentidade();
+    gl::TexturaBump(proto.info_textura().textura_bump() != 0);
+    if (proto.info_textura().textura_bump() != 0) {
+      gl::UnidadeTextura(gl::UNITEX_BUMP);
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      GLuint id_albedo = vd.texturas->Textura(TexturaAlbedo(proto.info_textura().id()));
+      if (id_albedo == GL_INVALID_VALUE) {
+        id_albedo = vd.texturas->Textura("white.png");
       }
-      gl::AtualizaMatrizes();
+      float periodo_s = static_cast<float>(proto.info_textura().periodo_s());
+      GLfloat param = GL_REPEAT;
+      if (proto.info_textura().has_modo_textura() || periodo_s > 0) {
+        param = periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura();
+        gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+        if (vd.matriz_deslocamento_textura != Matrix4()) {
+          gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
+        } else {
+          gl::CarregaIdentidade();
+        }
+        gl::AtualizaMatrizes();
+      } else {
+        gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+        gl::CarregaIdentidade();
+        gl::AtualizaMatrizes();
+      }
+      // Parametros sao acoplados a unidade de textura, entao deve ser setado as duas.
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param);
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param);
+
+      gl::UnidadeTextura(gl::UNITEX_TEX);
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, id_albedo);
+      // Aqui seta na segunda tb.
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param);
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param);
+
     } else {
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
-      gl::CarregaIdentidade();
-      gl::AtualizaMatrizes();
+      gl::UnidadeTextura(gl::UNITEX_TEX);
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     }
-    gl::UnidadeTextura(gl::UNITEX_TEX);
   }
 
   gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM);
@@ -349,8 +367,11 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     gl::Desabilita(GL_TEXTURE_2D);
   }
 
-  gl::Desabilita(GL_TEXTURE_2D);
   gl::TexturaBump(false);
+  gl::UnidadeTextura(gl::UNITEX_BUMP);
+  gl::Desabilita(GL_TEXTURE_2D);
+  gl::UnidadeTextura(gl::UNITEX_TEX);
+  gl::Desabilita(GL_TEXTURE_2D);
 }
 
 bool Entidade::ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {

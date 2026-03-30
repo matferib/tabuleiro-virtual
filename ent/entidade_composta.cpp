@@ -2,6 +2,7 @@
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
+
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabelas.h"
@@ -92,10 +93,23 @@ void Entidade::DesenhaObjetoCompostoProto(
   GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
-    gl::UnidadeTextura(proto.info_textura().textura_bump() ? gl::UNITEX_BUMP : gl::UNITEX_TEX);
-    gl::Habilita(GL_TEXTURE_2D);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-    gl::TexturaBump(proto.info_textura().textura_bump());
+    gl::TexturaBump(proto.info_textura().textura_bump() != 0);
+    if (proto.info_textura().textura_bump() != 0) {
+      gl::UnidadeTextura(gl::UNITEX_BUMP);
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      GLuint id_albedo = vd.texturas->Textura(TexturaAlbedo(proto.info_textura().id()));
+      if (id_albedo == GL_INVALID_VALUE) {
+        id_albedo = vd.texturas->Textura("white.png");
+      }
+      gl::UnidadeTextura(gl::UNITEX_TEX);
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, id_albedo);
+    } else {
+      gl::UnidadeTextura(gl::UNITEX_TEX);
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    }
     // Para num pegar lixo de outros objetos.
     gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
     gl::AtualizaMatrizes();
@@ -103,6 +117,9 @@ void Entidade::DesenhaObjetoCompostoProto(
   }
   vd.vbos_gravados.Desenha();
   gl::TexturaBump(false);
+  gl::UnidadeTextura(gl::UNITEX_BUMP);
+  gl::Desabilita(GL_TEXTURE_2D);
+  gl::UnidadeTextura(gl::UNITEX_TEX);
   gl::Desabilita(GL_TEXTURE_2D);
 #if 0 && DEBUG
       // Debug de normais escala deve estar em 1.0.

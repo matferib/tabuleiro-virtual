@@ -235,6 +235,7 @@ void main() {
       highp vec3 desvio = ((vec3(2.0, 2.0, 2.0) * texture2D(gltab_unidade_textura_bump, v_Tex.st).xyz) - vec3(1.0, 1.0, 1.0));
       mediump mat3 tbn = mat3(v_Tangent, v_Bitangent, v_Normal);
       normal = normalize(tbn * desvio);
+      cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
     } else {
       cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
     }
