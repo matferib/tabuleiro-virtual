@@ -1181,7 +1181,6 @@ void ConfiguraArmasArmaduraOuEscudo(
     OrdenaArmasArmadurasOuEscudos(tabelas, gerador, tipo, lista, proto_retornado);
   });
 
-  // TODO pensar em armas duplas.
   if (checkbox_op != nullptr) {
     lambda_connect(checkbox_op, SIGNAL(stateChanged(int)), [checkbox_op, &tabelas, &gerador, tipo, lista, proto_retornado, f_atualiza_ui, tipo_terreno] () {
       const int indice = lista->currentRow();
@@ -1196,6 +1195,7 @@ void ConfiguraArmasArmaduraOuEscudo(
   }
   if (spin_bonus != nullptr) {
     lambda_connect(spin_bonus, SIGNAL(valueChanged(int)), [spin_bonus, &tabelas, &gerador, tipo, lista, proto_retornado, f_atualiza_ui, tipo_terreno]() {
+
       const int indice = lista->currentRow();
       auto* aae = BuscaArmasArmadurasEscudos(tipo, proto_retornado);
       if (indice < 0 || indice >= aae->size()) {

@@ -308,16 +308,16 @@ class ArmaduraDelegate : public QItemDelegate {
   // O dado de cada linha sera o id do item. Configura o combo para fechar e submeter os dados quando
   // alterado o item corrente.
   QComboBox* PreencheConfiguraCombo(QComboBox* combo) const {
-    std::map<QString, std::string> armas_ordenadas;
+    std::map<QString, std::string> armaduras_ordenadas;
     //for (const auto& apc : ArmadurasPersonagem()) {
     //  QString nome_traduzido = tr(apc.nome().c_str());
     //  itens_ordenados.insert(std::make_pair(nome_traduzido, apc.id()));
     //}
     for (const auto& at : ArmadurasTabela(tabelas_)) {
       QString nome_traduzido = tr(at.nome().c_str());
-      armas_ordenadas.insert(std::make_pair(nome_traduzido, at.id()));
+      armaduras_ordenadas.insert(std::make_pair(nome_traduzido, at.id()));
     }
-    for (const auto& [id, nome] : armas_ordenadas) {
+    for (const auto& [id, nome] : armaduras_ordenadas) {
       combo->addItem(id, QString(nome.c_str()));
     }
     ExpandeComboBox(combo);
