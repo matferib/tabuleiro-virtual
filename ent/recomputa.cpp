@@ -2698,6 +2698,35 @@ void RecomputaDependenciasArmasTesouro(const Tabelas& tabelas, EntidadeProto* pr
       }
     }
   }
+  unique_ids.clear();
+  for (auto& armadura_pc : *proto->mutable_tesouro()->mutable_armaduras()) {
+    GeraNomeArmadura(tabelas, armadura_pc);
+    if (!armadura_pc.id_tabela().empty()) {
+      int contador = 0;
+      while (!armadura_pc.has_id() || unique_ids.contains(armadura_pc.id())) {
+        armadura_pc.set_id(absl::StrCat(armadura_pc.id_tabela(), "-id-", contador++));
+        if (contador > 100) {
+          LOG(ERROR) << "limite de ids alcancado, desistindo de gerar id para armadura: " << armadura_pc.nome();
+          break;
+        }
+      }
+    }
+  }
+  unique_ids.clear();
+  for (auto& escudo_pc : *proto->mutable_tesouro()->mutable_escudos()) {
+    GeraNomeEscudo(tabelas, escudo_pc);
+    if (!escudo_pc.id_tabela().empty()) {
+      int contador = 0;
+      while (!escudo_pc.has_id() || unique_ids.contains(escudo_pc.id())) {
+        escudo_pc.set_id(absl::StrCat(escudo_pc.id_tabela(), "-id-", contador++));
+        if (contador > 100) {
+          LOG(ERROR) << "limite de ids alcancado, desistindo de gerar id para escudo: " << escudo_pc.nome();
+          break;
+        }
+      }
+    }
+  }
+
 }
 
 void RecomputaDependenciasItensMagicos(const Tabelas& tabelas, EntidadeProto* proto) {
