@@ -1069,7 +1069,8 @@ const ArmaProto& ArmaTabela(
 const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& ArmaPersonagem(const std::string& id_arma, const EntidadeProto& proto);
 const ArmaProto& ArmaTabela(const Tabelas& tabelas, const EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc);
 void GeraNomeArma(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc);
-void GeraNomeArmadura(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& arma_pc);
+void GeraNomeArmadura(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& armadura_pc);
+void GeraNomeEscudo(const Tabelas& tabelas, EntidadeProto::ArmaArmaduraOuEscudoPersonagem& escudo_pc);
 
 const ArmaduraOuEscudoProto& ArmaduraTabela(const Tabelas& tabelas, const std::string& id);
 const ArmaduraOuEscudoProto& EscudoTabela(const Tabelas& tabelas, const std::string& id);
