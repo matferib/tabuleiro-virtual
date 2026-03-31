@@ -1168,6 +1168,12 @@ void ConfiguraArmasArmaduraOuEscudo(
     auto* delegado = new ArmaduraDelegate(tabelas, lista, proto_retornado);
     lista->setItemDelegate(delegado);
     delegado->deleteLater();
+  } else if (tipo == arma_armadura_ou_escudo_e::ITEM_ESCUDO) {
+    // Delegado.
+    std::unique_ptr<QAbstractItemDelegate> delete_old(lista->itemDelegate());
+    auto* delegado = new EscudoDelegate(tabelas, lista, proto_retornado);
+    lista->setItemDelegate(delegado);
+    delegado->deleteLater();
   }
 
   lambda_connect(lista, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado]() {
