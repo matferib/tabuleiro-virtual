@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1692</width>
-    <height>1318</height>
+    <height>1136</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -240,7 +240,419 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="4" rowspan="2">
+       <item row="2" column="0" rowspan="2" colspan="3">
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
+          <string>Atributos</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkbox_selecionavel">
+            <property name="toolTip">
+             <string>Se verdadeiro, a entidade poderá ser selecionada por jogadores.</string>
+            </property>
+            <property name="text">
+             <string>Selecionável para jogadores</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="checkbox_colisao">
+            <property name="toolTip">
+             <string>Se verdadeiro, não será possível colidor com a entidade.</string>
+            </property>
+            <property name="text">
+             <string>Colisão</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QCheckBox" name="checkbox_ignora_luz">
+            <property name="toolTip">
+             <string>Se verdadeiro, a entidade será desenhada com iluminação total.</string>
+            </property>
+            <property name="text">
+             <string>Ignora Luz</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QCheckBox" name="checkbox_fumegando">
+            <property name="text">
+             <string>Fumegando</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QCheckBox" name="checkbox_visibilidade">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Visível</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QCheckBox" name="checkbox_pegando_fogo">
+            <property name="text">
+             <string>Pegando fogo</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkbox_respeita_solo">
+            <property name="toolTip">
+             <string>Se verdadeiro, a entidade não afundará no solo.</string>
+            </property>
+            <property name="text">
+             <string>Respeita Solo</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="checkbox_dois_lados">
+            <property name="toolTip">
+             <string>Se verdadeiro, nos dois lados da primitiva serão desenhados.</string>
+            </property>
+            <property name="text">
+             <string>Dois Lados</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QCheckBox" name="checkbox_especular">
+            <property name="toolTip">
+             <string>Se verdadeiro, objeto brilhará como metal</string>
+            </property>
+            <property name="text">
+             <string>Especular</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="checkbox_fixa">
+            <property name="toolTip">
+             <string>Se verdadeiro, a entidade será fixa (implicando que não será selecionada com um clique nem seleção de área)</string>
+            </property>
+            <property name="text">
+             <string>Fixa</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QCheckBox" name="checkbox_faz_sombra">
+            <property name="toolTip">
+             <string>Se verdadeiro, a entidade não fará sombra.</string>
+            </property>
+            <property name="text">
+             <string>Faz Sombra</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4" rowspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout_28">
+            <item>
+             <widget class="QLabel" name="label_22">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Elasticidade ao vento</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="slider_vento">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Elasticidade: 0 não é afetada por vento, 100 totalmente afetada, acima disso é extremamente afetada.</string>
+              </property>
+              <property name="maximum">
+               <number>200</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::TickPosition::NoTicks</enum>
+              </property>
+              <property name="tickInterval">
+               <number>50</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkbox_afetado_por_efeitos">
+            <property name="toolTip">
+             <string>Marque se objeto pode ser afetado por efeitos.</string>
+            </property>
+            <property name="text">
+             <string>Afetado por Efeitos</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Transição de Cenário</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_19">
+              <item>
+               <widget class="QComboBox" name="combo_transicao">
+                <item>
+                 <property name="text">
+                  <string>Sem Transição</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Cenário</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Tesouro</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="combo_id_cenario"/>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkbox_transicao_posicao">
+                <property name="text">
+                 <string>Posição?</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="botao_transicao_mapa">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Clicar</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_14">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_15">
+                <item>
+                 <widget class="QLabel" name="label_12">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spin_trans_x">
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-1000.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.500000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_16">
+                <item>
+                 <widget class="QLabel" name="label_13">
+                  <property name="text">
+                   <string>Y</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spin_trans_y">
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-1000.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.500000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_17">
+                <item>
+                 <widget class="QLabel" name="label_14">
+                  <property name="text">
+                   <string>Z</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spin_trans_z">
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-1000.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.500000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>328</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="7" column="0" colspan="5">
+        <widget class="QGroupBox" name="groupBox_10">
+         <property name="title">
+          <string>Rótulos</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QLabel" name="label_20">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Rótulo</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="rotulo">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>30</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <widget class="QLabel" name="label_21">
+              <property name="text">
+               <string>Rótulos Especiais</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="lista_rotulos">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="4" rowspan="3">
         <widget class="QGroupBox" name="groupBox_6">
          <property name="title">
           <string>Transformações</string>
@@ -478,403 +890,7 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0" rowspan="2" colspan="3">
-        <widget class="QGroupBox" name="groupBox_7">
-         <property name="title">
-          <string>Atributos</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="checkbox_selecionavel">
-            <property name="toolTip">
-             <string>Se verdadeiro, a entidade poderá ser selecionada por jogadores.</string>
-            </property>
-            <property name="text">
-             <string>Selecionável para jogadores</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="checkbox_colisao">
-            <property name="toolTip">
-             <string>Se verdadeiro, não será possível colidor com a entidade.</string>
-            </property>
-            <property name="text">
-             <string>Colisão</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QCheckBox" name="checkbox_ignora_luz">
-            <property name="toolTip">
-             <string>Se verdadeiro, a entidade será desenhada com iluminação total.</string>
-            </property>
-            <property name="text">
-             <string>Ignora Luz</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QCheckBox" name="checkbox_fumegando">
-            <property name="text">
-             <string>Fumegando</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QCheckBox" name="checkbox_visibilidade">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Visível</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QCheckBox" name="checkbox_pegando_fogo">
-            <property name="text">
-             <string>Pegando fogo</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="checkbox_respeita_solo">
-            <property name="toolTip">
-             <string>Se verdadeiro, a entidade não afundará no solo.</string>
-            </property>
-            <property name="text">
-             <string>Respeita Solo</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="checkbox_dois_lados">
-            <property name="toolTip">
-             <string>Se verdadeiro, nos dois lados da primitiva serão desenhados.</string>
-            </property>
-            <property name="text">
-             <string>Dois Lados</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QCheckBox" name="checkbox_especular">
-            <property name="toolTip">
-             <string>Se verdadeiro, objeto brilhará como metal</string>
-            </property>
-            <property name="text">
-             <string>Especular</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="checkbox_fixa">
-            <property name="toolTip">
-             <string>Se verdadeiro, a entidade será fixa (implicando que não será selecionada com um clique nem seleção de área)</string>
-            </property>
-            <property name="text">
-             <string>Fixa</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QCheckBox" name="checkbox_faz_sombra">
-            <property name="toolTip">
-             <string>Se verdadeiro, a entidade não fará sombra.</string>
-            </property>
-            <property name="text">
-             <string>Faz Sombra</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4" rowspan="3">
-           <layout class="QHBoxLayout" name="horizontalLayout_28">
-            <item>
-             <widget class="QLabel" name="label_22">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Elasticidade ao vento</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSlider" name="slider_vento">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>200</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Elasticidade: 0 não é afetada por vento, 100 totalmente afetada, acima disso é extremamente afetada.</string>
-              </property>
-              <property name="maximum">
-               <number>200</number>
-              </property>
-              <property name="tickPosition">
-               <enum>QSlider::NoTicks</enum>
-              </property>
-              <property name="tickInterval">
-               <number>50</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="checkbox_afetado_por_efeitos">
-            <property name="toolTip">
-             <string>Marque se objeto pode ser afetado por efeitos.</string>
-            </property>
-            <property name="text">
-             <string>Afetado por Efeitos</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="3" column="4" rowspan="2">
-        <widget class="QGroupBox" name="groupBox_9">
-         <property name="title">
-          <string>Iluminação</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_27">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QCheckBox" name="checkbox_luz">
-              <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="text">
-               <string>Luz</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_18">
-              <property name="text">
-               <string>Raio</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QDoubleSpinBox" name="spin_raio_quad">
-              <property name="toolTip">
-               <string>Raio da luz, em metros.</string>
-              </property>
-              <property name="decimals">
-               <number>1</number>
-              </property>
-              <property name="singleStep">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_31">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>quadrados</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="botao_luz">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-              <property name="text">
-               <string>Escolher Cor da Luz</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_5">
-         <property name="title">
-          <string>Transição de Cenário</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_19">
-              <item>
-               <widget class="QComboBox" name="combo_transicao">
-                <item>
-                 <property name="text">
-                  <string>Sem Transição</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Cenário</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Tesouro</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="combo_id_cenario"/>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="checkbox_transicao_posicao">
-                <property name="text">
-                 <string>Posição?</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="botao_transicao_mapa">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Clicar</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_14">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_15">
-                <item>
-                 <widget class="QLabel" name="label_12">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>X</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDoubleSpinBox" name="spin_trans_x">
-                  <property name="decimals">
-                   <number>1</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-1000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1000.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.500000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_16">
-                <item>
-                 <widget class="QLabel" name="label_13">
-                  <property name="text">
-                   <string>Y</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDoubleSpinBox" name="spin_trans_y">
-                  <property name="decimals">
-                   <number>1</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-1000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1000.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.500000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_17">
-                <item>
-                 <widget class="QLabel" name="label_14">
-                  <property name="text">
-                   <string>Z</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDoubleSpinBox" name="spin_trans_z">
-                  <property name="decimals">
-                   <number>1</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-1000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1000.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.500000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="4">
+       <item row="5" column="0" colspan="5">
         <widget class="QGroupBox" name="groupBox_8">
          <property name="title">
           <string/>
@@ -908,6 +924,9 @@
                    <property name="maximum">
                     <number>100</number>
                    </property>
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
                   </widget>
                  </item>
                 </layout>
@@ -926,7 +945,7 @@
                     <string>Habilitar</string>
                    </property>
                    <property name="alignment">
-                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                    <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -1066,6 +1085,9 @@
                   </item>
                   <item>
                    <spacer name="verticalSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Vertical</enum>
+                    </property>
                     <property name="sizeHint" stdset="0">
                      <size>
                       <width>20</width>
@@ -1140,90 +1162,77 @@
             </layout>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="6" column="2">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>328</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="7" column="0" colspan="5">
-        <widget class="QGroupBox" name="groupBox_10">
-         <property name="title">
-          <string>Rótulos</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_11">
-            <item>
-             <widget class="QLabel" name="label_20">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>Rótulo</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="rotulo">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>30</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_12">
-            <item>
-             <widget class="QLabel" name="label_21">
-              <property name="text">
-               <string>Rótulos Especiais</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPlainTextEdit" name="lista_rotulos">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QGroupBox" name="groupBox_9">
+            <property name="title">
+             <string>Iluminação</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_27">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <widget class="QCheckBox" name="checkbox_luz">
+                 <property name="layoutDirection">
+                  <enum>Qt::LayoutDirection::LeftToRight</enum>
+                 </property>
+                 <property name="text">
+                  <string>Luz</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_18">
+                 <property name="text">
+                  <string>Raio</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QDoubleSpinBox" name="spin_raio_quad">
+                 <property name="toolTip">
+                  <string>Raio da luz, em metros.</string>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="singleStep">
+                  <double>1.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_31">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>quadrados</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="botao_luz">
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>Escolher Cor da Luz</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
           </item>
          </layout>
         </widget>

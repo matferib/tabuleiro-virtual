@@ -630,6 +630,9 @@
         </item>
         <item>
          <widget class="QSlider" name="slider_grade">
+          <property name="toolTip">
+           <string>Grossura da grade</string>
+          </property>
           <property name="maximum">
            <number>10</number>
           </property>
@@ -1109,7 +1112,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="label_26">
           <property name="text">
-           <string>Força do Vento</string>
+           <string>Vento</string>
           </property>
          </widget>
         </item>
@@ -1133,6 +1136,16 @@
          <widget class="QLabel" name="label_28">
           <property name="text">
            <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_30">
+          <property name="text">
+           <string>Força</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
           </property>
          </widget>
         </item>
