@@ -801,14 +801,10 @@ DesligaEscritaProfundidadeEscopo::DesligaEscritaProfundidadeEscopo() {
   // Nao funciona com glIsEnabled.
   Le(GL_DEPTH_WRITEMASK, &valor_anterior_);
   MascaraProfundidade(false);
-  GLboolean valor_mudado;
-  Le(GL_DEPTH_WRITEMASK, &valor_mudado);
 }
 
 DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
   MascaraProfundidade(valor_anterior_);
-  GLboolean valor_mudado;
-  Le(GL_DEPTH_WRITEMASK, &valor_mudado);
 }
 
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {

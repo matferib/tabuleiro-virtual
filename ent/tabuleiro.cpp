@@ -1012,6 +1012,11 @@ int Tabuleiro::Desenha() {
     return DesenhaModoMostrarImagem();
   }
 
+  // No computador do FC, o valor da mascara de profundidade é perdido apos a primeira exceção (falhando ao ler recursos, não critico).
+  // Então, as funções de mascara por escopo restauram a escrita para um valor errado.
+  // Aqui a gente garante o valor inicial certo dela antes de toda a rotina de desenho, para ela ser restaurada corretamente.
+  gl::MascaraProfundidade(true);
+
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
   // default. Alem disso a matriz de projecao eh diferente para picking.
