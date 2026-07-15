@@ -257,7 +257,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         id_albedo = vd.texturas->Textura("white.png");
       }
       float periodo_s = static_cast<float>(proto.info_textura().periodo_s());
-      GLfloat param = GL_REPEAT;
+      GLint param = GL_REPEAT;
       if (proto.info_textura().has_modo_textura() || periodo_s > 0) {
         param = periodo_s > 0.0 ? GL_REPEAT : proto.info_textura().modo_textura();
         gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
@@ -284,6 +284,9 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param);
 
     } else {
+      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+      gl::CarregaIdentidade();
+      gl::AtualizaMatrizes();
       gl::UnidadeTextura(gl::UNITEX_TEX);
       gl::Habilita(GL_TEXTURE_2D);
       gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
