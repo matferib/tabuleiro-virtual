@@ -1595,7 +1595,8 @@ class Tabuleiro : public ntf::Receptor {
   bool regerar_vbos_entidades_ = false;
 
   // A imagem mostrada pelo mestre.
-  InfoTextura imagem_mostrada_;
+  int indice_imagem_mostrada_ = 0;
+  std::vector<InfoTextura> imagens_mostradas_;
 
   struct VariaveisClima {
     VariaveisClima(float transicao = 0.0f) : transicao(transicao) {}

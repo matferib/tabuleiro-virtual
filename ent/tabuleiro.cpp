@@ -952,6 +952,7 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
 }
 
 int Tabuleiro::DesenhaModoMostrarImagem() {
+  if (indice_imagem_mostrada_ < 0 || indice_imagem_mostrada_ >= imagens_mostradas_.size()) return 1;
   parametros_desenho_.Clear();
   // Não desenha nada alem do screenshot.
   parametros_desenho_.set_limpa_fundo(true);
@@ -982,7 +983,7 @@ int Tabuleiro::DesenhaModoMostrarImagem() {
   parametros_desenho_.set_desenha_entidades(false);
   parametros_desenho_.set_desenha_terreno(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
-  parametros_desenho_.mutable_desenha_imagem()->CopyFrom(imagem_mostrada_);
+  parametros_desenho_.mutable_desenha_imagem()->CopyFrom(imagens_mostradas_[indice_imagem_mostrada_]);
   parametros_desenho_.set_desenha_texturas(true);  // para o desenho do screenshot.
 
   gl::UsaShader(gl::TSH_SIMPLES);
@@ -2674,10 +2675,13 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_MOSTRAR_IMAGEM_CLIENTES: {
       if (notificacao.info_textura().empty()) return true;
-      auto notificacao_carregar = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-      notificacao_carregar->add_info_textura()->CopyFrom(notificacao.info_textura(0));
-      notificacao_carregar->mutable_info_textura(0)->set_id(std::to_string(id_cliente_) + ":" + notificacao.info_textura(0).id());
-      central_->AdicionaNotificacao(notificacao_carregar.release());
+      for (const auto& info_textura : notificacao.info_textura()) {
+        auto notificacao_carregar = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+        auto* it = notificacao_carregar->add_info_textura();
+        it->CopyFrom(info_textura);
+        it->set_id(std::to_string(id_cliente_) + ":" + it->id());
+        central_->AdicionaNotificacao(notificacao_carregar.release());
+      }
       EntraModoMostrarImagem(notificacao);
       if (notificacao.local()) {
         central_->AdicionaNotificacaoRemota(std::make_unique<ntf::Notificacao>(notificacao));
@@ -2685,11 +2689,17 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_FECHAR_IMAGEM_CLIENTES: {
-      auto notificacao_descarregar = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-      notificacao_descarregar->add_info_textura()->set_id(imagem_mostrada_.id());
-      central_->AdicionaNotificacao(notificacao_descarregar.release());
-      imagem_mostrada_.Clear();
-      EntraModoClique(MODO_NORMAL);
+      if (indice_imagem_mostrada_ >= 0 && indice_imagem_mostrada_ < imagens_mostradas_.size()) {
+        auto notificacao_descarregar = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+        notificacao_descarregar->add_info_textura()->set_id(imagens_mostradas_[indice_imagem_mostrada_].id());
+        central_->AdicionaNotificacao(notificacao_descarregar.release());
+        imagens_mostradas_[indice_imagem_mostrada_].Clear();
+      }
+      ++indice_imagem_mostrada_;
+      if (indice_imagem_mostrada_ < 0 || indice_imagem_mostrada_ >= imagens_mostradas_.size()) {
+        imagens_mostradas_.clear();
+        EntraModoClique(MODO_NORMAL);
+      }
       return true;
     }
     case ntf::TN_DESERIALIZAR_TABULEIRO: {
@@ -8789,8 +8799,12 @@ void Tabuleiro::EntraModoMostrarImagem(const ntf::Notificacao& notificacao) {
   if (notificacao.info_textura().empty()) {
     return;
   }
-  imagem_mostrada_ = notificacao.info_textura(0);
-  imagem_mostrada_.set_id(std::to_string(id_cliente_) + ":" + notificacao.info_textura(0).id());
+  indice_imagem_mostrada_ = 0;
+  imagens_mostradas_.clear();
+  for (const auto& info_textura : notificacao.info_textura()) {
+    auto& imagem = imagens_mostradas_.emplace_back(info_textura);
+    imagem.set_id(std::to_string(id_cliente_) + ":" + info_textura.id());
+  }
   EntraModoClique(MODO_MOSTRAR_IMAGEM);
 }
 
