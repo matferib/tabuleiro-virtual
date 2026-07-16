@@ -6,6 +6,7 @@
 #include "ent/acoes.pb.h"
 #include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
+#include "ent/util.h"
 #include "ifg/interface.h"
 #include "ifg/modelos.pb.h"
 #include "ifg/tecladomouse.h"
@@ -670,8 +671,7 @@ void InterfaceGrafica::TrataAbrirImagem(const ntf::Notificacao& notificacao) {
   try {
     tex_locais = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL);
     tex_globais = arq::ConteudoDiretorio(arq::TIPO_TEXTURA);
-  }
-  catch (...) {
+  } catch (...) {
   }
 
   if (tex_locais.empty() && tex_globais.empty()) {
@@ -680,12 +680,37 @@ void InterfaceGrafica::TrataAbrirImagem(const ntf::Notificacao& notificacao) {
     return;
   }
   std::sort(tex_locais.begin(), tex_locais.end());
-  std::sort(tex_globais.begin(), tex_globais.end());
-  EscolheArquivoAbrirImagem(
-    tex_locais, tex_globais,
-    std::bind(
-      &ifg::InterfaceGrafica::VoltaAbrirImagem,
-      this, _1, _2));
+  if (notificacao.forcado()) {
+    EscolheItemsLista(
+        "Escolha os arquivos a serem mostrados",
+        tex_locais,
+        std::bind(&ifg::InterfaceGrafica::VoltaAbrirImagens, this, tex_locais, _1, _2));
+  } else {
+    std::sort(tex_globais.begin(), tex_globais.end());
+    EscolheArquivoAbrirImagem(
+        tex_locais, tex_globais,
+        std::bind(
+            &ifg::InterfaceGrafica::VoltaAbrirImagem, this, _1, _2));
+  }
+}
+
+void InterfaceGrafica::VoltaAbrirImagens(const std::vector<std::string>& nomes, bool ok, const std::vector<int>& indices) {
+  if (ok && !nomes.empty()) {
+    auto notificacao = ntf::NovaNotificacao(ntf::TN_MOSTRAR_IMAGEM_CLIENTES);
+    for (int i : indices) {
+      if (i < 0 || i >= nomes.size()) continue;
+      auto* textura = notificacao->add_info_textura();
+      try {
+        unsigned int largura, altura;
+        tex::Texturas::LeDecodificaImagemTipo(arq::TIPO_TEXTURA_LOCAL, nomes[i], textura, &largura, &altura);
+      } catch (...) {
+        continue;
+      }
+      textura->set_id(nomes[i]);
+    }
+    central_->AdicionaNotificacao(notificacao.release());
+  }
+  tabuleiro_->ReativaWatchdogSeMestre();
 }
 
 void InterfaceGrafica::VoltaAbrirImagem(const std::string& nome, arq::tipo_e tipo) {

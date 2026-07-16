@@ -149,12 +149,13 @@ class InterfaceGrafica : public ntf::Receptor {
 
   void TrataAbrirTabuleiro(const ntf::Notificacao& notificacao);
   // A saida sera sempre TIPO_TABULEIRO_ESTATICO ou TIPO_TABULEIRO_DINAMICO, mesmo quando a entrada eh modelo3d.
-  void VoltaAbrirTabuleiro(
-    bool manter_entidades, bool modelo_3d, const std::string& nome, arq::tipo_e tipo_retornado);
+  void VoltaAbrirTabuleiro(bool manter_entidades, bool modelo_3d, const std::string& nome, arq::tipo_e tipo_retornado);
 
-  // A saida sempre sera TEXTURA_LOCAL.
   void TrataAbrirImagem(const ntf::Notificacao& notificacao);
+  // Permite TEXTURA_LOCAL ou TEXTURA_ESTATICA.
   void VoltaAbrirImagem(const std::string& nome, arq::tipo_e);
+  // Sempre será TEXTURA_LOCAL.
+  void VoltaAbrirImagens(const std::vector<std::string>& nomes, bool ok, const std::vector<int>& indices);
 
   void TrataSalvarTabuleiro(const ntf::Notificacao& notificacao);
   void VoltaSalvarTabuleiro(bool modelo_3d, bool versionar, const std::string& nome);
