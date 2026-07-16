@@ -207,9 +207,14 @@ void PreencheNotificacaoEsquiva(
 }  // namespace
 
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
-  if (EmModoMestreIncluindoSecundario() && tecla == ifg::Tecla_Esc) {
-    central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
-    central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
+  if (EmModoMestreIncluindoSecundario() &&
+      (tecla == ifg::Tecla_Esc || tecla == ifg::Tecla_Direita || tecla == ifg::Tecla_Esquerda)) {
+    auto n = ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES);
+    if (tecla != ifg::Tecla_Esc) {
+      n->set_id_generico(tecla);
+    }
+    central_->AdicionaNotificacao(std::make_unique<ntf::Notificacao>(*n));
+    central_->AdicionaNotificacaoRemota(std::move(n));
   }
   return;
 }

@@ -185,7 +185,7 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
 }
 
 void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM && tecla != Tecla_Esc) {
+  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM && tecla != Tecla_Esc && tecla != Tecla_Esquerda && tecla != Tecla_Direita) {
     return;
   }
 
@@ -263,6 +263,10 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     }
     case Tecla_Esquerda: {
+      if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+        tabuleiro_->TrataTeclaPressionada(Tecla_Esquerda);
+        return;
+      }
       if (((modificadores & Modificador_Ctrl) != 0)) {
         tabuleiro_->TrataEspiada(-1);
         return;
@@ -276,6 +280,10 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     }
     case Tecla_Direita: {
+      if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+        tabuleiro_->TrataTeclaPressionada(Tecla_Direita);
+        return;
+      }
       if (((modificadores & Modificador_Ctrl) != 0)) {
         tabuleiro_->TrataEspiada(1);
         return;

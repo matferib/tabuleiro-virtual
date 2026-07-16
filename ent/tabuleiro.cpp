@@ -43,6 +43,7 @@
 #include "ent/tabuleiro_terreno.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "ifg/tecladomouse.h"
 #include "log/log.h"
 #include "matrix/vectors.h"
 #include "net/util.h"  // hack to_string
@@ -2689,14 +2690,30 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_FECHAR_IMAGEM_CLIENTES: {
-      if (indice_imagem_mostrada_ >= 0 && indice_imagem_mostrada_ < imagens_mostradas_.size()) {
-        auto notificacao_descarregar = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-        notificacao_descarregar->add_info_textura()->set_id(imagens_mostradas_[indice_imagem_mostrada_].id());
-        central_->AdicionaNotificacao(notificacao_descarregar.release());
-        imagens_mostradas_[indice_imagem_mostrada_].Clear();
-      }
-      ++indice_imagem_mostrada_;
-      if (indice_imagem_mostrada_ < 0 || indice_imagem_mostrada_ >= imagens_mostradas_.size()) {
+      if (notificacao.has_id_generico()) {
+        if (notificacao.id_generico() == ifg::Tecla_Esquerda) {
+          // Esquerda na primeira não faz nada.
+          if (indice_imagem_mostrada_ <= 0) {
+            indice_imagem_mostrada_ = 0;
+            return true;
+          }
+          --indice_imagem_mostrada_;
+        } else {
+          // Direita na ultima não faz nada.
+          if (indice_imagem_mostrada_ + 1 >= imagens_mostradas_.size()) {
+            indice_imagem_mostrada_ = imagens_mostradas_.size() - 1;
+            return true;
+          }
+          ++indice_imagem_mostrada_;
+        }
+      } else {
+        // Veio pelo ESC.
+        for (InfoTextura& it : imagens_mostradas_) {
+          auto notificacao_descarregar = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+          notificacao_descarregar->add_info_textura()->set_id(it.id());
+          central_->AdicionaNotificacao(notificacao_descarregar.release());
+          it.Clear();
+        }
         imagens_mostradas_.clear();
         EntraModoClique(MODO_NORMAL);
       }
