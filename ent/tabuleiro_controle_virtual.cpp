@@ -930,7 +930,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     }
     case CONTROLE_MODO_MOSTRAR_IMAGEM: {
-      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_IMAGEM));
+      auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_IMAGEM);
+      n->set_forcado(forcar_selecao || alterna_selecao);
+      central_->AdicionaNotificacao(std::move(n));
       // Para teste.
       // EntraModoMostrarImagem();
       break;
@@ -988,8 +990,8 @@ void Tabuleiro::ModificarLuminanciaTabuleiro(const DadosBotao& db, int x, Tabule
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
   fonte_x_int *= escala;
   fonte_y_int *= escala;
-  const float fonte_x = fonte_x_int;
-  const float fonte_y = fonte_y_int;
+  const float fonte_x = static_cast<float>(fonte_x_int);
+  const float fonte_y = static_cast<float>(fonte_y_int);
   const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
   const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
   GLint viewport[4];
