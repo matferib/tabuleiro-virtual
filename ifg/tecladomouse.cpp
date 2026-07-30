@@ -185,7 +185,8 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
 }
 
 void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM && tecla != Tecla_Esc && tecla != Tecla_Esquerda && tecla != Tecla_Direita) {
+  if (tabuleiro_->EmModoMostrarImagem()) {
+    tabuleiro_->TrataTeclaPressionada(tecla);
     return;
   }
 
@@ -263,10 +264,6 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     }
     case Tecla_Esquerda: {
-      if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
-        tabuleiro_->TrataTeclaPressionada(Tecla_Esquerda);
-        return;
-      }
       if (((modificadores & Modificador_Ctrl) != 0)) {
         tabuleiro_->TrataEspiada(-1);
         return;
@@ -280,10 +277,6 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     }
     case Tecla_Direita: {
-      if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
-        tabuleiro_->TrataTeclaPressionada(Tecla_Direita);
-        return;
-      }
       if (((modificadores & Modificador_Ctrl) != 0)) {
         tabuleiro_->TrataEspiada(1);
         return;
@@ -465,7 +458,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
 }
 
 void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e modificadores) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+  if (tabuleiro_->EmModoMostrarImagem()) {
     return;
   }
 
@@ -485,7 +478,7 @@ void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e mo
 }
 
 void TratadorTecladoMouse::TrataBotaoMousePressionado(botoesmouse_e botao, unsigned int modificadores, int x, int y) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM && botao != Botao_Esquerdo) {
+  if (tabuleiro_->EmModoMostrarImagem() && botao != Botao_Esquerdo) {
     return;
   }
   MudaEstado(ESTADO_OUTRO);
@@ -528,7 +521,7 @@ void TratadorTecladoMouse::TrataBotaoMousePressionado(botoesmouse_e botao, unsig
 }
 
 bool TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+  if (tabuleiro_->EmModoMostrarImagem()) {
     return false;  // não restaura mouse.
   }
   ultimo_x_ = x;
@@ -543,7 +536,7 @@ bool TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
 }
 
 void TratadorTecladoMouse::TrataRodela(int delta) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+  if (tabuleiro_->EmModoMostrarImagem()) {
     return;
   }
   VLOG(1) << "Rodela: " << delta;
@@ -551,7 +544,7 @@ void TratadorTecladoMouse::TrataRodela(int delta) {
 }
 
 void TratadorTecladoMouse::TrataPincaEscala(float fator) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+  if (tabuleiro_->EmModoMostrarImagem()) {
     return;
   }
   VLOG(1) << "Pinca: " << fator;
@@ -559,7 +552,7 @@ void TratadorTecladoMouse::TrataPincaEscala(float fator) {
 }
 
 void TratadorTecladoMouse::TrataRotacaoPorDeltaRad(float delta_rad) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+  if (tabuleiro_->EmModoMostrarImagem()) {
     return;
   }
   VLOG(1) << "RotacaoPorDeltaRad: " << delta_rad;
@@ -567,7 +560,7 @@ void TratadorTecladoMouse::TrataRotacaoPorDeltaRad(float delta_rad) {
 }
 
 void TratadorTecladoMouse::TrataInicioPinca(int x1, int y1, int x2, int y2) {
-  if (tabuleiro_->ModoClique() == ent::Tabuleiro::MODO_MOSTRAR_IMAGEM) {
+  if (tabuleiro_->EmModoMostrarImagem()) {
     return;
   }
   VLOG(1) << "Inicio Pinca: " << x1 << " " << y1 << "; " << x2 << " " << y2;
