@@ -589,6 +589,10 @@ class Tabuleiro : public ntf::Receptor {
     return modo_clique_ == MODO_MOSTRAR_IMAGEM;
   }
 
+  bool EmModoMostrarImagemLocal() const {
+    return EmModoMostrarImagem() && modo_imagem_local_;
+  }
+
   // Debug.
   void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
   void AlternaModoMestreSecundario() { modo_mestre_secundario_ = !modo_mestre_secundario_; }
@@ -1597,6 +1601,8 @@ class Tabuleiro : public ntf::Receptor {
   // A imagem mostrada pelo mestre.
   int indice_imagem_mostrada_ = 0;
   std::vector<InfoTextura> imagens_mostradas_;
+  // indica que o modo imagem é local, ou seja, pode ser controlado pelo cliente.
+  bool modo_imagem_local_ = false;
 
   struct VariaveisClima {
     VariaveisClima(float transicao = 0.0f) : transicao(transicao) {}
