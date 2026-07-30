@@ -3364,9 +3364,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     gerador.spin_trans_y->setEnabled(trans_cenario);
     gerador.spin_trans_z->setEnabled(trans_cenario);
   });
-  if (!entidade.transicao_cenario().has_id_cenario()) {
-    bool trans_tesouro = entidade.tipo_transicao() == ent::EntidadeProto::TRANS_TESOURO;
-    gerador.combo_transicao->setCurrentIndex(trans_tesouro ? ent::EntidadeProto::TRANS_TESOURO : ent::EntidadeProto::TRANS_NENHUMA);
+  if (entidade.tipo_transicao() != ent::EntidadeProto::TRANS_CENARIO) {
+    gerador.combo_transicao->setCurrentIndex(entidade.tipo_transicao() == ent::EntidadeProto::TRANS_CENARIO ? 0 : static_cast<int>(entidade.tipo_transicao()));
     //gerador.linha_transicao_cenario->setEnabled(false);
     gerador.combo_id_cenario->setEnabled(false);
     gerador.checkbox_transicao_posicao->setEnabled(false);
@@ -3527,6 +3526,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       }
     } else if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_TESOURO) {
       proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_TESOURO);
+    } else if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_IMAGEM) {
+      proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_IMAGEM);
     } else {
       // Valor especial para denotar ausencia.
       proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_NENHUMA);
