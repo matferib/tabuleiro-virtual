@@ -2684,7 +2684,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         central_->AdicionaNotificacao(notificacao_carregar.release());
       }
       EntraModoMostrarImagem(notificacao);
-      if (notificacao.local()) {
+      if (notificacao.local() && !notificacao.servidor_apenas()) {
         central_->AdicionaNotificacaoRemota(std::make_unique<ntf::Notificacao>(notificacao));
       }
       return true;
@@ -8822,6 +8822,7 @@ void Tabuleiro::EntraModoMostrarImagem(const ntf::Notificacao& notificacao) {
     auto& imagem = imagens_mostradas_.emplace_back(info_textura);
     imagem.set_id(std::to_string(id_cliente_) + ":" + info_textura.id());
   }
+  modo_imagem_local_ = notificacao.servidor_apenas();
   EntraModoClique(MODO_MOSTRAR_IMAGEM);
 }
 

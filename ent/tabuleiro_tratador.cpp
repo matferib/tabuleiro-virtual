@@ -207,14 +207,18 @@ void PreencheNotificacaoEsquiva(
 }  // namespace
 
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
-  if (EmModoMestreIncluindoSecundario() &&
-      (tecla == ifg::Tecla_Esc || tecla == ifg::Tecla_Direita || tecla == ifg::Tecla_Esquerda)) {
-    auto n = ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES);
-    if (tecla != ifg::Tecla_Esc) {
-      n->set_id_generico(tecla);
+  if (EmModoMostrarImagem()) {
+    if ((EmModoMestreIncluindoSecundario() || modo_imagem_local_) &&
+        (tecla == ifg::Tecla_Esc || tecla == ifg::Tecla_Direita || tecla == ifg::Tecla_Esquerda)) {
+      auto n = ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES);
+      if (tecla != ifg::Tecla_Esc) {
+        n->set_id_generico(tecla);
+      }
+      central_->AdicionaNotificacao(std::make_unique<ntf::Notificacao>(*n));
+      if (!modo_imagem_local_) {
+        central_->AdicionaNotificacaoRemota(std::move(n));
+      }
     }
-    central_->AdicionaNotificacao(std::make_unique<ntf::Notificacao>(*n));
-    central_->AdicionaNotificacaoRemota(std::move(n));
   }
   return;
 }
@@ -2917,6 +2921,22 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forc
     LOG(ERROR) << "Entidade " << id << " nao encontrada";
     return;
   }
+  if (doador->TipoTransicao() == EntidadeProto::TRANS_IMAGEM) {
+    LOG(INFO) << "Transicao para imagem";
+    auto n = NovaNotificacao(ntf::TN_MOSTRAR_IMAGEM_CLIENTES);
+    // vamos abusar desse bit para indicar que não é para repassar a mensagem para ninguem.
+    n->set_servidor_apenas(true);
+    auto* textura = n->add_info_textura();
+    try {
+      unsigned int largura, altura;
+      tex::Texturas::LeDecodificaImagemTipo(arq::TIPO_TEXTURA, "icon_d10.png", textura, &largura, &altura);
+    }
+    catch (...) {
+    }
+    textura->set_id("icon_d10.png");
+    central_->AdicionaNotificacao(std::move(n));
+    return;
+  }
   if (doador->Tipo() == TE_ENTIDADE || doador->TipoTransicao() == EntidadeProto::TRANS_TESOURO) {
     LOG(INFO) << "Transicao de tesouro";
     if (doador->Tipo() == TE_ENTIDADE && !(doador->Morta() || doador->Inconsciente())) {
@@ -3284,9 +3304,13 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         }
         break;
       case MODO_MOSTRAR_IMAGEM:
-        if (EmModoMestreIncluindoSecundario()) {
+        if (modo_imagem_local_) {
           central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
-          central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
+        } else {
+          if (EmModoMestreIncluindoSecundario()) {
+            central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
+            central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
+          }
         }
         return;
       case MODO_PERICIA:
