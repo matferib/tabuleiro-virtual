@@ -235,8 +235,7 @@ void PreencheComboModelo3d(const std::string& id_corrente, QComboBox* combo_mode
 }
 
 // Preenche proto_retornado usando entidade e o combo como base.
-void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QComboBox* combo_textura,
-                                   ent::InfoTextura* info_textura) {
+void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QComboBox* combo_textura, ent::InfoTextura* info_textura) {
   if (combo_textura->currentIndex() != 0) {
     QVariant dados(combo_textura->currentData());
     QString nome(combo_textura->currentText());
@@ -249,8 +248,7 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
       if (dados.toInt() == arq::TIPO_TEXTURA_LOCAL) {
         VLOG(2) << "Textura local, recarregando.";
         info_textura->set_id(nome.toStdString());
-        ent::PreencheInfoTextura(nome.split(":")[1].toStdString(),
-            arq::TIPO_TEXTURA_LOCAL, info_textura);
+        ent::PreencheInfoTextura(nome.split(":")[1].toStdString(), arq::TIPO_TEXTURA_LOCAL, info_textura);
       } else {
         info_textura->Clear();
         info_textura->set_id(nome.toStdString());
@@ -291,18 +289,20 @@ void PreencheComboIdImagem(int id_cliente, QComboBox* combo) {
     std::sort(texturas.begin(), texturas.end());
     return texturas;
   };
-  std::vector<std::string> texturas = Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA));
-  std::vector<std::string> texturas_locais = Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL));
+  std::vector<std::string> texturas = Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA, ent::FiltroTexturaEntidade));
+  std::vector<std::string> texturas_locais = Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL,  ent::FiltroTexturaEntidade));
 
-  AdicionaSeparador(combo->tr("Globais"), combo);
-  for (const std::string& textura : texturas) {
-    combo->addItem(QString(textura.c_str()), QVariant(arq::TIPO_TEXTURA));
-  }
   AdicionaSeparador(combo->tr("Locais"), combo);
   QString prefixo = QString::number(id_cliente).append(":");
   for (const std::string& textura : texturas_locais) {
     combo->addItem(QString(prefixo).append(textura.c_str()), QVariant(arq::TIPO_TEXTURA_LOCAL));
   }
+
+  AdicionaSeparador(combo->tr("Globais"), combo);
+  for (const std::string& textura : texturas) {
+    combo->addItem(QString(textura.c_str()), QVariant(arq::TIPO_TEXTURA));
+  }
+
   combo->setCurrentIndex(0);
   ExpandeComboBox(combo);
 }
@@ -3475,14 +3475,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     // Atribui as transições.
     if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_IMAGEM) {
       proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_IMAGEM);
-      QVariant qval = gerador.combo_id_imagem->itemData(gerador.combo_id_imagem->currentIndex());
-      QString val;
-      if (qval.isValid() && qval.type() == QVariant::String) {
-        val = qval.toString();
-      } else {
-        val = gerador.combo_id_imagem->currentText();
-      }
-      proto_retornado->set_transicao_imagem(val.toStdString());
+      PreencheTexturaProtoRetornado(entidade.transicao_imagem(), gerador.combo_id_imagem, proto_retornado->mutable_transicao_imagem());
     } else if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO) {
       proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_CENARIO);
       //bool ok = false;

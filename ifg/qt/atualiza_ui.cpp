@@ -1170,6 +1170,7 @@ void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& pr
 
 void ConfiguraTransicaoCenario(bool trans_cenario, const ent::EntidadeProto& entidade, const ent::TabuleiroProto& tabuleiro, ifg::qt::Ui::DialogoForma& gerador) {
   gerador.combo_id_cenario->setEnabled(trans_cenario);
+  gerador.combo_id_cenario->setVisible(trans_cenario);
   gerador.checkbox_transicao_posicao->setEnabled(trans_cenario);
   gerador.spin_trans_x->setEnabled(trans_cenario);
   gerador.spin_trans_y->setEnabled(trans_cenario);
@@ -1199,9 +1200,10 @@ void SelecionaImagemComboImagem(const std::string& imagem, QComboBox* combo) {
 
 void ConfiguraTransicaoImagem(bool trans_imagem, const ent::EntidadeProto& entidade, ifg::qt::Ui::DialogoForma& gerador) {
   gerador.combo_id_imagem->setEnabled(trans_imagem);
+  gerador.combo_id_imagem->setVisible(trans_imagem);
   if (trans_imagem) {
     gerador.combo_transicao->setCurrentIndex(ent::EntidadeProto::TRANS_IMAGEM);
-    SelecionaImagemComboImagem(entidade.transicao_imagem(), gerador.combo_id_imagem);
+    SelecionaImagemComboImagem(entidade.transicao_imagem().id(), gerador.combo_id_imagem);
   }
 }
 

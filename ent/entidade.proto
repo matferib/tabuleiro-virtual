@@ -104,7 +104,7 @@ message EntidadeProto {
   // entidades e a camera para outro cenario. Valor de -1 eh usado para cenario principal e -2 eh reservado para limpar a transicao.
   Posicao transicao_cenario = 35;
   // Ao clicar na transição, abre esta imagem.
-  string transicao_imagem = 129;
+  InfoTextura transicao_imagem = 129;
   // Para transicoes para cenarios em arquivos. Ira carregar o arquivo ao transicionar.
   string nome_arquivo_cenario_transicao = 126;
 

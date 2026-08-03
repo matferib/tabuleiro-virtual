@@ -2680,7 +2680,6 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         auto notificacao_carregar = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
         auto* it = notificacao_carregar->add_info_textura();
         it->CopyFrom(info_textura);
-        it->set_id(std::to_string(id_cliente_) + ":" + it->id());
         central_->AdicionaNotificacao(notificacao_carregar.release());
       }
       EntraModoMostrarImagem(notificacao);
@@ -8819,8 +8818,7 @@ void Tabuleiro::EntraModoMostrarImagem(const ntf::Notificacao& notificacao) {
   indice_imagem_mostrada_ = 0;
   imagens_mostradas_.clear();
   for (const auto& info_textura : notificacao.info_textura()) {
-    auto& imagem = imagens_mostradas_.emplace_back(info_textura);
-    imagem.set_id(std::to_string(id_cliente_) + ":" + info_textura.id());
+    imagens_mostradas_.emplace_back(info_textura) = info_textura;
   }
   modo_imagem_local_ = notificacao.servidor_apenas();
   EntraModoClique(MODO_MOSTRAR_IMAGEM);

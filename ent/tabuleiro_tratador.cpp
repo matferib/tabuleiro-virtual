@@ -2926,14 +2926,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forc
     auto n = NovaNotificacao(ntf::TN_MOSTRAR_IMAGEM_CLIENTES);
     // vamos abusar desse bit para indicar que não é para repassar a mensagem para ninguem.
     n->set_servidor_apenas(true);
-    auto* textura = n->add_info_textura();
-    try {
-      unsigned int largura, altura;
-      tex::Texturas::LeDecodificaImagemTipo(arq::TIPO_TEXTURA, "icon_d10.png", textura, &largura, &altura);
-    }
-    catch (...) {
-    }
-    textura->set_id("icon_d10.png");
+    *n->add_info_textura() = doador->Proto().transicao_imagem();
     central_->AdicionaNotificacao(std::move(n));
     return;
   }
@@ -3703,7 +3696,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadasOuCamera(bool frente_atras, f
       media.x += entidade->X();
       media.y += entidade->Y();
     }
-    media /= ids.size();
+    media /= static_cast<float>(ids.size());
     // Maior distancia para normalizacao.
     float maior = 0.0f;
     for (unsigned int id : ids) {
