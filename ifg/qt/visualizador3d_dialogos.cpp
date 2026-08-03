@@ -285,6 +285,28 @@ void PreencheComboTipoTerreno(QComboBox* combo) {
   ExpandeComboBox(combo);
 }
 
+void PreencheComboIdImagem(int id_cliente, QComboBox* combo) {
+  combo->addItem(combo->tr("Nenhuma"), QVariant(-1));
+  auto Ordena = [] (std::vector<std::string> texturas) -> std::vector<std::string> {
+    std::sort(texturas.begin(), texturas.end());
+    return texturas;
+  };
+  std::vector<std::string> texturas = Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA));
+  std::vector<std::string> texturas_locais = Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL));
+
+  AdicionaSeparador(combo->tr("Globais"), combo);
+  for (const std::string& textura : texturas) {
+    combo->addItem(QString(textura.c_str()), QVariant(arq::TIPO_TEXTURA));
+  }
+  AdicionaSeparador(combo->tr("Locais"), combo);
+  QString prefixo = QString::number(id_cliente).append(":");
+  for (const std::string& textura : texturas_locais) {
+    combo->addItem(QString(prefixo).append(textura.c_str()), QVariant(arq::TIPO_TEXTURA_LOCAL));
+  }
+  combo->setCurrentIndex(0);
+  ExpandeComboBox(combo);
+}
+
 void PreencheComboCenarios(const ent::TabuleiroProto& tabuleiro, QComboBox* combo) {
   combo->addItem("Novo", QVariant());
   combo->addItem("Principal", QVariant(CENARIO_PRINCIPAL));
@@ -320,22 +342,6 @@ std::optional<std::string> NomeArquivoCenarioComboCenarios(const QComboBox* comb
   return ret.toStdString();
 }
 
-void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& proto, QComboBox* combo) {
-  if (id_cenario == CENARIO_PRINCIPAL) {
-    // 0 eh novo, 1 eh o principal.
-    combo->setCurrentIndex(1);
-    return;
-  }
-  int i = 2;
-  for (const auto& sub_cenario : proto.sub_cenario()) {
-    if (sub_cenario.id_cenario() == id_cenario) {
-      combo->setCurrentIndex(i);
-      return;
-    }
-    ++i;
-  }
-  combo->setCurrentIndex(0);
-}
 
 //-----------------------------------------------------
 // Funcoes para Visualizador3d::AbreDialogoTipoEntidade
@@ -3343,50 +3349,20 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
 
   gerador.lista_tesouro->appendPlainText((entidade.tesouro().tesouro().c_str()));
 
-  PreencheComboCenarios(tabuleiro_->Proto(), gerador.combo_id_cenario);
-
   // Transicao de cenario.
+  PreencheComboCenarios(tabuleiro_->Proto(), gerador.combo_id_cenario);
+  PreencheComboIdImagem(notificacao.tabuleiro().id_cliente(), gerador.combo_id_imagem);
   auto habilita_posicao = [gerador] {
     gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
   };
   lambda_connect(gerador.spin_trans_x, SIGNAL(valueChanged(double)), habilita_posicao);
   lambda_connect(gerador.spin_trans_y, SIGNAL(valueChanged(double)), habilita_posicao);
   lambda_connect(gerador.spin_trans_z, SIGNAL(valueChanged(double)), habilita_posicao);
-  lambda_connect(gerador.combo_transicao, SIGNAL(currentIndexChanged(int)), [this, &gerador, proto_retornado] {
-    bool trans_cenario = gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO;
-    //gerador.linha_transicao_cenario->setEnabled(trans_cenario);
-    SelecionaCenarioComboCenarios(
-        proto_retornado->transicao_cenario().has_id_cenario() ? proto_retornado->transicao_cenario().id_cenario() : CENARIO_INVALIDO,
-        tabuleiro_->Proto(), gerador.combo_id_cenario);
-    gerador.combo_id_cenario->setEnabled(trans_cenario);
-    gerador.checkbox_transicao_posicao->setEnabled(trans_cenario);
-    gerador.spin_trans_x->setEnabled(trans_cenario);
-    gerador.spin_trans_y->setEnabled(trans_cenario);
-    gerador.spin_trans_z->setEnabled(trans_cenario);
+  lambda_connect(gerador.combo_transicao, SIGNAL(currentIndexChanged(int)), [this, &gerador, &entidade, proto_retornado] {
+    AtualizaUITransicaoForma(gerador, ent::EntidadeProto::TipoTransicao(gerador.combo_transicao->currentIndex()), entidade, tabuleiro_->Proto());
   });
-  if (entidade.tipo_transicao() != ent::EntidadeProto::TRANS_CENARIO) {
-    gerador.combo_transicao->setCurrentIndex(entidade.tipo_transicao() == ent::EntidadeProto::TRANS_CENARIO ? 0 : static_cast<int>(entidade.tipo_transicao()));
-    //gerador.linha_transicao_cenario->setEnabled(false);
-    gerador.combo_id_cenario->setEnabled(false);
-    gerador.checkbox_transicao_posicao->setEnabled(false);
-    gerador.spin_trans_x->setEnabled(false);
-    gerador.spin_trans_y->setEnabled(false);
-    gerador.spin_trans_z->setEnabled(false);
-  } else {
-    gerador.combo_transicao->setCurrentIndex(ent::EntidadeProto::TRANS_CENARIO);
-    //gerador.linha_transicao_cenario->setText(QString::number(entidade.transicao_cenario().id_cenario()));
-    SelecionaCenarioComboCenarios(entidade.transicao_cenario().id_cenario(), tabuleiro_->Proto(), gerador.combo_id_cenario);
+  AtualizaUITransicaoForma(gerador, entidade.tipo_transicao(), entidade, tabuleiro_->Proto());
 
-    gerador.combo_id_cenario->setEnabled(true);
-    if (entidade.transicao_cenario().has_x()) {
-      gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
-      gerador.spin_trans_x->setValue(entidade.transicao_cenario().x());
-      gerador.spin_trans_y->setValue(entidade.transicao_cenario().y());
-      gerador.spin_trans_z->setValue(entidade.transicao_cenario().z());
-    } else {
-      gerador.checkbox_transicao_posicao->setCheckState(Qt::Unchecked);
-    }
-  }
   // Esconde dialogo e entra no modo de selecao.
   lambda_connect(gerador.botao_transicao_mapa, SIGNAL(clicked()), [this, dialogo, gerador, &entidade, &proto_retornado] {
     auto notificacao = ntf::NovaNotificacao(ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO);
@@ -3399,7 +3375,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     delete proto_retornado;
     proto_retornado = nullptr;
     dialogo->reject();
-    LOG(INFO) << "rejeitando...";
+    LOG(INFO) << "rejeitando para pegar posição do mapa...";
   });
 
   std::function<void(const ent::Tabelas&, ifg::qt::Ui::DialogoForma&, const ent::EntidadeProto&)> f_atualiza_ui =
@@ -3496,7 +3472,18 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     proto_retornado->mutable_escala()->set_y(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_y_quad->value());
     proto_retornado->mutable_escala()->set_z(ent::QUADRADOS_PARA_METROS * gerador.spin_escala_z_quad->value());
     proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toStdString());
-    if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO) {
+    // Atribui as transições.
+    if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_IMAGEM) {
+      proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_IMAGEM);
+      QVariant qval = gerador.combo_id_imagem->itemData(gerador.combo_id_imagem->currentIndex());
+      QString val;
+      if (qval.isValid() && qval.type() == QVariant::String) {
+        val = qval.toString();
+      } else {
+        val = gerador.combo_id_imagem->currentText();
+      }
+      proto_retornado->set_transicao_imagem(val.toStdString());
+    } else if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO) {
       proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_CENARIO);
       //bool ok = false;
       //int val = gerador.linha_transicao_cenario->text().toInt(&ok);
@@ -3526,13 +3513,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       }
     } else if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_TESOURO) {
       proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_TESOURO);
-    } else if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_IMAGEM) {
-      proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_IMAGEM);
     } else {
       // Valor especial para denotar ausencia.
       proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_NENHUMA);
       proto_retornado->mutable_transicao_cenario()->set_id_cenario(CENARIO_INVALIDO);
     }
+
     if (gerador.combo_textura->currentIndex() == 0) {
       proto_retornado->clear_info_textura();
     } else {

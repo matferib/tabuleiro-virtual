@@ -2,6 +2,8 @@
 #define IFG_QT_ATUALIZA_UI_H
 
 #include "ifg/qt/ui/entidade.h"
+#include "ent/entidade.pb.h"
+#include "ent/tabuleiro.pb.h"
 #include "ifg/qt/ui/forma.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -11,7 +13,6 @@
 //--------------------------------------------------------------------------------------------------
 
 namespace ent {
-class EntidadeProto;
 class InfoClasse;
 class Tabelas;
 }  // namespace ent
@@ -63,6 +64,9 @@ void AtualizaUIFormasAlternativas(ifg::qt::Ui::DialogoEntidade& gerador, const e
 // Atualiza a UI de tesouros: pocoes e lista.
 void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);
 void AtualizaUITesouro(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoForma& gerador, const ent::EntidadeProto& proto);
+
+// Atualiza a UI de transicao para formas.
+void AtualizaUITransicaoForma(ifg::qt::Ui::DialogoForma& gerador, ent::EntidadeProto::TipoTransicao transicao, const ent::EntidadeProto& proto, const ent::TabuleiroProto& tabuleiro);
 
 // Pontos de vida, max e temporarios.
 void AtualizaUIPontosVida(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto);

@@ -452,6 +452,9 @@
                </widget>
               </item>
               <item>
+               <widget class="QComboBox" name="combo_id_imagem"/>
+              </item>
+              <item>
                <widget class="QComboBox" name="combo_id_cenario"/>
               </item>
               <item>

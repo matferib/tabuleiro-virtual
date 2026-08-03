@@ -1148,5 +1148,69 @@ void AtualizaUIFeiticos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidad
   gerador.arvore_feiticos->blockSignals(false);
 }
 
+// Transicao de formas (cenario, imagem).
+namespace {
+
+void SelecionaCenarioComboCenarios(int id_cenario, const ent::TabuleiroProto& proto, QComboBox* combo) {
+  if (id_cenario == CENARIO_PRINCIPAL) {
+    // 0 eh novo, 1 eh o principal.
+    combo->setCurrentIndex(1);
+    return;
+  }
+  int i = 2;
+  for (const auto& sub_cenario : proto.sub_cenario()) {
+    if (sub_cenario.id_cenario() == id_cenario) {
+      combo->setCurrentIndex(i);
+      return;
+    }
+    ++i;
+  }
+  combo->setCurrentIndex(0);
+}
+
+void ConfiguraTransicaoCenario(bool trans_cenario, const ent::EntidadeProto& entidade, const ent::TabuleiroProto& tabuleiro, ifg::qt::Ui::DialogoForma& gerador) {
+  gerador.combo_id_cenario->setEnabled(trans_cenario);
+  gerador.checkbox_transicao_posicao->setEnabled(trans_cenario);
+  gerador.spin_trans_x->setEnabled(trans_cenario);
+  gerador.spin_trans_y->setEnabled(trans_cenario);
+  gerador.spin_trans_z->setEnabled(trans_cenario);
+  gerador.botao_transicao_mapa->setEnabled(trans_cenario);
+  if (trans_cenario) {
+    gerador.combo_transicao->setCurrentIndex(ent::EntidadeProto::TRANS_CENARIO);
+    SelecionaCenarioComboCenarios(entidade.transicao_cenario().id_cenario(), tabuleiro, gerador.combo_id_cenario);
+    if (entidade.transicao_cenario().has_x()) {
+      gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
+      gerador.spin_trans_x->setValue(entidade.transicao_cenario().x());
+      gerador.spin_trans_y->setValue(entidade.transicao_cenario().y());
+      gerador.spin_trans_z->setValue(entidade.transicao_cenario().z());
+    } else {
+      gerador.checkbox_transicao_posicao->setCheckState(Qt::Unchecked);
+    }
+  }
+}
+
+void SelecionaImagemComboImagem(const std::string& imagem, QComboBox* combo) {
+  int index = combo->findText(QString(imagem.c_str()));
+  if (index == -1) {
+    index = 0;
+  }
+  combo->setCurrentIndex(index);
+}
+
+void ConfiguraTransicaoImagem(bool trans_imagem, const ent::EntidadeProto& entidade, ifg::qt::Ui::DialogoForma& gerador) {
+  gerador.combo_id_imagem->setEnabled(trans_imagem);
+  if (trans_imagem) {
+    gerador.combo_transicao->setCurrentIndex(ent::EntidadeProto::TRANS_IMAGEM);
+    SelecionaImagemComboImagem(entidade.transicao_imagem(), gerador.combo_id_imagem);
+  }
+}
+
+}  // namespace
+
+void AtualizaUITransicaoForma(ifg::qt::Ui::DialogoForma& gerador, ent::EntidadeProto::TipoTransicao tipo_transicao, const ent::EntidadeProto& entidade, const ent::TabuleiroProto& tabuleiro) {
+  ConfiguraTransicaoCenario(tipo_transicao == ent::EntidadeProto::TRANS_CENARIO, entidade, tabuleiro, gerador);
+  ConfiguraTransicaoImagem(tipo_transicao == ent::EntidadeProto::TRANS_IMAGEM, entidade, gerador);
+}
+
 }  // namespace qt
 }  // namespace ifg
