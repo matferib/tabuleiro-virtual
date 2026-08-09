@@ -32,7 +32,7 @@ interno::Contexto* g_contexto = nullptr;
 
 void IniciaGl(TipoLuz tipo_luz, float escala) {
   g_contexto = new interno::Contexto(escala, new interno::ContextoEs);
-  interno::IniciaComum(tipo_luz, g_contexto->escala, BuscaContexto());
+  interno::IniciaComum(tipo_luz, g_contexto->escala_fonte, BuscaContexto());
 }
 
 namespace interno {
