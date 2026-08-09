@@ -6,7 +6,7 @@ gprof gmon.out
 qt: 
 - arrumar o path no qt.bzl que tem as regras de uic, lirary etc)
 - para o BUILD funcionar, popular lib e inlude como abaixo.
-cd qtbuild
+cd qtbuild/qt6
 mkdir -p lib include
 cd lib
 ln -sf /usr/lib/x86_64-linux-gnu/libQt6* .
