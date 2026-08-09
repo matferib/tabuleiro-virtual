@@ -14,6 +14,8 @@
 #include <QtGui/QSurfaceFormat>
 #include <QtWidgets/QApplication>
 #include <boost/asio.hpp>
+#include <boost/dll.hpp>
+#include <boost/filesystem.hpp>
 
 #include "absl/strings/match.h"
 #include "absl/strings/str_cat.h"
@@ -68,7 +70,7 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
   LOG(INFO) << "Opcoes inciais: " << proto->ShortDebugString();
 }
 
-QSurfaceFormat Formato() {
+QSurfaceFormat Formato(int amostras) {
   QSurfaceFormat formato;
   formato.setVersion(2, 1);
   // Caso contrario, o skip falha e o resize da biziu.
@@ -82,7 +84,7 @@ QSurfaceFormat Formato() {
   //formato.setDepthBufferSize(24);
   //formato.setStencilBufferSize(1);
   formato.setRenderableType(QSurfaceFormat::OpenGL);
-  formato.setSamples(2);
+  formato.setSamples(amostras);
   return formato;
 }
 
@@ -106,24 +108,31 @@ int main(int argc, char** argv) {
 #if USAR_GLOG
   meulog::Inicializa(argc, argv);
 #endif
-
-  //MyApp q_app(argc, argv);
-  QSurfaceFormat::setDefaultFormat(Formato());
-  QApplication q_app(argc, argv);
-#if WIN32
-  q_app.setStyle("Fusion");
-#endif
-  QDir dir(QCoreApplication::applicationDirPath());
-
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
+
   // Arq::Inicializa tem que vir antes, porque os outros leem varias coisas de arquivos.
 #if ANDROID
   arq::Inicializa(state->activity->env, state->activity->assetManager, state->activity->internalDataPath);
 #else
-  arq::Inicializa(dir.absolutePath().toStdString());
+  // Nao podemos usar o dir do QT, pq ele o surface depende das opções do usuário.
+  boost::filesystem::path exe_path = boost::dll::program_location();
+  boost::filesystem::path app_dir = exe_path.parent_path();
+  LOG(INFO) << "Diretório da aplicação: " << app_dir.string();
+  arq::Inicializa(app_dir.string());
 #endif
+
+  // Com arquivo inicializado, podemos ler as opções.
   ent::OpcoesProto opcoes;
   CarregaConfiguracoes(&opcoes);
+
+  QSurfaceFormat::setDefaultFormat(Formato(opcoes.amostras_anti_aliasing()));
+  QApplication q_app(argc, argv);
+  QDir dir(QCoreApplication::applicationDirPath());
+#if WIN32
+  q_app.setStyle("Fusion");
+#endif
+
+
   if (opcoes.desabilitar_retina()) {
     QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
   }
