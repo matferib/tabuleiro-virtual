@@ -32,13 +32,14 @@ message Olho {
 }
 
 // Opcoes pessoais.
-// Next id: 34
+// Next id: 35
 message OpcoesProto {
   bool mostra_fps = 1 [default=false];
   bool texturas_sempre_de_frente = 2 [default=true];
   bool iluminacao_mestre_igual_jogadores = 3 [default=true];
   bool desenha_rosa_dos_ventos = 4 [default=true];
   bool anti_aliasing = 5 [default=false];
+  int32 amostras_anti_aliasing = 34 [default=2];
   bool desenha_grade = 6 [default=true];
   bool desenha_controle_virtual = 7 [default=true];
   bool mostra_lista_objetos = 8 [default=false];
