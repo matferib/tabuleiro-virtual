@@ -3042,8 +3042,9 @@ std::unique_ptr<ent::OpcoesProto> Visualizador3d::AbreDialogoOpcoes(
   gerador.checkbox_rosa_dos_ventos->setCheckState(
       opcoes_proto.desenha_rosa_dos_ventos() ? Qt::Checked : Qt::Unchecked);
   // Serrilhamento.
-  gerador.checkbox_anti_aliasing->setCheckState(
-      opcoes_proto.anti_aliasing() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_anti_aliasing->setCheckState(opcoes_proto.anti_aliasing() ? Qt::Checked : Qt::Unchecked);
+  int amostras = opcoes_proto.amostras_anti_aliasing();
+  gerador.slider_anti_aliasing->setValue(amostras == 8 ? 2 : (amostras == 4 ? 1 : 0));
   // grade.
   gerador.checkbox_grade->setCheckState(opcoes_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
   gerador.slider_grade->setValue(opcoes_proto.has_expessura_grade_m() ? static_cast<int>(opcoes_proto.expessura_grade_m() * kFatorGrade) : 0);
@@ -3096,6 +3097,7 @@ std::unique_ptr<ent::OpcoesProto> Visualizador3d::AbreDialogoOpcoes(
     proto_retornado->set_desenha_rosa_dos_ventos(
         gerador.checkbox_rosa_dos_ventos->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_anti_aliasing(gerador.checkbox_anti_aliasing->checkState() == Qt::Checked);
+    proto_retornado->set_amostras_anti_aliasing(gerador.slider_anti_aliasing->value() == 2 ? 8 : (gerador.slider_anti_aliasing->value() == 1 ? 4 : 2));
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
     if (proto_retornado->desenha_grade() && gerador.slider_grade->value() > 0) {

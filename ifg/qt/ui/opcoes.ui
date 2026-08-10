@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>452</width>
-    <height>504</height>
+    <height>592</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,11 +43,40 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkbox_anti_aliasing">
-     <property name="text">
-      <string>Anti Serrilhamento</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QCheckBox" name="checkbox_anti_aliasing">
+       <property name="text">
+        <string>Anti Serrilhamento</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="slider_anti_aliasing">
+       <property name="toolTip">
+        <string>Requer reinicialização. Valores de multisample: 2, 4 ou 8.</string>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>2</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="pageStep">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
