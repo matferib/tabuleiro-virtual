@@ -267,7 +267,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, job
 }
 
 jint Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeTempoEntreNotificacoes(JNIEnv* env, jobject thiz) {
-  return INTERVALO_NOTIFICACAO_MS;
+  float intervalo_notificacao_ms = 1000.0 / g_opcoes->fps();
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env, jobject thiz) {

@@ -121,11 +121,12 @@ void InterfaceGraficaAndroid::EscolheModeloEntidade(
   env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)new std::function<void(const std::string&, arq::tipo_e)>(adaptador));
 }
 
+// TODO: o parametro da funcao_volta mudou, tem que mudar no java tb.
 void InterfaceGraficaAndroid::EscolheItemLista(
     const std::string& titulo,
     const std::optional<std::string>& rotulo_ok,
-    const std::vector<std::string>& lista,
-    std::function<void(bool, int)> funcao_volta) {
+    const std::vector<RotuloTipoTesouro>& lista,
+    std::function<void(bool, int, std::optional<ent::TipoTesouro>)> funcao_volta) {
   if (env_ == nullptr) {
     auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
@@ -138,14 +139,15 @@ void InterfaceGraficaAndroid::EscolheItemLista(
       env_->FindClass("java/lang/String"), env_->NewStringUTF(""));
   {
     int i = 0;
-    for (const auto& s : lista) {
-      jstring sj = env_->NewStringUTF(s.c_str());
+    for (const auto& [item_str, tipo_tesouro] : lista) {
+      jstring sj = env_->NewStringUTF(item_str.c_str());
+      // Aqui tem que passar o tipo de tesouro pro java tb.
       env_->SetObjectArrayElement(joa, i++, sj);
     }
   }
 
   // A volta deletera.
-  jlong funcao_volta_ptr = (jlong)new std::function<void(bool, int)>(funcao_volta);
+  jlong funcao_volta_ptr = (jlong)new std::function<void(bool, int, std::optional<ent::TipoTesouro>)>(funcao_volta);
   env_->CallVoidMethod(thisz_, metodo, joa, funcao_volta_ptr);
 }
 
@@ -160,12 +162,16 @@ void InterfaceGraficaAndroid::EscolheItemsLista(
     central_->AdicionaNotificacao(n.release());
     return;
   }
-  auto adaptador_volta = [funcao_volta](bool ok, int indice) {
+  auto adaptador_volta = [funcao_volta](bool ok, int indice, std::optional<ent::TipoTesouro>) {
     std::vector<int> v;
     if (indice != -1) v.push_back(indice);
     funcao_volta(ok, v);
   };
-  EscolheItemLista(titulo, std::nullopt, lista, adaptador_volta);
+  std::vector<RotuloTipoTesouro> lista_adaptada;
+  for (const auto& s : lista) {
+    lista_adaptada.emplace_back(RotuloTipoTesouro{.rotulo=s, .tipo_tesouro=std::nullopt});
+  }
+  EscolheItemLista(titulo, std::nullopt, lista_adaptada, adaptador_volta);
 }
 
 }  // namespace ifg
