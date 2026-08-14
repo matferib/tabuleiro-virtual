@@ -2,6 +2,23 @@
  Basico
 ========
 
+-- Instalar SDK e componentes:
+
+Referencia: https://developer.android.com/tools/sdkmanager
+
+Com o sdk manager instalado, instalar ndk e android:
+# ./android sdk install --platform=linux_x86_64
+# ./cmdline-tools/latest/bin/sdkmanager --install ''ndk;30.0.15729638'
+# ./cmdline-tools/latest/bin/sdkmanager --install 'platforms;android-30'
+# ./cmdline-tools/latest/bin/sdkmanager --install emulator
+
+Setar as variaveis:
+export ANDROID_NDK=/path/to-sdk/android_sdk_home/ndk/27.3.13750724
+export ANDROID_NDK_HOME=${ANDROID_NDK}
+export ANDROID_SDK=/path/to/sdk/android_sdk_home
+export ANDROID_HOME=${ANDROID_SDK}
+
+
 -- Listar targets:
 ${ANDROID_DEV_TOOLKIT}/bin/avdmanager list targets
 
@@ -41,21 +58,19 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-de
 
 Criar o toolchain de cross-compile:
 export TOOLCHAIN=/var/tmp/my-toolchain
-${ANDROID_NDK}/build/tools/make_standalone_toolchain.py --arch=arm --api=19 --stl=libc++ --install-dir=${TOOLCHAIN}
+#${ANDROID_NDK}/build/tools/make_standalone_toolchain.py --arch=arm --api=19 --stl=libc++ --install-dir=${TOOLCHAIN}
+${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang++ src.cpp
 
 -- Protobuffer:
 
 Compilando protocol buffers:
 
 - Configuracao do protobuf:
-ATENCAO: a versao deve ser a mesma do sistema que gerou os pb.h pb.c.
-ATENCAO 2: os arquivos hoje sao compilados dentro do projeto. Entao acho que apenas a parte de configuracao eh necessaria hoje.
-
 Essas variaveis abaixo devem ser setadas, caso contrario vai usar as do sistema que podem ser incompativeis com android (por exemplo, mac).
 Referencia: https://developer.android.com/ndk/guides/standalone_toolchain.html
 
 export PATH=$PATH:${TOOLCHAIN}/bin
-target_host=arm-linux-androideabi
+export target_host=arm-linux-androideabi
 export AR="$target_host-ar"
 export AS=$target_host-clang
 export CC=$target_host-clang
@@ -124,7 +139,8 @@ $(call import-module,android-ndk-profiler)
   moncleanup();
 
 - Compilar o jni com:
-${ANDROID_NDK}/ndk-build NDK_MODULE_PATH=/home/matheus/Projetos/rpg/tabuleiro/android/jni/ V=1
+cd android/jni
+${ANDROID_NDK}/ndk-build NDK_MODULE_PATH=$PWD V=1
 
 - Compilar, instalar e rodar a app para gerar o profile. Ao pausar a app, o arquivo sera escrito.
 
