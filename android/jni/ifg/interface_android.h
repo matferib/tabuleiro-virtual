@@ -29,6 +29,10 @@ class InterfaceGraficaAndroid : public InterfaceGrafica {
       const std::vector<std::string>& tab_dinamicos,
       std::function<void(const std::string& nome, arq::tipo_e tipo)> funcao_volta) override;
 
+  void EscolheArquivoAbrirImagem(
+    const std::vector<std::string>& imagens_locais, const std::vector<std::string>& imagens_globais,
+    std::function<void(const std::string& nome, arq::tipo_e)> funcao_volta) override;
+
   void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) override;
 
@@ -47,6 +51,8 @@ class InterfaceGraficaAndroid : public InterfaceGrafica {
       const std::string& titulo,
       const std::vector<std::string>& lista,
       std::function<void(bool, std::vector<int>)> funcao_volta) override;
+
+  void EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) override;
 
  private:
   jmethodID Metodo(const char* nome_metodo, const char* assinatura_metodo);

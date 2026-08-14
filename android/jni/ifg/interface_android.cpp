@@ -77,6 +77,27 @@ void InterfaceGraficaAndroid::EscolheArquivoSalvarTabuleiro(
   env_->CallVoidMethod(thisz_, metodo, (jlong)copia_volta);
 }
 
+void InterfaceGraficaAndroid::EscolheArquivoAbrirImagem(
+    const std::vector<std::string>& imagens_locais, const std::vector<std::string>& imagens_globais,
+    std::function<void(const std::string& nome, arq::tipo_e)> funcao_volta) {
+  std::vector<std::string> lista;
+  for (const auto& s : imagens_locais) {
+    lista.push_back(s);
+  }
+  const int indice_global = lista.size();
+  for (const auto& s : imagens_globais) {
+    lista.push_back(s);
+  }
+  auto adaptador_volta = [funcao_volta, lista, indice_global](bool ok, int indice) -> void {
+    if (ok) {
+      funcao_volta(lista[indice], indice < indice_global ? arq::TIPO_TEXTURA_LOCAL: arq::TIPO_TEXTURA);
+    } else {
+      funcao_volta("", arq::TIPO_TEXTURA);
+    }
+  };
+  EscolheItemListaSemTipoTesouro("Escolha a imagem", std::nullopt, lista, adaptador_volta);
+}
+
 jmethodID InterfaceGraficaAndroid::Metodo(const char* nome_metodo, const char* assinatura_metodo) {
   jclass classe = env_->FindClass("com/matferib/Tabuleiro/TabuleiroRenderer");
   if (classe == nullptr) {
@@ -115,10 +136,10 @@ void InterfaceGraficaAndroid::EscolheModeloEntidade(
     }
   }
 
-  auto adaptador = [funcao_volta] (const std::string& nome, arq::tipo_e tipo) {
+  auto adaptador_volta = [funcao_volta] (const std::string& nome, arq::tipo_e tipo) {
     funcao_volta(nome);
   };
-  env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)new std::function<void(const std::string&, arq::tipo_e)>(adaptador));
+  env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)new std::function<void(const std::string&, arq::tipo_e)>(adaptador_volta));
 }
 
 // TODO: o parametro da funcao_volta mudou, tem que mudar no java tb.
@@ -172,6 +193,21 @@ void InterfaceGraficaAndroid::EscolheItemsLista(
     lista_adaptada.emplace_back(RotuloTipoTesouro{.rotulo=s, .tipo_tesouro=std::nullopt});
   }
   EscolheItemLista(titulo, std::nullopt, lista_adaptada, adaptador_volta);
+}
+
+void InterfaceGraficaAndroid::EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) {
+  std::vector<std::string> lista_adaptada;
+  for (int i = 1; i <= nfaces; ++i) {
+    lista_adaptada.emplace_back(absl::StrCat(i));
+  }
+  auto adaptador_volta = [funcao_volta, lista_adaptada](bool ok, int indice) -> void {
+    if (ok) {
+      funcao_volta(indice+1);
+    } else {
+      funcao_volta(0);
+    }
+  };
+  EscolheItemListaSemTipoTesouro(titulo, std::nullopt, lista_adaptada, adaptador_volta);
 }
 
 }  // namespace ifg
