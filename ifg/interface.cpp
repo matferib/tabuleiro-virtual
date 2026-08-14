@@ -261,7 +261,7 @@ void InterfaceGrafica::TrataEscolherPericia(const ntf::Notificacao& notificacao)
     nomes_pericias.push_back(it.first);
     mapa_indice_id.push_back(it.second);
   }
-  EscolheItemLista(
+  EscolheItemListaSemTipoTesouro(
       "Escolha a pericia", "Usar Perícia", nomes_pericias,
       std::bind(
           &ifg::InterfaceGrafica::VoltaEscolherPericia,
@@ -488,7 +488,7 @@ void InterfaceGrafica::VoltaEscolherPocaoOuSimilar(const ntf::Notificacao notifi
         for (auto tipo_efeito : pocao.tipo_efeito()) {
           efeitos.push_back(ent::TipoEfeito_Name((ent::TipoEfeito)tipo_efeito));
         }
-        EscolheItemLista(
+        EscolheItemListaSemTipoTesouro(
           "Escolha o efeito", std::nullopt, efeitos,
           std::bind(
             &ifg::InterfaceGrafica::VoltaEscolherEfeito,
@@ -905,7 +905,7 @@ void InterfaceGrafica::TrataEscolherDecisaoLancamento(const ntf::Notificacao& no
     return;
   }
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheItemLista("Parâmetros de Lancamento", std::nullopt, lista_parametros, [this, notificacao, lista_parametros, ids] (bool ok_decisao, int indice_decisao) {
+  EscolheItemListaSemTipoTesouro("Parâmetros de Lancamento", std::nullopt, lista_parametros, [this, notificacao, lista_parametros, ids] (bool ok_decisao, int indice_decisao) {
     ent::RodaNoRetorno r([this]() {
       this->tabuleiro_->ReativaWatchdogSeMestre();
     });
@@ -1054,7 +1054,7 @@ void InterfaceGrafica::TrataEscolherFeitico(const ntf::Notificacao& notificacao)
   };
 
   tabuleiro_->DesativaWatchdogSeMestre();
-  EscolheItemLista(conversao_espontanea ? "Converter qual feitiço" : "Escolha o Feitiço", std::nullopt, lista, funcao_final);
+  EscolheItemListaSemTipoTesouro(conversao_espontanea ? "Converter qual feitiço" : "Escolha o Feitiço", std::nullopt, lista, funcao_final);
 }
 
 void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::function<void(int)> funcao_volta) {
@@ -1067,7 +1067,7 @@ void InterfaceGrafica::EscolheVersaoTabuleiro(const std::string& titulo, std::fu
       items.push_back(descricao);
     }
   }
-  EscolheItemLista(titulo, std::nullopt, items, [this, funcao_volta](bool aceito, int indice) {
+  EscolheItemListaSemTipoTesouro(titulo, std::nullopt, items, [this, funcao_volta](bool aceito, int indice) {
     if (aceito && indice >= 0 && indice < tabuleiro_->Proto().versoes().size()) {
       funcao_volta(indice);
     } else {

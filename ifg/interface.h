@@ -52,7 +52,7 @@ class InterfaceGrafica : public ntf::Receptor {
       const std::vector<RotuloTipoTesouro>& lista,
       std::function<void(bool, int, std::optional<ent::TipoTesouro>)> funcao_volta) = 0;
   // Adaptador para função acima sem tipo de tesouro.
-  void EscolheItemLista(
+  void EscolheItemListaSemTipoTesouro(
     const std::string& titulo,
     const std::optional<std::string>& rotulo_ok,
     const std::vector<std::string>& lista,
