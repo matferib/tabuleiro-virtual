@@ -1,3 +1,5 @@
+load("@rules_android//rules:rules.bzl", "android_binary", "android_library")
+
 platform(
     name = "arm64-v8a",
     constraint_values = [
@@ -13,3 +15,11 @@ platform(
         "@platforms//os:android",
     ],
 )
+
+#android_binary(
+#    name = "app",
+#    manifest = "AndroidManifest.xml",
+#    deps = [
+#        ":applib",
+#    ],
+#)
