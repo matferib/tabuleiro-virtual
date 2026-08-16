@@ -232,6 +232,9 @@
     <ClCompile Include="..\..\ifg\qt\som_qt.cpp">
       <Filter>ifg</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\log\log.cpp">
+      <Filter>log</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\log\log.h">

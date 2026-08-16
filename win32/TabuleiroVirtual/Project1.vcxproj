@@ -108,6 +108,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="..\..\ifg\tecladomouse.cpp" />
+    <ClCompile Include="..\..\log\log.cpp" />
     <ClCompile Include="..\..\m3d\m3d.cpp" />
     <ClCompile Include="..\..\matrix\matrices.cpp" />
     <ClCompile Include="..\..\net\cliente.cpp" />
