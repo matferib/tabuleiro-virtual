@@ -921,17 +921,12 @@ void Entidade::AtualizaMatrizes() {
 }
 
 // static
-Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
+Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenhoEntidade(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   MatrizesDesenho md;
   Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, true, proto, vd, pd);
   md.modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd.angulo_rotacao_textura_graus);
 
-  if (proto.tipo() != TE_ENTIDADE || (proto.has_modelo_3d() && !proto.desenha_base())) {
-    // Deslocamento de textura para formas e compostos.
-    // O de entidade eh diferente.
-    if (proto.tipo() != TE_ENTIDADE) {
-      return GeraMatrizesDesenhoForma(proto, vd, pd);
-    }
+  if (proto.has_modelo_3d() && !proto.desenha_base()) {
     return md;
   }
   // tijolo base. Usada para disco de peao tambem.
@@ -949,7 +944,7 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
       Matrix4 m;
       m.scale(proto.info_textura().largura(), 1.0f, proto.info_textura().altura());
       m.rotateZ(vd.angulo_rotacao_textura_graus);
-      md.tijolo_tela = matriz_modelagem_geral  * m;
+      md.tijolo_tela = matriz_modelagem_geral * m;
     }
     // tela.
     {
@@ -974,6 +969,14 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
     }
   }
   return md;
+}
+
+// static
+Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
+  if (proto.tipo() != TE_ENTIDADE) {
+    return GeraMatrizesDesenhoForma(proto, vd, pd);
+  }
+  return GeraMatrizesDesenhoEntidade(proto, vd, pd);
 }
 
 bool Entidade::AtualizaEmParalelo(int intervalo_ms) {

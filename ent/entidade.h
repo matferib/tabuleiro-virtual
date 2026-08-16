@@ -687,6 +687,8 @@ class Entidade {
   };
   static MatrizesDesenho GeraMatrizesDesenho(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
   static MatrizesDesenho GeraMatrizesDesenhoForma(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  static MatrizesDesenho GeraMatrizesDesenhoEntidade(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+
 
   /** Atualiza as matrizes do objeto. */
   void AtualizaMatrizes();
