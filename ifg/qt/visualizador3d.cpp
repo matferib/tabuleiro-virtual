@@ -43,10 +43,10 @@
 #define EVENT_GLOBAL_X(event) event->globalX()
 #define EVENT_GLOBAL_Y(event) event->globalY()
 #else
-#define EVENT_X(event) event->position().x()
-#define EVENT_Y(event) event->position().y()
-#define EVENT_GLOBAL_X(event) event->globalPosition().x()
-#define EVENT_GLOBAL_Y(event) event->globalPosition().y()
+#define EVENT_X(event) event->position().toPoint().x()
+#define EVENT_Y(event) event->position().toPoint().y()
+#define EVENT_GLOBAL_X(event) event->globalPosition().toPoint().x()
+#define EVENT_GLOBAL_Y(event) event->globalPosition().toPoint().y()
 #endif
 
 namespace ifg {

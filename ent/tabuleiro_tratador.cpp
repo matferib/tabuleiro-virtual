@@ -545,10 +545,10 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     case ETAB_ROTACAO: {
       // Realiza a rotacao da tela.
-      float olho_rotacao = olho_.rotacao_rad();
+      double olho_rotacao = olho_.rotacao_rad();
       olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
       VLOG(1) << "x: " << x << ", ultimo_x: " << ultimo_x_;
-      VLOG(1) << "y: " << x << ", ultimo_y: " << ultimo_x_;
+      VLOG(1) << "y: " << y << ", ultimo_y: " << ultimo_y_;
       if (olho_rotacao >= 2 * M_PI) {
         olho_rotacao -= 2 * M_PI;
       } else if (olho_rotacao <= - 2 * M_PI) {
