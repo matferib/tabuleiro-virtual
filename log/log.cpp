@@ -1,8 +1,16 @@
 #include "log/log.h"
 
 namespace meulog {
+ABSL_ATTRIBUTE_NOINLINE
 void Inicializa(int& argc, char**& argv) {
 #if USAR_GLOG
+// Isso aqui é para quando não funcionava o parsing de flags. Mas o gemini brilhou e deu a seguinte resposta:
+// Passo 1:
+//   Adicionar a biblioteca nas dependências adicionaisNo seu Visual Studio, clique com o botão direito no seu Projeto e selecione Propriedades.
+//   No menu esquerdo, vá em Propriedades de Configuração > Linker(Vinculador) > Entrada.Na linha Dependências Adicionais, adicione o seguinte arquivo ao início da lista : absl_log_flags.lib;
+// Passo 2: Forçar o carregamento completo(O segredo do MSVC)
+//   Como o compilador tenta otimizar e remover o que julga "não usado", você precisa dizer ao Linker para trazer todo o conteúdo da biblioteca usando a diretiva / WHOLEARCHIVE :
+//  Ainda nas propriedades do projeto, vá em Linker(Vinculador) > Linha de Comando.Na caixa de texto Opções Adicionais(na parte inferior), cole exatamente o seguinte comando : text / WHOLEARCHIVE : absl_log_flags.lib
 #if 0 && WIN32
   // Como nao consigo fazer o log do windows funcionar por flags, faço parsing na mão
   for (int i = 0; i < argc; ++i) {
@@ -27,8 +35,8 @@ void Inicializa(int& argc, char**& argv) {
     }
   }
 #endif
-  absl::ParseCommandLine(argc, argv);
   absl::InitializeLog();
+  absl::ParseCommandLine(argc, argv);
 #endif
 }
 }  // namespace meulog
