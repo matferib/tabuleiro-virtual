@@ -3,6 +3,9 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
   name = "log",
+  srcs = [
+    "log.cpp",
+  ],
   hdrs = [
     "log.h",
   ],
