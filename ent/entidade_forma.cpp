@@ -282,7 +282,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       // Aqui seta na segunda tb.
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param);
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param);
-
     } else {
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
       gl::CarregaIdentidade();
@@ -290,6 +289,22 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::UnidadeTextura(gl::UNITEX_TEX);
       gl::Habilita(GL_TEXTURE_2D);
       gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      if (proto.info_textura().modo_textura() == GL_REPEAT) {
+        GLint param = GL_REPEAT;
+        gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+        if (vd.matriz_deslocamento_textura != Matrix4()) {
+          gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
+        } else {
+          gl::CarregaIdentidade();
+        }
+        gl::AtualizaMatrizes();
+        gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param);
+        gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param);
+      } else {
+        gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+        gl::CarregaIdentidade();
+        gl::AtualizaMatrizes();
+      }
     }
   }
 
@@ -388,4 +403,21 @@ bool Entidade::ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vect
   return false;
 }
 
+// static
+bool Entidade::EhForma3d(const EntidadeProto& forma) {
+  switch (forma.sub_tipo()) {
+    case TF_CILINDRO:
+    case TF_CONE:
+    case TF_CUBO:
+    case TF_ESFERA:
+    case TF_PIRAMIDE:
+    case TF_HEMISFERIO:
+      return true;
+    case TF_CIRCULO:
+    case TF_RETANGULO:
+    case TF_TRIANGULO:
+    case TF_LIVRE:
+      return false;
+  }
+}
 }  // namespace ent

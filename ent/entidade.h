@@ -454,6 +454,9 @@ class Entidade {
 
   std::vector<unsigned int> Times() const { return std::vector<unsigned int>(proto_.times().begin(), proto_.times().end()); }
 
+  // Retorna true se a forma for 3d (exemplo: cubo é true, quadrado é false).
+  static bool EhForma3d(const EntidadeProto& forma);
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
   // Valor de ataque ou ca invalido.

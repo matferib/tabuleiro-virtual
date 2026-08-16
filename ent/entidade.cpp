@@ -940,7 +940,48 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
       } else {
         m.rotateZ(static_cast<float>(-proto.info_textura().direcao_graus()));
         m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y() + vd.deslocamento_textura, 0.0f);
-        m.scale(proto.escala().x() / proto.info_textura().escala_x(), proto.escala().y() / proto.info_textura().escala_y(), 1.0f);
+        // Como temos 3 dimensoes, mas a textura é mapeada em duas, vamos assumir os dois maiores lados como os principais para fazer a escala.
+        if (EhForma3d(proto)) {
+          enum class Eixo {
+            X, Y, Z
+          };
+          Eixo maior_eixo = Eixo::X, segundo_maior_eixo = Eixo::X;
+          float maior = proto.escala().x(), segundo_maior = proto.escala().x();
+          float maior_escala = std::max(proto.info_textura().escala_x(), proto.info_textura().escala_y());
+          float menor_escala = std::min(proto.info_textura().escala_x(), proto.info_textura().escala_y());
+          if (proto.escala().y() > maior) {
+            maior = proto.escala().y();
+            maior_eixo = Eixo::Y;
+          } else {
+            segundo_maior = proto.escala().y();
+            segundo_maior_eixo = Eixo::Y;
+          }
+          if (proto.escala().z() > maior) {
+            segundo_maior = maior;
+            maior = proto.escala().z();
+            segundo_maior_eixo = maior_eixo;
+            maior_eixo = Eixo::Z;
+          } else if (proto.escala().z() > segundo_maior) {
+            segundo_maior = proto.escala().z();
+            segundo_maior_eixo = Eixo::Z;
+          }
+
+          if (maior_eixo == Eixo::X && segundo_maior_eixo == Eixo::Y) {
+            m.scale(maior / maior_escala, segundo_maior / menor_escala, 1.0f);
+          } else if (maior_eixo == Eixo::X && segundo_maior_eixo == Eixo::Z) {
+            m.scale(maior / maior_escala, segundo_maior / menor_escala, 1.0f);
+          } else if (maior_eixo == Eixo::Y && segundo_maior_eixo == Eixo::X) {
+            m.scale(segundo_maior / menor_escala, maior / maior_escala, 1.0f);
+          } else if (maior_eixo == Eixo::Y && segundo_maior_eixo == Eixo::Z) {
+            m.scale(maior / maior_escala, segundo_maior / menor_escala, 1.0f);
+          } else if (maior_eixo == Eixo::Z && segundo_maior_eixo == Eixo::X) {
+            m.scale(segundo_maior / menor_escala, maior / maior_escala, 1.0f);
+          } else if (maior_eixo == Eixo::Z && segundo_maior_eixo == Eixo::Y) {
+            m.scale(segundo_maior / menor_escala, maior / maior_escala, 1.0f);
+          }
+        } else {
+          m.scale(proto.escala().x() / proto.info_textura().escala_x(), proto.escala().y() / proto.info_textura().escala_y(), 1.0f);
+        }
       }
       md.deslocamento_textura = m;
     }
