@@ -1,6 +1,8 @@
 load("@rules_android//rules:rules.bzl", "android_binary", "android_library")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
+package(default_visibility = ["//visibility:public"])
+
 cc_library(
     name = "jni",
     srcs = ["jni-impl.cpp"],
