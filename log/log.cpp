@@ -1,7 +1,7 @@
 #include "log/log.h"
 
 namespace meulog {
-inline void Inicializa(int& argc, char**& argv) {
+void Inicializa(int& argc, char**& argv) {
 #if USAR_GLOG
 #if 0 && WIN32
   // Como nao consigo fazer o log do windows funcionar por flags, faço parsing na mão
