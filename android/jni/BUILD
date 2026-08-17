@@ -18,6 +18,8 @@ cc_library(
     ],
     linkopts = [
       "-landroid",
+      "-lEGL",
+      "-lGLESv3",
     ],
     deps = [
       "@boost//:asio",
