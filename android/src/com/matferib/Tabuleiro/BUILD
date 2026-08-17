@@ -7,7 +7,9 @@ android_binary(
     resource_files = glob(["res/**"]),
     deps = [
         ":tabvirtlib",
+        "//jni:jni",
     ],
+    #debug_key = "tabuleiro-virtual.keystore",
 )
 
 android_library(
@@ -19,7 +21,6 @@ android_library(
     manifest = "AndroidManifest.xml",
     resource_files = glob(["res/**"]),
     deps = [
-        "//jni:jni",
         ":comum_java_proto",
         ":entidade_java_proto",
         ":tabuleiro_java_proto",

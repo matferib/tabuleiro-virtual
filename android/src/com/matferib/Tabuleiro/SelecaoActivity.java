@@ -69,7 +69,7 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
   }
 
   static {
-    System.loadLibrary("tabuleiro");
+    System.loadLibrary("tabvirt");
   }
 
   // Retorna um bitwise das opcoes. 1 para mapeamento de sombras, 2 para luz por pixel.
