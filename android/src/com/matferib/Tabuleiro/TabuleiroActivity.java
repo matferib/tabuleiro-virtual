@@ -31,10 +31,10 @@ import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 
-import com.matferib.Tabuleiro.ent.EntidadeProto;
-import com.matferib.Tabuleiro.ent.IluminacaoPontual;
-import com.matferib.Tabuleiro.ent.TipoVisao;
-import com.squareup.wire.Wire;
+import com.google.protobuf.ByteString;
+import com.matferib.Tabuleiro.ent.Comum.IluminacaoPontual;
+import com.matferib.Tabuleiro.ent.Comum.TipoVisao;
+import com.matferib.Tabuleiro.ent.Entidade.EntidadeProto;
 
 import java.util.Vector;
 
@@ -601,10 +601,9 @@ class TabuleiroRenderer
   /** Abre uma janela de dialogo na thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
   public void abreDialogoEntidade(final byte[] mensagem) {
     Log.d(TAG, "abreDialogoEntidade");
-    Wire wire = new Wire();
-    final EntidadeProto proto;
+    EntidadeProto proto;
     try {
-      proto = wire.parseFrom(mensagem, EntidadeProto.class);
+      proto = EntidadeProto.parseFrom(mensagem);
     } catch (Exception e) {
       Log.e(TAG, "Falha deserializando mensagem: " + e.getMessage());
       return;
@@ -648,13 +647,13 @@ class TabuleiroRenderer
           return;
         }
 
-        max_pv.setText(String.valueOf(proto.max_pontos_vida));
-        pv.setText(String.valueOf(proto.pontos_vida));
+        max_pv.setText(String.valueOf(proto.getMaxPontosVida()));
+        pv.setText(String.valueOf(proto.getPontosVida()));
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
             activity_, R.array.tipo_visao_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tv.setAdapter(adapter);
-        tv.setSelection(proto.tipo_visao != null ? proto.tipo_visao.getValue() : TipoVisao.VISAO_NORMAL.getValue());
+        tv.setSelection(proto.hasTipoVisao() ? proto.getTipoVisaoValue() : TipoVisao.VISAO_NORMAL_VALUE);
         final int num_valores_raios = 300;
         String[] valores_raio = new String[num_valores_raios];
         for (int i = 0; i < num_valores_raios; ++i) {
@@ -666,11 +665,11 @@ class TabuleiroRenderer
         raio_luz.setDisplayedValues(valores_raio);
         raio_luz.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         float val_luz = 0.0f;
-        if (proto.luz != null) {
-          if (proto.luz.raio_m == null) {
+        if (proto.hasLuz()) {
+          if (!proto.getLuz().hasRaioM()) {
             val_luz = 6.0f;  // raio padrao de luz: 4 quadrados.
           } else {
-            val_luz = proto.luz.raio_m;
+            val_luz = proto.getLuz().getRaioM();
           }
         }
         int indice_val_luz = (int)(val_luz / 1.5f);
@@ -678,14 +677,16 @@ class TabuleiroRenderer
           indice_val_luz = num_valores_raios - 1;
         }
         raio_luz.setValue(indice_val_luz);
-        av.setText(String.valueOf(proto.alcance_visao == null ? 0 : proto.alcance_visao));
+        av.setText(String.valueOf(!proto.hasAlcanceVisaoM() ? 0 : proto.getAlcanceVisaoM()));
         String evento_str = new String();
-        for (EntidadeProto.Evento e : proto.evento) {
-          evento_str += e.descricao;
-          if (e.complemento != null) {
-            evento_str += " (" + String.valueOf(e.complemento) + ")";
+        for (EntidadeProto.Evento e : proto.getEventoList()) {
+          evento_str += e.getDescricao();
+          if (e.getComplementosCount() > 0) {
+            evento_str += " (" + String.valueOf(e.getComplementosList()) + ")";
+          } else if (e.getComplementosStrCount() > 0) {
+            evento_str += " (" + String.valueOf(e.getComplementosStrList()) + ")";
           }
-          evento_str += ": " + String.valueOf(e.rodadas) + "\n";
+          evento_str += ": " + String.valueOf(e.getRodadas()) + "\n";
         }
         eventos.setText(evento_str);
 
@@ -696,20 +697,21 @@ class TabuleiroRenderer
               try {
                 // Hack: eventos sera todos colocados em uma string e decodificados no codigo nativo.
                 Vector<EntidadeProto.Evento> evento_hack = new Vector<EntidadeProto.Evento>();
-                evento_hack.add(new EntidadeProto.Evento(0, eventos.getText().toString(), 0, 0));
+                evento_hack.add(EntidadeProto.Evento.newBuilder().setDescricao(
+                    ByteString.copyFromUtf8(eventos.getText().toString())).build());
                 // Converte a visao para 18m se for no escuro e o valor for 0.
                 float alcance = Float.parseFloat(av.getText().toString());
                 if ((TipoVisao.values()[tv.getSelectedItemPosition()] == TipoVisao.VISAO_ESCURO) && alcance == 0) {
                   alcance = 18.0f;
                 }
-                EntidadeProto proto_modificado = new EntidadeProto.Builder()
-                    .id(proto.id)
-                    .max_pontos_vida(Integer.parseInt(max_pv.getText().toString()))
-                    .pontos_vida(Integer.parseInt(pv.getText().toString()))
-                    .tipo_visao(TipoVisao.values()[tv.getSelectedItemPosition()])
-                    .luz(new IluminacaoPontual(null, new Float(raio_luz.getValue() * 1.5f), null))
-                    .alcance_visao(new Float(alcance))
-                    .evento(evento_hack)
+                EntidadeProto proto_modificado = EntidadeProto.newBuilder()
+                    .setId(proto.getId())
+                    .setMaxPontosVida(Integer.parseInt(max_pv.getText().toString()))
+                    .setPontosVida(Integer.parseInt(pv.getText().toString()))
+                    .setTipoVisao(TipoVisao.values()[tv.getSelectedItemPosition()])
+                    .setLuz(IluminacaoPontual.newBuilder().setRaioM(raio_luz.getValue() * 1.5f))
+                    .setAlcanceVisaoM(new Float(alcance))
+                    //.setEvento(evento_hack)
                     .build();
                 Log.d(TAG, "OK proto: " + proto_modificado.toString());
                 nativeUpdateEntity(proto_modificado.toByteArray());
