@@ -40,6 +40,12 @@ Toda compilacao agora é feita por bazel. Tem um Makefile na raiz do Android que
 Colocar o dispositivo em USB debug mode.
 # make install
 
+Tabuleiro vai abrir em modo debug e aguardar
+
+# $ANDROID_SDK/platform-tools/adb shell pidof com.matferib.Tabuleiro
+# $ANDROID_SDK/platform-tools/adb forward tcp:5005 jdwp:<PID>
+# jdb -attach localhost:5005
+
 
 ===========
  Problemas
