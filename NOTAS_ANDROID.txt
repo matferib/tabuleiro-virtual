@@ -20,7 +20,7 @@ export ANDROID_HOME=${ANDROID_SDK}
 
 
 -- Listar targets:
-${ANDROID_DEV_TOOLKIT}/bin/avdmanager list targets
+$ANDROID_SDK/cmdline-tools/latest/bin/avdmanager list targets
 
 -- Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
 // Imprime debug pra cima pra Tabuleiro ou TabuleiroRenderer e suprime o resto.
@@ -33,144 +33,13 @@ ${ANDROID_DEV_TOOLKIT}/android_sdk/platform-tools/adb logcat TabuleiroRenderer:D
  Build
 =======
 
--- Criar os builds para o target (diretorio pai do jni, onde esta o AndroidManifest.xml):
-${ANDROID_DEV_TOOLKIT}/sdk/tools/android update project -p . -s -t 1
-
--- Criar os arquivos de protocol buffer. So criar os do projeto original ja funciona (o codigo do android usa link para eles).
-
--- Compilacao do codigo nativo (do diretorio do jni para os caminhos de include funcionarem):
-${ANDROID_NDK}/ndk-build V=1
-ou
-${ANDROID_NDK}/ndk-build V=1 NEXUS7=1
-
--- Compilacao do java integrado com codigo nativo (do diretorio contendo build.xml):
-export ANTROOT=/Users/mribeiro/Downloads/apache-ant-1.9.4
-${ANTROOT}/bin/ant debug
+Toda compilacao agora é feita por bazel. Tem um Makefile na raiz do Android que roda o comando gerando a aplicacao.
+# make
 
 -- Instalacao:
 Colocar o dispositivo em USB debug mode.
-${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
+# make install
 
-
-==============
- Bibliotecas
-==============
-
-Criar o toolchain de cross-compile:
-export TOOLCHAIN=/var/tmp/my-toolchain
-#${ANDROID_NDK}/build/tools/make_standalone_toolchain.py --arch=arm --api=19 --stl=libc++ --install-dir=${TOOLCHAIN}
-${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang++ src.cpp
-
--- Protobuffer:
-
-Compilando protocol buffers:
-
-- Configuracao do protobuf:
-Essas variaveis abaixo devem ser setadas, caso contrario vai usar as do sistema que podem ser incompativeis com android (por exemplo, mac).
-Referencia: https://developer.android.com/ndk/guides/standalone_toolchain.html
-
-export PATH=$PATH:${TOOLCHAIN}/bin
-export target_host=arm-linux-androideabi
-export AR="$target_host-ar"
-export AS=$target_host-clang
-export CC=$target_host-clang
-export CXX=$target_host-clang++
-export LD=$target_host-ld
-export STRIP=$target_host-strip
-export CFLAGS="-fPIE -fPIC"
-export LDFLAGS="-pie"
-
-Antigas que eu usava.
-export RANLIB="${TOOLCHAIN}/bin/arm-linux-androideabi-ranlib"
-export CXX="${TOOLCHAIN}/bin/arm-linux-androideabi-g++"
-export CC=${CXX/g++/gcc}
-export CFLAGS="-fPIC -DANDROID -nostdlib"
-export LDFLAGS="-Wl,-rpath-link=${TOOLCHAIN}/arm-linux-androideabi/lib/ -L${TOOLCHAIN}/arm-linux-androideabi/lib/"
-export CPPFLAGS="-I${TOOLCHAIN}/sysroot/usr/include -I${TOOLCHAIN}/sysroot/usr/include/linux"
-export LIBS="-lstdc++ -lc"
-
-./configure --host=arm-*-eabi
-make
-
-Pode dar um erro no unit test ou no compilador aqui mas a lib esta ok (src/.libs/libprotobuffer.a).
-
--- Boost:
-
-Boost android: https://github.com/MysticTreeGames/Boost-for-Android
-
-- Baixar:
-git clone https://github.com/MysticTreeGames/Boost-for-Android.git
-
-- No case do NDK_RN adicionar a versao usada do ndk.
-
-- Usar o toolchain mais novo:
-./build-android.sh ${ANDROID_NDK} --boost=1.55.0 --toolchain=arm-linux-androideabi-4.8 --with-libraries=system,timer,filesystem
-
-(se der pau, tem que ir no configs/user-config-boost-1_55_0.jam e mudar as referencias de 4.6 para 4.8.
-
-==============
-Instrumentação
-==============
-
-OBS: Funciona apenas em dispositivos com um usuario (so consegui no telefone).
-
-- Colocar no AndroidManifest.xml para poder escrever o arquivo de profile:
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-- Descompactar o android-ndk-profiler em android/jni (https://code.google.com/p/android-ndk-profiler/). O diretorio jni dele (que contem Android.mk) deve ser chamado
-de android-ndk-profiler dentro do jni do tabuleiro.
-
-- Build TLDR: compila.sh -p
-
-- Usar gcc no Application.mk (ao inves de clang).
-
-- Adicionar no Android.mk:
-LOCAL_CFLAGS := -pg
-LOCAL_STATIC_LIBRARIES += android-ndk-profiler
-# ultima linha.
-$(call import-module,android-ndk-profiler)
-
-- Adicionar no jni-impl.cpp:
-#include "prof.h"
-...
-// Resume. Sim, o nome é sem o prefixo lib.
-  monstartup("tabuleiro.so");
-// Pause
-  moncleanup();
-
-- Compilar o jni com:
-cd android/jni
-${ANDROID_NDK}/ndk-build NDK_MODULE_PATH=$PWD V=1
-
-- Compilar, instalar e rodar a app para gerar o profile. Ao pausar a app, o arquivo sera escrito.
-
-- Baixar o profile:
-${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb pull /sdcard/gmon.out .
-
-- Analisar:
-${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gprof obj/local/armeabi-v7a/libtabuleiro.so > output.txt
-
-===============================
-Protocol buffer no Android Java
-===============================
-
-Baixar wire compiler (prot enxuto) versao 1.8.0 (ver releases). https://github.com/square/wire
-Rodar o build_tests pra compilar tudo.
-
-Compilar os protos (diretorio base do tabuleiro); Exemplo:
-java -jar wire-compiler-1.8.0-jar-with-dependencies.jar --java_out=java_out ent/entidade.proto
-
-Mover os protos gerados para src/com/matferib/Tabuleiro/ (do diretorio base do tabuleiro):
-mv java_out/com/matferib/Tabuleiro/ent/ android/src/com/matferib/Tabuleiro/
-
-Baixar runtime:
-wire https://github.com/square/wire/blob/master/README.md
-okio: https://github.com/square/okio/blob/master/README.md
-
-Coloca-los no diretorio libs do android.
-
-Atencao: em caso de null ser retornado nos componentes, conferir se a compilacao realmente aconteceu.
-rm -rf bin/classes
 
 ===========
  Problemas
