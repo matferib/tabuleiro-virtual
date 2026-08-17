@@ -20,13 +20,13 @@ export ANDROID_HOME=${ANDROID_SDK}
 
 
 -- Listar targets:
-$ANDROID_SDK/cmdline-tools/latest/bin/avdmanager list targets
+${ANDROID_SDK}/cmdline-tools/latest/bin/avdmanager list targets
 
 -- Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
 // Imprime debug pra cima pra Tabuleiro ou TabuleiroRenderer e suprime o resto.
 // *:S so deixa passar o primeiro filtro. Suppress all.
-${ANDROID_DEV_TOOLKIT}/android_sdk/platform-tools/adb logcat TabuleiroJni:D *:S
-${ANDROID_DEV_TOOLKIT}/android_sdk/platform-tools/adb logcat TabuleiroRenderer:D *:S
+${ANDROID_SDK}/platform-tools/adb logcat TabuleiroJni:D *:S
+${ANDROID_SDK}/platform-tools/adb logcat TabuleiroRenderer:D *:S
 
 
 =======
