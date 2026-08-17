@@ -1,7 +1,6 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("@protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
-load("@protobuf//bazel:java_proto_library.bzl", "java_proto_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -106,47 +105,6 @@ cc_proto_library(
     name = "tabuleiro_interface_cc_proto",
     deps = ["tabuleiro_interface_proto"],
 )
-
-java_proto_library(
-    name = "acoes_java_proto",
-    deps = ["acoes_proto"],
-)
-
-java_proto_library(
-    name = "comum_java_proto",
-    deps = ["comum_proto"],
-)
-
-java_proto_library(
-    name = "controle_virtual_java_proto",
-    deps = ["controle_virtual_proto"],
-)
-
-java_proto_library(
-    name = "entidade_java_proto",
-    deps = ["entidade_proto"],
-)
-
-java_proto_library(
-    name = "geracao_java_proto",
-    deps = ["geraco_proto"],
-)
-
-java_proto_library(
-    name = "tabelas_java_proto",
-    deps = ["tabelas_proto"],
-)
-
-java_proto_library(
-    name = "tabuleiro_java_proto",
-    deps = ["tabuleiro_proto"],
-)
-
-java_proto_library(
-    name = "tabuleiro_interface_java_proto",
-    deps = ["tabuleiro_interface_proto"],
-)
-
 
 cc_library(
     name = "ent_headers",

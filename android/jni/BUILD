@@ -16,17 +16,18 @@ cc_library(
       "BENCHMARK=0",
       #"-Wno-deprecated-declarations",
     ],
+    linkopts = [
+      "-landroid",
+    ],
     deps = [
       "@boost//:asio",
       "@boost//:filesystem",
       "//jni/arq",
-      "//jni/ent:ent_headers",
+      "//jni/ent",
+      "//jni/gltab",
       "//jni/ifg",
       "//jni/m3d",
       "//jni/net",
     ],
-    #linkopts = select({
-      #"//conditions:default": [],
-    #})
 )
 
