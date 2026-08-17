@@ -1,1 +1,0 @@
-../../../shaders/vert_luz_por_vertice.c

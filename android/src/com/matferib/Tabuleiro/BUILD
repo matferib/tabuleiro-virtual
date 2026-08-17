@@ -5,6 +5,8 @@ android_binary(
     name = "tabvirt",
     manifest = "AndroidManifest.xml",
     resource_files = glob(["res/**"]),
+    assets_dir = 'assets',
+    assets = glob(["assets/**"]),
     deps = [
         ":tabvirtlib",
         "//jni:jni",

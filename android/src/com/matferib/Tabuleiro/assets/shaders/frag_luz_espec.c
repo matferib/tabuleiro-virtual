@@ -1,1 +1,1 @@
-../../../shaders/frag_luz_espec.c
+../../../../../../../shaders/frag_luz_espec.c

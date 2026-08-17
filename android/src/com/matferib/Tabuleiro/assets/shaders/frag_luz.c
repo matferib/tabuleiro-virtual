@@ -1,1 +1,0 @@
-../../../shaders/frag_luz.c

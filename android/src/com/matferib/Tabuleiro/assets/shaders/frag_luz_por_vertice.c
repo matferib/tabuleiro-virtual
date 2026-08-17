@@ -1,1 +1,1 @@
-../../../shaders/frag_luz_por_vertice.c
+../../../../../../../shaders/frag_luz_por_vertice.c

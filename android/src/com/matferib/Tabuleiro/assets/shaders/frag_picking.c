@@ -1,1 +1,1 @@
-../../../shaders/frag_picking.c
+../../../../../../../shaders/frag_picking.c
