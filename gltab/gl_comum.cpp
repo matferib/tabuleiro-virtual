@@ -1270,7 +1270,7 @@ void HabilitaEstadoCliente(GLenum cap) {
       HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
     }
   } else {
-    glEnableClientState(cap);
+    LOG(ERROR) << "Chamando: gHabilitaEstadoCliente que implica em glEnableClientState(cap); cap: " << cap << ", ignorando";
   }
 }
 
@@ -1291,7 +1291,7 @@ void DesabilitaEstadoCliente(GLenum cap) {
       DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
     }
   } else {
-    glDisableClientState(cap);
+    LOG(ERROR) << "Chamando: gDesabilitaEstadoCliente que implica em glDisableClientState(cap); cap: " << cap << ", ignorando";
   }
 }
 
