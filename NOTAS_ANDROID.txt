@@ -26,6 +26,7 @@ ${ANDROID_SDK}/cmdline-tools/latest/bin/avdmanager list targets
 // Imprime debug pra cima pra Tabuleiro ou TabuleiroRenderer e suprime o resto.
 // *:S so deixa passar o primeiro filtro. Suppress all.
 ${ANDROID_SDK}/platform-tools/adb logcat TabuleiroJni:D *:S
+${ANDROID_SDK}/platform-tools/adb logcat native:D *:S
 ${ANDROID_SDK}/platform-tools/adb logcat TabuleiroRenderer:D *:S
 
 
