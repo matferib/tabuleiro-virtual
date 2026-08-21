@@ -12,7 +12,6 @@ cc_library(
     defines = [
       "ANDROID=1",
       "USAR_OPENGL_ES=1",
-      "DEBUG=0",
       "BENCHMARK=0",
       #"-Wno-deprecated-declarations",
     ],
