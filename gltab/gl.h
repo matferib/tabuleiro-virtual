@@ -28,7 +28,7 @@
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 //#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
-#include <GLES/glplatform.h>
+#include <GLES3/gl3platform.h>
 #include <GLES3/gl3.h>
 #endif
 #elif __APPLE__
