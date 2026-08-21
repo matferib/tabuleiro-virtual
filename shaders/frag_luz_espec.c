@@ -181,7 +181,7 @@ lowp float VisibilidadeNeve(vec3 normal) {
   lowp vec4 texprofcor = texture2D(gltab_unidade_textura_neve, v_Pos_neve.xy);
   lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
   // Se texz menor que valor computado, retorna 0.
-  lowp float aplicar_luz_direcional = step((v_Pos_neve.z - bias), texz);
+  lowp float aplicar_neve = step((v_Pos_neve.z - bias), texz);
 #endif
   return max(0.5, aplicar_neve);
 }
@@ -230,7 +230,7 @@ void main() {
   }
 
   // Aplica textura.
-  if (gltab_textura > 0.0 && v_Tex_presenca != -1) {
+  if (gltab_textura > 0.0 && v_Tex_presenca != -1.0) {
     if (gltab_textura_bump > 0.0) {
       highp vec3 desvio = ((vec3(2.0, 2.0, 2.0) * texture2D(gltab_unidade_textura_bump, v_Tex.st).xyz) - vec3(1.0, 1.0, 1.0));
       mediump mat3 tbn = mat3(v_Tangent, v_Bitangent, v_Normal);
@@ -244,7 +244,7 @@ void main() {
   //  cor_final.rgb = vec3(1.0, 0.0, 0.0);
   }
 
-  if (v_Clima.w != 0) {
+  if (v_Clima.w != 0.0) {
     lowp float nevado = VisibilidadeNeve(normal);
 
     // Angulo entre normal e direcao do clima.
