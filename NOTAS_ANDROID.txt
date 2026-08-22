@@ -28,6 +28,7 @@ ${ANDROID_SDK}/cmdline-tools/latest/bin/avdmanager list targets
 ${ANDROID_SDK}/platform-tools/adb logcat TabuleiroJni:D *:S
 ${ANDROID_SDK}/platform-tools/adb logcat native:D *:S
 ${ANDROID_SDK}/platform-tools/adb logcat TabuleiroRenderer:D *:S
+${ANDROID_SDK}/platform-tools/adb logcat TabuleiroRenderer:D native:D TabuleiroJni:D *:S
 
 
 =======
