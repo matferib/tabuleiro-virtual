@@ -2,5 +2,7 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
-  <com.matferib.Tabuleiro.MultiSpinner android:id="@+id/multi_spinner" />
+  <com.matferib.Tabuleiro.MultiSpinner android:id="@+id/multi_spinner"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
 </LinearLayout>
