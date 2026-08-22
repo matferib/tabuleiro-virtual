@@ -1,16 +1,15 @@
 // From: https://stackoverflow.com/questions/5015686/android-spinner-with-multiple-choice
 package com.matferib.Tabuleiro;
 
-import android.widget.Spinner;
-import android.content.Context;
-import android.content.DialogInterface.OnMultiChoiceClickListener;
-import android.content.DialogInterface.OnCancelListener;
-import android.util.AttributeSet;
-import android.content.DialogInterface;
-import java.util.List;
-import android.widget.ArrayAdapter;
 import android.app.AlertDialog;
-
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
+import android.util.AttributeSet;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import java.util.List;
 
 public class MultiSpinner extends Spinner implements
         OnMultiChoiceClickListener, OnCancelListener {
@@ -91,10 +90,10 @@ public class MultiSpinner extends Spinner implements
         this.defaultText = allText;
         this.listener = listener;
 
-        // all selected by default
+        // None selected by default
         selected = new boolean[items.size()];
         for (int i = 0; i < selected.length; i++)
-            selected[i] = true;
+            selected[i] = false;
 
         // all text on the spinner
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),

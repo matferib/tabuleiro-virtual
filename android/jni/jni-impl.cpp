@@ -440,12 +440,20 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenItemsList(
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemsList %lld %d", dados_volta, ok);
   std::unique_ptr<std::function<void(bool, std::vector<int>)>> funcao_volta(
       reinterpret_cast<std::function<void(bool, std::vector<int>)>*>(dados_volta));
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemsList2");
+  if (!ok || indices == nullptr) {
+    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemsList cancela.");
+    (*funcao_volta)(false, {});
+    return;
+  }
+ 
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemsList ok");
   // converte indices:
   std::vector<int> indices_convertidos;
   jsize tam_indices = env->GetArrayLength(indices);
-  for (int i = 0; indices != nullptr && i < tam_indices; ++i) {
-    indices_convertidos.push_back(env->GetIntArrayElements(indices, nullptr)[i]);
+  jint* indices_cpp = env->GetIntArrayElements(indices, nullptr);
+  for (int i = 0; i < tam_indices; ++i) {
+    __android_log_print(ANDROID_LOG_DEBUG, "Tabuleiro", "nativeOpenItemsList indice %d", indices_cpp[i]);
+    indices_convertidos.push_back(indices_cpp[i]);
   }
   (*funcao_volta)(ok, indices_convertidos);
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemsList3");

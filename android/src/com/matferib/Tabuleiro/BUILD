@@ -17,6 +17,7 @@ android_binary(
 android_library(
     name = "tabvirtlib",
     srcs = [
+        "MultiSpinner.java",
         "TabuleiroActivity.java",
         "SelecaoActivity.java",
     ],
