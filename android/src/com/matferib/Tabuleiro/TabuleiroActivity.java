@@ -35,7 +35,9 @@ import com.google.protobuf.ByteString;
 import com.matferib.Tabuleiro.ent.Comum.IluminacaoPontual;
 import com.matferib.Tabuleiro.ent.Comum.TipoVisao;
 import com.matferib.Tabuleiro.ent.Entidade.EntidadeProto;
+import com.matferib.Tabuleiro.MultiSpinner;
 
+import java.util.List;
 import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -527,6 +529,71 @@ class TabuleiroRenderer
     });
   }
 
+  // Permite a seleção de multiplos elementos.
+  // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
+  public void abreDialogoItemsLista(
+      final String[] lista, final long dados_volta) {
+    //Log.d(TAG, "abreDialogoItemsLista: ");
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle("Escolha multiplos");
+        LayoutInflater inflater = activity_.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialogo_abrir_multiplos, null);
+        final MultiSpinner spinner = (MultiSpinner)view.findViewById(R.id.multi_spinner);
+        if (spinner == null) {
+          Log.e(TAG, "spinner== null");
+          return;
+        }
+        final boolean[] selecionados = new boolean[lista.length];
+        spinner.setItems(List.of(lista), "", new MultiSpinner.MultiSpinnerListener() {
+          public void onItemsSelected(boolean[] selected) {
+            System.arraycopy(selected, 0, selecionados, 0, selected.length);
+          }
+        });
+
+        // Termina a janela de dialogo.
+        builder.setView(view)
+          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              int posicao = spinner.getSelectedItemPosition();
+              if (posicao == spinner.INVALID_POSITION || posicao >= lista.length) {
+                nativeOpenItemsList(dados_volta, false, null);
+              }
+              // Converte selecionados em um jint[] com os indices dos selecionados.
+	      int tam = 0;
+	      for (boolean b : selecionados) {
+	        if (b) {
+	          ++tam;
+	        }
+	      }
+	      int indices_selecionados[] = new int[tam];
+	      int j = 0;
+	      for (int i = 0; i < tam; ++i) {
+	        if (selecionados[i]) {
+	          indices_selecionados[j++] = i;
+	        }
+	      }
+              nativeOpenItemsList(dados_volta, true, indices_selecionados);
+              dialog.dismiss();
+            }
+          })
+          .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              nativeOpenItemsList(dados_volta, false, null);
+              dialog.dismiss();
+            }
+          }
+        );
+
+        AlertDialog caixa = builder.create();
+        caixa.show();
+      }
+    });
+  }
+
+ 
   // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
   public void abreDialogoAbrirTabuleiro(
       final String[] tab_estaticos, final String[] tab_dinamicos, final long dados_volta) {
@@ -1134,6 +1201,7 @@ class TabuleiroRenderer
   private static native void nativeSaveBoardName(long dados_volta, String nome);
   private static native void nativeOpenBoardName(long dados_volta, String nome, boolean estatico);
   private static native void nativeOpenItemList(long dados_volta, boolean ok, int indice);
+  private static native void nativeOpenItemsList(long dados_volta, boolean ok, int[] indices);
   private static native void nativeUpdateEntity(byte[] mensagem);
 
   private Activity activity_;
