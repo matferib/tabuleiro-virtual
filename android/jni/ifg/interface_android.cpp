@@ -176,23 +176,28 @@ void InterfaceGraficaAndroid::EscolheItemsLista(
     const std::string& titulo,
     const std::vector<std::string>& lista,
     std::function<void(bool, std::vector<int>)> funcao_volta) {
-  // TODO fazer essa funcao direito para permitir multipla selecao no android.
   if (env_ == nullptr) {
     auto n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
     central_->AdicionaNotificacao(n.release());
     return;
   }
-  auto adaptador_volta = [funcao_volta](bool ok, int indice, std::optional<ent::TipoTesouro>) {
-    std::vector<int> v;
-    if (indice != -1) v.push_back(indice);
-    funcao_volta(ok, v);
-  };
-  std::vector<RotuloTipoTesouro> lista_adaptada;
-  for (const auto& s : lista) {
-    lista_adaptada.emplace_back(RotuloTipoTesouro{.rotulo=s, .tipo_tesouro=std::nullopt});
+  jmethodID metodo = Metodo("abreDialogoItemsLista", "([Ljava/lang/String;J)V");
+  jobjectArray joa = (jobjectArray)env_->NewObjectArray(
+      lista.size(),
+      env_->FindClass("java/lang/String"), env_->NewStringUTF(""));
+  {
+    int i = 0;
+    for (const auto& item_str : lista) {
+      jstring sj = env_->NewStringUTF(item_str.c_str());
+      // Aqui tem que passar o tipo de tesouro pro java tb.
+      env_->SetObjectArrayElement(joa, i++, sj);
+    }
   }
-  EscolheItemLista(titulo, std::nullopt, lista_adaptada, adaptador_volta);
+
+  // A volta deletera.
+  jlong funcao_volta_ptr = (jlong)new std::function<void(bool, std::vector<int>)>(funcao_volta);
+  env_->CallVoidMethod(thisz_, metodo, joa, funcao_volta_ptr);
 }
 
 void InterfaceGraficaAndroid::EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) {

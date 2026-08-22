@@ -434,4 +434,20 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenItemList(
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemList3");
 }
 
+// Abrir items da lista fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenItemsList(
+    JNIEnv* env, jobject thiz, jlong dados_volta, jboolean ok, jintArray indices) {
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemsList %lld %d", dados_volta, ok);
+  std::unique_ptr<std::function<void(bool, std::vector<int>)>> funcao_volta(
+      reinterpret_cast<std::function<void(bool, std::vector<int>)>*>(dados_volta));
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemsList2");
+  // converte indices:
+  std::vector<int> indices_convertidos;
+  jsize tam_indices = env->GetArrayLength(indices);
+  for (int i = 0; indices != nullptr && i < tam_indices; ++i) {
+    indices_convertidos.push_back(env->GetIntArrayElements(indices, nullptr)[i]);
+  }
+  (*funcao_volta)(ok, indices_convertidos);
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemsList3");
+}
 }  // extern "C"
