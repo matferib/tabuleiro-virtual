@@ -4,6 +4,7 @@
 #endif
 
 #include <memory>
+#include <optional>
 #include <stdlib.h>
 #include <jni.h>
 #include <sys/time.h>
@@ -426,10 +427,10 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenBoardName(
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenItemList(
     JNIEnv* env, jobject thiz, jlong dados_volta, jboolean ok, jint indice) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemList %lld %d %d", dados_volta, ok, indice);
-  std::unique_ptr<std::function<void(bool, int)>> funcao_volta(
-      reinterpret_cast<std::function<void(bool, int)>*>(dados_volta));
+  std::unique_ptr<std::function<void(bool, int, std::optional<ent::TipoTesouro>)>> funcao_volta(
+      reinterpret_cast<std::function<void(bool, int, std::optional<ent::TipoTesouro>)>*>(dados_volta));
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemList2");
-  (*funcao_volta)(ok, indice);
+  (*funcao_volta)(ok, indice, std::nullopt);
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeOpenItemList3");
 }
 
