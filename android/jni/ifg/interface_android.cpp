@@ -154,7 +154,7 @@ void InterfaceGraficaAndroid::EscolheItemLista(
     central_->AdicionaNotificacao(n.release());
     return;
   }
-  jmethodID metodo = Metodo("abreDialogoItemsLista", "([Ljava/lang/String;J)V");
+  jmethodID metodo = Metodo("abreDialogoItemLista", "([Ljava/lang/String;J)V");
   jobjectArray joa = (jobjectArray)env_->NewObjectArray(
       lista.size(),
       env_->FindClass("java/lang/String"), env_->NewStringUTF(""));

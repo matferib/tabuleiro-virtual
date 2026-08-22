@@ -477,9 +477,9 @@ class TabuleiroRenderer
   }
 
   // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
-  public void abreDialogoItemsLista(
+  public void abreDialogoItemLista(
       final String[] lista, final long dados_volta) {
-    //Log.d(TAG, "abreDialogoItemsLista: ");
+    //Log.d(TAG, "abreDialogoItemLista: ");
     activity_.runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -509,7 +509,7 @@ class TabuleiroRenderer
               if (posicao == spinner.INVALID_POSITION || posicao >= lista.length) {
                 nativeOpenItemList(dados_volta, false, -1);
               }
-              Log.e(TAG, "aqui: " + (String)spinner.getSelectedItem());
+              Log.e(TAG, "item selecionado: " + (String)spinner.getSelectedItem());
               nativeOpenItemList(dados_volta, true, posicao);
               dialog.dismiss();
             }
