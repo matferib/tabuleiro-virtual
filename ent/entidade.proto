@@ -24,6 +24,8 @@ enum TipoForma {
   TF_RETANGULO = 7;
   TF_TRIANGULO = 8;
   TF_HEMISFERIO = 9;
+  // A forma da entidade é um modelo 3d.
+  TF_MODELO = 10;
 }
 
 // Proximo id: 130.
