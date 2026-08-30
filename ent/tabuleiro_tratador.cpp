@@ -3414,7 +3414,10 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     VLOG(1) << "Picking em ponto de rolagem id " << id;
     TrataRolagem(static_cast<dir_rolagem_e>(id));
   } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
-    VLOG(1) << "Picking no controle virtual " << id;
+    VLOG(1) << "Picking no controle virtual " << id << ", modo_clique: " << modo_clique_;
+    if (modo_clique_ == MODO_TRANSICAO) {
+      alterna_selecao = true;
+    }
     PickingControleVirtual(x, y, alterna_selecao, false  /*duplo*/, id, forca_selecao);
   } else if (tipo_objeto == OBJ_EVENTO_ENTIDADE) {
     VLOG(1) << "Picking em evento da entidade " << id;
