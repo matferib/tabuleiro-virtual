@@ -11,9 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import java.util.List;
 
-public class MultiSpinner extends Spinner implements
-        OnMultiChoiceClickListener, OnCancelListener {
-
+public class MultiSpinner extends Spinner implements OnMultiChoiceClickListener, OnCancelListener {
     private List<String> items;
     private boolean[] selected;
     private String defaultText;
@@ -84,20 +82,19 @@ public class MultiSpinner extends Spinner implements
         return true;
     }
 
-    public void setItems(List<String> items, String allText,
-            MultiSpinnerListener listener) {
+    public void setItems(List<String> items, String allText, MultiSpinnerListener listener) {
         this.items = items;
         this.defaultText = allText;
         this.listener = listener;
 
         // None selected by default
         selected = new boolean[items.size()];
-        for (int i = 0; i < selected.length; i++)
+        for (int i = 0; i < selected.length; i++) {
             selected[i] = false;
+        }
 
         // all text on the spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-                android.R.layout.simple_spinner_item, new String[] { allText });
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, new String[] { allText });
         setAdapter(adapter);
     }
 
