@@ -72,8 +72,8 @@ bool EhAsset(tipo_e tipo) {
          tipo == TIPO_MODELOS_3D;
 }
 
-const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo) {
-  return Diretorio(tipo) + "/" + arquivo;
+const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo, bool forca_asset) {
+  return Diretorio(tipo, forca_asset) + "/" + arquivo;
 }
 
 void CriaDiretoriosUsuario() {
@@ -124,17 +124,17 @@ const std::vector<std::string> ConteudoDiretorioNormal(const std::string& direto
 // Funcoes da interface.
 // ---------------------
 
-const std::string Diretorio(tipo_e tipo) {
-  if (interno::EhAsset(tipo)) {
+const std::string Diretorio(tipo_e tipo, bool forca_asset) {
+  if (forca_asset || interno::EhAsset(tipo)) {
     return plat::DiretorioAssets() + interno::TipoParaDiretorio(tipo);
   } else {
     return plat::DiretorioAppsUsuario() + interno::TipoParaDiretorio(tipo);
   }
 }
 
-const std::vector<std::string> ConteudoDiretorio(tipo_e tipo, std::function<bool(const std::string&)> filtro) {
+const std::vector<std::string> ConteudoDiretorio(tipo_e tipo, std::function<bool(const std::string&)> filtro, bool forca_asset) {
   std::vector<std::string> ret;
-  if (interno::EhAsset(tipo)) {
+  if (forca_asset || interno::EhAsset(tipo)) {
     ret = plat::ConteudoDiretorioAsset(tipo);
   } else {
     ret = interno::ConteudoDiretorioNormal(Diretorio(tipo));
@@ -166,8 +166,8 @@ void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const 
 }
 
 // Leitura: a parte de assets eh especifica de plataforma. Caminho arquivo tem que funcionar tambem.
-void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
-  if (interno::EhAsset(tipo)) {
+void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados, bool forca_asset) {
+  if (forca_asset || interno::EhAsset(tipo)) {
     plat::LeArquivoAsset(tipo, nome_arquivo, dados);
   } else {
     interno::LeArquivoNormal(interno::CaminhoArquivo(tipo, nome_arquivo), dados);

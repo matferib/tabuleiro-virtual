@@ -59,10 +59,10 @@ void Inicializa(const std::string& x_path);
 #endif
 
 // Retorna conteudo de um diretorio. Se o filtro for passado, aqueles que retornarem true serao filtrados (removidos).
-const std::vector<std::string> ConteudoDiretorio(tipo_e tipo, std::function<bool(const std::string&)> filtro = [] (const std::string&) { return false; });
+const std::vector<std::string> ConteudoDiretorio(tipo_e tipo, std::function<bool(const std::string&)> filtro = [] (const std::string&) { return false; }, bool forca_asset = false);
 
-// Retorna o diretorio do tipo passado, sem a "/" final.
-const std::string Diretorio(tipo_e tipo);
+// Retorna o diretorio do tipo passado, sem a "/" final. Se forca_asset, tratara como asset independente do tipo.
+const std::string Diretorio(tipo_e tipo, bool forca_asset = false);
 
 // Interface de escrita.
 // @throws std::logic_error caso nao consiga escrever arquivo.
@@ -71,8 +71,8 @@ void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, cons
 void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
 
 // Interface de leitura.
-// @throws ParseProtoException caso nao consiga ler o arquivo.
-void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados);
+// @throws ParseProtoException caso nao consiga ler o arquivo. Se forca_asset, lera como asset independente do tipo de arquivo.
+void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados, bool forca_asset = false);
 void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);
 void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);
 
@@ -83,8 +83,8 @@ namespace interno {
 const std::string TipoParaDiretorio(tipo_e tipo);
 // Retorna true se o tipo de arquivo eh asset (ou seja, READ ONLY).
 bool EhAsset(tipo_e tipo);
-// Retorna o caminho para um tipo de arquivo.
-const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo);
+// Retorna o caminho para um tipo de arquivo. Se forca_asset, ira ler como asset independente do tipo.
+const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo, bool forca_asset = false);
 // Cria a estrutura de diretorios para conteudo do usuario.
 void CriaDiretoriosUsuario();
 // Escreve um arquivo com caminho completo.
