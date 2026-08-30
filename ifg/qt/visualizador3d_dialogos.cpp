@@ -3148,6 +3148,7 @@ bool PermiteMudarForma(const ent::EntidadeProto& proto) {
     case ent::TF_ESFERA:
     case ent::TF_PIRAMIDE:
     case ent::TF_HEMISFERIO:
+    case ent::TF_MODELO:
       return true;
     default:
       return false;
@@ -3162,6 +3163,7 @@ int SubTipoParaIndice(ent::TipoForma sub_tipo) {
     case ent::TF_ESFERA: return 3;
     case ent::TF_PIRAMIDE: return 4;
     case ent::TF_HEMISFERIO: return 5;
+    case ent::TF_MODELO: return 6;
     default:
       return -1;
   }
@@ -3175,6 +3177,7 @@ ent::TipoForma IndiceParaSubTipo(int indice) {
     case 3: return ent::TF_ESFERA;
     case 4: return ent::TF_PIRAMIDE;
     case 5: return ent::TF_HEMISFERIO;
+    case 6: return ent::TF_MODELO;
     default:
       LOG(ERROR) << "indice invalido, retornando cilindro: " << indice;
       return ent::TF_CILINDRO;
@@ -3271,6 +3274,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   gerador.checkbox_fumegando->setCheckState(entidade.fumegando() ? Qt::Checked : Qt::Unchecked);
   // Pegando fogo.
   gerador.checkbox_pegando_fogo->setCheckState(entidade.pegando_fogo() ? Qt::Checked : Qt::Unchecked);
+
+  // Modelo 3d.
+  PreencheComboModelo3d(entidade.modelo_3d().id(), gerador.combo_modelos_3d);
 
   // Textura do objeto.
   PreencheComboTextura(entidade.info_textura().id(),
@@ -3512,6 +3518,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
       // Valor especial para denotar ausencia.
       proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_NENHUMA);
       proto_retornado->mutable_transicao_cenario()->set_id_cenario(CENARIO_INVALIDO);
+    }
+
+    if (gerador.combo_modelos_3d->currentIndex() == 0) {
+      proto_retornado->clear_modelo_3d();
+    } else {
+      proto_retornado->mutable_modelo_3d()->set_id(gerador.combo_modelos_3d->currentText().toStdString());
     }
 
     if (gerador.combo_textura->currentIndex() == 0) {
