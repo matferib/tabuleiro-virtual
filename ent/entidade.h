@@ -27,6 +27,7 @@ class IluminacaoDirecional;
 /** Interface de texturas para entidades. */
 class Texturas {
  public:
+  virtual ~Texturas() = default;
   /** Retorna o id da textura ou GL_INVALID_VALUE. */
   virtual unsigned int Textura(const std::string& id) const = 0;
   /** Retorna o tipo da textura: GL_TEXTURE_2D ou GL_TEXTURE_CUBE_MAP. */
