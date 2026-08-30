@@ -377,6 +377,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         DesenhaStencil3d(xi, yi, xs, ys);
       }
     }
+    break;
     case TF_MODELO: {
       const auto* modelo = vd.m3d->Modelo(proto.modelo_3d().id());
       if (modelo != nullptr) {
