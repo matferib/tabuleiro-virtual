@@ -557,10 +557,6 @@ class TabuleiroRenderer
         builder.setView(view)
           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-              int posicao = spinner.getSelectedItemPosition();
-              if (posicao == spinner.INVALID_POSITION || posicao >= lista.length) {
-                nativeOpenItemsList(dados_volta, false, null);
-              }
               // Converte selecionados em um jint[] com os indices dos selecionados.
 	      int tam = 0;
 	      for (boolean b : selecionados) {
@@ -570,7 +566,7 @@ class TabuleiroRenderer
 	      }
 	      int indices_selecionados[] = new int[tam];
 	      int j = 0;
-	      for (int i = 0; i < tam; ++i) {
+	      for (int i = 0; i < selecionados.length && j < tam; ++i) {
 	        if (selecionados[i]) {
 	          indices_selecionados[j++] = i;
 	        }
