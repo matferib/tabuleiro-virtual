@@ -180,6 +180,11 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
     case TF_LIVRE:
       // nao faz nada, pois nao possui escala.
     break;
+    case TF_MODELO: {
+      // Mesma coisa que cilindro.
+      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+    }
+    break;
     default:
       LOG(ERROR) << "Forma de desenho invalida";
 
@@ -419,6 +424,7 @@ bool Entidade::EhForma3d(const EntidadeProto& forma) {
     case TF_ESFERA:
     case TF_PIRAMIDE:
     case TF_HEMISFERIO:
+    case TF_MODELO:
       return true;
     case TF_CIRCULO:
     case TF_RETANGULO:
