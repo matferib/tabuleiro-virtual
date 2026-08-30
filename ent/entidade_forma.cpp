@@ -6,6 +6,7 @@
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
+#include "m3d/m3d.h"
 
 
 namespace ent {
@@ -369,6 +370,12 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
         //LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
         DesenhaStencil3d(xi, yi, xs, ys);
+      }
+    }
+    case TF_MODELO: {
+      const auto* modelo = vd.m3d->Modelo(proto.modelo_3d().id());
+      if (modelo != nullptr) {
+        modelo->vbos_gravados.Desenha();
       }
     }
     break;
