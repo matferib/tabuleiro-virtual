@@ -16,6 +16,7 @@ std::unique_ptr<Notificacao> NovaNotificacaoErroTipada(Tipo tipo, const std::str
 /** Interface para receber notificações. */
 class Receptor {
  public:
+  virtual ~Receptor() = default;
   /** @return false se não tratar a notificação. */
   virtual bool TrataNotificacao(const Notificacao& notificacao) = 0;
 };
@@ -23,6 +24,7 @@ class Receptor {
 /** Apenas classes de rede que enviam mensagens remotas devem implementar isso. */
 class EmissorRemoto {
  public:
+  virtual ~EmissorRemoto() = default;
   /** @return false se não tratar a notificação. */
   virtual bool TrataNotificacaoRemota(const Notificacao& notificacao) = 0;
 };
