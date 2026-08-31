@@ -4632,7 +4632,8 @@ int ComputaLimiteVezes(ModeloGenerico modelo, int nivel_conjurador) {
       return nivel_conjurador;
     }
     break;
-    case MG_UM: ;
+    case MG_UM:
+      return 1;
     default:
       return 1;
   }
