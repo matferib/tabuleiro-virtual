@@ -2473,6 +2473,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_CONECTAR_PROXY: {
       opcoes_.set_ultimo_endereco_proxy(notificacao.endereco());
       SalvaConfiguracoes(opcoes_);
+      return true;
     }
     case ntf::TN_ATUALIZAR_RODADAS: {
       proto_.set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
@@ -2482,7 +2483,6 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         nr->mutable_tabuleiro()->set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
         central_->AdicionaNotificacaoRemota(nr.release());
       }
-
       break;
     }
     case ntf::TN_DESCONECTADO: {
@@ -2767,6 +2767,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       DeserializaTabuleiro(notificacao);
       central_->AdicionaNotificacaoRemota(SerializaTabuleiro(/*salvar_versoes=*/false));
       central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REINICIAR_GRAFICO));
+      return true;
     }
     case ntf::TN_CRIAR_CENARIO: {
       CriaSubCenarioNotificando(notificacao);
