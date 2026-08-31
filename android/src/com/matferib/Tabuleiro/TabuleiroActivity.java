@@ -374,7 +374,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     num_frames_pular_ = (tempo_ms / TEMPO_ENTRE_NOTIFICACOES_MS) - 1;
     if (num_frames_pular_ > 1) {
       desenha_proxima_ = true;
-      Log.d(TAG, "Pulando: " + num_frames_pular_);
+      Log.d(TAG, "Recebi tempo_ms: " + tempo_ms + ", pulando: " + num_frames_pular_ + ", tempo entre notificacoes: " + TEMPO_ENTRE_NOTIFICACOES_MS);
     } else {
       num_frames_pular_ = 0;
     }
