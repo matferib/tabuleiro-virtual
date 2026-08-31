@@ -10,7 +10,10 @@ cc_library(
     "glues.h",
     "gl_vbo.h",
   ],
-  defines = ["GL_GLEXT_PROTOTYPES=1"],
+  defines = [
+    "GL_GLEXT_PROTOTYPES=1",
+    #"USAR_OPENGL_ES=1"
+  ],
   deps = [
   ]
 )

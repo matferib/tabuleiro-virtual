@@ -31,6 +31,7 @@ cc_binary(
       "@platforms//os:linux": [
         "-lGLU",
         "-lGL",
+        #"-lGLESv2",
       ],
       "//conditions:default": [],
     })
