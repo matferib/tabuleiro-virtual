@@ -259,8 +259,8 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaMapaSombraLuzPontual(unsigned int indice_luz);
   void DesenhaFramebufferPrincipal();
 
-  /** Desenha um screenshot na tela e nada mais. Retorna o tempo em ms. */
-  int DesenhaModoMostrarImagem();
+  /** Desenha um screenshot na tela e nada mais. */
+  void DesenhaModoMostrarImagem();
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;

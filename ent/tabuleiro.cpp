@@ -952,8 +952,8 @@ void Tabuleiro::DesenhaMapaSombraLuzDirecional() {
   DesenhaCena();
 }
 
-int Tabuleiro::DesenhaModoMostrarImagem() {
-  if (indice_imagem_mostrada_ < 0 || indice_imagem_mostrada_ >= imagens_mostradas_.size()) return 1;
+void Tabuleiro::DesenhaModoMostrarImagem() {
+  if (indice_imagem_mostrada_ < 0 || indice_imagem_mostrada_ >= imagens_mostradas_.size()) return;
   parametros_desenho_.Clear();
   // Não desenha nada alem do screenshot.
   parametros_desenho_.set_limpa_fundo(true);
@@ -994,7 +994,6 @@ int Tabuleiro::DesenhaModoMostrarImagem() {
   ConfiguraProjecao();
 
   DesenhaCena();
-  return 0;
 }
 
 int Tabuleiro::Desenha() {
@@ -1011,7 +1010,16 @@ int Tabuleiro::Desenha() {
 #endif
 
   if (EmModoMostrarImagem()) {
-    return DesenhaModoMostrarImagem();
+    DesenhaModoMostrarImagem();
+    EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
+#if DEBUG
+    glFinish();
+#endif
+    V_ERRO_RET("FimDesenha");
+    timer_entre_cenas_.start();
+    timer_uma_renderizacao_completa_.stop();
+    EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
+    return tempos_uma_renderizacao_completa_.front();
   }
 
   // No computador do FC, o valor da mascara de profundidade é perdido apos a primeira exceção (falhando ao ler recursos, não critico).
@@ -1248,7 +1256,7 @@ int Tabuleiro::Desenha() {
   timer_entre_cenas_.start();
   timer_uma_renderizacao_completa_.stop();
   EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
-  return tempos_entre_cenas_.front();
+  return tempos_uma_renderizacao_completa_.front();
 }
 
 void Tabuleiro::AdicionaUmaEntidadeNotificando(
