@@ -478,9 +478,6 @@ void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e mo
 }
 
 void TratadorTecladoMouse::TrataBotaoMousePressionado(botoesmouse_e botao, unsigned int modificadores, int x, int y) {
-  if (tabuleiro_->EmModoMostrarImagem() && botao != Botao_Esquerdo) {
-    return;
-  }
   MudaEstado(ESTADO_OUTRO);
   if (modificadores == Modificador_Alt) {
     VLOG(1) << "Pressionado e: " << (botao==Botao_Esquerdo) << " com alt, pos " << x << ", " << y;

@@ -206,21 +206,44 @@ void PreencheNotificacaoEsquiva(
 
 }  // namespace
 
+void Tabuleiro::MostraProximaImagemSeMestreOuLocal() {
+  if (!EmModoMestreIncluindoSecundario() && !modo_imagem_local_) return;
+
+  auto n = ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES);
+  n->set_id_generico(ifg::Tecla_Direita);
+  central_->AdicionaNotificacao(std::make_unique<ntf::Notificacao>(*n));
+  if (!modo_imagem_local_) {
+    central_->AdicionaNotificacaoRemota(std::move(n));
+  }
+}
+
+void Tabuleiro::MostraImagemAnteriorSeMestreOuLocal() {
+  if (!EmModoMestreIncluindoSecundario() && !modo_imagem_local_) return;
+
+  auto n = ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES);
+  n->set_id_generico(ifg::Tecla_Esquerda);
+  central_->AdicionaNotificacao(std::make_unique<ntf::Notificacao>(*n));
+  if (!modo_imagem_local_) {
+    central_->AdicionaNotificacaoRemota(std::move(n));
+  }
+}
+
+void Tabuleiro::FechaImagensSeMestreOuLocal() {
+  if (!EmModoMestreIncluindoSecundario() && !modo_imagem_local_) return;
+
+  auto n = ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES);
+  central_->AdicionaNotificacao(std::make_unique<ntf::Notificacao>(*n));
+  if (!modo_imagem_local_) {
+    central_->AdicionaNotificacaoRemota(std::move(n));
+  }
+}
+
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
   if (EmModoMostrarImagem()) {
-    if ((EmModoMestreIncluindoSecundario() || modo_imagem_local_) &&
-        (tecla == ifg::Tecla_Esc || tecla == ifg::Tecla_Direita || tecla == ifg::Tecla_Esquerda)) {
-      auto n = ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES);
-      if (tecla != ifg::Tecla_Esc) {
-        n->set_id_generico(tecla);
-      }
-      central_->AdicionaNotificacao(std::make_unique<ntf::Notificacao>(*n));
-      if (!modo_imagem_local_) {
-        central_->AdicionaNotificacaoRemota(std::move(n));
-      }
-    }
+    if (tecla == ifg::Tecla_Esc) { FechaImagensSeMestreOuLocal(); }
+    else if (tecla == ifg::Tecla_Direita) { MostraProximaImagemSeMestreOuLocal(); }
+    else if (tecla == ifg::Tecla_Esquerda) { MostraImagemAnteriorSeMestreOuLocal(); }
   }
-  return;
 }
 
 void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, float z3d) {
@@ -332,6 +355,12 @@ void Tabuleiro::TrataInicioPinca(int x1, int y1, int x2, int y2) {
 }
 
 void Tabuleiro::TrataEscalaPorFator(float fator) {
+  if (EmModoMostrarImagem()) {
+    if (fator < 1.0f) {
+      FechaImagensSeMestreOuLocal();
+      return;
+    }
+  }
   bool atualizar_mapa_luzes = false;
   if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
     // Eh possivel chegar aqui?
@@ -734,6 +763,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         break;
       }
       // Passthough proposital.
+      ABSL_FALLTHROUGH_INTENDED;
     case ETAB_SELECIONANDO_ENTIDADES: {
       quadrado_selecionado_ = -1;
       float x3d, y3d, z3d;
@@ -3297,13 +3327,11 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         }
         break;
       case MODO_MOSTRAR_IMAGEM:
-        if (modo_imagem_local_) {
-          central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
+        // Android normalmente não tem teclado para setas, então trata o clique como seta para direita.
+        if (x >= (largura_ / 2)) {
+          MostraProximaImagemSeMestreOuLocal();
         } else {
-          if (EmModoMestreIncluindoSecundario()) {
-            central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
-            central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_FECHAR_IMAGEM_CLIENTES));
-          }
+          MostraImagemAnteriorSeMestreOuLocal();
         }
         return;
       case MODO_PERICIA:
@@ -3435,6 +3463,10 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
 
 void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
   if (modo_clique_ == MODO_AGUARDANDO) {
+    return;
+  }
+  if (EmModoMostrarImagem()) {
+    FechaImagensSeMestreOuLocal();
     return;
   }
 

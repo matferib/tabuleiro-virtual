@@ -593,6 +593,11 @@ class Tabuleiro : public ntf::Receptor {
     return EmModoMostrarImagem() && modo_imagem_local_;
   }
 
+  // So vale so for mestre ou imagem local. Notifica clientes se mestre.
+  void MostraProximaImagemSeMestreOuLocal();
+  void MostraImagemAnteriorSeMestreOuLocal();
+  void FechaImagensSeMestreOuLocal();
+
   // Debug.
   void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
   void AlternaModoMestreSecundario() { modo_mestre_secundario_ = !modo_mestre_secundario_; }
