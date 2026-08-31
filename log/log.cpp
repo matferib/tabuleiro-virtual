@@ -1,7 +1,6 @@
 #include "log/log.h"
 
 namespace meulog {
-ABSL_ATTRIBUTE_NOINLINE
 void Inicializa(int& argc, char**& argv) {
 #if USAR_GLOG
 // Isso aqui é para quando não funcionava o parsing de flags. Mas o gemini brilhou e deu a seguinte resposta:
