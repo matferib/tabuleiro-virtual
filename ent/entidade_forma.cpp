@@ -135,59 +135,62 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
     const VariaveisDerivadas& vd,
     const ParametrosDesenho* pd,
     bool posicao_mundo) {
-
   Matrix4 matrix;
-  switch (proto.sub_tipo()) {
-    case TF_CIRCULO:
-      matrix.scale(proto.escala().x(), proto.escala().y(), 1.0f);
-    break;
-    case TF_CILINDRO: {
-      // Aqui ignoro as transformacoes para os circulos que fecham o cilindro.
-      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+  if (proto.tipo() == TE_FORMA) {
+    switch (proto.sub_tipo()) {
+      case TF_CIRCULO:
+        matrix.scale(proto.escala().x(), proto.escala().y(), 1.0f);
+      break;
+      case TF_CILINDRO: {
+        // Aqui ignoro as transformacoes para os circulos que fecham o cilindro.
+        matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      }
+      break;
+      case TF_CONE: {
+        // Mesma coisa que cilindro.
+        matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      }
+      break;
+      case TF_CUBO: {
+        matrix.translate(0.0f, 0.0f, 0.5f);
+        matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      }
+      break;
+      case TF_PIRAMIDE: {
+        matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      }
+      break;
+      case TF_RETANGULO: {
+        matrix.scale(proto.escala().x(), proto.escala().y(), 1.0f);
+      }
+      break;
+      case TF_TRIANGULO: {
+        matrix.scale(proto.escala().x(), proto.escala().y(), 1.0f);
+        matrix.translate(0.0f, -proto.escala().y() / 2.0f, 0.0f);
+      }
+      break;
+      case TF_ESFERA: {
+        matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      }
+      break;
+      case TF_HEMISFERIO: {
+        matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      }
+      break;
+      case TF_LIVRE:
+        // nao faz nada, pois nao possui escala.
+      break;
+      case TF_MODELO: {
+        // Mesma coisa que cilindro.
+        matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      }
+      break;
+      default:
+        LOG(ERROR) << "Forma de desenho invalida";
     }
-    break;
-    case TF_CONE: {
-      // Mesma coisa que cilindro.
-      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
-    }
-    break;
-    case TF_CUBO: {
-      matrix.translate(0.0f, 0.0f, 0.5f);
-      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
-    }
-    break;
-    case TF_PIRAMIDE: {
-      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
-    }
-    break;
-    case TF_RETANGULO: {
-      matrix.scale(proto.escala().x(), proto.escala().y(), 1.0f);
-    }
-    break;
-    case TF_TRIANGULO: {
-      matrix.scale(proto.escala().x(), proto.escala().y(), 1.0f);
-      matrix.translate(0.0f, -proto.escala().y() / 2.0f, 0.0f);
-    }
-    break;
-    case TF_ESFERA: {
-      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
-    }
-    break;
-    case TF_HEMISFERIO: {
-      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
-    }
-    break;
-    case TF_LIVRE:
-      // nao faz nada, pois nao possui escala.
-    break;
-    case TF_MODELO: {
-      // Mesma coisa que cilindro.
-      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
-    }
-    break;
-    default:
-      LOG(ERROR) << "Forma de desenho invalida";
-
+  } else {
+    // Compostos.
+    matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
   }
 
   if (pd != nullptr && pd->has_translacao_efeito()) {
