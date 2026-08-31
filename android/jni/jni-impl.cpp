@@ -268,8 +268,9 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, job
 }
 
 jint Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeTempoEntreNotificacoes(JNIEnv* env, jobject thiz) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTempoEntreNotificacoes");
-  return static_cast<jint>(g_opcoes == nullptr ? 1000.0f / 60.0f :  1000.0 / g_opcoes->fps());
+  jint tempo = static_cast<jint>(g_opcoes == nullptr ? 1000.0f / 60.0f :  1000.0 / g_opcoes->fps());
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTempoEntreNotificacoes: %d ms, g_opcoes é %s", tempo, g_opcoes == nullptr ? "null" : "not null");
+  return tempo;
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env, jobject thiz) {
