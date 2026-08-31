@@ -909,7 +909,9 @@ void Entidade::AtualizaMatrizes() {
   // As entidades normais normalmente vao ter partes moveis.
   if (proto_.tipo() != TE_ENTIDADE && !vd_.atualiza_matriz_vbo && !TexturasMoveis(proto_)) return;
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
-  vd_.atualiza_matriz_vbo = vd_.matriz_modelagem != md.modelagem;
+  // Isso aqui pode ser chamado multiplas vezes por frame, se for chamado duas vezes, a primeira vai setar true, a segunda vai voltar para false.
+  // O OR garante que um true permaneca ate ser limpo de novo na atualização do frame.
+  vd_.atualiza_matriz_vbo = vd_.atualiza_matriz_vbo ||  vd_.matriz_modelagem != md.modelagem;
   vd_.matriz_modelagem = md.modelagem;
   if (proto_.sub_tipo() == TF_LIVRE) {
     // Desenhos livres tem que atualizar o VBO pq eles nao se atualizam por matriz, e sim os pontos são alterados.
@@ -1274,6 +1276,7 @@ void Entidade::Atualiza(int intervalo_ms) {
 
   if (vd_.atualiza_matriz_vbo) {
     AtualizaMatrizesVbo(parametros_desenho_);
+    vd_.atualiza_matriz_vbo = false;
   }
 }
 
