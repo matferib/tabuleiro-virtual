@@ -391,7 +391,9 @@ void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
         return;
       }
       // Compostas sempre possuem VBO proprio.
+      ABSL_FALLTHROUGH_INTENDED;
     case TE_COMPOSTA:
+      ABSL_FALLTHROUGH_INTENDED;
     default: ;
   }
   if (pd != nullptr) {
@@ -410,6 +412,7 @@ void Entidade::AtualizaMatrizesVbo(const ParametrosDesenho* pd) {
     case TE_ENTIDADE: return;  // entidades simples nao possuem vbo.
     case TE_FORMA: return;
     case TE_COMPOSTA:
+      ABSL_FALLTHROUGH_INTENDED;
     default: ;
   }
   if (pd != nullptr) {
