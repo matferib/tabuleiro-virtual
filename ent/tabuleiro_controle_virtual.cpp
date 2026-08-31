@@ -1190,6 +1190,7 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entid
         }
       }
     }
+    ABSL_FALLTHROUGH_INTENDED;
     default:
       ;
   }
