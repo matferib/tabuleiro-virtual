@@ -9,4 +9,4 @@ common --enable_bzlmod --local_resources=cpu=HOST_CPUS-1
 
 # Para usar bazel build --config=android
 # Passando os defines como --cxxopt=-D pq o define da linha de comando parece conflitar com defines aqui.
-build:android --android_platforms=//:arm64-v8a --cxxopt=-DBENCHMARK=0 --cxxopt=-DUSAR_OPENGL_ES=1 --cxxopt=-DANDROID=1 --cxxopt=-std=c++20 --cxxopt=-Wno-deprecated-declarations --cxxopt=-Wno-unused-lambda-capture
+build:android --android_platforms=//:arm64-v8a --cxxopt=-DBENCHMARK=0 --cxxopt=-DUSAR_GLOG=0 --cxxopt=-DUSAR_OPENGL_ES=1 --cxxopt=-DANDROID=1 --cxxopt=-std=c++20 --cxxopt=-Wno-deprecated-declarations --cxxopt=-Wno-unused-lambda-capture
