@@ -10,10 +10,7 @@ cc_library(
       "-Ijni",
     ],
     defines = [
-      "ANDROID=1",
-      "USAR_OPENGL_ES=1",
-      "BENCHMARK=0",
-      #"-Wno-deprecated-declarations",
+      # defines so propagam de deps para pai, então não adianta definir aqui (teria que definir nas regras). Preferi colocar no .bazelrc para valer globalmente.
     ],
     linkopts = [
       "-landroid",
