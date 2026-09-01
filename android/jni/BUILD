@@ -16,6 +16,7 @@ cc_library(
       "-landroid",
       "-lEGL",
       "-lGLESv3",
+      "-laaudio",
     ],
     deps = [
       "@boost//:asio",
