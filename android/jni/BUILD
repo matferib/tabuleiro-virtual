@@ -27,6 +27,7 @@ cc_library(
       "//jni/ifg",
       "//jni/m3d",
       "//jni/net",
+      "//jni/som",
     ],
 )
 
