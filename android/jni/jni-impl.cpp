@@ -32,6 +32,7 @@
 #include "net/cliente.h"
 #include "net/servidor.h"
 #include "net/socket.h"
+#include "som/som.h"
 #include "tex/texturas.h"
 
 #if PROFILER_LIGADO
