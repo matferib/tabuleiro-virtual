@@ -10,6 +10,7 @@ cc_library(
   hdrs = ["som.h"],
   deps = [
     "//jni/ent:ent_headers",
+    "//jni/log:log",
   ],
   copts = ["-Ijni"],
 )

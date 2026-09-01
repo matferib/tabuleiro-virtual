@@ -148,6 +148,7 @@ void Java_com_matferib_Tabuleiro_SelecaoActivity_nativeInitArqOpcoes(JNIEnv* env
   }
   //proto.set_anti_aliasing(true);
   g_opcoes.reset(new ent::OpcoesProto(proto));
+  som::Inicia(*g_opcoes);
 }
 
 jint Java_com_matferib_Tabuleiro_SelecaoActivity_nativeBitsOpcoes(JNIEnv* env, jobject thiz) {
