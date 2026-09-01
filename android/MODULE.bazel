@@ -29,6 +29,12 @@ register_toolchains("@androidsdk//:sdk-toolchain", "@androidsdk//:all")
 bazel_dep(name = "abseil-cpp", version = "20250814.1")
 bazel_dep(name = "rules_proto", version = "7.1.0")
 bazel_dep(name = "protobuf", version = "33.4")
+#bazel_dep(name = "oboe", version = "1.0.0")
+#git_override(
+#    module_name = "oboe",
+#    remote = "https://github.com/google/oboe",
+#    commit = "2a45aa2",
+#)
 
 # Boost
 # Famous C++ library that has given rise to many new additions to the C++ Standard Library
