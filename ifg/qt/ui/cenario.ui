@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>803</width>
-    <height>746</height>
+    <width>896</width>
+    <height>860</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -548,7 +548,7 @@
      <property name="title">
       <string>Geral</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_13">
+     <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
@@ -672,6 +672,37 @@
         </item>
         <item>
          <widget class="QComboBox" name="combo_tipo_terreno"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <item>
+         <widget class="QLabel" name="label_32">
+          <property name="text">
+           <string>Som Ambiente</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="combo_som">
+          <property name="toolTip">
+           <string>Som de fundo que toca continuamente.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_10">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>

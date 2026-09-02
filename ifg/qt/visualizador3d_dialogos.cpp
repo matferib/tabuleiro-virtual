@@ -283,6 +283,22 @@ void PreencheComboTipoTerreno(QComboBox* combo) {
   ExpandeComboBox(combo);
 }
 
+void PreencheComboSom(QComboBox* combo) {
+  ExpandeComboBox(combo);
+  combo->addItem(combo->tr("Nenhum"), QVariant(-1));
+  auto Ordena = [] (std::vector<std::string> sons) -> std::vector<std::string> {
+    std::sort(sons.begin(), sons.end());
+    return sons;
+  };
+  std::vector<std::string> sons = Ordena(arq::ConteudoDiretorio(arq::TIPO_SOM, ent::FiltroSom));
+  for (const std::string& som : sons) {
+    combo->addItem(QString(som.c_str()), QVariant(arq::TIPO_SOM));
+  }
+
+  combo->setCurrentIndex(0);
+  ExpandeComboBox(combo);
+}
+
 void PreencheComboIdImagem(int id_cliente, QComboBox* combo) {
   combo->addItem(combo->tr("Nenhuma"), QVariant(-1));
   auto Ordena = [] (std::vector<std::string> texturas) -> std::vector<std::string> {
@@ -2730,9 +2746,14 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
     gerador.linha_largura->setEnabled(novo_estado != Qt::Checked);
     gerador.linha_altura->setEnabled(novo_estado != Qt::Checked);
   });
+  PreencheComboSom(gerador.combo_som);
+  if (!tab_proto.som_ambiente().empty()) {
+    gerador.combo_som->setCurrentIndex(gerador.combo_som->findText(tab_proto.som_ambiente().c_str()));
+  }
 
   // Clonar cenario.
   PreencheComboCenarios(tabuleiro_->Proto(), gerador.combo_id_cenario);
+
   lambda_connect(gerador.botao_clonar, SIGNAL(clicked()), [this, &gerador, &proto_retornado, dialogo] () {
     std::optional<int> id_combo = IdCenarioComboCenarios(gerador.combo_id_cenario);
     if (id_combo.has_value()) {
@@ -2933,6 +2954,15 @@ std::unique_ptr<ent::TabuleiroProto> Visualizador3d::AbreDialogoCenario(
       int indice_tt = gerador.combo_tipo_terreno->currentIndex();
       ent::TipoTerreno tt = static_cast<ent::TipoTerreno>(gerador.combo_tipo_terreno->itemData(indice_tt).toInt());
       proto_retornado->set_tipo_terreno(tt);
+    }
+
+    // Som ambiente.
+    int indice_som = gerador.combo_som->currentIndex();
+    arq::tipo_e tipo = static_cast<arq::tipo_e>(gerador.combo_som->itemData(indice_som).toInt());
+    if (tipo == arq::TIPO_SOM) {
+      proto_retornado->set_som_ambiente(gerador.combo_som->itemText(indice_som).toStdString());
+    } else {
+      proto_retornado->clear_som_ambiente();
     }
 
     VLOG(1) << "Retornando tabuleiro: " << proto_retornado->ShortDebugString();
