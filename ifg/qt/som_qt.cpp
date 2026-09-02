@@ -58,4 +58,22 @@ void Toca(const std::string& nome) {
   else it->second->play();
 }
 
+void TocaSomFundo(const std::string& nome) {
+  if (g_opcoes->desativar_som()) return;
+  if (auto it = g_fxs.find(nome); it == g_fxs.end()) return;
+  else {
+    it->second->setLoopCount(QSoundEffect::Infinite);
+    it->second->play();
+  }
+}
+
+void ParaSomFundo(const std::string& nome) {
+  if (g_opcoes->desativar_som()) return;
+  if (auto it = g_fxs.find(nome); it == g_fxs.end()) return;
+  else {
+    it->second->setLoopCount(1);
+    it->second->stop();
+  }
+}
+
 }  // namespace som
