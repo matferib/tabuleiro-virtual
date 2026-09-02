@@ -8,6 +8,8 @@ namespace som {
 
 void Inicia(const ent::OpcoesProto& opcoes);
 void Toca(const std::string& nome);
+inline void TocaSomFundo(const std::string& nome) {}
+inline void ParaSomFundo(const std::string& nome) {}
 void Finaliza();
 
 }  // namespace som

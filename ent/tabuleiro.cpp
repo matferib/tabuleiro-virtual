@@ -49,6 +49,7 @@
 #include "net/util.h"  // hack to_string
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
+#include "som/som.h"
 
 #if USAR_OPENGL_ES
 #define USAR_MAPEAMENTO_SOMBRAS_OPENGLES 1
@@ -5970,6 +5971,11 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::SerializaPropriedades() const {
   } else {
     tabuleiro->clear_expessura_grade_m();
   }
+  if (proto_corrente_->has_som_ambiente()) {
+    tabuleiro->set_som_ambiente(proto_corrente_->som_ambiente());
+  } else {
+    tabuleiro->clear_som_ambiente();
+  }
   return notificacao;
 }
 
@@ -6121,6 +6127,14 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->set_expessura_grade_m(novo_proto.expessura_grade_m());
   } else {
     proto_a_atualizar->clear_expessura_grade_m();
+  }
+
+  som::ParaSomFundo(proto_a_atualizar->som_ambiente());
+  if (novo_proto.has_som_ambiente()) {
+    proto_a_atualizar->set_som_ambiente(novo_proto.som_ambiente());
+    som::TocaSomFundo(novo_proto.som_ambiente());
+  } else {
+    proto_a_atualizar->clear_som_ambiente();
   }
 
   AtualizaPisoCeuCenario(novo_proto);
