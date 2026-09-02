@@ -1068,6 +1068,9 @@ bool EhPng(const std::string& textura) {
   return textura.find(".png") == (textura.size() - 4);
 }
 
+bool EhWav(const std::string& textura) {
+  return textura.find(".wav") == (textura.size() - 4);
+}
 bool EhTerreno(const std::string& textura) {
   return EhPng(textura) && (textura.find("tile_") == 0 || textura.find("terrain_") == 0);
 }
@@ -1089,6 +1092,9 @@ bool FiltroTexturaEntidade(const std::string& textura) {
   return EhCaixaCeu(textura) || /*EhTerreno(textura) || */EhIcone(textura) || !EhPng(textura);
 }
 
+bool FiltroSom(const std::string& som) {
+  return !EhWav(som);
+}
 bool FiltroTexturaCaixaCeu(const std::string& textura) {
   return !EhCaixaCeu(textura);
 }

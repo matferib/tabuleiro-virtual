@@ -336,6 +336,7 @@ bool FiltroModelo3d(const std::string& textura);
 bool FiltroTexturaEntidade(const std::string& textura);
 bool FiltroTexturaCaixaCeu(const std::string& textura);
 bool FiltroTexturaTabuleiro(const std::string& textura);
+bool FiltroSom(const std::string& textura);
 
 // DEPRECATED
 class AlteraBlendEscopo {
