@@ -105,6 +105,11 @@ void Toca(const std::string& nome) {
   AAudioStreamBuilder_delete(builder);
 }
 
+void TocaSomFundo(const std::string& nome) {
+
+void ParaSomFundo(const std::string& nome) {
+
+
 void Finaliza() {}
 
 }  // namespace som
