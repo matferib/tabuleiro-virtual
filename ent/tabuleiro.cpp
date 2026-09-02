@@ -6510,6 +6510,7 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
   for (auto id : ids_a_deselecionar) {
     DeselecionaEntidade(id);
   }
+  som::ParaSomFundo(proto_corrente_->som_ambiente());
   proto_corrente_ = cenario;
   RegeraVboTabuleiro();
   // A caixa do ceu nao precisa porque o objeto dela eh fixo.
@@ -6522,6 +6523,9 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
   // Reseta o clima para a condição do cenário.
   const auto& cenario_clima = CenarioVento(*cenario);
   variaveis_clima_ = VariaveisClima(cenario_clima.neve() > 0.0f || cenario_clima.chuva() > 0.0f ? 1.0f : 0.0f);
+  if (cenario->has_som_ambiente()) {
+    som::TocaSomFundo(cenario->som_ambiente());
+  }
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
