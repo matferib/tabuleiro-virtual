@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include "arq/arquivo.h"
 #include "log/log.h"
@@ -12,26 +13,45 @@ namespace som {
 namespace {
 
 const ent::OpcoesProto* g_opcoes = nullptr;
+struct AudioPlaybackContext;
+std::unordered_map<std::string, AudioPlaybackContext*>* g_sons_fundo;
+
+enum ModoTocar {
+  UMA_VEZ,
+  LOOP
+};
 
 // Estrutura para rastrear o estado da reprodução
 struct AudioPlaybackContext {
-    std::vector<int16_t> pcmData;
-    size_t playHead = 0; // Posição atual da reprodução (em amostras)
+  std::vector<int16_t> pcmData;
+  size_t playHead = 0; // Posição atual da reprodução (em amostras)
+  bool forcar_fim = false;
+  ModoTocar modo = ModoTocar::UMA_VEZ;
 };
 
 // Esta função roda em uma thread dedicada em background do AAudio
 aaudio_data_callback_result_t AudioCallback(AAudioStream *stream, void *contexto_cru, void *saida_audio_cru, int32_t frames) {
   auto contexto = std::unique_ptr<AudioPlaybackContext>(static_cast<AudioPlaybackContext*>(contexto_cru));
   auto* saida_audio = static_cast<int16_t*>(saida_audio_cru);
-
   int32_t channels = AAudioStream_getChannelCount(stream);
   int32_t samples_necessarios = frames * channels;
   int32_t samples_disponiveis = contexto->pcmData.size() - contexto->playHead;
 
+  if (contexto->forcar_fim) {
+    std::fill_n(saida_audio, samples_necessarios, 0);
+    return AAUDIO_CALLBACK_RESULT_STOP;
+  }
+
   // Se o áudio acabou, preenche com silêncio e para
   if (samples_disponiveis <= 0) {
     std::fill_n(saida_audio, samples_necessarios, 0);
-    return AAUDIO_CALLBACK_RESULT_STOP;
+    if (contexto->modo == ModoTocar::LOOP) {
+      contexto->playHead = 0;
+      contexto.release();  // ainda não mata, vamos precisar dele de novo.
+      return AAUDIO_CALLBACK_RESULT_CONTINUE;
+    } else {
+      return AAUDIO_CALLBACK_RESULT_STOP;
+    }
   }
 
   int32_t samples = std::min(samples_necessarios, samples_disponiveis);
@@ -43,21 +63,21 @@ aaudio_data_callback_result_t AudioCallback(AAudioStream *stream, void *contexto
   // Dados acabaram no meio deste bloco, limpa o resto com silêncio
   if (samples < samples_necessarios) {
     std::fill_n(saida_audio + samples, samples_necessarios - samples, 0);
-    return AAUDIO_CALLBACK_RESULT_STOP;
+    if (contexto->modo == ModoTocar::LOOP) {
+      contexto->playHead = 0;
+      contexto.release();  // ainda não mata, vamos precisar dele de novo.
+      return AAUDIO_CALLBACK_RESULT_CONTINUE;
+    } else {
+      return AAUDIO_CALLBACK_RESULT_STOP;
+    }
   }
   contexto.release();  // ainda não mata, vamos precisar dele de novo.
   return AAUDIO_CALLBACK_RESULT_CONTINUE;
 }
 
-}  // namespace
-
-void Inicia(const ent::OpcoesProto& opcoes) {
-  g_opcoes = &opcoes;
-}
-
-void Toca(const std::string& nome) {
-  //if (g_opcoes->desativar_som()) return;
-
+// Le o arquivo WAV, preenche os buffers e dispara o playback em outra thread, que sera chamada
+// continuamente ate retornar AAUDIO_CALLBACK_RESULT_STOP.
+void DisparaWavEmBackground(const std::string& nome, ModoTocar modo) {
   std::string dados;
   try {
     arq::LeArquivo(arq::TIPO_SOM, nome, &dados);
@@ -100,19 +120,41 @@ void Toca(const std::string& nome) {
   AAudioStream* stream = nullptr;
   if (AAudioStreamBuilder_openStream(builder, &stream) == AAUDIO_OK) {
     AAudioStream_requestStart(stream);
+    if (modo == ModoTocar::LOOP) {
+      // Para sons em loop, precisamos salvar em g_sons_fundo para conseguir parar.
+      (*g_sons_fundo)[nome] = contexto.get();
+      (*g_sons_fundo)[nome]->forcar_fim = false;
+    }
     contexto.release();  // tudo certo, não mata o contexto.
   }
   AAudioStreamBuilder_delete(builder);
 }
+}  // namespace
+
+void Inicia(const ent::OpcoesProto& opcoes) {
+  g_opcoes = &opcoes;
+  g_sons_fundo = new std::unordered_map<std::string, AudioPlaybackContext*>();
+}
+
+void Toca(const std::string& nome) {
+  if (g_opcoes->desativar_som()) return;
+  DisparaWavEmBackground(nome, ModoTocar::UMA_VEZ);
+}
 
 void TocaSomFundo(const std::string& nome) {
+  if (g_opcoes->desativar_som()) return;
+  DisparaWavEmBackground(nome, ModoTocar::LOOP);
 }
 
 void ParaSomFundo(const std::string& nome) {
+  if (g_opcoes->desativar_som()) return;
+  (*g_sons_fundo)[nome]->forcar_fim = true;
 }
 
-
-void Finaliza() {}
+void Finaliza() {
+  delete g_sons_fundo;
+  g_sons_fundo = nullptr;
+}
 
 }  // namespace som
 
