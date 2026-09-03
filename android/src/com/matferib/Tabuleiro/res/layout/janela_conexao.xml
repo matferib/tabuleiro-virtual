@@ -47,9 +47,20 @@
             android:layout_height="wrap_content"
             android:text="@string/usar_mapeamento_sombras" />
         <CheckBox
-            android:id="@+id/checkbox_luz_por_pixel"
+            android:id="@+id/checkbox_desativar_som"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/usar_luz_por_pixel" />
+            android:text="@string/desativar_som" />
+        <TextView
+            android:id="@+id/texto_escala_fonte"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Escala de Fonte: " />
+        <SeekBar
+            android:id="@+id/slider_escala_fonte"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:max = "3"
+            android:progress="1" />
   </LinearLayout>
 </LinearLayout>
