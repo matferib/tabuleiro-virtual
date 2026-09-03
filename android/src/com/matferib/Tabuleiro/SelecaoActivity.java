@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 
 public class SelecaoActivity extends Activity implements View.OnClickListener {
   // Mensagem de comunicacao entre atividades.
@@ -18,7 +19,8 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
   public final static String ENDERECO = "com.matferib.Tabuleiro.ENDERECO";
   public final static String SERVIDOR = "com.matferib.Tabuleiro.SERVIDOR";
   public final static String MAPEAMENTO_SOMBRAS = "com.matferib.Tabuleiro.MAPEAMENTO_SOMBRAS";
-  public final static String LUZ_POR_PIXEL = "com.matferib.Tabuleiro.LUZ_POR_PIXEL";
+  public final static String DESATIVAR_SOM = "com.matferib.Tabuleiro.DESATIVAR_SOM";
+  public final static String ESCALA_FONTE = "com.matferib.Tabuleiro.ESCALA_FONTE";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +29,10 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
     nativeInitArqOpcoes(getResources().getAssets(), ((android.content.Context)this).getFilesDir().getAbsolutePath());
     int bits_opcoes = nativeBitsOpcoes();
     ((CheckBox)findViewById(R.id.checkbox_mapeamento_sombras)).setChecked((bits_opcoes & 1) != 0);
-    ((CheckBox)findViewById(R.id.checkbox_luz_por_pixel)).setChecked((bits_opcoes & 2) != 0);
+    ((CheckBox)findViewById(R.id.checkbox_desativar_som)).setChecked((bits_opcoes & 4) != 0);
+    // Escala de fonte. 0.5, 1, 2, 3. Usa dois bits.
+    int val_escala = (bits_opcoes >> 3) & 0x3;
+    ((SeekBar)findViewById(R.id.slider_escala_fonte)).setProgress(val_escala);
     // Pega os campos do XML.
     id_ = (EditText)findViewById(R.id.texto_id_jogador);
     id_.setText(android.os.Build.MODEL);
@@ -64,7 +69,8 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
       intencao.putExtra(ENDERECO, endereco_.getText().toString());
     }
     intencao.putExtra(MAPEAMENTO_SOMBRAS, ((CheckBox)findViewById(R.id.checkbox_mapeamento_sombras)).isChecked());
-    intencao.putExtra(LUZ_POR_PIXEL, ((CheckBox)findViewById(R.id.checkbox_luz_por_pixel)).isChecked());
+    intencao.putExtra(DESATIVAR_SOM, ((CheckBox)findViewById(R.id.checkbox_desativar_som)).isChecked());
+    intencao.putExtra(ESCALA_FONTE, ((SeekBar)findViewById(R.id.slider_escala_fonte)).getProgress());
     startActivity(intencao);
   }
 

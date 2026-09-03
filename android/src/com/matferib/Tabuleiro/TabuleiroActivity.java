@@ -83,12 +83,18 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
       setContentView(fl);
     }
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    int escala_int = getIntent().getIntExtra(SelecaoActivity.ESCALA_FONTE, 1);
+    float escala = 1.0f;
+    if (escala_int == 0) escala = 0.5f;
+    else if (escala_int == 2) escala = 2.0f;
+    else if (escala_int == 3) escala = 3.0f;
     nativeCreate(
         getIntent().getStringExtra(SelecaoActivity.SERVIDOR) != null,
         getIntent().getStringExtra(SelecaoActivity.NOME),
         getIntent().getStringExtra(SelecaoActivity.ENDERECO),
         getIntent().getBooleanExtra(SelecaoActivity.MAPEAMENTO_SOMBRAS, false),
-        getIntent().getBooleanExtra(SelecaoActivity.LUZ_POR_PIXEL, false),
+        getIntent().getBooleanExtra(SelecaoActivity.DESATIVAR_SOM, false),
+        escala,
         getResources().getAssets(),
         ((android.content.Context)this).getFilesDir().getAbsolutePath());
     view_.requestFocus();
@@ -164,7 +170,7 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
 
   public boolean fixed_size_ = false;
   private native void nativeCreate(boolean servidor, String nome, String endereco,
-                                   boolean mapeamento_sombras, boolean luz_por_pixel, Object assets, String dir);
+                                   boolean mapeamento_sombras, boolean desativar_som, float escala_fonte, Object assets, String dir);
   private static native void nativeDestroy();
 
   private GLSurfaceView view_;

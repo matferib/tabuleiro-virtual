@@ -160,6 +160,19 @@ jint Java_com_matferib_Tabuleiro_SelecaoActivity_nativeBitsOpcoes(JNIEnv* env, j
   if (g_opcoes->iluminacao_por_pixel()) {
     ret |= 2;
   }
+  if (g_opcoes->desativar_som()) {
+    ret |= 4;
+  }
+  int val_escala = 1;
+  if (g_opcoes->escala() == 0.5f) {
+    val_escala = 0;
+  } else if (g_opcoes->escala() == 2.0f) {
+    val_escala = 2;
+  } else if (g_opcoes->escala() == 3.0f) {
+    val_escala = 3;
+  }
+  ret |= (val_escala << 3);
+
   return ret;
 }
 
@@ -180,10 +193,11 @@ void SalvaOpcoes() {
 // Nativos de TabuleiroActivity. Endereco pode ser nullptr para auto conexao.
 void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     JNIEnv* env, jobject thisz, jboolean servidor, jstring nome, jstring endereco,
-    jboolean mapeamento_sombras, jboolean luz_por_pixel, jobject assets, jstring dir_dados) {
+    jboolean mapeamento_sombras, jboolean desativar_som, jfloat escala_fonte, jobject assets, jstring dir_dados) {
 
   g_opcoes->set_mapeamento_sombras(mapeamento_sombras);
-  g_opcoes->set_iluminacao_por_pixel(luz_por_pixel);
+  g_opcoes->set_desativar_som(desativar_som);
+  g_opcoes->set_escala(escala_fonte);
   SalvaOpcoes();
   g_central.reset(new ntf::CentralNotificacoes);
   g_tabelas.reset(new ent::Tabelas(g_central.get()));
@@ -257,7 +271,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeDestroy(JNIEnv* env, jo
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInitGl(JNIEnv* env, jobject thisz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeInitGl");
   // luz por pixel e sombra projetada.
-  gl::IniciaGl(gl::TL_POR_PIXEL_ESPECULAR, /*escala=*/2.0);
+  gl::IniciaGl(gl::TL_POR_PIXEL_ESPECULAR, g_opcoes->escala());
   g_texturas->Recarrega();
   g_modelos3d->Recarrega();
   // Tabuleiro usa os dois, portanto deve ser o ultimo.
