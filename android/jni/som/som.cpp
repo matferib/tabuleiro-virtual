@@ -119,12 +119,13 @@ void DisparaWavEmBackground(const std::string& nome, ModoTocar modo) {
   // 4. Abrir e iniciar o Stream
   AAudioStream* stream = nullptr;
   if (AAudioStreamBuilder_openStream(builder, &stream) == AAUDIO_OK) {
-    AAudioStream_requestStart(stream);
     if (modo == ModoTocar::LOOP) {
       // Para sons em loop, precisamos salvar em g_sons_fundo para conseguir parar.
-      (*g_sons_fundo)[nome] = contexto.get();
-      (*g_sons_fundo)[nome]->forcar_fim = false;
+      auto& som_fundo = (*g_sons_fundo)[nome];
+      som_fundo = contexto.get();
+      som_fundo->modo = modo;
     }
+    AAudioStream_requestStart(stream);
     contexto.release();  // tudo certo, não mata o contexto.
   }
   AAudioStreamBuilder_delete(builder);
@@ -137,17 +138,20 @@ void Inicia(const ent::OpcoesProto& opcoes) {
 }
 
 void Toca(const std::string& nome) {
-  if (g_opcoes->desativar_som()) return;
+  LOG(INFO) << "Toca: " << nome;
+  if (g_opcoes->desativar_som() || nome.empty()) return;
   DisparaWavEmBackground(nome, ModoTocar::UMA_VEZ);
 }
 
 void TocaSomFundo(const std::string& nome) {
-  if (g_opcoes->desativar_som()) return;
+  LOG(INFO) << "TocaSomFundo: " << nome;
+  if (g_opcoes->desativar_som() || nome.empty()) return;
   DisparaWavEmBackground(nome, ModoTocar::LOOP);
 }
 
 void ParaSomFundo(const std::string& nome) {
-  if (g_opcoes->desativar_som()) return;
+  LOG(INFO) << "ParaSomFundo: " << nome;
+  if (g_opcoes->desativar_som() || nome.empty() || !g_sons_fundo->contains(nome)) return;
   (*g_sons_fundo)[nome]->forcar_fim = true;
 }
 
