@@ -6194,6 +6194,7 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(bool salvar_versoes, const std::
 // Aqui ocorre a deserializacao do tabuleiro todo. As propriedades como iluminacao sao atualizadas
 // na funcao Tabuleiro::DeserializaPropriedades.
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
+  som::ParaSomFundo(proto_corrente_->som_ambiente());
   const auto& novo_tabuleiro = notificacao.tabuleiro();
   const bool manter_entidades = novo_tabuleiro.manter_entidades();
   std::vector<EntidadeProto> entidades_mantidas;
@@ -6227,6 +6228,10 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   proto_ = novo_tabuleiro;
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
+  }
+  // Reinicia camera pode chamar CarregaSubCenario ou não, que iniciaria o som de fundo. Como isso não é certo, chama aqui.
+  if (proto_corrente_->has_som_ambiente()) {
+    som::TocaSomFundo(proto_corrente_->som_ambiente());
   }
   const auto& cenario_clima = CenarioVento(*proto_corrente_);
   variaveis_clima_ = VariaveisClima((cenario_clima.neve() + cenario_clima.chuva()) > 0.0f ? 1.0f : 0.0f);
