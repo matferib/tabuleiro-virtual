@@ -1246,7 +1246,7 @@ class Tabuleiro : public ntf::Receptor {
   void GeraFramebuffer(bool reinicio);
 
   /** Gera um terreno com relevo aleatorio, respeitando os limites correntes. */
-  void GeraTerrenoAleatorioNotificando();
+  void GeraTerrenoAleatorioNotificando(const std::string& id_terreno);
   // Suavização: quanto maior, menos inclinado.
   void GeraMontanhaNotificando(float suavizacao = 1.0f);
   void TrataDeltaTerreno(float delta);
