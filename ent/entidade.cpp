@@ -1306,6 +1306,7 @@ void Entidade::MoveDelta(float dx, float dy, float dz) {
 }
 
 void Entidade::Destino(const Posicao& pos) {
+  VLOG(1) << "Adicionando destino a entidade: " << pos.ShortDebugString();
   *proto_.mutable_destino() = pos;
 }
 
