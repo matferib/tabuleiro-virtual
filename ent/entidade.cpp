@@ -1162,7 +1162,10 @@ bool Entidade::AtualizaEmParalelo(int intervalo_ms) {
     vd_.vetor_vento.x = vd_.vetor_vento.y = 0.0f;
   }
 
-  AtualizaMatrizes();
+  // Ao final das computações, matrizes devem ser atualizadas.
+  RodaNoRetorno r([this]() {
+    AtualizaMatrizes();
+  });
 
   // Daqui pra baixo, tratamento de destino.
   if (!proto_.has_destino()) {
