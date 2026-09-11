@@ -77,6 +77,7 @@ class Tabelas : public ntf::Receptor {
   const ifg::ItemMenu& ItemMenu(const std::string& id) const;
   const VenenoProto& Veneno(const std::string& id) const;
   const DoencaProto& Doenca(const std::string& id) const;
+  const TemplateTerreno& Terreno(const std::string& id) const;
 
  private:
   // Dados os protos tabelas_ e tabela_acoes_, preenche os demais mapas.
@@ -126,6 +127,7 @@ class Tabelas : public ntf::Receptor {
   std::unordered_map<std::string, const DoencaProto*> doencas_;
   // Os itens de menu que podem ser escolhidos.
   std::unordered_map<std::string, ifg::ItemMenu> itens_menu_;
+  std::unordered_map<std::string, const TemplateTerreno*> terrenos_;
 
   ntf::CentralNotificacoes* central_;
 };
