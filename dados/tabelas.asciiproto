@@ -15851,3 +15851,13 @@ tabela_venenos {
     preco_po: 200
   }
 }
+
+tabela_terrenos {
+  terrenos {
+    # https://www.d20srd.org/srd/wilderness.htm#forestTerrain
+    id: 'floresta_esparsa'
+    nome: 'Floresta Esparsa (rala)'
+    vegetacao_rasteira_esparsa: 0.5
+    arvores_comuns: 0.5
+  }
+}
