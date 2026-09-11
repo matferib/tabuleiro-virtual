@@ -420,6 +420,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_GERAR_TERRENO_ALEATORIO: {
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_GERAR_TERRENO_ALEATORIO);
+      n.set_str_generica("floresta_esparsa");
       TrataNotificacao(n);
       break;
     }
