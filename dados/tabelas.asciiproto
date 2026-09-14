@@ -15857,7 +15857,8 @@ tabela_terrenos {
     # https://www.d20srd.org/srd/wilderness.htm#forestTerrain
     id: 'floresta_esparsa'
     nome: 'Floresta Esparsa (rala)'
-    vegetacao_rasteira_esparsa: 0.5
-    arvores_comuns: 0.5
+    items_terreno { chance: 0.5 proto { modelo_3d { id: 'light_undergrowth' } elasticidade_vento: 0.5 } }
+    # numero original é 0.5, mas fica muito denso.
+    items_terreno { chance: 0.2 proto { modelo_3d { id: 'tree' } elasticidade_vento: 0.1 } }
   }
 }
