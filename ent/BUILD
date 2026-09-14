@@ -41,6 +41,7 @@ proto_library(
     deps = [
         ":acoes_proto",
         ":comum_proto",
+        ":entidade_proto",
     ],
 )
 

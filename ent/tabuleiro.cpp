@@ -1337,7 +1337,7 @@ std::unique_ptr<Entidade> Tabuleiro::CriaUmaEntidadePorNotificacao(
   if (!Desfazendo()) {
     bool modo_mestre = EmModoMestreIncluindoSecundario();
     if (!notificacao.forcado()) {
-      entidade_modelo.set_visivel(!modo_mestre);
+      entidade_modelo.set_visivel(!modo_mestre || notificacao.has_id_generico());
       entidade_modelo.set_selecionavel_para_jogador(!modo_mestre);
     }
     entidade_modelo.set_id(id_entidade);
@@ -4815,25 +4815,43 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
   LOG(INFO) << "Template de terreno: " << terreno.ShortDebugString();
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  int num = 0;
+  EntidadeProto template_entidade;
+  template_entidade.set_tipo(TE_FORMA);
+  template_entidade.set_sub_tipo(TF_MODELO);
+  template_entidade.set_selecionavel_para_jogador(false);
+  template_entidade.set_fixa(true);
+  template_entidade.set_visivel(true);
+
   for (int x = 0; x < TamanhoX(); ++x) {
     for (int y = 0; y < TamanhoY(); ++y) {
-      if (Aleatorio() <= terreno.vegetacao_rasteira_esparsa()) {
-        ++num;
-        ntf::Notificacao* n_adicao = grupo_notificacoes.add_notificacao();
-        n_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-        n_adicao->mutable_entidade()->set_tipo(TE_FORMA);
-        n_adicao->mutable_entidade()->set_sub_tipo(TF_MODELO);
-        n_adicao->mutable_entidade()->mutable_modelo_3d()->set_id("light_undergrowth");
-        n_adicao->mutable_entidade()->mutable_pos()->set_x(x * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2 - TamanhoX() * TAMANHO_LADO_QUADRADO_2);
-        n_adicao->mutable_entidade()->mutable_pos()->set_y(y * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2 - TamanhoY() * TAMANHO_LADO_QUADRADO_2);
-        n_adicao->mutable_entidade()->set_selecionavel_para_jogador(false);
-        n_adicao->mutable_entidade()->set_fixa(true);
-      }
-      if (Aleatorio() <= terreno.arvores_comuns()) {
+      float ent_x = x * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2 - TamanhoX() * TAMANHO_LADO_QUADRADO_2;
+      float ent_y = y * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2 - TamanhoY() * TAMANHO_LADO_QUADRADO_2;
+      for (const auto& item : terreno.items_terreno()) {
+        if (Aleatorio() <= item.chance()) {
+          ntf::Notificacao* n_adicao = grupo_notificacoes.add_notificacao();
+          n_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+          n_adicao->set_id_generico(1);
+          auto* ent_adicionada = n_adicao->mutable_entidade();
+          ent_adicionada->CopyFrom(template_entidade);
+          ent_adicionada->MergeFrom(item.proto());
+          // Leve escala e rotacao.
+          Vector3 escala = Aleatorio3();
+          escala -= Vector3(0.5f, 0.5f, 0.5f);
+          escala /= 3.0f;
+          escala += Vector3(1.0f, 1.0f, 1.0f);
+          ent_adicionada->mutable_escala()->set_x(escala.x);;
+          ent_adicionada->mutable_escala()->set_y(escala.y);;
+          ent_adicionada->mutable_escala()->set_z(escala.z);;
+          float rotacao_graus = Aleatorio() * 360.0f;
+          ent_adicionada->set_rotacao_z_graus(rotacao_graus);
+          ent_adicionada->mutable_pos()->set_x(ent_x);
+          ent_adicionada->mutable_pos()->set_y(ent_y);
+          LOG(INFO) << ent_adicionada->modelo_3d().id() << " gerado em: " << ent_x << ", " << ent_y << ", x: " << x << ", y: " << y;
+        }
       }
     }
   }
+  LOG(INFO) << "Total gerado: " << grupo_notificacoes.notificacao_size() << ", quadrados: " << (TamanhoX() * TamanhoY());
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer
   {
@@ -6617,6 +6635,7 @@ EntidadeProto FormificaSubForma(const EntidadeProto& psf) {
   return sf;
 }
 
+#if USAR_QT
 // Copia apenas os campos de forma da entidade. Util para exportar modelos para formas.
 EntidadeProto FormificaEntidade(const EntidadeProto& proto) {
   EntidadeProto formificada;
@@ -6626,6 +6645,7 @@ EntidadeProto FormificaEntidade(const EntidadeProto& proto) {
   }
   return formificada;
 }
+#endif
 
 }  // namespace
 

@@ -2,6 +2,7 @@ edition = "2023";
 
 import "ent/comum.proto";
 import "ent/acoes.proto";
+import "ent/entidade.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
@@ -339,13 +340,15 @@ message TabelaDominios {
   repeated DominioProto dominios = 1;
 }
 
+message ItemTerreno {
+  float chance = 1;
+  EntidadeProto proto = 2;
+}
+
 message TemplateTerreno {
   string id = 1;
   string nome = 2;
-  float arvores_comuns = 3;
-  float arvores_imensas = 4;
-  float vegetacao_rasteira_esparsa = 5;
-  float vegetacao_rasteira_densa = 6;
+  repeated ItemTerreno items_terreno = 3;
 }
 
 message TabelaTerrenos {
