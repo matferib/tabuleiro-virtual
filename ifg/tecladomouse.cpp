@@ -530,7 +530,7 @@ bool TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
     return false;
   }
   bool b = tabuleiro_->TrataMovimentoMouse(x, y);
-  VLOG(2) << "Houve movimento: " << b;
+  VLOG(2) << "Resetar posição? " << b;
   return b;
 }
 
