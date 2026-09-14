@@ -398,11 +398,17 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
+  if (ignorar_proximo_) {
+    ignorar_proximo_ = false;
+    return;
+  }
   PegaContexto();
   int x = EVENT_GLOBAL_X(event);
   int y = EVENT_GLOBAL_Y(event);
+
   if (teclado_mouse_->TrataMovimentoMouse(XPara3d(EVENT_X(event)), YPara3d(height() - EVENT_Y(event)))) {
     QCursor::setPos(x_antes_, y_antes_);
+    ignorar_proximo_ = true;
   } else {
     x_antes_ = x;
     y_antes_ = y;

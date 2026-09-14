@@ -120,6 +120,8 @@ class Visualizador3d :
   // Para prender mouse no lugar.
   int x_antes_ = 0;
   int y_antes_ = 0;
+  // Alguns movimentos forcam o mouse a voltar, o que triga um evento, que deve ser ignorado.
+  bool ignorar_proximo_ = false;
   int contexto_cref_ = 0;
   boost::timer::cpu_timer timer_;
   int skip_ = 0;

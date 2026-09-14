@@ -529,7 +529,9 @@ bool TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
     tabuleiro_->TrataMovimentoMouse();
     return false;
   }
-  return tabuleiro_->TrataMovimentoMouse(x, y);
+  bool b = tabuleiro_->TrataMovimentoMouse(x, y);
+  VLOG(2) << "Houve movimento: " << b;
+  return b;
 }
 
 void TratadorTecladoMouse::TrataRodela(int delta) {

@@ -133,8 +133,8 @@ class TratadorTecladoMouse : public ntf::Receptor {
 
   estado_e estado_;
   // Ultimas coordenadas do mouse (em OpenGL).
-  int ultimo_x_;
-  int ultimo_y_;
+  int ultimo_x_ = 0;
+  int ultimo_y_ = 0;
   // Temporizador para teclas em sequencia.
   int temporizador_teclado_;
   int temporizador_mouse_;
