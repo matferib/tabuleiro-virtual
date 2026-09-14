@@ -290,7 +290,7 @@ void PreencheComboSom(QComboBox* combo) {
     std::sort(sons.begin(), sons.end());
     return sons;
   };
-  std::vector<std::string> sons = Ordena(arq::ConteudoDiretorio(arq::TIPO_SOM, ent::FiltroSom));
+  std::vector<std::string> sons = Ordena(arq::ConteudoDiretorio(arq::TIPO_SOM, ent::FiltroSomLoop));
   for (const std::string& som : sons) {
     combo->addItem(QString(som.c_str()), QVariant(arq::TIPO_SOM));
   }

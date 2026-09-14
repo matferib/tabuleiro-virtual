@@ -1092,9 +1092,10 @@ bool FiltroTexturaEntidade(const std::string& textura) {
   return EhCaixaCeu(textura) || /*EhTerreno(textura) || */EhIcone(textura) || !EhPng(textura);
 }
 
-bool FiltroSom(const std::string& som) {
-  return !EhWav(som);
+bool FiltroSomLoop(const std::string& som) {
+  return !absl::StartsWith(som, "loop_") || !EhWav(som);
 }
+
 bool FiltroTexturaCaixaCeu(const std::string& textura) {
   return !EhCaixaCeu(textura);
 }
