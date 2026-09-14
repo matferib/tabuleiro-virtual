@@ -2264,15 +2264,15 @@ pagina {
     dica: "Cola entidades copiadas."
   }
 
-#  dados_botoes {
-#    tamanho: 2
-#    linha: 0
-#    coluna: 24
-#    rotulo: "TA"
-#    id: CONTROLE_GERAR_TERRENO_ALEATORIO
-#    forma: FORMA_RETANGULO
-#    dica: "Gera um terreno aleatório."
-#  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 24
+    rotulo: "TA"
+    id: CONTROLE_GERAR_TERRENO_ALEATORIO
+    forma: FORMA_RETANGULO
+    dica: "Gera um terreno aleatório."
+  }
 
 }
 # Pagina inalcancavel.
