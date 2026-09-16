@@ -55,7 +55,7 @@ class Cronometro {
   }
 
  private:
-#if ANDROID
+#if ANDROID || __APPLE__
   std::chrono::time_point<std::chrono::system_clock> tempo_disparo_;
   std::optional<std::chrono::time_point<std::chrono::system_clock>> tempo_parada_;
 #else
