@@ -2,6 +2,7 @@
 #define ENT_UTIL_H
 
 #include <algorithm>
+#include <chrono>
 #include <cctype>
 #include <functional>
 #include <map>
@@ -31,6 +32,32 @@ class ParametrosDesenho;
 class Posicao;
 class Tabuleiro;
 class Tabelas;
+
+// Para computo de tempos de renderização.
+class Cronometro {
+ public:
+  // Marca o inicia de medição.
+  void Dispara() {
+    tempo_parada_.reset();
+    tempo_disparo_ = std::chrono::system_clock::now();
+  }
+  void Para() {
+    tempo_parada_ = std::chrono::system_clock::now();
+  }
+
+  // Retorna se cronometro esta parado (e o intervalo sera do disparo a parada).
+  bool Parado() const { return tempo_parada_.has_value(); }
+
+  // Intervalo de tempo desde o ultimo disparo em ms. Se parou, da o intervalo ate a parada.
+  uint64_t IntervaloMs() const {
+    return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+        tempo_parada_.value_or(std::chrono::system_clock::now()) - tempo_disparo_).count());
+  }
+
+ private:
+  std::chrono::time_point<std::chrono::high_resolution_clock> tempo_disparo_;
+  std::optional<std::chrono::time_point<std::chrono::high_resolution_clock>> tempo_parada_;
+};
 
 // Intervalo [min, max).
 struct Intervalo {
