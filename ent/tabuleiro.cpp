@@ -140,10 +140,9 @@ void SalvaConfiguracoes(const OpcoesProto& proto) {
   }
 }
 
-// Usado pelas funcoes de timer para enfileiras os tempos.
-void EnfileiraTempo(const boost::timer::cpu_timer& timer, std::list<uint64_t>* tempos) {
+void EnfileiraTempo(const Cronometro& cronometro, std::list<uint64_t>* tempos) {
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
-  auto passou_ms = timer.elapsed().wall / DIV_NANO_PARA_MS;
+  uint64_t passou_ms = cronometro.IntervaloMs();
   if (tempos->size() == kMaximoTamTemposRenderizacao) {
     tempos->pop_back();
   }
@@ -1001,7 +1000,7 @@ int Tabuleiro::Desenha() {
 #if DEBUG
   glFinish();
 #endif
-  timer_uma_renderizacao_completa_.start();
+  timer_uma_renderizacao_completa_.Dispara();
 
   V_ERRO_RET("InicioDesenha");
 
@@ -1017,8 +1016,7 @@ int Tabuleiro::Desenha() {
     glFinish();
 #endif
     V_ERRO_RET("FimDesenha");
-    timer_entre_cenas_.start();
-    timer_uma_renderizacao_completa_.stop();
+    timer_entre_cenas_.Dispara();;
     EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
     return tempos_uma_renderizacao_completa_.front();
   }
@@ -1109,7 +1107,7 @@ int Tabuleiro::Desenha() {
 #if DEBUG
   glFinish();
 #endif
-  timer_renderizacao_mapas_.start();
+  timer_renderizacao_mapas_.Dispara();
   if (MapeamentoOclusao() && !modo_debug_) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
@@ -1203,7 +1201,6 @@ int Tabuleiro::Desenha() {
 #if DEBUG
   glFinish();
 #endif
-  timer_renderizacao_mapas_.stop();
   EnfileiraTempo(timer_renderizacao_mapas_, &tempos_renderizacao_mapas_);
 
 #if !USAR_OPENGL_ES
@@ -1254,8 +1251,7 @@ int Tabuleiro::Desenha() {
   glFinish();
 #endif
   V_ERRO_RET("FimDesenha");
-  timer_entre_cenas_.start();
-  timer_uma_renderizacao_completa_.stop();
+  timer_entre_cenas_.Dispara();
   EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
   return tempos_uma_renderizacao_completa_.front();
 }
@@ -3001,11 +2997,10 @@ void Tabuleiro::ParaTimersPorEntidade() {
   for (auto& rotulo_timer : timer_por_entidade_) {
     const std::string& rotulo = rotulo_timer.first;
     auto& timer = rotulo_timer.second;
-    if (!timer.is_stopped()) {
+    if (!timer.Parado()) {
+      timer.Para();
       LOG(INFO) << "Parando timer de " << rotulo;
-      auto passou_ms = timer.elapsed().wall / DIV_NANO_PARA_MS;
-      timer.stop();
-      histograma_por_entidade_[rotulo].Adiciona(passou_ms / 1000.0f);
+      histograma_por_entidade_[rotulo].Adiciona(timer.IntervaloMs() / 1000.0f);
     }
   }
 }
@@ -3016,10 +3011,10 @@ void Tabuleiro::DisparaTimerEntidadeCorrente() {
   if (const auto& entidade = BuscaEntidade(IdIniciativaCorrente()); entidade != nullptr && entidade->SelecionavelParaJogador()) {
     std::string rotulo = RotuloEntidade(BuscaEntidade(IdIniciativaCorrente()));
     LOG(INFO) << "continuando timer de " << rotulo;
-    timer_por_entidade_[rotulo].start();
+    timer_por_entidade_[rotulo].Dispara();
   } else {
     LOG(INFO) << "continuando timer de __MESTRE__";
-    timer_por_entidade_["__MESTRE__"].start();
+    timer_por_entidade_["__MESTRE__"].Dispara();
   }
 }
 
@@ -3287,9 +3282,9 @@ void Tabuleiro::AtualizaPorTemporizacao() {
   glFinish();
 #endif
   // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
-  auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / DIV_NANO_PARA_MS;
-  timer_entre_atualizacoes_.start();
-  timer_uma_atualizacao_.start();
+  auto passou_ms = timer_entre_atualizacoes_.IntervaloMs();
+  timer_entre_atualizacoes_.Dispara();
+  timer_uma_atualizacao_.Dispara();
   if (regerar_vbos_entidades_) {
     parametros_desenho_.set_regera_vbo(true);
   }
@@ -3313,7 +3308,6 @@ void Tabuleiro::AtualizaPorTemporizacao() {
 #if DEBUG
   glFinish();
 #endif
-  timer_uma_atualizacao_.stop();
   EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
   if (ciclos_para_atualizar_ == 0) {
     if (ModoClique() == MODO_TERRENO) {
@@ -4186,12 +4180,12 @@ void Tabuleiro::DesenhaCena(bool debug) {
 #if DEBUG
     glFinish();
 #endif
-    timer_uma_renderizacao_controle_virtual_.start();
+    timer_uma_renderizacao_controle_virtual_.Dispara();
     DesenhaControleVirtual();
 #if DEBUG
     glFinish();
 #endif
-    timer_uma_renderizacao_controle_virtual_.stop();
+    timer_uma_renderizacao_controle_virtual_.Para();
     EnfileiraTempo(timer_uma_renderizacao_controle_virtual_, &tempos_uma_renderizacao_controle_virtual_);
   }
   V_ERRO("desenhando controle virtual");
@@ -5604,8 +5598,8 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 }
 
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
-  boost::timer::cpu_timer timer_todas;
-  timer_todas.start();
+  Cronometro timer_todas;
+  timer_todas.Dispara();
   std::atomic<int> atualiza_sombras = 0;
 #if 1 || __APPLE__
   std::for_each(entidades_.begin(), entidades_.end(),
@@ -5637,7 +5631,7 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
     RequerAtualizacaoLuzesPontuais();
   }
 
-  timer_todas.stop();
+  timer_todas.Para();
   VLOG(3) << "Atualizei: " << entidades_.size() << " entidades";
   EnfileiraTempo(timer_todas, &tempos_atualiza_parcial_);
 }
@@ -8274,8 +8268,10 @@ void Tabuleiro::DesenhaTempos() {
   DesenhaTempo(4, "at parcial ", tempos_atualiza_parcial_);
   DesenhaTempo(5, "cont virt  ", tempos_uma_renderizacao_controle_virtual_);
   DesenhaTempo(6, "num objetos", {entidades_ordenadas_.size()});
-  DesenhaTempo(7, "mem GPU total MB", {mem_total_kb / 1024ULL});
-  DesenhaTempo(8, "mem GPU usado MB", {mem_disp_kb / 1024ULL});
+  DesenhaTempo(7, "VBOs atuali", {Entidade::NumVbosAtualizados()});
+  DesenhaTempo(8, "mat VBO atu", {Entidade::NumMatrizesVbosAtualizadas()});
+  DesenhaTempo(9, "mem GPU total MB", {mem_total_kb / 1024ULL});
+  DesenhaTempo(10, "mem GPU usado MB", {mem_disp_kb / 1024ULL});
   V_ERRO("tempo de renderizacao");
 }
 

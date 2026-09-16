@@ -2,7 +2,7 @@
 #define ENT_TABULEIRO_H
 
 #include <algorithm>
-#include <boost/timer/timer.hpp>
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <set>
@@ -16,6 +16,7 @@
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabuleiro.pb.h"
+#include "ent/util.h"
 #if USAR_WATCHDOG
 #include "ent/watchdog.h"
 #endif
@@ -1482,20 +1483,22 @@ class Tabuleiro : public ntf::Receptor {
 
   // Timers.
   /** Cada vez que desenha cena eh chamado, este timer computa o tempo entre as chamadas. */
-  boost::timer::cpu_timer timer_entre_cenas_;
+  //boost::timer::cpu_timer timer_entre_cenas_;
+  Cronometro timer_entre_cenas_;
+
   /** Cada vez que o temporizador eh chamado, este timer computa o tempo entre as chamadas. Eh importante para o tempo real,
   * pois computa o delta tempo a ser passado para as atualizacoes. */
-  boost::timer::cpu_timer timer_entre_atualizacoes_;
+  Cronometro timer_entre_atualizacoes_;
   /** computa o tempo de renderizacao, debug apenas. */
-  boost::timer::cpu_timer timer_uma_renderizacao_completa_;
+  Cronometro timer_uma_renderizacao_completa_;
   /** computa o tempo de uma atualizacao, debug apenas. */
-  boost::timer::cpu_timer timer_uma_atualizacao_;
+  Cronometro timer_uma_atualizacao_;
   /** computa tempo de desenho do controle virtual. */
-  boost::timer::cpu_timer timer_uma_renderizacao_controle_virtual_;
+  Cronometro timer_uma_renderizacao_controle_virtual_;
   /** computa o tempo para renderizar os mapas de luz e oclusao. */
-  boost::timer::cpu_timer timer_renderizacao_mapas_;
+  Cronometro timer_renderizacao_mapas_;
   /** computa o tempo gasto em cada entidade com iniciativa ligada. */
-  std::unordered_map<std::string, boost::timer::cpu_timer> timer_por_entidade_;
+  std::unordered_map<std::string, Cronometro> timer_por_entidade_;
   /** Histograma de timer por entidade. */
   std::unordered_map<std::string, Histograma> histograma_por_entidade_;
 
