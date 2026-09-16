@@ -1,7 +1,6 @@
 #ifndef ENT_ENTIDADE_H
 #define ENT_ENTIDADE_H
 
-#include <boost/timer/timer.hpp>
 #include <optional>
 #include <stdexcept>
 #include <unordered_map>
