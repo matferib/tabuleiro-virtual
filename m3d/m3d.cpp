@@ -185,7 +185,7 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
   auto it = interno_->modelos.find(id_interno);
   if (it != interno_->modelos.end() && it->second.contador > 0) {
     ++interno_->modelos[id_interno].contador;
-    VLOG(1) << "CarregaModelo3d apenas incrementou contador: " << interno_->modelos[id_interno].contador;
+    VLOG(1) << "CarregaModelo3d apenas incrementou contador para '" << id_interno << "': " << interno_->modelos[id_interno].contador;
     return;
   }
   // Ja cria, mesmo que invalido para evitar ficar lendo toda hora se der erro.
@@ -217,7 +217,7 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
       VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ")";
       LeModelo3d(nome_arquivo, &n);
       if (n.tabuleiro().entidade_size() == 0) {
-        LOG(ERROR) << "Falha abrindo arquivo, nao ha entidades";
+        LOG(ERROR) << "Falha abrindo arquivo '" << nome_arquivo << "', nao ha entidades";
         return;
       }
       n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_x();
