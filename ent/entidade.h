@@ -458,6 +458,11 @@ class Entidade {
   // Retorna true se a forma for 3d (exemplo: cubo é true, quadrado é false).
   static bool EhForma3d(const EntidadeProto& forma);
 
+  /** Para debug: conta quantos vbos foram atualizados desde a ultima chamada. Zera o contador. */
+  static int NumVbosAtualizados();
+  /** Para debug: conta quantas matrizes de vbos foram atualizadas desde a ultima chamada. Zera o contador. */
+  static int NumMatrizesVbosAtualizadas();
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
   // Valor de ataque ou ca invalido.
@@ -485,6 +490,10 @@ class Entidade {
       // sempre deve ser o ultimo.
       NUM_VBOS };
   static std::vector<gl::VboGravado> g_vbos;
+  // Conta numero de atualizacoes de Vbo desde a ultima chamada de NumVbosAtualizados.
+  static int g_vbos_atualizados;
+  // Numero de matrizes de vbos atualizadas, desde a ultima chamada de NumMatrizesVbosAtualizadas.
+  static int g_matrizes_vbos_atualizadas;
 
   // Alguns efeitos tem complementos.
   struct ComplementoEfeito {

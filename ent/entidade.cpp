@@ -400,7 +400,9 @@ void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
     vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd, false);
     vd_.vbos_nao_gravados.AtribuiMatrizModelagem(vd_.matriz_modelagem);
     if (!vd_.vbos_nao_gravados.Vazio()) {
+      VLOG(3) << "atualizando vbo";
       vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
+      ++g_vbos_atualizados;
     }
     V_ERRO("Erro atualizacao de VBOs");
   }
@@ -416,7 +418,9 @@ void Entidade::AtualizaMatrizesVbo(const ParametrosDesenho* pd) {
     default: ;
   }
   if (pd != nullptr) {
+    VLOG(3) << "atualizando matriz vbo";
     vd_.vbos_gravados.AtualizaMatrizes(vd_.matriz_modelagem);
+    ++g_matrizes_vbos_atualizadas;
     V_ERRO("Erro atualizacao de VBOs");
   }
 }
@@ -2016,7 +2020,7 @@ std::string Entidade::TipoAcaoExecutada(int indice_acao, const std::vector<std::
       break;
     }
   }
-  return indice_acao >= acoes.size() ? std::string("") : acoes[indice_acao];
+  return indice_acao >= static_cast<int>(acoes.size()) ? std::string("") : acoes[indice_acao];
 }
 
 const Posicao Entidade::PosicaoAltura(float fator) const {
@@ -2610,6 +2614,8 @@ bool Entidade::DesenhaBase(const EntidadeProto& proto) {
 
 // Nome dos buffers de VBO.
 std::vector<gl::VboGravado> Entidade::g_vbos;
+int Entidade::g_vbos_atualizados;
+int Entidade::g_matrizes_vbos_atualizadas;
 
 // static
 void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
@@ -3095,6 +3101,20 @@ std::pair<bool, std::string> Entidade::PodeAgir() const {
 
 std::optional<DadosIniciativa> Entidade::LeDadosIniciativa() const {
   return DadosIniciativaEntidade(*this);
+}
+
+// static
+int Entidade::NumVbosAtualizados() {
+  int n = g_vbos_atualizados;
+  g_vbos_atualizados = 0;
+  return n;
+}
+
+// static
+int Entidade::NumMatrizesVbosAtualizadas() {
+  int n = g_matrizes_vbos_atualizadas;
+  g_matrizes_vbos_atualizadas = 0;
+  return n;
 }
 
 }  // namespace ent
