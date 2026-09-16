@@ -8269,8 +8269,8 @@ void Tabuleiro::DesenhaTempos() {
   DesenhaTempo(4, "at parcial ", tempos_atualiza_parcial_);
   DesenhaTempo(5, "cont virt  ", tempos_uma_renderizacao_controle_virtual_);
   DesenhaTempo(6, "num objetos", {entidades_ordenadas_.size()});
-  DesenhaTempo(7, "VBOs atuali", {Entidade::NumVbosAtualizados()});
-  DesenhaTempo(8, "mat VBO atu", {Entidade::NumMatrizesVbosAtualizadas()});
+  DesenhaTempo(7, "VBOs atuali", {static_cast<uint64_t>(Entidade::NumVbosAtualizados())});
+  DesenhaTempo(8, "mat VBO atu", {static_cast<uint64_t>(Entidade::NumMatrizesVbosAtualizadas())});
   DesenhaTempo(9, "mem GPU total MB", {mem_total_kb / 1024ULL});
   DesenhaTempo(10, "mem GPU usado MB", {mem_disp_kb / 1024ULL});
   V_ERRO("tempo de renderizacao");

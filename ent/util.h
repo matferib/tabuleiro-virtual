@@ -55,8 +55,13 @@ class Cronometro {
   }
 
  private:
+#if ANDROID
+  std::chrono::time_point<std::chrono::system_clock> tempo_disparo_;
+  std::optional<std::chrono::time_point<std::chrono::system_clock>> tempo_parada_;
+#else
   std::chrono::time_point<std::chrono::high_resolution_clock> tempo_disparo_;
   std::optional<std::chrono::time_point<std::chrono::high_resolution_clock>> tempo_parada_;
+#endif
 };
 
 // Intervalo [min, max).
