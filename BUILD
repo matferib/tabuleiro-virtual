@@ -10,6 +10,7 @@ cc_binary(
     deps = [
       "@abseil-cpp//absl/strings",
       "@boost//:chrono",
+      "@boost//:dll",
       "@boost//:filesystem",
       "@boost//:system",
       "@boost//:date_time",
