@@ -42,6 +42,7 @@ qt_cc_library(
     "@qt//:qt_core",
     "@qt//:qt_gui",
     "@qt//:qt_multimedia",
+    "@qt//:qt_network",
     "@qt//:qt_opengl",
     "@qt//:qt_openglwidgets",
     "@qt//:qt_widgets",
