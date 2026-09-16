@@ -120,7 +120,6 @@ cc_library(
         "@boost//:filesystem",
         "@boost//:system",
         "@boost//:date_time",
-        "@boost//:timer",
         ":acoes_cc_proto",
         ":controle_virtual_cc_proto",
         ":entidade_cc_proto",
