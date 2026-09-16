@@ -1675,14 +1675,14 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         //glReadPixels(0, 0, 1, 1, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, &from_depth);
         // Converte a profundidade para 32 bits.
         if (BitsProfundidade() == 8) {
-          ptr[1] = static_cast<GLuint>((pixel[3] / static_cast<float>(0xFF)) * 0xFFFFFFFF);  // zmin.
+          ptr[1] = static_cast<GLuint>((pixel[3] / static_cast<float>(0xFF)) * static_cast<double>(0xFFFFFFFF));  // zmin.
         } else {
           float prof = (pixel[2] / static_cast<float>(0xFF)) + ((pixel[3] / static_cast<float>(0xFF)) / 256.0);
           //float teste = ((pixel[2] << 8) | pixel[3]) / static_cast<float>(0x10000);
           //LOG(INFO) << "from_depth: " << (void*)from_depth
           //          << ", teste: " << (void*)static_cast<GLuint>(teste * 0xFFFFFFFF)
           //          << ", prof: " << (void*)static_cast<GLuint>(prof * 0xFFFFFFFF);
-          ptr[1] = static_cast<GLuint>(prof * 0xFFFFFFFF);
+          ptr[1] = static_cast<GLuint>(prof * static_cast<double>(0xFFFFFFFF));
         }
 #pragma GCC diagnostic pop
         ptr[2] = ptr[1];  // zmax
