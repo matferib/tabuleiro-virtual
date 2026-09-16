@@ -2873,7 +2873,6 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       DeserializaPropriedades(notificacao.tabuleiro());
 
       if (notificacao.local()) {
-        // Para pular o desfazer, setar bool_generico.
         // So adicionamos essa notificacao a lista de desfazer pq a inversa chamara todas as atualizações de entidade.
         if (!notificacao.nao_gerar_desfazer()) {
           *n_desfazer->mutable_tabuleiro() = *proto_corrente_;
@@ -2884,18 +2883,20 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         auto* n_remota = new ntf::Notificacao(notificacao);
         central_->AdicionaNotificacaoRemota(n_remota);
 
-        auto grupo = NovoGrupoNotificacoes();
-        for (const auto& [id, entidade] : TodasEntidades()) {
-          if (entidade->IdCenario() != notificacao.tabuleiro().id_cenario()) continue;
-          auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_ENTIDADE, *entidade, grupo.get());
-          *e_antes = entidade->Proto();
-          *e_depois = entidade->Proto();
-          ent::RecomputaDependencias(tabelas_, notificacao.tabuleiro().tipo_terreno(), e_depois, entidade.get(), &TodasEntidades());
+        if (!notificacao.nao_afeta_entidades()) {
+          auto grupo = NovoGrupoNotificacoes();
+          for (const auto& [id, entidade] : TodasEntidades()) {
+            if (entidade->IdCenario() != notificacao.tabuleiro().id_cenario()) continue;
+            auto [n, e_antes, e_depois] = NovaNotificacaoFilha(ntf::TN_ATUALIZAR_ENTIDADE, *entidade, grupo.get());
+            *e_antes = entidade->Proto();
+            *e_depois = entidade->Proto();
+            ent::RecomputaDependencias(tabelas_, notificacao.tabuleiro().tipo_terreno(), e_depois, entidade.get(), &TodasEntidades());
+          }
+          // Manda todas no grupo para não haver problemas com adicionar duas vezes na lista de desfazer.
+          // Nao adiciona a lista de desfazer pelos motivos citados antes das atualizações da entidade.
+          // Essa chamada enviara a atualização remota para os clientes.
+          TrataNotificacao(*grupo);
         }
-        // Manda todas no grupo para não haver problemas com adicionar duas vezes na lista de desfazer.
-        // Nao adiciona a lista de desfazer pelos motivos citados antes das atualizações da entidade.
-        // Essa chamada enviara a atualização remota para os clientes.
-        TrataNotificacao(*grupo);
       }
       return true;
     }
