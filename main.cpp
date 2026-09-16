@@ -149,10 +149,11 @@ int main(int argc, char** argv) {
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
   //ent::InterfaceGraficaOpengl guiopengl(tabelas, &teclado_mouse, &tabuleiro, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
-  SomEscopo som(tabuleiro.Opcoes());
 
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(&q_app, tabelas, &tabuleiro, &modelos3d, &texturas, &teclado_mouse, &central));
+  // Deve ser iniciado apos o QT.
+  SomEscopo som(tabuleiro.Opcoes());
   ifg::qt::InterfaceGraficaQt igqt(tabelas, p.get(), &teclado_mouse, &tabuleiro, &central);
   bool tentou_carregar = false;
   for (int i = 1; i < argc; ++i) {
