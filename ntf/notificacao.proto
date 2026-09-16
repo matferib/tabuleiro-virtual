@@ -105,7 +105,7 @@ enum Tipo {
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
-// Proximo id: 27.
+// Proximo id: 28.
 message Notificacao {
   Tipo tipo = 1;
   // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Toda notificacao deste tipo
@@ -130,6 +130,8 @@ message Notificacao {
   ent.TabuleiroProto tabuleiro = 6;
   // Para desfazer.
   ent.TabuleiroProto tabuleiro_antes = 16;
+  // Indica que a notificacao nao tem efeito colateral em entidades.
+  bool nao_afeta_entidades = 27;
   // Entidade.
   ent.EntidadeProto entidade = 7;
   // Para atualizacoes de entidade, guardando o estado anterior a modificacao.
