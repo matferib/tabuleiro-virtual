@@ -1,12 +1,12 @@
 .PHONY: all all_sem_testes opengles windows apple linux_profile linux_release clean benchmark benchmark_debug
-all:
-	bazel build --config=linux :tabvirt --verbose_failures
-	bazel build --config=linux //ent:acoes_test --verbose_failures
-	bazel build --config=linux //ent:ent_test --verbose_failures
-	bazel build --config=linux //ent:util_test --verbose_failures
+tabuleiro:
+	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --copt=-O2 --config=linux :tabvirt --verbose_failures
 
-all_sem_testes:
-	bazel build --config=linux :tabvirt --verbose_failures
+all:
+	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --config=linux :tabvirt --verbose_failures
+	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --config=linux //ent:acoes_test --verbose_failures
+	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --config=linux //ent:ent_test --verbose_failures
+	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --config=linux //ent:util_test --verbose_failures
 
 clean:
 	bazel clean --config=linux
@@ -17,9 +17,6 @@ superclean:
 util_test:
 	 scons -j 2 testes=1 teste_ent_util
 
-
-release:
-	scons -j 3 debug=0
 
 opengles:
 	scons -j 1 usar_opengl_es=1 gerar_profile=1
@@ -43,10 +40,10 @@ windows_debug:
 	scons sistema=win32 debug=1 -j 1
 
 apple:
-	bazel build --config=mac :tabvirt --verbose_failures
-	bazel build --config=mac //ent:acoes_test --verbose_failures
-	bazel build --config=mac //ent:ent_test --verbose_failures
-	bazel build --config=mac //ent:util_test --verbose_failures
+	bazel build -c opt --config=mac :tabvirt --verbose_failures
+	bazel build -c opt --config=mac //ent:acoes_test --verbose_failures
+	bazel build -c opt --config=mac //ent:ent_test --verbose_failures
+	bazel build -c opt --config=mac //ent:util_test --verbose_failures
 
 apple_clean:
 	bazel clean --config=mac --verbose_failures
