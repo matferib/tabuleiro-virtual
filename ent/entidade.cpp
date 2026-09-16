@@ -2860,20 +2860,6 @@ void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   }
 }
 
-// static
-bool Entidade::Colisao(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {
-  if (!proto.causa_colisao() || pos.id_cenario() != proto.pos().id_cenario()) {
-    return false;
-  }
-  // Fazer a transformada do ponto e do vetor para a modelagem do objeto, ficara bem mais facil calcular.
-  if (proto.tipo() == TE_FORMA) {
-    return ColisaoForma(proto, pos, direcao);
-  } else if (proto.tipo() == TE_COMPOSTA) {
-    return ColisaoComposta(proto, pos, direcao);
-  }
-  return false;
-}
-
 std::string Entidade::ResumoEventos() const {
   if (proto_.evento().empty()) {
     return "";

@@ -408,17 +408,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   gl::Desabilita(GL_TEXTURE_2D);
 }
 
-bool Entidade::ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {
-  switch (proto.sub_tipo()) {
-    case TF_CUBO: {
-      break;
-    }
-    default:
-      ;
-  }
-  return false;
-}
-
 // static
 bool Entidade::EhForma3d(const EntidadeProto& forma) {
   switch (forma.sub_tipo()) {

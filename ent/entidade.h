@@ -353,14 +353,6 @@ class Entidade {
   // Retorna se a entidade, ao atacar, ignora a chance de falha do oponente.
   bool IgnoraChanceFalha() const;
 
-  /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
-  * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.
-  */
-  bool Colisao(const Posicao& pos, Vector3* direcao) const { return Colisao(proto_, pos, direcao); }
-  static bool Colisao(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao);
-  static bool ColisaoComposta(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao);
-  static bool ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao);
-
   /** Retorna o multiplicador de tamanho para a entidade de acordo com seu tamanho. Por exemplo, retorna
   * 1.0f para entidades medias. Multiplicado pelo tamanho do quadrado da o tamanho da entidade.
   */

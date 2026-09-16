@@ -134,8 +134,4 @@ void Entidade::DesenhaObjetoCompostoProto(
 #endif
 }
 
-bool Entidade::ColisaoComposta(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {
-  return false;
-}
-
 }  // namespace ent
