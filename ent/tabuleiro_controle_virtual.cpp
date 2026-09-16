@@ -1039,7 +1039,6 @@ void Tabuleiro::ModificarInclinacaoLuzDirecionalTabuleiro(const DadosBotao& db, 
   float from_x = x - bl.x;
   float total = ur.x - bl.x;
   float inclinacao = std::clamp(from_x / total, 0.0f, 1.0f);
-  auto n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
   *tabuleiro = CenarioIluminacao(*proto_corrente_);
   tabuleiro->mutable_luz_direcional()->set_inclinacao_graus(180.0f - inclinacao * 180.0f);
   tabuleiro->clear_ponto_terreno();
@@ -1050,6 +1049,7 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::NotificacaoLuminanciaTabuleiro(cons
   ModificarLuminanciaTabuleiro(db, x, n->mutable_tabuleiro());
   // O desfazer sera gerado so na ultima notificacao.
   n->set_nao_gerar_desfazer(true);
+  n->set_nao_afeta_entidades(true);
   return n;
 }
 
@@ -1058,6 +1058,7 @@ std::unique_ptr<ntf::Notificacao> Tabuleiro::NotificacaoInclinacaoLuzTabuleiro(c
   ModificarInclinacaoLuzDirecionalTabuleiro(db, x, n->mutable_tabuleiro());
   // O desfazer sera gerado so na ultima notificacao.
   n->set_nao_gerar_desfazer(true);
+  n->set_nao_afeta_entidades(true);
   return n;
 }
 
