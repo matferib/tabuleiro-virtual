@@ -26,6 +26,7 @@ som bite: werewolf bites by Bernuy -- https://freesound.org/s/268505/ -- License
 som ownbear: Owl scream by Asovang -- https://freesound.org/s/156214/ -- License: Creative Commons 0
 som screech: Corellas screech multiple by magicthighs -- https://freesound.org/s/436571/ -- License: Creative Commons 0
 som loop_river: https://freesound.org/people/Garuda1982/sounds/707576
+som loop_wind_grass: Dry grass rustling in the wind, in the desert of Chile. by felix.blume -- https://freesound.org/s/146436/ -- License: Creative Commons 0
 
 terrain_foliage_coarse.png: CC BY-SA 3.0 -- Heath Rezabek -- Vessel CC -- http://vessel.cc
 swarm_spider: Spider made by Tuomo Untinen.
