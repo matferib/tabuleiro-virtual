@@ -80,6 +80,38 @@ aaudio_data_callback_result_t AudioCallback(AAudioStream *stream, void *contexto
   return AAUDIO_CALLBACK_RESULT_CONTINUE;
 }
 
+void DisparaEmBackgroundComum(const std::string& nome, int channels, int sample_rate, ModoTocar modo, std::unique_ptr<AudioPlaybackContext>&& contexto) {
+  // Configurar o Stream Builder do AAudio.
+  AAudioStreamBuilder* builder = nullptr;
+  AAudio_createStreamBuilder(&builder);
+  if (builder == nullptr) {
+    LOG(ERROR) << "Falha ao tocar: " << nome << ": builder nullptr.";
+    return;
+  }
+  AAudioStreamBuilder_setSampleRate(builder, sample_rate);
+  AAudioStreamBuilder_setChannelCount(builder, channels);
+  AAudioStreamBuilder_setFormat(builder, AAUDIO_FORMAT_PCM_I16);
+  AAudioStreamBuilder_setDirection(builder, AAUDIO_DIRECTION_OUTPUT);
+  AAudioStreamBuilder_setPerformanceMode(builder, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
+
+  // Define a função de callback e passa os dados de áudio
+  AAudioStreamBuilder_setDataCallback(builder, AudioCallback, contexto.get());
+
+  // 4. Abrir e iniciar o Stream
+  AAudioStream* stream = nullptr;
+  if (AAudioStreamBuilder_openStream(builder, &stream) == AAUDIO_OK) {
+    if (modo == ModoTocar::LOOP) {
+      // Para sons em loop, precisamos salvar em g_sons_fundo para conseguir parar.
+      auto& som_fundo = (*g_sons_fundo)[nome];
+      som_fundo = contexto.get();
+      som_fundo->modo = modo;
+    }
+    AAudioStream_requestStart(stream);
+    contexto.release();  // tudo certo, não mata o contexto.
+  }
+  AAudioStreamBuilder_delete(builder);
+}
+
 void DisparaOggEmBackground(const std::string& nome, ModoTocar modo) {
   std::string dados;
   try {
@@ -113,42 +145,9 @@ void DisparaOggEmBackground(const std::string& nome, ModoTocar modo) {
 
   // 2. Alocar o contexto e carregar todo o arquivo na memória
   auto contexto = std::make_unique<AudioPlaybackContext>();
-
   contexto->pcmData.resize(frames);
   std::copy_n(output_buffer, frames, contexto->pcmData.data());
-
-  // 3. Configurar o Stream Builder do AAudio
-  AAudioStreamBuilder* builder = nullptr;
-  AAudio_createStreamBuilder(&builder);
-  if (builder == nullptr) {
-    LOG(ERROR) << "Falha ao tocar: " << nome << ": builder nullptr.";
-    return;
-  }
-  AAudioStreamBuilder_setSampleRate(builder, sample_rate);
-  AAudioStreamBuilder_setChannelCount(builder, channels);
-  AAudioStreamBuilder_setFormat(builder, AAUDIO_FORMAT_PCM_I16);
-  AAudioStreamBuilder_setDirection(builder, AAUDIO_DIRECTION_OUTPUT);
-  AAudioStreamBuilder_setPerformanceMode(builder, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
-
-  // Define a função de callback e passa os dados de áudio
-  AAudioStreamBuilder_setDataCallback(builder, AudioCallback, contexto.get());
-
-  // 4. Abrir e iniciar o Stream
-  AAudioStream* stream = nullptr;
-  if (AAudioStreamBuilder_openStream(builder, &stream) == AAUDIO_OK) {
-    if (modo == ModoTocar::LOOP) {
-      // Para sons em loop, precisamos salvar em g_sons_fundo para conseguir parar.
-      auto& som_fundo = (*g_sons_fundo)[nome];
-      som_fundo = contexto.get();
-      som_fundo->modo = modo;
-    }
-    AAudioStream_requestStart(stream);
-    contexto.release();  // tudo certo, não mata o contexto.
-  }
-  AAudioStreamBuilder_delete(builder);
-
-  // You can now feed 'pcmData' directly into your audio engine (OpenAL, SDL_Audio, etc.)
-  return;
+  DisparaEmBackgroundComum(nome, channels, sample_rate, modo, std::move(contexto));
 }
 
 // Le o arquivo WAV, preenche os buffers e dispara o playback em outra thread, que sera chamada
@@ -175,36 +174,7 @@ void DisparaWavEmBackground(const std::string& nome, ModoTocar modo) {
 
   contexto->pcmData.resize(frames);
   std::copy_n(body, frames, contexto->pcmData.data());
-
-  // 3. Configurar o Stream Builder do AAudio
-  AAudioStreamBuilder* builder = nullptr;
-  AAudio_createStreamBuilder(&builder);
-  if (builder == nullptr) {
-    LOG(ERROR) << "Falha ao tocar: " << nome << ": builder nullptr.";
-    return;
-  }
-  AAudioStreamBuilder_setSampleRate(builder, sample_rate);
-  AAudioStreamBuilder_setChannelCount(builder, channels);
-  AAudioStreamBuilder_setFormat(builder, AAUDIO_FORMAT_PCM_I16);
-  AAudioStreamBuilder_setDirection(builder, AAUDIO_DIRECTION_OUTPUT);
-  AAudioStreamBuilder_setPerformanceMode(builder, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
-
-  // Define a função de callback e passa os dados de áudio
-  AAudioStreamBuilder_setDataCallback(builder, AudioCallback, contexto.get());
-
-  // 4. Abrir e iniciar o Stream
-  AAudioStream* stream = nullptr;
-  if (AAudioStreamBuilder_openStream(builder, &stream) == AAUDIO_OK) {
-    if (modo == ModoTocar::LOOP) {
-      // Para sons em loop, precisamos salvar em g_sons_fundo para conseguir parar.
-      auto& som_fundo = (*g_sons_fundo)[nome];
-      som_fundo = contexto.get();
-      som_fundo->modo = modo;
-    }
-    AAudioStream_requestStart(stream);
-    contexto.release();  // tudo certo, não mata o contexto.
-  }
-  AAudioStreamBuilder_delete(builder);
+  DisparaEmBackgroundComum(nome, channels, sample_rate, modo, std::move(contexto));
 }
 }  // namespace
 
