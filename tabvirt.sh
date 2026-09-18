@@ -9,5 +9,5 @@ lldb ./bazel-bin/tabvirt -- $@
 elif [ "$1" == "perf" ]; then
 perf stat -d ./tabvirt -- $@
 else
-./bazel-bin/tabvirt --stderrthreshold=0 $@
+__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ./bazel-bin/tabvirt --stderrthreshold=0 $@
 fi
