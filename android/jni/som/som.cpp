@@ -6,8 +6,13 @@
 #include <vector>
 #include <unordered_map>
 
+#include "absl/strings/match.h"
 #include "arq/arquivo.h"
+#include "ent/util.h"
 #include "log/log.h"
+
+// Include inline (declarações e definições). O arquivo não é compilado separadamente.
+#include "som/stb_vorbis.cpp"
 
 namespace som {
 namespace {
@@ -73,6 +78,77 @@ aaudio_data_callback_result_t AudioCallback(AAudioStream *stream, void *contexto
   }
   contexto.release();  // ainda não mata, vamos precisar dele de novo.
   return AAUDIO_CALLBACK_RESULT_CONTINUE;
+}
+
+void DisparaOggEmBackground(const std::string& nome, ModoTocar modo) {
+  std::string dados;
+  try {
+    arq::LeArquivo(arq::TIPO_SOM, nome, &dados);
+  } catch (const std::exception& e) {
+    LOG(ERROR) << "Falha ao ler: " << nome << ": " << e.what();
+    return;
+  }
+
+  // Variables to hold audio metadata
+  int channels = 0;
+  int sample_rate = 0;
+  short* output_buffer = nullptr;
+
+  // Decode the entire file into a 16-bit signed integer buffer (interleaved channels)
+  int num_samples = stb_vorbis_decode_memory(reinterpret_cast<uint8_t*>(dados.data()), dados.size(), &channels, &sample_rate, &output_buffer);
+
+  // CRITICAL: stb_vorbis allocates memory via standard C 'malloc'.
+  // You must free it using C 'free' to avoid memory leaks.
+  ent::RodaNoRetorno r([output_buffer]() {
+    free(output_buffer);
+  });
+
+  // Error checking
+  if (num_samples < 0) {
+    LOG(ERROR) << "Falha ao tocar: " << nome << ": numero de samples: " << num_samples;
+    return;
+  }
+
+  size_t frames = static_cast<size_t>(num_samples) * channels;
+
+  // 2. Alocar o contexto e carregar todo o arquivo na memória
+  auto contexto = std::make_unique<AudioPlaybackContext>();
+
+  contexto->pcmData.resize(frames);
+  std::copy_n(output_buffer, frames, contexto->pcmData.data());
+
+  // 3. Configurar o Stream Builder do AAudio
+  AAudioStreamBuilder* builder = nullptr;
+  AAudio_createStreamBuilder(&builder);
+  if (builder == nullptr) {
+    LOG(ERROR) << "Falha ao tocar: " << nome << ": builder nullptr.";
+    return;
+  }
+  AAudioStreamBuilder_setSampleRate(builder, sample_rate);
+  AAudioStreamBuilder_setChannelCount(builder, channels);
+  AAudioStreamBuilder_setFormat(builder, AAUDIO_FORMAT_PCM_I16);
+  AAudioStreamBuilder_setDirection(builder, AAUDIO_DIRECTION_OUTPUT);
+  AAudioStreamBuilder_setPerformanceMode(builder, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
+
+  // Define a função de callback e passa os dados de áudio
+  AAudioStreamBuilder_setDataCallback(builder, AudioCallback, contexto.get());
+
+  // 4. Abrir e iniciar o Stream
+  AAudioStream* stream = nullptr;
+  if (AAudioStreamBuilder_openStream(builder, &stream) == AAUDIO_OK) {
+    if (modo == ModoTocar::LOOP) {
+      // Para sons em loop, precisamos salvar em g_sons_fundo para conseguir parar.
+      auto& som_fundo = (*g_sons_fundo)[nome];
+      som_fundo = contexto.get();
+      som_fundo->modo = modo;
+    }
+    AAudioStream_requestStart(stream);
+    contexto.release();  // tudo certo, não mata o contexto.
+  }
+  AAudioStreamBuilder_delete(builder);
+
+  // You can now feed 'pcmData' directly into your audio engine (OpenAL, SDL_Audio, etc.)
+  return;
 }
 
 // Le o arquivo WAV, preenche os buffers e dispara o playback em outra thread, que sera chamada
@@ -146,7 +222,11 @@ void Toca(const std::string& nome) {
 void TocaSomFundo(const std::string& nome) {
   LOG(INFO) << "TocaSomFundo: " << nome;
   if (g_opcoes->desativar_som() || nome.empty()) return;
-  DisparaWavEmBackground(nome, ModoTocar::LOOP);
+  if (absl::EndsWith(nome, ".wav")) {
+    DisparaWavEmBackground(nome, ModoTocar::LOOP);
+  } else {
+    DisparaOggEmBackground(nome, ModoTocar::LOOP);
+  }
 }
 
 void ParaSomFundo(const std::string& nome) {

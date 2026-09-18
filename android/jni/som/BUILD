@@ -7,7 +7,7 @@ cc_library(
   srcs = [
     "som.cpp",
   ],
-  hdrs = ["som.h"],
+  hdrs = ["som.h", "stb_vorbis.cpp"],
   deps = [
     "//jni/ent:ent_headers",
     "//jni/log:log",
