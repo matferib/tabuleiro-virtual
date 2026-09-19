@@ -37,6 +37,7 @@ import com.matferib.Tabuleiro.ent.Comum.TipoVisao;
 import com.matferib.Tabuleiro.ent.Entidade.EntidadeProto;
 import com.matferib.Tabuleiro.MultiSpinner;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -710,9 +711,9 @@ class TabuleiroRenderer
           Log.e(TAG, "raio_luz == null");
           return;
         }
-        final EditText eventos = (EditText)view.findViewById(R.id.eventos);
-        if (eventos == null) {
-          Log.e(TAG, "eventos == null");
+        final EditText rotulos_especiais = (EditText)view.findViewById(R.id.rotulos_especiais);
+        if (rotulos_especiais == null) {
+          Log.e(TAG, "rotulos_especiais == null");
           return;
         }
 
@@ -747,27 +748,17 @@ class TabuleiroRenderer
         }
         raio_luz.setValue(indice_val_luz);
         av.setText(String.valueOf(!proto.hasAlcanceVisaoM() ? 0 : proto.getAlcanceVisaoM()));
-        String evento_str = new String();
-        for (EntidadeProto.Evento e : proto.getEventoList()) {
-          evento_str += e.getDescricao();
-          if (e.getComplementosCount() > 0) {
-            evento_str += " (" + String.valueOf(e.getComplementosList()) + ")";
-          } else if (e.getComplementosStrCount() > 0) {
-            evento_str += " (" + String.valueOf(e.getComplementosStrList()) + ")";
-          }
-          evento_str += ": " + String.valueOf(e.getRodadas()) + "\n";
+        String rotulos_especiais_str = new String();
+        for (String re : proto.getRotuloEspecialList()) {
+          rotulos_especiais_str += re + "\n";
         }
-        eventos.setText(evento_str);
+        rotulos_especiais.setText(rotulos_especiais_str);
 
         // Termina a janela de dialogo.
         builder.setView(view)
           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
               try {
-                // Hack: eventos sera todos colocados em uma string e decodificados no codigo nativo.
-                Vector<EntidadeProto.Evento> evento_hack = new Vector<EntidadeProto.Evento>();
-                evento_hack.add(EntidadeProto.Evento.newBuilder().setDescricao(
-                    ByteString.copyFromUtf8(eventos.getText().toString())).build());
                 // Converte a visao para 18m se for no escuro e o valor for 0.
                 float alcance = Float.parseFloat(av.getText().toString());
                 if ((TipoVisao.values()[tv.getSelectedItemPosition()] == TipoVisao.VISAO_ESCURO) && alcance == 0) {
@@ -780,7 +771,7 @@ class TabuleiroRenderer
                     .setTipoVisao(TipoVisao.values()[tv.getSelectedItemPosition()])
                     .setLuz(IluminacaoPontual.newBuilder().setRaioM(raio_luz.getValue() * 1.5f))
                     .setAlcanceVisaoM(new Float(alcance))
-                    //.setEvento(evento_hack)
+                    .addAllRotuloEspecial(Arrays.asList(rotulos_especiais.getText().toString().split("\\n")))
                     .build();
                 Log.d(TAG, "OK proto: " + proto_modificado.toString());
                 nativeUpdateEntity(proto_modificado.toByteArray());

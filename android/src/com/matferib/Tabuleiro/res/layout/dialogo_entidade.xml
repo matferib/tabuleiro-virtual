@@ -95,13 +95,13 @@
       android:orientation="horizontal"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content">
-      <TextView android:id="@+id/rotulo_eventos"
+      <TextView android:id="@+id/rotulos_especiais_rotulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:imeOptions="flagNoExtractUi"
-        android:text="@string/eventos" />
+        android:text="@string/rotulos_especiais" />
       <EditText
-        android:id="@+id/eventos"
+        android:id="@+id/rotulos_especiais"
         android:minEms="20"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

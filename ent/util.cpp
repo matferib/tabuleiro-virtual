@@ -3800,47 +3800,6 @@ TipoEfeito StringParaEfeito(const std::string& s) {
   return EFEITO_INVALIDO;
 }
 
-// Ta quebrado!!!!! Nao tem o id do efeito.
-// Funcao hack do android.
-RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str) {
-  RepeatedPtrField<EntidadeProto::Evento> ret;
-  std::istringstream ss(eventos_str);
-  while (1) {
-    std::string linha;
-    if (!std::getline(ss, linha)) {
-      break;
-    }
-    // Cada linha.
-    size_t pos_dois_pontos = linha.find(':');
-    if (pos_dois_pontos == std::string::npos) {
-      LOG(ERROR) << "Ignorando evento: " << linha;
-      continue;
-    }
-    std::string descricao(linha.substr(0, pos_dois_pontos));
-    std::string complementos;
-    size_t pos_par = descricao.find_last_of("(");
-    if (pos_par != std::string::npos) {
-      complementos = descricao.substr(pos_par + 1);
-      descricao = descricao.substr(0, pos_par);
-    }
-    std::string rodadas(linha.substr(pos_dois_pontos + 1));
-    EntidadeProto::Evento evento;
-    evento.set_descricao(ent::trim(descricao));
-    evento.set_rodadas(atoi(rodadas.c_str()));
-    boost::char_separator<char> sep(" ");
-    boost::tokenizer<boost::char_separator<char>> tokenizador(complementos, sep);
-    for (const auto& token : tokenizador) {
-      evento.add_complementos(atoi(token.c_str()));
-    }
-    auto id_efeito = StringParaEfeito(evento.descricao());
-    if (id_efeito != EFEITO_INVALIDO) {
-      evento.set_id_efeito(id_efeito);
-    }
-    ret.Add()->Swap(&evento);
-  }
-  return ret;
-}
-
 Bonus BonusContraTendenciaNaCA(const EntidadeProto& proto_ataque, const EntidadeProto& proto_defesa) {
   Bonus b;
   if ((Bom(proto_ataque) && PossuiEvento(EFEITO_PROTECAO_CONTRA_BEM, proto_defesa)) ||
