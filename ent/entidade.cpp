@@ -425,25 +425,83 @@ void Entidade::AtualizaMatrizesVbo(const ParametrosDesenho* pd) {
   }
 }
 
+namespace {
+// Quando carregamos ou descarregamos objetos compostos, devemos carregar todos os modelos 3d que compoe
+// o objeto, caso contrario a extracao de VBO falhara. Exemplos onde isso acontece:
+// - criacao do VBO do objeto composto: percorrera o objeto todo.
+// - composição do objeto composto com outros objetos compostos ou formas.
+// As funções aqui permitem a recursão do objeto composto para carregar e descarregar modelos 3d.
+
+// Sem recursao: so do proprio proto.
+void LiberaModelo3dSoProto(const EntidadeProto& proto, ntf::CentralNotificacoes* central) {
+  if (!proto.modelo_3d().id().empty()) {
+    VLOG(1) << "Liberando modelo_3d: " << proto.modelo_3d().id();
+    auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_MODELO_3D);
+    nl->mutable_entidade()->mutable_modelo_3d()->set_id(proto.modelo_3d().id());
+    central->AdicionaNotificacao(nl.release());
+  }
+}
+
+// Vai nos filhos se composto.
+void LiberaModelos3dIncluindoFilhos(const EntidadeProto& proto, ntf::CentralNotificacoes* central) {
+  if (proto.tipo() == TE_COMPOSTA) {
+    for (const EntidadeProto& sub : proto.sub_forma()) {
+      LiberaModelos3dIncluindoFilhos(sub, central);
+    }
+  } else {
+    LiberaModelo3dSoProto(proto, central);
+  }
+}
+
+// Sem recursao, so do proprio proto.
+void CarregaModelo3dSoProto(const EntidadeProto& proto, ntf::CentralNotificacoes* central) {
+  if (!proto.modelo_3d().id().empty()) {
+    VLOG(1) << "Carregando modelo_3d: " << proto.modelo_3d().id();
+    auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D);
+    *nc->mutable_entidade()->mutable_modelo_3d() = proto.modelo_3d();
+    central->AdicionaNotificacao(nc.release());
+  }
+}
+
+// Vai nos filhos se composto.
+void CarregaModelos3dIncluindoFilhos(const EntidadeProto& proto, ntf::CentralNotificacoes* central) {
+  if (proto.tipo() == TE_COMPOSTA) {
+    for (const EntidadeProto& sub : proto.sub_forma()) {
+      CarregaModelos3dIncluindoFilhos(sub, central);
+    }
+  } else {
+    CarregaModelo3dSoProto(proto, central);
+  }
+}
+}  // namespace
+
 void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
   if (central_ == nullptr) return;
   VLOG(2) << "Atualizando modelo3d novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
-  if (!proto_.modelo_3d().id().empty() &&
-      proto_.modelo_3d().id() != novo_proto.modelo_3d().id()) {
-    VLOG(1) << "Liberando modelo_3d: " << proto_.modelo_3d().id();
-    auto nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_MODELO_3D);
-    nl->mutable_entidade()->mutable_modelo_3d()->set_id(proto_.modelo_3d().id());
-    central_->AdicionaNotificacao(nl.release());
+  // Se for composta, percorre os objetos filhos tambem para descarregar os modelos 3d deles.
+  if (proto_.tipo() == TE_COMPOSTA) {
+    for (const EntidadeProto& sub : proto_.sub_forma()) {
+      LiberaModelos3dIncluindoFilhos(sub, central_);
+    }
+  } else {
+    if (proto_.modelo_3d().id() != novo_proto.modelo_3d().id()) {
+      LiberaModelo3dSoProto(proto_, central_);
+    }
   }
+
   // Carrega modelo_3d se houver e for diferente da antiga.
-  if (!novo_proto.modelo_3d().id().empty() &&
-      novo_proto.modelo_3d().id() != proto_.modelo_3d().id()) {
-    VLOG(1) << "Carregando modelo_3d: " << novo_proto.modelo_3d().id();
-    auto nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D);
-    *nc->mutable_entidade()->mutable_modelo_3d() = novo_proto.modelo_3d();
-    central_->AdicionaNotificacao(nc.release());
+  // Se for composta, percorre os objetos filhos tambem para carregar os modelos 3d deles.
+  if (novo_proto.tipo() == TE_COMPOSTA) {
+    for (const EntidadeProto& sub : novo_proto.sub_forma()) {
+      CarregaModelos3dIncluindoFilhos(sub, central_);
+    }
+  } else {
+    if (proto_.modelo_3d().id() != novo_proto.modelo_3d().id()) {
+      CarregaModelo3dSoProto(novo_proto, central_);
+    }
   }
+
   if (!novo_proto.modelo_3d().id().empty()) {
     *proto_.mutable_modelo_3d() = novo_proto.modelo_3d();
   } else {
