@@ -3266,11 +3266,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
   }
 
   gerador.checkbox_afetado_por_efeitos->setCheckState(entidade.pode_ser_afetada_por_acao() ? Qt::Checked : Qt::Unchecked);
-  if (entidade.tipo() == ent::TE_COMPOSTA) {
-    gerador.slider_vento->setValue(static_cast<int>(entidade.elasticidade_vento() * 100.0f));
-  } else {
-    gerador.slider_vento->setEnabled(false);
-  }
+  gerador.slider_vento->setValue(static_cast<int>(entidade.elasticidade_vento() * 100.0f));
   gerador.checkbox_respeita_solo->setCheckState(entidade.forcar_respeita_solo() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_ignora_luz->setCheckState(entidade.ignora_luz() ? Qt::Checked : Qt::Unchecked);
 
@@ -3486,7 +3482,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(const ntf::Notificacao&
     }
 
     proto_retornado->set_pode_ser_afetada_por_acao(gerador.checkbox_afetado_por_efeitos->checkState() == Qt::Checked);
-    if (proto_retornado->tipo() == ent::TE_COMPOSTA && gerador.slider_vento->value() > 0) {
+    if (gerador.slider_vento->value() > 0) {
       proto_retornado->set_elasticidade_vento(gerador.slider_vento->value() / 200.0f);
     } else {
       proto_retornado->clear_elasticidade_vento();
