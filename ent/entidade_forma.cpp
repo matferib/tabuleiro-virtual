@@ -33,61 +33,62 @@ void Entidade::AtualizaProtoForma(
 }
 
 gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool respeita_texturas, bool mundo) {
-  gl::VboNaoGravado vbo;
+  gl::VbosNaoGravados vbos;
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
-      vbo = gl::VboDisco(0.5f, 12);
+      vbos.Concatena(gl::VboDisco(0.5f, 12));
     }
     break;
     case TF_CILINDRO: {
-      vbo = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/);
+      vbos.Concatena(gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/));
       {
         gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
         vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
-        vbo.Concatena(vbo_disco);
+        vbos.Concatena(vbo_disco);
       }
       gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
       vbo_disco.Translada(0.0f, 0.0f, 1.0f);
-      vbo.Concatena(vbo_disco);
+      vbos.Concatena(vbo_disco);
     }
     break;
     case TF_CONE: {
-      vbo = gl::VboConeSolido(0.5f/*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/);
+      vbos.Concatena(gl::VboConeSolido(0.5f/*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/));
       {
         gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
         vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
-        vbo.Concatena(vbo_disco);
+        vbos.Concatena(vbo_disco);
       }
     }
     break;
     case TF_CUBO: {
-      vbo = gl::VboCuboSolido(1.0f);
+      vbos.Concatena(gl::VboCuboSolido(1.0f));
     }
     break;
     case TF_PIRAMIDE: {
-      vbo = gl::VboPiramideSolida(1.0f, 1.0f);
+      vbos.Concatena(gl::VboPiramideSolida(1.0f, 1.0f));
       {
         gl::VboNaoGravado vbo_base = gl::VboRetangulo(1.0f);
         vbo_base.Escala(-1.0f, 1.0f, -1.0f);
-        vbo.Concatena(vbo_base);
+        vbos.Concatena(vbo_base);
       }
     }
     break;
     case TF_RETANGULO: {
-      vbo = gl::VboRetangulo(1.0f);
+      vbos.Concatena(gl::VboRetangulo(1.0f));
     }
     break;
     case TF_TRIANGULO: {
-      vbo = gl::VboTriangulo(1.0f);
+      vbos.Concatena(gl::VboTriangulo(1.0f));
     }
     break;
     case TF_ESFERA: {
-      vbo = gl::VboEsferaSolida(0.5f, 24, 12);
+      vbos.Concatena(gl::VboEsferaSolida(0.5f, 24, 12));
     }
     break;
     case TF_HEMISFERIO: {
-      vbo = gl::VboHemisferioSolido(0.5f, 24, 12);
+      auto vbo = gl::VboHemisferioSolido(0.5f, 24, 12);
       vbo.Escala(1.0f, 1.0f, 2.0f);
+      vbos.Concatena(vbo);
     }
     break;
     case TF_LIVRE: {
@@ -97,7 +98,20 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
       for (const auto& p : proto.ponto()) {
         v.push_back(std::make_pair(p.x(), p.y()));
       }
-      vbo = gl::VboLivre(v, TAMANHO_LADO_QUADRADO * proto.escala().z());
+      vbos.Concatena(gl::VboLivre(v, TAMANHO_LADO_QUADRADO * proto.escala().z()));
+    }
+    break;
+    case TF_MODELO: {
+      if (vd.m3d == nullptr) {
+        LOG(ERROR) << "vd.m3d invalido";
+        break;
+      }
+      const m3d::Modelo3d* m = vd.m3d->Modelo(proto.modelo_3d().id());
+      if (m == nullptr) {
+        LOG(ERROR) << "modelo invalido para: " << proto.modelo_3d().id();
+        break;
+      }
+      vbos.Concatena(m->vbos_nao_gravados);
     }
     break;
     default:
@@ -105,14 +119,14 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
       throw std::logic_error("Forma de desenho invalida");
   }
   const auto& c = proto.cor();
-  vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
+  vbos.AtribuiCor(c.r(), c.g(), c.b(), c.a());
   if (respeita_texturas && !proto.has_info_textura()) {
-    vbo.AtribuiSemTextura();
+    vbos.AtribuiSemTextura();
   }
   if (mundo) {
-    vbo.Multiplica(MontaMatrizModelagemForma(true, true, proto, vd, pd, true));
+    vbos.Multiplica(MontaMatrizModelagemForma(true, true, proto, vd, pd, true));
   }
-  return gl::VbosNaoGravados(std::move(vbo));
+  return std::move(vbos);
 }
 
 bool TipoForma2d(TipoForma tipo) {
