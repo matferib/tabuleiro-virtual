@@ -196,6 +196,17 @@ void VbosNaoGravados::MesclaCores(float r, float g, float b, float a) {
   }
 }
 
+void VbosNaoGravados::AtribuiSemTextura() {
+  for (auto& vbo : vbos_) {
+    vbo.AtribuiSemTextura();
+  }
+}
+
+void VbosNaoGravados::Concatena(const VbosNaoGravados& rhs) {
+  for (auto& vbo : rhs.vbos_) {
+    Concatena(vbo);
+  }
+}
 void VbosNaoGravados::Concatena(const VboNaoGravado& rhs) {
   if (vbos_.empty()) {
     vbos_.emplace_back(rhs);

@@ -251,6 +251,7 @@ class VbosNaoGravados {
   }
 
   // A concatenacao eh uma operacao cara. Ela tentara colocar objetos no mesmo VBO e caso nao consiga, criara um novo.
+  void Concatena(const VbosNaoGravados& rhs);
   void Concatena(VbosNaoGravados* rhs);
   void Concatena(const VboNaoGravado& rhs);
   void Concatena(VboNaoGravado* rhs);
@@ -260,6 +261,7 @@ class VbosNaoGravados {
   void AtribuiCor(float r, float g, float b, float a);
   void AtribuiMatrizModelagem(const Matrix4& matriz_modelagem);
   void MesclaCores(float r, float g, float b, float a);
+  void AtribuiSemTextura();
   std::string ParaString(bool completo) const;
 
  private:
