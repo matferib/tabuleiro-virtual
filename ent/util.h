@@ -859,12 +859,6 @@ int NivelMaximoFeitico(const Tabelas& tabelas, const std::string& id_classe, int
 // Retorna o nivel do feitico para determinada classe, -1 se nao houver.
 int NivelFeiticoParaClasse(const ArmaProto& feitico, const std::string& id_classe);
 
-// Hack para android!
-/** Realiza a leitura de uma string de eventos, um por linha, formato:
-* descricao [(complemento)] : rodadas.
-*/
-google::protobuf::RepeatedPtrField<EntidadeProto_Evento> LeEventos(const std::string& eventos_str);
-
 // Funcoes que retornam o estado da entidade de acordo com a origem e valor dos bonus de esquiva.
 bool EmDefesaTotal(const EntidadeProto& proto);
 bool LutandoDefensivamente(const EntidadeProto& proto);
