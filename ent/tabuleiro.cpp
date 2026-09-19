@@ -4814,7 +4814,7 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
   template_entidade.set_tipo(TE_FORMA);
   template_entidade.set_sub_tipo(TF_MODELO);
   template_entidade.set_selecionavel_para_jogador(false);
-  template_entidade.set_fixa(true);
+  template_entidade.set_fixa(false);
   template_entidade.set_visivel(true);
 
   for (int x = 0; x < TamanhoX(); ++x) {
