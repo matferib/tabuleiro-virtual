@@ -7,6 +7,24 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
+    <!-- rotulo -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:orientation="horizontal"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content">
+      <TextView android:id="@+id/rotulo_rotulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:text="@string/rotulo" />
+      <EditText
+        android:id="@+id/rotulo"
+        android:minEms="20"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="text" />
+    </LinearLayout>
     <!-- max pontos de vida -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
       android:orientation="horizontal"

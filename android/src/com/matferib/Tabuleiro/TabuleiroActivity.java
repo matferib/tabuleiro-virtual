@@ -686,6 +686,11 @@ class TabuleiroRenderer
         LayoutInflater inflater = activity_.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialogo_entidade, null);
         // Preenche campos.
+        final EditText rotulo = (EditText)view.findViewById(R.id.rotulo);
+        if (rotulo == null) {
+          Log.e(TAG, "rotulo == null");
+          return;
+        }
         final EditText max_pv = (EditText)view.findViewById(R.id.max_pontos_vida);
         if (max_pv == null) {
           Log.e(TAG, "max_pv == null");
@@ -717,6 +722,7 @@ class TabuleiroRenderer
           return;
         }
 
+        rotulo.setText(String.valueOf(proto.getRotulo()));
         max_pv.setText(String.valueOf(proto.getMaxPontosVida()));
         pv.setText(String.valueOf(proto.getPontosVida()));
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
@@ -766,6 +772,7 @@ class TabuleiroRenderer
                 }
                 EntidadeProto proto_modificado = EntidadeProto.newBuilder()
                     .setId(proto.getId())
+                    .setRotulo(rotulo.getText().toString())
                     .setMaxPontosVida(Integer.parseInt(max_pv.getText().toString()))
                     .setPontosVida(Integer.parseInt(pv.getText().toString()))
                     .setTipoVisao(TipoVisao.values()[tv.getSelectedItemPosition()])
