@@ -28,5 +28,8 @@ som screech: Corellas screech multiple by magicthighs -- https://freesound.org/s
 som loop_river: https://freesound.org/people/Garuda1982/sounds/707576
 som loop_wind_grass: Dry grass rustling in the wind, in the desert of Chile. by felix.blume -- https://freesound.org/s/146436/ -- License: Creative Commons 0
 
+Converter wav para ogg:
+ffmpeg -i entrada.wav -c:a libvorbis -q:a 4 saida.ogg
+
 terrain_foliage_coarse.png: CC BY-SA 3.0 -- Heath Rezabek -- Vessel CC -- http://vessel.cc
 swarm_spider: Spider made by Tuomo Untinen.
