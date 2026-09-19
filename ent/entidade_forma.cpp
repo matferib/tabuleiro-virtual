@@ -118,8 +118,10 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
       LOG(ERROR) << "Forma de desenho invalida";
       throw std::logic_error("Forma de desenho invalida");
   }
-  const auto& c = proto.cor();
-  vbos.AtribuiCor(c.r(), c.g(), c.b(), c.a());
+  if (proto.has_cor() || proto.sub_tipo() != TF_MODELO) {
+    const auto& c = proto.cor();
+    vbos.AtribuiCor(c.r(), c.g(), c.b(), c.a());
+  }
   if (respeita_texturas && !proto.has_info_textura()) {
     vbos.AtribuiSemTextura();
   }
