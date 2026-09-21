@@ -146,6 +146,9 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_ABRIR_DIALOGO_FORCAR_DADO:
       TrataForcarDado(notificacao);
       return true;
+    case ntf::TN_ABRIR_DIALOGO_TERRENO_ALEATORIO:
+      TrataAbrirDialogoTerrenoAleatorio(notificacao);
+      return true;
     default:
       break;
   }
@@ -505,7 +508,6 @@ void InterfaceGrafica::VoltaEscolherPocaoOuSimilar(const ntf::Notificacao notifi
         VoltaEscolherEfeito(notificacao, 0, false, 0, ent::TT_ITEM_MUNDANO);
         return;
       } else {
-        const auto& mundano = tabelas_.ItemMundano(itens_mundanos.Get(indice_pocao_ou_similar).id());
         VoltaEscolherEfeito(notificacao, indice_pocao_ou_similar, /*ok=*/true, /*indice_efeito=*/0, ent::TT_ITEM_MUNDANO);
       }
     }
@@ -698,7 +700,7 @@ void InterfaceGrafica::VoltaAbrirImagens(const std::vector<std::string>& nomes, 
   if (ok && !nomes.empty()) {
     auto notificacao = ntf::NovaNotificacao(ntf::TN_MOSTRAR_IMAGEM_CLIENTES);
     for (int i : indices) {
-      if (i < 0 || i >= nomes.size()) continue;
+      if (i < 0 || i >= static_cast<int>(nomes.size())) continue;
       auto* textura = notificacao->add_info_textura();
       try {
         unsigned int largura, altura;
@@ -1116,6 +1118,34 @@ void InterfaceGrafica::TrataForcarDado(const ntf::Notificacao& notificacao) {
     }
     ent::AcumulaDado(*face, valor_forcado);
   });
+}
+
+void InterfaceGrafica::TrataAbrirDialogoTerrenoAleatorio(const ntf::Notificacao& notificacao) {
+  std::vector<std::string> lista;
+  for (const auto& tt : tabelas_.todas().tabela_terrenos().terrenos()) {
+    lista.push_back(tt.nome());
+  }
+  tabuleiro_->DesativaWatchdogSeMestre();
+  EscolheItemListaSemTipoTesouro(
+      "Escolha o tipo de terreno", /*rotulo_ok=*/std::nullopt, lista,
+      std::bind(
+          &ifg::InterfaceGrafica::VoltaEscolherTipoTerreno,
+          this, _1, _2));
+}
+
+void InterfaceGrafica::VoltaEscolherTipoTerreno(bool ok, int indice) {
+  ent::RodaNoRetorno r([this] () {
+    tabuleiro_->ReativaWatchdogSeMestre();
+  });
+  const auto& tabela_terrenos = tabelas_.todas().tabela_terrenos();
+  if (!ok) { return; }
+  if (indice < 0 || indice >= static_cast<int>(tabela_terrenos.terrenos_size())) {
+    LOG(ERROR) << "indice de terreno invalido: " << indice;
+    return;
+  }
+  auto n = ntf::NovaNotificacao(ntf::TN_GERAR_TERRENO_ALEATORIO);
+  n->set_str_generica(tabela_terrenos.terrenos(indice).id());
+  central_->AdicionaNotificacao(std::move(n));
 }
 
 }  // namespace ifg

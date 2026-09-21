@@ -167,6 +167,9 @@ class InterfaceGrafica : public ntf::Receptor {
   void TrataEscolherVersaoParaRemocao();
 
   void TrataForcarDado(const ntf::Notificacao& notificacao);
+
+  void TrataAbrirDialogoTerrenoAleatorio(const ntf::Notificacao& notificacao);
+  void VoltaEscolherTipoTerreno(bool ok, int indice);
 };
 
 }  // namespace ifg
