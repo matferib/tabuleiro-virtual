@@ -15854,11 +15854,31 @@ tabela_venenos {
 
 tabela_terrenos {
   terrenos {
+    # Não tem uma referencia aleatoria, mas descreve coisas aqui
+    # https://www.d20srd.org/srd/dungeons.htm#dungeonTerrain
+    id: 'caverna_natural'
+    nome: 'Caverna Natural'
+    items_terreno { chance: 0.05 proto { modelo_3d { id: 'skull' } } }
+    items_terreno { chance: 0.01 proto { modelo_3d { id: 'skeleton' } } }
+    items_terreno { chance: 0.1 proto { modelo_3d { id: 'bones' } } }
+    items_terreno { chance: 0.1 proto { modelo_3d { id: 'rock' } } }
+    tabuleiro {
+      info_textura_piso { id: 'terrain_rocky_moss.png' }
+      luz_ambiente { r: 0.1 g: 0.1 b: 0.1 }
+      luz_direcional { cor { r: 0.01 g: 0.01 b: 0.01 } inclinacao_graus: 5 }
+      tipo_terreno: TT_SUBTERRANEO
+    }
+  }
+  terrenos {
     # https://www.d20srd.org/srd/wilderness.htm#forestTerrain
     id: 'floresta_esparsa'
     nome: 'Floresta Esparsa (rala)'
     items_terreno { chance: 0.5 proto { modelo_3d { id: 'light_undergrowth' } elasticidade_vento: 0.5 } }
     # numero original é 0.5, mas fica muito denso.
     items_terreno { chance: 0.2 proto { modelo_3d { id: 'tree' } elasticidade_vento: 0.1 } }
+    }
+    tabuleiro {
+      tipo_terreno: TT_FLORESTA
+    }
   }
 }
