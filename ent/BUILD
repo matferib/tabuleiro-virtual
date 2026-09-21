@@ -42,6 +42,7 @@ proto_library(
         ":acoes_proto",
         ":comum_proto",
         ":entidade_proto",
+        ":tabuleiro_proto",
     ],
 )
 
