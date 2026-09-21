@@ -3,6 +3,7 @@ edition = "2023";
 import "ent/comum.proto";
 import "ent/acoes.proto";
 import "ent/entidade.proto";
+import "ent/tabuleiro.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
@@ -349,6 +350,7 @@ message TemplateTerreno {
   string id = 1;
   string nome = 2;
   repeated ItemTerreno items_terreno = 3;
+  TabuleiroProto tabuleiro = 4;
 }
 
 message TabelaTerrenos {
