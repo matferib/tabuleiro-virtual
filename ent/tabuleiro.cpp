@@ -4846,6 +4846,14 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
       }
     }
   }
+  if (terreno.has_tabuleiro()) {
+    auto* n_tabuleiro = grupo_notificacoes.add_notificacao();
+    n_tabuleiro->set_tipo(ntf::TN_ATUALIZAR_TABULEIRO);
+    n_tabuleiro->set_nao_afeta_entidades(true);
+    *n_tabuleiro->mutable_tabuleiro_antes() = *proto_corrente_;
+    *n_tabuleiro->mutable_tabuleiro() = *proto_corrente_;
+    n_tabuleiro->mutable_tabuleiro()->MergeFrom(terreno.tabuleiro());
+  }
   LOG(INFO) << "Total gerado: " << grupo_notificacoes.notificacao_size() << ", quadrados: " << (TamanhoX() * TamanhoY());
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer
