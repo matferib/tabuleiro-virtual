@@ -15858,8 +15858,8 @@ tabela_terrenos {
     # https://www.d20srd.org/srd/dungeons.htm#dungeonTerrain
     id: 'caverna_natural'
     nome: 'Caverna Natural'
+    items_terreno { chance: 0.01 proto { modelo_3d { id: 'skeleton' } } pula_proximos: true }
     items_terreno { chance: 0.05 proto { modelo_3d { id: 'skull' } } }
-    items_terreno { chance: 0.01 proto { modelo_3d { id: 'skeleton' } } }
     items_terreno { chance: 0.1 proto { modelo_3d { id: 'bones' } } }
     items_terreno { chance: 0.1 proto { modelo_3d { id: 'rock' } } }
     tabuleiro {
@@ -15870,14 +15870,28 @@ tabela_terrenos {
     }
   }
   terrenos {
-    # https://www.d20srd.org/srd/wilderness.htm#forestTerrain
+    # https://www.d20srd.org/srd/wilderness.htm#forestTerrain pg 87 livro mestre.
     id: 'floresta_esparsa'
     nome: 'Floresta Esparsa (rala)'
     items_terreno { chance: 0.5 proto { modelo_3d { id: 'light_undergrowth' } elasticidade_vento: 0.5 } }
     # numero original é 0.5, mas fica muito denso.
     items_terreno { chance: 0.2 proto { modelo_3d { id: 'tree' } elasticidade_vento: 0.1 } }
-    }
     tabuleiro {
+      info_textura_piso { id: 'terrain_foliage_coarse.png' }
+      tipo_terreno: TT_FLORESTA
+    }
+  }
+  terrenos {
+    # https://www.d20srd.org/srd/wilderness.htm#forestTerrain pg 87 livro do mestre.
+    id: 'floresta_intermediaria'
+    nome: 'Floresta Intermediária'
+    items_terreno { chance: 0.7 proto { modelo_3d { id: 'light_undergrowth' } elasticidade_vento: 0.5 } pula_proximo: true }
+    items_terreno { chance: 0.2 proto { modelo_3d { id: 'heavy_undergrowth' } elasticidade_vento: 0.5 } pula_proximos: true }
+    # numero original é 0.5, mas fica muito denso.
+    items_terreno { chance: 0.7 proto { modelo_3d { id: 'tree' } elasticidade_vento: 0.1 } pula_proximos: true }
+    items_terreno { chance: 0.1 proto { modelo_3d { id: 'massive_tree' } elasticidade_vento: 0.1 escala { x: 1.2 y: 1.2 z: 2.0 } } }
+    tabuleiro {
+      info_textura_piso { id: 'terrain_foliage_coarse.png' }
       tipo_terreno: TT_FLORESTA
     }
   }
