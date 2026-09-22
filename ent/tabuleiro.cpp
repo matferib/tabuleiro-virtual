@@ -4819,10 +4819,17 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
 
   for (int x = 0; x < TamanhoX(); ++x) {
     for (int y = 0; y < TamanhoY(); ++y) {
+      VLOG(1) << "Quadrado: " << x << ", " << y;
       float ent_x = x * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2 - TamanhoX() * TAMANHO_LADO_QUADRADO_2;
       float ent_y = y * TAMANHO_LADO_QUADRADO + TAMANHO_LADO_QUADRADO_2 - TamanhoY() * TAMANHO_LADO_QUADRADO_2;
+      bool pula_proximo = false;
       for (const auto& item : terreno.items_terreno()) {
-        if (Aleatorio() <= item.chance()) {
+        if (pula_proximo) {
+          pula_proximo = true;
+          continue;
+        }
+        const float aleatorio = Aleatorio();
+        if (aleatorio <= item.chance()) {
           ntf::Notificacao* n_adicao = grupo_notificacoes.add_notificacao();
           n_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
           n_adicao->set_id_generico(1);
@@ -4834,18 +4841,31 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
           escala -= Vector3(0.5f, 0.5f, 0.5f);
           escala /= 3.0f;
           escala += Vector3(1.0f, 1.0f, 1.0f);
-          ent_adicionada->mutable_escala()->set_x(escala.x);;
-          ent_adicionada->mutable_escala()->set_y(escala.y);;
-          ent_adicionada->mutable_escala()->set_z(escala.z);;
+          ent_adicionada->mutable_escala()->set_x(ent_adicionada->escala().x() * escala.x);;
+          ent_adicionada->mutable_escala()->set_y(ent_adicionada->escala().y() * escala.y);;
+          ent_adicionada->mutable_escala()->set_z(ent_adicionada->escala().z() * escala.z);;
           float rotacao_graus = Aleatorio() * 360.0f;
           ent_adicionada->set_rotacao_z_graus(rotacao_graus);
-          ent_adicionada->mutable_pos()->set_x(ent_x);
-          ent_adicionada->mutable_pos()->set_y(ent_y);
-          LOG(INFO) << ent_adicionada->modelo_3d().id() << " gerado em: " << ent_x << ", " << ent_y << ", x: " << x << ", y: " << y;
+          ent_adicionada->mutable_pos()->set_x(ent_x + ((Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2));
+          ent_adicionada->mutable_pos()->set_y(ent_y + ((Aleatorio() - 0.5f) * TAMANHO_LADO_QUADRADO_2));
+          VLOG(1) << "Chance do item: " << item.chance() << ", aleatorio: " << aleatorio
+                  << ": gerei " << ent_adicionada->modelo_3d().id() << " em: " << ent_x << ", " << ent_y;
+          if (item.pula_proximos()) {
+            VLOG(1) << "pulando proximos itens da lista...";
+            break;
+          } else if (item.pula_proximo()) {
+            VLOG(1) << "pulando proximo item da lista...";
+            pula_proximo = true;
+          }
+        } else {
+          VLOG(1) << "Chance do item: " << item.chance() << ", aleatorio: " << aleatorio << ": não gerei.";
         }
       }
     }
   }
+  const int num_adicionado = grupo_notificacoes.notificacao_size();
+  LOG(INFO) << "Total de entidades geradas: "
+            << num_adicionado << ", quadrados: " << (TamanhoX() * TamanhoY());
   if (terreno.has_tabuleiro()) {
     auto* n_tabuleiro = grupo_notificacoes.add_notificacao();
     n_tabuleiro->set_tipo(ntf::TN_ATUALIZAR_TABULEIRO);
@@ -4854,12 +4874,11 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
     *n_tabuleiro->mutable_tabuleiro() = *proto_corrente_;
     n_tabuleiro->mutable_tabuleiro()->MergeFrom(terreno.tabuleiro());
   }
-  LOG(INFO) << "Total gerado: " << grupo_notificacoes.notificacao_size() << ", quadrados: " << (TamanhoX() * TamanhoY());
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer
   {
-    if (ids_adicionados_.size() == static_cast<unsigned int>(grupo_notificacoes.notificacao_size())) {
-      for (int i = 0; i < grupo_notificacoes.notificacao_size(); ++i) {
+    if (static_cast<int>(ids_adicionados_.size()) == num_adicionado) {
+      for (int i = 0; i < num_adicionado; ++i) {
         grupo_notificacoes.mutable_notificacao(i)->mutable_entidade()->set_id(ids_adicionados_[i]);
       }
       AdicionaNotificacaoListaEventos(grupo_notificacoes);
