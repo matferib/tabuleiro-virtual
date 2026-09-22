@@ -344,6 +344,10 @@ message TabelaDominios {
 message ItemTerreno {
   float chance = 1;
   EntidadeProto proto = 2;
+  // Se verdadeiro e o item for sorteado, pula o proximo item da lista.
+  bool pula_proximo = 3;
+  // Se verdadeiro e o item for sorteado, pula todos os proximos itens.
+  bool pula_proximos = 4;
 }
 
 message TemplateTerreno {
