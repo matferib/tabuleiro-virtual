@@ -694,6 +694,7 @@ enum TipoTerreno {
   TT_FLORESTA = 2;
   // Terrenos com grama alta.
   TT_MATAGAL = 3;
+  TT_PLANICIE = 4;
 }
 
 // Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
