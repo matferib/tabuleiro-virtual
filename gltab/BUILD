@@ -35,11 +35,12 @@ cc_library(
       "gl_vbo.cpp",
       "glues.cpp",
   ],
-  defines = ["GL_GLEXT_PROTOTYPES=1"],
+  defines = ["GL_GLEXT_PROTOTYPES=1", "USAR_FREETYPE=1"],
   includes = ["ext"],
   deps = [
       "@abseil-cpp//absl/strings",
       "@abseil-cpp//absl/strings:str_format",
+      "@freetype",
       "//arq",
       "//log",
       "//matrix",

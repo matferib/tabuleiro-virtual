@@ -38,6 +38,8 @@ local_path_override(
     path = "./qtbuild",
 )
 
+bazel_dep(name = "freetype", version = "2.14.1.bcr.1")
+
 # -- bazel_dep definitions -- #
 
 # -- use_repo_rule statements -- #

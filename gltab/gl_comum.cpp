@@ -153,7 +153,6 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 
 #if USAR_FREETYPE
   gl::Escala(escala, escala, 1.0f);
-  std::vector<VboNaoGravado> vbos;
   for (int linha = 0; linha < (int)str_linhas.size(); ++linha) {
     const std::string& str_linha = str_linhas[linha];
     float translacao_x = 0;
