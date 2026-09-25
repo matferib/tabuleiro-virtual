@@ -403,7 +403,7 @@ modelo {
       dano_basico: '1d3' empunhadura: EA_MONSTRO_ATAQUE_PRIMARIO
     }
     dados_ataque {
-      grupo: 'balbuciar' rotulo: 'resmungos' tipo_ataque: 'Ataque a Distância'
+      grupo: 'balbuciar' rotulo: 'resmungos' tipo_ataque: 'Ataque a Distância' alcance_q: 40
       acao_fixa {
         tipo: ACAO_DISPERSAO
         geometria: ACAO_GEO_CONE
@@ -412,7 +412,7 @@ modelo {
         permite_salvacao: true
         dificuldade_salvacao_base: 10
         atributo_dificuldade_salvacao: TA_SABEDORIA
-        cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
+        cor { r: 0.9 g: 1.0 b: 0.9 a: 0.7 }
         icone: 'icon_bardic_music.png'
         efeitos_adicionais {
           efeito: EFEITO_ABALADO
@@ -424,14 +424,14 @@ modelo {
       }
     }
     dados_ataque {
-      grupo: 'balbuciar' rotulo: 'desconcentrar' tipo_ataque: 'Ataque a Distância'
+      grupo: 'balbuciar' rotulo: 'desconcentrar' tipo_ataque: 'Ataque a Distância' alcance_q: 40
       acao_fixa {
         tipo: ACAO_DISPERSAO
         geometria: ACAO_GEO_CONE
         distancia_quadrados: 40
         permite_ataque_vs_defesa: false
         permite_salvacao: false
-        cor { r: 1.0 g: 1.0 b: 0.0 a: 0.7 }
+        cor { r: 1.0 g: 0.9 b: 0.9 a: 0.7 }
         icone: 'icon_bardic_music.png'
         efeitos_adicionais {
           efeito: EFEITO_DESCONCENTRADO
