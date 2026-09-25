@@ -1398,6 +1398,21 @@ fixo {
     dica: "Entra em um objeto."
   }
   dados_botoes {
+    largura: 2.0
+    altura: 1.0
+    linha: -8
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    mestre_apenas: false
+    rotulo: "Cenario"
+    cor_rotulo {}
+    textura: "icon_select_scenario.png"
+    id: CONTROLE_ESCOLHER_CENARIO
+    forma: FORMA_RETANGULO
+    dica: "Escolhe um cenario."
+  }
+  dados_botoes {
     tamanho: 1
     linha: -7
     coluna: -2
@@ -2271,7 +2286,16 @@ pagina {
     rotulo: "TA"
     id: CONTROLE_GERAR_TERRENO_ALEATORIO
     forma: FORMA_RETANGULO
-    dica: "Gera um terreno aleatório."
+    dica: "Abre dialogo para escolha de um tipo de terreno a ser gerado."
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 26
+    rotulo: "EC"
+    id: CONTROLE_ESCOLHER_CENARIO
+    forma: FORMA_RETANGULO
+    dica: "Escolhe um dos cenarios do tabuleiro."
   }
 
 }
