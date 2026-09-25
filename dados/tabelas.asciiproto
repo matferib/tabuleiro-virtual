@@ -15874,8 +15874,7 @@ tabela_terrenos {
     id: 'floresta_esparsa'
     nome: 'Floresta Esparsa (rala)'
     items_terreno { chance: 0.5 proto { modelo_3d { id: 'light_undergrowth' } elasticidade_vento: 0.5 } }
-    # numero original é 0.5, mas fica muito denso.
-    items_terreno { chance: 0.2 proto { modelo_3d { id: 'tree' } elasticidade_vento: 0.1 } }
+    items_terreno { chance: 0.5 proto { modelo_3d { id: 'tree' } elasticidade_vento: 0.1 } }
     tabuleiro {
       info_textura_piso { id: 'terrain_foliage_coarse.png' }
       tipo_terreno: TT_FLORESTA
@@ -15887,7 +15886,6 @@ tabela_terrenos {
     nome: 'Floresta Intermediária'
     items_terreno { chance: 0.7 proto { modelo_3d { id: 'light_undergrowth' } elasticidade_vento: 0.5 } pula_proximo: true }
     items_terreno { chance: 0.2 proto { modelo_3d { id: 'heavy_undergrowth' } elasticidade_vento: 0.5 } }
-    # numero original é 0.5, mas fica muito denso.
     items_terreno { chance: 0.7 proto { modelo_3d { id: 'tree' } elasticidade_vento: 0.1 } pula_proximos: true }
     items_terreno { chance: 0.1 proto { modelo_3d { id: 'massive_tree' } elasticidade_vento: 0.1 escala { x: 1.2 y: 1.2 z: 2.0 } } }
     tabuleiro {
@@ -15901,12 +15899,36 @@ tabela_terrenos {
     nome: 'Floresta Densa'
     items_terreno { chance: 0.5 proto { modelo_3d { id: 'light_undergrowth' } elasticidade_vento: 0.5 } pula_proximo: true }
     items_terreno { chance: 0.5 proto { modelo_3d { id: 'heavy_undergrowth' } elasticidade_vento: 0.5 } }
-    # numero original é 0.5, mas fica muito denso.
     items_terreno { chance: 0.2 proto { modelo_3d { id: 'tree' } elasticidade_vento: 0.1 } pula_proximos: true }
     items_terreno { chance: 0.8 proto { modelo_3d { id: 'massive_tree' } elasticidade_vento: 0.1 escala { x: 1.2 y: 1.2 z: 2.0 } } }
     tabuleiro {
       info_textura_piso { id: 'terrain_foliage_coarse.png' }
       tipo_terreno: TT_FLORESTA
+    }
+  }
+  terrenos {
+    # https://www.d20srd.org/srd/wilderness.htm#plainsTerrain pg 87 livro do mestre.
+    id: 'planicie_pasto'
+    nome: 'Planície (Pasto)'
+    items_terreno { chance: 0.2 proto { modelo_3d { id: 'light_undergrowth' } elasticidade_vento: 0.5 } pula_proximo: true }
+    items_terreno { chance: 0.1 proto { modelo_3d { id: 'heavy_undergrowth' } elasticidade_vento: 0.5 } }
+    tabuleiro {
+      info_textura_piso { id: 'terrain_grass.png' }
+      tipo_terreno: TT_PLANICIE
+    }
+  }
+  terrenos {
+    # https://www.d20srd.org/srd/wilderness.htm#plainsTerrain pg 87 livro do mestre.
+    id: 'planicie_fazenda'
+    nome: 'Planície (Fazenda)'
+    items_terreno { chance: 0.005 vala { direcao: DIR_OESTE_LESTE tamanho_q: 5 } pula_proximos: true }
+    items_terreno { chance: 0.005 vala { direcao: DIR_SUL_NORTE tamanho_q: 5 } pula_proximos: true }
+    items_terreno { chance: 0.4 proto { modelo_3d { id: 'light_undergrowth' } elasticidade_vento: 0.5 } pula_proximo: true }
+    # TODO: vala
+    # homebrew: casa... plantacao.
+    tabuleiro {
+      info_textura_piso { id: 'terrain_grass.png' }
+      tipo_terreno: TT_PLANICIE
     }
   }
 }
