@@ -1162,7 +1162,7 @@ void InterfaceGrafica::TrataEscolherCenario(const ntf::Notificacao& notificacao)
   }
   tabuleiro_->DesativaWatchdogSeMestre();
   EscolheItemListaSemTipoTesouro(
-      "Escolha o cenário", /*rotulo_ok=*/std::nullopt, lista,
+      "Escolha o cenário", /*rotulo_ok=*/"Entrar", lista,
       [this, lista_ids](bool ok_decisao, int indice_decisao) {
     VoltaEscolherCenario(ok_decisao, (indice_decisao >= 0 && indice_decisao < static_cast<int>(lista_ids.size())) ? lista_ids[indice_decisao] : -1);
   });
