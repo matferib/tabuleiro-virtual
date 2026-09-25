@@ -967,6 +967,17 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       primeiro_y_ = y;
       break;
     }
+    case CONTROLE_ESCOLHER_CENARIO: {
+        auto n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ESCOLHER_CENARIO);
+        n->mutable_tabuleiro()->set_id_cenario(CENARIO_PRINCIPAL);
+        for (const auto& sub_cenario : proto_.sub_cenario()) {
+          auto* nsc = n->mutable_tabuleiro()->add_sub_cenario();
+          nsc->set_id_cenario(sub_cenario.id_cenario());
+          nsc->set_descricao_cenario(sub_cenario.descricao_cenario());
+        }
+        central_->AdicionaNotificacao(std::move(n));
+      break;
+    }
     default:
       if (id >= CONTROLE_JOGADORES) {
         // Isso acontece pela UI. O mestre aperta a tecla J, que mostra todos os jogadores como
