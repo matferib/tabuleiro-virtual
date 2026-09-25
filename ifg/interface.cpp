@@ -149,6 +149,9 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_ABRIR_DIALOGO_TERRENO_ALEATORIO:
       TrataAbrirDialogoTerrenoAleatorio(notificacao);
       return true;
+    case ntf::TN_ABRIR_DIALOGO_ESCOLHER_CENARIO:
+      TrataEscolherCenario(notificacao);
+      return true;
     default:
       break;
   }
@@ -1148,4 +1151,29 @@ void InterfaceGrafica::VoltaEscolherTipoTerreno(bool ok, int indice) {
   central_->AdicionaNotificacao(std::move(n));
 }
 
+void InterfaceGrafica::TrataEscolherCenario(const ntf::Notificacao& notificacao) {
+  std::vector<std::string> lista;
+  std::vector<int> lista_ids;
+  lista.push_back("PRINCIPAL");
+  lista_ids.push_back(CENARIO_PRINCIPAL);
+  for (const auto& sub_cenario : notificacao.tabuleiro().sub_cenario()) {
+    lista.push_back(absl::StrCat(sub_cenario.id_cenario(), ": ", sub_cenario.descricao_cenario()));
+    lista_ids.push_back(sub_cenario.id_cenario());
+  }
+  tabuleiro_->DesativaWatchdogSeMestre();
+  EscolheItemListaSemTipoTesouro(
+      "Escolha o cenário", /*rotulo_ok=*/std::nullopt, lista,
+      [this, lista_ids](bool ok_decisao, int indice_decisao) {
+    VoltaEscolherCenario(ok_decisao, (indice_decisao >= 0 && indice_decisao < static_cast<int>(lista_ids.size())) ? lista_ids[indice_decisao] : -1);
+  });
+}
+
+void InterfaceGrafica::VoltaEscolherCenario(bool ok, int id_cenario) {
+  ent::RodaNoRetorno r([this] () {
+    tabuleiro_->ReativaWatchdogSeMestre();
+  });
+  if (!ok) { return; }
+  if (!ok) { return; }
+  tabuleiro_->CarregaSubCenario(id_cenario, ent::Posicao::default_instance());
+}
 }  // namespace ifg
