@@ -342,12 +342,25 @@ message TabelaDominios {
 }
 
 message ItemTerreno {
+  message Vala {
+    enum Direcao {
+      DIR_OESTE_LESTE = 0;
+      DIR_SUL_NORTE = 1;
+    }
+    Direcao direcao = 1;
+    float tamanho_q = 2;
+  }
+
   float chance = 1;
-  EntidadeProto proto = 2;
+  oneof item {
+    EntidadeProto proto = 2;
+    // Cria uma vala no terreno, de tamanho metros.
+    Vala vala = 3;
+  }
   // Se verdadeiro e o item for sorteado, pula o proximo item da lista.
-  bool pula_proximo = 3;
+  bool pula_proximo = 4;
   // Se verdadeiro e o item for sorteado, pula todos os proximos itens.
-  bool pula_proximos = 4;
+  bool pula_proximos = 5;
 }
 
 message TemplateTerreno {
