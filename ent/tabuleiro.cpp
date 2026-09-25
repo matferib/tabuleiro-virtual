@@ -4817,6 +4817,59 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
   template_entidade.set_fixa(false);
   template_entidade.set_visivel(true);
 
+  std::unordered_map<int, std::unordered_map<int, bool>> quadrados_usados;
+
+  // Processa elementos de terreno primeiro, marcando quadrados usados.
+  ntf::Notificacao* n_relevo = nullptr;
+  for (int x = 0; x < TamanhoX(); ++x) {
+    for (int y = 0; y < TamanhoY(); ++y) {
+      VLOG(1) << "Itens de relevo para quadrado: " << x << ", " << y;
+      bool pula_proximo = false;
+      for (const auto& item : terreno.items_terreno()) {
+        if (pula_proximo) {
+          pula_proximo = true;
+          continue;
+        }
+        // Nao processa entidades aqui.
+        if (item.item_case() == ItemTerreno::kProto) continue;
+        const float aleatorio = Aleatorio();
+        if (aleatorio > item.chance()) continue;
+        switch (item.item_case()) {
+          case ItemTerreno::kVala: {
+            if (n_relevo == nullptr) {
+              n_relevo = grupo_notificacoes.add_notificacao();
+              n_relevo->set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+              auto* cenario_antes = n_relevo->mutable_tabuleiro_antes();
+              cenario_antes->set_id_cenario(proto_corrente_->id_cenario());
+              *cenario_antes->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+              n_relevo->mutable_tabuleiro()->set_id_cenario(proto_corrente_->id_cenario());
+            }
+            auto* cenario = n_relevo->mutable_tabuleiro();
+            VLOG(1) << "Gerando vala em " << x << "," << y << ": chance : " << item.chance() << ", tirei: " << aleatorio;
+            if (item.vala().direcao() == ItemTerreno_Vala_Direcao_DIR_OESTE_LESTE) {
+              for (int i = 0; i < item.vala().tamanho_q(); ++i) {
+                if (x + i >= TamanhoX() || quadrados_usados[x + i][y]) break;
+                quadrados_usados[x + i][y] = true;
+                TrataNivelamentoTerreno(x + i, y, -TAMANHO_LADO_QUADRADO, *cenario);
+              }
+            } else {
+              for (int i = 0; i < item.vala().tamanho_q(); ++i) {
+                if (y + i >= TamanhoY() || quadrados_usados[x][y + i]) break;
+                TrataNivelamentoTerreno(x, y + i, -TAMANHO_LADO_QUADRADO, *cenario);
+                quadrados_usados[x][y + i] = true;
+              }
+            }
+            break;
+          }
+          default:
+            LOG(ERROR) << "Tipo de item de relevo invalido: " << item.item_case();
+            break;
+        }
+      }
+    }
+  }
+  const int num_itens_relevo = grupo_notificacoes.notificacao_size();
+
   for (int x = 0; x < TamanhoX(); ++x) {
     for (int y = 0; y < TamanhoY(); ++y) {
       VLOG(1) << "Quadrado: " << x << ", " << y;
@@ -4828,6 +4881,9 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
           pula_proximo = true;
           continue;
         }
+        if (quadrados_usados[x][y]) continue;
+        // So processa entidades aqui.
+        if (item.item_case() != ItemTerreno::kProto) continue;
         const float aleatorio = Aleatorio();
         if (aleatorio <= item.chance()) {
           ntf::Notificacao* n_adicao = grupo_notificacoes.add_notificacao();
@@ -4863,7 +4919,7 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
       }
     }
   }
-  const int num_adicionado = grupo_notificacoes.notificacao_size();
+  const int num_adicionado = grupo_notificacoes.notificacao_size() - num_itens_relevo;
   LOG(INFO) << "Total de entidades geradas: "
             << num_adicionado << ", quadrados: " << (TamanhoX() * TamanhoY());
   if (terreno.has_tabuleiro()) {
@@ -4879,7 +4935,7 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando(const std::string& id) {
   {
     if (static_cast<int>(ids_adicionados_.size()) == num_adicionado) {
       for (int i = 0; i < num_adicionado; ++i) {
-        grupo_notificacoes.mutable_notificacao(i)->mutable_entidade()->set_id(ids_adicionados_[i]);
+        grupo_notificacoes.mutable_notificacao(i + num_itens_relevo)->mutable_entidade()->set_id(ids_adicionados_[i]);
       }
       AdicionaNotificacaoListaEventos(grupo_notificacoes);
     } else {
@@ -4961,6 +5017,20 @@ void Tabuleiro::TrataDeltaTerreno(float delta) {
   AdicionaNotificacaoListaEventos(n_desfazer);
 }
 
+void Tabuleiro::TrataNivelamentoTerreno(int x_quad, int y_quad, float z3d, TabuleiroProto& cenario) {
+  unsigned int id = IdQuadradoDeQuadrados(x_quad, y_quad);
+  if (id == static_cast<unsigned int>(-1)) {
+    LOG(INFO) << "TrataNivelamentoTerreno: id quadrado invalido";
+    return;
+  }
+  if (cenario.ponto_terreno_size() != ((TamanhoX() + 1) * (TamanhoY() + 1))) {
+    cenario.mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0.0f);
+  }
+  AtualizaAlturaQuadrado(
+      [z3d] (const RepeatedField<double>&, int) { return z3d; },
+      x_quad, y_quad, TamanhoX(), cenario.mutable_ponto_terreno());
+}
+
 void Tabuleiro::TrataNivelamentoTerreno(int x, int y) {
   parametros_desenho_.set_desenha_entidades(false);
   parametros_desenho_.set_offset_terreno(primeiro_z_3d_);
@@ -4980,15 +5050,10 @@ void Tabuleiro::TrataNivelamentoTerreno(int x, int y) {
     LOG(INFO) << "TrataNivelamentoTerreno: id quadrado invalido";
     return;
   }
-  if (proto_corrente_->ponto_terreno_size() != ((TamanhoX() + 1) * (TamanhoY() + 1))) {
-    proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0.0f);
-  }
   int quad_x = id % TamanhoX();
   int quad_y = id / TamanhoX();
   float pz3d = primeiro_z_3d_;
-  AtualizaAlturaQuadrado(
-      [pz3d] (const RepeatedField<double>&, int) { return pz3d; },
-      quad_x, quad_y, TamanhoX(), proto_corrente_->mutable_ponto_terreno());
+  TrataNivelamentoTerreno(quad_x, quad_y, pz3d, *proto_corrente_);
   RegeraVboTabuleiro();
 }
 
@@ -5928,7 +5993,11 @@ void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
   estado_ = ETAB_QUAD_PRESSIONADO;
 }
 
-unsigned int Tabuleiro::IdQuadrado(float x, float y) {
+unsigned int Tabuleiro::IdQuadradoDeQuadrados(int x_quad, int y_quad) const {
+  return y_quad * TamanhoX() + x_quad;
+}
+
+unsigned int Tabuleiro::IdQuadrado(float x, float y) const {
   float inicio_x = -(TamanhoX() * TAMANHO_LADO_QUADRADO) / 2.0f;
   float delta_x_float = x - inicio_x;
   int delta_x = delta_x_float / TAMANHO_LADO_QUADRADO;

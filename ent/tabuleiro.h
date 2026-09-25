@@ -1026,7 +1026,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna o x e y do quadrado. O quadrado SW eh (0,0), a sua direita (1,0), acima (0,1) e por ai vai. */
   void XYQuadrado(unsigned int id_quadrado, int *x, int* y);
   /** retorna o id do quadrado em determinada coordenada ou -1 se for posicao invalida. */
-  unsigned int IdQuadrado(float x, float y);
+  unsigned int IdQuadrado(float x, float y) const;
+  /** Id do quadrado usando x e y em quadrados. */
+  unsigned int IdQuadradoDeQuadrados(int x, int y) const;
 
   /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida.
   * @param nome um tabuleiro com nome pode ser salvo diretamente, sem dialogo de nome
@@ -1251,7 +1253,9 @@ class Tabuleiro : public ntf::Receptor {
   // Suavização: quanto maior, menos inclinado.
   void GeraMontanhaNotificando(float suavizacao = 1.0f);
   void TrataDeltaTerreno(float delta);
+  // x e y em quadrados.
   void TrataNivelamentoTerreno(int x, int y);
+  void TrataNivelamentoTerreno(int x, int y, float z3d, TabuleiroProto& cenario);
 
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }
