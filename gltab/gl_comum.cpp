@@ -150,6 +150,29 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
   std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
   gl::TamanhoPonto(escala);
+
+#if USAR_FREETYPE
+  gl::Escala(escala, escala, 1.0f);
+  std::vector<VboNaoGravado> vbos;
+  for (int linha = 0; linha < (int)str_linhas.size(); ++linha) {
+    const std::string& str_linha = str_linhas[linha];
+    float translacao_x = 0;
+    if (alinhamento == 1) {  // direita.
+      translacao_x = -static_cast<float>(str_linha.size() * largura_fonte);
+    } else if (alinhamento == 0) {  // central.
+      translacao_x = -static_cast<float>(str_linha.size() * largura_fonte) / 2.0f;
+    }
+    gl::Translada(translacao_x, 0.0f, 0.0f);
+    for (unsigned int i = 0; i < str_linha.size(); ++i) {
+      gl::AtualizaMatrizes();
+      DesenhaCaractere(str_linha[i]);
+      gl::Translada(largura_fonte, 0.0f, 0.0f);
+    }
+    gl::Translada(-static_cast<float>(str_linha.size() * largura_fonte) - translacao_x,
+                  inverte_vertical ? altura_fonte : -altura_fonte,
+                  0.0f);
+  }
+#else  // sem freetype
   std::vector<VboNaoGravado> vbos;
   for (int linha = 0; linha < (int)str_linhas.size(); ++linha) {
     const std::string& str_linha = str_linhas[linha];
@@ -169,6 +192,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   }
   VbosNaoGravados vbos_ng(std::move(vbos));
   vbos_ng.Desenha(GL_POINTS);
+#endif  // else do USAR_FREETYPE
 }
 
 bool ImprimeSeShaderErro(GLuint shader) {
