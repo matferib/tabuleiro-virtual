@@ -5368,6 +5368,12 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
           parametros_desenho_.has_desenha_mapa_oclusao() ||
           parametros_desenho_.has_desenha_mapa_luzes()) &&
         (VisaoMestre() || entidade->SelecionavelParaJogador()));
+    parametros_desenho_.set_desenha_alcance_acao(
+        opcoes_.desenha_raio_acao_corrente() &&
+        parametros_desenho_.entidade_selecionada() &&
+        entidade->Id() == id_entidade_detalhada_ &&
+        modo_clique_ == MODO_ACAO);
+    //LOG(INFO) << "desenha_alcance_acao: " << parametros_desenho_.desenha_alcance_acao() << " id " << entidade->Id();
     //LOG(INFO) << "Desenhando: " << entidade->Id();
     f(entidade, &parametros_desenho_);
   }
@@ -7822,6 +7828,40 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   parametros_desenho_ = salva_pd;
 }
 
+Posicao Tabuleiro::CalculaPosicaoReferenciaNevoa() const {
+  auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
+  const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
+  gl::Habilita(GL_FOG);
+  Posicao pos = olho_.alvo();
+  if (entidade_referencia == nullptr) {
+    entidade_referencia = EntidadeSelecionada();
+  }
+  if (entidade_referencia != nullptr) {
+    return entidade_referencia->Pos();
+  } else if (const auto entidades = EntidadesSelecionadas(); !entidades.empty()) {
+    Vector3 pos_media;
+    for (const auto& entidade : entidades) {
+      pos_media += PosParaVector3(entidade->Pos());
+    }
+    pos_media /= entidades.size();
+    return Vector3ParaPosicao(pos_media);
+  } else if (!EmModoMestreIncluindoSecundario()) {
+    // Busca as entidades selecionaveis do cenario.
+    int n = 0;
+    Vector3 pos_media;
+    for (const auto& [id, entidade] : TodasEntidades()) {
+      if (entidade->IdCenario() != IdCenario() || !entidade->SelecionavelParaJogador()) continue;
+      pos_media += PosParaVector3(entidade->Pos());
+      ++n;
+    }
+    if (n > 0) {
+      pos_media /= n;
+      return Vector3ParaPosicao(pos_media);
+    }
+  }
+  return pos;
+}
+
 void Tabuleiro::DesenhaLuzes() {
   // Entidade de referencia para camera presa.
   parametros_desenho_.clear_nevoa();
@@ -7887,19 +7927,14 @@ void Tabuleiro::DesenhaLuzes() {
   if (UsaNevoa()) {
     const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
     gl::Habilita(GL_FOG);
-    float pos[4] = { olho_.alvo().x(), olho_.alvo().y(), olho_.alvo().z(), 1 };
-    if (entidade_referencia != nullptr) {
-      const Posicao& epos = entidade_referencia->Pos();
-      pos[0] = epos.x();
-      pos[1] = epos.y();
-      pos[2] = epos.z();
-    }
+    Posicao pos_referencia = CalculaPosicaoReferenciaNevoa();
     float cor_nevoa[3] = { cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2] };
     if (cenario_nevoa.nevoa().has_cor()) {
       cor_nevoa[0] = cenario_nevoa.nevoa().cor().r();
       cor_nevoa[1] = cenario_nevoa.nevoa().cor().g();
       cor_nevoa[2] = cenario_nevoa.nevoa().cor().b();
     }
+    float pos[] = {pos_referencia.x(), pos_referencia.y(), pos_referencia.z()};
     ConfiguraNevoa(cenario_nevoa.nevoa().minimo(), cenario_nevoa.nevoa().maximo(),
                    cor_nevoa[0], cor_nevoa[1], cor_nevoa[2], pos, &parametros_desenho_);
   } else {

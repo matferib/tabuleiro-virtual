@@ -1331,6 +1331,11 @@ class Tabuleiro : public ntf::Receptor {
   MapaEntidades entidades_;
 
  private:
+  // Encontra a posição de referencia que sera usada para a nevoa.
+  // Tenta: entidade ancorada, entidade selecionada, media das entidades selecionadas e,
+  // se não for mestre, media das entidades selecionaveis do cenario.
+  // Para o mestre, não tem essa ultima e usa posicao do olho da camera mesmo.
+  Posicao CalculaPosicaoReferenciaNevoa() const;
   void ParaTimersPorEntidade();
   void DisparaTimerEntidadeCorrente();
 
