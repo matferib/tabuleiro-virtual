@@ -22,7 +22,7 @@ message Olho {
 }
 
 // Opcoes pessoais.
-// Next id: 35
+// Next id: 36
 message OpcoesProto {
   bool mostra_fps = 1 [default=false];
   bool texturas_sempre_de_frente = 2 [default=true];
@@ -72,6 +72,7 @@ message OpcoesProto {
   bool usar_gestos_nativos = 31;
   // Quanto o personagem com visao na penumbra ve mais.
   float multiplicador_penumbra = 32 [default=1.1];
+  bool desenha_raio_acao_corrente = 35 [default=true];
 }
 
 // Mensagem enviada para os clientes de um jogo.

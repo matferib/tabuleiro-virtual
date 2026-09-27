@@ -1277,7 +1277,7 @@ message ParametrosDesenho {
   bool desenha_clima = 69;
 
   // Desenha um circulo de alcance da ação corrente da entidade.
-  bool desenha_alcance_acao = 72 [default=true];
+  bool desenha_alcance_acao = 72;
 }
 
 enum TipoVeneno {
