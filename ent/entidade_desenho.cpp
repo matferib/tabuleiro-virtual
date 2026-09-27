@@ -84,6 +84,18 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
   if (desenhar_objeto || (proto_.visivel() && proto_.cor().a() == 1.0f)) {
     DesenhaEfeitos(pd);
   }
+  // Arco de alcance.
+  if (pd->desenha_alcance_acao()) {
+    const float alcance_m = std::max(MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO, AlcanceAtaqueMetros() * 2.0f);
+    gl::MatrizEscopo salva_matriz;
+    MontaMatriz(false  /*queda*/, /*acrobacia=*/false, true  /*z*/, proto_, vd_, pd);
+    gl::MudaCor(COR_AMARELA[0], COR_AMARELA[1], COR_AMARELA[2], 0.2f);
+    const auto posicao_acao = PosicaoAcaoSemTransformacoes();
+    gl::Translada(0.0f, 0.0f, posicao_acao.z());
+    gl::Escala(alcance_m, alcance_m, alcance_m);
+    gl::DiscoUnitario();
+  }
+
   if (desenhar_objeto) {
     DesenhaObjetoComDecoracoes(pd);
   }
@@ -682,6 +694,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   if (!proto_.visivel() && !pd->modo_mestre()) {
     return;
   }
+
   if (!pd->desenha_aura() || proto_.aura_m() == 0 ||
       (proto_.aura_mestre_apenas() && !pd->modo_mestre())) {
     return;
