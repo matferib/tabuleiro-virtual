@@ -1,8 +1,3 @@
-Cenarios prontos para serem carregados em transição.
-
-- Casa pobre
-- Casa rica
-
 Implementar UI de efeitos que preenche complementos de acordo com tipo (por exemplo, uma poção que afeta uma arma, como arma mágica).
 
 Presets de luz/hora/clima/skybox.
