@@ -6700,6 +6700,7 @@ const Entidade* Tabuleiro::BuscaEntidade(unsigned int id) const {
   return (it != entidades_.end()) ? it->second.get() : nullptr;
 }
 
+#if USAR_QT
 namespace {
 
 EntidadeProto FormificaSubForma(const EntidadeProto& psf) {
@@ -6732,7 +6733,6 @@ EntidadeProto FormificaSubForma(const EntidadeProto& psf) {
   return sf;
 }
 
-#if USAR_QT
 // Copia apenas os campos de forma da entidade. Util para exportar modelos para formas.
 EntidadeProto FormificaEntidade(const EntidadeProto& proto) {
   EntidadeProto formificada;
@@ -6742,9 +6742,9 @@ EntidadeProto FormificaEntidade(const EntidadeProto& proto) {
   }
   return formificada;
 }
-#endif
 
 }  // namespace
+#endif
 
 void Tabuleiro::CopiaEntidadesSelecionadas(bool apenas_formas) {
 #if USAR_QT
