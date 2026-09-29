@@ -128,7 +128,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
   if (mundo) {
     vbos.Multiplica(MontaMatrizModelagemForma(true, true, proto, vd, pd, true));
   }
-  return std::move(vbos);
+  return vbos;
 }
 
 bool TipoForma2d(TipoForma tipo) {
