@@ -9,5 +9,5 @@ lldb ./bazel-bin/tabvirt -- $@
 elif [ "$1" == "perf" ]; then
 perf stat -d ./tabvirt -- $@
 else
-__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ./bazel-bin/tabvirt --stderrthreshold=0 $@
+QT_WAYLAND_DISABLE_WINDOWDECORATION=1 __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ./bazel-bin/tabvirt --stderrthreshold=0 $@
 fi
