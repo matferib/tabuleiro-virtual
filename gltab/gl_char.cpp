@@ -590,9 +590,9 @@ std::vector<unsigned char> ParaRgba(const GLubyte *input, int tam_x, int tam_y) 
 
 namespace interno {
 void IniciaChar() {
-  //float tam_y = 13.0f;
 #if !VERSAO_PONTOS
   float tam_x = 8.0f;
+  float tam_y = 13.0f;
 
   float x_sobre_y = tam_x / tam_y;
   const unsigned short indices[] = { 0, 1, 2, 3, 4, 5 };
@@ -701,6 +701,7 @@ void IniciaChar() {
     }
 
     // Versao textura
+    auto& face = g_face_infos[c];
     gl::GeraTexturas(1, &face.textura);
     gl::LigacaoComTextura(GL_TEXTURE_2D, face.textura);
     gl::HabilitaMipmapAniso(GL_TEXTURE_2D);
@@ -748,7 +749,7 @@ void DesenhaCaractere(char character) {
   gl::LigacaoComTextura(GL_TEXTURE_2D, face.textura);
   //auto* c = interno::BuscaContexto();
   //gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
-  gl::DesenhaVbo(g_vbot);
+  gl::DesenhaVboNaoGravado(g_vbot);
   //gl::Retangulo(g_vbot);
   //gl::Retangulo(100, 100, 500, 500);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
