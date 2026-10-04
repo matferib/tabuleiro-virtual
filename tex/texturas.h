@@ -2,6 +2,7 @@
 #define TEX_TEXTURAS_H
 
 #include <unordered_map>
+#include <utility>
 #include "arq/arquivo.h"
 #include "ent/entidade.h"
 #include "ntf/notificacao.h"
@@ -22,6 +23,7 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   /** Retorna uma textura. */
   unsigned int Textura(const std::string& id) const override;
   unsigned int TipoTextura(const std::string& id) const override;
+  std::pair<unsigned int, unsigned int> LarguraAlturaTextura(const std::string& id) const override;
 
   /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo).
   * @param rele tambem realiza a releitura dos bits crus, decodificando-os.

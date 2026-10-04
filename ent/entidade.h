@@ -31,6 +31,8 @@ class Texturas {
   virtual unsigned int Textura(const std::string& id) const = 0;
   /** Retorna o tipo da textura: GL_TEXTURE_2D ou GL_TEXTURE_CUBE_MAP. */
   virtual unsigned int TipoTextura(const std::string& id) const = 0;
+  /** Retorna as dimensoes da textura em pixels (xy). */
+  virtual std::pair<unsigned int, unsigned int> LarguraAlturaTextura(const std::string& id) const = 0;
 };
 
 enum class AplicaAlfaTranslucidos {

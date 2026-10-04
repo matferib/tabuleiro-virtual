@@ -185,6 +185,8 @@ class Texturas::InfoTexturaInterna {
   // Retorna o tipo de textura.
   GLenum Tipo() const { return imagem_.textura_cubo() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D; }
 
+  std::pair<unsigned int, unsigned int> LarguraAltura() const { return {largura_, altura_}; }
+
   // Incremento e decremento de contador de refencia.
   int Ref() { return ++contador_; }
   int Deref() { return --contador_; }
@@ -492,6 +494,13 @@ unsigned int Texturas::TipoTextura(const std::string& id) const {
   return info_interna->Tipo();
 }
 
+std::pair<unsigned int, unsigned int> Texturas::LarguraAlturaTextura(const std::string& id) const {
+  const InfoTexturaInterna* info_interna = InfoInterna(id);
+  if (info_interna == nullptr) {
+    return {0, 0};
+  }
+  return info_interna->LarguraAltura();
+}
 // Fim da interface ent::Texturas.
 
 void Texturas::Recarrega(bool rele) {
