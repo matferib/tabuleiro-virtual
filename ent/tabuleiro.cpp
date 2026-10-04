@@ -4156,7 +4156,7 @@ void Tabuleiro::DesenhaCena(bool debug) {
       ys *= f;
     }
     m.scale(xs, ys, 1.0f);
-    m.translate(largura_ / 2, altura_ / 2, 0.0f);
+    m.translate(largura_ / 2.0f, altura_ / 2.0f, 0.0f);
 
     gl::MultiplicaMatriz(m.get());
     gl::AtualizaMatrizes();
@@ -7840,7 +7840,6 @@ void Tabuleiro::AtualizaLuzesPontuais() {
 
 Posicao Tabuleiro::CalculaPosicaoReferenciaNevoa() const {
   auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
-  const auto& cenario_nevoa = CenarioNevoa(*proto_corrente_);
   gl::Habilita(GL_FOG);
   Posicao pos = olho_.alvo();
   if (entidade_referencia == nullptr) {
