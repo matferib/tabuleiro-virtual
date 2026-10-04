@@ -4139,13 +4139,23 @@ void Tabuleiro::DesenhaCena(bool debug) {
   gl::CarregaIdentidade();
 
   if (parametros_desenho_.has_desenha_imagem()) {
+    const auto& [largura, altura] = texturas_->LarguraAlturaTextura(parametros_desenho_.desenha_imagem().id());
+    float proporcao_xy = altura == 0.0f ? 1.0f : static_cast<float>(largura) / altura;
     unsigned int id_textura = texturas_->Textura(parametros_desenho_.desenha_imagem().id());
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     gl::MatrizEscopo salva;
     Matrix4 m;
     float menor = std::min(largura_, altura_);
-    m.scale(menor, menor, 1.0f);
+    float xs = menor * proporcao_xy, ys = menor;
+    if (xs > largura_ || ys > altura_) {
+      float fx = largura_ / xs;
+      float fy = altura_ / ys;
+      float f = std::min(fx, fy);
+      xs *= f;
+      ys *= f;
+    }
+    m.scale(xs, ys, 1.0f);
     m.translate(largura_ / 2, altura_ / 2, 0.0f);
 
     gl::MultiplicaMatriz(m.get());
