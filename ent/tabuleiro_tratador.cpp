@@ -3131,7 +3131,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, bool forc
 
   if (grupo_notificacoes.notificacao_size() > 0) {
     TrataNotificacao(grupo_notificacoes);
-    if (int i = 0; !ids_adicionados_.empty()) {
+    if (unsigned int i = 0; !ids_adicionados_.empty()) {
       // Preenche os ids adicionados.
       for (auto& n : *grupo_notificacoes.mutable_notificacao()) {
         if (n.tipo() == ntf::TN_ADICIONAR_ENTIDADE) {
@@ -3519,6 +3519,21 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
     FinalizaEstadoCorrente();
     estado_anterior_ = ETAB_OCIOSO;
     estado_ = ETAB_ROTACAO;
+  } else if (EmModoMostrarImagem()) {
+    // Sem entidade selecionada, realiza sinalizacao.
+    ntf::Notificacao n;
+    auto* acao_proto = n.mutable_acao();
+    acao_proto->set_tipo(ACAO_SINALIZACAO);
+    acao_proto->mutable_pos_tabuleiro()->set_x(static_cast<float>(x) / largura_);
+    acao_proto->mutable_pos_tabuleiro()->set_y(static_cast<float>(y) / altura_);
+    // Para ficar sobre o desenho, que fica no plano 0.
+    acao_proto->mutable_pos_tabuleiro()->set_z(0.1f);
+    // Para mostrar so na tela de imagem.
+    acao_proto->mutable_pos_tabuleiro()->set_id_cenario(CENARIO_INVALIDO);
+    acao_proto->mutable_escala()->set_x(100.0f);
+    acao_proto->mutable_escala()->set_y(100.0f);
+    n.set_tipo(ntf::TN_ADICIONAR_ACAO);
+    TrataNotificacao(n);
   } else {
     estado_anterior_ = estado_;
     estado_ = ETAB_ROTACAO;

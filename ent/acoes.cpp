@@ -116,9 +116,12 @@ class AcaoSinalizacao : public Acao {
 
     const Posicao& pos = acao_proto_.pos_tabuleiro();
     {
+      const auto& [largura, altura] = tabuleiro_->LarguraAlturaViewport();
+      float ajuste_x = pos.id_cenario() == CENARIO_INVALIDO ? largura : 1.0f;
+      float ajuste_y = pos.id_cenario() == CENARIO_INVALIDO ? altura : 1.0f;
       gl::MatrizEscopo salva_matriz;
-      gl::Translada(pos.x(), pos.y(), pos.z());
-      gl::Escala(estado_, estado_, 0.0f);
+      gl::Translada(pos.x() * ajuste_x, pos.y() * ajuste_y, pos.z());
+      gl::Escala(estado_ * acao_proto_.escala().x(), estado_ * acao_proto_.escala().y(), 1.0f);
       gl::DesenhaVboGravado(vbo_);
     }
   }

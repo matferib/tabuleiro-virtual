@@ -822,8 +822,10 @@ class Tabuleiro : public ntf::Receptor {
   // Coleta os VBOs extraidos.
   void ColetaVbosEntidades();
 
-  /** Desenha as acoes do tabuleiro (como misseis magicos). */
-  void DesenhaAcoes();
+  /** Desenha as acoes do tabuleiro (como misseis magicos).
+  * Caso o filtro de rejeição retorne true, ação não sera desenhada.
+  */
+  void DesenhaAcoes(std::function<bool(const Acao&)> filtro_rejeicao);
   void DesenhaAcoesTranslucidas();
 
   void DesenhaAuras();

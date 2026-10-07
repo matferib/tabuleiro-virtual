@@ -983,16 +983,18 @@ void Tabuleiro::DesenhaModoMostrarImagem() {
   parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.set_desenha_entidades(false);
   parametros_desenho_.set_desenha_terreno(false);
+  parametros_desenho_.set_desenha_acoes(true);
+  parametros_desenho_.mutable_pos_olho()->set_id_cenario(CENARIO_INVALIDO);  // para o desenho de sinalizacao.
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
   parametros_desenho_.mutable_desenha_imagem()->CopyFrom(imagens_mostradas_[indice_imagem_mostrada_]);
   parametros_desenho_.set_desenha_texturas(true);  // para o desenho do screenshot.
 
   gl::UsaShader(gl::TSH_SIMPLES);
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
-  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::MatrizEscopo salva_matriz_projecao(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
-  ConfiguraProjecao();
-
+  gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
+  gl::AtualizaMatrizProjecao();
   DesenhaCena();
 }
 
@@ -3969,7 +3971,14 @@ void Tabuleiro::DesenhaCena(bool debug) {
   V_ERRO("desenhando elos de agarrar");
 
   if (parametros_desenho_.desenha_acoes()) {
-    DesenhaAcoes();
+    const bool desenha_imagem = parametros_desenho_.has_desenha_imagem();
+    DesenhaAcoes(/*funcao_rejeicao=*/
+        [this, desenha_imagem](const Acao& acao) -> bool { return
+             desenha_imagem
+             ? acao.Proto().tipo() != ACAO_SINALIZACAO
+             : acao.IdCenario() != IdCenario();
+        }
+    );
   }
   V_ERRO("desenhando acoes");
 
@@ -4118,7 +4127,6 @@ void Tabuleiro::DesenhaCena(bool debug) {
   gl::Desabilita(GL_FOG);
   gl::UsaShader(gl::TSH_SIMPLES);
 
-  gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
   gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
   gl::MudaCor(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -4139,31 +4147,36 @@ void Tabuleiro::DesenhaCena(bool debug) {
   gl::CarregaIdentidade();
 
   if (parametros_desenho_.has_desenha_imagem()) {
-    const auto& [largura, altura] = texturas_->LarguraAlturaTextura(parametros_desenho_.desenha_imagem().id());
-    float proporcao_xy = altura == 0.0f ? 1.0f : static_cast<float>(largura) / altura;
-    unsigned int id_textura = texturas_->Textura(parametros_desenho_.desenha_imagem().id());
-    gl::Habilita(GL_TEXTURE_2D);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-    gl::MatrizEscopo salva;
-    Matrix4 m;
-    float menor = std::min(largura_, altura_);
-    float xs = menor * proporcao_xy, ys = menor;
-    if (xs > largura_ || ys > altura_) {
-      float fx = largura_ / xs;
-      float fy = altura_ / ys;
-      float f = std::min(fx, fy);
-      xs *= f;
-      ys *= f;
-    }
-    m.scale(xs, ys, 1.0f);
-    m.translate(largura_ / 2.0f, altura_ / 2.0f, 0.0f);
+    {
+      const auto& [largura, altura] = texturas_->LarguraAlturaTextura(parametros_desenho_.desenha_imagem().id());
+      float proporcao_xy = altura == 0.0f ? 1.0f : static_cast<float>(largura) / altura;
+      unsigned int id_textura = texturas_->Textura(parametros_desenho_.desenha_imagem().id());
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      gl::MatrizEscopo salva;
+      Matrix4 m;
+      float menor = std::min(largura_, altura_);
+      float xs = menor * proporcao_xy, ys = menor;
+      if (xs > largura_ || ys > altura_) {
+        float fx = largura_ / xs;
+        float fy = altura_ / ys;
+        float f = std::min(fx, fy);
+        xs *= f;
+        ys *= f;
+      }
+      m.scale(xs, ys, 1.0f);
+      m.translate(largura_ / 2.0f, altura_ / 2.0f, 0.0f);
 
-    gl::MultiplicaMatriz(m.get());
-    gl::AtualizaMatrizes();
-    gl::RetanguloUnitario();
-    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-    gl::Desabilita(GL_TEXTURE_2D);
+      gl::MultiplicaMatriz(m.get());
+      gl::AtualizaMatrizes();
+      gl::RetanguloUnitario();
+      gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+      gl::Desabilita(GL_TEXTURE_2D);
+    }
   }
+
+  // Daqui para baixo, desenho sem teste de profundidade (na ordem que escrever, acontece).
+  gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
@@ -5422,10 +5435,10 @@ void Tabuleiro::DesenhaAuras() {
   }
 }
 
-void Tabuleiro::DesenhaAcoes() {
+void Tabuleiro::DesenhaAcoes(std::function<bool(const Acao&)> filtro_rejeicao) {
   for (auto& a : acoes_) {
     VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
-    if (a->IdCenario() != IdCenario()) {
+    if (filtro_rejeicao(*a)) {
       continue;
     }
     a->Desenha(&parametros_desenho_);
