@@ -25,7 +25,7 @@ QT_LIBRARIES = [
     cc_library(
         name = "qt6_%s_linux" % name,
         # When being on Windows this glob will be empty
-        hdrs = glob(["%s/**" % include_folder], allow_empty = True),
+        hdrs = glob(["include/%s/**" % include_folder], allow_empty = True),
         includes = ["include"],
         linkopts = ["-l%s" % library_name],
         deps = [":qt6_%s_linux_import" % name],
