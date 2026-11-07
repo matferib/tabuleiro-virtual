@@ -5,6 +5,7 @@
 //#include "ent/constantes.h"
 //#define VLOG_NIVEL 1
 #include "absl/strings/str_format.h"
+#include "absl/strings/str_replace.h"
 #include "arq/arquivo.h"
 #include "log/log.h"
 #include "net/httplib.h"
@@ -15,6 +16,18 @@
 
 namespace net {
 namespace {
+
+std::string JsonEscape(absl::string_view input) {
+  return absl::StrReplaceAll(input, {
+      {"\\", "\\\\"}, // Obrigatoriamente o primeiro
+      {"\"", "\\\""},
+      {"\n", "\\n"},
+      {"\r", "\\r"},
+      {"\t", "\\t"},
+      {"\b", "\\b"},
+      {"\f", "\\f"}
+  });
+}
 
 void IniciaServidorHTTP() {
   httplib::Server svr;
@@ -31,6 +44,24 @@ void IniciaServidorHTTP() {
     std::string dados;
     try {
       arq::LeArquivo(arq::TIPO_HTML, "tudo.js", &dados);
+      dados = absl::StrReplaceAll(dados, {
+        {"${NOME}", JsonEscape("Nome de Teste")},
+        {"${RACA}", JsonEscape("humano")},
+        {"${TAMANHO}", JsonEscape("medio")},
+        {"${ALINHAMENTO}", JsonEscape("CN")},
+        {"${CLASSES}", JsonEscape("{ classe: 'paladino', nivel: 3 }")},
+        {"${PONTOS_VIDA}", JsonEscape("22")},
+        {"${FERIMENTOS}", JsonEscape("3")},
+        {"${FORCA}", JsonEscape("18")},
+        {"${DESTREZA}", JsonEscape("17")},
+        {"${CONSTITUICAO}", JsonEscape("16")},
+        {"${INTELIGENCIA}", JsonEscape("15")},
+        {"${SABEDORIA}", JsonEscape("14")},
+        {"${CARISMA}", JsonEscape("13")},
+        {"${PECAS_OURO}", JsonEscape("1234")},
+      });
+      // TODO escapar os inputs para javascript.
+
     } catch (...) {
     }
     res.set_content(dados, "text/javascript");
