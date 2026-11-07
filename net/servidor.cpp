@@ -4,6 +4,7 @@
 
 //#include "ent/constantes.h"
 //#define VLOG_NIVEL 1
+#include "absl/strings/match.h"
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_replace.h"
 #include "arq/arquivo.h"
@@ -29,23 +30,58 @@ std::string JsonEscape(absl::string_view input) {
   });
 }
 
+std::string SanitizeAndEscapeSrc(absl::string_view input_url) {
+  // Permite caminhos relativos ou apenas protocolos HTTP/HTTPS
+  bool is_safe_protocol = absl::StartsWithIgnoreCase(input_url, "http://") ||
+                          absl::StartsWithIgnoreCase(input_url, "https://") ||
+                          absl::StartsWith(input_url, "/") ||
+                          absl::StartsWith(input_url, "./");
+
+  if (!is_safe_protocol) {
+    // Retorna uma imagem/página em branco segura se o protocolo for malicioso
+    return "about:blank";
+  }
+
+  // 2. Faz o escape de atributos HTML para não fechar as aspas prematuramente
+  return absl::StrReplaceAll(input_url, {
+      {"&", "&amp;"},
+      {"\"", "&quot;"},
+      {"'", "&#39;"},
+      {"<", "&lt;"},
+      {">", "&gt;"}
+  });
+}
+
+std::string HtmlEscape(absl::string_view input) {
+  return absl::StrReplaceAll(input, {
+    {"&", "&amp;"},
+    {"<", "&lt;"},
+    {">", "&gt;"},
+    {"\"", "&quot;"},
+    {"'", "&#39;"}
+  });
+}
+
 void IniciaServidorHTTP() {
   httplib::Server svr;
   // Endpoint para exportar os dados do tabuleiro
   svr.Get("/planilha", [](const httplib::Request& req, httplib::Response& res) {
+    std::string nome = req.get_param_value("nome");
     std::string dados("<HTML>ERROR</HTML>");
     try {
       arq::LeArquivo(arq::TIPO_HTML, "planilha.html", &dados);
+      dados = absl::StrReplaceAll(dados, {{"${NOME}", SanitizeAndEscapeSrc(nome)}});
     } catch (...) {
     }
     res.set_content(dados, "text/html");
   });
   svr.Get("/tudo.js", [](const httplib::Request& req, httplib::Response& res) {
+    std::string nome = req.get_param_value("nome");
     std::string dados;
     try {
       arq::LeArquivo(arq::TIPO_HTML, "tudo.js", &dados);
       dados = absl::StrReplaceAll(dados, {
-        {"${NOME}", JsonEscape("Nome de Teste")},
+        {"${NOME}", JsonEscape(nome)},
         {"${RACA}", JsonEscape("humano")},
         {"${TAMANHO}", JsonEscape("medio")},
         {"${ALINHAMENTO}", JsonEscape("CN")},
