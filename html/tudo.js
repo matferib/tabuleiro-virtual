@@ -12020,41 +12020,42 @@ var gEntradas = {
   modo_mestre: '',
   modo_visao: 'completo',
   // geral
-  nome: '',
-  raca: 'humano',
+  nome: '${NOME}',
+  raca: '${RACA}',
   template: '',
-  tamanho: 'medio',  // É possivel ter tamanhos fora do padrao através de magias.
-  alinhamento: 'LB',
+  tamanho: '${TAMANHO}',  // É possivel ter tamanhos fora do padrao através de magias.
+  alinhamento: '${ALINHAMENTO}',
   divindade: '',
   // Cada entrada possui classe e nivel.
-  classes: [ { classe: 'guerreiro', nivel: 1 } ],
+  //classes: [ { classe: '${CLASSE}', nivel: ${NIVEL} } ],
+  classes: [ ${CLASSES} ],
   dominios: [],
   // Familiar nao tem base de PV porque depende do PV do personagem.
   familiar: { em_uso: false, chave: '', temporarios: 0, ferimentos: 0, ferimentos_nao_letais: 0 },
   canimal: { raca: '', base: 0, temporarios: 0, ferimentos: 0, ferimentos_nao_letais: 0, notas: '' },
   niveis_negativos: 0,
   // pontos de vida.
-  pontos_vida: 0,
+  pontos_vida: ${PONTOS_VIDA},
   pontos_vida_temporarios: 0,
-  ferimentos: 0,  // Valor deve ser >=  0.
+  ferimentos: ${FERIMENTOS},  // Valor deve ser >=  0.
   ferimentos_nao_letais: 0,  // Valor deve ser >= 0.
   // experiencia.
   experiencia: 0,
   // atributos.
   bonus_atributos: [],
-  forca: 10,
-  destreza: 10,
-  constituicao: 10,
-  inteligencia: 10,
-  sabedoria: 10,
-  carisma: 10,
+  forca: ${FORCA},
+  destreza: ${DESTREZA},
+  constituicao: ${CONSTITUICAO},
+  inteligencia: ${INTELIGENCIA},
+  sabedoria: ${SABEDORIA},
+  carisma: ${CARISMA},
   // Cada entrada: { nome, arma_primaria, arma_secundaria}.
   estilos_luta: [],
   // Cada entrada: chave: [ true/false, ... ]
   habilidades_especiais: {},
   // moedas
   platina: 0,
-  ouro: 0,
+  ouro: ${PECAS_OURO},
   prata: 0,
   cobre: 0,
   // equipamentos.
