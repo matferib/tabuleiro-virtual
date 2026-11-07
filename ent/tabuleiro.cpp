@@ -2376,6 +2376,16 @@ ntf::Notificacao Tabuleiro::ArrumaIdsEntidadesAdicionadas() const {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_REQUISITAR_PLANILHA_PERSONAGEM: {
+      for (const auto& [id, entidade] : entidades_) {
+        if (!entidade->SelecionavelParaJogador()) continue;
+        if (entidade->Proto().rotulo() != notificacao.str_generica()) continue;
+        auto n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_PLANILHA_PERSONAGEM);
+        n->set_str_generica(entidade->ExportaJson());
+        central_->AdicionaNotificacao(std::move(n));
+      }
+      break;
+    }
     case ntf::TN_REQUISITAR_LOG_EVENTOS: {
       // Cliente recebendo recebendo requisicao de log.
       std::string log_str;
