@@ -448,6 +448,9 @@ class Entidade {
 
   std::vector<unsigned int> Times() const { return std::vector<unsigned int>(proto_.times().begin(), proto_.times().end()); }
 
+  // Exporta o JSON do personagem (para renderizar planilha).
+  std::string ExportaJson() const;
+
   // Retorna true se a forma for 3d (exemplo: cubo é true, quadrado é false).
   static bool EhForma3d(const EntidadeProto& forma);
 

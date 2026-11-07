@@ -1,9 +1,11 @@
 #include "ent/entidade.h"
+
 #include <algorithm>
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
 #include "absl/strings/str_format.h"
+#include "absl/strings/str_replace.h"
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/tabelas.h"
@@ -3159,6 +3161,31 @@ int Entidade::NumMatrizesVbosAtualizadas() {
   int n = g_matrizes_vbos_atualizadas;
   g_matrizes_vbos_atualizadas = 0;
   return n;
+}
+
+std::string Entidade::ExportaJson() const {
+  std::string json_personagem;
+  try {
+    arq::LeArquivo(arq::TIPO_HTML, "json_personagem.js", &json_personagem);
+    json_personagem = absl::StrReplaceAll(json_personagem, {
+        {"${NOME}", JsonEscape(proto_.rotulo())},
+        {"${RACA}", JsonEscape(proto_.raca())},
+        {"${TAMANHO}", JsonEscape("medio")},
+        {"${ALINHAMENTO}", JsonEscape("CN")},
+        {"${CLASSES}", JsonEscape("{ classe: 'paladino', nivel: 3 }")},
+        {"${PONTOS_VIDA}", JsonEscape(absl::StrCat(MaximoPontosVida()))},
+        {"${FERIMENTOS}", JsonEscape(absl::StrCat(MaximoPontosVida() - PontosVida()))},
+        {"${FORCA}", JsonEscape(absl::StrCat(BonusTotal(proto_.atributos().forca())))},
+        {"${DESTREZA}", JsonEscape("17")},
+        {"${CONSTITUICAO}", JsonEscape("16")},
+        {"${INTELIGENCIA}", JsonEscape("15")},
+        {"${SABEDORIA}", JsonEscape("14")},
+        {"${CARISMA}", JsonEscape("13")},
+        {"${PECAS_OURO}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().po()))},
+    });
+  } catch (...) {
+  }
+  return json_personagem;
 }
 
 }  // namespace ent
