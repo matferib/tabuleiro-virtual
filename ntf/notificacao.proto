@@ -9,7 +9,7 @@ import "ent/tabuleiro.proto";
 package ntf;
 option java_package = "com.matferib.Tabuleiro.ntf";
 
-// Proximo: 88.
+// Proximo: 90.
 enum Tipo {
   TN_INVALIDO = 0;
   TN_SAIR = 1;
@@ -103,6 +103,9 @@ enum Tipo {
   TN_ABRIR_DIALOGO_TERRENO_ALEATORIO = 86;
   // Dialogo para escolher um cenario.
   TN_ABRIR_DIALOGO_ESCOLHER_CENARIO = 87;
+  // Requisita a planilha HTML de um determinado personagem.
+  TN_REQUISITAR_PLANILHA_PERSONAGEM = 88;
+  TN_RESPOSTA_PLANILHA_PERSONAGEM = 89;
   TN_HACK_ANDROID = 99;
   // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
   TN_GRUPO_NOTIFICACOES = 100;
