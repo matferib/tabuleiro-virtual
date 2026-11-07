@@ -60,8 +60,6 @@ void IniciaServidorHTTP() {
         {"${CARISMA}", JsonEscape("13")},
         {"${PECAS_OURO}", JsonEscape("1234")},
       });
-      // TODO escapar os inputs para javascript.
-
     } catch (...) {
     }
     res.set_content(dados, "text/javascript");
