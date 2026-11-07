@@ -7425,4 +7425,16 @@ std::string TexturaAlbedo(const std::string& bump) {
   return "white.png";
 }
 
+std::string JsonEscape(absl::string_view input) {
+  return absl::StrReplaceAll(input, {
+      {"\\", "\\\\"}, // Obrigatoriamente o primeiro
+      {"\"", "\\\""},
+      {"\n", "\\n"},
+      {"\r", "\\r"},
+      {"\t", "\\t"},
+      {"\b", "\\b"},
+      {"\f", "\\f"}
+  });
+}
+
 }  // namespace ent
