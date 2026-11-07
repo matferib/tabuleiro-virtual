@@ -5,7 +5,9 @@
 //#include "ent/constantes.h"
 //#define VLOG_NIVEL 1
 #include "absl/strings/str_format.h"
+#include "arq/arquivo.h"
 #include "log/log.h"
+#include "net/httplib.h"
 #include "net/servidor.h"
 #include "net/util.h"
 #include "ntf/notificacao.h"
@@ -13,6 +15,39 @@
 
 namespace net {
 namespace {
+
+void IniciaServidorHTTP() {
+  httplib::Server svr;
+  // Endpoint para exportar os dados do tabuleiro
+  svr.Get("/planilha", [](const httplib::Request& req, httplib::Response& res) {
+    std::string dados("<HTML>ERROR</HTML>");
+    try {
+      arq::LeArquivo(arq::TIPO_HTML, "planilha.html", &dados);
+    } catch (...) {
+    }
+    res.set_content(dados, "text/html");
+  });
+  svr.Get("/tudo.js", [](const httplib::Request& req, httplib::Response& res) {
+    std::string dados;
+    try {
+      arq::LeArquivo(arq::TIPO_HTML, "tudo.js", &dados);
+    } catch (...) {
+    }
+    res.set_content(dados, "text/javascript");
+  });
+  svr.Get("/planilha.css", [](const httplib::Request& req, httplib::Response& res) {
+    std::string dados;
+    try {
+      arq::LeArquivo(arq::TIPO_HTML, "planilha.css", &dados);
+    } catch (...) {
+    }
+    res.set_content(dados, "text/css");
+  });
+
+  // Porta onde o servidor vai escutar
+  svr.listen("0.0.0.0", 8080);
+}
+
 }  // namespace
 
 Servidor::Servidor(Sincronizador* sincronizador, ntf::CentralNotificacoes* central) {
@@ -224,10 +259,18 @@ void Servidor::Liga() {
     anunciante_.reset();
     LOG(ERROR) << "Falha abrindo socket de broadcast: " << e.what();
   }
+
+  // Servidor HTTP.
+  // Inicializa a thread do servidor HTTP em segundo plano
+  http_thread_ = std::make_unique<std::thread>(IniciaServidorHTTP);
+  http_thread_->detach();
 }
 
 void Servidor::Desliga() {
   VLOG(1) << "Desligando servidor.";
+  if (http_thread_ != nullptr) {
+    http_thread_.reset();
+  }
   if (!Ligado()) {
     LOG(ERROR) << "Servidor ja está desligado.";
     return;

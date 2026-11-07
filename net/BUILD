@@ -12,6 +12,7 @@ cc_library(
   ],
   hdrs = [
     "cliente.h",
+    "httplib.h",
     "servidor.h",
     "socket.h",
     "util.h",
@@ -23,6 +24,7 @@ cc_library(
       "@boost//:algorithm",
       "@boost//:asio",
       "@boost//:timer",
+      "//arq",
       "//log:log",
       "//ntf:ntf",
       "//ntf:ntf_cc_proto",

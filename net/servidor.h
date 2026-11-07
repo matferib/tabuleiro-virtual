@@ -4,6 +4,7 @@
 #include <memory>
 #include <queue>
 #include <set>
+#include <thread>
 #include "ntf/notificacao.h"
 #include "net/socket.h"
 
@@ -93,6 +94,9 @@ class Servidor : public ntf::Receptor, public ntf::EmissorRemoto {
   std::unique_ptr<Cliente> proximo_cliente_;
   std::set<Cliente*> clientes_pendentes_;
   std::set<Cliente*> clientes_;
+
+  // A thread do servidor HTTP.
+  std::unique_ptr<std::thread> http_thread_;
 };
 
 }  // namespace net
