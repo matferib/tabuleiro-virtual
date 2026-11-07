@@ -2,6 +2,7 @@
 #define NET_SERVIDOR_H
 
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <set>
 #include <thread>
@@ -63,6 +64,8 @@ class Servidor : public ntf::Receptor, public ntf::EmissorRemoto {
   // Liga o aceitador para receber clientes de forma assincrona e renova automaticamente sempre que um cliente aparece.
   // Para cada cliente, chama RecebeDadosCliente e nao bloca.
   void Liga();
+  // Quando servidor ligar, inicia tambem a parte HTTP.
+  void IniciaServidorHTTP();
   void ConectaProxy(const std::string& endereco);
   void AguardaClientesProxy();
   // Desliga o servidor.
@@ -97,6 +100,10 @@ class Servidor : public ntf::Receptor, public ntf::EmissorRemoto {
 
   // A thread do servidor HTTP.
   std::unique_ptr<std::thread> http_thread_;
+  std::mutex queue_mutex_;
+  std::queue<std::string> req_pcs_;
+  std::mutex json_mutex_;
+  std::unordered_map<std::string, std::string> jsons_;
 };
 
 }  // namespace net

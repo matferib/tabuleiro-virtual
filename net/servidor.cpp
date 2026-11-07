@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <chrono>
 
 //#include "ent/constantes.h"
 //#define VLOG_NIVEL 1
@@ -18,29 +19,16 @@
 namespace net {
 namespace {
 
-std::string JsonEscape(absl::string_view input) {
-  return absl::StrReplaceAll(input, {
-      {"\\", "\\\\"}, // Obrigatoriamente o primeiro
-      {"\"", "\\\""},
-      {"\n", "\\n"},
-      {"\r", "\\r"},
-      {"\t", "\\t"},
-      {"\b", "\\b"},
-      {"\f", "\\f"}
-  });
-}
-
 std::string SanitizeAndEscapeSrc(absl::string_view input_url) {
   // Permite caminhos relativos ou apenas protocolos HTTP/HTTPS
-  bool is_safe_protocol = absl::StartsWithIgnoreCase(input_url, "http://") ||
-                          absl::StartsWithIgnoreCase(input_url, "https://") ||
-                          absl::StartsWith(input_url, "/") ||
-                          absl::StartsWith(input_url, "./");
-
-  if (!is_safe_protocol) {
-    // Retorna uma imagem/página em branco segura se o protocolo for malicioso
-    return "about:blank";
-  }
+  //bool is_safe_protocol = absl::StartsWithIgnoreCase(input_url, "http://") ||
+  //                        absl::StartsWithIgnoreCase(input_url, "https://") ||
+  //                        absl::StartsWith(input_url, "/") ||
+  //                        absl::StartsWith(input_url, "./");
+  //if (!is_safe_protocol) {
+  //  // Retorna uma imagem/página em branco segura se o protocolo for malicioso
+  //  return "about:blank";
+  //}
 
   // 2. Faz o escape de atributos HTML para não fechar as aspas prematuramente
   return absl::StrReplaceAll(input_url, {
@@ -60,57 +48,6 @@ std::string HtmlEscape(absl::string_view input) {
     {"\"", "&quot;"},
     {"'", "&#39;"}
   });
-}
-
-void IniciaServidorHTTP() {
-  httplib::Server svr;
-  // Endpoint para exportar os dados do tabuleiro
-  svr.Get("/planilha", [](const httplib::Request& req, httplib::Response& res) {
-    std::string nome = req.get_param_value("nome");
-    std::string dados("<HTML>ERROR</HTML>");
-    try {
-      arq::LeArquivo(arq::TIPO_HTML, "planilha.html", &dados);
-      dados = absl::StrReplaceAll(dados, {{"${NOME}", SanitizeAndEscapeSrc(nome)}});
-    } catch (...) {
-    }
-    res.set_content(dados, "text/html");
-  });
-  svr.Get("/tudo.js", [](const httplib::Request& req, httplib::Response& res) {
-    std::string nome = req.get_param_value("nome");
-    std::string dados;
-    try {
-      arq::LeArquivo(arq::TIPO_HTML, "tudo.js", &dados);
-      dados = absl::StrReplaceAll(dados, {
-        {"${NOME}", JsonEscape(nome)},
-        {"${RACA}", JsonEscape("humano")},
-        {"${TAMANHO}", JsonEscape("medio")},
-        {"${ALINHAMENTO}", JsonEscape("CN")},
-        {"${CLASSES}", JsonEscape("{ classe: 'paladino', nivel: 3 }")},
-        {"${PONTOS_VIDA}", JsonEscape("22")},
-        {"${FERIMENTOS}", JsonEscape("3")},
-        {"${FORCA}", JsonEscape("18")},
-        {"${DESTREZA}", JsonEscape("17")},
-        {"${CONSTITUICAO}", JsonEscape("16")},
-        {"${INTELIGENCIA}", JsonEscape("15")},
-        {"${SABEDORIA}", JsonEscape("14")},
-        {"${CARISMA}", JsonEscape("13")},
-        {"${PECAS_OURO}", JsonEscape("1234")},
-      });
-    } catch (...) {
-    }
-    res.set_content(dados, "text/javascript");
-  });
-  svr.Get("/planilha.css", [](const httplib::Request& req, httplib::Response& res) {
-    std::string dados;
-    try {
-      arq::LeArquivo(arq::TIPO_HTML, "planilha.css", &dados);
-    } catch (...) {
-    }
-    res.set_content(dados, "text/css");
-  });
-
-  // Porta onde o servidor vai escutar
-  svr.listen("0.0.0.0", 8080);
 }
 
 }  // namespace
@@ -143,6 +80,17 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
       } else {
         VLOG(3) << "Nada rodado";
       }
+      // Envia requisicoes do HTTP.
+      {
+        std::lock_guard<std::mutex> lock(queue_mutex_);
+        if (!req_pcs_.empty()) {
+          std::string nome = req_pcs_.front();
+          req_pcs_.pop();
+          auto n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_PLANILHA_PERSONAGEM);
+          n->mutable_entidade()->set_rotulo(nome);
+          central_->AdicionaNotificacao(std::move(n));
+        }
+      }
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_INICIAR) {
@@ -153,6 +101,10 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     return true;
   } else if (notificacao.tipo() == ntf::TN_SAIR) {
     Desliga();
+    return true;
+  } else if (notificacao.tipo() == ntf::TN_RESPOSTA_PLANILHA_PERSONAGEM) {
+    std::lock_guard<std::mutex> lock(json_mutex_);
+    jsons_[notificacao.entidade().rotulo()] = notificacao.str_generica();
     return true;
   }
   return false;
@@ -272,6 +224,67 @@ void Servidor::AguardaClientesProxy() {
   });
 }
 
+// Roda em outra thread, então muito cuidado com thread safety.
+void Servidor::IniciaServidorHTTP() {
+  httplib::Server svr;
+  // Endpoint para exportar os dados do tabuleiro
+  svr.Get("/planilha", [](const httplib::Request& req, httplib::Response& res) {
+    std::string nome = req.get_param_value("nome");
+    std::string dados("<HTML>ERROR</HTML>");
+    try {
+      arq::LeArquivo(arq::TIPO_HTML, "planilha.html", &dados);
+      dados = absl::StrReplaceAll(dados, {{"${NOME}", SanitizeAndEscapeSrc(nome)}});
+    } catch (...) {
+    }
+    res.set_content(dados, "text/html");
+  });
+  svr.Get("/tudo.js", [this](const httplib::Request& req, httplib::Response& res) {
+    std::string nome = req.get_param_value("nome");
+    LOG(ERROR) << "tudo " << nome;
+    {
+      std::lock_guard<std::mutex> lock(queue_mutex_);
+      req_pcs_.push(nome);
+    }
+    // Requisita o JSON do personagem.
+    int max = 1000;
+    json_mutex_.lock();
+    while (!jsons_.contains(nome)) {
+      json_mutex_.unlock();
+      if (--max <= 0) {
+        throw std::logic_error(absl::StrCat("espera maxima atinginda para ", nome));
+      }
+      using namespace std::chrono_literals;
+      std::this_thread::sleep_for(1ms);
+      json_mutex_.lock();
+    }
+    std::string json_personagem = jsons_[nome];
+    jsons_.erase(nome);
+    json_mutex_.unlock();
+    LOG(ERROR) << "tudo " << nome << ": " << json_personagem;
+    std::string dados;
+    try {
+      arq::LeArquivo(arq::TIPO_HTML, "tudo.js", &dados);
+      dados = absl::StrReplaceAll(dados, {{"${JSON_PERSONAGEM}", json_personagem}});
+    } catch (...) {
+      throw std::logic_error(absl::StrCat("falha lendo tudo.js para ", nome));
+    }
+    res.set_content(dados, "text/javascript");
+  });
+  svr.Get("/planilha.css", [](const httplib::Request& req, httplib::Response& res) {
+    std::string dados;
+    try {
+      arq::LeArquivo(arq::TIPO_HTML, "planilha.css", &dados);
+    } catch (...) {
+    }
+    res.set_content(dados, "text/css");
+  });
+
+  // Porta onde o servidor vai escutar
+  svr.listen("0.0.0.0", 8080);
+}
+
+
+
 void Servidor::Liga() {
   VLOG(1) << "Ligando servidor.";
   try {
@@ -327,7 +340,7 @@ void Servidor::Liga() {
 
   // Servidor HTTP.
   // Inicializa a thread do servidor HTTP em segundo plano
-  http_thread_ = std::make_unique<std::thread>(IniciaServidorHTTP);
+  http_thread_ = std::make_unique<std::thread>([this]() { IniciaServidorHTTP(); });
   http_thread_->detach();
 }
 
