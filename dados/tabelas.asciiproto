@@ -15587,6 +15587,25 @@ tabela_racas {
     tipo_visao: VISAO_ESCURO
     alcance_visao_m: 18 # 12 q
   }
+  racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_ORC
+    id: 'orc'
+    nome: 'Orc'
+    descricao: 'Cabelos pretos, orelhas de lobo e olhos vermelhos.'
+    bonus_atributos {
+      forca { bonus_individual { tipo: TB_RACIAL por_origem { valor: 4 origem: 'racial'} } }
+      inteligencia { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+      sabedoria { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+      carisma { bonus_individual { tipo: TB_RACIAL por_origem { valor: -2 origem: 'racial'} } }
+    }
+    tamanho: TM_MEDIO
+    movimento {
+      terrestre_basico_q: 6
+    }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18 # 12 q
+  }
 }
 
 tabela_dominios {
