@@ -7,8 +7,8 @@
   tamanho: '${TAMANHO}',  // É possivel ter tamanhos fora do padrao através de magias.
   alinhamento: '${ALINHAMENTO}',
   divindade: '',
-  // Cada entrada possui classe e nivel.
-  //classes: [ { classe: '${CLASSE}', nivel: ${NIVEL} } ],
+  // Cada entrada possui classe e nivel. Ex:
+  //classes: [ { classe: 'paladino', nivel: 3 } ],
   classes: [ ${CLASSES} ],
   dominios: [],
   // Familiar nao tem base de PV porque depende do PV do personagem.
@@ -21,7 +21,7 @@
   ferimentos: ${FERIMENTOS},  // Valor deve ser >=  0.
   ferimentos_nao_letais: 0,  // Valor deve ser >= 0.
   // experiencia.
-  experiencia: 0,
+  experiencia: ${XP},
   // atributos.
   bonus_atributos: [],
   forca: ${FORCA},
