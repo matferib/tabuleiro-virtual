@@ -232,7 +232,6 @@ void Servidor::IniciaServidorHTTP() {
   });
   svr.Get("/tudo.js", [this](const httplib::Request& req, httplib::Response& res) {
     std::string nome = req.get_param_value("nome");
-    LOG(ERROR) << "tudo " << nome;
     {
       std::lock_guard<std::mutex> lock(queue_mutex_);
       req_pcs_.push(nome);
@@ -277,8 +276,6 @@ void Servidor::IniciaServidorHTTP() {
   // Porta onde o servidor vai escutar
   svr.listen("0.0.0.0", 8080);
 }
-
-
 
 void Servidor::Liga() {
   VLOG(1) << "Ligando servidor.";
