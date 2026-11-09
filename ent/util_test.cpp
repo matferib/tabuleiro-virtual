@@ -5352,6 +5352,18 @@ TEST(TesteModelo, TesteBalestra) {
   }
 }
 
+TEST(TesteModelo, TesteOrcSargento) {
+  auto proto = TabelasCriando().ModeloEntidade("Orc Sargento").entidade();
+  auto orc = NovaEntidadeParaTestes(proto, TabelasCriando());
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_FORCA, orc->Proto())), 17);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_DESTREZA, orc->Proto())), 11);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CONSTITUICAO, orc->Proto())), 12);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_INTELIGENCIA, orc->Proto())), 8);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_SABEDORIA, orc->Proto())), 7);
+  EXPECT_EQ(BonusTotal(BonusAtributo(TA_CARISMA, orc->Proto())), 6);
+  EXPECT_EQ(orc->Proto().raca(), "orc");
+}
+
 TEST(TesteModelo, TesteOtyugh) {
   auto proto = TabelasCriando().ModeloEntidade("Otyugh").entidade();
   auto otyugh = NovaEntidadeParaTestes(proto, TabelasCriando());
@@ -8506,6 +8518,25 @@ TEST(TesteTendenciaAleatoria, QualquerLeal) {
     auto monge = NovaEntidadeParaTestes(monge_proto, TabelasCriando());
     EXPECT_EQ(monge->Proto().tendencia().eixo_ordem_caos(), 1.0f);
   }
+}
+
+TEST(TesteJson, TesteJson) {
+  auto proto = TabelasCriando().ModeloEntidade("Orc Sargento").entidade();
+  auto entidade = NovaEntidadeParaTestes(proto, TabelasCriando());
+  std::string json = entidade->ExportaJson();
+  EXPECT_NE(json.find("nome: 'orc sargento'"), std::string::npos);
+  EXPECT_NE(json.find("raca: 'orc'"), std::string::npos);
+  EXPECT_NE(json.find("tamanho: 'medio'"), std::string::npos);
+  EXPECT_NE(json.find("classes: [ {classe: 'combatente', nivel: 3}, ]"), std::string::npos);
+  EXPECT_NE(json.find("ferimentos: 0"), std::string::npos);
+  // Os valores excluirao os bonus raciais, pois orc é tabelado.
+  EXPECT_NE(json.find("forca: 13"), std::string::npos) << json;
+  EXPECT_NE(json.find("destreza: 11"), std::string::npos);
+  EXPECT_NE(json.find("constituicao: 12"), std::string::npos);
+  EXPECT_NE(json.find("inteligencia: 10"), std::string::npos);
+  EXPECT_NE(json.find("sabedoria: 9"), std::string::npos);
+  EXPECT_NE(json.find("carisma: 8"), std::string::npos);
+  EXPECT_NE(json.find("ouro: 40"), std::string::npos);
 }
 
 }  // namespace ent.
