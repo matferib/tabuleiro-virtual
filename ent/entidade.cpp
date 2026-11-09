@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_replace.h"
+#include "absl/strings/substitute.h""
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/tabelas.h"
@@ -3163,25 +3164,61 @@ int Entidade::NumMatrizesVbosAtualizadas() {
   return n;
 }
 
+namespace {
+// Estas racas sao tabeladas na planilha, entao o modificador racial sera aplicado automaticamente la.
+bool RacaTabeladaPlanilha(const std::string& raca) {
+  std::unordered_set<std::string> racas_tabeladas = {
+    "aarakokra",
+    "anao",
+    "gnoll",
+    "goblin",
+    "halfling",
+    "hobgoblin",
+    "humano",
+    "elfo",
+    "elfo_drow",
+    "genasi_agua",
+    "genasi_ar",
+    "genasi_fogo",
+    "genasi_terra",
+    "gnomo",
+    "gnomo_floresta",
+    "meioelfo",
+    "meioorc",
+    "orc",
+  };
+  return racas_tabeladas.contains(raca);
+}
+}  // namespace
+
 std::string Entidade::ExportaJson() const {
   std::string json_personagem;
   try {
+    std::string json_classes;
+    for (const auto& ic : proto_.info_classes()) {
+      absl::StrAppend(&json_classes, absl::Substitute("{classe: '$0', nivel: $1},", ic.id(), ic.nivel()));
+    }
+    bool raca_tabelada = RacaTabeladaPlanilha(proto_.raca());
+    auto BonusTotalPlanilha = [raca_tabelada](const Bonus& bonus) {
+      return raca_tabelada ? BonusTotalExcluindo(bonus, {TB_RACIAL}) : BonusTotal(bonus);
+    };
     arq::LeArquivo(arq::TIPO_HTML, "json_personagem.js", &json_personagem);
     json_personagem = absl::StrReplaceAll(json_personagem, {
         {"${NOME}", JsonEscape(proto_.rotulo())},
         {"${RACA}", JsonEscape(proto_.raca())},
         {"${TAMANHO}", JsonEscape("medio")},
         {"${ALINHAMENTO}", JsonEscape("CN")},
-        {"${CLASSES}", JsonEscape("{ classe: 'paladino', nivel: 3 }")},
+        {"${CLASSES}", JsonEscape(json_classes)},
         {"${PONTOS_VIDA}", JsonEscape(absl::StrCat(MaximoPontosVida()))},
         {"${FERIMENTOS}", JsonEscape(absl::StrCat(MaximoPontosVida() - PontosVida()))},
-        {"${FORCA}", JsonEscape(absl::StrCat(BonusTotal(proto_.atributos().forca())))},
-        {"${DESTREZA}", JsonEscape("17")},
-        {"${CONSTITUICAO}", JsonEscape("16")},
-        {"${INTELIGENCIA}", JsonEscape("15")},
-        {"${SABEDORIA}", JsonEscape("14")},
-        {"${CARISMA}", JsonEscape("13")},
+        {"${FORCA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().forca())))},
+        {"${DESTREZA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().destreza())))},
+        {"${CONSTITUICAO}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().constituicao())))},
+        {"${INTELIGENCIA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().inteligencia())))},
+        {"${SABEDORIA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().sabedoria())))},
+        {"${CARISMA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().carisma())))},
         {"${PECAS_OURO}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().po()))},
+        {"${XP}", JsonEscape(absl::StrCat(proto_.experiencia()))},
     });
   } catch (...) {
   }
