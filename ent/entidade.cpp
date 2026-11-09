@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_replace.h"
-#include "absl/strings/substitute.h""
+#include "absl/strings/substitute.h"
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/tabelas.h"
@@ -3202,6 +3202,8 @@ std::string Entidade::ExportaJson() const {
     auto BonusTotalPlanilha = [raca_tabelada](const Bonus& bonus) {
       return raca_tabelada ? BonusTotalExcluindo(bonus, {TB_RACIAL}) : BonusTotal(bonus);
     };
+    // Planilha computa modificador de constituicao.
+    int pontos_vida = MaximoPontosVida() - ModificadorAtributo(TA_CONSTITUICAO) * NivelPersonagem();
     arq::LeArquivo(arq::TIPO_HTML, "json_personagem.js", &json_personagem);
     json_personagem = absl::StrReplaceAll(json_personagem, {
         {"${NOME}", JsonEscape(proto_.rotulo())},
@@ -3209,7 +3211,7 @@ std::string Entidade::ExportaJson() const {
         {"${TAMANHO}", JsonEscape("medio")},
         {"${ALINHAMENTO}", JsonEscape("CN")},
         {"${CLASSES}", JsonEscape(json_classes)},
-        {"${PONTOS_VIDA}", JsonEscape(absl::StrCat(MaximoPontosVida()))},
+        {"${PONTOS_VIDA}", JsonEscape(absl::StrCat(pontos_vida))},
         {"${FERIMENTOS}", JsonEscape(absl::StrCat(MaximoPontosVida() - PontosVida()))},
         {"${FORCA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().forca())))},
         {"${DESTREZA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().destreza())))},

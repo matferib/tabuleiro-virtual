@@ -8537,6 +8537,8 @@ TEST(TesteJson, TesteJson) {
   EXPECT_NE(json.find("sabedoria: 9"), std::string::npos);
   EXPECT_NE(json.find("carisma: 8"), std::string::npos);
   EXPECT_NE(json.find("ouro: 40"), std::string::npos);
+  // Tira o bonus de constituicao x nivel.
+  EXPECT_NE(json.find(absl::StrCat("pontos_vida: ", entidade->MaximoPontosVida() - 3)), std::string::npos);
 }
 
 }  // namespace ent.
