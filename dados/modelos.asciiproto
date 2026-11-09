@@ -11911,6 +11911,7 @@ modelo {
   id: 'Orc Sargento'
   entidade {
     rotulo: 'orc sargento'
+    raca: 'orc',
     tipo_dnd: TIPO_HUMANOIDE
     dados_vida: '3d8+3' info_textura { id: 'orc_lead.png' largura: 0.5 translacao_x: 0.25 } cor { g: 0.7 }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
@@ -11930,12 +11931,12 @@ modelo {
     }
     atributos {
       # Usa o array nao elite +4 for, -2 int, -2 sab, -2 car.
-      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 17 } } }
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
       constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
-      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
-      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 7 } } }
-      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 6 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
     tendencia { simples: TD_CAOTICO_MAU }
   }
