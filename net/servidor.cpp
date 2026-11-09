@@ -40,16 +40,6 @@ std::string SanitizeAndEscapeSrc(absl::string_view input_url) {
   });
 }
 
-std::string HtmlEscape(absl::string_view input) {
-  return absl::StrReplaceAll(input, {
-    {"&", "&amp;"},
-    {"<", "&lt;"},
-    {">", "&gt;"},
-    {"\"", "&quot;"},
-    {"'", "&#39;"}
-  });
-}
-
 }  // namespace
 
 Servidor::Servidor(Sincronizador* sincronizador, ntf::CentralNotificacoes* central) {
@@ -104,7 +94,9 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     return true;
   } else if (notificacao.tipo() == ntf::TN_RESPOSTA_PLANILHA_PERSONAGEM) {
     std::lock_guard<std::mutex> lock(json_mutex_);
-    jsons_[notificacao.entidade().rotulo()] = notificacao.str_generica();
+    auto& [json, contref] = jsons_[notificacao.entidade().rotulo()];
+    ++contref;
+    json = notificacao.str_generica();
     return true;
   }
   return false;
@@ -247,6 +239,7 @@ void Servidor::IniciaServidorHTTP() {
     }
     // Requisita o JSON do personagem.
     int max = 1000;
+    std::string json_personagem;
     json_mutex_.lock();
     while (!jsons_.contains(nome)) {
       json_mutex_.unlock();
@@ -257,10 +250,12 @@ void Servidor::IniciaServidorHTTP() {
       std::this_thread::sleep_for(1ms);
       json_mutex_.lock();
     }
-    std::string json_personagem = jsons_[nome];
-    jsons_.erase(nome);
+    auto& [json, contref] = jsons_[nome];
+    json_personagem = json;
+    if (--contref == 0) {
+      jsons_.erase(nome);
+    }
     json_mutex_.unlock();
-    LOG(ERROR) << "tudo " << nome << ": " << json_personagem;
     std::string dados;
     try {
       arq::LeArquivo(arq::TIPO_HTML, "tudo.js", &dados);

@@ -103,7 +103,8 @@ class Servidor : public ntf::Receptor, public ntf::EmissorRemoto {
   std::mutex queue_mutex_;
   std::queue<std::string> req_pcs_;
   std::mutex json_mutex_;
-  std::unordered_map<std::string, std::string> jsons_;
+  // A chave é o rotulo da entidade, o valor é um par de json e contador de referencia.
+  std::unordered_map<std::string, std::pair<std::string, int>> jsons_;
 };
 
 }  // namespace net
