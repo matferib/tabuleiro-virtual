@@ -1725,8 +1725,8 @@ function CarregamentoInicial() {
     return;
   }
   const url = new URL(document.URL);
-  if (url.searchParams.has('entrada'))  {
-    const entrada = url.searchParams.get('entrada');
+  if (url.searchParams.has('pc'))  {
+    const entrada = url.searchParams.get('pc');
     // carrega pelos parametros. Caso contrario, usara a entrada padrao.
     var json_entradas = decodeURIComponent(entrada);
     gEntradas = JSON.parse(json_entradas);
