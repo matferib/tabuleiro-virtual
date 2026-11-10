@@ -3200,24 +3200,35 @@ std::string Entidade::ExportaJson() const {
       absl::StrAppend(&json_classes, absl::Substitute("{classe: '$0', nivel: $1},", ic.id(), ic.nivel()));
     }
     std::string json_feiticos_conhecidos;
+    std::string json_feiticos_lancar;
     for (const auto& fc : proto_.feiticos_classes()) {
       absl::StrAppend(&json_feiticos_conhecidos, "'", fc.id_classe(), "': {");
+      absl::StrAppend(&json_feiticos_lancar, "'", fc.id_classe(), "': {");
       for (int nivel = 0; nivel <= 9; ++nivel) {
         if (!fc.mapa_feiticos_por_nivel().contains(nivel)) continue;
+        // conhecidos.
         const auto& feiticos_por_nivel = fc.mapa_feiticos_por_nivel().at(nivel);
         absl::StrAppend(&json_feiticos_conhecidos, nivel, ": [");
         for (const auto& conhecido : feiticos_por_nivel.conhecidos()) {
           absl::StrAppend(&json_feiticos_conhecidos, "'", conhecido.id(), "', ");
         }
         absl::StrAppend(&json_feiticos_conhecidos, "], ");
+        // lançar.
+        absl::StrAppend(&json_feiticos_lancar, nivel, ": [");
+        for (const auto& para_lancar : feiticos_por_nivel.para_lancar()) {
+          absl::StrAppend(&json_feiticos_lancar, "{nivel: ", para_lancar.nivel_conhecido(),
+                                                 ", indice: ", para_lancar.indice_conhecido(),
+                                                 ", gasto: ", para_lancar.usado() ? "true" : "false", "}, ");
+        }
+        absl::StrAppend(&json_feiticos_lancar, "], ");
       }
       absl::StrAppend(&json_feiticos_conhecidos, "}, ");
+      absl::StrAppend(&json_feiticos_lancar, "}, ");
       if (fc.id_classe() != "clerigo") continue;
       for (const std::string& dominio : fc.dominios()) {
         absl::StrAppend(&json_dominios, absl::StrCat("'", dominio, "', "));
       }
     }
-
 
     bool raca_tabelada = RacaTabeladaPlanilha(proto_.raca());
     auto BonusTotalPlanilha = [raca_tabelada](const Bonus& bonus) {
@@ -3246,6 +3257,7 @@ std::string Entidade::ExportaJson() const {
         {"${PECAS_PLATINA}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pl()))},
         {"${DOMINIOS}", JsonEscape(json_dominios)},
         {"${FEITICOS_CONHECIDOS}", JsonEscape(json_feiticos_conhecidos)},
+        {"${FEITICOS_LANCAR}", JsonEscape(json_feiticos_lancar)},
         {"${XP}", JsonEscape(absl::StrCat(proto_.experiencia()))},
     });
   } catch (...) {

@@ -73,6 +73,7 @@
   // Nivel é o nível do feitiço, que pode ser diferente do nível do slot.
   // indice eh o ponteiro para o feitico nos conhecidos para o nível.
   // gasto indica se o feitico está gasto ou não.
-  slots_feiticos: {},
+  // O último slot é o de dominio (apesar da interface mostrar ele primeiro). Na conversao ele vira uma entrada de dominio especifica.
+  slots_feiticos: { ${FEITICOS_LANCAR} },
 
   notas: '',

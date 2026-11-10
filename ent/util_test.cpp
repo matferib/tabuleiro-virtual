@@ -8559,6 +8559,18 @@ TEST(TesteJson, TesteJsonDominios) {
            fn0.conhecidos(1), fn0.conhecidos(2), fn0.conhecidos(3), fn1.conhecidos(0), fn1.conhecidos(1), fn1.conhecidos(2), fn1.conhecidos(3)
       )
   ), std::string::npos) << json;
+  ASSERT_EQ(fn0.para_lancar_size(), 3);
+  // 1 base, 1 dominio, 1 atributo.
+  ASSERT_EQ(fn1.para_lancar_size(), 1+1+1);
+  // Os indices vao ser aleatorios, então le do personagem.
+  EXPECT_NE(json.find(
+      absl::Substitute(
+          "slots_feiticos: { clerigo: { 0: [{nivel: 0, indice: $1, gasto: false}, {nivel: 0, indice: $2, false}, {nivel: 0, indice: $3, false}, ], "
+                                       "1: [{nivel: 1, indice: $4, gasto: false}, {nivel: 1, indice: $5, gasto: false}, {nivel: 1, indice: $6, gasto: false}, ], }",
+          fn0.para_lancar(0).indice_conhecido(), fn0.para_lancar(1).indice_conhecido(), fn0.para_lancar(2).indice_conhecido(),
+          fn1.para_lancar(0).indice_conhecido(), fn1.para_lancar(1).indice_conhecido(), fn1.para_lancar(2).indice_conhecido()
+      )
+  ), std::string::npos) << json;
 }
 
 }  // namespace ent.
