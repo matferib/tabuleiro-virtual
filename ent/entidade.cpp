@@ -3195,9 +3195,18 @@ std::string Entidade::ExportaJson() const {
   std::string json_personagem;
   try {
     std::string json_classes;
+    std::string json_dominios;
     for (const auto& ic : proto_.info_classes()) {
       absl::StrAppend(&json_classes, absl::Substitute("{classe: '$0', nivel: $1},", ic.id(), ic.nivel()));
+      if (ic.id() != "clerigo") continue;
+      for (const auto& fc : proto_.feiticos_classes()) {
+        if (fc.id_classe() != "clerigo") continue;
+        for (const std::string& dominio : fc.dominios()) {
+          absl::StrAppend(&json_dominios, absl::StrCat("'", dominio, "', "));
+        }
+      }
     }
+
     bool raca_tabelada = RacaTabeladaPlanilha(proto_.raca());
     auto BonusTotalPlanilha = [raca_tabelada](const Bonus& bonus) {
       return raca_tabelada ? BonusTotalExcluindo(bonus, {TB_RACIAL}) : BonusTotal(bonus);
@@ -3220,6 +3229,7 @@ std::string Entidade::ExportaJson() const {
         {"${SABEDORIA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().sabedoria())))},
         {"${CARISMA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().carisma())))},
         {"${PECAS_OURO}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().po()))},
+        {"${DOMINIOS}", JsonEscape(json_dominios)},
         {"${XP}", JsonEscape(absl::StrCat(proto_.experiencia()))},
     });
   } catch (...) {

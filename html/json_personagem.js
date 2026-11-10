@@ -10,7 +10,8 @@
   // Cada entrada possui classe e nivel. Ex:
   //classes: [ { classe: 'paladino', nivel: 3 } ],
   classes: [ ${CLASSES} ],
-  dominios: [],
+  // String com as chaves de dominio.
+  dominios: [ ${DOMINIOS} ],
   // Familiar nao tem base de PV porque depende do PV do personagem.
   familiar: { em_uso: false, chave: '', temporarios: 0, ferimentos: 0, ferimentos_nao_letais: 0 },
   canimal: { raca: '', base: 0, temporarios: 0, ferimentos: 0, ferimentos_nao_letais: 0, notas: '' },

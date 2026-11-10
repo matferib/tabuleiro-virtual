@@ -8541,6 +8541,13 @@ TEST(TesteJson, TesteJson) {
   EXPECT_NE(json.find(absl::StrCat("pontos_vida: ", entidade->MaximoPontosVida() - 3)), std::string::npos);
 }
 
+TEST(TesteJson, TesteJsonDominios) {
+  auto proto = TabelasCriando().ModeloEntidade("Humano Clérigo 1 (Leal e Neutro)").entidade();
+  auto entidade = NovaEntidadeParaTestes(proto, TabelasCriando());
+  std::string json = entidade->ExportaJson();
+  EXPECT_NE(json.find("dominios: [ 'forca', 'ordem',  ]"), std::string::npos);
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {
