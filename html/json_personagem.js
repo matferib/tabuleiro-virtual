@@ -36,10 +36,10 @@
   // Cada entrada: chave: [ true/false, ... ]
   habilidades_especiais: {},
   // moedas
-  platina: 0,
+  platina: ${PECAS_PLATINA},
   ouro: ${PECAS_OURO},
-  prata: 0,
-  cobre: 0,
+  prata: ${PECAS_PRATA},
+  cobre: ${PECAS_COBRE},
   // equipamentos.
   // armas: [ { chave: 'desarmado', nome_gerado: 'desarmado', material: 'nenhum', obra_prima: false, bonus: 0} ],
   armas: [],
@@ -67,7 +67,7 @@
   escolas_proibidas: {},
   // Feitiços conhecidos, cada entrada:
   // chave_classe: { 0: [ feitico, ... ], 1: [] ...}
-  feiticos_conhecidos: {},
+  feiticos_conhecidos: { ${FEITICOS_CONHECIDOS} },
   // Slots de feitiços, cada entrada:
   // chave_classe: { 0: [ { nivel, indice, gasto }, ... ], 1: [] ...}
   // Nivel é o nível do feitiço, que pode ser diferente do nível do slot.

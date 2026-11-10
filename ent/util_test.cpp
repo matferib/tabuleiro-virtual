@@ -2,6 +2,7 @@
 
 #include <google/protobuf/text_format.h>
 #include <queue>
+#include "absl/strings/substitute.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.pb.h"
 #include "ent/constantes.h"
@@ -8546,6 +8547,18 @@ TEST(TesteJson, TesteJsonDominios) {
   auto entidade = NovaEntidadeParaTestes(proto, TabelasCriando());
   std::string json = entidade->ExportaJson();
   EXPECT_NE(json.find("dominios: [ 'forca', 'ordem',  ]"), std::string::npos);
+  // Nivel 0: orientacao + 3 automaticos.
+  // Nivel 1: 4 automaticos.
+  const auto& fn0 = FeiticosNivel("clerigo", 0, entidade->Proto());
+  ASSERT_EQ(fn0.conhecidos_size(), 4);
+  const auto& fn1 = FeiticosNivel("clerigo", 1, entidade->Proto());
+  ASSERT_EQ(fn1.conhecidos_size(), 4 + 2);  // 4 no modelo + 2 de dominio (um de cada dominio).
+  EXPECT_NE(json.find(
+      absl::Substitute(
+          "feiticos_conhecidos: { clerigo: { 0: ['orientacao', '$1', '$2', '$3', ], 1: ['$4', '$5', '$6, '$7', 'aumentar_pessoa', 'protecao_contra_caos', ], }, }",
+           fn0.conhecidos(1), fn0.conhecidos(2), fn0.conhecidos(3), fn1.conhecidos(0), fn1.conhecidos(1), fn1.conhecidos(2), fn1.conhecidos(3)
+      )
+  ), std::string::npos) << json;
 }
 
 }  // namespace ent.
