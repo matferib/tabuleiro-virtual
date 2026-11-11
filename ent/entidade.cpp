@@ -3264,6 +3264,11 @@ std::string Entidade::ExportaJson() const {
       }
     }
 
+    std::string json_pocoes;
+    for (const auto& pocao : proto_.tesouro().pocoes()) {
+      absl::StrAppend(&json_pocoes, "{chave: '", pocao.id(), "'}, ");
+    }
+
     bool raca_tabelada = RacaTabeladaPlanilha(proto_.raca());
     auto BonusTotalPlanilha = [raca_tabelada](const Bonus& bonus) {
       return raca_tabelada ? BonusTotalExcluindo(bonus, {TB_RACIAL}) : BonusTotal(bonus);
@@ -3289,6 +3294,7 @@ std::string Entidade::ExportaJson() const {
         {"${PECAS_PRATA}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pp()))},
         {"${PECAS_COBRE}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pc()))},
         {"${PECAS_PLATINA}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pl()))},
+        {"${POCOES}", JsonEscape(json_pocoes)},
         {"${DOMINIOS}", JsonEscape(json_dominios)},
         {"${FEITICOS_CONHECIDOS}", JsonEscape(json_feiticos_conhecidos)},
         {"${FEITICOS_LANCAR}", JsonEscape(json_feiticos_lancar)},

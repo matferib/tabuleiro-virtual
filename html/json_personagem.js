@@ -52,7 +52,7 @@
   aneis: [],
   amuletos: [],
   braceletes: [],
-  pocoes: [],
+  pocoes: [ ${POCOES} ],
   capas: [],
   chapeus: [],
   outros_equipamentos: '',
