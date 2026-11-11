@@ -3197,32 +3197,37 @@ std::string Entidade::ExportaJson() const {
     std::string json_classes;
     std::string json_dominios;
     std::string json_escolas_proibidas;
+    std::string id_classe;
     for (const auto& ic : proto_.info_classes()) {
       if (ic.id() == "mago") {
         const auto& fc = FeiticosClasse(ic.id(), proto_);
-        if (!fc.escolas_proibidas().empty()) {
-          absl::StrAppend(&json_escolas_proibidas, "mago: [");
-          for (const auto& escola : fc.escolas_proibidas()) {
-            absl::StrAppend(&json_escolas_proibidas, "'", escola , "', ");
-          }
-          absl::StrAppend(&json_escolas_proibidas, "]");
+        if (fc.escolas_proibidas().empty()) {
+          continue;
         }
+        id_classe = "mago";
         if (fc.especializacao() == "ilusao") {
+          id_classe = "mago_ilusionista";
           absl::StrAppend(&json_classes, absl::Substitute("{classe: 'mago_ilusionista', nivel: $0},", ic.nivel()));
-          continue;
-        }
-        if (fc.especializacao() == "necromancia") {
+        } else if (fc.especializacao() == "necromancia") {
+          id_classe = "mago_necromante";
           absl::StrAppend(&json_classes, absl::Substitute("{classe: 'mago_necromante', nivel: $0},", ic.nivel()));
-          continue;
+        } else {
+          absl::StrAppend(&json_classes, absl::Substitute("{classe: '$0', nivel: $1},", ic.id(), ic.nivel()));
         }
+        absl::StrAppend(&json_escolas_proibidas, id_classe, ": [");
+        for (const auto& escola : fc.escolas_proibidas()) {
+          absl::StrAppend(&json_escolas_proibidas, "'", escola , "', ");
+        }
+        absl::StrAppend(&json_escolas_proibidas, "]");
+      } else {
+        absl::StrAppend(&json_classes, absl::Substitute("{classe: '$0', nivel: $1},", ic.id(), ic.nivel()));
       }
-      absl::StrAppend(&json_classes, absl::Substitute("{classe: '$0', nivel: $1},", ic.id(), ic.nivel()));
     }
     std::string json_feiticos_conhecidos;
     std::string json_feiticos_lancar;
     for (const auto& fc : proto_.feiticos_classes()) {
-      absl::StrAppend(&json_feiticos_conhecidos, "'", fc.id_classe(), "': {");
-      absl::StrAppend(&json_feiticos_lancar, "'", fc.id_classe(), "': {");
+      absl::StrAppend(&json_feiticos_conhecidos, "'", fc.id_classe() == "mago" && !id_classe.empty() ? id_classe : fc.id_classe(), "': {");
+      absl::StrAppend(&json_feiticos_lancar, "'", fc.id_classe() == "mago" && !id_classe.empty() ? id_classe : fc.id_classe(), "': {");
       for (int nivel = 0; nivel <= 9; ++nivel) {
         if (!fc.mapa_feiticos_por_nivel().contains(nivel)) continue;
         // conhecidos.
