@@ -21,6 +21,12 @@ extern std::unordered_map<int, std::queue<int>> g_dados_forcados;
 
 namespace {
 
+std::string Trim(const std::string& s) {
+  std::string sc = s;
+  trim(sc);
+  return sc;
+}
+
 class CentralColetora : public ntf::CentralNotificacoes {
  public:
   CentralColetora() : ntf::CentralNotificacoes() {
@@ -8546,6 +8552,7 @@ TEST(TesteJson, TesteJsonDominios) {
   auto proto = TabelasCriando().ModeloEntidade("Humano Clérigo 1 (Leal e Neutro)").entidade();
   auto entidade = NovaEntidadeParaTestes(proto, TabelasCriando());
   std::string json = entidade->ExportaJson();
+  EXPECT_NE(json.find("classes: [ {classe: 'clerigo', nivel: 1}, ]"), std::string::npos);
   EXPECT_NE(json.find("dominios: [ 'forca', 'ordem',  ]"), std::string::npos);
   // Nivel 0: orientacao + 3 automaticos.
   // Nivel 1: 4 automaticos.
@@ -8553,24 +8560,31 @@ TEST(TesteJson, TesteJsonDominios) {
   ASSERT_EQ(fn0.conhecidos_size(), 4);
   const auto& fn1 = FeiticosNivel("clerigo", 1, entidade->Proto());
   ASSERT_EQ(fn1.conhecidos_size(), 4 + 2);  // 4 no modelo + 2 de dominio (um de cada dominio).
-  EXPECT_NE(json.find(
-      absl::Substitute(
-          "feiticos_conhecidos: { clerigo: { 0: ['orientacao', '$1', '$2', '$3', ], 1: ['$4', '$5', '$6, '$7', 'aumentar_pessoa', 'protecao_contra_caos', ], }, }",
-           fn0.conhecidos(1), fn0.conhecidos(2), fn0.conhecidos(3), fn1.conhecidos(0), fn1.conhecidos(1), fn1.conhecidos(2), fn1.conhecidos(3)
-      )
-  ), std::string::npos) << json;
+  LOG(ERROR) << "fn0: " << fn0.DebugString();
+  LOG(ERROR) << "fn1: " << fn1.DebugString();
+  std::string expected_conhecidos = absl::Substitute(
+          "feiticos_conhecidos: { 'clerigo': {0: ['orientacao', '$0', '$1', '$2', ], 1: ['$3', '$4', '$5', '$6', 'aumentar_pessoa', 'protecao_contra_caos', ], },  },",
+           fn0.conhecidos(1).id(), fn0.conhecidos(2).id(), fn0.conhecidos(3).id(),
+           fn1.conhecidos(0).id(), fn1.conhecidos(1).id(), fn1.conhecidos(2).id(), fn1.conhecidos(3).id());
+  EXPECT_EQ(Trim(Grep(json, "feiticos_conhecidos")), expected_conhecidos);
   ASSERT_EQ(fn0.para_lancar_size(), 3);
   // 1 base, 1 dominio, 1 atributo.
   ASSERT_EQ(fn1.para_lancar_size(), 1+1+1);
   // Os indices vao ser aleatorios, então le do personagem.
-  EXPECT_NE(json.find(
-      absl::Substitute(
-          "slots_feiticos: { clerigo: { 0: [{nivel: 0, indice: $1, gasto: false}, {nivel: 0, indice: $2, false}, {nivel: 0, indice: $3, false}, ], "
-                                       "1: [{nivel: 1, indice: $4, gasto: false}, {nivel: 1, indice: $5, gasto: false}, {nivel: 1, indice: $6, gasto: false}, ], }",
+  std::string expected_para_lancar = absl::Substitute(
+          "slots_feiticos: { 'clerigo': {0: [{nivel: 0, indice: $0, gasto: false}, {nivel: 0, indice: $1, gasto: false}, {nivel: 0, indice: $2, gasto: false}, ], "
+                                        "1: [{nivel: 1, indice: $3, gasto: false}, {nivel: 1, indice: $4, gasto: false}, {nivel: 1, indice: $5, gasto: false}, ], },  },",
           fn0.para_lancar(0).indice_conhecido(), fn0.para_lancar(1).indice_conhecido(), fn0.para_lancar(2).indice_conhecido(),
-          fn1.para_lancar(0).indice_conhecido(), fn1.para_lancar(1).indice_conhecido(), fn1.para_lancar(2).indice_conhecido()
-      )
-  ), std::string::npos) << json;
+          fn1.para_lancar(1).indice_conhecido(), fn1.para_lancar(2).indice_conhecido(), fn1.para_lancar(0).indice_conhecido());  // dominio por ultimo.
+  EXPECT_EQ(Trim(Grep(json, "slots_feiticos")), expected_para_lancar);
+}
+
+TEST(TesteJson, TesteJsonMagoEspecialista) {
+  auto proto = TabelasCriando().ModeloEntidade("Gnomo Ilusionista 3").entidade();
+  auto entidade = NovaEntidadeParaTestes(proto, TabelasCriando());
+  std::string json = entidade->ExportaJson();
+  EXPECT_NE(json.find("classes: [ {classe: 'mago_ilusionista', nivel: 3}, ]"), std::string::npos);
+  EXPECT_NE(json.find("escolas_proibidas: { mago: ['transmutacao', 'encantamento', ] }"), std::string::npos) << json;
 }
 
 }  // namespace ent.
