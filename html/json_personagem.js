@@ -64,7 +64,7 @@
 
   // Para magos especialistas. Cada entrada:
   // chave_classe: [],
-  escolas_proibidas: {},
+  escolas_proibidas: { ${ESCOLAS_PROIBIDAS} },
   // Feitiços conhecidos, cada entrada:
   // chave_classe: { 0: [ feitico, ... ], 1: [] ...}
   feiticos_conhecidos: { ${FEITICOS_CONHECIDOS} },
