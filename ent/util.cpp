@@ -22,7 +22,9 @@
 #include "absl/strings/match.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
+#include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
+#include "absl/strings/str_split.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
 #include "ent/comum.pb.h"
@@ -7435,6 +7437,15 @@ std::string JsonEscape(absl::string_view input) {
       {"\b", "\\b"},
       {"\f", "\\f"}
   });
+}
+
+std::string Grep(const std::string& in, absl::string_view padrao) {
+  std::vector<std::string> saida;
+  std::vector<std::string> linhas = absl::StrSplit(in, "\n");
+  for (const auto& linha : linhas) {
+    if (linha.find(padrao) != std::string::npos) saida.push_back(linha);
+  }
+  return absl::StrJoin(saida, "\n");
 }
 
 }  // namespace ent

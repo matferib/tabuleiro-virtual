@@ -3196,7 +3196,26 @@ std::string Entidade::ExportaJson() const {
   try {
     std::string json_classes;
     std::string json_dominios;
+    std::string json_escolas_proibidas;
     for (const auto& ic : proto_.info_classes()) {
+      if (ic.id() == "mago") {
+        const auto& fc = FeiticosClasse(ic.id(), proto_);
+        if (!fc.escolas_proibidas().empty()) {
+          absl::StrAppend(&json_escolas_proibidas, "mago: [");
+          for (const auto& escola : fc.escolas_proibidas()) {
+            absl::StrAppend(&json_escolas_proibidas, "'", escola , "', ");
+          }
+          absl::StrAppend(&json_escolas_proibidas, "]");
+        }
+        if (fc.especializacao() == "ilusao") {
+          absl::StrAppend(&json_classes, absl::Substitute("{classe: 'mago_ilusionista', nivel: $0},", ic.nivel()));
+          continue;
+        }
+        if (fc.especializacao() == "necromancia") {
+          absl::StrAppend(&json_classes, absl::Substitute("{classe: 'mago_necromante', nivel: $0},", ic.nivel()));
+          continue;
+        }
+      }
       absl::StrAppend(&json_classes, absl::Substitute("{classe: '$0', nivel: $1},", ic.id(), ic.nivel()));
     }
     std::string json_feiticos_conhecidos;
@@ -3215,10 +3234,20 @@ std::string Entidade::ExportaJson() const {
         absl::StrAppend(&json_feiticos_conhecidos, "], ");
         // lançar.
         absl::StrAppend(&json_feiticos_lancar, nivel, ": [");
+        const EntidadeProto::InfoLancar* para_lancar_restrito = nullptr;
         for (const auto& para_lancar : feiticos_por_nivel.para_lancar()) {
+          if (para_lancar.restrito()) {
+            para_lancar_restrito = &para_lancar;
+            continue;  // tem que ser a ultima entrada.
+          }
           absl::StrAppend(&json_feiticos_lancar, "{nivel: ", para_lancar.nivel_conhecido(),
                                                  ", indice: ", para_lancar.indice_conhecido(),
                                                  ", gasto: ", para_lancar.usado() ? "true" : "false", "}, ");
+        }
+        if (para_lancar_restrito != nullptr) {
+          absl::StrAppend(&json_feiticos_lancar, "{nivel: ", para_lancar_restrito->nivel_conhecido(),
+                                                 ", indice: ", para_lancar_restrito->indice_conhecido(),
+                                                 ", gasto: ", para_lancar_restrito->usado() ? "true" : "false", "}, ");
         }
         absl::StrAppend(&json_feiticos_lancar, "], ");
       }
@@ -3258,6 +3287,7 @@ std::string Entidade::ExportaJson() const {
         {"${DOMINIOS}", JsonEscape(json_dominios)},
         {"${FEITICOS_CONHECIDOS}", JsonEscape(json_feiticos_conhecidos)},
         {"${FEITICOS_LANCAR}", JsonEscape(json_feiticos_lancar)},
+        {"${ESCOLAS_PROIBIDAS}", JsonEscape(json_escolas_proibidas)},
         {"${XP}", JsonEscape(absl::StrCat(proto_.experiencia()))},
     });
   } catch (...) {
