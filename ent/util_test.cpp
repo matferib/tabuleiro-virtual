@@ -8585,6 +8585,7 @@ TEST(TesteJson, TesteJsonMagoEspecialista) {
   std::string json = entidade->ExportaJson();
   EXPECT_NE(json.find("classes: [ {classe: 'mago_ilusionista', nivel: 3}, ]"), std::string::npos);
   EXPECT_NE(json.find("escolas_proibidas: { mago_ilusionista: ['transmutacao', 'encantamento', ] }"), std::string::npos) << json;
+  EXPECT_NE(json.find("pocoes: [ {chave: 'curar_ferimentos_leves'}, {chave: 'curar_ferimentos_moderados'},  ]"), std::string::npos) << json;
 }
 
 }  // namespace ent.
