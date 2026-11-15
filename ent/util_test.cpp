@@ -8588,8 +8588,11 @@ TEST(TesteJson, TesteJsonMagoEspecialista) {
   EXPECT_NE(json.find("escolas_proibidas: { mago_ilusionista: ['transmutacao', 'encantamento', ] }"), std::string::npos) << json;
   EXPECT_NE(json.find("pocoes: [ {chave: 'curar_ferimentos_leves'}, {chave: 'curar_ferimentos_moderados'},  ]"), std::string::npos) << json;
   EXPECT_EQ(Trim(Grep(json, "alinhamento")), "alinhamento: 'n',");  // Não tem alinhamento definido.
-  EXPECT_EQ(Trim(Grep(json, "concentracao")), "{ chave: 'concentracao', pontos: 6,  },");  // Não tem alinhamento definido.
-  EXPECT_EQ(Trim(Grep(json, "oficios_alquimia")), "{ chave: 'oficios_alquimia', pontos: 3,  },");  // Não tem alinhamento definido.
+  EXPECT_EQ(Trim(Grep(json, "concentracao")), "{ chave: 'concentracao', pontos: 6,  },");
+  EXPECT_EQ(Trim(Grep(json, "oficios_alquimia")), "{ chave: 'oficios_alquimia', pontos: 3,  },");
+  EXPECT_EQ(Trim(Grep(json, "oficios_alquimia")), "{ chave: 'oficios_alquimia', pontos: 3,  },");
+  EXPECT_EQ(Trim(Grep(json, "magia_combate")), "gerais: [ { chave: 'magia_combate',  },");
+  EXPECT_EQ(Trim(Grep(json, "vitalidade")), "{ chave: 'vitalidade',  },");
 }
 
 }  // namespace ent.
