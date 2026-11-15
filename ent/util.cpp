@@ -7439,6 +7439,17 @@ std::string JsonEscape(absl::string_view input) {
   });
 }
 
+std::string JsonEscapeNoNewLine(absl::string_view input) {
+  return absl::StrReplaceAll(input, {
+      {"\\", "\\\\"}, // Obrigatoriamente o primeiro
+      {"\"", "\\\""},
+      {"\r", "\\r"},
+      {"\t", "\\t"},
+      {"\b", "\\b"},
+      {"\f", "\\f"}
+  });
+}
+
 std::string Grep(const std::string& in, absl::string_view padrao) {
   std::vector<std::string> saida;
   std::vector<std::string> linhas = absl::StrSplit(in, "\n");

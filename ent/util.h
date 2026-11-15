@@ -1322,6 +1322,7 @@ Cor HSVParaCor(Vector3 hsv);
 std::string TexturaAlbedo(const std::string& bump);
 
 std::string JsonEscape(absl::string_view input);
+std::string JsonEscapeNoNewLine(absl::string_view input);
 
 }  // namespace ent
 
