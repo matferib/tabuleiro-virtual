@@ -60,7 +60,7 @@
   talentos: { gerais: [], guerreiro: [], mago: [], monge: [], ranger: [], outros: [] },
 
   // pericias: cada entrada possui { chave, pontos, complemento }
-  pericias: [],
+  pericias: [ ${PERICIAS} ],
 
   // Para magos especialistas. Cada entrada:
   // chave_classe: [],
