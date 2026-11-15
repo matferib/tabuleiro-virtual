@@ -3231,6 +3231,32 @@ std::string JsonTalentosGerais(const EntidadeProto& proto) {
   return json_talentos;
 }
 
+std::string JsonTalentosMago(const EntidadeProto& proto) {
+  std::string json_talentos;
+  for (const auto& talento : proto.info_talentos().outros()) {
+    if (talento.origem() != "mago") continue;
+    std::string complementos_str;
+    if (talento.has_complemento()) {
+      complementos_str = absl::Substitute("complemento: '$0'", talento.complemento());
+    }
+    absl::StrAppend(&json_talentos, absl::Substitute("{ chave: '$0', $1 },\n", talento.id(), complementos_str));
+  }
+  return json_talentos;
+}
+
+std::string JsonTalentosRanger(const EntidadeProto& proto) {
+  std::string json_talentos;
+  for (const auto& talento : proto.info_talentos().outros()) {
+    if (talento.origem() != "ranger") continue;
+    std::string complementos_str;
+    if (talento.has_complemento()) {
+      complementos_str = absl::Substitute("complemento: '$0'", talento.complemento());
+    }
+    absl::StrAppend(&json_talentos, absl::Substitute("{ chave: '$0', $1 },\n", talento.id(), complementos_str));
+  }
+  return json_talentos;
+}
+
 }  // namespace
 
 std::string Entidade::ExportaJson() const {
@@ -3334,6 +3360,8 @@ std::string Entidade::ExportaJson() const {
         {"${CARISMA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().carisma())))},
         {"${PERICIAS}", JsonEscapeNoNewLine(JsonPericias(proto_))},
         {"${TALENTOS_GERAIS}", JsonEscapeNoNewLine(JsonTalentosGerais(proto_))},
+        {"${TALENTOS_MAGO}", JsonEscapeNoNewLine(JsonTalentosMago(proto_))},
+        {"${TALENTOS_RANGER}", JsonEscapeNoNewLine(JsonTalentosRanger(proto_))},
         {"${PECAS_OURO}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().po()))},
         {"${PECAS_PRATA}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pp()))},
         {"${PECAS_COBRE}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pc()))},

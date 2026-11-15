@@ -8593,6 +8593,28 @@ TEST(TesteJson, TesteJsonMagoEspecialista) {
   EXPECT_EQ(Trim(Grep(json, "oficios_alquimia")), "{ chave: 'oficios_alquimia', pontos: 3,  },");
   EXPECT_EQ(Trim(Grep(json, "magia_combate")), "gerais: [ { chave: 'magia_combate',  },");
   EXPECT_EQ(Trim(Grep(json, "vitalidade")), "{ chave: 'vitalidade',  },");
+  EXPECT_EQ(Trim(Grep(json, "escrever_pergaminho")), "mago: [ { chave: 'escrever_pergaminho',  },");
+}
+
+TEST(TesteJson, TesteJsonRanger) {
+  auto proto = TabelasCriando().ModeloEntidade("Gnoma Ranger (Duas Armas) 3").entidade();
+  auto entidade = NovaEntidadeParaTestes(proto, TabelasCriando());
+  std::string json = entidade->ExportaJson();
+  EXPECT_NE(json.find("classes: [ {classe: 'ranger', nivel: 3}, ]"), std::string::npos);
+  EXPECT_EQ(Trim(Grep(json, "pocoes")),
+            "pocoes: [ {chave: 'ajuda'}, {chave: 'curar_ferimentos_leves'}, {chave: 'curar_ferimentos_leves'}, {chave: 'escudo_fe_2'}, "
+                      "{chave: 'escudo_fe_2'}, {chave: 'nublar'}, {chave: 'agilidade_gato'}, {chave: 'forca_touro'},  ],");
+  EXPECT_EQ(Trim(Grep(json, "alinhamento")), "alinhamento: 'n',");  // Não tem alinhamento definido.
+  EXPECT_EQ(Trim(Grep(json, "sobrevivencia")), "{ chave: 'sobrevivencia', pontos: 6,  },");
+  EXPECT_EQ(Trim(Grep(json, "ouvir")), "{ chave: 'ouvir', pontos: 6,  },");
+  EXPECT_EQ(Trim(Grep(json, "adestrar_animais")), "{ chave: 'adestrar_animais', pontos: 6,  },");
+  EXPECT_EQ(Trim(Grep(json, "procurar")), "pericias: [ { chave: 'procurar', pontos: 6,  },");
+  EXPECT_EQ(Trim(Grep(json, "observar")), "{ chave: 'observar', pontos: 6,  },");
+  EXPECT_EQ(Trim(Grep(json, "acuidade_arma")), "gerais: [ { chave: 'acuidade_arma',  },");
+  EXPECT_EQ(Trim(Grep(json, "bloqueio_ambidestro")), "{ chave: 'bloqueio_ambidestro',  },");
+  EXPECT_EQ(Trim(Grep(json, "rastrear")), "ranger: [ { chave: 'rastrear',  },");
+  EXPECT_EQ(Trim(Grep(json, "tolerancia")), "{ chave: 'tolerancia',  },");
+  EXPECT_EQ(Trim(Grep(json, "combater_duas_armas")), "{ chave: 'combater_duas_armas',  },");
 }
 
 }  // namespace ent.
