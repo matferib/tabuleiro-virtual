@@ -352,7 +352,8 @@ static inline std::string& trim(std::string& s) {
   return ltrim(rtrim(s));
 }
 
-std::string Grep(const std::string& in, absl::string_view padrao);
+// Menos v serve para excluir linhas que contem o padrao menos_v.
+std::string Grep(const std::string& in, absl::string_view padrao, absl::string_view menos_v = "");
 
 // Normaliza o texto passado, tirando sequencias UTF-8.
 const std::string StringSemUtf8(const std::string& texto);
