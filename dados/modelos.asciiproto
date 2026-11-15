@@ -9672,6 +9672,9 @@ modelo {
     dados_ataque { rotulo: 'esp longa' id_arma: 'espada_longa' empunhadura: EA_ARMA_ESCUDO obra_prima: true }
     dados_ataque { tipo_ataque: 'Ataque a Distância' id_arma: 'besta_pesada' obra_prima: true }
     dados_defesa { id_armadura: 'cota_talas' id_escudo: 'pesado_aco' }
+    info_pericias { id: 'escalar' pontos: 4 }
+    info_pericias { id: 'intimidacao' pontos: 4 }
+
     info_talentos {
       gerais { id: 'reflexos_em_combate' }
       outros { id: 'vitalidade' origem: 'humano' }
