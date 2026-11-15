@@ -8617,6 +8617,23 @@ TEST(TesteJson, TesteJsonRanger) {
   EXPECT_EQ(Trim(Grep(json, "combater_duas_armas")), "{ chave: 'combater_duas_armas',  },");
 }
 
+TEST(TesteJson, TesteJsonGuerreiro) {
+  auto proto = TabelasCriando().ModeloEntidade("Humano Guerreiro").entidade();
+  auto entidade = NovaEntidadeParaTestes(proto, TabelasCriando());
+  std::string json = entidade->ExportaJson();
+  EXPECT_NE(json.find("classes: [ {classe: 'guerreiro', nivel: 1}, ]"), std::string::npos);
+  EXPECT_EQ(Trim(Grep(json, "pocoes")),
+            "pocoes: [ {chave: 'curar_ferimentos_leves'},  ],");
+  EXPECT_EQ(Trim(Grep(json, "alinhamento")), "alinhamento: 'n',");  // Não tem alinhamento definido.
+  // Pericias.
+  EXPECT_EQ(Trim(Grep(json, "escalar")), "pericias: [ { chave: 'escalar', pontos: 4,  },");
+  EXPECT_EQ(Trim(Grep(json, "intimidacao")), "{ chave: 'intimidacao', pontos: 4,  },");
+  // Talentos.
+  EXPECT_EQ(Trim(Grep(json, "reflexos_em_combate")), "gerais: [ { chave: 'reflexos_em_combate',  },");
+  EXPECT_EQ(Trim(Grep(json, "vitalidade")), "outros: [ { chave: 'vitalidade',  },");  // humano.
+  EXPECT_EQ(Trim(Grep(json, "foco_em_arma")), "guerreiro: [ { chave: 'foco_em_arma', complemento: 'espada_longa' },");
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

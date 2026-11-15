@@ -3231,10 +3231,10 @@ std::string JsonTalentosGerais(const EntidadeProto& proto) {
   return json_talentos;
 }
 
-std::string JsonTalentosMago(const EntidadeProto& proto) {
+std::string JsonTalentosClasse(const EntidadeProto& proto, absl::string_view classe) {
   std::string json_talentos;
   for (const auto& talento : proto.info_talentos().outros()) {
-    if (talento.origem() != "mago") continue;
+    if (talento.origem() != classe) continue;
     std::string complementos_str;
     if (talento.has_complemento()) {
       complementos_str = absl::Substitute("complemento: '$0'", talento.complemento());
@@ -3244,10 +3244,12 @@ std::string JsonTalentosMago(const EntidadeProto& proto) {
   return json_talentos;
 }
 
-std::string JsonTalentosRanger(const EntidadeProto& proto) {
+// Outros é confuso, pq outros no tabuleiro é tudo que não vem dos regulares. Na planilha, cada classe tem sua entrada propria.
+// Outros la se refere a coisas que nao se encaixam nas classes, como talento de humano, por exemplo.
+std::string JsonTalentosOutros(const EntidadeProto& proto) {
   std::string json_talentos;
   for (const auto& talento : proto.info_talentos().outros()) {
-    if (talento.origem() != "ranger") continue;
+    if (talento.origem() != "humano") continue;
     std::string complementos_str;
     if (talento.has_complemento()) {
       complementos_str = absl::Substitute("complemento: '$0'", talento.complemento());
@@ -3256,6 +3258,7 @@ std::string JsonTalentosRanger(const EntidadeProto& proto) {
   }
   return json_talentos;
 }
+
 
 }  // namespace
 
@@ -3360,8 +3363,10 @@ std::string Entidade::ExportaJson() const {
         {"${CARISMA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().carisma())))},
         {"${PERICIAS}", JsonEscapeNoNewLine(JsonPericias(proto_))},
         {"${TALENTOS_GERAIS}", JsonEscapeNoNewLine(JsonTalentosGerais(proto_))},
-        {"${TALENTOS_MAGO}", JsonEscapeNoNewLine(JsonTalentosMago(proto_))},
-        {"${TALENTOS_RANGER}", JsonEscapeNoNewLine(JsonTalentosRanger(proto_))},
+        {"${TALENTOS_MAGO}", JsonEscapeNoNewLine(JsonTalentosClasse(proto_, "mago"))},
+        {"${TALENTOS_RANGER}", JsonEscapeNoNewLine(JsonTalentosClasse(proto_, "ranger"))},
+        {"${TALENTOS_GUERREIRO}", JsonEscapeNoNewLine(JsonTalentosClasse(proto_, "guerreiro"))},
+        {"${TALENTOS_OUTROS}", JsonEscapeNoNewLine(JsonTalentosOutros(proto_))},
         {"${PECAS_OURO}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().po()))},
         {"${PECAS_PRATA}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pp()))},
         {"${PECAS_COBRE}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pc()))},
