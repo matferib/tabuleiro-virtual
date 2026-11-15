@@ -7450,10 +7450,11 @@ std::string JsonEscapeNoNewLine(absl::string_view input) {
   });
 }
 
-std::string Grep(const std::string& in, absl::string_view padrao) {
+std::string Grep(const std::string& in, absl::string_view padrao, absl::string_view menos_v) {
   std::vector<std::string> saida;
   std::vector<std::string> linhas = absl::StrSplit(in, "\n");
   for (const auto& linha : linhas) {
+    if (!menos_v.empty() && linha.find(menos_v) != std::string::npos) continue;
     if (linha.find(padrao) != std::string::npos) saida.push_back(linha);
   }
   return absl::StrJoin(saida, "\n");
