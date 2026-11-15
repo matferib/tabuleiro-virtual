@@ -57,7 +57,14 @@
   chapeus: [],
   outros_equipamentos: '',
   // talentos. Cada chave possui { chave, complemento }, se houver.
-  talentos: { gerais: [], guerreiro: [], mago: [], monge: [], ranger: [], outros: [] },
+  talentos: {
+    gerais: [ ${TALENTOS_GERAIS} ],
+    guerreiro: [ ${TALENTOS_GUERREIRO} ],
+    mago: [ ${TALENTOS_MAGO} ],
+    monge: [ ${TALENTOS_MONGE} ],
+    ranger: [ ${TALENTOS_RANGER} ],
+    outros: [ ${TALENTOS_OUTROS} ],
+  },
 
   // pericias: cada entrada possui { chave, pontos, complemento }
   pericias: [ ${PERICIAS} ],
