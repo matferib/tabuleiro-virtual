@@ -3366,6 +3366,7 @@ std::string Entidade::ExportaJson() const {
         {"${TALENTOS_MAGO}", JsonEscapeNoNewLine(JsonTalentosClasse(proto_, "mago"))},
         {"${TALENTOS_RANGER}", JsonEscapeNoNewLine(JsonTalentosClasse(proto_, "ranger"))},
         {"${TALENTOS_GUERREIRO}", JsonEscapeNoNewLine(JsonTalentosClasse(proto_, "guerreiro"))},
+        {"${TALENTOS_MONGE}", JsonEscapeNoNewLine(JsonTalentosClasse(proto_, "monge"))},
         {"${TALENTOS_OUTROS}", JsonEscapeNoNewLine(JsonTalentosOutros(proto_))},
         {"${PECAS_OURO}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().po()))},
         {"${PECAS_PRATA}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pp()))},

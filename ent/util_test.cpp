@@ -8634,6 +8634,27 @@ TEST(TesteJson, TesteJsonGuerreiro) {
   EXPECT_EQ(Trim(Grep(json, "foco_em_arma")), "guerreiro: [ { chave: 'foco_em_arma', complemento: 'espada_longa' },");
 }
 
+TEST(TesteJson, TesteJsonMonge) {
+  auto proto = TabelasCriando().ModeloEntidade("Humano Monge 1").entidade();
+  auto entidade = NovaEntidadeParaTestes(proto, TabelasCriando());
+  std::string json = entidade->ExportaJson();
+  EXPECT_EQ(Trim(Grep(json, "raca: ", /*menos_v=*/"canimal")), "raca: 'humano',");
+  EXPECT_EQ(Trim(Grep(json, "classes", /*menos_v=*/"paladino")), "classes: [ {classe: 'monge', nivel: 1}, ],");
+  EXPECT_EQ(Trim(Grep(json, "pocoes")),
+            "pocoes: [ {chave: 'curar_ferimentos_leves'}, {chave: 'curar_ferimentos_leves'}, {chave: 'escudo_fe_2'}, {chave: 'escudo_fe_2'}, {chave: 'armadura_arcana'},  ],");
+  EXPECT_EQ(Trim(Grep(json, "alinhamento")), "alinhamento: 'n',");  // Não tem alinhamento definido.
+  // Pericias.
+  EXPECT_EQ(Trim(Grep(json, "equilibrio")), "pericias: [ { chave: 'equilibrio', pontos: 2,  },");
+  EXPECT_EQ(Trim(Grep(json, "escalar")), "{ chave: 'escalar', pontos: 2,  },");
+  EXPECT_EQ(Trim(Grep(json, "esconderse")), "{ chave: 'esconderse', pontos: 2,  },");
+  EXPECT_EQ(Trim(Grep(json, "saltar")), "{ chave: 'saltar', pontos: 2,  },");
+  EXPECT_EQ(Trim(Grep(json, "acrobacias")), "{ chave: 'acrobacias', pontos: 2,  },");
+  // Talentos.
+  EXPECT_EQ(Trim(Grep(json, "esquiva")), "gerais: [ { chave: 'esquiva',  },");
+  EXPECT_EQ(Trim(Grep(json, "ataque_atordoante")), "monge: [ { chave: 'ataque_atordoante',  },");
+  EXPECT_EQ(Trim(Grep(json, "vitalidade")), "outros: [ { chave: 'vitalidade',  },");  // humano.
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {
