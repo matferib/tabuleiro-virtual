@@ -3189,6 +3189,36 @@ bool RacaTabeladaPlanilha(const std::string& raca) {
   };
   return racas_tabeladas.contains(raca);
 }
+
+std::string JsonAlinhamento(const EntidadeProto& proto) {
+  switch (proto.tendencia().simples()) {
+    case TD_LEAL_BOM: return "lb";
+    case TD_LEAL_NEUTRO: return "ln";
+    case TD_LEAL_MAU: return "lm";
+    case TD_NEUTRO_BOM: return "nb";
+    case TD_NEUTRO: return "n";
+    case TD_NEUTRO_MAU: return "nm";
+    case TD_CAOTICO_BOM: return "cb";
+    case TD_CAOTICO_NEUTRO: return "cn";
+    case TD_CAOTICO_MAU: return "cm";
+    default: return "n";
+  }
+}
+
+std::string JsonPericias(const EntidadeProto& proto) {
+  std::string json_pericias;
+  for (const auto& pericia : proto.info_pericias()) {
+    if (pericia.has_substituir()) continue;
+    if (pericia.pontos() == 0) continue;
+    std::string complementos_str;
+    if (pericia.has_complemento()) {
+      complementos_str = absl::Substitute("complemento: '$0'", pericia.complemento());
+    }
+    absl::StrAppend(&json_pericias, absl::Substitute("{ chave: '$0', pontos: $1, $2 },\n", pericia.id(), pericia.pontos(), complementos_str));
+  }
+  return json_pericias;
+}
+
 }  // namespace
 
 std::string Entidade::ExportaJson() const {
@@ -3280,7 +3310,7 @@ std::string Entidade::ExportaJson() const {
         {"${NOME}", JsonEscape(proto_.rotulo())},
         {"${RACA}", JsonEscape(proto_.raca())},
         {"${TAMANHO}", JsonEscape("medio")},
-        {"${ALINHAMENTO}", JsonEscape("CN")},
+        {"${ALINHAMENTO}", JsonEscape(JsonAlinhamento(proto_))},
         {"${CLASSES}", JsonEscape(json_classes)},
         {"${PONTOS_VIDA}", JsonEscape(absl::StrCat(pontos_vida))},
         {"${FERIMENTOS}", JsonEscape(absl::StrCat(MaximoPontosVida() - PontosVida()))},
@@ -3290,6 +3320,7 @@ std::string Entidade::ExportaJson() const {
         {"${INTELIGENCIA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().inteligencia())))},
         {"${SABEDORIA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().sabedoria())))},
         {"${CARISMA}", JsonEscape(absl::StrCat(BonusTotalPlanilha(proto_.atributos().carisma())))},
+        {"${PERICIAS}", JsonEscapeNoNewLine(JsonPericias(proto_))},
         {"${PECAS_OURO}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().po()))},
         {"${PECAS_PRATA}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pp()))},
         {"${PECAS_COBRE}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pc()))},

@@ -8577,6 +8577,7 @@ TEST(TesteJson, TesteJsonDominios) {
           fn0.para_lancar(0).indice_conhecido(), fn0.para_lancar(1).indice_conhecido(), fn0.para_lancar(2).indice_conhecido(),
           fn1.para_lancar(1).indice_conhecido(), fn1.para_lancar(2).indice_conhecido(), fn1.para_lancar(0).indice_conhecido());  // dominio por ultimo.
   EXPECT_EQ(Trim(Grep(json, "slots_feiticos")), expected_para_lancar);
+  EXPECT_EQ(Trim(Grep(json, "alinhamento")), "alinhamento: 'ln',");
 }
 
 TEST(TesteJson, TesteJsonMagoEspecialista) {
@@ -8586,6 +8587,9 @@ TEST(TesteJson, TesteJsonMagoEspecialista) {
   EXPECT_NE(json.find("classes: [ {classe: 'mago_ilusionista', nivel: 3}, ]"), std::string::npos);
   EXPECT_NE(json.find("escolas_proibidas: { mago_ilusionista: ['transmutacao', 'encantamento', ] }"), std::string::npos) << json;
   EXPECT_NE(json.find("pocoes: [ {chave: 'curar_ferimentos_leves'}, {chave: 'curar_ferimentos_moderados'},  ]"), std::string::npos) << json;
+  EXPECT_EQ(Trim(Grep(json, "alinhamento")), "alinhamento: 'n',");  // Não tem alinhamento definido.
+  EXPECT_EQ(Trim(Grep(json, "concentracao")), "{ chave: 'concentracao', pontos: 6,  },");  // Não tem alinhamento definido.
+  EXPECT_EQ(Trim(Grep(json, "oficios_alquimia")), "{ chave: 'oficios_alquimia', pontos: 3,  },");  // Não tem alinhamento definido.
 }
 
 }  // namespace ent.
