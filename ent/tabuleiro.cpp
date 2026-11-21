@@ -1,6 +1,6 @@
 #if USAR_QT
-#include <QApplication>
-#include <QClipboard>
+#include <QtGui/QClipboard>
+#include <QtWidgets/QApplication>
 #else
 #endif
 #include <algorithm>
