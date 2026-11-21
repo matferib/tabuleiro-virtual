@@ -3260,7 +3260,7 @@ std::string JsonTalentosOutros(const EntidadeProto& proto) {
 }
 
 std::string JsonFamiliar(const EntidadeProto& proto) {
-  std::string raca
+  std::string raca;
   switch (proto.tipo_familiar()) {
     case TF_MORCEGO: raca = "morcego"; break;
     case TF_GATO: raca = "gato"; break;
