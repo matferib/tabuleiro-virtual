@@ -1401,15 +1401,15 @@ message IluminacaoDirecional {
 }
 
 enum TipoFamiliar {
-  TF_NENHUM,
-  TF_MORCEGO,
-  TF_GATO,
-  TF_FALCAO,  // hawk
-  TF_LAGARTO,
-  TF_CORUJA,
-  TF_RATO,
-  TF_CORVO,
-  TF_COBRA,
-  TF_SAPO,
-  TF_TEXUGO,  // weasel
+  TF_NENHUM  = 0,
+  TF_MORCEGO = 1,
+  TF_GATO    = 2,
+  TF_FALCAO  = 3,  // hawk
+  TF_LAGARTO = 4,
+  TF_CORUJA  = 5,
+  TF_RATO    = 6,
+  TF_CORVO   = 7,
+  TF_COBRA   = 8,
+  TF_SAPO    = 9,
+  TF_TEXUGO  = 10,  // weasel
 }
