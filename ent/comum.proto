@@ -866,6 +866,7 @@ message InfoClasse {
   // Indica o tipo da classe tabelada.
   TipoClasse tipo_classe = 26;
   // Talentos que a classe ganha automaticamente.
+  // Caso tenha sufixo :nivel, personagem ganha aquele talento no nivel passado.
   repeated string talentos_automaticos = 29;
   // so id e complemento.
   repeated TalentoProto talentos_com_complemento_automaticos = 31;
