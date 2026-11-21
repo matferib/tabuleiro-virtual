@@ -179,6 +179,9 @@ TEST(TesteAtaqueVsDefesa, TesteGnomaRangerDuasArmas3) {
   EXPECT_EQ(darco.bonus_ataque_final(), 7);
   EXPECT_GT(darco.alcance_m(), 0);
 
+  EXPECT_TRUE(PossuiTalento("rastrear", proto));   // 1 nivel.
+  EXPECT_TRUE(PossuiTalento("tolerancia", proto)); // 3 nivel.
+
   // Verificar: CA vs gigante +4.
 }
 
@@ -8605,16 +8608,16 @@ TEST(TesteJson, TesteJsonRanger) {
             "pocoes: [ {chave: 'ajuda'}, {chave: 'curar_ferimentos_leves'}, {chave: 'curar_ferimentos_leves'}, {chave: 'escudo_fe_2'}, "
                       "{chave: 'escudo_fe_2'}, {chave: 'nublar'}, {chave: 'agilidade_gato'}, {chave: 'forca_touro'},  ],");
   EXPECT_EQ(Trim(Grep(json, "alinhamento")), "alinhamento: 'n',");  // Não tem alinhamento definido.
+  // Pericias.
   EXPECT_EQ(Trim(Grep(json, "sobrevivencia")), "{ chave: 'sobrevivencia', pontos: 6,  },");
   EXPECT_EQ(Trim(Grep(json, "ouvir")), "{ chave: 'ouvir', pontos: 6,  },");
   EXPECT_EQ(Trim(Grep(json, "adestrar_animais")), "{ chave: 'adestrar_animais', pontos: 6,  },");
   EXPECT_EQ(Trim(Grep(json, "procurar")), "pericias: [ { chave: 'procurar', pontos: 6,  },");
   EXPECT_EQ(Trim(Grep(json, "observar")), "{ chave: 'observar', pontos: 6,  },");
+  // Talentos.
   EXPECT_EQ(Trim(Grep(json, "acuidade_arma")), "gerais: [ { chave: 'acuidade_arma',  },");
   EXPECT_EQ(Trim(Grep(json, "bloqueio_ambidestro")), "{ chave: 'bloqueio_ambidestro',  },");
-  EXPECT_EQ(Trim(Grep(json, "rastrear")), "ranger: [ { chave: 'rastrear',  },");
-  EXPECT_EQ(Trim(Grep(json, "tolerancia")), "{ chave: 'tolerancia',  },");
-  EXPECT_EQ(Trim(Grep(json, "combater_duas_armas")), "{ chave: 'combater_duas_armas',  },");
+  EXPECT_EQ(Trim(Grep(json, "combater_duas_armas")), "ranger: [ { chave: 'combater_duas_armas',  },");
 }
 
 TEST(TesteJson, TesteJsonGuerreiro) {
