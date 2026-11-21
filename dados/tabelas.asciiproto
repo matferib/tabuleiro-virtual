@@ -5101,6 +5101,7 @@ tabela_classes {
   info_classes {
     id: 'ranger' nome: 'Ranger' progressao_bba: PBBA_UM progressao_conjurador: PCONJ_MEIO_MIN_4 dv: 8
     talentos_automaticos: 'rastrear'
+    talentos_automaticos: 'tolerancia:3'
     talentos_automaticos: 'usar_escudo'
     talentos_automaticos: 'usar_armadura_leve'
     talentos_automaticos: 'usar_armas_simples'
