@@ -1,4 +1,5 @@
-Exportar planilhas do tabuleiro como texto.
+Exportar estilos de luta.
+Exportar json outros tipos de tesouro.
 
 Implementar UI de efeitos que preenche complementos de acordo com tipo (por exemplo, uma poção que afeta uma arma, como arma mágica).
 
