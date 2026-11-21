@@ -5124,7 +5124,7 @@ modelo {
     sub_tipo_dnd: SUBTIPO_GOBLINOIDE
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     info_classes {
-      id: 'humanoide' nivel: 1
+      id: 'combatente' nivel: 1
       pericias_monstro: 'esconderse'
       pericias_monstro: 'ouvir'
       pericias_monstro: 'furtividade'
@@ -5160,20 +5160,54 @@ modelo {
       terrestre_basico_q: 6
     }
     tendencia { simples: TD_LEAL_MAU }
-
   }
 }
 modelo {
   id: 'Hobgoblin Sargento'
   entidade {
-    dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargento.png' translacao_x: 0.2 largura: 0.6 } cor { r: 0.3 g: 0.3 b: 0.15 }
+    tamanho: TM_MEDIO
+    tipo_dnd: TIPO_HUMANOIDE
+    sub_tipo_dnd: SUBTIPO_GOBLINOIDE
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 7 dano: '1d8+2' margem_critico: 19 ca_normal: 21 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 5 dano: '1d6+3' ca_normal: 20 }
-    modificador_iniciativa: 2
+    info_classes {
+      id: 'combatente' nivel: 3
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    tesouro {
+      moedas { po: 5 pp: 20 }
+      armas { id: 'espada_longa' id_tabela: 'espada_longa' }
+      armas { id: 'azagaia' id_tabela: 'azagaia' }
+      armaduras { id: 'gibao_peles' id_tabela: 'couro_batido' }
+      valor_esperado_po: 600  # CR 2, DMG 51. No lar.
+    }
+    info_pericias { id: 'esconderse' pontos: 6 }
+    info_pericias { id: 'ouvir' pontos: 3 }
+    info_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'observar' pontos: 3 }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      gerais { id: 'foco_em_arma' complemento: 'espada_longa' }
+    }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'espada_longa' id_arma_tesouro: 'espada_longa' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' }
+
+    dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargeant.png' translacao_x: 0.2 largura: 0.6 } cor { r: 0.3 g: 0.3 b: 0.15 }
+    tendencia { simples: TD_LEAL_MAU }
   }
 }
 modelo {
+  # No livro do mestre tem um grande exemplo de hobgoblin nivel 5 (guerreiro PdM).
   id: 'Hobgoblin Tenente 5'
   entidade {
     dados_vida: '5d10+15' info_textura { id: 'hobgoblin_tenente.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
