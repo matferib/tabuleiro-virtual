@@ -1399,3 +1399,17 @@ message IluminacaoDirecional {
   // Posicao do eixo do sol (0 = norte, 90 = leste, 180 = sul, 270 = oeste).
   float posicao_graus = 3 [default=0.0];
 }
+
+enum TipoFamiliar {
+  TF_NENHUM,
+  TF_MORCEGO,
+  TF_GATO,
+  TF_FALCAO,  // hawk
+  TF_LAGARTO,
+  TF_CORUJA,
+  TF_RATO,
+  TF_CORVO,
+  TF_COBRA,
+  TF_SAPO,
+  TF_TEXUGO,  // weasel
+}
