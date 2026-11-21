@@ -9192,6 +9192,7 @@ modelo {
     }
     info_talentos {
       gerais { id: 'foco_em_arma' complemento: 'funda' }
+      gerais { id: 'preparar_pocao' }
     }
     # 2 pericias com 6 pontos.
     info_pericias { id: 'concentracao' pontos: 5 }
@@ -10318,8 +10319,6 @@ modelo {
       gerais { id: 'acuidade_arma' }
       gerais { id: 'bloqueio_ambidestro' }
       # ranger.
-      outros { id: 'rastrear' origem: 'ranger' }
-      outros { id: 'tolerancia' origem: 'ranger' }
       outros { id: 'combater_duas_armas' origem: 'ranger' }  # estilo de combate.
     }
     # 5 pericias com 6.
