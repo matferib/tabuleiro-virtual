@@ -1,5 +1,8 @@
 Exportar estilos de luta.
 Exportar json outros tipos de tesouro.
+Entender pq talento de mago ilusionista não está aparecendo na planilha exportada.
+
+Exportar json familiar (tem que fazer UI do jogador).
 
 Implementar UI de efeitos que preenche complementos de acordo com tipo (por exemplo, uma poção que afeta uma arma, como arma mágica).
 
