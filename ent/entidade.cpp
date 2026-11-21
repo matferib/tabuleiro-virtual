@@ -3259,6 +3259,30 @@ std::string JsonTalentosOutros(const EntidadeProto& proto) {
   return json_talentos;
 }
 
+std::string JsonFamiliar(const EntidadeProto& proto) {
+  std::string raca
+  switch (proto.tipo_familiar()) {
+    case TF_MORCEGO: raca = "morcego"; break;
+    case TF_GATO: raca = "gato"; break;
+    case TF_FALCAO: raca = "falcao"; break;
+    case TF_LAGARTO: raca = "lagarto"; break;
+    case TF_CORUJA: raca = "coruja"; break;
+    case TF_RATO: raca = "rato"; break;
+    case TF_CORVO: raca = "corvo"; break;
+    case TF_COBRA: raca = "cobra"; break;
+    case TF_SAPO: raca = "sapo"; break;
+    case TF_TEXUGO: raca = "texugo"; break;
+    default: return "em_uso: false";
+  }
+  std::string json_canimal = absl::StrCat("em_uso: true, chave: '$0', temporarios: 0, ferimentos: 0, ferimentos_nao_letais: 0", raca);
+  return json_canimal;
+}
+
+
+// TODO.
+std::string JsonCompanheiroAnimal(const EntidadeProto& proto) {
+  return "";
+}
 
 }  // namespace
 
@@ -3368,6 +3392,8 @@ std::string Entidade::ExportaJson() const {
         {"${TALENTOS_GUERREIRO}", JsonEscapeNoNewLine(JsonTalentosClasse(proto_, "guerreiro"))},
         {"${TALENTOS_MONGE}", JsonEscapeNoNewLine(JsonTalentosClasse(proto_, "monge"))},
         {"${TALENTOS_OUTROS}", JsonEscapeNoNewLine(JsonTalentosOutros(proto_))},
+        {"${FAMILIAR}", JsonEscapeNoNewLine(JsonFamiliar(proto_))},
+        {"${COMPANHEIRO_ANIMAL}", JsonEscapeNoNewLine(JsonCompanheiroAnimal(proto_))},
         {"${PECAS_OURO}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().po()))},
         {"${PECAS_PRATA}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pp()))},
         {"${PECAS_COBRE}", JsonEscape(absl::StrCat(proto_.tesouro().moedas().pc()))},

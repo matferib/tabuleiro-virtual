@@ -13,8 +13,10 @@
   // String com as chaves de dominio.
   dominios: [ ${DOMINIOS} ],
   // Familiar nao tem base de PV porque depende do PV do personagem.
-  familiar: { em_uso: false, chave: '', temporarios: 0, ferimentos: 0, ferimentos_nao_letais: 0 },
-  canimal: { raca: '', base: 0, temporarios: 0, ferimentos: 0, ferimentos_nao_letais: 0, notas: '' },
+  // familiar: { em_uso: false, chave: '', temporarios: 0, ferimentos: 0, ferimentos_nao_letais: 0 },
+  familiar: { ${FAMILIAR} },
+  // canimal: { raca: '', base: 0, temporarios: 0, ferimentos: 0, ferimentos_nao_letais: 0, notas: '' },
+  canimal: { ${COMPANHEIRO_ANIMAL} },
   niveis_negativos: 0,
   // pontos de vida.
   pontos_vida: ${PONTOS_VIDA},
