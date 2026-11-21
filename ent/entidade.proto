@@ -28,7 +28,7 @@ enum TipoForma {
   TF_MODELO = 10;
 }
 
-// Proximo id: 130.
+// Proximo id: 131.
 message EntidadeProto {
   string raca = 99;
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -420,6 +420,7 @@ message EntidadeProto {
   string ultima_pericia = 116;
   // Familiar da entidade.
   uint32 familiar = 118;
+  TipoFamiliar tipo_familiar = 130;
   // Times representam aliados. Usado para feiticos que afetam apenas aliados e controles automaticos.
   repeated uint32 times = 119;
 
