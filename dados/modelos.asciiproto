@@ -5138,8 +5138,12 @@ modelo {
     info_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
     info_pericias { id: 'observar' pontos: 2 }
 
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'espada_longa' id_arma_tesouro: 'espada_longa' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'espada_longa' id_arma_tesouro: 'espada_longa' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' empunhadura: EA_ARMA_ESCUDO }
+    dados_defesa {
+      id_armadura_tesouro: 'gibao_peles'
+      id_escudo_tesouro: 'leve_madeira'
+    }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
       destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
@@ -5153,7 +5157,8 @@ modelo {
       moedas { po: 1 pp: 3 }
       armas { id: 'espada_longa' id_tabela: 'espada_longa' }
       armas { id: 'azagaia' id_tabela: 'azagaia' }
-      armaduras { id: 'gibao_peles' id_tabela: 'couro_batido' }
+      armaduras { id: 'gibao_peles' id_tabela: 'gibao_peles' em_uso: true }
+      escudos { id: 'leve_madeira' id_tabela: 'leve_madeira' em_uso: true }
       valor_esperado_po: 150  # CR 1/2, DMG 51. No lar.
     }
     movimento {
@@ -5188,7 +5193,8 @@ modelo {
       moedas { po: 5 pp: 20 }
       armas { id: 'espada_longa' id_tabela: 'espada_longa' }
       armas { id: 'azagaia' id_tabela: 'azagaia' }
-      armaduras { id: 'gibao_peles' id_tabela: 'couro_batido' }
+      armaduras { id: 'gibao_peles' id_tabela: 'gibao_peles' em_uso: true }
+      escudos { id: 'leve_madeira' id_tabela: 'leve_madeira' em_uso: true }
       valor_esperado_po: 600  # CR 2, DMG 51. No lar.
     }
     info_pericias { id: 'esconderse' pontos: 6 }
@@ -5199,9 +5205,12 @@ modelo {
       gerais { id: 'prontidao' }
       gerais { id: 'foco_em_arma' complemento: 'espada_longa' }
     }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'espada_longa' id_arma_tesouro: 'espada_longa' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' }
-
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'espada_longa' id_arma_tesouro: 'espada_longa' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' empunhadura: EA_ARMA_ESCUDO }
+    dados_defesa {
+      id_armadura_tesouro: 'gibao_peles'
+      id_escudo_tesouro: 'leve_madeira'
+    }
     dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargeant.png' translacao_x: 0.1 largura: 0.8 } cor { r: 0.3 g: 0.3 b: 0.15 }
     tendencia { simples: TD_LEAL_MAU }
   }
