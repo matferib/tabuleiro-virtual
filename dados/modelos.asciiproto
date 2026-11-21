@@ -5202,7 +5202,7 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'espada_longa' id_arma_tesouro: 'espada_longa' }
     dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' }
 
-    dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargeant.png' translacao_x: 0.2 largura: 0.6 } cor { r: 0.3 g: 0.3 b: 0.15 }
+    dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargeant.png' translacao_x: 0.1 largura: 0.8 } cor { r: 0.3 g: 0.3 b: 0.15 }
     tendencia { simples: TD_LEAL_MAU }
   }
 }
