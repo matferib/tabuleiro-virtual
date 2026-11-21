@@ -1,8 +1,9 @@
 #include "ent/recomputa.h"
 
 #include <unordered_set>
-#include "absl/strings/str_format.h"
 #include "absl/strings/str_cat.h"
+#include "absl/strings/str_format.h"
+#include "absl/strings/str_split.h"
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"
@@ -2372,7 +2373,17 @@ void RecomputaDependenciasTalentos(const Tabelas& tabelas, EntidadeProto* proto)
   proto->mutable_info_talentos()->clear_automaticos();
   for (const auto& ic : proto->info_classes()) {
     const auto& classe_tabelada = tabelas.Classe(ic.id());
-    for (const std::string& id_talento : classe_tabelada.talentos_automaticos()) {
+    for (const std::string& id_talento_nivel : classe_tabelada.talentos_automaticos()) {
+      std::vector<std::string> tv = absl::StrSplit(id_talento_nivel, ":");
+      if (tv.empty()) continue;
+      std::string id_talento = tv[0];
+      int nivel_minimo = 1;
+      if (tv.size() > 1) {
+        if (!absl::SimpleAtoi(tv[1], &nivel_minimo)) {
+          nivel_minimo = 1;
+        }
+      }
+      if (ic.nivel() < nivel_minimo) continue;
       auto* talento = proto->mutable_info_talentos()->add_automaticos();
       talento->set_id(id_talento);
       talento->set_origem(tabelas.Classe(ic.id()).nome());
