@@ -145,7 +145,7 @@ void PreencheComboTextura(const std::string& id_corrente, int id_cliente, std::f
     int index = combo_textura->findText(QString(id_corrente.c_str()));
     if (index == -1) {
       // Neste caso, a textura não existe para o cliente. Criar a entrada agora.
-      combo_textura->addItem(QString(combo_textura->tr("Manter Atual")), QVariant(MANTEM_TEXTURA));
+      combo_textura->addItem(QString(combo_textura->tr(absl::StrCat("Manter Atual: ", id_corrente).c_str())), QVariant(MANTEM_TEXTURA));
       index = combo_textura->count() - 1;
     }
     combo_textura->setCurrentIndex(index);
@@ -533,9 +533,11 @@ void PreencheConfiguraComboArmaduraEscudo(
     QVariant idvar = combo_armadura->itemData(combo_armadura->currentIndex());
     std::string id = idvar.toString().toStdString();
     if (id.find(kPrefixoEquipamento) == 0) {
-      proto_retornado->mutable_dados_defesa()->set_id_armadura(id.substr(strlen(kPrefixoEquipamento)));
+      proto_retornado->mutable_dados_defesa()->set_id_armadura_tesouro(id.substr(strlen(kPrefixoEquipamento)));
+      proto_retornado->mutable_dados_defesa()->clear_id_armadura();
     } else {
       proto_retornado->mutable_dados_defesa()->set_id_armadura(id);
+      proto_retornado->mutable_dados_defesa()->clear_id_armadura_tesouro();
     }
     ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
@@ -555,9 +557,11 @@ void PreencheConfiguraComboArmaduraEscudo(
     QVariant idvar = combo_escudo->itemData(combo_escudo->currentIndex());
     std::string id = idvar.toString().toStdString();
     if (id.find(kPrefixoEquipamento) == 0) {
-      proto_retornado->mutable_dados_defesa()->set_id_escudo(id.substr(strlen(kPrefixoEquipamento)));
+      proto_retornado->mutable_dados_defesa()->set_id_escudo_tesouro(id.substr(strlen(kPrefixoEquipamento)));
+      proto_retornado->mutable_dados_defesa()->clear_id_escudo();
     } else {
       proto_retornado->mutable_dados_defesa()->set_id_escudo(id);
+      proto_retornado->mutable_dados_defesa()->clear_id_escudo_tesouro();
     }
     ent::RecomputaDependencias(tabelas, tipo_terreno, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
