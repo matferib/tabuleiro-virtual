@@ -114,6 +114,9 @@ cc_library(
         "util.h",
         "watchdog.h",
     ],
+    # Esse define tem que ser aqui senão o cabeçalho fica desalinhado para quem ler
+    # dependendo dessa regra, comparado a lib ent.
+    defines = ['USAR_QT'],
     deps = [
         "@abseil-cpp//absl/log",
         "@abseil-cpp//absl/strings",
@@ -167,6 +170,7 @@ cc_library(
     deps = [
         ":acoes_cc_proto",
         ":controle_virtual_cc_proto",
+        ":ent_headers",
         ":entidade_cc_proto",
         ":tabelas_cc_proto",
         ":tabuleiro_cc_proto",
