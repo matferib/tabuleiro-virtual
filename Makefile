@@ -6,10 +6,10 @@ debug:
 	bazel build -c dbg --config=linux :tabvirt --verbose_failures
 
 all:
-	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --config=linux :tabvirt --verbose_failures
-	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --config=linux //ent:acoes_test --verbose_failures
-	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --config=linux //ent:ent_test --verbose_failures
-	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --config=linux //ent:util_test --verbose_failures
+	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --copt=-O2 --config=linux :tabvirt --verbose_failures
+	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --copt=-O2 --config=linux //ent:acoes_test --verbose_failures
+	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --copt=-O2 --config=linux //ent:ent_test --verbose_failures
+	bazel build --cxxopt=-DNDEBUG --cxxopt=-O2 --copt=-O2 --config=linux //ent:util_test --verbose_failures
 
 clean:
 	bazel clean --config=linux
