@@ -7460,4 +7460,8 @@ std::string Grep(const std::string& in, absl::string_view padrao, absl::string_v
   return absl::StrJoin(saida, "\n");
 }
 
+int ComputaDeltaPontosVida(const Entidade& ea, const Entidade& ed) {
+  return 0;
+}
+
 }  // namespace ent

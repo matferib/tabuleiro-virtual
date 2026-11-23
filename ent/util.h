@@ -448,6 +448,10 @@ ResultadoAtaqueVsDefesa AtaqueVsDefesaDerrubar(const Entidade& ea, const Entidad
 // Rola o teste de agarrar, ja considerando que tudo antes (ataque de toque), funcionou.
 ResultadoAtaqueVsDefesa AtaqueVsDefesaAgarrar(const Entidade& ea, const Entidade& ed);
 
+// Apos acertar um ataque, retorna o dano do ataque.
+// TODO: passar as coisas de Tabuleiro::TrataAcaoIndividual para ca.
+int ComputaDeltaPontosVida(const Entidade& ea, const Entidade& ed);
+
 // Retorna true se o personagem puder lancar a magia atraves de ataque de item magico.
 std::pair<bool, std::string> PodeLancarItemMagico(const Tabelas& tabelas, const EntidadeProto& proto, const DadosAtaque& da);
 
