@@ -526,6 +526,7 @@ enum TipoTesouro {
   TT_ARMA = ent::TipoItem_MAX + 1,
   TT_ARMADURA = ent::TipoItem_MAX + 2,
   TT_ESCUDO = ent::TipoItem_MAX + 3,
+  TT_MOEDAS = ent::TipoItem_MAX + 4,
 };
 void PreencheNotificacoesTransicaoUmTipoTesouro(
     const Tabelas& tabelas, TipoTesouro tipo, const Entidade& doador, const Entidade& receptor, ntf::Notificacao* n_grupo, ntf::Notificacao* n_desfazer);
@@ -1121,6 +1122,14 @@ std::vector<ItemTesouroProto*> TodosItensExcetoPocoes(EntidadeProto* proto);
 std::vector<const ItemTesouroProto*> TodosItens(const EntidadeProto& proto);
 // Remove o item de proto.
 void RemoveItem(const ItemTesouroProto& item, EntidadeProto* proto);
+
+// Retorna true se a entidade tiver alguma moeda.
+bool PossuiMoedas(const EntidadeProto& entidade);
+bool PossuiMoedas(const Moedas& entidade);
+// Soma as moedas.
+Moedas SomaMoedas(const Moedas& m1, const Moedas& m2);
+// Soma as moedas das entidades.
+Moedas SomaMoedas(const EntidadeProto& e1, const EntidadeProto& e2);
 
 // Retorna a cura acelerada do alvo, ou 0.
 int CuraAcelerada(const EntidadeProto& proto);

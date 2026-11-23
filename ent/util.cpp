@@ -6691,6 +6691,9 @@ void DoadorPerdeTesouroTipo(TipoTesouro tipo, const Entidade& doador, EntidadePr
     auto* itens_perdidos = ItensProtoMutavel(ti, e_depois);
     itens_perdidos->Clear();
     itens_perdidos->Add();
+  } else if (tipo == TT_MOEDAS) {
+    AtribuiMoedasOuZeraSeVazio(doador.Proto().tesouro().moedas(), e_antes->mutable_tesouro()->mutable_moedas());  // Copia o que tinha antes.
+    AtribuiMoedasOuZeraSeVazio(Moedas::default_instance(), e_depois->mutable_tesouro()->mutable_moedas());  // Zera depois.
   } else {
     AtribuiTesouroOuCriaVazio(ArmasArmadurasOuEscudosProto(tipo, doador.Proto()), ArmasArmadurasOuEscudosProtoMutavel(tipo, e_antes));
     auto* itens_perdidos = ArmasArmadurasOuEscudosProtoMutavel(tipo, e_depois);
@@ -6704,6 +6707,9 @@ void ReceptorGanhaTesouroDoadoTipo(TipoTesouro tipo, const Entidade& receptor, c
     auto ti = static_cast<TipoItem>(tipo);
     AtribuiTesouroOuCriaVazio(ItensProto(ti, receptor.Proto()), ItensProtoMutavel(ti, e_antes));
     MergeTesouro(ItensProto(ti, receptor.Proto()), ItensProto(ti, doador.Proto()), ItensProtoMutavel(ti, e_depois));
+  } else if (tipo == TT_MOEDAS) {
+    AtribuiMoedasOuZeraSeVazio(receptor.Proto().tesouro().moedas(), e_antes->mutable_tesouro()->mutable_moedas());  // Copia o que tinha antes.
+    AtribuiMoedasOuZeraSeVazio(doador.Proto().tesouro().moedas(), e_depois->mutable_tesouro()->mutable_moedas());  // Recebe do doador, somando.
   } else {
     AtribuiTesouroOuCriaVazio(ArmasArmadurasOuEscudosProto(tipo, receptor.Proto()), ArmasArmadurasOuEscudosProtoMutavel(tipo, e_antes));
     MergeTesouro(ArmasArmadurasOuEscudosProto(tipo, receptor.Proto()), ArmasArmadurasOuEscudosProto(tipo, doador.Proto()), ArmasArmadurasOuEscudosProtoMutavel(tipo, e_depois));
@@ -6715,6 +6721,8 @@ std::string GeraMensagemTesouroDoado(TipoTesouro tipo, const Entidade& doador) {
   if (TipoItem_IsValid(tipo)) {
     const auto& tesouro_doador = ItensProto(static_cast<TipoItem>(tipo), doador.Proto());
     MergeMensagemTesouro(static_cast<TipoItem>(tipo), tesouro_doador, &texto);
+  } else if (tipo == TT_MOEDAS) {
+    MergeMensagemMoedas(doador.Proto().tesouro().moedas(), &texto);
   } else {
     MergeMensagemArmaArmaduraOuEscudo(tipo, ArmasArmadurasOuEscudosProto(tipo, doador.Proto()), &texto);
   }
@@ -7458,6 +7466,28 @@ std::string Grep(const std::string& in, absl::string_view padrao, absl::string_v
     if (linha.find(padrao) != std::string::npos) saida.push_back(linha);
   }
   return absl::StrJoin(saida, "\n");
+}
+
+bool PossuiMoedas(const EntidadeProto& entidade) {
+  return PossuiMoedas(entidade.tesouro().moedas());
+}
+
+bool PossuiMoedas(const Moedas& moedas) {
+  return moedas.po() + moedas.pp() + moedas.pc() + moedas.pl() + moedas.pe() > 0;
+}
+
+Moedas SomaMoedas(const Moedas& m1, const Moedas& m2) {
+  Moedas moedas;
+  moedas.set_po(m1.po() + m2.po());
+  moedas.set_po(m1.pp() + m2.pp());
+  moedas.set_po(m1.pc() + m2.pc());
+  moedas.set_po(m1.pl() + m2.pl());
+  moedas.set_po(m1.pe() + m2.pe());
+  return moedas;
+}
+
+Moedas SomaMoedas(const EntidadeProto& e1, const EntidadeProto& e2) {
+  return SomaMoedas(e1.tesouro().moedas(), e2.tesouro().moedas());
 }
 
 int ComputaDeltaPontosVida(const Entidade& ea, const Entidade& ed) {
