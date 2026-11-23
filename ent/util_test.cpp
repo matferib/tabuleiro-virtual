@@ -8658,6 +8658,24 @@ TEST(TesteJson, TesteJsonMonge) {
   EXPECT_EQ(Trim(Grep(json, "vitalidade")), "outros: [ { chave: 'vitalidade',  },");  // humano.
 }
 
+
+TEST(TesteTesouro, TesteMoedas) {
+  auto proto = TabelasCriando().ModeloEntidade("Hobgoblin").entidade();
+  EXPECT_TRUE(PossuiMoedas(proto));
+  auto proto2 = TabelasCriando().ModeloEntidade("Cachorro").entidade();
+  EXPECT_FALSE(PossuiMoedas(proto2));
+}
+
+TEST(TesteTesouro, TesteSomaMoedas) {
+  auto proto = TabelasCriando().ModeloEntidade("Hobgoblin").entidade();
+  Moedas m = SomaMoedas(proto, proto);
+  EXPECT_EQ(m.po(), 2);
+  EXPECT_EQ(m.pp(), 6);
+  EXPECT_EQ(m.pc(), 0);
+  EXPECT_EQ(m.pl(), 0);
+  EXPECT_EQ(m.pe(), 0);
+}
+
 }  // namespace ent.
 
 int main(int argc, char **argv) {

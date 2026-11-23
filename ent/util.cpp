@@ -7479,10 +7479,10 @@ bool PossuiMoedas(const Moedas& moedas) {
 Moedas SomaMoedas(const Moedas& m1, const Moedas& m2) {
   Moedas moedas;
   moedas.set_po(m1.po() + m2.po());
-  moedas.set_po(m1.pp() + m2.pp());
-  moedas.set_po(m1.pc() + m2.pc());
-  moedas.set_po(m1.pl() + m2.pl());
-  moedas.set_po(m1.pe() + m2.pe());
+  moedas.set_pp(m1.pp() + m2.pp());
+  moedas.set_pc(m1.pc() + m2.pc());
+  moedas.set_pl(m1.pl() + m2.pl());
+  moedas.set_pe(m1.pe() + m2.pe());
   return moedas;
 }
 
