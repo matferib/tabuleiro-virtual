@@ -6709,7 +6709,7 @@ void ReceptorGanhaTesouroDoadoTipo(TipoTesouro tipo, const Entidade& receptor, c
     MergeTesouro(ItensProto(ti, receptor.Proto()), ItensProto(ti, doador.Proto()), ItensProtoMutavel(ti, e_depois));
   } else if (tipo == TT_MOEDAS) {
     AtribuiMoedasOuZeraSeVazio(receptor.Proto().tesouro().moedas(), e_antes->mutable_tesouro()->mutable_moedas());  // Copia o que tinha antes.
-    AtribuiMoedasOuZeraSeVazio(doador.Proto().tesouro().moedas(), e_depois->mutable_tesouro()->mutable_moedas());  // Recebe do doador, somando.
+    AtribuiMoedasOuZeraSeVazio(SomaMoedas(doador.Proto().tesouro().moedas(), receptor.Proto().tesouro().moedas()), e_depois->mutable_tesouro()->mutable_moedas());  // Recebe do doador, somando.
   } else {
     AtribuiTesouroOuCriaVazio(ArmasArmadurasOuEscudosProto(tipo, receptor.Proto()), ArmasArmadurasOuEscudosProtoMutavel(tipo, e_antes));
     MergeTesouro(ArmasArmadurasOuEscudosProto(tipo, receptor.Proto()), ArmasArmadurasOuEscudosProto(tipo, doador.Proto()), ArmasArmadurasOuEscudosProtoMutavel(tipo, e_depois));

@@ -7575,6 +7575,66 @@ TEST(TesteTesouro, TesteTransicaoTipoArma) {
   }
 }
 
+TEST(TesteTesouro, TesteTransicaoMoeda) {
+  EntidadeProto doador_proto;
+  {
+    doador_proto.mutable_tesouro()->mutable_moedas()->set_po(10);
+    doador_proto.mutable_tesouro()->mutable_moedas()->set_pp(9);
+    doador_proto.mutable_tesouro()->mutable_moedas()->set_pc(8);
+    doador_proto.mutable_tesouro()->mutable_moedas()->set_pl(7);
+    doador_proto.mutable_tesouro()->mutable_moedas()->set_pe(6);
+  }
+  std::unique_ptr<Entidade> doador(NovaEntidadeParaTestes(doador_proto, TabelasCriando()));
+
+  EntidadeProto receptor_proto;
+  {
+    receptor_proto.mutable_tesouro()->mutable_moedas()->set_po(5);
+    receptor_proto.mutable_tesouro()->mutable_moedas()->set_pp(4);
+    receptor_proto.mutable_tesouro()->mutable_moedas()->set_pc(3);
+    receptor_proto.mutable_tesouro()->mutable_moedas()->set_pl(2);
+    // zero pe.
+  }
+  std::unique_ptr<Entidade> receptor(NovaEntidadeParaTestes(receptor_proto, TabelasCriando()));
+
+  ntf::Notificacao n_grupo;
+  n_grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  PreencheNotificacoesTransicaoUmTipoTesouro(TabelasCriando(), TT_MOEDAS, *doador, *receptor, &n_grupo, nullptr);
+
+  {
+    // Aplica.
+    ASSERT_GE(n_grupo.notificacao_size(), 2);
+    doador->AtualizaParcial(n_grupo.notificacao(0).entidade());
+    EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 0);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 0);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pc(), 0);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pl(), 0);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pe(), 0);
+
+    receptor->AtualizaParcial(n_grupo.notificacao(1).entidade());
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 15);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 13);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pc(), 11);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pl(), 9);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pe(), 6);
+  }
+  {
+    // Aplica desfazer.
+    doador->AtualizaParcial(n_grupo.notificacao(0).entidade_antes());
+    EXPECT_EQ(doador->Proto().tesouro().moedas().po(), 10);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pp(), 9);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pc(), 8);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pl(), 7);
+    EXPECT_EQ(doador->Proto().tesouro().moedas().pe(), 6);
+
+    receptor->AtualizaParcial(n_grupo.notificacao(1).entidade_antes());
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().po(), 5);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pp(), 4);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pc(), 3);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pl(), 2);
+    EXPECT_EQ(receptor->Proto().tesouro().moedas().pe(), 0);
+  }
+}
+
 TEST(TesteTesouro, TesteDoacao) {
   EntidadeProto doador_proto;
   {
