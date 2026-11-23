@@ -152,6 +152,12 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_ABRIR_DIALOGO_ESCOLHER_CENARIO:
       TrataEscolherCenario(notificacao);
       return true;
+    case ntf::TN_COPIAR_ENTIDADES_AREA_TRANSFERENCIA:
+      CopiaEntidadesAreaTransferencia(notificacao);
+      return true;
+    case ntf::TN_COLAR_ENTIDADES_AREA_TRANSFERENCIA:
+      ColaEntidadesAreaTransferencia(notificacao);
+      return true;
     default:
       break;
   }
@@ -166,6 +172,7 @@ std::string NomeTesouro(ent::TipoTesouro tipo) {
     case ent::TT_ARMA: return "Arma";
     case ent::TT_ARMADURA: return "Armadura";
     case ent::TT_ESCUDO: return "Escudo";
+    case ent::TT_MOEDAS: return "Moedas";
     default: return absl::StrFormat("Inválido: %d", tipo);
   }
 }
@@ -177,12 +184,16 @@ void InterfaceGrafica::TrataEscolherTipoTesouro(const ntf::Notificacao& notifica
   std::vector<ent::TipoTesouro> mapa_indice_tipo;
   std::vector<ifg::InterfaceGrafica::RotuloTipoTesouro> nomes_itens;
   for (ent::TipoTesouro tipo : { ent::TT_ANEL, ent::TT_MANTO, ent::TT_LUVAS, ent::TT_BRACADEIRAS,
-                              ent::TT_POCAO, ent::TT_AMULETO, ent::TT_BOTAS, ent::TT_CHAPEU,
-                              ent::TT_PERGAMINHO_ARCANO, ent::TT_PERGAMINHO_DIVINO, ent::TT_ITEM_MUNDANO,
-                              ent::TT_ARMA, ent::TT_ARMADURA, ent::TT_ESCUDO, ent::TT_VARINHA }) {
+                                 ent::TT_POCAO, ent::TT_AMULETO, ent::TT_BOTAS, ent::TT_CHAPEU,
+                                 ent::TT_PERGAMINHO_ARCANO, ent::TT_PERGAMINHO_DIVINO, ent::TT_ITEM_MUNDANO,
+                                 ent::TT_ARMA, ent::TT_ARMADURA, ent::TT_ESCUDO, ent::TT_VARINHA }) {
     if (ent::TipoItem_IsValid(tipo)) {
       const auto& itens = ent::ItensProto(static_cast<ent::TipoItem>(tipo), notificacao.entidade());
       if (itens.empty()) continue;
+      nomes_itens.push_back({NomeTesouro(tipo), tipo});
+      mapa_indice_tipo.push_back(tipo);
+    } else if (tipo == ent::TT_MOEDAS) {
+      if (!PossuiMoedas(notificacao.entidade())) continue;
       nomes_itens.push_back({NomeTesouro(tipo), tipo});
       mapa_indice_tipo.push_back(tipo);
     } else {
@@ -1176,4 +1187,86 @@ void InterfaceGrafica::VoltaEscolherCenario(bool ok, int id_cenario) {
   if (!ok) { return; }
   tabuleiro_->CarregaSubCenario(id_cenario, ent::Posicao::default_instance());
 }
+
+void InterfaceGrafica::CopiaEntidadesAreaTransferencia(const ntf::Notificacao& notificacao) {
+  entidades_copiadas_.clear();
+  for (const auto& entidade : notificacao.tabuleiro().entidade()) {
+    entidades_copiadas_.push_back(entidade);
+    VLOG(1) << "Copiando: " << entidade.ShortDebugString();
+  }
+}
+
+namespace {
+
+ent::Posicao& operator-=(ent::Posicao& pos, const ent::Posicao& delta) {
+  pos.set_x(pos.x() - delta.x());
+  pos.set_y(pos.y() - delta.y());
+  pos.set_z(pos.z() - delta.z());
+  return pos;
+}
+
+ent::Posicao operator-(const ent::Posicao& pos, const ent::Posicao& delta) {
+  ent::Posicao ret;
+  ret.set_x(pos.x() - delta.x());
+  ret.set_y(pos.y() - delta.y());
+  ret.set_z(pos.z() - delta.z());
+  return ret;
+}
+
+ent::Posicao PosicaoMedia(const std::vector<ent::EntidadeProto*>& entidades) {
+  float x_m = 0.0f;
+  float y_m = 0.0f;
+  float z_m = 0.0f;
+  int n = 0;
+  for (const auto* e : entidades) {
+    const auto& ep = e->pos();
+    x_m += ep.x();
+    y_m += ep.y();
+    z_m += ep.z();
+    ++n;
+  }
+  ent::Posicao pos;
+  pos.set_x(x_m / n);
+  pos.set_y(y_m / n);
+  pos.set_z(z_m / n);
+  return pos;
+}
+
+}  // namespace
+
+// static
+void InterfaceGrafica::AjustaPosicoes(const ent::Posicao& alvo, std::vector<ent::EntidadeProto*>* entidades) {
+  ent::Posicao media = PosicaoMedia(*entidades);
+  for (auto* e : *entidades) {
+    *(e->mutable_pos()) -= (media - alvo);
+  }
+}
+
+void InterfaceGrafica::ColaEntidadesAreaTransferencia(const ntf::Notificacao& notificacao) {
+  if (entidades_copiadas_.empty()) {
+    VLOG(1) << "Ignorando colar, não há entidades selecionadas";
+    return;
+  }
+  // testando sempre colar referente a camera.
+  bool ref_camera = true;
+  std::vector<ent::EntidadeProto*> entidades_coladas;
+  if (!tabuleiro_->EmModoMestreIncluindoSecundario()) {
+    // Jogadores sempre referente a camera.
+    ref_camera = true;
+  }
+
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (const auto& ep : entidades_copiadas_) {
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+    n->mutable_entidade()->CopyFrom(ep);
+    entidades_coladas.push_back(n->mutable_entidade());
+  }
+  if (ref_camera) {
+    AjustaPosicoes(tabuleiro_->CameraCorrente().alvo(), &entidades_coladas);
+  }
+  tabuleiro_->TrataNotificacaoAdicionarEntidades(grupo_notificacoes);
+}
+
 }  // namespace ifg

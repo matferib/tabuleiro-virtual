@@ -1,7 +1,11 @@
 #include <set>
 #include <stack>
 
+#include <google/protobuf/repeated_field.h>
+#include <google/protobuf/text_format.h>
 #include <QtCore/QString>
+#include <QtGui/QClipboard>
+#include <QtWidgets/QApplication>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QColorDialog>
 #include <QtWidgets/QDialog>
@@ -206,9 +210,9 @@ void InterfaceGraficaQt::EscolheArquivoAbrirImagem(
   auto lambda_aceito = [this, &gerador, dialogo, imagens_locais, imagens_globais, funcao_volta]() {
     int indice = gerador.lista->currentRow();
     int tamanho_total = imagens_locais.size() + imagens_globais.size();
-    if (indice != 0 && indice != (imagens_locais.size() + 1) && indice < (tamanho_total + 2)) {
+    if (indice != 0 && indice != static_cast<int>(imagens_locais.size() + 1) && indice < (tamanho_total + 2)) {
       pai_->v3d()->PegaContexto();
-      if (indice < (imagens_locais.size() + 1)) {
+      if (indice < static_cast<int>(imagens_locais.size() + 1)) {
         funcao_volta(imagens_locais[indice - 1], arq::TIPO_TEXTURA_LOCAL);
       } else {
         funcao_volta(imagens_globais[indice - 2 - imagens_locais.size()], arq::TIPO_TEXTURA);
@@ -342,6 +346,51 @@ void InterfaceGraficaQt::EscolheValorDadoForcado(const std::string& titulo, int 
   dialogo->exec();
   pai_->v3d()->PegaContexto();
   funcao_volta(val);
+}
+
+void InterfaceGraficaQt::CopiaEntidadesAreaTransferencia(const ntf::Notificacao& notificacao) {
+  ent::EntidadesCopiadas entidades_copiadas;
+  for (const auto& entidade : notificacao.tabuleiro().entidade()) {
+    *entidades_copiadas.add_entidade() = entidade;
+    VLOG(1) << "Copiando: " << entidade.ShortDebugString();
+  }
+  entidades_copiadas.mutable_origem()->set_nome(notificacao.tabuleiro().nome());
+  entidades_copiadas.mutable_origem()->set_id_cenario(tabuleiro_->IdCenario());
+  std::string str_entidades;
+  google::protobuf::TextFormat::PrintToString(entidades_copiadas, &str_entidades);
+  QApplication::clipboard()->setText(QString::fromStdString(str_entidades));
+}
+
+void InterfaceGraficaQt::ColaEntidadesAreaTransferencia(const ntf::Notificacao& notificacao) {
+  std::vector<ent::EntidadeProto*> entidades_coladas;
+  // testando sempre colar referente a camera.
+  bool ref_camera = true;
+  if (!tabuleiro_->EmModoMestreIncluindoSecundario()) {
+    // Jogadores sempre referente a camera.
+    ref_camera = true;
+  }
+  std::string str_entidades(QApplication::clipboard()->text().toStdString());
+  if (str_entidades.empty()) {
+    VLOG(1) << "Ignorando colar, não há entidades selecionadas";
+    return;
+  }
+  ent::EntidadesCopiadas entidades_copiadas;
+  if (!google::protobuf::TextFormat::ParseFromString(str_entidades, &entidades_copiadas)) {
+    LOG(ERROR) << "Erro colando, nao consegui entender o buffer de clipboard: " << str_entidades;
+    return;
+  }
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (const auto& ep : entidades_copiadas.entidade()) {
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+    *n->mutable_entidade() = ep;
+    entidades_coladas.push_back(n->mutable_entidade());
+  }
+  if (ref_camera) {
+    AjustaPosicoes(tabuleiro_->CameraCorrente().alvo(), &entidades_coladas);
+  }
+  tabuleiro_->TrataNotificacaoAdicionarEntidades(grupo_notificacoes);
 }
 
 }  // namespace qt

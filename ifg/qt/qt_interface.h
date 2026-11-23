@@ -59,6 +59,9 @@ class InterfaceGraficaQt : public ifg::InterfaceGrafica {
 
   void EscolheValorDadoForcado(const std::string& titulo, int nfaces, std::function<void(int)> funcao_volta) override;
 
+  void CopiaEntidadesAreaTransferencia(const ntf::Notificacao& notificacao) override;
+  void ColaEntidadesAreaTransferencia(const ntf::Notificacao& notificacao) override;
+
  private:
   Principal* pai_ = nullptr;
 };

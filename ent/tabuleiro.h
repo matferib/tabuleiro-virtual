@@ -265,6 +265,11 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
+  /** Para classes que chamam diretamente o tabuleiro adicionando entidades.
+  * Apos adicionar as entidades, elas serão selecionadas e adicionadas a lista de desfazer com os ids corrigidos.
+  * Por isso grupo_notificacao é não const.
+  */
+  void TrataNotificacaoAdicionarEntidades(ntf::Notificacao& grupo_notificacao);
 
   /** Trata teclado. */
   void TrataTeclaPressionada(int tecla);
@@ -984,6 +989,12 @@ class Tabuleiro : public ntf::Receptor {
   /** seleciona as entidades em ids_adicionados_. */
   void SelecionaEntidadesAdicionadas() { SelecionaEntidades(ids_adicionados_); }
 
+  /** Ao adicionar um monte de entidades, adiciona elas a lista de eventos para desfazer.
+  * Tem que ser chamado depois de TrataNotificacao para as entidades ganharem id e poderem ser referenciadas.
+  * grupo_notificacoes: os ids das entidades serão alterados com o id de verdade.
+  */
+  void AdicionaEntidadesAdicionadasListaEventosParaDesfazer(ntf::Notificacao& grupo_notificacoes);
+
   /** Adiciona ids as entidades selecionadas. O estado final depende do tamanho dos ids e do
   * numero de entidades selecionadas corrente.
   */
@@ -1455,10 +1466,6 @@ class Tabuleiro : public ntf::Receptor {
   std::unordered_map<std::string, std::string> log_eventos_clientes_;
   int pagina_log_eventos_;
   int pagina_horizontal_log_eventos_;
-
-#if !USAR_QT
-  std::vector<EntidadeProto> entidades_copiadas_;
-#endif
 
   // Para processamento de grupos de notificacoes.
   bool processando_grupo_;

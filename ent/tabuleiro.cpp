@@ -1,8 +1,3 @@
-#if USAR_QT
-#include <QtGui/QClipboard>
-#include <QtWidgets/QApplication>
-#else
-#endif
 #include <algorithm>
 #ifndef __APPLE__
 #include <execution>
@@ -2372,6 +2367,12 @@ ntf::Notificacao Tabuleiro::ArrumaIdsEntidadesAdicionadas() const {
     PreencheNotificacaoArrumarIds(e->Proto(), mapa_ids_adicionados_, &n_grupo);
   }
   return n_grupo;
+}
+
+void Tabuleiro::TrataNotificacaoAdicionarEntidades(ntf::Notificacao& grupo_notificacoes) {
+  TrataNotificacao(grupo_notificacoes);
+  SelecionaEntidadesAdicionadas();
+  AdicionaEntidadesAdicionadasListaEventosParaDesfazer(grupo_notificacoes);
 }
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
@@ -6734,7 +6735,6 @@ const Entidade* Tabuleiro::BuscaEntidade(unsigned int id) const {
   return (it != entidades_.end()) ? it->second.get() : nullptr;
 }
 
-#if USAR_QT
 namespace {
 
 EntidadeProto FormificaSubForma(const EntidadeProto& psf) {
@@ -6778,146 +6778,22 @@ EntidadeProto FormificaEntidade(const EntidadeProto& proto) {
 }
 
 }  // namespace
-#endif
 
 void Tabuleiro::CopiaEntidadesSelecionadas(bool apenas_formas) {
-#if USAR_QT
-  ent::EntidadesCopiadas entidades_copiadas;
+  if (ids_entidades_selecionadas_.empty()) return;
+  auto n = ntf::NovaNotificacao(ntf::TN_COPIAR_ENTIDADES_AREA_TRANSFERENCIA);
   for (const unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade = BuscaEntidade(id);
-    if (entidade != nullptr) {
-      entidades_copiadas.add_entidade()->CopyFrom(apenas_formas ? FormificaEntidade(entidade->Proto()) : entidade->Proto());
-      VLOG(1) << "Copiando: " << entidade->Proto().ShortDebugString();
-    }
+    if (entidade == nullptr) continue;
+    *n->mutable_tabuleiro()->add_entidade() = apenas_formas ? FormificaEntidade(entidade->Proto()) : entidade->Proto();
   }
-  entidades_copiadas.mutable_origem()->set_nome(proto_.nome());
-  entidades_copiadas.mutable_origem()->set_id_cenario(IdCenario());
-  std::string str_entidades;
-  google::protobuf::TextFormat::PrintToString(entidades_copiadas, &str_entidades);
-  QApplication::clipboard()->setText(QString::fromStdString(str_entidades));
-#else
-  entidades_copiadas_.clear();
-  for (const unsigned int id : ids_entidades_selecionadas_) {
-    auto* entidade = BuscaEntidade(id);
-    if (entidade != nullptr) {
-      entidades_copiadas_.push_back(entidade->Proto());
-      VLOG(1) << "Copiando: " << entidade->Proto().ShortDebugString();
-    }
-  }
-#endif
+  n->mutable_tabuleiro()->set_nome(proto_.nome());
+  n->mutable_tabuleiro()->set_id_cenario(IdCenario());
+  central_->AdicionaNotificacao(std::move(n));
 }
-
-namespace {
-
-Posicao& operator-=(Posicao& pos, const Posicao& delta) {
-  pos.set_x(pos.x() - delta.x());
-  pos.set_y(pos.y() - delta.y());
-  pos.set_z(pos.z() - delta.z());
-  return pos;
-}
-
-Posicao operator-(const Posicao& pos, const Posicao& delta) {
-  Posicao ret;
-  ret.set_x(pos.x() - delta.x());
-  ret.set_y(pos.y() - delta.y());
-  ret.set_z(pos.z() - delta.z());
-  return ret;
-}
-
-/*
-Posicao operator+(const Posicao& pos, const Posicao& delta) {
-  Posicao ret;
-  ret.set_x(pos.x() + delta.x());
-  ret.set_y(pos.y() + delta.y());
-  ret.set_z(pos.z() + delta.z());
-  return ret;
-}
-*/
-
-Posicao PosicaoMedia(const std::vector<EntidadeProto*>& entidades) {
-  float x_m = 0.0f;
-  float y_m = 0.0f;
-  float z_m = 0.0f;
-  int n = 0;
-  for (const auto* e : entidades) {
-    const auto& ep = e->pos();
-    x_m += ep.x();
-    y_m += ep.y();
-    z_m += ep.z();
-    ++n;
-  }
-  Posicao pos;
-  pos.set_x(x_m / n);
-  pos.set_y(y_m / n);
-  pos.set_z(z_m / n);
-  return pos;
-}
-
-void AjustaPosicoes(const Posicao& alvo, std::vector<EntidadeProto*>* entidades) {
-  Posicao media = PosicaoMedia(*entidades);
-  for (auto* e : *entidades) {
-    *(e->mutable_pos()) -= (media - alvo);
-  }
-}
-
-}  // namespace
 
 void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
-  std::vector<EntidadeProto*> entidades_coladas;
-  if (!EmModoMestreIncluindoSecundario()) {
-    // Jogadores sempre referente a camera.
-    ref_camera = true;
-  }
-#if USAR_QT
-  std::string str_entidades(QApplication::clipboard()->text().toStdString());
-  if (str_entidades.empty()) {
-    VLOG(1) << "Ignorando colar, não há entidades selecionadas";
-    return;
-  }
-  ent::EntidadesCopiadas entidades_copiadas;
-  if (!google::protobuf::TextFormat::ParseFromString(str_entidades, &entidades_copiadas)) {
-    LOG(ERROR) << "Erro colando, nao consegui entender o buffer de clipboard: " << str_entidades;
-    return;
-  }
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (const auto& ep : entidades_copiadas.entidade()) {
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-    *n->mutable_entidade() = ep;
-    entidades_coladas.push_back(n->mutable_entidade());
-  }
-#else
-  if (entidades_copiadas_.empty()) {
-    VLOG(1) << "Ignorando colar, não há entidades selecionadas";
-    return;
-  }
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (const auto& ep : entidades_copiadas_) {
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-    n->mutable_entidade()->CopyFrom(ep);
-    entidades_coladas.push_back(n->mutable_entidade());
-  }
-#endif
-  if (ref_camera) {
-    AjustaPosicoes(olho_.alvo(), &entidades_coladas);
-  }
-  TrataNotificacao(grupo_notificacoes);
-  SelecionaEntidadesAdicionadas();
-  // Para desfazer
-  {
-    if (ids_adicionados_.size() == static_cast<unsigned int>(grupo_notificacoes.notificacao_size())) {
-      for (int i = 0; i < grupo_notificacoes.notificacao_size(); ++i) {
-        grupo_notificacoes.mutable_notificacao(i)->mutable_entidade()->set_id(ids_adicionados_[i]);
-      }
-      AdicionaNotificacaoListaEventos(grupo_notificacoes);
-    } else {
-      LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado. Ids adicionados: "
-          << ids_adicionados_.size() << ", tam grupo: " << grupo_notificacoes.notificacao_size();
-    }
-  }
+  central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_COLAR_ENTIDADES_AREA_TRANSFERENCIA));
 }
 
 void Tabuleiro::AgrupaEntidadesSelecionadas() {
@@ -9885,6 +9761,19 @@ void Tabuleiro::AdicionarEntidadesAoTimeNotificando() {
 void Tabuleiro::RemoverEntidadesDeTimeNotificando() {
   std::vector<unsigned int> ids = IdsEntidadesSelecionadasEMontadas();
   if (ids.empty()) return;
+}
+
+void Tabuleiro::AdicionaEntidadesAdicionadasListaEventosParaDesfazer(ntf::Notificacao& grupo_notificacoes) {
+  if (ids_adicionados_.size() == static_cast<unsigned int>(grupo_notificacoes.notificacao_size())) {
+    for (int i = 0; i < grupo_notificacoes.notificacao_size(); ++i) {
+      // Seta os ids das entidades para o que foi adicionado.
+      grupo_notificacoes.mutable_notificacao(i)->mutable_entidade()->set_id(ids_adicionados_[i]);
+    }
+    AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  } else {
+    LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado. Ids adicionados: "
+        << ids_adicionados_.size() << ", tam grupo: " << grupo_notificacoes.notificacao_size();
+  }
 }
 
 }  // namespace ent

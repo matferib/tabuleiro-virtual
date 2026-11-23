@@ -116,6 +116,13 @@ class InterfaceGrafica : public ntf::Receptor {
     funcao_volta(true, tc, id_cenario, r, g, b, a);
   }
 
+  // Tem implementacao basica, mas QT reimplementa.
+  virtual void CopiaEntidadesAreaTransferencia(const ntf::Notificacao& notificacao);
+  virtual void ColaEntidadesAreaTransferencia(const ntf::Notificacao& notificacao);
+
+  // Ajusta a posicao das entidades ao redor de alvo.
+  static void AjustaPosicoes(const ent::Posicao& alvo, std::vector<ent::EntidadeProto*>* entidades);
+
  protected:
   const ent::Tabelas& tabelas_;
   TratadorTecladoMouse* teclado_mouse_ = nullptr;
@@ -173,6 +180,9 @@ class InterfaceGrafica : public ntf::Receptor {
 
   void TrataEscolherCenario(const ntf::Notificacao& notificacao);
   void VoltaEscolherCenario(bool ok, int id_cenario);
+
+  // Para copia e cola sem area de transferencia (apenas dentro do mesmo processo).
+  std::vector<ent::EntidadeProto> entidades_copiadas_;
 };
 
 }  // namespace ifg
