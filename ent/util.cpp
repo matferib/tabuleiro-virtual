@@ -6626,7 +6626,7 @@ void MergeMensagemArmaArmaduraOuEscudo(
 void MergeMensagemMoedas(const Moedas& moedas, std::string* texto) {
   if (moedas.po() <= 0 && moedas.pp() <= 0 && moedas.pc() <= 0 && moedas.pe() <= 0 && moedas.pl() <= 0) return;
   texto->append("\n");
-  if (moedas.po() > 0) { texto->append(absl::StrFormat("%d PO, ", moedas.pl())); }
+  if (moedas.po() > 0) { texto->append(absl::StrFormat("%d PO, ", moedas.po())); }
   if (moedas.pl() > 0) { texto->append(absl::StrFormat("%d PL, ", moedas.pl())); }
   if (moedas.pp() > 0) { texto->append(absl::StrFormat("%d PP, ", moedas.pp())); }
   if (moedas.pc() > 0) { texto->append(absl::StrFormat("%d PC, ", moedas.pc())); }
