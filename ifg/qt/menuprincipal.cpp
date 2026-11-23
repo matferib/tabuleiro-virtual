@@ -556,9 +556,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
     emit LogAlternado();
   } else if (acao == acoes_[ME_TABULEIRO][MI_OPCOES]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
-  }
-  // Desenho.
-  else if (acao == acoes_[ME_DESENHO][MI_CILINDRO] ||
+  } else if (acao == acoes_[ME_DESENHO][MI_CILINDRO] ||
            acao == acoes_[ME_DESENHO][MI_CIRCULO] ||
            acao == acoes_[ME_DESENHO][MI_CONE] ||
            acao == acoes_[ME_DESENHO][MI_CUBO] ||
@@ -576,9 +574,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao) {
       return;
     }
     tabuleiro_->SelecionaCorDesenho(CorParaProto(cor));
-  }
-  // ..
-  else if (acao == acoes_[ME_SOBRE][MI_TABVIRT]) {
+  } else if (acao == acoes_[ME_SOBRE][MI_TABVIRT]) {
     // mostra a caixa de dialogo da versao
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
