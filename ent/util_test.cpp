@@ -8614,6 +8614,8 @@ TEST(TesteJson, TesteJson) {
   EXPECT_NE(json.find("ouro: 40"), std::string::npos);
   // Tira o bonus de constituicao x nivel.
   EXPECT_NE(json.find(absl::StrCat("pontos_vida: ", entidade->MaximoPontosVida() - 3)), std::string::npos);
+  EXPECT_EQ(Trim(Grep(json, "slots_feiticos")), "slots_feiticos: {  },");
+  EXPECT_EQ(Trim(Grep(json, "feiticos_conhecidos")), "feiticos_conhecidos: {  },");
 }
 
 TEST(TesteJson, TesteJsonDominios) {
