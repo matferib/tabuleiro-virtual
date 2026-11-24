@@ -3,6 +3,8 @@
 #include <google/protobuf/text_format.h>
 #include <queue>
 #include "absl/strings/substitute.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_join.h"
 #include "arq/arquivo.h"
 #include "ent/acoes.pb.h"
 #include "ent/constantes.h"
@@ -7299,6 +7301,7 @@ TEST(TesteTesouro, TesteTesouroEsperado) {
       {&tesouro.pocoes(), TIPO_POCAO},
     };
     int soma = 0;
+    std::vector<std::string> custos;
     for (const auto& [itens, tipo] : itens_agrupados) {
       for (const auto& item : *itens) {
         const auto& item_tabelado = ItemTabela(TabelasCriando(), tipo, item.id());
@@ -7315,24 +7318,26 @@ TEST(TesteTesouro, TesteTesouroEsperado) {
               TemFeiticoLista(item.id_feitico(), e->Proto())) {
             fator = 0.75f;
           }
-          soma += (valor * fator);
+          int c = valor * fator;
+          custos.push_back(absl::StrCat(TipoItem_Name(tipo), " ", item.id(), ": ", c));
+          soma += c;
         }
       }
     }
     for (const auto& arma : tesouro.armas()) {
+      custos.push_back(absl::StrCat("arma ", arma.id(), ": ", PrecoArmaPo(arma)));
       soma += PrecoArmaPo(arma);
     }
     for (const auto& aoes : {tesouro.armaduras(), tesouro.escudos()}) {
       for (const auto& aoe : aoes) {
+        custos.push_back(absl::StrCat("armadura/escudo ", aoe.id(), ": ", PrecoArmaduraOuEscudoPo(aoe)));
         soma += PrecoArmaduraOuEscudoPo(aoe);
       }
     }
-    for (const auto& item : tesouro.itens_mundanos()) {
-      soma += TabelasCriando().ItemMundano(item.id()).has_custo_po() ? TabelasCriando().ItemMundano(item.id()).custo_po() : TabelasCriando().ItemMundano(item.id()).custo().po();
-    }
 
     soma += tesouro.moedas().po();
-    EXPECT_LE(soma, tesouro.valor_esperado_po()) << "modelo extrapolou tesouro: " << modelo.id();
+    custos.push_back(absl::StrCat(tesouro.moedas().po(), " PO"));
+    EXPECT_LE(soma, tesouro.valor_esperado_po()) << "modelo extrapolou tesouro: " << modelo.id() << ", " << absl::StrJoin(custos, "; ");
     if (soma <= tesouro.valor_esperado_po()) {
       LOG(INFO) << "valor de tesouro de " << modelo.id() << ": " << soma << " PO está dentro do esperado: " << tesouro.valor_esperado_po();
     }
