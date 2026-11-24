@@ -3293,6 +3293,7 @@ std::string Entidade::ExportaJson() const {
     std::string json_dominios;
     std::string json_escolas_proibidas;
     std::string id_classe;
+    std::set<std::string> classe_possui_nivel_conjuracao;
     for (const auto& ic : proto_.info_classes()) {
       if (ic.id() == "mago") {
         const auto& fc = FeiticosClasse(ic.id(), proto_);
@@ -3317,16 +3318,21 @@ std::string Entidade::ExportaJson() const {
       } else {
         absl::StrAppend(&json_classes, absl::Substitute("{classe: '$0', nivel: $1},", ic.id(), ic.nivel()));
       }
+      if (ic.has_progressao_conjurador()) {
+        classe_possui_nivel_conjuracao.insert(ic.id());
+      }
     }
     std::string json_feiticos_conhecidos;
     std::string json_feiticos_lancar;
     for (const auto& fc : proto_.feiticos_classes()) {
+      if (!classe_possui_nivel_conjuracao.contains(fc.id_classe())) continue;
       absl::StrAppend(&json_feiticos_conhecidos, "'", fc.id_classe() == "mago" && !id_classe.empty() ? id_classe : fc.id_classe(), "': {");
       absl::StrAppend(&json_feiticos_lancar, "'", fc.id_classe() == "mago" && !id_classe.empty() ? id_classe : fc.id_classe(), "': {");
       for (int nivel = 0; nivel <= 9; ++nivel) {
         if (!fc.mapa_feiticos_por_nivel().contains(nivel)) continue;
         // conhecidos.
         const auto& feiticos_por_nivel = fc.mapa_feiticos_por_nivel().at(nivel);
+        if (feiticos_por_nivel.conhecidos().empty() && feiticos_por_nivel.para_lancar().empty()) continue;
         absl::StrAppend(&json_feiticos_conhecidos, nivel, ": [");
         for (const auto& conhecido : feiticos_por_nivel.conhecidos()) {
           absl::StrAppend(&json_feiticos_conhecidos, "'", conhecido.id(), "', ");
