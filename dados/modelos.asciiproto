@@ -5138,9 +5138,9 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'bordao' id_arma_tesouro: 'bordao' empunhadura: EA_2_MAOS }
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'bordaoduplo' id_arma_tesouro: 'bordao' empunhadura: EA_MAO_BOA }
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'bordaoduplo' id_arma_tesouro: 'bordao' empunhadura: EA_MAO_RUIM }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' empunhadura: EA_ARMA_APENAS }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' empunhadura: EA_ARMA_APENAS municao: 3 }
     dados_defesa {
-      id_armadura_tesouro: 'cota_malhas'
+      id_armadura_tesouro: 'camisao'
     }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
@@ -5151,15 +5151,44 @@ modelo {
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
     }
     tesouro {
-      # Esse valor é so um chute. Segundo o DMG, smattering of coins.
-      moedas { po: 1 pp: 3 }
-      armas { id: 'bordao' id_tabela: 'bordao' }
-      armas { id: 'azagaia' id_tabela: 'azagaia' }
-      armaduras { id: 'cota_malhas' id_tabela: 'cota_malhas' em_uso: true }
-      valor_esperado_po: 150  # CR 1/2, DMG 51. No lar.
+      moedas { po: 2 }
+      armas { id: 'bordao' id_tabela: 'bordao' }  # sem custo
+      armas { id: 'azagaia' id_tabela: 'azagaia' }  # 1 PO.
+      armaduras { id: 'camisao' id_tabela: 'camisao' em_uso: true } # 100
+      valor_esperado_po: 400  # CR 1/2, original 400 (monstro com classe, 4-23 com nivel a menos por ser classe NPC).
+      pocoes { id: 'escudo_fe_2' } # 50
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'curar_ferimentos_leves' } # 25
+      pergaminhos_divinos { id: 'bencao' } # 25
+      pergaminhos_divinos { id: 'causar_medo' } # 25
+      pergaminhos_divinos { id: 'protecao_contra_bem' } # 25
+      pergaminhos_divinos { id: 'comando' } # 25
+      pergaminhos_divinos { id: 'nevoa_obscurescente' } # 25
+      itens_mundanos { id: 'acido' }  # 10
+      itens_mundanos { id: 'acido' }  # 10
     }
-    movimento {
-      terrestre_basico_q: 6
+    feiticos_classes {
+      id_classe: 'adepto'
+      mapa_feiticos_por_nivel {
+        key: 0
+        value {
+          conhecidos { id: 'orientacao' }
+          conhecidos { id: 'criar_agua' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+        }
+      }
+      mapa_feiticos_por_nivel {
+        key: 1
+        value {
+          conhecidos { id: 'maos_flamejantes' }
+          conhecidos { id: 'sono' }
+          conhecidos { id: 'auto' }
+          conhecidos { id: 'auto' }
+        }
+      }
     }
     tendencia { simples: TD_LEAL_MAU }
   }
@@ -5209,7 +5238,7 @@ modelo {
       armas { id: 'azagaia' id_tabela: 'azagaia' }
       armaduras { id: 'gibao_peles' id_tabela: 'gibao_peles' em_uso: true }
       escudos { id: 'leve_madeira' id_tabela: 'leve_madeira' em_uso: true }
-      valor_esperado_po: 150  # CR 1/2, DMG 51. No lar.
+      valor_esperado_po: 400  # total é 400 mas tem que tirar o que ja tem.
     }
     movimento {
       terrestre_basico_q: 6
@@ -5292,7 +5321,6 @@ modelo {
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
     }
-
   }
 }
 modelo {
