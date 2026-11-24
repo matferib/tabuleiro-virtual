@@ -5249,6 +5249,60 @@ modelo {
   }
 }
 modelo {
+  id: 'Hobgoblin Plebéia'
+  entidade {
+    dados_vida: '1d4+2' info_textura { id: 'hobgoblin_female.png' largura: 0.8 translacao_x: 0.1 } cor { r: 0.6 g: 0.45 b: 0.2 }
+    tamanho: TM_MEDIO
+    tipo_dnd: TIPO_HUMANOIDE
+    raca: 'hobgoblin'
+    sub_tipo_dnd: SUBTIPO_GOBLINOIDE
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    info_classes {
+      id: 'plebeu' nivel: 1
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+    }
+    info_talentos {
+      gerais { id: 'prontidao' }
+      # De plebeu.
+      outros { id: 'usar_armas_simples' complemento: 'adaga' }
+    }
+    info_pericias { id: 'esconderse' pontos: 4 }
+    info_pericias { id: 'furtividade' pontos: 2 }
+    info_pericias { id: 'observar' pontos: 2 }
+
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'cac' id_arma_tesouro: 'adaga' empunhadura: EA_ARMA_ESCUDO }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'distancia' id_arma_tesouro: 'adaga' empunhadura: EA_ARMA_ESCUDO }
+    dados_defesa {
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+    tesouro {
+      # Esse valor é so um chute. Segundo o DMG, smattering of coins.
+      moedas { po: 1 pp: 3 }
+      armas { id: 'adaga' id_tabela: 'adaga' } # 2
+      itens_mundanos { id: 'acido' }  # 10
+      itens_mundanos { id: 'ferramentas_artesao' }  # 5
+      # outras coisas: roupas, comida, bebida etc.
+
+      valor_esperado_po: 50  # divergindo de NPCs normais, aqui temos so o equipamento inicial ja que nãos e aventura.
+    }
+    movimento {
+      terrestre_basico_q: 6
+    }
+    tendencia { simples: TD_LEAL_MAU }
+  }
+}
+
+modelo {
   id: 'Hobgoblin Sargento'
   entidade {
     raca: 'hobgoblin'
