@@ -390,6 +390,7 @@ sub_menu {
     modelos { id: 'Hobgoblin' quantidade: '1d6+3' }
   }
   item_menu { id: 'Hobgoblin' }
+  item_menu { id: 'Hobgoblin Xamã' }
   item_menu { id: 'Hobgoblin Sargento' }
   item_menu { id: 'Hobgoblin Tenente 5' }
 }

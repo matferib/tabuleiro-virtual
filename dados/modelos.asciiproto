@@ -5116,11 +5116,61 @@ modelo {
   }
 }
 modelo {
+  id: 'Hobgoblin Xamã'
+  entidade {
+    raca: 'hobgoblin'
+    dados_vida: '1d6+2' info_textura { id: 'hobgoblin_adept.png' largura: 0.8 translacao_x: 0.1 } cor { r: 0.6 g: 0.45 b: 0.2 }
+    tamanho: TM_MEDIO
+    tipo_dnd: TIPO_HUMANOIDE
+    sub_tipo_dnd: SUBTIPO_GOBLINOIDE
+    tipo_visao: VISAO_ESCURO alcance_visao_m: 18
+    info_classes {
+      id: 'adepto' nivel: 1
+    }
+    info_talentos {
+      gerais { id: 'usar_armadura_leve' }
+    }
+    info_pericias { id: 'concentracao' pontos: 4 }
+    info_pericias { id: 'cura' pontos: 2 }
+    info_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { origem: 'racial' valor: 4 } } } }
+    info_pericias { id: 'sobrevivencia' pontos: 2 }
+
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'bordao' id_arma_tesouro: 'bordao' empunhadura: EA_2_MAOS }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'bordaoduplo' id_arma_tesouro: 'bordao' empunhadura: EA_MAO_BOA }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' grupo: 'bordaoduplo' id_arma_tesouro: 'bordao' empunhadura: EA_MAO_RUIM }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' grupo: 'azagaia' id_arma_tesouro: 'azagaia' empunhadura: EA_ARMA_APENAS }
+    dados_defesa {
+      id_armadura_tesouro: 'cota_malhas'
+    }
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
+    }
+    tesouro {
+      # Esse valor é so um chute. Segundo o DMG, smattering of coins.
+      moedas { po: 1 pp: 3 }
+      armas { id: 'bordao' id_tabela: 'bordao' }
+      armas { id: 'azagaia' id_tabela: 'azagaia' }
+      armaduras { id: 'cota_malhas' id_tabela: 'cota_malhas' em_uso: true }
+      valor_esperado_po: 150  # CR 1/2, DMG 51. No lar.
+    }
+    movimento {
+      terrestre_basico_q: 6
+    }
+    tendencia { simples: TD_LEAL_MAU }
+  }
+}
+modelo {
   id: 'Hobgoblin'
   entidade {
     dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' largura: 0.8 translacao_x: 0.1 } cor { r: 0.6 g: 0.45 b: 0.2 }
     tamanho: TM_MEDIO
     tipo_dnd: TIPO_HUMANOIDE
+    raca: 'hobgoblin'
     sub_tipo_dnd: SUBTIPO_GOBLINOIDE
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     info_classes {
@@ -5146,8 +5196,8 @@ modelo {
     }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
@@ -5170,6 +5220,7 @@ modelo {
 modelo {
   id: 'Hobgoblin Sargento'
   entidade {
+    raca: 'hobgoblin'
     tamanho: TM_MEDIO
     tipo_dnd: TIPO_HUMANOIDE
     sub_tipo_dnd: SUBTIPO_GOBLINOIDE
@@ -5183,8 +5234,8 @@ modelo {
     }
     atributos {
       forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
-      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 11 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
       inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
       sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 9 } } }
       carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
@@ -5220,10 +5271,28 @@ modelo {
   id: 'Hobgoblin Tenente 5'
   entidade {
     dados_vida: '5d10+15' info_textura { id: 'hobgoblin_tenente.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    raca: 'hobgoblin'
+    info_classes {
+      id: 'guerreiro' nivel: 5
+      pericias_monstro: 'esconderse'
+      pericias_monstro: 'ouvir'
+      pericias_monstro: 'furtividade'
+      pericias_monstro: 'observar'
+    }
     tipo_visao: VISAO_ESCURO alcance_visao_m: 18
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque_final: 10 dano: '1d10+6' margem_critico: 19 ca_normal: 20 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque_final: 8 dano: '1d8+1' ca_normal: 20 }
     modificador_iniciativa: 1
+    # Usa o array elite 15, 14, 13, 12, 10, 8.
+    atributos {
+      forca { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 15 } } }
+      destreza { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 13 } } }
+      constituicao { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 14 } } }
+      inteligencia { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 12 } } }
+      sabedoria { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 10 } } }
+      carisma { bonus_individual { tipo: TB_BASE por_origem { origem: 'base' valor: 8 } } }
+    }
+
   }
 }
 modelo {
