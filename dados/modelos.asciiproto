@@ -5176,7 +5176,9 @@ modelo {
         value {
           conhecidos { id: 'orientacao' }
           conhecidos { id: 'criar_agua' }
-          conhecidos { id: 'auto' }
+          conhecidos { id: 'consertar' }
+          conhecidos { id: 'purificar_alimentos' }
+          conhecidos { id: 'toque_fadiga' }
           conhecidos { id: 'auto' }
         }
       }
