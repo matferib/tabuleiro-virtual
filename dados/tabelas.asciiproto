@@ -15607,6 +15607,23 @@ tabela_racas {
     tipo_visao: VISAO_ESCURO
     alcance_visao_m: 18 # 12 q
   }
+  racas {
+    tipo: TIPO_HUMANOIDE
+    sub_tipo: SUBTIPO_GOBLINOIDE
+    id: 'hobgoblin'
+    nome: 'Hobgoblin'
+    descricao: 'Cabelos negros, avermelhados ou acizentados. Pele laranja escuro ou avermelhada. Machos tem nariz azul ou vermelho. Olhos amarelos ou castanhos e dentes amarelos.'
+    bonus_atributos {
+      destreza { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+      constituicao { bonus_individual { tipo: TB_RACIAL por_origem { valor: 2 origem: 'racial'} } }
+    }
+    tamanho: TM_MEDIO
+    movimento {
+      terrestre_basico_q: 6
+    }
+    tipo_visao: VISAO_ESCURO
+    alcance_visao_m: 18 # 12 q
+  }
 }
 
 tabela_dominios {
