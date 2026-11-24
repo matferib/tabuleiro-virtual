@@ -5292,7 +5292,6 @@ modelo {
       itens_mundanos { id: 'acido' }  # 10
       itens_mundanos { id: 'ferramentas_artesao' }  # 5
       # outras coisas: roupas, comida, bebida etc.
-
       valor_esperado_po: 50  # divergindo de NPCs normais, aqui temos so o equipamento inicial ja que nãos e aventura.
     }
     movimento {
