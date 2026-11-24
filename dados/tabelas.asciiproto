@@ -7486,6 +7486,10 @@ tabela_feiticos {
     nome: 'névoa obscurescente'
     alcance_quadrados: 20
     info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    info_classes {
       id: 'druida'
       nivel: 1
     }
@@ -8621,6 +8625,10 @@ tabela_feiticos {
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 1
     }
@@ -8680,6 +8688,10 @@ tabela_feiticos {
     nome_ingles: 'comprehend languages'
     nome: 'compreender idiomas'
     info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    info_classes {
       id: 'bardo'
       nivel: 1
     }
@@ -8708,6 +8720,10 @@ tabela_feiticos {
     nome: 'purificar alimentos'
     alcance_quadrados: 10
     info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
+    info_classes {
       id: 'duida'
       nivel: 0
     }
@@ -8722,6 +8738,10 @@ tabela_feiticos {
     id: 'consertar'
     nome_ingles: 'mending'
     nome: 'consertar'
+    info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
     info_classes {
       id: 'bardo'
       nivel: 0
@@ -8784,6 +8804,10 @@ tabela_feiticos {
     }
     info_classes {
       id: 'druida'
+      nivel: 0
+    }
+    info_classes {
+      id: 'adepto'
       nivel: 0
     }
     info_classes {
@@ -10499,6 +10523,10 @@ tabela_feiticos {
     nome: 'proteção contra o mal'
     nome_ingles: 'protection from evil'
     info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    info_classes {
       id: 'mago'
       nivel: 1
     }
@@ -10534,6 +10562,10 @@ tabela_feiticos {
     nome: 'proteção contra o bem'
     nome_ingles: 'protection from good'
     info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    info_classes {
       id: 'mago'
       nivel: 1
     }
@@ -10564,6 +10596,10 @@ tabela_feiticos {
     id: 'protecao_contra_ordem'
     nome: 'proteção contra a ordem'
     nome_ingles: 'protection from law'
+    info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
     info_classes {
       id: 'mago'
       nivel: 1
@@ -10596,6 +10632,10 @@ tabela_feiticos {
     id: 'protecao_contra_caos'
     nome: 'proteção contra o caos'
     nome_ingles: 'protection from chaos'
+    info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
     info_classes {
       id: 'mago'
       nivel: 1
@@ -11246,6 +11286,10 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
+    info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
     acao {
       id: 'Feitiço de Toque'
       cor { r: 0.0 g: 1.0 b: 0.0 a: 0.7 }
@@ -11303,6 +11347,10 @@ tabela_feiticos {
     nome: 'causar medo'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
     info_classes {
       id: 'clerigo'
       nivel: 1
@@ -11913,6 +11961,10 @@ tabela_feiticos {
       id: 'mago'
       nivel: 0
     }
+    info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
     acao {
       id: 'Feitiço Pessoal'
       cor { r: 0.0 g: 0.0 b: 0.0 a: 0.7 }
@@ -11931,6 +11983,10 @@ tabela_feiticos {
     nome_ingles: 'ghost sound'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
     info_classes {
       id: 'bardo'
       nivel: 0
@@ -12160,6 +12216,10 @@ tabela_feiticos {
     nome_ingles: 'endure elements'
     nome: 'suportar elementos'
     info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 1
     }
@@ -12300,6 +12360,10 @@ tabela_feiticos {
     nome_ingles: 'light'
     nome: 'luz'
     info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
+    info_classes {
       id: 'bardo'
       nivel: 0
     }
@@ -12414,6 +12478,10 @@ tabela_feiticos {
     nome_ingles: 'cure light wounds'
     nome: 'curar ferimentos leves'
     modelo_dano: CURA_1D8_MAIS_1_POR_NIVEL_MAX_5
+    info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
     info_classes {
       id: 'clerigo'
       nivel: 1
@@ -13523,6 +13591,10 @@ tabela_feiticos {
     alcance_quadrados: 3
     modelo_dano: DANO_1D4_POR_NIVEL_MAX_5D4
     info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    info_classes {
       id: 'mago'
       nivel: 1
     }
@@ -13680,6 +13752,10 @@ tabela_feiticos {
     id: 'bencao'
     nome: 'benção'
     nome_ingles: 'bless'
+    info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
     info_classes {
       id: 'clerigo'
       nivel: 1
@@ -14034,11 +14110,82 @@ tabela_feiticos {
     escola: 'evocacao'
   }
   armas {
+    id: 'detectar_bem'
+    nome_ingles: 'detect good'
+    nome: 'detectar o bem'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Detectar o mal, cone 12 quadrados'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'adivinhacao'
+  }
+  armas {
     id: 'detectar_mal'
     nome_ingles: 'detect evil'
     nome: 'detectar o mal'
     info_classes {
       id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Detectar o mal, cone 12 quadrados'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'adivinhacao'
+  }
+  armas {
+    id: 'detectar_caos'
+    nome_ingles: 'detect chaos'
+    nome: 'detectar o caos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'adepto'
+      nivel: 1
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'Detectar o mal, cone 12 quadrados'
+        modificador_rodadas: MR_10_MINUTOS_NIVEL
+      }
+    }
+    escola: 'adivinhacao'
+  }
+
+  armas {
+    id: 'detectar_ordem'
+    nome_ingles: 'detect law'
+    nome: 'detectar a ordem'
+    info_classes {
+      id: 'clerigo'
+      nivel: 1
+    }
+    info_classes {
+      id: 'adepto'
       nivel: 1
     }
     acao {
@@ -14102,6 +14249,10 @@ tabela_feiticos {
     }
     info_classes {
       id: 'mago'
+      nivel: 0
+    }
+    info_classes {
+      id: 'adepto'
       nivel: 0
     }
     acao {
@@ -14413,6 +14564,10 @@ tabela_feiticos {
     id: 'orientacao'
     nome_ingles: 'guidance'
     nome: 'orientação'
+    info_classes {
+      id: 'adepto'
+      nivel: 0
+    }
     info_classes {
       id: 'clerigo'
       nivel: 0
@@ -15018,6 +15173,10 @@ tabela_feiticos {
     modificador_alcance: MOD_2_QUAD_NIVEL
     info_classes {
       id: 'mago'
+      nivel: 1
+    }
+    info_classes {
+      id: 'adepto'
       nivel: 1
     }
     info_classes {
