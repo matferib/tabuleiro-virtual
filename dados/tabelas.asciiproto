@@ -15780,6 +15780,7 @@ tabela_racas {
     movimento {
       terrestre_basico_q: 6
     }
+    bonus_pericias { id: 'furtividade' bonus { bonus_individual { tipo: TB_RACIAL por_origem { valor: 4 origem: 'racial'} } } }
     tipo_visao: VISAO_ESCURO
     alcance_visao_m: 18 # 12 q
   }
