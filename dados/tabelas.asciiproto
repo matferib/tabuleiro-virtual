@@ -7523,6 +7523,10 @@ tabela_feiticos {
     nome_ingles: 'stoneskin'
     nome: 'pele rochosa'
     info_classes {
+      id: 'adepto'
+      nivel: 4
+    }
+    info_classes {
       id: 'mago'
       nivel: 4
     }
@@ -8167,6 +8171,10 @@ tabela_feiticos {
     nome_ingles: 'neutralize poison'
     nome: 'neutralizar venenos'
     info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 4
     }
@@ -8219,6 +8227,10 @@ tabela_feiticos {
       id: 'clerigo'
       nivel: 3
     }
+    info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
     escola: 'evocacao'
     acao {
       id: 'Feitiço de Toque'
@@ -8239,6 +8251,10 @@ tabela_feiticos {
     info_classes {
       id: 'mago'
       nivel: 4
+    }
+    info_classes {
+      id: 'adepto'
+      nivel: 3
     }
     info_classes {
       id: 'clerigo'
@@ -8489,6 +8505,10 @@ tabela_feiticos {
       nivel: 4
     }
     info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 3
     }
@@ -8523,7 +8543,6 @@ tabela_feiticos {
       tipo: ACAO_CRIACAO_ENTIDADE
       id_modelo_entidade: 'Silêncio'
     }
-    # TODO criacao de uma esfera de 4 quadrados.
     escola: 'ilusao'
   }
 
@@ -8545,6 +8564,10 @@ tabela_feiticos {
     nome: 'transe animal'
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
+    info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
     info_classes {
       id: 'druida'
       nivel: 2
@@ -8844,11 +8867,15 @@ tabela_feiticos {
     alcance_quadrados: 5
     modificador_alcance: MOD_1_QUAD_CADA_2_NIVEIS
     info_classes {
-      id: 'mago'
+      id: 'adepto'
       nivel: 5
     }
     info_classes {
       id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'druida'
       nivel: 5
     }
     acao {
@@ -9133,6 +9160,10 @@ tabela_feiticos {
     nome_ingles: 'break enchantment'
     nome: 'cancelar encantamento'
     info_classes {
+      id: 'adepto'
+      nivel: 5
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 5
     }
@@ -9167,7 +9198,29 @@ tabela_feiticos {
     }
     escola: 'abjuracao'
   }
-
+  armas {
+    id: 'contato_extra_planar'
+    nome_ingles: 'commune'
+    nome: 'contato extra-planar'
+    tempo_execucao_rodadas: 600
+    info_classes {
+      id: 'adepto'
+      nivel: 5
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    acao {
+      id: 'Feitiço Pessoal'
+      efeitos_adicionais {
+        efeito: EFEITO_OUTRO
+        descricao: 'contato extra-planar'
+        modificador_rodadas: MR_RODADAS_NIVEL
+      }
+    }
+    escola: 'adivinhacao'
+  }
 
   armas {
     id: 'inseto_gigante'
@@ -9238,6 +9291,39 @@ tabela_feiticos {
   }
 
   armas {
+    id: 'muralha_pedra'
+    nome_ingles: 'wall of stone'
+    nome: 'muralha de pedra'
+    alcance_quadrados: 20
+    modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'adepto'
+      nivel: 5
+    }
+    info_classes {
+      id: 'terra'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    info_classes {
+      id: 'druida'
+      nivel: 6
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Muralha de Pedra'
+    }
+    escola: 'conjuracao'
+  }
+
+  armas {
     id: 'muralha_gelo'
     nome_ingles: 'wall of ice'
     nome: 'muralha de gelo'
@@ -9256,6 +9342,10 @@ tabela_feiticos {
     id: 'muralha_fogo'
     nome_ingles: 'wall of fire'
     nome: 'muralha de fogo'
+    info_classes {
+      id: 'adepto'
+      nivel: 4
+    }
     info_classes {
       id: 'mago'
       nivel: 4
@@ -9477,6 +9567,10 @@ tabela_feiticos {
     nome_ingles: 'remove disease'
     nome: 'remover doenças'
     info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
+    info_classes {
       id: 'renovacao'
       nivel: 3
     }
@@ -9499,6 +9593,10 @@ tabela_feiticos {
     id: 'remover_maldicao'
     nome_ingles: 'remove curse'
     nome: 'remover maldicao'
+    info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -10092,6 +10190,10 @@ tabela_feiticos {
     nome: 'escuridão'
     alcance_quadrados: 1
     info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 2
     }
@@ -10109,12 +10211,34 @@ tabela_feiticos {
     }
     escola: 'evocacao'
   }
-
+  armas {
+    id: 'escuridao_profunda'
+    nome_ingles: 'deeper darkness'
+    nome: 'escuridão profunda'
+    alcance_quadrados: 1
+    info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
+    info_classes {
+      id: 'clerigo'
+      nivel: 3
+    }
+    acao {
+      id: 'Criação de Entidade'
+      id_modelo_entidade: 'Escuridão Profunda'
+    }
+    escola: 'evocacao'
+  }
   armas {
     id: 'luz_dia'
     nome_ingles: 'daylight'
     nome: 'luz do dia'
     alcance_quadrados: 1
+    info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -10216,6 +10340,10 @@ tabela_feiticos {
       nivel: 2
     }
     info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 4
     }
@@ -10314,6 +10442,10 @@ tabela_feiticos {
     nome_ingles: 'restoration'
     nome: 'restauracao'
     info_classes {
+      id: 'adepto'
+      nivel: 4
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 4
     }
@@ -10355,6 +10487,10 @@ tabela_feiticos {
     id: 'retardar_envenenamento'
     nome_ingles: 'delay poison'
     nome: 'retardar envenenamento'
+    info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
     info_classes {
       id: 'bardo'
       nivel: 2
@@ -11307,6 +11443,10 @@ tabela_feiticos {
     nome_ingles: ' animate dead'
     nome: 'criar mortos vivos menor'
     info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 3
     }
@@ -11395,6 +11535,10 @@ tabela_feiticos {
     id: 'resistencia_elementos'
     nome_ingles: ' resist energy'
     nome: 'resistência a elementos'
+    info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
     info_classes {
       id: 'clerigo'
       nivel: 2
@@ -11546,6 +11690,10 @@ tabela_feiticos {
     nome: 'teia'
     alcance_quadrados: 20
     modificador_alcance: MOD_2_QUAD_NIVEL
+    info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
     info_classes {
       id: 'mago'
       nivel: 2
@@ -12399,6 +12547,10 @@ tabela_feiticos {
     nome: 'cura completa'
     modelo_dano: CURA_10_POR_NIVEL_MAX_150
     info_classes {
+      id: 'adepto'
+      nivel: 5
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 6
     }
@@ -12570,6 +12722,10 @@ tabela_feiticos {
     nome: 'curar ferimentos moderados'
     modelo_dano: CURA_2D8_MAIS_1_POR_NIVEL_MAX_10
     info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
+    info_classes {
       id: 'clerigo'
       nivel: 2
     }
@@ -12629,6 +12785,10 @@ tabela_feiticos {
     nome_ingles: 'cure serious wounds'
     nome: 'curar ferimentos graves'
     modelo_dano: CURA_3D8_MAIS_1_POR_NIVEL_MAX_15
+    info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
     info_classes {
       id: 'bardo'
       nivel: 3
@@ -12691,6 +12851,10 @@ tabela_feiticos {
     nome: 'curar ferimentos críticos'
     modelo_dano: CURA_4D8_MAIS_1_POR_NIVEL_MAX_20
     info_classes {
+      id: 'adepto'
+      nivel: 4
+    }
+    info_classes {
       id: 'bardo'
       nivel: 4
     }
@@ -12744,11 +12908,77 @@ tabela_feiticos {
     escola: 'necromancia'
   }
 
+  armas {
+    id: 'criar_itens_efemeros'
+    nome_ingles: 'minor creation'
+    nome: 'criar itens efêmeros'
+    tempo_execucao_rodadas: 10
+    info_classes {
+      id: 'adepto'
+      nivel: 4
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 4
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      id_modelo_entidade: 'Item Efêmero'
+    }
+    escola: 'conjuracao'
+  }
+  armas {
+    id: 'criar_itens_temporarios'
+    nome_ingles: 'major creation'
+    nome: 'criar itens temporários'
+    tempo_execucao_rodadas: 100
+    info_classes {
+      id: 'adepto'
+      nivel: 5
+    }
+    info_classes {
+      id: 'mago'
+      nivel: 5
+    }
+    acao {
+      id: 'Criação de Entidade'
+      tipo: ACAO_CRIACAO_ENTIDADE
+      parametros_lancamento {
+        consequencia: CP_ATRIBUI_MODELO_ENTIDADE
+        parametros {
+          texto: 'Vegetal'
+          id_modelo_entidade: 'Item Temporário Vegetal'
+        }
+        parametros {
+          texto: 'Pedra, Cristal ou Metal Básico'
+          id_modelo_entidade: 'Item Temporário Pedra/Cristal/Metal Básico'
+        }
+        parametros {
+          texto: 'Metal Precioso'
+          id_modelo_entidade: 'Item Temporário Metal Precioso'
+        }
+        parametros {
+          texto: 'Pedra Preciosa'
+          id_modelo_entidade: 'Item Temporário Pedra Preciosa'
+        }
+        parametros {
+          texto: 'Metal Raro'
+          id_modelo_entidade: 'Item Temporário Metal Raro'
+        }
+      }
+    }
+    escola: 'conjuracao'
+  }
 
   armas {
     id: 'forca_touro'
     nome_ingles: 'bull\'s strength'
     nome: 'força do touro'
+    info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
     info_classes {
       id: 'clerigo'
       nivel: 2
@@ -12818,6 +13048,10 @@ tabela_feiticos {
     id: 'agilidade_gato'
     nome_ingles: 'cat\'s grace'
     nome: 'agilidade do gato'
+    info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
     info_classes {
       id: 'bardo'
       nivel: 2
@@ -12962,6 +13196,10 @@ tabela_feiticos {
     nome_ingles: 'bear\'s endurance'
     nome: 'vigor do urso'
     info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
+    info_classes {
       id: 'druida'
       nivel: 2
     }
@@ -13015,6 +13253,10 @@ tabela_feiticos {
     nome: 'ajuda'
     nome_ingles: 'aid'
     categoria: CAT_CAC
+    info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
     info_classes {
       id: 'clerigo'
       nivel: 2
@@ -13339,6 +13581,10 @@ tabela_feiticos {
     nome_ingles: 'see invisibility'
     nome: 'ver o invisível'
     info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
+    info_classes {
       id: 'mago'
       nivel: 2
     }
@@ -13387,6 +13633,10 @@ tabela_feiticos {
     id: 'invisibilidade'
     nome: 'invisibilidade'
     nome_ingles: 'invisibility'
+    info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
     info_classes {
       id: 'mago'
       nivel: 2
@@ -13626,6 +13876,10 @@ tabela_feiticos {
     id: 'metamorfose'
     nome: 'metamorfose'
     nome_ingles: 'polymorph'
+    info_classes {
+      id: 'adepto'
+      nivel: 4
+    }
     info_classes {
       id: 'mago'
       nivel: 4
@@ -14634,6 +14888,10 @@ tabela_feiticos {
     dano { invariavel: '4d6' }
     modelo_limite_vezes: MG_UM_MAIS_UM_CADA_4_APOS_TERCEIRO_MAXIMO_3
     info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
+    info_classes {
       id: 'mago'
       nivel: 2
     }
@@ -14658,6 +14916,10 @@ tabela_feiticos {
     nome_ingles: 'lightning bolt'
     alcance_quadrados: 24
     modelo_dano: DANO_1D6_POR_NIVEL_MAX_10D6
+    info_classes {
+      id: 'adepto'
+      nivel: 3
+    }
     info_classes {
       id: 'mago'
       nivel: 3
@@ -14833,6 +15095,10 @@ tabela_feiticos {
     nome_ingles: 'mirror image'
     nome: 'reflexos'
     info_classes {
+      id: 'adepto'
+      nivel: 2
+    }
+    info_classes {
       id: 'mago'
       nivel: 2
     }
@@ -14961,9 +15227,34 @@ tabela_feiticos {
     escola: 'abjuracao'
   }
   armas {
+    id: 'reviver_mortos'
+    nome_ingles: 'raise dead'
+    nome: 'reviver os mortos'
+    info_classes {
+      id: 'clerigo'
+      nivel: 5
+    }
+    info_classes {
+      id: 'adepto'
+      nivel: 5
+    }
+    acao {
+      id: 'Feitiço de Toque'
+      permite_ataque_vs_defesa: false
+      permite_salvacao: false
+      ignora_resistencia_magia: true
+    }
+    escola: 'conjuracao'
+  }
+
+  armas {
     id: 'visao_verdade'
     nome_ingles: 'true seeing'
     nome: 'visão da verdade'
+    info_classes {
+      id: 'adepto'
+      nivel: 5
+    }
     info_classes {
       id: 'clerigo'
       nivel: 5
