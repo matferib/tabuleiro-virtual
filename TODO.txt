@@ -1,3 +1,7 @@
+Itens que queimam mais de uma rodada, esperar a hora certa para queimar.
+
+Enviar camera não muda o modo de camera (perspectiva, isometrica) para poder manter um tabuleiro deitado.
+
 Exportar estilos de luta.
 Exportar json outros tipos de tesouro.
 Entender pq talento de mago ilusionista não está aparecendo na planilha exportada.
@@ -59,8 +63,6 @@ Veneno:
 - Outros tipos de veneno que nao afetam atributos.
 - Duracao do efeito do veneno esta errada: nao eh um dia. Tem que modelar direito.
 
-Pedra do trovao: deu 1 de dano em alguma situação.
-Itens mundanos ta com pau. Personagem do FC (Launce) não consegue usar fogo alquimico.
 
 Mestre poder ler log dos jogadores.
 Botoes de bonus de pericia.
