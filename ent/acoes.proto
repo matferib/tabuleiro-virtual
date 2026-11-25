@@ -65,11 +65,13 @@ message Velocidade {
   float maxima_m_s = 5 [default=50.0];
 }
 
+// Next id: 20.
 enum ModificadorRodadas {
   MR_NENHUM = 0;
   MR_RODADAS_NIVEL = 1;
   MR_MINUTOS_NIVEL = 2;
   MR_10_MINUTOS_NIVEL = 3;
+  MR_20_MINUTOS_NIVEL = 19;
   MR_HORAS_NIVEL = 4;
   MR_2_HORAS_NIVEL = 5;
   MR_1_RODADA_A_CADA_3_NIVEIS_MAX_6 = 7;
