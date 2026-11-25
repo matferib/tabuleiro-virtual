@@ -3307,6 +3307,9 @@ std::string Entidade::ExportaJson() const {
         } else if (fc.especializacao() == "necromancia") {
           id_classe = "mago_necromante";
           absl::StrAppend(&json_classes, absl::Substitute("{classe: 'mago_necromante', nivel: $0},", ic.nivel()));
+        } else if (fc.especializacao() == "encantamento") {
+          id_classe = "mago_encantador";
+          absl::StrAppend(&json_classes, absl::Substitute("{classe: 'mago_encantador', nivel: $0},", ic.nivel()));
         } else {
           absl::StrAppend(&json_classes, absl::Substitute("{classe: '$0', nivel: $1},", ic.id(), ic.nivel()));
         }
