@@ -2738,6 +2738,21 @@ modelo {
     tipo_duracao: TD_MINUTOS_NIVEL
   }
 }
+modelo {
+  id: 'Muralha de Pedra'
+  entidade {
+    modelo_3d { id: 'builtin:cubo' translacao { z: 0.75 } }
+    info_textura { id: 'stone.png' }
+    cor { r: 1 g: 1 b: 1 a: 1 }
+    # pelo menos 9 quadrados. Ela é fina 1 inch cada 4 niveis de caster.
+    escala { x: 0.2 y: 13.5  z: 1.5 }
+    ignora_luz: true
+  }
+  parametros {
+    tipo_duracao: TD_MINUTOS_NIVEL
+  }
+}
+
 
 modelo {
   id: 'Terra Mole'
@@ -2961,6 +2976,24 @@ modelo {
   }
 }
 modelo {
+  id: 'Escuridão Profunda'
+  entidade {
+    modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
+    aura_m: 18  # 12 quadrado de raio
+    cor { r: 0 g: 0 b: 0 a: 1 }
+    ignora_luz: true
+    evento {
+      rodadas: 300
+      descricao: 'duração'
+    }
+  }
+  parametros {
+    tipo_duracao: TD_DIAS_NIVEL
+    tipo_modificador_salvacao: TMS_MODIFICADOR_CONJURACAO
+  }
+}
+
+modelo {
   id: 'Zona da Verdade'
   entidade {
     modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
@@ -2981,6 +3014,80 @@ modelo {
     cor { r: 1 g: 1 b: 1 a: 0.8 }
   }
 }
+modelo {
+  id: 'Item Efêmero'
+  entidade {
+    # tamanho minimo é de 9 nivel de conjurador, que daria 9 pes cubico.
+    # algo como um cubo: 5ft x 4ft e 1ft.
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 0.42 z: 0.3 } }
+    cor { r: 1 g: 1 b: 1 a: 1 }
+  }
+  parametros {
+    tipo_duracao: TD_HORAS_NIVEL
+  }
+}
+modelo {
+  id: 'Item Temporário Vegetal'
+  entidade {
+    # tamanho minimo é de 7 nivel de conjurador, que daria 7 pes cubico.
+    # algo como um cubo: 5ft x 1.4ft e 1ft.
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 0.42 z: 0.3 } }
+    cor { r: 0 g: 1 b: 0 a: 1 }
+  }
+  parametros {
+    tipo_duracao: TD_2_HORAS_NIVEL
+  }
+}
+modelo {
+  id: 'Item Temporário Pedra/Cristal/Metal Básico'
+  entidade {
+    # tamanho minimo é de 7 nivel de conjurador, que daria 7 pes cubico.
+    # algo como um cubo: 5ft x 1.4ft e 1ft.
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 0.42 z: 0.3 } }
+    cor { r: 0 g: 1 b: 0 a: 1 }
+  }
+  parametros {
+    tipo_duracao: TD_HORAS_NIVEL
+  }
+}
+modelo {
+  id: 'Item Temporário Metal Precioso'
+  entidade {
+    # tamanho minimo é de 7 nivel de conjurador, que daria 7 pes cubico.
+    # algo como um cubo: 5ft x 1.4ft e 1ft.
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 0.42 z: 0.3 } }
+    cor { r: 0 g: 1 b: 0 a: 1 }
+  }
+  parametros {
+    tipo_duracao: TD_20_MINUTOS_NIVEL
+  }
+}
+modelo {
+  id: 'Item Temporário Pedra Preciosa'
+  entidade {
+    # tamanho minimo é de 7 nivel de conjurador, que daria 7 pes cubico.
+    # algo como um cubo: 5ft x 1.4ft e 1ft.
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 0.42 z: 0.3 } }
+    cor { r: 0 g: 1 b: 0 a: 1 }
+  }
+  parametros {
+    tipo_duracao: TD_10_MINUTOS_NIVEL
+  }
+}
+
+modelo {
+  id: 'Item Temporário Metal Raro'
+  entidade {
+    # tamanho minimo é de 7 nivel de conjurador, que daria 7 pes cubico.
+    # algo como um cubo: 5ft x 1.4ft e 1ft.
+    modelo_3d { id: 'builtin:cubo' escala { x: 1.5 y: 0.42 z: 0.3 } }
+    cor { r: 0 g: 1 b: 0 a: 1 }
+  }
+  parametros {
+    tipo_duracao: TD_MINUTOS_NIVEL
+  }
+}
+
 modelo {
   id: 'Teia'
   entidade {
