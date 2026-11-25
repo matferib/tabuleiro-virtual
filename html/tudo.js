@@ -5574,6 +5574,15 @@ var tabelas_classes = {
       1: ['familiar'],
     },
   },
+  mago_encantador: {
+    nome: 'Mago Encantador', dados_vida: 4, pontos_pericia: 2, bba: bba_fraco,
+    nivel_conjurador: { modificador: 1.0, },
+    talentos: ['usar_armas_simples' ],
+    proficiencia_armas: [ 'clava', 'adaga', 'besta_pesada', 'besta_leve', 'bordao' ],
+    especiais: {
+      1: ['familiar'],
+    },
+  },
   monge: {
     nome: 'Monge', dados_vida: 8, pontos_pericia: 4, bba: bba_medio,
     proficiencia_armas: [ 'clava', 'besta_leve', 'besta_pesada', 'adaga', 'machadinha', 'azagaia',
@@ -5888,6 +5897,8 @@ var tabelas_salvacao = {
   mago_necromante: {
     fortitude: salvacao_fraca, reflexo: salvacao_fraca, vontade: salvacao_forte },
   mago_ilusionista: {
+    fortitude: salvacao_fraca, reflexo: salvacao_fraca, vontade: salvacao_forte },
+  mago_encantador: {
     fortitude: salvacao_fraca, reflexo: salvacao_fraca, vontade: salvacao_forte },
   monge: {
     fortitude: salvacao_forte, reflexo: salvacao_forte, vontade: salvacao_forte },
@@ -6751,7 +6762,7 @@ Tiro Preciso Aprimorado¹ Des 19, Tiro Certeiro, Tiro Preciso, bônus base de at
   dominar_magia: {
     nome: "Dominar Magia",
     descricao: "Capaz de preparar magias escolhidas (bônus inteligência) sem um grimório.",
-    requisito: { nivel: { mago: 1, mago_necromante: 1, mago_ilusionista: 1 } },
+    requisito: { nivel: { mago: 1, mago_necromante: 1, mago_ilusionista: 1, mago_encantador: 1 } },
     mago: 1,
   },
   // Habilidade Forma Selvagem Capaz de lançar magias na forma selvagem
@@ -10471,6 +10482,7 @@ var tabelas_lista_feiticos = {
 };
 tabelas_lista_feiticos['mago_necromante'] = tabelas_lista_feiticos['mago'];
 tabelas_lista_feiticos['mago_ilusionista'] = tabelas_lista_feiticos['mago'];
+tabelas_lista_feiticos['mago_encantador'] = tabelas_lista_feiticos['mago'];
 // Todos os feiticos ordenados por chave.
 var tabelas_lista_feiticos_completa = {};
 // Tabela de nome para chave_feitico.
@@ -10662,6 +10674,33 @@ var tabelas_feiticos = {
   mago_ilusionista: {
       atributo_chave: 'inteligencia',
       escola_especializada: 'ilusao',
+      num_escolas_proibidas: 2,
+      precisa_conhecer: false,
+      possui_nivel_zero: true,
+      por_nivel: {
+          1:  { por_dia: '31', },
+          2:  { por_dia: '42', },
+          3:  { por_dia: '421', },
+          4:  { por_dia: '432', },
+          5:  { por_dia: '4321', },
+          6:  { por_dia: '4332', },
+          7:  { por_dia: '44321', },
+          8:  { por_dia: '44332', },
+          9:  { por_dia: '444321', },
+          10: { por_dia: '444332', },
+          11: { por_dia: '4444321', },
+          12: { por_dia: '4444332', },
+          13: { por_dia: '44444321', },
+          14: { por_dia: '44444332', },
+          15: { por_dia: '444444321', },
+          16: { por_dia: '444444332', },
+          17: { por_dia: '4444444321', },
+          18: { por_dia: '4444444332', },
+          19: { por_dia: '4444444433', },
+          20: { por_dia: '4444444444', }, }, },
+  mago_encantador: {
+      atributo_chave: 'inteligencia',
+      escola_especializada: 'encantamento',
       num_escolas_proibidas: 2,
       precisa_conhecer: false,
       possui_nivel_zero: true,
@@ -11021,6 +11060,7 @@ function _DependenciasTalentos() {
   // Mago.
   gPersonagem.talentos['mago'].length =
       Math.floor(PersonagemNivelClasse('mago') / 5) +
+      Math.floor(PersonagemNivelClasse('mago_encantador') / 5) +
       Math.floor(PersonagemNivelClasse('mago_necromante') / 5) +
       Math.floor(PersonagemNivelClasse('mago_ilusionista') / 5);
   // Monge.
