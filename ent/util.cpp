@@ -4126,6 +4126,9 @@ int Rodadas(
       case MR_10_MINUTOS_NIVEL:
         modificador = 10 * MINUTOS_PARA_RODADAS * nivel_conjurador;
         break;
+      case MR_20_MINUTOS_NIVEL:
+        modificador = 20 * MINUTOS_PARA_RODADAS * nivel_conjurador;
+        break;
       case MR_HORAS_NIVEL:
         modificador = HORAS_PARA_RODADAS * nivel_conjurador;
         break;
@@ -5872,11 +5875,17 @@ void PreencheModeloComParametros(const ArmaProto& feitico, const Modelo::Paramet
       case TD_10_MINUTOS_NIVEL:
         duracao_rodadas = 10 * nivel_conjurador * MINUTOS_PARA_RODADAS;
         break;
+      case TD_20_MINUTOS_NIVEL:
+        duracao_rodadas = 20 * nivel_conjurador * MINUTOS_PARA_RODADAS;
+        break;
       case TD_HORAS_NIVEL:
         duracao_rodadas = nivel_conjurador * HORAS_PARA_RODADAS;
         break;
       case TD_2_HORAS_NIVEL:
         duracao_rodadas = 2 * nivel_conjurador * HORAS_PARA_RODADAS;
+        break;
+      case TD_DIAS_NIVEL:
+        duracao_rodadas = nivel_conjurador * 24 * HORAS_PARA_RODADAS;
         break;
       default:
         break;
