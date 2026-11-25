@@ -1129,8 +1129,8 @@ function _AtualizaTalento(indice_talento, talento_personagem, div_talento, chave
       filho.disabled = talento_personagem.imutavel;
       SelecionaValor(talento_personagem.chave, filho);
     } else if (filho.name == 'complemento-talento') {
-      filho.disabled = talento == null || !('complemento' in talento);
-      filho.value = talento_personagem.complemento;
+      filho.disabled = talento != null && !('complemento' in talento);
+      filho.value = talento == null ? talento_personagem.chave : talento_personagem.complemento;
     }
   }
   if (talento != null && talento.descricao != null && talento.descricao.length > 0) {
